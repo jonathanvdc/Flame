@@ -11,7 +11,7 @@ namespace Flame.Optimization
     public class PrintableGraph<T>
     {
         public this(
-            set string Title, set Graph<T> Graph, set string(T) GetName)
+            set string Title, set Graph<T> graph, set string(T) getName)
         {
             this.nodeMetadata = new List<IReadOnlyDictionary<T, string>>();
         }
@@ -22,14 +22,14 @@ namespace Flame.Optimization
         public string Title { get; private set; }
 
         /// <summary>
-        /// Gets the graph to print.
+        /// The graph to print.
         /// </summary>
-        public Graph<T> Graph { get; private set; }
+        private Graph<T> graph;
 
         /// <summary>
         /// Gets the given node's name.
         /// </summary>
-        public string(T) GetName { get; private set; }
+        private string(T) getName;
 
         private List<IReadOnlyDictionary<T, string>> nodeMetadata;
 
@@ -71,7 +71,7 @@ namespace Flame.Optimization
 
             var label = new StringBuilder();
             label.Append("\"");
-            label.Append(GetName(Vertex));
+            label.Append(getName(Vertex));
             foreach (var dict in nodeMetadata)
             {
                 if (dict.TryGetValue(Vertex, &string labelMeta))
@@ -106,22 +106,22 @@ namespace Flame.Optimization
         public void Print(TextWriter Writer, string IndentationString)
         {
             var gvWriter = new GraphvizWriter(Writer, 0, IndentationString);
-            gvWriter.StartBlock("digraph", "Graph");
+            gvWriter.StartBlock("digraph", "graph");
             gvWriter.WriteIndentation();
             gvWriter.WriteAttribute("label", "\"" + Title + "\"");
             gvWriter.EndEntity();
 
             var visited = new Dictionary<T, string>();
             // First, print all vertices in the graph.
-            foreach (var v in Graph.Vertices)
+            foreach (var v in graph.Vertices)
             {
                 PrintVertex(v, gvWriter, visited);
             }
 
             // Then print all edges.
-            foreach (var v in Graph.Vertices)
+            foreach (var v in graph.Vertices)
             {
-                foreach (var e in Graph[v])
+                foreach (var e in graph[v])
                 {
                     PrintEdge(v, e, gvWriter, visited);
                 }
