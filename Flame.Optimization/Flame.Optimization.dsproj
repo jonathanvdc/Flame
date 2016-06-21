@@ -47,6 +47,7 @@
     <Compile Include="NewValueTypeLoweringPass.ds" />
     <Compile Include="NodeOptimizationPass.ds" />
     <Compile Include="PredicateMemberNodeVisitor.ds" />
+    <Compile Include="PrintableGraph.ds" />
     <Compile Include="PrintDotPassBase.ds" />
     <Compile Include="RemoveTrivialPhiPass.ds" />
     <Compile Include="ReturnMotionPass.ds" />
