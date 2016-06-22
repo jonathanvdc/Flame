@@ -106,7 +106,7 @@ namespace Flame.Optimization
         public void Print(TextWriter Writer, string IndentationString)
         {
             var gvWriter = new GraphvizWriter(Writer, 0, IndentationString);
-            gvWriter.StartBlock("digraph", "graph");
+            gvWriter.StartBlock("digraph", "printed_graph");
             gvWriter.WriteIndentation();
             gvWriter.WriteAttribute("label", "\"" + Title + "\"");
             gvWriter.EndEntity();
