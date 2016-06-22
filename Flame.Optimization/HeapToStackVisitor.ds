@@ -59,6 +59,20 @@ namespace Flame.Optimization
             return tag;
         }
 
+        protected bool IsRootConstructorCall(DissectedCall Call)
+        {
+            if (!Enumerable.Any<IExpression>(Call.Arguments)
+                && Call.ThisValue != null
+                && Call.Method.IsConstructor
+                && !Call.Method.IsStatic)
+            {
+                var declType = Call.Method.DeclaringType;
+                if (declType != null && declType.IsRootType)
+                    return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// An action that is invoked just before a node is visited.
         /// </summary>
@@ -562,13 +576,23 @@ namespace Flame.Optimization
         {
             var thisVal = AnalyzeExpression(Call.ThisValue);
             var args = AnalyzeArguments(Call.Arguments);
+            var newCall = new InvocationExpression(
+                Call.Method, thisVal.Item1, args.Item1);
+
+            // We will handle one special case here: calls to the parameterless
+            // root constructor. These must be handled as an intrinsic, because
+            // they constrain the constructed value to the root type, which
+            // is not a valid candidate for heap-to-stack promotion.
+            if (IsRootConstructorCall(Call))
+            {
+                PopExpressionTag();
+                return newCall;
+            }
+
             var callResults = EmbedCall(
                 Analyze(Call.Method), thisVal.Item2, args.Item2);
             ReplaceExpressionTag(callResults.ReturnValue);
-            return new EscapeAnalysisCallExpression(
-                new InvocationExpression(
-                    callResults.Method, thisVal.Item1, args.Item1),
-                callResults);
+            return new EscapeAnalysisCallExpression(newCall, callResults);
         }
 
         protected override IExpression VisitAnalyzedCall(
@@ -1008,25 +1032,18 @@ namespace Flame.Optimization
         {
             // We will handle one special case here: calls to the parameterless
             // root constructor.
-            if (!Enumerable.Any<IExpression>(Call.Arguments)
-                && Call.ThisValue != null
-                && Call.Method.IsConstructor
-                && !Call.Method.IsStatic)
+            if (IsRootConstructorCall(Call))
             {
-                var declType = Call.Method.DeclaringType;
-                if (declType != null && declType.IsRootType)
-                {
-                    // We found a call to the parameterless root type
-                    // constructor, which is a no-op if the 'this' value
-                    // is stack-allocated, and must be preserved otherwise.
-                    var thisVal = Visit(Call.ThisValue);
-                    if (hasReplaced)
-                        return VoidExpression;
-                    else
-                        return new InvocationExpression(
-                            Call.Method, thisVal,
-                            Enumerable.Empty<IExpression>());
-                }
+                // We found a call to the parameterless root type
+                // constructor, which is a no-op if the 'this' value
+                // is stack-allocated, and must be preserved otherwise.
+                var thisVal = Visit(Call.ThisValue);
+                if (hasReplaced)
+                    return VoidExpression;
+                else
+                    return new InvocationExpression(
+                        Call.Method, thisVal,
+                        Enumerable.Empty<IExpression>());
             }
 
             // We can't handle generalized standalone (non-analyzed) call expressions.
