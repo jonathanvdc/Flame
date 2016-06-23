@@ -112,7 +112,7 @@ namespace Flame.Compiler.Visitors
 
         /// <summary>
         /// Gets the list of finalizing passes for this loop pass: passes
-        /// that are executed after every loop iteration.
+        /// that are executed after every successful loop iteration.
         /// </summary>
         public IReadOnlyList<IPass<BodyPassArgument, IStatement>> FinalizingPasses { get; private set; }
 
@@ -120,10 +120,9 @@ namespace Flame.Compiler.Visitors
         {
             var stmt = Argument.Body;
 
-            bool repeatLoop = true;
-            for (int i = 0; i < MaxIterations && repeatLoop; i++)
+            for (int i = 0; i < MaxIterations; i++)
             {
-                repeatLoop = false;
+                bool repeatLoop = false;
                 foreach (var pass in LoopPasses)
                 {
                     var passResult = pass.Apply(new LoopPassArgument(
@@ -132,6 +131,10 @@ namespace Flame.Compiler.Visitors
                     if (passResult.RepeatLoop)
                         repeatLoop = true;
                 }
+                
+                if (!repeatLoop)
+                    break;
+
                 foreach (var pass in FinalizingPasses)
                 {
                     stmt = pass.Apply(new BodyPassArgument(Argument, stmt));
