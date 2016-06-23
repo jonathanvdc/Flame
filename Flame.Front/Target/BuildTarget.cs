@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Flame.Recompilation;
 using Flame.Compiler.Build;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {

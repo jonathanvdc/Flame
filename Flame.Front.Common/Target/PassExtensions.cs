@@ -1,5 +1,6 @@
 ﻿using Flame.Compiler;
 using Flame.Compiler.Visitors;
+using Flame.Front.Passes;
 using Flame.Optimization;
 using Flame.Optimization.Relooper;
 using Flame.Recompilation;
@@ -11,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace Flame.Front.Target
 {
-    using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
-    using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
-    using StatementPassInfo = PassInfo<IStatement, IStatement>;
-    using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
+    using MethodPassInfo = AtomicPassInfo<BodyPassArgument, IStatement>;
+    using SignaturePassInfo = AtomicPassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
+    using StatementPassInfo = AtomicPassInfo<IStatement, IStatement>;
+    using RootPassInfo = AtomicPassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using Flame.Front.Passes;
@@ -183,7 +184,7 @@ namespace Flame.Front.Target
         /// <param name="Log"></param>
         /// <param name="Preferences"></param>
         /// <returns></returns>
-        public static IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
+        public static IReadOnlyDictionary<string, IEnumerable<NameTree>> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
         {
 			return WithPreferences(Preferences).GetSelectedPassNames(Log);
         }

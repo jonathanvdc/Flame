@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {
@@ -22,9 +23,11 @@ namespace Flame.Front.Target
             return AnalysisPass.Apply(Tuple.Create(Value.Body, Value.DeclaringMethod, Value.PassEnvironment.Log));
         }
 
-        public static PassInfo<BodyPassArgument, IStatement> ToBodyPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> AnalysisPass)
+        public static PassInfo<BodyPassArgument, IStatement> ToBodyPass(
+            PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> AnalysisPass)
         {
-            return new PassInfo<BodyPassArgument, IStatement>(new BodyAnalysisPass(AnalysisPass.Pass), AnalysisPass.Name);
+            return new TransformedPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement, BodyPassArgument, IStatement>(
+                AnalysisPass, pass => new BodyAnalysisPass(pass));
         }
     }
 }

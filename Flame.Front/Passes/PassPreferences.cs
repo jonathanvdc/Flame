@@ -7,59 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Flame.Recompilation;
 using Flame.Front.Passes;
+using Flame.Front.Target;
 
-namespace Flame.Front.Target
+namespace Flame.Front.Passes
 {
     using AnalysisPassInfo = PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>;
     using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
     using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using StatementPassInfo = PassInfo<IStatement, IStatement>;
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
-
-    /// <summary>
-    /// A data structure that stores information related to some pass.
-    /// Passes with equal names are assumed to be equal.
-    /// </summary>
-    /// <typeparam name="TIn"></typeparam>
-    /// <typeparam name="TOut"></typeparam>
-    public struct PassInfo<TIn, TOut> : IEquatable<PassInfo<TIn, TOut>>
-    {
-        public PassInfo(IPass<TIn, TOut> Pass, string Name)
-        {
-            this = default(PassInfo<TIn, TOut>);
-            this.Pass = Pass;
-            this.Name = Name;
-        }
-
-        /// <summary>
-        /// Gets the pass this pass info structure describes.
-        /// </summary>
-        public IPass<TIn, TOut> Pass { get; private set; }
-
-        /// <summary>
-        /// Gets the pass' name.
-        /// </summary>
-        public string Name { get; private set; }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode();
-        }
-        public override bool Equals(object obj)
-        {
-            return obj is PassInfo<TIn, TOut> && Equals((PassInfo<TIn, TOut>)obj);
-        }
-
-        public bool Equals(PassInfo<TIn, TOut> other)
-        {
-            return Name == other.Name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-    }
 
     /// <summary>
     /// Defines a data structure that captures a sufficient condition for 

@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Flame.Front.Target;
 using Flame.Verification;
 using Flame.Analysis;
+using Flame.Front.Passes;
 
 namespace dsc.Projects
 {
@@ -144,21 +145,21 @@ namespace dsc.Projects
                         InfiniteRecursionPass.InfiniteRecursionPassName,
                         optInfo => InfiniteRecursionPass.IsUseful(optInfo.Log))
                 },
-                new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[]
+                new AtomicPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>[]
                 {
-                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
+                    new AtomicPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         AnalysisPasses.ValueTypeDelegatePass,
                         ValueTypeDelegateVisitor.ValueTypeDelegatePassName),
 
-                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
+                    new AtomicPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         VerifyingDeadCodePass.Instance,
                         PassExtensions.EliminateDeadCodePassName),
 
-                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
+                    new AtomicPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         InitializationCountPass.Instance,
                         PassExtensions.InitializationPassName),
 
-                    new PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
+                    new AtomicPassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>(
                         InfiniteRecursionPass.Instance,
                         InfiniteRecursionPass.InfiniteRecursionPassName)
                 });
