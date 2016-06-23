@@ -19,7 +19,7 @@ namespace Flame.Front.Target
 
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { IRIdentifier, "ir/fir", "ir/flo" }; }
+            get { return new string[] { IRIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)

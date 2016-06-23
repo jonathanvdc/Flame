@@ -19,7 +19,7 @@ namespace Flame.Front.Target
 
         public IEnumerable<string> PlatformIdentifiers
         {
-            get { return new string[] { ClrIdentifier, "clr/console", "clr/dll" }; }
+            get { return new string[] { ClrIdentifier }; }
         }
 
         public bool MatchesPlatformIdentifier(string Identifier)
