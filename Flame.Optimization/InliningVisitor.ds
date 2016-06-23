@@ -47,7 +47,7 @@ namespace Flame.Optimization
     /// A pass that performs a number of iterations, which consist of
     /// inlining followed by whole-body optimization.
     /// </summary>
-    public abstract class InliningPassBase : IPass<BodyPassArgument, IStatement>
+    public abstract class InliningPassBase : LoopPassBase, IPass<BodyPassArgument, IStatement>
     {
         /// <summary>
         /// Gets the default inlining pass name.
@@ -127,6 +127,42 @@ namespace Flame.Optimization
 
             var log = Argument.PassEnvironment.Log;
             log.LogMessage(new LogEntry("pass remark", nodes));
+        }
+
+        public LoopPassResult Apply(BodyPassArgument Argument, int Iteration)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    InliningPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result.Body) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result.Body, Argument.PassEnvironment.Log,
+                    Argument.DeclaringMethod,
+                    InliningPassName + " (output)")
+            }
+        {
+            var shouldInline = GetInliningCriteria(Argument);
+            var log = Argument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(InliningPassName);
+
+            var visitor = new InliningVisitor(Argument, shouldInline);
+            var result = visitor.Visit(Argument.Body);
+
+            if (visitor.HasInlined && shouldRemark)
+            {
+                // Let's print some diagnostics, because we're so proud of
+                // our work.
+                foreach (var item in visitor.InlinedCallLocations)
+                {
+                    LogInlinedCall(Argument, item.Value, item.Key, Iteration);
+                }
+            }
+            return new LoopPassResult(result, visitor.HasInlined);
         }
 
         /// <summary>
