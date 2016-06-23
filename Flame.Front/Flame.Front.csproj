@@ -126,13 +126,16 @@
     <Compile Include="Target\DependencyBuilder.cs" />
     <Compile Include="Target\IBuildTargetParser.cs" />
     <Compile Include="Target\MultiBuildTargetParser.cs" />
-    <Compile Include="Target\OptimizationInfo.cs" />
-    <Compile Include="Target\PassPreferences.cs" />
     <Compile Include="Target\PlatformRuntime.cs" />
     <Compile Include="TypedDictionary.cs" />
     <Compile Include="Passes\PassManager.cs" />
     <Compile Include="Cli\SourceLocationWriter.cs" />
     <Compile Include="Cli\SourceLocationFinder.cs" />
+    <Compile Include="Passes\OptimizationInfo.cs" />
+    <Compile Include="Passes\PassPreferences.cs" />
+    <Compile Include="Passes\PassSelector.cs" />
+    <Compile Include="Passes\PassInfo.cs" />
+    <Compile Include="Passes\NameTree.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Recompilation\Flame.Recompilation.csproj">

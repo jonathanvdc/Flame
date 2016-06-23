@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {
@@ -24,7 +25,8 @@ namespace Flame.Front.Target
 
         public static PassInfo<BodyPassArgument, IStatement> ToBodyPass(PassInfo<IStatement, IStatement> StatementPass)
         {
-            return new PassInfo<BodyPassArgument, IStatement>(new BodyStatementPass(StatementPass.Pass), StatementPass.Name);
+            return new TransformedPassInfo<IStatement, IStatement, BodyPassArgument, IStatement>(
+                StatementPass, pass => new BodyStatementPass(pass));
         }
     }
 }

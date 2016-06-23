@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Target
 {
@@ -92,7 +93,7 @@ namespace Flame.Front.Target
             },
             new PassInfo<BodyPassArgument, IStatement>[]
             {
-                new PassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName)
+                new AtomicPassInfo<BodyPassArgument, IStatement>(CecilLowerYieldPass.Instance, PassExtensions.LowerYieldPassName)
             });
 
         public BuildTarget CreateBuildTarget(string Identifier, AssemblyCreationInfo Info, IDependencyBuilder DependencyBuilder)

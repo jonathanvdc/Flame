@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Cli
 {
@@ -715,6 +716,12 @@ namespace Flame.Front.Cli
             ReportUnusedOptions(Args, Log, "option unused during compilation");
         }
 
+        private static IEnumerable<MarkupNode> NameTreeToNodes(NameTree Tree, string Prefix)
+        {
+            return new MarkupNode[] { new MarkupNode(NodeConstants.TextNodeType, Prefix + Tree.Name) }
+                .Concat(Tree.Children.SelectMany(c => NameTreeToNodes(c, "  " + Prefix)));
+        }
+
         private static void PrintPasses(ICompilerLog Log, PassPreferences Preferences)
         {
             var names = PassExtensions.GetSelectedPassNames(Log, Preferences);
@@ -722,7 +729,7 @@ namespace Flame.Front.Cli
             var lists = names.Select(kv =>
                 ListExtensions.Instance.CreateList(
                     " - " + kv.Key + " passes: ",
-                    kv.Value.Select(item => new MarkupNode(NodeConstants.TextNodeType, "-f" + item))
+                    kv.Value.SelectMany(item => NameTreeToNodes(item, "-f"))
                             .DefaultIfEmpty(new MarkupNode(NodeConstants.TextNodeType, "none"))));
             Log.LogMessage(new LogEntry("Passes in use (in order of application)", lists));
 

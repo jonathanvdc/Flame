@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Flame.Front.Target
+namespace Flame.Front.Passes
 {
     [Flags]
     public enum OptimizationMode

@@ -224,13 +224,13 @@ namespace Flame.Front.Target
             if (option.Equals("fast", StringComparison.InvariantCultureIgnoreCase))
             {
                 // Perform fast inlining
-                Manager.RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(FastInliningPass.Instance, FastInliningPass.InliningPassName));
+                Manager.RegisterMethodPass(new AtomicPassInfo<BodyPassArgument, IStatement>(FastInliningPass.Instance, FastInliningPass.InliningPassName));
                 Manager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => true);
             }
             else if (option.Equals("full", StringComparison.InvariantCultureIgnoreCase))
             {
                 // Perform full inlining
-                Manager.RegisterMethodPass(new PassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName));
+                Manager.RegisterMethodPass(new AtomicPassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName));
                 Manager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => true);
             }
             else if (!option.Equals("none", StringComparison.InvariantCultureIgnoreCase)

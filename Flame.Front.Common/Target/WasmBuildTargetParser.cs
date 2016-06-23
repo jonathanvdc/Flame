@@ -16,10 +16,10 @@ using Flame.Optimization.Relooper;
 
 namespace Flame.Front.Target
 {
-	using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
-    using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
-    using StatementPassInfo = PassInfo<IStatement, IStatement>;
-    using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
+	using MethodPassInfo = AtomicPassInfo<BodyPassArgument, IStatement>;
+    using SignaturePassInfo = AtomicPassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
+    using StatementPassInfo = AtomicPassInfo<IStatement, IStatement>;
+    using RootPassInfo = AtomicPassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
 
@@ -58,38 +58,38 @@ namespace Flame.Front.Target
 			// These passes are required to ensure correctness. Disable them
 			// at your own peril.
 			// -fepilogue
-			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<BodyPassArgument, IStatement>(
 				new EpiloguePass(abi), EpiloguePass.EpiloguePassName));
 			extraPasses.RegisterPassCondition(new PassCondition(EpiloguePass.EpiloguePassName, optInfo => true));
 			// -flower-call
-			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
 				new CallLoweringPass(abi), CallLoweringPass.CallLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CallLoweringPass.CallLoweringPassName, optInfo => true));
             // -flower-default-value
-            extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+            extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
                 DefaultValueLoweringPass.Instance, DefaultValueLoweringPass.DefaultValueLoweringPassName));
             extraPasses.RegisterPassCondition(new PassCondition(DefaultValueLoweringPass.DefaultValueLoweringPassName, optInfo => true));
 			// -flower-fields
-			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
 				new FieldLoweringPass(abi), FieldLoweringPass.FieldLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(FieldLoweringPass.FieldLoweringPassName, optInfo => true));
             // -fstackalloc
-            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+            extraPasses.RegisterLoweringPass(new AtomicPassInfo<BodyPassArgument, IStatement>(
                 new StackAllocatingPass(abi), StackAllocatingPass.StackAllocatingPassName));
             extraPasses.RegisterPassCondition(new PassCondition(StackAllocatingPass.StackAllocatingPassName, optInfo => true));
             // -fprologue
-            extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+            extraPasses.RegisterLoweringPass(new AtomicPassInfo<BodyPassArgument, IStatement>(
                 new ProloguePass(abi), ProloguePass.ProloguePassName));
             extraPasses.RegisterPassCondition(new PassCondition(ProloguePass.ProloguePassName, optInfo => true));
 
 			// Perform some final correctness optimizations.
 			// -flower-copy
-			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
 				new CopyLoweringPass(abi), CopyLoweringPass.CopyLoweringPassName));
 			extraPasses.RegisterPassCondition(new PassCondition(CopyLoweringPass.CopyLoweringPassName, optInfo => true));
 
 			// -frewrite-return-void
-			extraPasses.RegisterLoweringPass(new PassInfo<BodyPassArgument, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<BodyPassArgument, IStatement>(
 				RewriteVoidReturnPass.Instance, RewriteVoidReturnPass.RewriteVoidReturnPassName));
 			// extraPasses.RegisterPassCondition(new PassCondition(RewriteVoidReturnPass.RewriteVoidReturnPassName, optInfo => true));
 
@@ -131,7 +131,7 @@ namespace Flame.Front.Target
 			extraPasses.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
 
 			// -foptimize-nodes-lowered
-			extraPasses.RegisterLoweringPass(new PassInfo<IStatement, IStatement>(
+			extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
 				NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName + "-lowered"));
 			extraPasses.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName + "-lowered", optInfo => optInfo.OptimizeMinimal));
 

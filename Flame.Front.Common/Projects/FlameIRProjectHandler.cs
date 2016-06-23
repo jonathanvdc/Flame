@@ -13,6 +13,7 @@ using Flame.Front.Target;
 using Flame.Verification;
 using Flame.Intermediate.Parsing;
 using Loyc.Syntax;
+using Flame.Front.Passes;
 
 namespace Flame.Front.Projects
 {

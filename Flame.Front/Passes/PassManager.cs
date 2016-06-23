@@ -92,7 +92,7 @@ namespace Flame.Front.Passes
 		/// <param name="Pass"></param>
 		public void RegisterMethodPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> Pass)
 		{
-			RegisterMethodPass(new MethodPassInfo(new BodyAnalysisPass(Pass.Pass), Pass.Name));
+            RegisterMethodPass(BodyAnalysisPass.ToBodyPass(Pass));
 		}
 
 		/// <summary>
@@ -110,7 +110,7 @@ namespace Flame.Front.Passes
 		/// <param name="Pass"></param>
 		public void RegisterMethodPass(StatementPassInfo Pass)
 		{
-			RegisterMethodPass(new MethodPassInfo(new BodyStatementPass(Pass.Pass), Pass.Name));
+            RegisterMethodPass(BodyStatementPass.ToBodyPass(Pass));
 		}
 
 		/// <summary>
@@ -119,7 +119,7 @@ namespace Flame.Front.Passes
 		/// <param name="Pass"></param>
 		public void RegisterLoweringPass(PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement> Pass)
 		{
-			RegisterLoweringPass(new MethodPassInfo(new BodyAnalysisPass(Pass.Pass), Pass.Name));
+            RegisterLoweringPass(BodyAnalysisPass.ToBodyPass(Pass));
 		}
 
 		/// <summary>
@@ -137,7 +137,7 @@ namespace Flame.Front.Passes
 		/// <param name="Pass"></param>
 		public void RegisterLoweringPass(StatementPassInfo Pass)
 		{
-			RegisterLoweringPass(new MethodPassInfo(new BodyStatementPass(Pass.Pass), Pass.Name));
+            RegisterLoweringPass(BodyStatementPass.ToBodyPass(Pass));
 		}
 
 		/// <summary>
@@ -214,62 +214,6 @@ namespace Flame.Front.Passes
 		}
 
 		/// <summary>
-		/// Checks if any of the conditions for
-		/// the pass with the given name are satisfied
-		/// by the given optimization info.
-		/// </summary>
-		/// <param name="Name"></param>
-		/// <param name="OptInfo"></param>
-		/// <param name="PassConditions"></param>
-		/// <returns></returns>
-		private static bool AnyConditionSatisfied(
-			string Name, OptimizationInfo OptInfo,
-			IReadOnlyDictionary<string, IEnumerable<Func<OptimizationInfo, bool>>> PassConditions)
-		{
-			IEnumerable<Func<OptimizationInfo, bool>> conds;
-			if (!PassConditions.TryGetValue(Name, out conds))
-			{
-				return false;
-			}
-			return conds.Any(item => item(OptInfo));
-		}
-
-		private static void AddPassInfo<TIn, TOut>(
-			List<PassInfo<TIn, TOut>> Passes, PassInfo<TIn, TOut> Info,
-			OptimizationInfo OptInfo,
-			IReadOnlyDictionary<string, IEnumerable<Func<OptimizationInfo, bool>>> PassConditions)
-		{
-			if (OptInfo.Log.Options.GetFlag(Info.Name, AnyConditionSatisfied(Info.Name, OptInfo, PassConditions)))
-			{
-				Passes.Add(Info);
-			}
-		}
-
-		/// <summary>
-		/// Creates a dictionary that maps pass names to a sequence
-		/// of sufficient conditions from the given sequence of
-		/// pass conditions.
-		/// </summary>
-		/// <param name="Conditions"></param>
-		/// <returns></returns>
-		private static Dictionary<string, IEnumerable<Func<OptimizationInfo, bool>>> CreatePassConditionDictionary(
-			IEnumerable<PassCondition> Conditions)
-		{
-			var results = new Dictionary<string, IEnumerable<Func<OptimizationInfo, bool>>>();
-			foreach (var item in Conditions)
-			{
-				IEnumerable<Func<OptimizationInfo, bool>> itemSet;
-				if (!results.TryGetValue(item.PassName, out itemSet))
-				{
-					itemSet = new List<Func<OptimizationInfo, bool>>();
-					results[item.PassName] = itemSet;
-				}
-				((List<Func<OptimizationInfo, bool>>)itemSet).Add(item.Condition);
-			}
-			return results;
-		}
-
-		/// <summary>
 		/// Creates an aggregate root pass from the given sequence
 		/// of root passes.
 		/// </summary>
@@ -292,45 +236,13 @@ namespace Flame.Front.Passes
 				(result, item) => new AggregateMemberSignaturePass<IMember>(result, item));
 		}
 
-		/// <summary>
-		/// Gets all passes that are selected by the
-		/// given optimization info and pass preferences.
-		/// </summary>
-		/// <param name="Log"></param>
-		/// <param name="Preferences"></param>
-		/// <returns></returns>
-		public Tuple<IEnumerable<MethodPassInfo>, IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>, IEnumerable<SignaturePassInfo>> GetSelectedPasses(
-			OptimizationInfo OptInfo)
-		{
-			var conditionDict = CreatePassConditionDictionary(PassConditions);
-
-			var selectedMethodPasses = new List<MethodPassInfo>();
-			foreach (var item in MethodPasses)
-			{
-				AddPassInfo(selectedMethodPasses, item, OptInfo, conditionDict);
-			}
-
-			var selectedLoweringPasses = new List<MethodPassInfo>();
-			foreach (var item in LoweringPasses)
-			{
-				AddPassInfo(selectedLoweringPasses, item, OptInfo, conditionDict);
-			}
-
-			var selectedRootPasses = new List<RootPassInfo>();
-			foreach (var item in RootPasses)
-			{
-				AddPassInfo(selectedRootPasses, item, OptInfo, conditionDict);
-			}
-
-			var selectedSignaturePasses = new List<SignaturePassInfo>();
-			foreach (var item in SignaturePasses)
-			{
-				AddPassInfo(selectedSignaturePasses, item, OptInfo, conditionDict);
-			}
-
-			return Tuple.Create<IEnumerable<MethodPassInfo>, IEnumerable<MethodPassInfo>, IEnumerable<RootPassInfo>, IEnumerable<SignaturePassInfo>>(
-				selectedMethodPasses, selectedLoweringPasses, selectedRootPasses, selectedSignaturePasses);
-		}
+        /// <summary>
+        /// Creates a pass selector from the given optimization info.
+        /// </summary>
+        public PassSelector CreateSelector(OptimizationInfo OptInfo)
+        {
+            return new PassSelector(OptInfo, PassConditions);
+        }
 
 		/// <summary>
 		/// Gets the names of all passes that are selected by the
@@ -341,16 +253,16 @@ namespace Flame.Front.Passes
 		/// <param name="Log"></param>
 		/// <param name="Preferences"></param>
 		/// <returns></returns>
-		public IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(OptimizationInfo OptInfo)
+		public IReadOnlyDictionary<string, IEnumerable<NameTree>> GetSelectedPassNames(OptimizationInfo OptInfo)
 		{
-			var selected = GetSelectedPasses(OptInfo);
+            var selector = CreateSelector(OptInfo);
 
-			return new Dictionary<string, IEnumerable<string>>()
+            return new Dictionary<string, IEnumerable<NameTree>>()
 			{
-				{ "Signature", selected.Item4.Select(item => item.Name) },
-				{ "Body", selected.Item1.Select(item => item.Name) },
-				{ "Lowering", selected.Item2.Select(item => item.Name) },
-				{ "Root", selected.Item3.Select(item => item.Name) }
+                { "Signature", SignaturePasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
+                { "Body", MethodPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
+                { "Lowering", LoweringPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
+                { "Root", RootPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() }
 			};
 		}
 
@@ -363,7 +275,7 @@ namespace Flame.Front.Passes
 		/// </summary>
 		/// <param name="Log"></param>
 		/// <returns></returns>
-		public IReadOnlyDictionary<string, IEnumerable<string>> GetSelectedPassNames(ICompilerLog Log)
+        public IReadOnlyDictionary<string, IEnumerable<NameTree>> GetSelectedPassNames(ICompilerLog Log)
 		{
 			return GetSelectedPassNames(new OptimizationInfo(Log));
 		}
@@ -383,13 +295,14 @@ namespace Flame.Front.Passes
 			// when hacking the compiler or something)
 			var methodOpt = new DefaultOptimizer(optInfo.OptimizeMinimal);
 
+            var selector = CreateSelector(optInfo);
+
 			// Select passes by relying on the optimization info
 			// and pass preferences.
-			var selectedPasses = GetSelectedPasses(optInfo);
-			var selectedMethodPasses = selectedPasses.Item1.Select(item => item.Pass);
-			var selectedLoweringPasses = selectedPasses.Item2.Select(item => item.Pass);
-			var selectedRootPasses = selectedPasses.Item3.Select(item => item.Pass);
-			var selectedSigPasses = selectedPasses.Item4.Select(item => item.Pass);
+			var selectedMethodPasses = selector.InstantiateActive(MethodPasses);
+            var selectedLoweringPasses = selector.InstantiateActive(LoweringPasses);
+            var selectedRootPasses = selector.InstantiateActive(RootPasses);
+            var selectedSigPasses = selector.InstantiateActive(SignaturePasses);
 
 			return new PassSuite(
 				methodOpt, selectedMethodPasses.Aggregate(), 
