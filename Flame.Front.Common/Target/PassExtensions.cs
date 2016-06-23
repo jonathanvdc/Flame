@@ -16,6 +16,7 @@ namespace Flame.Front.Target
     using SignaturePassInfo = AtomicPassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using StatementPassInfo = AtomicPassInfo<IStatement, IStatement>;
     using RootPassInfo = AtomicPassInfo<BodyPassArgument, IEnumerable<IMember>>;
+    using LoopPassInfo = AtomicPassInfo<LoopPassArgument, LoopPassResult>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using Flame.Front.Passes;
@@ -100,25 +101,32 @@ namespace Flame.Front.Target
 			SSAPassManager.RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName));
 			SSAPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
 
-			GlobalPassManager.Append(SSAPassManager.ToPreferences());
-			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName));
+            GlobalPassManager.Append(SSAPassManager.ToPreferences());
+
+            var inliningLoopPasses = new List<PassInfo<LoopPassArgument, LoopPassResult>>();
+
+            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName)));
 
             // -fspecialize tries to specialize methods.
             // -O4, because it doesn't always play nice with CLR libraries.
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName));
+            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName)));
             GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
 
 			// -finline uses CFG/SSA form, so it's -O3, too.
-			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
+            inliningLoopPasses.Add(new LoopPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
 
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName));
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName));
+            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName)));
+            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName)));
 
             // -fscalarrepl performs scalar replacement of aggregates.
             // It's -O3
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ScalarReplacementPass.Instance, ScalarReplacementPass.ScalarReplacementPassName));
+            inliningLoopPasses.Add(new LoopPassInfo(ScalarReplacementPass.Instance, ScalarReplacementPass.ScalarReplacementPassName));
             GlobalPassManager.RegisterPassCondition(ScalarReplacementPass.ScalarReplacementPassName, optInfo => optInfo.OptimizeAggressive);
+
+            // Insert the inlining loop here.
+            GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, SSAPassManager.MethodPasses, 3));
+            GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => optInfo.OptimizeAggressive);
 
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
 
@@ -167,6 +175,7 @@ namespace Flame.Front.Target
         public const string LowerLambdaPassName = "lower-lambda";
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
+        public const string InliningLoopName = "inline-loop";
 
 		private static PassManager WithPreferences(PassPreferences Preferences)
 		{
@@ -199,6 +208,11 @@ namespace Flame.Front.Target
         public static PassSuite CreateSuite(ICompilerLog Log, PassPreferences Preferences)
         {
 			return WithPreferences(Preferences).CreateSuite(Log);
+        }
+
+        public static PassInfo<LoopPassArgument, LoopPassResult> ToLoopPass(PassInfo<BodyPassArgument, IStatement> Pass)
+        {
+            return new TransformedPassInfo<BodyPassArgument, IStatement, LoopPassArgument, LoopPassResult>(Pass, p => new LoopBodyPass(p));
         }
     }
 }
