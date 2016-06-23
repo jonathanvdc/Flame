@@ -1,0 +1,143 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A data structure that describes a loop pass' arguments.
+    /// </summary>
+    public struct LoopPassArgument
+    {
+        /// <summary>
+        /// Creates a loop pass argument from the given components.
+        /// </summary>
+        public this(set BodyPassArgument PassArgument, set int Iteration);
+
+        /// <summary>
+        /// Gets the body pass argument.
+        /// </summary>
+        public BodyPassArgument PassArgument { get; private set; }
+
+        /// <summary>
+        /// Gets the iteration for this loop pass.
+        /// </summary>
+        public int Iteration { get; private set; }
+    }
+
+    /// <summary>
+    /// A data structure that describes a loop pass' results.
+    /// </summary>
+    public struct LoopPassResult
+    {
+        /// <summary>
+        /// Creates a loop pass result from the given components.
+        /// </summary>
+        public this(set IStatement Body, set bool RepeatLoop);
+
+        /// <summary>
+        /// Gets the resulting method body.
+        /// </summary>
+        public IStatement Body { get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that determines whether it is considered
+        /// useful to run the loop for at least one more iteration.
+        /// </summary>
+        public bool RepeatLoop { get; private set; }
+    }
+
+    /// <summary>
+    /// An optional base class for loop passes.
+    /// </summary>
+    public abstract class LoopPassBase : IPass<LoopPassArgument, LoopPassResult>
+    {
+        public this();
+
+        public LoopPassResult Apply(LoopPassArgument Argument)
+        {
+            return Apply(Argument.PassArgument, Argument.Iteration);
+        }
+
+        /// <summary>
+        /// Applies this loop pass to the given pass argument and number
+        /// of iterations.
+        /// </summary>
+        public abstract LoopPassResult Apply(
+            BodyPassArgument PassArgument, int Iteration);
+    }
+
+    /// <summary>
+    /// Defines a type for body passes that are wrapped as loop passes.
+    /// These passes never request another loop iteration.
+    /// </summary>
+    public class LoopBodyPass : LoopPassBase
+    {
+        public this(set IPass<BodyPassArgument, IStatement> BodyPass);
+
+        /// <summary>
+        /// Gets the body pass that is invoked.
+        /// </summary>
+        public IPass<BodyPassArgument, IStatement> BodyPass { get; private set; }
+
+        public override LoopPassResult Apply(
+            BodyPassArgument PassArgument, int Iteration)
+        {
+            return new LoopPassResult(BodyPass.Apply(PassArgument), false);
+        }
+    }
+
+    /// <summary>
+    /// A pass that runs a number of other passes in a loop.
+    /// </summary>
+    public class PassLoop : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// Creates a pass loop from the given passes and maximal number
+        /// of iterations.
+        /// </summary>
+        public this(
+            set IReadOnlyList<IPass<LoopPassArgument, LoopPassResult>> LoopPasses,
+            set IReadOnlyList<IPass<BodyPassArgument, IStatement>> FinalizingPasses,
+            set int MaxIterations);
+
+        /// <summary>
+        /// Gets the maximal number of iterations for this loop pass.
+        /// </summary>
+        public int MaxIterations { get; private set; }
+
+        /// <summary>
+        /// Gets the list of loop passes for this loop pass.
+        /// </summary>
+        public IReadOnlyList<IPass<LoopPassArgument, LoopPassResult>> LoopPasses { get; private set; }
+
+        /// <summary>
+        /// Gets the list of finalizing passes for this loop pass: passes
+        /// that are executed after every loop iteration.
+        /// </summary>
+        public IReadOnlyList<IPass<BodyPassArgument, IStatement>> FinalizingPasses { get; private set; }
+
+        public IStatement Apply(BodyPassArgument Argument)
+        {
+            var stmt = Argument.Body;
+
+            bool repeatLoop = true;
+            for (int i = 0; i < MaxIterations && repeatLoop; i++)
+            {
+                repeatLoop = false;
+                foreach (var pass in LoopPasses)
+                {
+                    var passResult = pass.Apply(new LoopPassArgument(
+                        new BodyPassArgument(Argument, stmt), i));
+                    stmt = passResult.Body;
+                    if (passResult.RepeatLoop)
+                        repeatLoop = true;
+                }
+                foreach (var pass in FinalizingPasses)
+                {
+                    stmt = pass.Apply(new BodyPassArgument(Argument, stmt));
+                }
+            }
+            return stmt;
+        }
+    }
+}
