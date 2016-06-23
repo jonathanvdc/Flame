@@ -846,7 +846,7 @@ namespace Flame.Optimization
     /// <summary>
     /// A base class for passes that replace scalars by aggregates.
     /// </summary>
-    public abstract class ScalarReplacementPassBase : IPass<BodyPassArgument, IStatement>
+    public abstract class ScalarReplacementPassBase : LoopPassBase, IPass<BodyPassArgument, IStatement>
     {
         /// <summary>
         /// The scalar replacement of aggregates pass name.
@@ -953,6 +953,46 @@ namespace Flame.Optimization
 
             var log = Argument.PassEnvironment.Log;
             log.LogMessage(new LogEntry("pass remark", nodes));
+        }
+
+        public LoopPassResult Apply(BodyPassArgument Argument, int Iteration)
+            in { VerifyCFGPass.Apply(Argument.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    ScalarReplacementPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result.Body) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result.Body, Argument.PassEnvironment.Log,
+                    Argument.DeclaringMethod,
+                    ScalarReplacementPassName + " (output)")
+            }
+        {
+            var shouldReplace = GetReplacementCriteria(Argument);
+            var shouldInline = GetInliningCriteria(Argument);
+            var log = Argument.PassEnvironment.Log;
+            bool shouldRemarkDetails = log.Options.GetOption<bool>(
+                ScalarReplacementDetailsRemarksOption, false);
+            bool shouldRemark = log.Options.GetOption<bool>(
+                ScalarReplacementRemarksOption, shouldRemarkDetails);
+
+            var visitor = new ScalarReplacementVisitor(
+                Argument, shouldReplace, shouldInline, shouldRemarkDetails);
+            var result = visitor.Visit(Argument.Body);
+
+            int replCount = visitor.Replacements.Count;
+            if (replCount > 0 && shouldRemark)
+            {
+                // Let's print some diagnostics, because we're so proud of
+                // our work.
+                LogScalarReplacements(
+                    Argument, visitor, Iteration, shouldRemarkDetails);
+            }
+            return new LoopPassResult(result, replCount > 0);
         }
 
         /// <summary>
