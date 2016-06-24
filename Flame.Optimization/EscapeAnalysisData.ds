@@ -221,12 +221,20 @@ namespace Flame.Optimization
                     param.Name.ToString(), param.ParameterType,
                     EscapeAnalysisResult.In));
             }
-            ThisParameterTag = CreateTag(
-                "this", ThisVariable.GetThisType(Method.DeclaringType),
-                EscapeAnalysisResult.In);
+            if (Method.DeclaringType != null)
+            {
+                ThisParameterTag = CreateTag(
+                    "this", ThisVariable.GetThisType(Method.DeclaringType),
+                    EscapeAnalysisResult.In);
+            }
+            else
+            {
+                ThisParameterTag = CreateTag(
+                    "this", PrimitiveTypes.Null,
+                    EscapeAnalysisResult.In);
+            }
             ReturnValueTag = CreateTag(
-                "return", ThisVariable.GetThisType(Method.ReturnType),
-                EscapeAnalysisResult.Out);
+                "return", Method.ReturnType, EscapeAnalysisResult.Out);
         }
 
         /// <summary>
