@@ -126,7 +126,7 @@ namespace Flame.Front.Target
 
             // Insert the inlining loop here.
             GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, SSAPassManager.MethodPasses, 3));
-            GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => true);
 
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
 
