@@ -442,6 +442,13 @@ namespace Flame.Optimization
         /// if that cannot be done.
         /// </summary>
         private IType TryRewrite(IType Type, BodyPassArgument PassArgument)
+            out (result)
+            {
+                result == null
+                || Enumerable.SequenceEqual<IType>(
+                    Type.GetRecursiveGenericArguments(),
+                    result.GetRecursiveGenericArguments())
+            }
         {
             // Check for the usual things.
             if (!CanRewrite(Type))
@@ -456,7 +463,7 @@ namespace Flame.Optimization
             var rewritten = RewriteAsValueType(genDecl, PassArgument);
 
             // Create a new generic instance, and return that.
-            return rewritten.MakeGenericType(Type.GetRecursiveGenericArguments());
+            return rewritten.MakeRecursiveGenericType(Type.GetRecursiveGenericArguments());
         }
 
         /// <summary>
@@ -610,6 +617,12 @@ namespace Flame.Optimization
         private IType RewriteAsValueType(
             IType ReferenceType, BodyPassArgument PassArgument)
             in { CanRewrite(ReferenceType) }
+            out (result)
+            {
+                Enumerable.SequenceEqual<IType>(
+                    ReferenceType.GetRecursiveGenericArguments(),
+                    result.GetRecursiveGenericArguments())
+            }
         {
             var cache = GetValueTypeCache(PassArgument);
 
