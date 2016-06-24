@@ -4,8 +4,8 @@ public class Vector2
 {
     public this(set double X, set double Y);
 
-    public double X;
-    public double Y;
+    public double X { get; set; }
+    public double Y { get; set; }
 
     public double Length { get { return X * X + Y * Y; } }
 }
