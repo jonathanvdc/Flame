@@ -151,14 +151,6 @@ namespace Flame.Optimization
                     hasReplaced = true;
                     hasReplacedThis = true;
                 }
-                if (genDecl.IsStatic)
-                    Console.WriteLine("Not replacing 'this' in static '" + genDecl.FullName + "'");
-                else if (!CanRewrite(genDecl.DeclaringType))
-                    Console.WriteLine("Can't rewrite '" + genDecl.DeclaringType.FullName + "'");
-                else if (genSig.ThisValue == EscapeAnalysisResult.Global)
-                    Console.WriteLine("'this' was global for '" + genDecl.FullName + "'");
-                else
-                    Console.WriteLine("Replaced 'this' for '" + genDecl.FullName + "'");
 
                 if (CanReplace(genSig.ReturnValue, genDecl.ReturnType))
                 {
@@ -176,7 +168,6 @@ namespace Flame.Optimization
 
                 if (!hasReplaced)
                 {
-                    Console.WriteLine("Not replacing '" + genDecl.FullName.ToString() + "'");
                     // Leave a 'null' value in the dictionary, so we won't
                     // have to do this analysis again.
                     Cache[genSig] = null;
@@ -222,13 +213,11 @@ namespace Flame.Optimization
 
                 if (methodResult == null)
                 {
-                    Console.WriteLine("Couldn't replace '" + genDecl.FullName.ToString() + "'");
                     Cache[genSig] = result;
                     return null;
                 }
                 else
                 {
-                    Console.WriteLine("Replaced '" + genDecl.FullName.ToString() + "'");
                     Cache[genSig] = new RewrittenMethodSignature(
                         methodResult, hasReplacedThis, hasReplacedResult);
                     return new RewrittenMethodSignature(
