@@ -356,11 +356,6 @@ namespace Flame.Optimization
             if (body == null)
                 return null;
 
-            // We need to check the body's access: it can't be allowed to
-            // access anything that the new declaring type can't access.
-            if (!AccessChecker.CanAccess(DeclaringType, body))
-                return null;
-
             // Figure out whether the method we're creating is a static method
             // based on an instance method.
             bool wasInstance = IsStatic && !oldMethod.IsStatic;
@@ -429,6 +424,11 @@ namespace Flame.Optimization
 
             if (methodBody == null)
                 // Well, that sure went spectacularly wrong at the last minute.
+                return null;
+
+            // We need to check the body's access: it can't be allowed to
+            // access anything that the new declaring type can't access.
+            if (!AccessChecker.CanAccess(DeclaringType, methodBody))
                 return null;
 
             methodDef.Body = methodBody;
