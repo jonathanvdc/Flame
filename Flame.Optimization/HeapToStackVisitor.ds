@@ -607,12 +607,6 @@ namespace Flame.Optimization
                 return Expression;
 
             var result = Expression.Accept(this);
-            if (exprTag != null)
-            {
-                Console.WriteLine(
-                    "'" + exprTag.Name + "' was popped by '" +
-                    Expression.ToString() + "'.");
-            }
             // Escape analysis result becomes global.
             PopGlobalExpressionTag();
             return result;
@@ -714,12 +708,6 @@ namespace Flame.Optimization
         protected override IStatement VisitUnknown(IStatement Statement)
         {
             var result = Statement.Accept(this);
-            if (exprTag != null)
-            {
-                Console.WriteLine(
-                    "'" + exprTag.Name + "' was popped by '" +
-                    Statement.ToString() + "'.");
-            }
             // Escape analysis result becomes global.
             PopGlobalExpressionTag();
             return result;
@@ -945,10 +933,7 @@ namespace Flame.Optimization
                 if (TypeMap.TryGetValue(recGenDecl, Result))
                 {
                     if (Result == null)
-                    {
-                        Console.WriteLine("Type '" + Type.FullName + "' was not in the rewritten-types dictionary.");
                         return false;
-                    }
 
                     *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
                     return true;
@@ -992,10 +977,6 @@ namespace Flame.Optimization
                 || blacklistedVariables.Contains(tag)
                 || AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
             {
-                if (tag == null)
-                    Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was not tagged.");
-                else if (AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
-                    Console.WriteLine("'" + Variable.ToString() + "' in method '" + Method.FullName + "' was global.");
                 *Result = null;
                 return false;
             }
@@ -1012,7 +993,6 @@ namespace Flame.Optimization
                     // We found a non-escaping local variable whose type
                     // can be replaced by a reference type.
                     // Replace it by a reference pointer to a value type.
-                    Console.WriteLine("Replaced variable '" + otherVar.Member.Name + "'");
                     *Result = new LocalVariable(new RetypedVariableMember(
                         otherVar.Member,
                         newType.MakePointerType(PointerKind.ReferencePointer)));
@@ -1084,13 +1064,11 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
-                Console.WriteLine("Visiting known load statement: '" + LoadExpression.ToString() + "'");
                 this.hasReplaced = true;
                 return replVar.CreateGetExpression();
             }
             else
             {
-                Console.WriteLine("Visiting unknown load statement: '" + LoadExpression.ToString() + "'");
                 return VisitUnknown(LoadExpression);
             }
         }
@@ -1101,12 +1079,10 @@ namespace Flame.Optimization
             var newSignature = GetRewrittenMethod(Expression.Dependencies);
             if (newSignature == null)
             {
-                Console.WriteLine("Visiting unreplaced call: '" + Expression.Expression + "'");
                 return Visit(Expression.Expression);
             }
             else
             {
-                Console.WriteLine("Visiting replaced call: '" + Expression.Expression + "'");
                 var newMethod = newSignature.Method;
                 // First replace the callee, then visit the call.
                 var result = Visit(Expression.ReplaceMethod(newMethod));
@@ -1155,13 +1131,11 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
-                Console.WriteLine("Visiting known store statement: '" + StoreStatement.ToString() + "'");
                 // Visit the value, and create a 'store' statement.
                 return replVar.CreateSetStatement(Visit(StoreValue));
             }
             else
             {
-                Console.WriteLine("Visiting unknown store statement: '" + StoreStatement.ToString() + "'");
                 return VisitUnknown(StoreStatement);
             }
         }
