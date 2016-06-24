@@ -233,7 +233,7 @@ namespace Flame.Intermediate.Parsing
         public static QualifiedName ParseQualifiedName(string Name)
         {
             var qualName = NameParser.Instance.Convert(Name);
-            if (qualName.IsEmpty)
+            if (qualName.IsEmpty && !string.IsNullOrEmpty(Name))
                 throw new InvalidOperationException("'" + Name + "' was not a valid Flame IR qualified name");
             return qualName;
         }
@@ -241,7 +241,9 @@ namespace Flame.Intermediate.Parsing
         public static UnqualifiedName ParseUnqualifiedName(string Name)
         {
             var qualName = ParseQualifiedName(Name);
-            if (qualName.IsQualified)
+            if (qualName.IsEmpty)
+                return new SimpleName("");
+            else if (qualName.IsQualified)
                 return new SimpleName(qualName.ToString());
             else
                 return qualName.Qualifier;
