@@ -293,15 +293,22 @@ namespace Flame.Optimization
                         if (valTy != null)
                         {
                             hasReplacedAny = true;
+                            bool isGenInst = ty.IsRecursiveGenericInstance;
+                            if (isGenInst)
+                                assert(valTy.IsRecursiveGenericInstance);
+
                             var genDeclTy = ty.GetRecursiveGenericDeclaration();
                             foreach (var field in genDeclTy.GetAllFields())
                             {
                                 var valField = fieldCache[field];
-                                if (ty.IsRecursiveGenericInstance)
+                                if (isGenInst)
                                 {
-                                    var genInst = (GenericTypeBase)ty;
-                                    replFields[field] = new GenericInstanceField(
-                                        valField, genInst.Resolver, genInst);
+                                    var oldGenInst = (GenericTypeBase)ty;
+                                    var newGenInst = (GenericTypeBase)valTy;
+                                    var originalField = new GenericInstanceField(
+                                        field, oldGenInst.Resolver, oldGenInst);
+                                    replFields[originalField] = new GenericInstanceField(
+                                        valField, newGenInst.Resolver, newGenInst);
                                 }
                                 else
                                 {
