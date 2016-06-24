@@ -1,0 +1,22 @@
+using System;
+
+public class Vector2
+{
+    public this(set double X, set double Y);
+
+    public double X;
+    public double Y;
+
+    public double Length { get { return X * X + Y * Y; } }
+}
+
+public static class Program
+{
+    public void Main()
+    {
+        var vec = new Vector2(2, 3);
+        vec.X = 4;
+        vec.Y = 3;
+        Console.WriteLine(vec.Length);
+    }
+}
