@@ -270,6 +270,9 @@ namespace Flame
 
 		public static IType MakeRecursiveGenericType(this IType Type, [IType] TypeArguments)
 		{
+			if (!Enumerable.Any<IType>(TypeArguments))
+				return Type;
+
 			if (Type.DeclaringNamespace is IType)
 			{
 				var nsType = (IType)Type.DeclaringNamespace;
@@ -295,6 +298,9 @@ namespace Flame
 
 		public static IMethod MakeRecursiveGenericMethod(this IMethod Method, [IType] TypeArguments)
 		{
+			if (!Enumerable.Any<IType>(TypeArguments))
+				return Method;
+
 			var declTy = Method.DeclaringType;
 			int paramCount = Enumerable.Count<IGenericParameter>(declTy.GetRecursiveGenericParameters());
 			if (paramCount > 0)
