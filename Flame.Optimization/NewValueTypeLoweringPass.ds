@@ -16,7 +16,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Creates a new-value-type lowering visitor instance.
         /// </summary>
-        public const this(set bool MustLowerExpressions, set BodyPassArgument PassArgument);
+        public const this(set bool MustLowerExpressions, set PassMetadata Metadata);
 
         /// <summary>
         /// A boolean value that tells whether new-value type expressions must
@@ -28,7 +28,7 @@ namespace Flame.Optimization
         /// Gets the body pass argument this visitor uses to access
         /// global metadata.
         /// </summary>
-        public BodyPassArgument PassArgument { get; private set; }
+        public PassMetadata Metadata { get; private set; }
 
         public override bool Matches(IExpression Value)
         {
@@ -73,10 +73,10 @@ namespace Flame.Optimization
         /// <summary>
         /// Checks if the given type may reference memory.
         /// </summary>
-        public static bool MayReferenceMemory(IType Type, BodyPassArgument PassArg)
+        public static bool MayReferenceMemory(IType Type, PassMetadata PassMeta)
         {
             string optionName = "may-reference-memory-dictionary";
-            var globalData = PassArg.Metadata.GlobalMetadata;
+            var globalData = PassMeta.GlobalMetadata;
             var dict = globalData.GetOption<ConcurrentDictionary<IType, bool>>(optionName, null);
             if (dict == null)
             {
@@ -101,7 +101,7 @@ namespace Flame.Optimization
         /// are naively lowerable: direct assignments can be lowered
         /// without introducing any additional variables.
         /// </summary>
-        public static bool IsNaivelyLowerable(IMethod Constructor, BodyPassArgument PassArg)
+        public static bool IsNaivelyLowerable(IMethod Constructor, PassMetadata PassMeta)
         {
             if (!Constructor.IsConstant)
             {
@@ -113,7 +113,7 @@ namespace Flame.Optimization
             {
                 foreach (var parameter in Constructor.Parameters)
                 {
-                    if (MayReferenceMemory(parameter.ParameterType, PassArg))
+                    if (MayReferenceMemory(parameter.ParameterType, PassMeta))
                         return false;
                 }
                 return true;
@@ -180,9 +180,9 @@ namespace Flame.Optimization
         /// </summary>
         public static IStatement InitializeValueType(
             IUnmanagedVariable Variable, IMethod Constructor,
-            [IExpression] Arguments, BodyPassArgument PassArg)
+            [IExpression] Arguments, PassMetadata PassMeta)
         {
-            if (IsNaivelyLowerable(Constructor, PassArg))
+            if (IsNaivelyLowerable(Constructor, PassMeta))
             {
                 // This case is simple and elegant.
                 return InitializeNaive(Variable, Constructor, Arguments);
@@ -259,7 +259,7 @@ namespace Flame.Optimization
         {
             var temp = new LocalVariable(Constructor.DeclaringType);
             return new InitializedExpression(
-                Visit(InitializeValueType(temp, Constructor, Arguments, PassArgument)),
+                Visit(InitializeValueType(temp, Constructor, Arguments, Metadata)),
                 temp.CreateGetExpression(),
                 temp.CreateReleaseStatement());
         }
@@ -286,7 +286,7 @@ namespace Flame.Optimization
             var destVar = setVarNode.GetVariable();
 
             if (destVar is IUnmanagedVariable
-                && IsNaivelyLowerable(exprTuple.Constructor, PassArgument))
+                && IsNaivelyLowerable(exprTuple.Constructor, Metadata))
             {
                 // Only naive lowering can be applied directly to the target
                 // variable.
@@ -328,7 +328,8 @@ namespace Flame.Optimization
 
         public IStatement Apply(BodyPassArgument Arg)
         {
-            var visitor = new NewValueTypeLoweringVisitor(MustLowerExpressions, Arg);
+            var visitor = new NewValueTypeLoweringVisitor(
+                MustLowerExpressions, Arg.Metadata);
             return visitor.Visit(Arg.Body);
         }
     }
