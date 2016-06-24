@@ -406,6 +406,10 @@ namespace Flame.Optimization
             else
             {
                 var conservative = CreateConservativeAnalysis(genDecl);
+                if (genDecl.DeclaringType == null)
+                    // Nope nope nope.
+                    return new EscapeAnalysisData(Method, conservative);
+
                 AnalyzedFunctions[genDecl] = conservative;
                 var body = PassEnvironment.GetMethodBody(genDecl);
                 if (body == null)
