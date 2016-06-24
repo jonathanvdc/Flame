@@ -685,8 +685,15 @@ namespace Flame.Optimization
                         field.Name, descTy,
                         typeConv.Convert(field.FieldType), false);
 
+                    // Make fields internal, so we don't inhibit any
+                    // optimizations.
+                    fieldDef.AddAttribute(new AccessAttribute(AccessModifier.Assembly));
+                    fieldDef.AddAttribute(PrimitiveAttributes.HiddenAttribute);
                     foreach (var attr in field.Attributes)
-                        fieldDef.AddAttribute(attr);
+                    {
+                        if (!attr.AttributeType.Equals(AccessAttribute.AccessAttributeType))
+                            fieldDef.AddAttribute(attr);
+                    }
 
                     descTy.AddField(fieldDef);
                     fieldCache[field] = fieldDef;
