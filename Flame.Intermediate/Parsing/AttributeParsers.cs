@@ -43,7 +43,7 @@ namespace Flame.Intermediate.Parsing
 
         public const string AssociatedTypeNodeName = "#associated_type";
         public const string SingletonNodeName = "#singleton";
-        
+        public const string OperatorNodeName = "#operator";
 
         public const string ConstructedAttributeNodeName = "#attribute";
 
@@ -67,9 +67,6 @@ namespace Flame.Intermediate.Parsing
         /// <summary>
         /// Parses the given '#singleton' attribute.
         /// </summary>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        /// <returns></returns>
         public static INodeStructure<IAttribute> ParseSingletonAttribute(ParserState State, LNode Node)
         {
             return new ConstantNodeStructure<IAttribute>(Node, new SingletonAttribute(IRParser.GetIdOrString(Node.Args.Single())));
@@ -78,12 +75,17 @@ namespace Flame.Intermediate.Parsing
         /// <summary>
         /// Parses the given '#associated_type' attribute.
         /// </summary>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        /// <returns></returns>
         public static INodeStructure<IAttribute> ParseAssociatedTypeAttribute(ParserState State, LNode Node)
         {
             return new LazyValueStructure<IAttribute>(Node, () => new AssociatedTypeAttribute(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value));
+        }
+
+        /// <summary>
+        /// Parses the given '#operator' attribute.
+        /// </summary>
+        public static INodeStructure<IAttribute> ParseOperatorAttribute(ParserState State, LNode Node)
+        {
+            return new LazyValueStructure<IAttribute>(Node, () => new OperatorAttribute(Operator.GetOperator(IRParser.GetIdOrString(Node.Args.Single()))));
         }
 
         /// <summary>
@@ -144,6 +146,7 @@ namespace Flame.Intermediate.Parsing
                     // Not-so-parameterless primitive attributes:
                     { SingletonNodeName, ParseSingletonAttribute },
                     { AssociatedTypeNodeName, ParseAssociatedTypeAttribute },
+                    { OperatorNodeName, ParseOperatorAttribute },
 
                     // Parameterless primitive attributes:
                     // Access attributes:
