@@ -89,7 +89,6 @@ namespace Flame.Optimization
             var result = TryRewriteBody(
                 method, HeapToStackAnalyzer.CreateConservativeAnalysis(method).SignatureResult,
                 Argument.Body, Argument, GetAnalysisCache(Argument));
-            assert(result != null);
             if (result == null)
                 return new LoopPassResult(Argument.Body, false);
             else
@@ -321,7 +320,8 @@ namespace Flame.Optimization
             // Finally, we can rewrite the method body itself.
             // Create a rewriter, and have it visit the analyzed method body.
             var rewriter = new HeapToStackRewriter(
-                analysis, Method, replTypes, replFields, replMethods);
+                analysis, Method, Argument.Metadata,
+                replTypes, replFields, replMethods);
             return rewriter.Visit(analyzedBody);
         }
 

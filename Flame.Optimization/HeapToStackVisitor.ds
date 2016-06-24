@@ -836,6 +836,7 @@ namespace Flame.Optimization
         public this(
             EscapeAnalysisData AnalysisData,
             set IMethod Method,
+            set PassMetadata Metadata,
             set IReadOnlyDictionary<IType, IType> TypeMap,
             set IReadOnlyDictionary<IField, IField> FieldMap,
             set IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap)
@@ -885,6 +886,11 @@ namespace Flame.Optimization
         /// rewriting.
         /// </summary>
         public IMethod Method { get; private set; }
+
+        /// <summary>
+        /// Gets the pass metadata object for this heap-to-stack rewriter.
+        /// </summary>
+        public PassMetadata Metadata { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps reference types to the value
@@ -1086,20 +1092,24 @@ namespace Flame.Optimization
                 var newMethod = newSignature.Method;
                 // First replace the callee, then visit the call.
                 var result = Visit(Expression.ReplaceMethod(newMethod));
-                if (Expression.IsNewObject && newSignature.HasReplacedThis)
+                if (result is NewObjectExpression && newSignature.HasReplacedThis)
                 {
                     // A new-object expression that produces a reference type
                     // which we intend to replace by a value type, is handled
                     // as a special case here.
-                    var newObjectExpr = (NewObjectExpression)Expression.Expression;
+                    var newObjectExpr = (NewObjectExpression)result;
 
                     this.hasReplaced = true;
 
                     // Create a new local variable, initialize that, and take
                     // its address.
+                    // To make further optimization easier, we will also apply
+                    // value type lowering to the assignment.
                     var tmpLocal = new LocalVariable("tmp", newMethod.DeclaringType);
                     return new InitializedExpression(
-                        tmpLocal.CreateSetStatement(result),
+                        NewValueTypeLoweringVisitor.InitializeValueType(
+                            tmpLocal, newObjectExpr.Constructor,
+                            newObjectExpr.Arguments, Metadata),
                         tmpLocal.CreateAddressOfExpression());
                 }
                 else
@@ -1132,7 +1142,21 @@ namespace Flame.Optimization
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
                 // Visit the value, and create a 'store' statement.
-                return replVar.CreateSetStatement(Visit(StoreValue));
+                var storeStmt = replVar.CreateSetStatement(Visit(StoreValue));
+                // Rewrite the 'store' statement as imperative code. This
+                // typically aids optimization, because
+                //
+                //     var tmp = new T();
+                //     var ptr = &tmp;
+                //
+                // is much easier to analyze than
+                //
+                //     var ptr = {
+                //         var tmp = new T();
+                //         &tmp
+                //     };
+                //
+                return ImperativeCodePass.Apply(storeStmt);
             }
             else
             {
