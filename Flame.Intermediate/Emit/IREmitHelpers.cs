@@ -83,7 +83,7 @@ namespace Flame.Intermediate.Emit
                 {
                     var singletonAttr = (SingletonAttribute)Attribute;
                     return new ConstantNodeStructure<IAttribute>(
-                        NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[] 
+                        NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[]
                         { 
                             NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName) 
                         }), singletonAttr);
@@ -92,10 +92,19 @@ namespace Flame.Intermediate.Emit
                 {
                     var type = ((AssociatedTypeAttribute)Attribute).AssociatedType;
                     return new LazyNodeStructure<IAttribute>(Attribute, () =>
-                        NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[] 
-                        { 
-                            Assembly.TypeTable.GetReference(type)
-                        }));
+                        NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[]
+                    { 
+                        Assembly.TypeTable.GetReference(type)
+                    }));
+                }
+                else if (Attribute is OperatorAttribute)
+                {
+                    var op = ((OperatorAttribute)Attribute).Operator;
+                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                        NodeFactory.Call(AttributeParsers.OperatorNodeName, new LNode[]
+                    { 
+                        NodeFactory.IdOrLiteral(op.Name)
+                    }));
                 }
                 else
                 {
