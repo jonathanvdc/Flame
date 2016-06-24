@@ -1,0 +1,23 @@
+using System;
+
+public class Vector2<T>
+{
+    public this(set T X, set T Y);
+
+    public T X { get; set; }
+    public T Y { get; set; }
+}
+
+public static class Program
+{
+    public double GetLength(Vector2<double> Vector)
+    {
+        return Vector.X * Vector.X + Vector.Y * Vector.Y;
+    }
+
+    public void Main()
+    {
+        var vec = new Vector2<double>(3, 4);
+        Console.WriteLine(GetLength(vec));
+    }
+}
