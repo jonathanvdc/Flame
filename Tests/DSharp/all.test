@@ -6,6 +6,7 @@ tests
     Constant/Constant.test;
     Flow/Flow.test;
     Fractal/Fractal.test;
+    Monads/Monads.test;
     Overloading/Overloading.test;
     Point/Point.test;
 }

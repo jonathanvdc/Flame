@@ -108,18 +108,15 @@ public module primio
 
 public static class Program
 {
-    private static IO<TResult> createFailIO<TArg, TResult>(TArg Arg)
-    {
-        return primio.failIO<TResult>("Well, damn");
-    }
-
     public static void Main(string[] Args)
     {
-        var monad = primio.bindIO<Unit, Unit>(
-            primio.bindIO<string, Unit>(
-                primio.readLineIO(),
-                primio.writeLineIO),
-            createFailIO<Unit, Unit>);
+        var monad = primio.bindIO<string, Unit>(
+            primio.readLineIO(),
+            primio.writeLineIO);
+
+        if (monad == null)
+            primio.performIO<Unit>(primio.failIO<Unit>("Well, damn."));
+
         primio.performIO<Unit>(monad);
     }
 }

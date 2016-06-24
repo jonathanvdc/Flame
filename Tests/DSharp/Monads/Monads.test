@@ -1,0 +1,25 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($Input1 |> $(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    Og { Flags = -Og; }
+    O2 { Flags = -O2; }
+    O3 { Flags = -O3; }
+}
+
+init
+{
+    Filename = Monads;
+    Input1 = echo "Howdy!";
+    return = $Input1;
+}
