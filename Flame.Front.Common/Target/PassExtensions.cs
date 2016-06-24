@@ -116,8 +116,8 @@ namespace Flame.Front.Target
             inliningLoopPasses.Add(new LoopPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
 			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
 
-            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName)));
-            inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName)));
+            inliningLoopPasses.Add(new LoopPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName));
+            inliningLoopPasses.Add(new LoopPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName));
 
             // -fscalarrepl performs scalar replacement of aggregates.
             // It's -O3

@@ -53,7 +53,7 @@ namespace Flame.Optimization
     /// An optimization pass that attempts to allocate reference type on the
     /// stack by replacing them by references to value types.
     /// </summary>
-    public abstract class HeapToStackPassBase : IPass<BodyPassArgument, IStatement>
+    public abstract class HeapToStackPassBase : LoopPassBase
     {
         /// <summary>
         /// Gets a boolean value that specifies whether function calls
@@ -69,7 +69,7 @@ namespace Flame.Optimization
         /// <summary>
         /// Applies this pass to the given body pass argument.
         /// </summary>
-        public IStatement Apply(BodyPassArgument Argument)
+        public LoopPassResult Apply(BodyPassArgument Argument, int Iteration)
             in { VerifyCFGPass.Apply(Argument.Body) }
             in
             {
@@ -77,11 +77,11 @@ namespace Flame.Optimization
                     Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
                     PassName + " (input)")
             }
-            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifyCFGPass.Apply(result.Body) }
             out (result)
             {
                 VerifySSAPass.Apply(
-                    result, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
+                    result.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
                     PassName + " (output)")
             }
         {
@@ -90,7 +90,11 @@ namespace Flame.Optimization
                 method, HeapToStackAnalyzer.CreateConservativeAnalysis(method).SignatureResult,
                 Argument.Body, Argument, GetAnalysisCache(Argument));
             assert(result != null);
-            return result;
+            if (result == null)
+                return new LoopPassResult(Argument.Body, false);
+            else
+                // We have replaced something.
+                return new LoopPassResult(result, true);
         }
 
         private bool CanReplace(EscapeAnalysisResult Result, IType Type)
@@ -287,16 +291,12 @@ namespace Flame.Optimization
             // Next, we can try to replace all types.
             var replTypes = new Dictionary<IType, IType>();
             var replFields = new Dictionary<IField, IField>();
-            if (!Enumerable.Any<UniqueTag>(analysis.Tags))
-            {
-                Console.WriteLine("'" + Method.FullName + "' analysis contains no tags");
-            }
             var fieldCache = GetFieldCache(Argument);
+            bool hasReplacedAny = replMethods.Count > 0;
             foreach (var tag in analysis.Tags)
             {
                 if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
                 {
-                    Console.WriteLine("Variable was local: " + tag.Name);
                     var ty = analysis.GetType(tag);
                     if (!replTypes.ContainsKey(ty))
                     {
@@ -304,6 +304,7 @@ namespace Flame.Optimization
                         replTypes[ty] = valTy;
                         if (valTy != null)
                         {
+                            hasReplacedAny = true;
                             var genDeclTy = ty.GetRecursiveGenericDeclaration();
                             foreach (var field in genDeclTy.GetAllFields())
                             {
@@ -319,19 +320,14 @@ namespace Flame.Optimization
                                     replFields[field] = valField;
                                 }
                             }
-                            Console.WriteLine("Replaced type '" + ty.FullName + "' with '" + valTy.FullName + "'");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Could not replace type: " + ty.FullName);
                         }
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Variable was global: " + tag.Name);
-                }
             }
+
+            if (!hasReplacedAny)
+                // We won't be replacing anything. Return null and abort.
+                return null;
 
             // Finally, we can rewrite the method body itself.
             // Create a rewriter, and have it visit the analyzed method body.
