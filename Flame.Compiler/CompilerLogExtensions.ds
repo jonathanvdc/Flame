@@ -68,16 +68,29 @@ namespace Flame.Compiler
                 return new MarkupNode(NodeConstants.TextNodeType, "");
             }
 
-            var oldSrc = Location.CreateSourceNode();
-            var neutralOldSrc = new MarkupNode("neutral-diagnostics", new MarkupNode[] { oldSrc });
-            var oldTitle = new MarkupNode(NodeConstants.BrightNodeType, Title);
-            var oldMessage = CreateLineNumberNode(Location);
+            // We want to format this as:
+            //
+            // X.cs:1:1: remark: Title
+            //
+            //     Location other text
+            //     ^~~~~~~~
+            //
+            var srcNode = Location.CreateSourceNode();
+            var neutralSrcNode = new MarkupNode("neutral-diagnostics", new MarkupNode[] { srcNode });
+            var messageNode = CreateLineNumberNode(Location);
+            var sepNode = new MarkupNode(NodeConstants.TextNodeType, ": ");
+            var titleNode = new MarkupNode(NodeConstants.BrightNodeType, Title);
 
-            return new MarkupNode(NodeConstants.RemarksNodeType, new MarkupNode[]
+            var attrs = new Dictionary<string, object>();
+            attrs["remark-prefix-count"] = (int)2;
+            return new MarkupNode(
+                NodeConstants.RemarksNodeType, new PredefinedAttributes(attrs),
+                new MarkupNode[]
             {
-                oldTitle,
-                oldMessage,
-                neutralOldSrc
+                messageNode,
+                sepNode,
+                titleNode,
+                neutralSrcNode
             });
         }
 

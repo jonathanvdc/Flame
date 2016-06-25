@@ -25,11 +25,21 @@ namespace Flame.Front.Cli
         {
             Console.WriteLine();
             Console.PushStyle(Node.GetStyle(Palette));
+
+            int prefixCount = Node.Attributes.Get<int>(
+                "remark-prefix-count", 0);
+
+            foreach (var item in Node.Children.Take(prefixCount))
+            {
+                MainWriter.Write(item, Console, Palette);
+            }
+
             Console.PushStyle(GetRemarksStyle(Palette));
             Console.Write("remark: ");
             Console.PopStyle();
+
             Console.Write(Node.GetText());
-            foreach (var item in Node.Children)
+            foreach (var item in Node.Children.Skip(prefixCount))
             {
                 MainWriter.Write(item, Console, Palette);
             }
