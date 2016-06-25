@@ -75,7 +75,9 @@ namespace Flame.Cecil
             List<IMethod> methods = new List<IMethod>();
             foreach (var item in MethodDefinitions)
             {
-                methods.Add(new CecilMethod(DeclaringType, item));
+                if (item.SemanticsAttributes == MethodSemanticsAttributes.None)
+                    // Exclude property and event accessors.
+                    methods.Add(new CecilMethod(DeclaringType, item));
             }
             return methods.ToArray();
         }
