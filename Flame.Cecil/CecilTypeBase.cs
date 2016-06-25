@@ -75,10 +75,7 @@ namespace Flame.Cecil
             List<IMethod> methods = new List<IMethod>();
             foreach (var item in MethodDefinitions)
             {
-                if (item.IsConstructor || !item.IsSpecialName)
-                {
-                    methods.Add(new CecilMethod(DeclaringType, item));
-                }
+                methods.Add(new CecilMethod(DeclaringType, item));
             }
             return methods.ToArray();
         }
