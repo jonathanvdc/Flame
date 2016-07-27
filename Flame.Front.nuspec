@@ -18,6 +18,7 @@
     <copyright>Copyright 2016</copyright>
     <tags>Flame compiler</tags>
     <dependencies>
+        <dependency id="Flame.Compiler" version="$version$" />
         <dependency id="Mono.Cecil" version="0.9.6.1" />
         <dependency id="Newtonsoft.Json" version="8.0.3" />
         <dependency id="LoycCore" version="1.8.0" />
@@ -26,14 +27,24 @@
   </metadata>
   <files>
     <file src="README.md" target="readme.txt" />
-    <file src="Flame.Front.Common\bin\Release\Flame*.dll" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Flame*.pdb" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Flame*.xml" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Pixie*.dll" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Pixie*.pdb" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Pixie*.xml" target="lib\net45\" />
-    <file src="Flame.DSProject\bin\Release\Flame.DSProject.dll" target="lib\net45\" />
-    <!-- <file src="Flame.DSProject\bin\Release\Flame.DSProject.pdb" target="lib\net45\" /> -->
-    <file src="Flame.DSProject\bin\Release\Flame.DSProject.xml" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Analysis.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Cecil.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.CodeDescription.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Front.Common.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Front.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Intermediate.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Markdown.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.MIPS.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Optimization.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Python.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Recompilation.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.RT.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Syntax.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.TextContract.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Verification.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Wasm.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.XmlDocs.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Pixie*.*" target="lib\net45\" />
+    <file src="Flame.DSProject\bin\Release\Flame.DSProject.*" target="lib\net45\" />
   </files>
 </package>
