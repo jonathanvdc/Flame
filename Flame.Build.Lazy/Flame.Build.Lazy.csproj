@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CE744475-5A28-471C-96AC-42902D951CFB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Flame.Build.Lazy</RootNamespace>
+    <AssemblyName>Flame.Build.Lazy</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Flame.Compiler\bin\Pixie.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DeferredInitializer.cs" />
+    <Compile Include="LazyDescribedAccessor.cs" />
+    <Compile Include="LazyDescribedField.cs" />
+    <Compile Include="LazyDescribedMethod.cs" />
+    <Compile Include="LazyDescribedProperty.cs" />
+    <Compile Include="LazyDescribedType.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
