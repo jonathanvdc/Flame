@@ -3,5 +3,5 @@
 
 bash ./BuildFlameCore.sh $@
 cd ./Flame.Cecil/
-xbuild /p:Configuration=Release Flame.Cecil.mono.sln
+xbuild /p:Configuration=Release Flame.Cecil.sln
 cd ..

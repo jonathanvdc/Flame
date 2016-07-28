@@ -13,5 +13,5 @@ dsc Flame.Markdown/Flame.Markdown.dsproj -Wall -Wextra -pedantic -O3 -repeat-com
 # or -graph-colorer greedy-related.
 dsc Flame.DSharp/Flame.DSharp.dsc.dsproj -Wall -Wextra -pedantic -O3 -graph-colorer none -repeat-command -time $@
 cd ./Flame.Cecil/
-xbuild /p:Configuration=Release Flame.Cecil.mono.sln
+xbuild /p:Configuration=Release Flame.Cecil.sln
 cd ..
