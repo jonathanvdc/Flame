@@ -5,8 +5,15 @@ using System.Threading;
 
 namespace Flame.Build.Lazy
 {
+    /// <summary>
+    /// A type implementation that constructs itself lazily.
+    /// </summary>
     public class LazyDescribedType : LazyDescribedMember, IType, INamespace
 	{
+        /// <summary>
+        /// Creates a new lazily described type from the given name,
+        /// declaring namespace, and a deferred construction action.
+        /// </summary>
 		public LazyDescribedType(
 			UnqualifiedName Name, INamespace Namespace,
 			Action<LazyDescribedType> AnalyzeBody)
@@ -32,11 +39,14 @@ namespace Flame.Build.Lazy
 		private DeferredInitializer<LazyDescribedType> analyzeBody;
 
 		/// <summary>
-		/// Gets the declaring namespace.
+		/// Gets the declaring namespace for this type.
 		/// </summary>
 		/// <value>The declaring namespace.</value>
 		public INamespace DeclaringNamespace { get; private set; }
 
+        /// <summary>
+        /// Gets this type's qualified name.
+        /// </summary>
 		public override QualifiedName FullName
 		{
 			get
@@ -45,22 +55,41 @@ namespace Flame.Build.Lazy
 			}
 		}
 
-		public IAssembly DeclaringAssembly { get { return DeclaringNamespace.DeclaringAssembly; } }
+        /// <summary>
+        /// Gets this type's declaring assembly.
+        /// </summary>
+		public IAssembly DeclaringAssembly
+        {
+            get { return DeclaringNamespace.DeclaringAssembly; }
+        }
 
-		public IAncestryRules AncestryRules { get { return DefinitionAncestryRules.Instance; } }
+        /// <summary>
+        /// Gets this type's set of ancestry rules.
+        /// </summary>
+		public IAncestryRules AncestryRules
+        {
+            get { return DefinitionAncestryRules.Instance; }
+        }
 
+        /// <summary>
+        /// Gets this lazily described type's default value.
+        /// </summary>
 		public IBoundObject GetDefaultValue()
 		{
 			return null;
 		}
 
+        /// <summary>
+        /// Constructs the initial state of this lazily described member.
+        /// This method is called on-demand.
+        /// </summary>
 		protected override void CreateBody()
 		{
             analyzeBody.Initialize(this);
 		}
 
 		/// <summary>
-		/// Gets this described type's base types.
+		/// Gets this described type's set of base types.
 		/// </summary>
 		public IEnumerable<IType> BaseTypes
 		{
@@ -175,6 +204,9 @@ namespace Flame.Build.Lazy
 			this.typeParams.Add(Value);
 		}
 
+        /// <summary>
+        /// Gets this type's list of generic parameters.
+        /// </summary>
 		public IEnumerable<IGenericParameter> GenericParameters
 		{
 			get
