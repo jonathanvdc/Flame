@@ -4,7 +4,7 @@ install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc_binaries.zip
   - 7z x dsc_binaries.zip -obin_dsc
   - git clone https://github.com/jonathanvdc/compare-test
-  - nuget restore Flame.Cecil\Flame.Cecil.mono.sln
+  - nuget restore Flame.Cecil\Flame.Cecil.sln
 build_script:
   - set SEMVER=0.7.8
   - echo %APPVEYOR_REPO_TAG%

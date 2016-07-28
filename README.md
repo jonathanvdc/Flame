@@ -64,7 +64,7 @@ $ ./BuildFlame.sh
 Windows:
 ```cmd
 $ BuildFlame.bat
-$ msbuild /p:Configuration=Release Flame.Cecil\Flame.Cecil.mono.sln
+$ msbuild /p:Configuration=Release Flame.Cecil\Flame.Cecil.sln
 ```
 
 That's it. The Flame libraries you just compiled should be located in the `bin` subdirectories of the top-level Flame project directories.  
