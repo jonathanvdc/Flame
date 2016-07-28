@@ -36,11 +36,12 @@ namespace Flame.Build.Lazy
         /// </summary>
         public bool Initialize(T Instance)
         {
-            if (syncObject == null)
+            var localSyncObj = syncObject;
+            if (localSyncObj == null)
                 return false;
 
             bool result = false;
-            lock (syncObject)
+            lock (localSyncObj)
             {
                 if (init != null)
                 {
