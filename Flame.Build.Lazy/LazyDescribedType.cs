@@ -76,6 +76,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddBaseType(IType BaseType)
 		{
+            CreateBody();
 			this.baseTypes.Add(BaseType);
 		}
 
@@ -86,7 +87,7 @@ namespace Flame.Build.Lazy
 		{
 			get
 			{
-				CreateBody(); 
+				CreateBody();
 				return methods;
 			}
 		}
@@ -96,6 +97,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddMethod(IMethod Method)
 		{
+            CreateBody();
 			this.methods.Add(Method);
 		}
 
@@ -116,6 +118,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddProperty(IProperty Property)
 		{
+            CreateBody();
 			this.properties.Add(Property);
 		}
 
@@ -126,7 +129,7 @@ namespace Flame.Build.Lazy
 		{
 			get
 			{
-				CreateBody(); 
+				CreateBody();
 				return fields;
 			}
 		}
@@ -136,6 +139,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddField(IField Field)
 		{
+            CreateBody();
 			this.fields.Add(Field);
 		}
 
@@ -146,7 +150,7 @@ namespace Flame.Build.Lazy
 		{
 			get
 			{
-				CreateBody(); 
+				CreateBody();
 				return this.nestedTypes;
 			}
 		}
@@ -157,6 +161,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddNestedType(IType Type)
 		{
+            CreateBody();
 			this.nestedTypes.Add(Type);
 		}
 
@@ -166,6 +171,7 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public void AddGenericParameter(IGenericParameter Value)
 		{
+            CreateBody();
 			this.typeParams.Add(Value);
 		}
 
@@ -179,4 +185,3 @@ namespace Flame.Build.Lazy
 		}
 	}
 }
-
