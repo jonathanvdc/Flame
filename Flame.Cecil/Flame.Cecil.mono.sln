@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Intermediate", "..\Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Wasm", "..\Flame.Wasm\Flame.Wasm.csproj", "{24545215-0C8B-4B7A-B109-2E4B325FA728}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Build.Lazy", "..\Flame.Build.Lazy\Flame.Build.Lazy.csproj", "{CE744475-5A28-471C-96AC-42902D951CFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{CD2775AF-ED95-4562-9903-A309A6841BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD2775AF-ED95-4562-9903-A309A6841BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD2775AF-ED95-4562-9903-A309A6841BAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE744475-5A28-471C-96AC-42902D951CFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE744475-5A28-471C-96AC-42902D951CFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE744475-5A28-471C-96AC-42902D951CFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE744475-5A28-471C-96AC-42902D951CFB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F127B39B-F086-4E70-B3FF-FE84BFFF4796}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F127B39B-F086-4E70-B3FF-FE84BFFF4796}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F127B39B-F086-4E70-B3FF-FE84BFFF4796}.Release|Any CPU.ActiveCfg = Release|Any CPU
