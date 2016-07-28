@@ -54,5 +54,21 @@ namespace UnitTests.Build.Lazy
                 Assert.AreEqual(integer.Value, 1);
             }
         }
+
+        [Test]
+        public void RecursiveInit()
+        {
+            var integer = new Box<int>(0);
+            DeferredInitializer<Box<int>> init;
+            // This test makes sure that Initialize() does not recurse:
+            // calling Initialize() from Initialize() does nothing at all.
+            // This is by design, because it allows initialization to touch
+            // other things that require initialization.
+            init = new DeferredInitializer<Box<int>>(x => { x.Value++; init.Initialize(x); });
+            Assert.IsFalse(init.HasInitialized);
+            init.Initialize(integer);
+            Assert.IsTrue(init.HasInitialized);
+            Assert.AreEqual(integer.Value, 1);
+        }
     }
 }
