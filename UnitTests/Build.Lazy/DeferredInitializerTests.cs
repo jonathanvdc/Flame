@@ -7,15 +7,11 @@ using Flame;
 using Flame.Collections;
 using Flame.Build.Lazy;
 
-namespace UnitTests
+namespace UnitTests.Build.Lazy
 {
     [TestFixture]
     public class DeferredInitializerTests
     {
-        public DeferredInitializerTests()
-        {
-        }
-
         [Test]
         public void TestNoInit()
         {
