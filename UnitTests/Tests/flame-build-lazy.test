@@ -1,5 +1,5 @@
 
 run
 {
-    $net-runtime ../bin/Release/UnitTests.exe 1;
+    $net-runtime ../bin/Release/UnitTests.exe 2;
 }

@@ -14,7 +14,10 @@ namespace UnitTests
     {
         public static readonly VList<Pair<string, Func<int>>> Menu = new VList<Pair<string, Func<int>>>()
         {
+            new Pair<string,Func<int>>("Run unit tests of Flame.dll",  Flame),
             new Pair<string,Func<int>>("Run unit tests of Flame.Build.Lazy.dll",  Flame_Build_Lazy),
+            new Pair<string,Func<int>>("Run unit tests of Flame.DSharp.dll",  Flame_DSharp),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Optimization.dll",  Flame_Optimization)
         };
 
         public static void Main(string[] args)
@@ -64,10 +67,32 @@ namespace UnitTests
             return errorCount;
         }
 
+        public static int Flame()
+        {
+            return RunTests.RunMany(
+                new SetTests(),
+                new ShadowingTests(),
+                new TypeSystemTests());
+        }
+
         public static int Flame_Build_Lazy()
         {
             return RunTests.RunMany(
-                new DeferredInitializerTests());
+                new Build.Lazy.DeferredInitializerTests());
+        }
+
+        public static int Flame_DSharp()
+        {
+            return RunTests.RunMany(
+                new DSharp.LexerTests(),
+                new DSharp.ParserTests(),
+                new DSharp.SemanticsTests());
+        }
+
+        public static int Flame_Optimization()
+        {
+            return RunTests.RunMany(
+                new Optimization.SimplifyFlowTests());
         }
     }
 }
