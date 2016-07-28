@@ -4,9 +4,18 @@ using System.Threading;
 
 namespace Flame.Build.Lazy
 {
+    /// <summary>
+    /// A field implementation that constructs itself lazily.
+    /// </summary>
     public class LazyDescribedField : LazyDescribedTypeMember, IInitializedField
     {
-        public LazyDescribedField(UnqualifiedName Name, IType DeclaringType, Action<LazyDescribedField> AnalyzeBody)
+        /// <summary>
+        /// Creates a new lazily constructed field from the given name,
+        /// declaring type and deferred construction action.
+        /// </summary>
+        public LazyDescribedField(
+            UnqualifiedName Name, IType DeclaringType,
+            Action<LazyDescribedField> AnalyzeBody)
             : base(Name, DeclaringType)
         {
             this.analyzeBody = new DeferredInitializer<LazyDescribedField>(AnalyzeBody);
@@ -16,6 +25,9 @@ namespace Flame.Build.Lazy
 
         private IType fieldTy;
 
+        /// <summary>
+        /// Gets or sets this field's type.
+        /// </summary>
         public IType FieldType
         {
             get
@@ -32,6 +44,9 @@ namespace Flame.Build.Lazy
 
         private IExpression bodyExpr;
 
+        /// <summary>
+        /// Gets or sets this field's (initial) value, as an expression.
+        /// </summary>
         public IExpression Value
         {
             get
@@ -46,11 +61,18 @@ namespace Flame.Build.Lazy
             }
         }
 
+        /// <summary>
+        /// Gets this field's (initial) value, as an expression.
+        /// </summary>
         public IExpression GetValue()
         {
             return Value;
         }
 
+        /// <summary>
+        /// Constructs the initial state of this lazily described member.
+        /// This method is called on-demand.
+        /// </summary>
         protected override void CreateBody()
         {
             analyzeBody.Initialize(this);
