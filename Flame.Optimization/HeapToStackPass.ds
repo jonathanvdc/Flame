@@ -464,13 +464,8 @@ namespace Flame.Optimization
                 return null;
             }
 
-            var genDecl = Type.GetRecursiveGenericDeclaration();
-
             // Rewrite the type.
-            var rewritten = RewriteAsValueType(genDecl, PassArgument);
-
-            // Create a new generic instance, and return that.
-            return rewritten.MakeRecursiveGenericType(Type.GetRecursiveGenericArguments());
+            return RewriteAsValueType(Type, PassArgument);
         }
 
         /// <summary>
@@ -634,7 +629,7 @@ namespace Flame.Optimization
             var cache = GetValueTypeCache(PassArgument);
 
             var genDecl = ReferenceType.GetRecursiveGenericDeclaration();
-            var genDeclArgs = genDecl.GetRecursiveGenericArguments();
+            var genDeclArgs = ReferenceType.GetRecursiveGenericArguments();
 
             IType resultType;
             if (cache.TryGetValue(genDecl, &resultType))
