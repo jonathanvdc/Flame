@@ -4,25 +4,27 @@ using System.Text;
 
 namespace Flame.Compiler
 {
-	/* Implement this elsewhere
-	
-	public class EmptyCompilerOptions : ICompilerOptions
+	/// <summary>
+	/// Represents the empty set of compiler options.
+	/// </summary>
+	public static class EmptyCompilerOptions : ICompilerOptions
  	{
-		public const this();
-	
 		/// <summary>
-		/// Gets the option associated with the given key. If no such option has been specified, returns the given default value.
+		/// Gets the option associated with the given key.
+		/// If no such option has been specified, returns the given default value.
 		/// </summary>
 		public T GetOption<T>(string Key, T Default) : ICompilerOptions.GetOption<T>
 		{
 			return Default;
 		}
+
 		/// <summary>
-		/// Gets a boolean value that indicates whether an option for the given key has been specified.
+		/// Gets a boolean value that indicates whether an option
+		/// for the given key has been specified.
 		/// </summary>
 		public bool HasOption(string Key) : ICompilerOptions.HasOption
 		{
 			return false;
 		}
-	}*/
+	}
 }
