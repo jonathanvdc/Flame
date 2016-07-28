@@ -6,57 +6,104 @@ using System.Threading;
 
 namespace Flame.Build.Lazy
 {
+    /// <summary>
+    /// A base class for members that are constructed lazily.
+    /// </summary>
     public abstract class LazyDescribedMember : IMember
     {
+        /// <summary>
+        /// Initializes this lazy described member with the given name.
+        /// </summary>
         public LazyDescribedMember(UnqualifiedName Name)
         {
             this.Name = Name;
             this.attributeList = new AttributeMapBuilder();
         }
 
+        /// <summary>
+        /// Gets this member's unqualified name.
+        /// </summary>
         public UnqualifiedName Name { get; private set; }
+
+        /// <summary>
+        /// Gets this member's qualified name.
+        /// </summary>
         public abstract QualifiedName FullName { get; }
 
+        /// <summary>
+        /// Constructs the initial state of this lazily described member.
+        /// This method is called on-demand.
+        /// </summary>
         protected abstract void CreateBody();
 
         private AttributeMapBuilder attributeList;
 
+        /// <summary>
+        /// Adds the given attribute to this member's attribute map.
+        /// </summary>
         public void AddAttribute(IAttribute Attribute)
         {
             CreateBody();
             attributeList.Add(Attribute);
         }
 
+        /// <summary>
+        /// Adds the given sequence of attributes to this member's attributes map.
+        /// </summary>
         public void AddAttributes(IEnumerable<IAttribute> Attributes)
         {
             CreateBody();
             attributeList.AddRange(Attributes);
         }
 
+        /// <summary>
+        /// Adds the given attribute map to this member's attributes map.
+        /// </summary>
         public void AddAttributes(AttributeMap Attributes)
         {
             CreateBody();
             attributeList.AddRange(Attributes);
         }
 
+        /// <summary>
+        /// Adds the given attribute map builder to this member's attributes map.
+        /// </summary>
         public void AddAttributes(AttributeMapBuilder Attributes)
         {
             CreateBody();
             attributeList.AddRange(Attributes);
         }
 
+        /// <summary>
+        /// Gets this member's attribute map.
+        /// </summary>
         public AttributeMap Attributes
         {
-            get 
-            { 
+            get
+            {
                 CreateBody();
                 return new AttributeMap(attributeList);
             }
         }
+
+        /// <summary>
+        /// Creates a string that identifies this member.
+        /// </summary>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 
+    /// <summary>
+    /// A base class for type members that are constructed lazily.
+    /// </summary>
     public abstract class LazyDescribedTypeMember : LazyDescribedMember, ITypeMember
 	{
+        /// <summary>
+        /// Initializes this lazy described member with the given name and
+        /// declaring type.
+        /// </summary>
 		public LazyDescribedTypeMember(UnqualifiedName Name, IType DeclaringType)
 			: base(Name)
 		{
@@ -66,9 +113,12 @@ namespace Flame.Build.Lazy
 		/// <summary>
 		/// Gets the type that declared this member.
 		/// </summary>
-		/// <value>The type of the declaring.</value>
+		/// <value>The type that declared this member.</value>
 		public IType DeclaringType { get; private set; }
 
+        /// <summary>
+        /// Gets this member's qualified name.
+        /// </summary>
 		public sealed override QualifiedName FullName
 		{
 			get
@@ -80,12 +130,25 @@ namespace Flame.Build.Lazy
 			}
 		}
 
-		public abstract bool IsStatic { get; set; }
+        private bool isStaticVal;
 
-		public override string ToString()
-		{
-            return FullName.ToString();
-		}
+        /// <summary>
+        /// Gets or sets a boolean flag that indicates whether this type member
+        /// is static or not.
+        /// </summary>
+        public bool IsStatic
+        {
+            get
+            {
+                CreateBody();
+                return isStaticVal;
+            }
+            set
+            {
+                CreateBody();
+                isStaticVal = value;
+            }
+        }
 	}
 
 	public class LazyDescribedMethod : LazyDescribedTypeMember, IBodyMethod
@@ -105,32 +168,16 @@ namespace Flame.Build.Lazy
 		private IType retType;
 
 		public IType ReturnType
-		{ 
+		{
 			get
 			{
 				CreateBody();
 				return retType;
 			}
 			set
-			{ 
+			{
 				CreateBody();
 				retType = value;
-			}
-		}
-
-		private bool isStaticVal;
-
-		public override bool IsStatic
-		{
-			get
-			{
-				CreateBody();
-				return isStaticVal;
-			}
-			set
-			{
-				CreateBody();
-				isStaticVal = value;
 			}
 		}
 
@@ -153,16 +200,16 @@ namespace Flame.Build.Lazy
 		private IStatement bodyStmt;
 
 		public IStatement Body
-		{ 
+		{
 			get
 			{
 				CreateBody();
 				return bodyStmt;
 			}
 			set
-			{ 
+			{
 				CreateBody();
-				bodyStmt = value; 
+				bodyStmt = value;
 			}
 		}
 
@@ -234,4 +281,3 @@ namespace Flame.Build.Lazy
 		}
 	}
 }
-

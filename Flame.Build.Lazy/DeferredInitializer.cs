@@ -3,7 +3,7 @@
 namespace Flame.Build.Lazy
 {
     /// <summary>
-    /// A type of object that guarantees thread-safe, on-demand 
+    /// A type of object that guarantees thread-safe, on-demand
     /// initialization. An initialization action is only executed once.
     /// </summary>
     public struct DeferredInitializer<T>
@@ -26,7 +26,7 @@ namespace Flame.Build.Lazy
 
         /// <summary>
         /// Initializes the given instance. Note that this initializer
-        /// can only be used to initialized an object once.
+        /// can only be used to initialize an object once.
         /// A boolean is returned that tells whether the instance
         /// was actually initialized or not.
         /// </summary>
@@ -51,4 +51,3 @@ namespace Flame.Build.Lazy
         }
     }
 }
-
