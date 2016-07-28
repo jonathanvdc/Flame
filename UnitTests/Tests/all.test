@@ -1,0 +1,7 @@
+// A compare-test test description that runs all unit tests for Flame.
+// Note that the UnitTests project is assumed to have been built already.
+
+tests
+{
+    flame-build-lazy.test;
+}
