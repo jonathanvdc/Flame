@@ -12,7 +12,7 @@ namespace Flame.Build.Lazy
     public abstract class LazyDescribedMember : IMember
     {
         /// <summary>
-        /// Initializes this lazy described member with the given name.
+        /// Initializes this lazily described member with the given name.
         /// </summary>
         public LazyDescribedMember(UnqualifiedName Name)
         {
@@ -101,7 +101,7 @@ namespace Flame.Build.Lazy
     public abstract class LazyDescribedTypeMember : LazyDescribedMember, ITypeMember
 	{
         /// <summary>
-        /// Initializes this lazy described member with the given name and
+        /// Initializes this lazily described member with the given name and
         /// declaring type.
         /// </summary>
 		public LazyDescribedTypeMember(UnqualifiedName Name, IType DeclaringType)
@@ -151,9 +151,18 @@ namespace Flame.Build.Lazy
         }
 	}
 
+    /// <summary>
+    /// A method implementation that are constructed lazily.
+    /// </summary>
 	public class LazyDescribedMethod : LazyDescribedTypeMember, IBodyMethod
 	{
-		public LazyDescribedMethod(UnqualifiedName Name, IType DeclaringType, Action<LazyDescribedMethod> AnalyzeBody)
+        /// <summary>
+        /// Creates a new lazily described method from the given name,
+        /// declaring type, and a deferred construction action.
+        /// </summary>
+		public LazyDescribedMethod(
+            UnqualifiedName Name, IType DeclaringType,
+            Action<LazyDescribedMethod> AnalyzeBody)
 			: base(Name, DeclaringType)
 		{
 			this.baseMethods = new List<IMethod>();
@@ -167,6 +176,9 @@ namespace Flame.Build.Lazy
 
 		private IType retType;
 
+        /// <summary>
+        /// Gets or sets this method's return type.
+        /// </summary>
 		public IType ReturnType
 		{
 			get
@@ -183,6 +195,9 @@ namespace Flame.Build.Lazy
 
 		private bool isCtorVal;
 
+        /// <summary>
+        /// Gets or sets a boolean flag that tells if this method is a constructor.
+        /// </summary>
 		public bool IsConstructor
 		{
 			get
@@ -199,6 +214,9 @@ namespace Flame.Build.Lazy
 
 		private IStatement bodyStmt;
 
+        /// <summary>
+        /// Gets or sets this method's body statement.
+        /// </summary>
 		public IStatement Body
 		{
 			get
@@ -216,7 +234,6 @@ namespace Flame.Build.Lazy
 		/// <summary>
 		/// Gets the method's body statement.
 		/// </summary>
-		/// <returns></returns>
 		public IStatement GetMethodBody()
 		{
 			CreateBody();
@@ -230,11 +247,18 @@ namespace Flame.Build.Lazy
 
 		private List<IParameter> parameters;
 
+        /// <summary>
+        /// Adds the given parameter to this method's parameter list.
+        /// </summary>
 		public virtual void AddParameter(IParameter Parameter)
 		{
+            CreateBody();
 			parameters.Add(Parameter);
 		}
 
+        /// <summary>
+        /// Gets this method's parameter list.
+        /// </summary>
 		public IEnumerable<IParameter> Parameters
 		{
 			get
@@ -246,11 +270,18 @@ namespace Flame.Build.Lazy
 
 		private List<IMethod> baseMethods;
 
+        /// <summary>
+        /// Makes the given method a base method of this method.
+        /// </summary>
 		public virtual void AddBaseMethod(IMethod Method)
 		{
+            CreateBody();
 			baseMethods.Add(Method);
 		}
 
+        /// <summary>
+        /// Gets the list of all base methods for this method.
+        /// </summary>
 		public IEnumerable<IMethod> BaseMethods
 		{
 			get
@@ -262,15 +293,19 @@ namespace Flame.Build.Lazy
 
 		private List<IGenericParameter> genericParams;
 
+        /// <summary>
+        /// Adds the given generic parameter to this method's generic parameter
+        /// list.
+        /// </summary>
 		public virtual void AddGenericParameter(IGenericParameter Parameter)
 		{
+            CreateBody();
 			genericParams.Add(Parameter);
 		}
 
 		/// <summary>
-		/// Gets this method's generic parameters.
+		/// Gets this method's list of generic parameters.
 		/// </summary>
-		/// <returns></returns>
 		public IEnumerable<IGenericParameter> GenericParameters
 		{
 			get
