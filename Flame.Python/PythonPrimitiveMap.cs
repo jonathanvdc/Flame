@@ -19,7 +19,7 @@ namespace Flame.Python
             var endsWithMethod = PrimitiveTypes.String.GetMethod(new SimpleName("EndsWith"), false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(endsWithMethod, (cg, caller) => new MemberAccessBlock(cg, caller, "endswith", MethodType.Create(endsWithMethod)));
             var startsWithMethod = PrimitiveTypes.String.GetMethod(new SimpleName("StartsWith"), false, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
-            MapPrimitiveMethod(endsWithMethod, (cg, caller) => new MemberAccessBlock(cg, caller, "startswith", MethodType.Create(endsWithMethod)));
+            MapPrimitiveMethod(startsWithMethod, (cg, caller) => new MemberAccessBlock(cg, caller, "startswith", MethodType.Create(startsWithMethod)));
             var concatMethod = PrimitiveTypes.String.GetMethod(new SimpleName("Concat"), true, PrimitiveTypes.String, new IType[] { PrimitiveTypes.String, PrimitiveTypes.String });
             MapPrimitiveMethod(concatMethod, (cg, caller) => new PartialBinaryOperation(cg, PrimitiveTypes.String, Operator.Add));
             var nullOrEmptyMethod = PrimitiveTypes.String.GetMethod(new SimpleName("IsNullOrEmpty"), true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
