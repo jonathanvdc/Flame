@@ -17,47 +17,32 @@ namespace Flame.Build.Lazy
         private IType fieldTy;
 
         public IType FieldType
-        { 
+        {
             get
             {
                 CreateBody();
                 return fieldTy;
             }
             set
-            { 
+            {
                 CreateBody();
                 fieldTy = value;
-            }
-        }
-
-        private bool isStaticVal;
-        public override bool IsStatic
-        {
-            get
-            {
-                CreateBody();
-                return isStaticVal;
-            }
-            set
-            {
-                CreateBody();
-                isStaticVal = value;
             }
         }
 
         private IExpression bodyExpr;
 
         public IExpression Value
-        { 
+        {
             get
             {
                 CreateBody();
                 return bodyExpr;
             }
             set
-            { 
+            {
                 CreateBody();
-                bodyExpr = value; 
+                bodyExpr = value;
             }
         }
 
@@ -72,4 +57,3 @@ namespace Flame.Build.Lazy
         }
     }
 }
-

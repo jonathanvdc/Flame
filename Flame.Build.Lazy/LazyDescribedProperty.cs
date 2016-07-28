@@ -8,7 +8,7 @@ namespace Flame.Build.Lazy
     public class LazyDescribedProperty : LazyDescribedTypeMember, IProperty
     {
         public LazyDescribedProperty(
-            UnqualifiedName Name, IType DeclaringType, 
+            UnqualifiedName Name, IType DeclaringType,
             Action<LazyDescribedProperty> AnalyzeBody)
             : base(Name, DeclaringType)
         {
@@ -24,35 +24,19 @@ namespace Flame.Build.Lazy
         private List<IAccessor> accessors;
 
         public IType PropertyType
-        { 
+        {
             get
             {
                 CreateBody();
                 return retType;
             }
             set
-            { 
+            {
                 CreateBody();
                 retType = value;
             }
         }
-
-        private bool isStaticVal;
-
-        public override bool IsStatic
-        {
-            get
-            {
-                CreateBody();
-                return isStaticVal;
-            }
-            set
-            {
-                CreateBody();
-                isStaticVal = value;
-            }
-        }
-
+        
         protected override void CreateBody()
         {
             analyzeBody.Initialize(this);
@@ -87,4 +71,3 @@ namespace Flame.Build.Lazy
         }
     }
 }
-
