@@ -152,7 +152,7 @@ namespace Flame.Build.Lazy
 	}
 
     /// <summary>
-    /// A method implementation that are constructed lazily.
+    /// A method implementation that constructs itself lazily.
     /// </summary>
 	public class LazyDescribedMethod : LazyDescribedTypeMember, IBodyMethod
 	{
@@ -240,6 +240,10 @@ namespace Flame.Build.Lazy
 			return Body;
 		}
 
+        /// <summary>
+        /// Constructs the initial state of this lazily described member.
+        /// This method is called on-demand.
+        /// </summary>
 		protected override void CreateBody()
 		{
             analyzeBody.Initialize(this);
