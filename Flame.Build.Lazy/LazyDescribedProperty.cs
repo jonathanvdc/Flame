@@ -5,8 +5,15 @@ using System.Threading;
 
 namespace Flame.Build.Lazy
 {
+    /// <summary>
+    /// A property implementation that constructs itself lazily.
+    /// </summary>
     public class LazyDescribedProperty : LazyDescribedTypeMember, IProperty
     {
+        /// <summary>
+        /// Creates a new lazily described property from the given name,
+        /// declaring type, and a deferred construction action.
+        /// </summary>
         public LazyDescribedProperty(
             UnqualifiedName Name, IType DeclaringType,
             Action<LazyDescribedProperty> AnalyzeBody)
@@ -23,6 +30,9 @@ namespace Flame.Build.Lazy
         private List<IParameter> parameters;
         private List<IAccessor> accessors;
 
+        /// <summary>
+        /// Gets or sets this property's type.
+        /// </summary>
         public IType PropertyType
         {
             get
@@ -36,17 +46,28 @@ namespace Flame.Build.Lazy
                 retType = value;
             }
         }
-        
+
+        /// <summary>
+        /// Constructs the initial state of this lazily described member.
+        /// This method is called on-demand.
+        /// </summary>
         protected override void CreateBody()
         {
             analyzeBody.Initialize(this);
         }
 
+        /// <summary>
+        /// Adds a parameter to this property's indexer parameter list.
+        /// </summary>
         public virtual void AddParameter(IParameter Parameter)
         {
+            CreateBody();
             parameters.Add(Parameter);
         }
 
+        /// <summary>
+        /// Gets this property's indexer parameter list.
+        /// </summary>
         public IEnumerable<IParameter> IndexerParameters
         {
             get
@@ -56,6 +77,9 @@ namespace Flame.Build.Lazy
             }
         }
 
+        /// <summary>
+        /// Gets this property's accessor list.
+        /// </summary>
         public IEnumerable<IAccessor> Accessors
         {
             get
@@ -65,8 +89,12 @@ namespace Flame.Build.Lazy
             }
         }
 
+        /// <summary>
+        /// Adds an accessor to this property's accessor list.
+        /// </summary>
         public void AddAccessor(IAccessor Accessor)
         {
+            CreateBody();
             this.accessors.Add(Accessor);
         }
     }
