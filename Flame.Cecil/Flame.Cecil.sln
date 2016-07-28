@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Intermediate", "..\Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Build.Lazy", "..\Flame.Build.Lazy\Flame.Build.Lazy.csproj", "{CE744475-5A28-471C-96AC-42902D951CFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "..\UnitTests\UnitTests.csproj", "{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0782FAA-6754-4B9D-B856-334DFCBA3462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0782FAA-6754-4B9D-B856-334DFCBA3462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0782FAA-6754-4B9D-B856-334DFCBA3462}.Release|Any CPU.ActiveCfg = Release|Any CPU
