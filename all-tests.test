@@ -4,6 +4,9 @@
 tests
 {
     // Include all Flame tests.
+    // First, the unit tests.
+    UnitTests/Tests/all.test;
+    // Then, the integration tests.
     Tests/all.test;
 }
 
