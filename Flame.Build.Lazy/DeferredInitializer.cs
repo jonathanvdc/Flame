@@ -8,6 +8,10 @@ namespace Flame.Build.Lazy
     /// </summary>
     public struct DeferredInitializer<T>
     {
+        /// <summary>
+        /// Creates a new deferred initializer object that executes the given
+        /// initialization action.
+        /// </summary>
         public DeferredInitializer(Action<T> Initializer)
         {
             this.init = Initializer;
