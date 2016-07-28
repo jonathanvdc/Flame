@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!-- NuGet package specification.
+     Run `nuget pack Flame.nuspec` to build Flame.x.y.z.nupkg -->
+<package >
+  <metadata>
+    <id>Flame.Build.Lazy</id>
+    <version>$version$</version>
+    <authors>Jonathan Van der Cruysse</authors>
+    <owners>Jonathan Van der Cruysse</owners>
+    <projectUrl>https://github.com/jonathanvdc/Flame</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>A compiler framework for managed code.</summary>
+    <description>Flame is a collection of modular, open-source .NET libraries that can be leveraged to build a compiler. It provides reusable components and a common compilation pipeline, which can be extended with additional passes, to suit the specific needs of source and target languages.
+
+    This package (Flame.Build.Lazy) defines lazy implementations for several IR constructs, such as types, fields, methods and properties.
+
+    If you want to build a compiler with Flame, then I recommend that you also get the Flame.Front package.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>Flame compiler</tags>
+    <dependencies>
+        <dependency id="Flame.Compiler" version="$version$" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="README.md" target="readme.txt" />
+    <file src="Flame.Build.Lazy\bin\Release\Flame.Build.Lazy.*" target="lib\net45\" />
+  </files>
+</package>

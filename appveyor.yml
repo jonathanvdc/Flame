@@ -34,6 +34,7 @@ after_build:
   - 7z a dsc.zip %APPVEYOR_BUILD_FOLDER%\dsc_build\*
   - nuget pack -Version %PKG_VERSION% Flame.Compiler.nuspec
   - nuget pack -Version %PKG_VERSION% Flame.Front.nuspec
+  - nuget pack -Version %PKG_VERSION% Flame.Build.Lazy.nuspec
 
 artifacts:
   - path: dsc.zip
