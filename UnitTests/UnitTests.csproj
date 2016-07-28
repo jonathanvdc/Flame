@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>UnitTests</RootNamespace>
+    <AssemblyName>UnitTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Utilities">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame">
+      <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
+    </Reference>
+    <Reference Include="Flame.Compiler">
+      <HintPath>..\Flame.Compiler\bin\Flame.Compiler.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\Flame.Compiler\bin\Pixie.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Build.Lazy\DeferredInitializerTests.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame.Build.Lazy\Flame.Build.Lazy.csproj">
+      <Project>{CE744475-5A28-471C-96AC-42902D951CFB}</Project>
+      <Name>Flame.Build.Lazy</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Build.Lazy\" />
+  </ItemGroup>
+</Project>
