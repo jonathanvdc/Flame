@@ -32,8 +32,9 @@ namespace Flame.Compiler.Emit
 
 		/// <summary>
 		/// Emits an assertion on the given code block.
+		/// An optional message block (of type `string`) explains what the assertion tests.
 		/// </summary>
-		ICodeBlock EmitAssert(ICodeBlock Condition);
+		ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message);
 	}
 
 	/// <summary>

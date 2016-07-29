@@ -573,9 +573,12 @@ namespace Flame.Intermediate.Emit
 
         #region Exceptions
 
-        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        public ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message)
         {
-            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.AssertNodeName, new LNode[] { NodeBlock.ToNode(Condition) }));
+            return new NodeBlock(
+                this, NodeFactory.Call(
+                    ExpressionParsers.AssertNodeName,
+                    new LNode[] { NodeBlock.ToNode(Condition), NodeBlock.ToNode(Message) }));
         }
 
         public ICodeBlock EmitThrow(ICodeBlock Exception)

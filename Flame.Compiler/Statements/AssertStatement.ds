@@ -13,36 +13,55 @@ namespace Flame.Compiler.Statements
 	{
 		/// <summary>
 		/// Creates an assertion statement from the given expression.
+		/// The message is set to 'null'.
 		/// </summary>
-		public const this(set IExpression Expression);
+		public this(set IExpression Expression)
+		{
+			this.Message = null;
+		}
+
+		/// <summary>
+		/// Creates an assertion statement from the given
+		/// expression and an optional message.
+		/// </summary>
+		public this(set IExpression Expression, set IExpression Message);
 
 		/// <summary>
 		/// Gets the expression that is tested for equality to `true`.
 		/// </summary>
-		public IExpression Expression { const get; private set; }
+		public IExpression Expression { get; private set; }
+
+		/// <summary>
+		/// Gets the expression (of type `string`) that produces a message
+		/// which describes what this assertion tests.
+		/// It generated message may be prose, or a snippet of code.
+		/// </summary>
+		public IExpression Message { get; private set; }
 
 		public bool IsConstantNode
 		{
-			const get return Expression.EvaluatesTo<bool>(true);
+			get { return Expression.EvaluatesTo<bool>(true); }
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
 			var transVal = Visitor.Visit(Expression);
-
-			if (transVal == Expression)
-			{
-				return this;
-			}
+			IExpression transMsg;
+			if (Message == null)
+				transMsg = null;
 			else
-			{
-				return new AssertStatement(transVal);
-			}
+				transMsg = Visitor.Visit(Message);
+
+			if (transVal == Expression && transMsg == Message)
+				return this;
+			else
+				return new AssertStatement(transVal, transMsg);
 		}
 
-		public const IStatement Optimize()
+		public IStatement Optimize()
 		{
-			var optAssert = new AssertStatement(Expression.Optimize());
+			var optAssert = new AssertStatement(
+				Expression.Optimize(), Message.OptimizeOrNull());
 			if (optAssert.IsEmpty)
 				return EmptyStatement;
 			else
@@ -54,13 +73,28 @@ namespace Flame.Compiler.Statements
 			if (Generator is IExceptionCodeGenerator)
 			{
 				var cg = (IExceptionCodeGenerator)Generator;
-				var expr = Expression.Emit(cg);
-				return cg.EmitAssert(expr);
+				return cg.EmitAssert(
+					Expression.Emit(cg), Message.EmitOrNull(cg));
 			}
 			else
 			{
 				return Generator.EmitVoid(); // Oh, well.
 			}
+		}
+
+		public override string ToString()
+		{
+			var sb = new StringBuilder();
+			sb.Append("assert(");
+			sb.Append(Expression.ToString());
+			if (Message != null)
+			{
+				sb.Append(", \"");
+				sb.Append(Message.ToString());
+				sb.Append("\"");
+			}
+			sb.Append(")");
+			return sb.ToString();
 		}
 	}
 }

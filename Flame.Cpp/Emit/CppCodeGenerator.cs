@@ -598,8 +598,9 @@ namespace Flame.Cpp.Emit
             return new ExceptionHandlingBlock(this, (ICppBlock)TryBody, (ICppBlock)FinallyBody, CatchClauses.Cast<CatchBlock>());
         }
 
-        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        public ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message)
         {
+            // Ignore the message, for now.
             var cppExpr = (ICppBlock)EmitInvocation(EmitMethod(CppPrimitives.AssertMethod, null), new ICodeBlock[] { Condition });
             return new ImplicitDependencyBlock(new ExpressionStatementBlock(cppExpr), new IHeaderDependency[] { StandardDependency.CAssert });
         }
