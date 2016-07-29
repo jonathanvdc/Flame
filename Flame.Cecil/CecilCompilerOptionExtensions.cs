@@ -31,7 +31,7 @@ namespace Flame.Cecil
 
         public static ICompilerLog CreateEmptyLog()
         {
-            return new EmptyCompilerLog(new EmptyCompilerOptions());
+            return new EmptyCompilerLog(EmptyCompilerOptions.Instance);
         }
 
         public static ICompilerLog GetLog(this IAssembly Assembly)

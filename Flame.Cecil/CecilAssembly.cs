@@ -45,7 +45,7 @@ namespace Flame.Cecil
             this.ConversionCache = ConversionCache;
         }
         public CecilAssembly(AssemblyDefinition Assembly, ConverterCache ConversionCache)
-            : this(Assembly, new EmptyCompilerLog(new EmptyCompilerOptions()), ConversionCache)
+            : this(Assembly, new EmptyCompilerLog(EmptyCompilerOptions.Instance), ConversionCache)
         {
         }
 

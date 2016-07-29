@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -123,7 +123,6 @@
     <Compile Include="Emit\LocalDeclaration.cs" />
     <Compile Include="Emit\PartialEmptyBlock.cs" />
     <Compile Include="Emit\ThrowBlock.cs" />
-    <Compile Include="EmptyCompilerOptions.cs" />
     <Compile Include="ForeignTypePredicate.cs" />
     <Compile Include="FriendAttribute.cs" />
     <Compile Include="HeaderComparer.cs" />
@@ -212,11 +211,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.CodeDescription\Flame.CodeDescription.csproj">
-      <Project>{b11dbde8-1b3a-4474-b425-d79178148c9d}</Project>
+      <Project>{B11DBDE8-1B3A-4474-B425-D79178148C9D}</Project>
       <Name>Flame.CodeDescription</Name>
     </ProjectReference>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">
-      <Project>{a0782faa-6754-4b9d-b856-334dfcba3462}</Project>
+      <Project>{A0782FAA-6754-4B9D-B856-334DFCBA3462}</Project>
       <Name>FlameRT</Name>
     </ProjectReference>
   </ItemGroup>
