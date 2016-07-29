@@ -14,8 +14,7 @@ configs
 {
     Og { Flags = -Og -fheap2stack; }
     O3 { Flags = -O3 -fheap2stack; }
-    // This errors:
-    // Og-ip { Flags = -Og -fip-heap2stack; }
+    Og-ip { Flags = -Og -fip-heap2stack; }
     O3-ip { Flags = -O3 -fip-heap2stack; }
 }
 
