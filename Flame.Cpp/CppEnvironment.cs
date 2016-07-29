@@ -11,7 +11,7 @@ namespace Flame.Cpp
     public class CppEnvironment : ICppEnvironment
     {
         public CppEnvironment()
-            : this(new EmptyCompilerLog(new EmptyCompilerOptions()))
+            : this(new EmptyCompilerLog(EmptyCompilerOptions.Instance))
         {
 
         }
