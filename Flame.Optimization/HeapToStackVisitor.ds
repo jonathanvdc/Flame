@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
@@ -389,6 +390,29 @@ namespace Flame.Optimization
             Log.LogMessage(new LogEntry("escape analysis", nodes));
         }
 
+        private static EscapeAnalysisData CreateAnalysisInstance(
+            IMethod Method, EscapeAnalysisData GenericAnalysis)
+        {
+            EscapeAnalysisData instAnalysis;
+            if (Method.IsRecursiveGenericInstance)
+            {
+                var mapping = new Dictionary<IType, IType>();
+                var genParams = Method.GetRecursiveGenericParameters();
+                var genArgs = Method.GetRecursiveGenericArguments();
+                foreach (var param in genParams, var arg in genArgs)
+                {
+                    mapping[param] = arg;
+                }
+                instAnalysis = GenericAnalysis.SelectTypes(
+                    new TypeMappingConverter(mapping));
+            }
+            else
+            {
+                instAnalysis = GenericAnalysis;
+            }
+            return new EscapeAnalysisData(Method, instAnalysis);
+        }
+
         /// <summary>
         /// Analyzes the given method.
         /// </summary>
@@ -401,7 +425,7 @@ namespace Flame.Optimization
             EscapeAnalysisData result;
             if (AnalyzedFunctions.TryGetValue(genDecl, &result))
             {
-                return new EscapeAnalysisData(Method, result);
+                return CreateAnalysisInstance(Method, result);
             }
             else
             {
@@ -427,7 +451,7 @@ namespace Flame.Optimization
                 // embedding graphs cheaper.
                 result = result.ElideLocals().DiscardOut();
                 AnalyzedFunctions[genDecl] = result;
-                return new EscapeAnalysisData(Method, result);
+                return CreateAnalysisInstance(Method, result);
             }
         }
 

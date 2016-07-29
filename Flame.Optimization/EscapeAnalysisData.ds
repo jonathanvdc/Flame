@@ -615,6 +615,24 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Applies the given mapping function to all node types in the
+        /// escape analysis' dependency graph.
+        /// </summary>
+        public EscapeAnalysisData SelectTypes(IConverter<IType, IType> Mapping)
+        {
+            var newNodeTypes = new Dictionary<UniqueTag, IType>();
+            foreach (var kvPair in nodeTypes)
+            {
+                newNodeTypes[kvPair.Key] = Mapping.Convert(kvPair.Value);
+            }
+
+            return new EscapeAnalysisData(
+                Method, dependencyGraph,
+                results, newNodeTypes, paramTags,
+                ThisParameterTag, ReturnValueTag);
+        }
+
+        /// <summary>
         /// Embeds a call to the given method in this escape analysis graph.
         /// </summary>
         public CallEscapeDependencies EmbedCall(
