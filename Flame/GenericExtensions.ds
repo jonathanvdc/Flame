@@ -70,6 +70,15 @@ namespace Flame
 			const get { return Type is GenericTypeBase; }
 		}
 
+		/// <summary>
+		/// Tells if the given method is a recursive generic instance: a generic instance
+		/// or a method of a generic instance.
+		/// </summary>
+		public static bool IsRecursiveGenericInstance[this IMethod Method]
+		{
+			const get { return Method is GenericMethodBase; }
+		}
+
 		#endregion
 
 		#region GetGenericDeclaration
@@ -186,8 +195,8 @@ namespace Flame
 			if (Type.DeclaringNamespace is IType)
 			{
 				return Enumerable.Concat<IGenericParameter>(
-					    ((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
-						typeParams);
+			    	((IType)Type.DeclaringNamespace).GetRecursiveGenericParameters(),
+					typeParams);
 			}
 			else
 			{
@@ -200,8 +209,9 @@ namespace Flame
 			var genArgs = Type.GetGenericArguments();
 			if (Type.DeclaringNamespace is IType)
 			{
-				return Enumerable.Concat<IType>(((IType)Type.DeclaringNamespace).GetRecursiveGenericArguments(),
-					                            genArgs);
+				return Enumerable.Concat<IType>(
+					((IType)Type.DeclaringNamespace).GetRecursiveGenericArguments(),
+                    genArgs);
 			}
 			else
 			{
@@ -218,6 +228,17 @@ namespace Flame
 				return Enumerable.Concat<IType>(
 					declTy.GetRecursiveGenericArguments(),
 					Method.GetGenericArguments());
+		}
+
+		public static [IType] GetRecursiveGenericParameters(this IMethod Method)
+		{
+			var declTy = Method.DeclaringType;
+			if (declTy == null)
+				return Method.GenericParameters;
+			else
+				return Enumerable.Concat<IType>(
+					declTy.GetRecursiveGenericParameters(),
+					Method.GenericParameters);
 		}
 
 		public static const IType GetRecursiveGenericDeclaration(this IType Type)
