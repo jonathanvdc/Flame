@@ -269,7 +269,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <remarks>
         /// Format:
-        /// 
+        ///
         /// #new_object(ctor, args...)
         /// </remarks>
         public const string NewObjectName = "#new_object";
@@ -642,15 +642,17 @@ namespace Flame.Intermediate.Parsing
             {
                 return new ErrorExpression(VoidExpression.Instance,
                     new LogEntry("Invalid '" + AssertNodeName + "' node",
-                    "'" + AssertNodeName + "' nodes take exactly one argument."));
+                    "'" + AssertNodeName + "' nodes take exactly two arguments."));
             }
 
-            var result = ToExpression(new AssertStatement(ParseExpression(State, Node.Args[0])));
+            var result = ToExpression(new AssertStatement(
+                ParseExpression(State, Node.Args[0]),
+                ParseExpression(State, Node.Args[1])));
             if (Node.ArgCount > 1)
             {
                 return new ErrorExpression(result, new LogEntry(
                     "Invalid '" + AssertNodeName + "' node",
-                    "'" + AssertNodeName + "' nodes take exactly one argument."));
+                    "'" + AssertNodeName + "' nodes take exactly two arguments."));
             }
             else
             {

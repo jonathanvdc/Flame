@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator, 
+    public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator,
                                    IExceptionCodeGenerator, IStackCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
@@ -27,7 +27,7 @@ namespace Flame.Cecil.Emit
             var ilRight = (ICecilBlock)B;
 
             // Optimize `0 - x` to `-x`
-            // TODO: Maybe get rid of this. 
+            // TODO: Maybe get rid of this.
             //       This is really something that should be done elsewhere.
             if (Op.Equals(Operator.Subtract) && ilLeft.IsInt32Literal() && ilLeft.GetInt32Literal() == 0)
             {
@@ -349,9 +349,25 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitAssert(ICodeBlock Condition)
         {
-            var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod("Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
+            var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod(
+                "Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
 
             return EmitInvocation(EmitMethod(method, null, Operator.GetDelegate), new ICodeBlock[] { Condition });
+        }
+
+        public ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message)
+        {
+            if (Message == null)
+            {
+                return EmitAssert(Condition);
+            }
+            else
+            {
+                var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod(
+                    "Assert", new Type[] { typeof(bool), typeof(string) }), (ICecilMember)Method);
+
+                return EmitInvocation(EmitMethod(method, null, Operator.GetDelegate), new ICodeBlock[] { Condition, Message });
+            }
         }
 
         public ICatchClause EmitCatchClause(ICatchHeader Header, ICodeBlock Body)

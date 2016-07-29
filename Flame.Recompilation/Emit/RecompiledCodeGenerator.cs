@@ -499,9 +499,10 @@ namespace Flame.Recompilation.Emit
             return new StatementBlock(this, new TryStatement(GetStatement(TryBody), GetStatement(FinallyBody), CatchClauses.Select(item => ((CatchHeader)item).ToClause())));
         }
 
-        public ICodeBlock EmitAssert(ICodeBlock Condition)
+        public ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message)
         {
-            return new StatementBlock(this, new AssertStatement(GetExpression(Condition)));
+            return new StatementBlock(this, new AssertStatement(
+                GetExpression(Condition), GetExpression(Message)));
         }
 
         public ICodeBlock EmitThrow(ICodeBlock Exception)
