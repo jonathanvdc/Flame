@@ -10,6 +10,7 @@ public static class Program
     public static void Main(string[] Args)
     {
         var vec = new Vector2<int>(1, 2);
+        assert(vec != null);
 
         Console.WriteLine(vec.X);
         Console.WriteLine(vec.Y);
