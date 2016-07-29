@@ -31,10 +31,12 @@ namespace Flame.Compiler
         /// Gets the source document this source location is associated with.
         /// </summary>
         public ISourceDocument Document { const get; private set; }
+
         /// <summary>
         /// Gets the position in the source document.
         /// </summary>
         public int Position { const get; private set; }
+
         /// <summary>
         /// Gets the source location's length.
         /// </summary>
@@ -47,11 +49,25 @@ namespace Flame.Compiler
         public bool HasLocation { const get return Position > 0 && Length > 0; }
 
         /// <summary>
+        /// Gets the string of source code at this source location.
+        /// </summary>
+        public string Source
+        {
+            get { return Document.Source.Substring(Position, Length); }
+        }
+
+        /// <summary>
         /// Gets the source location's position in the source document's row-column grid.
         /// </summary>
         public SourceGridPosition GridPosition
         {
-            const get return Document.ToGridPosition(Position);
+            get { return Document.ToGridPosition(Position); }
+        }
+
+        public override string ToString()
+        {
+            return "source-location(" + Document.Identifier
+                + ", " + Position + ", " + Length + ")";
         }
     }
 }
