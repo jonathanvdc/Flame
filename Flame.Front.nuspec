@@ -19,8 +19,8 @@
     <tags>Flame compiler</tags>
     <dependencies>
         <dependency id="Flame.Compiler" version="$version$" />
-        <dependency id="Mono.Cecil" version="0.9.6.1" />
-        <dependency id="Newtonsoft.Json" version="8.0.3" />
+        <dependency id="Mono.Cecil" version="0.9.6.4" />
+        <dependency id="Newtonsoft.Json" version="9.0.1" />
         <dependency id="LoycCore" version="1.8.0" />
         <dependency id="Loyc.Binary" version="0.1.4" />
     </dependencies>
@@ -44,7 +44,7 @@
     <file src="Flame.Front.Common\bin\Release\Flame.Verification.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Wasm.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.XmlDocs.*" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Pixie*.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Pixie.Xml.*" target="lib\net45\" />
     <file src="Flame.DSProject\bin\Release\Flame.DSProject.*" target="lib\net45\" />
   </files>
 </package>
