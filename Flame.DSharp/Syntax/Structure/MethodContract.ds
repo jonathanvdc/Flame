@@ -54,7 +54,7 @@ namespace Flame.Syntax.DSharp
         	return GetCode().ToString();
         }
 
-        public const IStatement CreateContractBody(IStatement Body, ISyntaxState State)
+        public IStatement CreateContractBody(IStatement Body, ISyntaxState State)
         {
         	var pres = new List<IStatement>();
         	var posts = new List<IStatement>();
@@ -76,7 +76,7 @@ namespace Flame.Syntax.DSharp
 				new BlockStatement(pres),
 				new BlockStatement(posts));
         }
-        public const IStatement CreateContractBody(IStatementSyntax Body, ISyntaxState State)
+        public IStatement CreateContractBody(IStatementSyntax Body, ISyntaxState State)
         {
         	return CreateContractBody(Body.CreateVerifiedStatement(State), State);
         }
