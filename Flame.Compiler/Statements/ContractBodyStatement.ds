@@ -24,17 +24,18 @@ namespace Flame.Compiler.Statements
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			Visitor.Visit(Body);
 			Visitor.Visit(Precondition);
 			Visitor.Visit(Postcondition);
+			Visitor.Visit(Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
+			// Visit the body last, to avoid confusing -fdead-code-elimination
+			var pre = Visitor.Visit(Precondition);
+			var post = Visitor.Visit(Postcondition);
 			return new ContractBodyStatement(
-				Visitor.Visit(Body),
-				Visitor.Visit(Precondition),
-				Visitor.Visit(Postcondition));
+				Visitor.Visit(Body), pre, post);
 		}
 
 		/// <summary>
