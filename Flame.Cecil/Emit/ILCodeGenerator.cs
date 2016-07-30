@@ -347,12 +347,24 @@ namespace Flame.Cecil.Emit
 
         #region IExceptionCodeGenerator
 
+        private ICodeBlock VirtualPop(ICodeBlock Block)
+        {
+            // Replaces a non-canonical `void` type by the 
+            // canonical `void` type. Methods imported from
+            // reflection seem to have a `System.Void` type
+            // which is not equal to `TypeSystem.Void`, and
+            // this works around that.
+            return new VirtualPopBlock((ICecilBlock)Block);
+        }
+
         public ICodeBlock EmitAssert(ICodeBlock Condition)
         {
             var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod(
                 "Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
 
-            return EmitInvocation(EmitMethod(method, null, Operator.GetDelegate), new ICodeBlock[] { Condition });
+            return VirtualPop(EmitInvocation(
+                    EmitMethod(method, null, Operator.GetDelegate), 
+                    new ICodeBlock[] { Condition }));
         }
 
         public ICodeBlock EmitAssert(ICodeBlock Condition, ICodeBlock Message)
@@ -366,7 +378,9 @@ namespace Flame.Cecil.Emit
                 var method = CecilMethod.ImportCecil(typeof(System.Diagnostics.Debug).GetMethod(
                     "Assert", new Type[] { typeof(bool), typeof(string) }), (ICecilMember)Method);
 
-                return EmitInvocation(EmitMethod(method, null, Operator.GetDelegate), new ICodeBlock[] { Condition, Message });
+                return VirtualPop(EmitInvocation(
+                        EmitMethod(method, null, Operator.GetDelegate), 
+                        new ICodeBlock[] { Condition, Message }));
             }
         }
 

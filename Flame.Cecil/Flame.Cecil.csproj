@@ -197,6 +197,7 @@
     <Compile Include="Emit\TypeStack.cs" />
     <Compile Include="Emit\StackPushBlock.cs" />
     <Compile Include="CecilOperatorNames.cs" />
+    <Compile Include="Emit\VirtualPopBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">
