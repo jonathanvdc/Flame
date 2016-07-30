@@ -19,6 +19,7 @@
     <tags>Flame compiler</tags>
     <dependencies>
         <dependency id="Flame.Compiler" version="$version$" />
+        <dependency id="Flame.Optimization" version="$version$" />
         <dependency id="Mono.Cecil" version="0.9.6.4" />
         <dependency id="Newtonsoft.Json" version="9.0.1" />
         <dependency id="LoycCore" version="1.8.0" />
@@ -35,7 +36,6 @@
     <file src="Flame.Front.Common\bin\Release\Flame.Intermediate.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Markdown.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.MIPS.*" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Flame.Optimization.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Python.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Recompilation.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.RT.*" target="lib\net45\" />
