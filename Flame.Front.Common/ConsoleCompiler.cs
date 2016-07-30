@@ -42,10 +42,8 @@ namespace Flame.Front.Cli
 		{
 			var node = new MarkupNode("entry", new MarkupNode[]
 			{
-				new MarkupNode(NodeConstants.TextNodeType, message),
-				string.IsNullOrWhiteSpace(detailMessage)
-					? new MarkupNode(NodeConstants.TextNodeType, "")
-					: new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage),
+				new MarkupNode(NodeConstants.TextNodeType, message ?? ""),
+				new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage ?? ""),
 				new MarkupNode(NodeConstants.BrightNodeType, "stack trace: "),
 				new MarkupNode(NodeConstants.ParagraphNodeType, Environment.StackTrace),
 			});
