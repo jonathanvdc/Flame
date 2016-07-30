@@ -9,6 +9,12 @@ namespace Flame.Cpp.Emit
 {
     public class MethodContract
     {
+        public MethodContract(ICodeGenerator CodeGenerator, ICppBlock LocalPrecondition, ICppBlock LocalPostcondition)
+        {
+            this.CodeGenerator = CodeGenerator;
+            this.LocalPreconditions = new ICppBlock[] { LocalPrecondition };
+            this.LocalPostconditions = new ICppBlock[] { LocalPostcondition };
+        }
         public MethodContract(ICodeGenerator CodeGenerator, IEnumerable<ICppBlock> LocalPreconditions, IEnumerable<ICppBlock> LocalPostconditions)
         {
             this.CodeGenerator = CodeGenerator;
@@ -20,8 +26,8 @@ namespace Flame.Cpp.Emit
         public IEnumerable<ICppBlock> LocalPreconditions { get; private set; }
         public IEnumerable<ICppBlock> LocalPostconditions { get; private set; }
 
-        private PreconditionBlock[] preconds;
-        private PostconditionBlock[] postconds;
+        private ICppBlock[] preconds;
+        private ICppBlock[] postconds;
         private ICppBlock invariantCheck;
 
         public IType DeclaringType { get { return CodeGenerator.Method.DeclaringType; } }
@@ -42,7 +48,7 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public IEnumerable<PreconditionBlock> Preconditions
+        public IEnumerable<ICppBlock> Preconditions
         {
             get
             {
@@ -53,7 +59,7 @@ namespace Flame.Cpp.Emit
                 return preconds;
             }
         }
-        public IEnumerable<PostconditionBlock> Postconditions
+        public IEnumerable<ICppBlock> Postconditions
         {
             get
             {
@@ -78,20 +84,21 @@ namespace Flame.Cpp.Emit
             return invariantCheck;
         }
 
-        private IEnumerable<T> WithInvariantsAssertion<T>(IEnumerable<ICppBlock> Assertions, bool EmitInvariant, Func<ICppBlock, T> AssertionBuilder)
+        private IEnumerable<ICppBlock> WithInvariantsAssertion<T>(IEnumerable<ICppBlock> Assertions, bool EmitInvariant, Func<ICppBlock, T> AssertionBuilder)
+            where T : ICppBlock
         {
             if (!EmitInvariant)
             {
-                return Assertions.Select(AssertionBuilder);
+                return Assertions;
             }
             var check = GetInvariantsCheck();
             if (check == null)
             {
-                return Assertions.Select(AssertionBuilder);
+                return Assertions;
             }
             else
             {
-                return Assertions.Select(AssertionBuilder).With(AssertionBuilder(check));
+                return Assertions.With(AssertionBuilder(check));
             }
         }
 

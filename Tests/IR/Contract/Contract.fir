@@ -12,12 +12,12 @@
 			#param(#member(x), #type_table_reference(0));
 			#param(#member(y), #type_table_reference(0));
 		}, {}, #contract(#return(#const_int32(50)), {
-			#binary(#get_arg(0), ">", #get_arg(1));
-			#binary(#get_arg(0), ">", #const_int32(0));
-			#binary(#get_arg(1), "<", #const_int32(100));
+			#assert(#binary(#get_arg(0), ">", #get_arg(1)), @null);
+			#assert(#binary(#get_arg(0), ">", #const_int32(0)), @null);
+			#assert(#binary(#get_arg(1), "<", #const_int32(100)), @null);
 		}, {
-			#binary(#get_retval(), ">", #const_int32(0));
-			#binary(#get_arg(0), ">", #const_int32(0));
+			#assert(#binary(#get_retval(), ">", #const_int32(0)), @null);
+			#assert(#binary(#get_arg(0), ">", #const_int32(0)), @null);
 		}));
 		#ctor(#member(this, #public, #const), {}, @false, #type_table_reference(1), {}, {}, #return());
 	});

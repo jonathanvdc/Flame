@@ -9,6 +9,11 @@ namespace Flame.Cpp.Emit
 {
     public class ContractBlock : ICppLocalDeclaringBlock, IMultiBlock
     {
+        public ContractBlock(ICppBlock Body, ICppBlock Precondition, ICppBlock Postcondition)
+        {
+            this.Body = Body;
+            this.Contract = new MethodContract(Body.CodeGenerator, Precondition, Postcondition);
+        }
         public ContractBlock(ICppBlock Body, IEnumerable<ICppBlock> Preconditions, IEnumerable<ICppBlock> Postconditions)
         {
             this.Body = Body;
@@ -17,12 +22,12 @@ namespace Flame.Cpp.Emit
 
         public ICppBlock Body { get; private set; }
         public MethodContract Contract { get; private set; }
-        public IEnumerable<PreconditionBlock> Preconditions { get { return Contract.Preconditions; } }
-        public IEnumerable<PostconditionBlock> Postconditions { get { return Contract.Postconditions; } }
+        public IEnumerable<ICppBlock> Preconditions { get { return Contract.Preconditions; } }
+        public IEnumerable<ICppBlock> Postconditions { get { return Contract.Postconditions; } }
 
         public IEnumerable<LocalDeclaration> LocalDeclarations
         {
-            get 
+            get
             {
                 return Preconditions.GetLocalDeclarations().Concat(Body.GetLocalDeclarations());
             }
@@ -40,8 +45,8 @@ namespace Flame.Cpp.Emit
 
         public IEnumerable<IHeaderDependency> Dependencies
         {
-            get 
-            { 
+            get
+            {
                 return Body.Dependencies.MergeDependencies(Preconditions.GetDependencies())
                                         .MergeDependencies(Postconditions.GetDependencies());
             }

@@ -6,6 +6,7 @@ using Flame.Compiler;
 using Flame.DSharp;
 using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 
 namespace Flame.Syntax.DSharp
@@ -19,7 +20,7 @@ namespace Flame.Syntax.DSharp
 
 		public SourceLocation Location
 		{
-			const get
+			get
 			{
 				SourceLocation result = null;
 				foreach (var item in Preconditions)
@@ -34,7 +35,7 @@ namespace Flame.Syntax.DSharp
 			}
 		}
 
-        public const CodeBuilder GetCode()
+        public CodeBuilder GetCode()
         {
         	var cb = new CodeBuilder();
         	foreach (var item in Preconditions)
@@ -48,21 +49,32 @@ namespace Flame.Syntax.DSharp
         	return cb;
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
         	return GetCode().ToString();
         }
 
         public const IStatement CreateContractBody(IStatement Body, ISyntaxState State)
         {
-        	var pres = new List<IExpression>();
-        	var posts = new List<IExpression>();
+        	var pres = new List<IStatement>();
+        	var posts = new List<IStatement>();
         	foreach (var item in Preconditions)
-        		pres.Add(item.CreateVerifiedExpression(State));
-        	foreach (var item in Postconditions)
-        		posts.Add(item.CreateVerifiedExpression(State));
+			{
+        		pres.Add(new AssertStatement(
+					item.CreateVerifiedExpression(State),
+					new StringExpression(item.Location.Source)));
+			}
+			foreach (var item in Postconditions)
+			{
+				posts.Add(new AssertStatement(
+					item.CreateVerifiedExpression(State),
+					new StringExpression(item.Location.Source)));
+			}
 
-        	return new ContractBodyStatement(Body, pres, posts);
+        	return new ContractBodyStatement(
+				Body,
+				new BlockStatement(pres),
+				new BlockStatement(posts));
         }
         public const IStatement CreateContractBody(IStatementSyntax Body, ISyntaxState State)
         {

@@ -677,9 +677,9 @@ namespace Flame.Cpp.Emit
             }
         }
 
-        public ICodeBlock EmitContractBlock(IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, ICodeBlock Body)
+        public ICodeBlock EmitContractBlock(ICodeBlock Precondition, ICodeBlock Postcondition, ICodeBlock Body)
         {
-            return new ContractBlock((ICppBlock)Body, Preconditions.Cast<ICppBlock>(), Postconditions.Cast<ICppBlock>());
+            return new ContractBlock((ICppBlock)Body, (ICppBlock)Precondition, (ICppBlock)Postcondition);
         }
 
         #endregion

@@ -13,7 +13,8 @@ namespace Flame.Compiler.Emit
 		/// Creates a code block that enforces the given precondition and postcondition blocks
 		/// on the given body block.
 		/// </summary>
-		ICodeBlock EmitContractBlock([ICodeBlock] Preconditions, [ICodeBlock] Postconditions, ICodeBlock Body);
+		ICodeBlock EmitContractBlock(
+			ICodeBlock Precondition, ICodeBlock Postcondition, ICodeBlock Body);
 
 		/// <summary>
 		/// Gets the contract method's return value variable.

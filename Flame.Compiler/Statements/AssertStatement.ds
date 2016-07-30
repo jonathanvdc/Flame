@@ -9,7 +9,7 @@ namespace Flame.Compiler.Statements
 	/// Defines a statement that checks if an expression evaluates to `true`.
 	/// If not, the user is notified in an implementation-defined manner.
 	/// </summary>
-	public class AssertStatement : IStatement
+	public class AssertStatement : IStatement, IPredicateNode
 	{
 		/// <summary>
 		/// Creates an assertion statement from the given expression.
@@ -43,6 +43,17 @@ namespace Flame.Compiler.Statements
 			get { return Expression.EvaluatesTo<bool>(true); }
 		}
 
+		public void AcceptPredicate(INodeVisitor Visitor)
+		{
+			Visitor.Visit(Expression);
+			if (Message != null)
+				Visitor.Visit(Message);
+		}
+
+		/// <summary>
+		/// Applies the given node visitor to this assert-statement's
+		/// child nodes.
+		/// </summary>
 		public IStatement Accept(INodeVisitor Visitor)
 		{
 			var transVal = Visitor.Visit(Expression);

@@ -9,43 +9,47 @@ namespace Flame.Compiler.Statements
 {
 	public class ContractBodyStatement : IStatement, IPredicateNode
 	{
-		public const this(set IStatement Body, set [IExpression] Preconditions, set [IExpression] Postconditions);
+		public const this(
+			set IStatement Body,
+			set IStatement Precondition,
+			set IStatement Postcondition)
+			in { Body != null }
+			in { Precondition != null }
+			in { Postcondition != null }
+		{ }
 
 		public IStatement Body { const get; private set; }
-		public [IExpression] Preconditions { const get; private set; }
-		public [IExpression] Postconditions { const get; private set; }
+		public IStatement Precondition { const get; private set; }
+		public IStatement Postcondition { const get; private set; }
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
-			Visitor.VisitAll(Preconditions);
-			Visitor.VisitAll(Postconditions);
+			Visitor.Visit(Precondition);
+			Visitor.Visit(Postcondition);
 			Visitor.Visit(Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
 		{
-			var precond = Visitor.VisitAll(Preconditions);
-			var postcond = Visitor.VisitAll(Postconditions);
-
-			return new ContractBodyStatement(Visitor.Visit(Body),
-				precond,
-				postcond);
+			return new ContractBodyStatement(
+				Visitor.Visit(Body),
+				Visitor.Visit(Precondition),
+				Visitor.Visit(Postcondition));
 		}
 
 		/// <summary>
-		/// Tests if this contract's preconditions and postconditions are
+		/// Tests if this contract's precondition and postcondition are
 		/// actually both empty.
 		/// </summary>
 		public bool IsEmptyContract
 		{
-			const get
+			get
 			{
-				return !Enumerable.Any<IExpression>(Preconditions) &&
-					   !Enumerable.Any<IExpression>(Postconditions);
+				return Precondition.IsEmpty && Postcondition.IsEmpty;
 		   }
 		}
 
-		public const IStatement Optimize()
+		public IStatement Optimize()
 		{
 			if (IsEmptyContract)
 			{
@@ -53,13 +57,16 @@ namespace Flame.Compiler.Statements
 			}
 			else
 			{
-				return new ContractBodyStatement(Body.Optimize(), Preconditions.OptimizeAll(), Postconditions.OptimizeAll());
+				return new ContractBodyStatement(
+					Body.Optimize(),
+					Precondition.Optimize(),
+					Postcondition.Optimize());
 			}
 		}
 
 		public bool IsConstantNode
 		{
-			const get return IsEmptyContract;
+			get { return IsEmptyContract; }
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Target)
@@ -67,11 +74,9 @@ namespace Flame.Compiler.Statements
 			if (Target is IContractCodeGenerator)
 			{
 				var cg = (IContractCodeGenerator)Target;
-
-				var pre = Preconditions.EmitAll(cg);
-				var post = Postconditions.EmitAll(cg);
-				var body = Body.Emit(cg);
-				return cg.EmitContractBlock(pre, post, body);
+				return cg.EmitContractBlock(
+					Precondition.Emit(cg), Postcondition.Emit(cg),
+					Body.Emit(cg));
 			}
 			else if (Target is IExceptionCodeGenerator)
 			{
