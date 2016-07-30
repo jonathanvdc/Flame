@@ -1,4 +1,4 @@
-version: 0.7.9.{build}
+version: 0.8.0.{build}
 
 install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc_binaries.zip
@@ -6,7 +6,7 @@ install:
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.sln
 build_script:
-  - set SEMVER=0.7.9
+  - set SEMVER=0.8.0
   - echo %APPVEYOR_REPO_TAG%
   # Build packages as SEMVER-ci{build}
   - ps: if ($env:APPVEYOR_REPO_TAG -eq $True) { $env:PKG_VERSION = $env:SEMVER; } else { $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"; }
