@@ -2,6 +2,8 @@
 public class Vector2<T>
 {
     public const this(set T X, set T Y)
+        in { this != null }
+        out { this != null }
     {
         assert(this != null);
     }
