@@ -27,12 +27,26 @@ namespace Flame.Syntax.DSharp
 
 		public SourceLocation Location
 		{
-			const get return OutKeyword.Location.Concat(LeadingParentheses.Location)
-											    .Concat(ReturnValueIdentifier.Location)
-												.Concat(TrailingParentheses.Location)
-												.Concat(LeadingBraces.Location)
-												.Concat(Condition.GetSourceLocation())
-												.Concat(TrailingBraces.Location);
+			get
+			{
+				if (ReturnValueIdentifier != null)
+				{
+					return OutKeyword.Location
+						.Concat(LeadingParentheses.Location)
+					    .Concat(ReturnValueIdentifier.Location)
+						.Concat(TrailingParentheses.Location)
+						.Concat(LeadingBraces.Location)
+						.Concat(Condition.GetSourceLocation())
+						.Concat(TrailingBraces.Location);
+				}
+				else
+				{
+					return OutKeyword.Location
+						.Concat(LeadingBraces.Location)
+						.Concat(Condition.GetSourceLocation())
+						.Concat(TrailingBraces.Location);
+				}
+			}
 		}
 
 		public const IExpression CreateExpression(ISyntaxState State)

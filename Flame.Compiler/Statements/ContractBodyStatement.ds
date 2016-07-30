@@ -24,9 +24,9 @@ namespace Flame.Compiler.Statements
 
 		public void AcceptPredicate(INodeVisitor Visitor)
 		{
+			Visitor.Visit(Body);
 			Visitor.Visit(Precondition);
 			Visitor.Visit(Postcondition);
-			Visitor.Visit(Body);
 		}
 
 		public IStatement Accept(INodeVisitor Visitor)
@@ -66,7 +66,7 @@ namespace Flame.Compiler.Statements
 
 		public bool IsConstantNode
 		{
-			get { return IsEmptyContract; }
+			get { return false; }
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Target)
