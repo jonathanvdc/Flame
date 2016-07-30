@@ -52,11 +52,8 @@ namespace Flame.Compiler.Visitors
             }
 
             var results = new List<IStatement>();
-            foreach (var item in Value.Preconditions)
-            {
-                results.Add(new AssertStatement(item, new StringExpression(item.ToString())));
-            }
-            var rewriter = new PostconditionInsertingVisitor(Value.Postconditions);
+            results.Add(Value.Precondition);
+            var rewriter = new PostconditionInsertingVisitor(Value.Postcondition);
             results.Add(rewriter.Visit(Value.Body));
             return new BlockStatement(results).Simplify();
         }
@@ -80,14 +77,14 @@ namespace Flame.Compiler.Visitors
     {
         /// <summary>
         /// Creates a new postcondition inserting visitor from the given
-        /// sequence of postconditions.
+        /// postcondition statement.
         /// </summary>
-        public const this(set [IExpression] Postconditions);
+        public const this(set IStatement Postcondition);
 
         /// <summary>
         /// Gets a sequence of postconditions to insert.
         /// </summary>
-        public [IExpression] Postconditions { const get; private set; }
+        public IStatement Postcondition { const get; private set; }
 
         public override const bool Matches(IStatement Value)
         {
@@ -142,12 +139,7 @@ namespace Flame.Compiler.Visitors
             // return value *variable*-getting expressions.
             var postcondRewriter = new ReturnValueRewritingVisitor(returnVariable);
 
-            foreach (var item in Postconditions)
-            {
-                results.Add(new AssertStatement(
-                    postcondRewriter.Visit(item),
-                    new StringExpression(item.ToString())));
-            }
+            results.Add(postcondRewriter.Visit(Postcondition));
 
             if (returnVariable != null)
                 results.Add(new ReturnStatement(returnVariable.CreateGetExpression()));

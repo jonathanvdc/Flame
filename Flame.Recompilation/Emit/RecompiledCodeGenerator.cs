@@ -523,9 +523,12 @@ namespace Flame.Recompilation.Emit
 
         #region Contracts
 
-        public ICodeBlock EmitContractBlock(IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions, ICodeBlock Body)
+        public ICodeBlock EmitContractBlock(ICodeBlock Precondition, ICodeBlock Postcondition, ICodeBlock Body)
         {
-            return new StatementBlock(this, new ContractBodyStatement(GetStatement(Body), GetExpressions(Preconditions), GetExpressions(Postconditions)));
+            return new StatementBlock(
+                this, new ContractBodyStatement(
+                    GetStatement(Body), GetStatement(Precondition),
+                    GetStatement(Postcondition)));
         }
 
         #endregion

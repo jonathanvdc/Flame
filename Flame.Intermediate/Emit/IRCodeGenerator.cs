@@ -691,13 +691,11 @@ namespace Flame.Intermediate.Emit
 		/// <param name="Postconditions">Postconditions.</param>
 		/// <param name="Body">Body.</param>
 		public ICodeBlock EmitContractBlock(
-			IEnumerable<ICodeBlock> Preconditions, IEnumerable<ICodeBlock> Postconditions,
+			ICodeBlock Precondition, ICodeBlock Postcondition,
 			ICodeBlock Body)
 		{
 			return NodeBlock.Call(this, ExpressionParsers.ContractNodeName,
-				Body,
-				NodeBlock.Block(this, Preconditions),
-				NodeBlock.Block(this, Postconditions));
+				Body, Precondition, Postcondition);
 		}
 
 		#endregion
