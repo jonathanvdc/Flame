@@ -1,0 +1,17 @@
+using System;
+
+public enum X : int
+{
+    a = 0,
+    b = 1,
+    c = 2
+}
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        X e = (X)15;
+        Console.WriteLine((int)e);
+    }
+}
