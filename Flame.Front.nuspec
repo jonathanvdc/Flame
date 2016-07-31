@@ -31,6 +31,7 @@
     <file src="Flame.Front.Common\bin\Release\Flame.Analysis.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Cecil.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.CodeDescription.*" target="lib\net45\" />
+    <file src="Flame.Front.Common\bin\Release\Flame.Cpp.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Front.Common.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Front.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Intermediate.*" target="lib\net45\" />
