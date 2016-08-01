@@ -1,0 +1,19 @@
+using System;
+
+public module LongLiteralsTest
+{
+    public void Main(string[] Args)
+    {
+        Console.WriteLine((long)4);
+        Console.WriteLine((long)400);
+        Console.WriteLine((long)400000000);
+        Console.WriteLine((long)4000000000);
+        Console.WriteLine((long)40000000000);
+
+        Console.WriteLine((ulong)4);
+        Console.WriteLine((ulong)400);
+        Console.WriteLine((ulong)400000000);
+        Console.WriteLine((ulong)4000000000);
+        Console.WriteLine((ulong)40000000000);
+    }
+}
