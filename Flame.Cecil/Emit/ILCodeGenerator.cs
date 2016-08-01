@@ -186,7 +186,41 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitInt64(long Value)
         {
-            return new OpCodeInt64Block(this, OpCodes.Ldc_I8, Value, new SinglePushBehavior(PrimitiveTypes.Int64));
+            if (IsBetween(Value, int.MinValue, int.MaxValue))
+            {
+                // The following:
+                //
+                // ldc.i4 xxx
+                // conv.i8
+                //
+                // is always shorter than:
+                //
+                // ldc.i8 xxx
+                //
+                return EmitConversion(EmitInt32((int)Value), PrimitiveTypes.Int64);
+            }
+            else if (IsBetween(Value, uint.MinValue, uint.MaxValue))
+            {
+                // The following:
+                //
+                // ldc.i4 -xxx
+                // conv.u8
+                //
+                // is always shorter than:
+                //
+                // ldc.i8 yyy
+                //
+                return new RetypedBlock(
+                    (ICecilBlock)EmitConversion(
+                        EmitUInt32((uint)Value), PrimitiveTypes.UInt64),
+                    PrimitiveTypes.Int64);
+            }
+            else
+            {
+                // Only do this if we can't avoid it.
+                return new OpCodeInt64Block(
+                    this, OpCodes.Ldc_I8, Value, new SinglePushBehavior(PrimitiveTypes.Int64));
+            }
         }
 
         public ICodeBlock EmitInt8(sbyte Value)
@@ -243,7 +277,8 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitUInt64(ulong Value)
         {
-            return new OpCodeInt64Block(this, OpCodes.Ldc_I8, (long)Value, new SinglePushBehavior(PrimitiveTypes.UInt64));
+            return new RetypedBlock(
+                (ICecilBlock)EmitInt64((long)Value), PrimitiveTypes.UInt64);
         }
 
         public ICodeBlock EmitUInt8(byte Value)
@@ -553,7 +588,17 @@ namespace Flame.Cecil.Emit
             return Value >= Min && Value <= Max;
         }
 
+        public static bool IsBetween(long Value, long Min, long Max)
+        {
+            return Value >= Min && Value <= Max;
+        }
+
         public static bool IsBetween(uint Value, uint Min, uint Max)
+        {
+            return Value >= Min && Value <= Max;
+        }
+
+        public static bool IsBetween(ulong Value, ulong Min, ulong Max)
         {
             return Value >= Min && Value <= Max;
         }
