@@ -11,6 +11,7 @@ tests
     Exceptions/Exceptions4.test;
     Foreach/Foreach.test;
     LogicalOps/LogicalOps.test;
+    LongLiterals/LongLiterals.test;
     StringEquality/StringEquality.test;
     WhileNext/WhileNext.test;
 }

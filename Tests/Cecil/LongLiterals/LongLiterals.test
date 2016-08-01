@@ -1,0 +1,25 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    Og { Flags = -Og; }
+    O2 { Flags = -O2; }
+    O3 { Flags = -O3; }
+}
+
+init
+{
+    Filename = LongLiterals;
+    return = @($echo 4)@($echo 400)@($echo 400000000)@($echo 4000000000)@($echo 40000000000);
+    return = $return@(echo)$return;
+}
