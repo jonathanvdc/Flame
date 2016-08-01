@@ -21,5 +21,5 @@ init
 {
     Filename = LongLiterals;
     return = @($echo 4)@($echo 400)@($echo 400000000)@($echo 4000000000)@($echo 40000000000);
-    return = $return@(echo)$return;
+    return = $return@($echo)$return;
 }
