@@ -5,14 +5,25 @@ using System.IO;
 
 namespace Flame.Compiler.Build
 {
+    /// <summary>
+    /// A common interface for assemblies that can be modified by adding
+    /// members to them.
+    /// </summary>
     public interface IAssemblyBuilder : IMemberBuilder<IAssembly>, IAssembly
     {
-        INamespaceBuilder DeclareNamespace(string Name);
         /// <summary>
-        /// Saves the assembly to the output provider.
+        /// Declares a namespace with the given name, in this assembly.
+        /// </summary>
+        INamespaceBuilder DeclareNamespace(string Name);
+
+        /// <summary>
+        /// Saves the assembly to the given output provider.
         /// </summary>
         void Save(IOutputProvider OutputProvider);
-        //void Save(Stream Stream);
+
+        /// <summary>
+        /// Sets this assembly's entry point to the given method.
+        /// </summary>
         void SetEntryPoint(IMethod Method);
     }
 }
