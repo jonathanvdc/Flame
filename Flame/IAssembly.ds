@@ -9,17 +9,17 @@ namespace Flame
         /// Creates a binder for this assembly.
         /// </summary>
         /// <returns></returns>
-        const IBinder CreateBinder();
-        
+        IBinder CreateBinder();
+
         /// <summary>
         /// Gets the entry point method for this assembly.
         /// </summary>
         /// <returns></returns>
-        const IMethod GetEntryPoint();
+        IMethod GetEntryPoint();
 
         /// <summary>
         /// Gets the assembly's version.
         /// </summary>
-        Version AssemblyVersion { const get; }
+        Version AssemblyVersion { get; }
     }
 }
