@@ -86,7 +86,7 @@ namespace Flame.Compiler
 
 			var getThisExpr = new ThisVariable(Type).CreateGetExpression();
 			var initFields = partitionedFields.Item1;
-			if (IsStatic && initFields.Count == 0 && Type.IsValueType)
+			if (!IsStatic && initFields.Count == 0 && Type.IsValueType)
 			{
 				// This is a tiny code size optimization.
 				// Create a statement that does this:
