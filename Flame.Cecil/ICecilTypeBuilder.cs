@@ -11,11 +11,6 @@ namespace Flame.Cecil
 {
     public interface ICecilTypeBuilder : ICecilType, ITypeBuilder, INamespaceBuilder, ICecilNamespace
     {
-        // TODO: get rid of SetInitialValue and CreateFieldInitStatements
-        // They have been superseded by the new IFieldBuilder.TrySetValue API
-        void SetInitialValue(IField Field, IExpression Value);
-        IEnumerable<IStatement> CreateFieldInitStatements();
-
         void AddField(FieldDefinition Field);
         void AddMethod(MethodDefinition Method);
         void AddProperty(PropertyDefinition Property);
