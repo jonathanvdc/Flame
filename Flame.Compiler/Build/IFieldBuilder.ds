@@ -4,12 +4,26 @@ using System.Text;
 
 namespace Flame.Compiler.Build
 {
+    /// <summary>
+    /// Defines a common interface for the construction of field members.
+    /// </summary>
     public interface IFieldBuilder : IMemberBuilder<IField>, IField
     {
         /// <summary>
-        /// Sets the field's initial value.
+        /// Tries to set the field's value. A boolean is returned that
+        /// indicates whether the operation was successful.
         /// </summary>
-        /// <param name="Value"></param>
-        void SetValue(IExpression Value);
+        /// <param name="Value">
+        /// The expression with which this field is to be initialized.
+        /// </param>
+        /// <remarks>
+        /// A field builder may refuse to set its value to an expression
+        /// if it believes that it cannot perform the initialization.
+        /// In that case, `false` is returned, and the field builder's
+        /// state remains unchanged.
+        /// One can work around this issue by performing the initialization
+        /// logic in an appropriate constructor.
+        /// </remarks>
+        bool TrySetValue(IExpression Value);
     }
 }

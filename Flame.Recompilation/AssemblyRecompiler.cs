@@ -10,6 +10,9 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Compiler.Statements;
+using System.Threading;
+using Flame.Compiler.Variables;
 
 namespace Flame.Recompilation
 {
@@ -63,10 +66,13 @@ namespace Flame.Recompilation
             this.recompiledAssemblies = new Dictionary<IAssembly, RecompilationOptions>();
             this.cachedEnvironment = new Lazy<IEnvironment>(() => TargetAssembly.CreateBinder().Environment);
             this.methodBodies = new AsyncDictionary<IMethod, IStatement>();
+            this.staticFieldInit = new ConcurrentMultiDictionary<IType, IStatement>();
+            this.instanceFieldInit = new ConcurrentMultiDictionary<IType, IStatement>();
 
             this.MetadataManager = new MetadataManager();
             this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
             this.pendingRecompilationList = new List<IMember>();
+            this.finalizingActions = new ConcurrentBag<Action>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -83,6 +89,8 @@ namespace Flame.Recompilation
         private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
+        private ConcurrentMultiDictionary<IType, IStatement> staticFieldInit;
+        private ConcurrentMultiDictionary<IType, IStatement> instanceFieldInit;
 
         #endregion
 
@@ -98,6 +106,9 @@ namespace Flame.Recompilation
         /// Maintains a list of members that are still pending recompilation. 
         /// </summary>
         private List<IMember> pendingRecompilationList;
+
+        // Maintains a set of actions that finalize the codegen process.
+        private ConcurrentBag<Action> finalizingActions;
 
 		private HashSet<IMethod> ComputeImplementationsWorklist()
 		{
@@ -144,6 +155,24 @@ namespace Flame.Recompilation
                 }
                 RecompileImplementations();
             } while (pendingRecompilationList.Count > 0);
+        }
+
+        /// <summary>
+        /// Performs all finalization actions, and clears
+        /// the finalization action queue.
+        /// </summary>
+        private void PerformFinalization()
+        {
+            ConcurrentBag<Action> actions;
+            lock (finalizingActions)
+            {
+                actions = finalizingActions;
+                finalizingActions = new ConcurrentBag<Action>();
+            }
+            foreach (var item in actions)
+            {
+                item();
+            }
         }
 
         /// <summary>
@@ -940,10 +969,40 @@ namespace Flame.Recompilation
                 {
                     var expr = initField.GetValue();
                     if (expr != null)
-                    {
+                    { 
                         try
                         {
-                            TaskManager.RunSequential(TargetField.SetValue, GetExpression(expr, CreateEmptyMethod(TargetField)));
+                            var initVal = GetExpression(expr, CreateEmptyMethod(TargetField));
+                            TaskManager.RunSequential(() =>
+                            {
+                                if (!TargetField.TrySetValue(initVal))
+                                {
+                                    // If the back-end refuses to perform the field initialization,
+                                    // then we'll take care of it here, by adding an element
+                                    // to the set of initialization actions for the declaring type.
+                                    // Constructors will then add them to their method bodies.
+                                    bool isStatic = TargetField.IsStatic;
+                                    var declTy = TargetField.DeclaringType;
+                                    var initDict = isStatic ? staticFieldInit : instanceFieldInit;
+                                    var thisVal = isStatic ? null : new ThisVariable(declTy).CreateGetExpression();
+                                    IField refField;
+                                    var recGenericParams = declTy.GetRecursiveGenericParameters().ToArray();
+                                    if (recGenericParams.Length > 0)
+                                    {
+                                        var thisRefTy = declTy.MakeRecursiveGenericType(recGenericParams);
+                                        refField = new GenericInstanceField(
+                                            TargetField, (IGenericResolver)thisRefTy, thisRefTy);
+                                    }
+                                    else
+                                    {
+                                        refField = TargetField;
+                                    }
+
+                                    initDict.Add(
+                                        declTy, new FieldVariable(refField, thisVal)
+                                            .CreateSetStatement(initVal));
+                                }
+                            });
                         }
                         catch (Exception ex)
                         {
@@ -1065,7 +1124,31 @@ namespace Flame.Recompilation
             }
         }
 
-        private void RecompileMethodBodyCore(IMethodBuilder TargetMethod, IMethod SourceMethod)
+        private void AssignMethodBody(IMethodBuilder Target, IStatement Body)
+        {
+            try
+            {
+                var targetBody = Target.GetBodyGenerator();
+                var block = Body.Emit(targetBody);
+                TaskManager.RunSequential(Target.SetMethodBody, block);
+                TaskManager.RunSequential<IMethod>(Target.Build);
+            }
+            catch (AbortCompilationException)
+            {
+                throw; // Just let this one fly by.
+            }
+            catch (Exception ex)
+            {
+                Log.LogError(new LogEntry(
+                    "unhandled exception while recompiling method",
+                    "an unhandled exception was thrown during codegen for method '" 
+                    + Target.FullName + "'."));
+                Log.LogException(ex);
+            }
+        }
+
+        private void RecompileMethodBodyCore(
+            IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
 			var body = Passes.GetLoweredBody(this, SourceMethod);
 
@@ -1087,11 +1170,36 @@ namespace Flame.Recompilation
             {
                 var bodyStatement = GetStatement(body, TargetMethod);
 
-                var targetBody = TargetMethod.GetBodyGenerator();
-                var block = bodyStatement.Emit(targetBody);
-                TaskManager.RunSequential(TargetMethod.SetMethodBody, block);
-
-                TaskManager.RunSequential<IMethod>(TargetMethod.Build);
+                if (SourceMethod.IsConstructor)
+                {
+                    // Codegen for constructors should happen at the last possible moment,
+                    // because they may have to perform field initialization.
+                    // We can't do that right now, because we don't know which fields 
+                    // will be initialized.
+                    finalizingActions.Add(() => 
+                    {
+                        ConcurrentMultiDictionary<IType, IStatement> initDict;
+                        if (TargetMethod.IsStatic)
+                            initDict = staticFieldInit;
+                        else
+                            initDict = instanceFieldInit;
+                        
+                        IEnumerable<IStatement> initActions;
+                        if (initDict.TryGetValue(TargetMethod.DeclaringType, out initActions))
+                        {
+                            // Update the body statement with the initialization actions.
+                            bodyStatement = new BlockStatement(
+                                initActions
+                                .Concat(new IStatement[] { bodyStatement })
+                                .ToArray());
+                        }
+                        AssignMethodBody(TargetMethod, bodyStatement);
+                    });
+                }
+                else
+                {
+                    AssignMethodBody(TargetMethod, bodyStatement);
+                }
             }
             catch (AbortCompilationException)
             {
@@ -1242,6 +1350,7 @@ namespace Flame.Recompilation
             }
 
             RecompilePending();
+            PerformFinalization();
         }
 
         public async Task RecompileAsync()

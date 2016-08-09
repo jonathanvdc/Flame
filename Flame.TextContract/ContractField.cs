@@ -19,9 +19,9 @@ namespace Flame.TextContract
         public FieldSignatureInstance Template { get; private set; }
         public IType DeclaringType { get; private set; }
 
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public IField Build()
