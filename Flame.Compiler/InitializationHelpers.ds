@@ -28,7 +28,7 @@ namespace Flame.Compiler
 			{
 				if (field is IInitializedField)
 				{
-					if (((IInitializedField)field).InitialValue == null)
+					if (((IInitializedField)field).InitialValue != null)
 					{
 						initFields.Add(field);
 						next;
@@ -36,7 +36,7 @@ namespace Flame.Compiler
 				}
 				if (field is ILiteralField)
 				{
-					if (((ILiteralField)field).Value == null)
+					if (((ILiteralField)field).Value != null)
 					{
 						initFields.Add(field);
 						next;
