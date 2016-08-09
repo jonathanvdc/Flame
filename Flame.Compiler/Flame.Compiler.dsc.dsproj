@@ -39,7 +39,7 @@
 		<Compile Include="IFlowNode.ds" />
 		<Compile Include="OperatorExtensions.ds" />
 		<Compile Include="OperatorCache.ds" />
-		<Compile Include="StaticInitializationExtensions.ds" />
+		<Compile Include="InitializationHelpers.ds" />
 		<Compile Include="ISourceDocument.ds" />
 		<Compile Include="SourceDocument.ds" />
 		<Compile Include="LogEntry.ds" />

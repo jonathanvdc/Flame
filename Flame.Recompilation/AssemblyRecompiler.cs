@@ -967,7 +967,7 @@ namespace Flame.Recompilation
                 var initField = SourceField as IInitializedField;
                 if (initField != null)
                 {
-                    var expr = initField.GetValue();
+                    var expr = initField.InitialValue;
                     if (expr != null)
                     { 
                         try

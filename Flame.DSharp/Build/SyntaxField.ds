@@ -53,29 +53,27 @@ namespace Flame.DSharp.Build
 		#endregion
 
 		private IExpression cachedFieldValue;
-		private const IExpression GetValue(bool UseDefault)
+		public IExpression InitialValue
 		{
-			if (cachedFieldValue == null)
+			get
 			{
-				if (UseDefault && Syntax.FieldValueSyntax == null)
-	            {
-	                cachedFieldValue = new DefaultValueExpression(FieldType);
-	            }
-	            else
-	            {
-	                cachedFieldValue = CastSyntax.CreateImplicitCast(
-						State,
-						Syntax.FieldValueSyntax,
-						FieldType);
-	            }
-            }
-            return cachedFieldValue;
+				if (cachedFieldValue == null)
+				{
+					if (Syntax.FieldValueSyntax == null)
+					{
+						cachedFieldValue = null;
+					}
+					else
+					{
+						cachedFieldValue = CastSyntax.CreateImplicitCast(
+							State,
+							Syntax.FieldValueSyntax,
+							FieldType);
+					}
+				}
+				return cachedFieldValue;
+			}
 		}
-
-        public const IExpression GetValue()
-        {
-        	return GetValue(true);
-        }
 
 		private IType cachedFieldType;
         public IType FieldType
@@ -87,7 +85,7 @@ namespace Flame.DSharp.Build
 	                var type = Syntax.Signature.TypeSyntax;
 	                if (type.IsVariable)
 	                {
-	                    cachedFieldType = GetValue(false).Type;
+	                    cachedFieldType = InitialValue.TypeOrNull;
 	                }
 	                else
 	                {
@@ -98,23 +96,9 @@ namespace Flame.DSharp.Build
             }
         }
 
-        /*public const IBoundObject GetField(IBoundObject Target)
-        {
-            if (this.IsConstant && this.IsStatic)
-            {
-                return GetValue().Evaluate();
-            }
-            return null;
-        }
-
-        public void SetField(IBoundObject Target, IBoundObject Value)
-        {
-            return null;
-        }*/
-
         public IType DeclaringType
         {
-            const get
+            get
             {
                 return State.DeclaringType;
             }
@@ -122,7 +106,7 @@ namespace Flame.DSharp.Build
 
         public bool IsStatic
         {
-            const get
+            get
 			{
 				return DeclaringType.IsStaticType
 					|| (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton)
@@ -152,7 +136,7 @@ namespace Flame.DSharp.Build
 			return new AttributeMap(results);
 		}
 
-        public const CodeBuilder GetCode()
+        public CodeBuilder GetCode()
         {
             return Syntax.GetCode();
         }

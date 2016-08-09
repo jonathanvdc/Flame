@@ -65,7 +65,7 @@ namespace Flame.Intermediate
 
         public LNode Node
         {
-            get 
+            get
             {
                 var args = new List<LNode>();
                 args.Add(Signature.Node);
@@ -84,9 +84,9 @@ namespace Flame.Intermediate
             get { return this; }
         }
 
-        public IExpression GetValue()
+        public IExpression InitialValue
         {
-            return InitialValueNode != null ? InitialValueNode.Value : null;
+            get { return InitialValueNode != null ? InitialValueNode.Value : null; }
         }
 
         public override string ToString()

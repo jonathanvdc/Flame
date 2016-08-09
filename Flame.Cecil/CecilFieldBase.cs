@@ -67,7 +67,7 @@ namespace Flame.Cecil
         {
             if (Target == null)
             {
-                return GetValue().Evaluate();
+                return InitialValue.Evaluate();
             }
             throw new NotImplementedException();
         }
@@ -81,17 +81,20 @@ namespace Flame.Cecil
 
         #region IInitializedField Implementation
 
-        public IExpression GetValue()
+        public IExpression InitialValue
         {
-            var field = GetResolvedField();
-            if (field.IsLiteral)
+            get
             {
-                object val = field.Constant;
-                return ExpressionExtensions.ToExpression(val);
-            }
-            else
-            {
-                return null;
+                var field = GetResolvedField();
+                if (field.IsLiteral)
+                {
+                    object val = field.Constant;
+                    return ExpressionExtensions.ToExpression(val);
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 

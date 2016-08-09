@@ -32,15 +32,20 @@ namespace Flame.DSharp.Build
 
         #endregion
 
-        public const IExpression GetValue()
+        public IExpression InitialValue
         {
-            if (Syntax.LiteralValueSyntax == null)
+            get
             {
-                return NullExpression;
-            }
-            else
-            {
-                return ConversionExpression.Create(Syntax.LiteralValueSyntax.CreateExpression(State), DeclaringType.GetParent());
+                if (Syntax.LiteralValueSyntax == null)
+                {
+                    return NullExpression;
+                }
+                else
+                {
+                    return ConversionExpression.Create(
+                        Syntax.LiteralValueSyntax.CreateExpression(State),
+                        DeclaringType.GetParent());
+                }
             }
         }
 
