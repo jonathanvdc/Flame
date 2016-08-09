@@ -10,7 +10,7 @@ namespace Flame
         /// </summary>
         /// <param name="Target"></param>
         /// <returns></returns>
-        public static const IBoundObject GetField(this IField Field, IBoundObject Target)
+        public static IBoundObject GetField(this IField Field, IBoundObject Target)
         {
         	if (Field is ILiteralField)
         		return ((ILiteralField)Field).Value;
@@ -28,7 +28,7 @@ namespace Flame
         	Target.SetField(Field, Value);
         }
 
-        public static const IField GetField(this [IField] Candidates, UnqualifiedName Name, bool IsStatic)
+        public static IField GetField(this [IField] Candidates, UnqualifiedName Name, bool IsStatic)
         {
         	foreach (var item in Candidates)
         	{
@@ -38,9 +38,24 @@ namespace Flame
         	return null;
         }
 
-        public static const IField GetField(this IType Type, UnqualifiedName Name, bool IsStatic)
+        public static IField GetField(this IType Type, UnqualifiedName Name, bool IsStatic)
         {
         	return Type.GetAllFields().GetField(Name, IsStatic);
         }
+
+		/// <summary>
+		/// Filters all fields with the given staticness from the given sequence
+		/// of fields.
+		/// </summary>
+		public static IReadOnlyList<IField> GetFields(this [IField] Fields, bool IsStatic)
+		{
+			var results = new List<IField>();
+			foreach (var field in Fields)
+			{
+				if (field.IsStatic == IsStatic)
+					results.Add(field);
+			}
+			return results;
+		}
 	}
 }
