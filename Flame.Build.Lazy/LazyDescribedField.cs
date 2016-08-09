@@ -64,9 +64,9 @@ namespace Flame.Build.Lazy
         /// <summary>
         /// Gets this field's (initial) value, as an expression.
         /// </summary>
-        public IExpression GetValue()
+        public IExpression InitialValue
         {
-            return Value;
+            get { return Value; }
         }
 
         /// <summary>

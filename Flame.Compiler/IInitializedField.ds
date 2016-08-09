@@ -4,12 +4,18 @@ using System.Text;
 
 namespace Flame.Compiler
 {
+	/// <summary>
+	/// An interface for fields that may have an initial value.
+	/// </summary>
 	public interface IInitializedField : IField
 	{
 		/// <summary>
         /// Gets an expression that represents the field's value.
         /// </summary>
-        /// <returns></returns>
-        const IExpression GetValue();
+        /// <returns>
+		/// An expression that describes the field's initial value,
+		/// null if the field does not have an initial value.
+		/// </returns>
+        IExpression InitialValue { get; }
 	}
 }

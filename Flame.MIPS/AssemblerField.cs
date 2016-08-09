@@ -47,11 +47,6 @@ namespace Flame.MIPS
             }
         }
 
-        public IExpression GetValue()
-        {
-            return this.InitialValue;
-        }
-
         public IField Build()
         {
             return this;

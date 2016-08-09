@@ -33,4 +33,4 @@ type FunctionalField(header : FunctionalMemberHeader, declType : IType,
         member this.FieldType = this.FieldType
 
     interface IInitializedField with
-        member this.GetValue() = this.InitialValue
+        member this.InitialValue = this.InitialValue

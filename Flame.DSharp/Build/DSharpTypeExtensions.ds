@@ -84,7 +84,7 @@ namespace Flame.DSharp.Build
 	    	return descType;
 	    }
 
-	    public static const IStatement CreateBaseConstructorCall(ISyntaxState State, IMethod Caller)
+	    public static IStatement CreateBaseConstructorCall(ISyntaxState State, IMethod Caller)
 	    {
 	    	var currentType = State.CurrentType;
             if (currentType.IsValueType)

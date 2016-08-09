@@ -44,7 +44,7 @@ namespace Flame.Cecil
 
             fieldRef.Attributes = GetFieldAttributes(inst);
             fieldRef.FieldType = inst.FieldType.Value.GetImportedReference(DeclaringType.Module, DeclaringType.GetTypeReference());
-            
+
             DeclaringType.AddField(fieldRef);
 
             CecilAttribute.DeclareAttributes(fieldRef, cecilField, inst.Attributes.Value);
@@ -75,7 +75,7 @@ namespace Flame.Cecil
 
             if (Template is IInitializedField)
             {
-                var expr = (Template as IInitializedField).GetValue().Optimize();
+                var expr = (Template as IInitializedField).InitialValue.Optimize();
                 cecilField.SetValue(expr);
             }
             else
@@ -111,7 +111,7 @@ namespace Flame.Cecil
                     attrs = FieldAttributes.Public;
                     break;
             }
-            if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) && 
+            if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) &&
                 Template.FieldType.Value.GetIsPrimitive())
             {
                 attrs |= FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;

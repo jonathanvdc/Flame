@@ -35,13 +35,9 @@ namespace Flame.Cpp
             return true;
         }
 
-        public IExpression GetValue()
+        public IExpression InitialValue
         {
-            if (Value == null)
-            {
-                return new DefaultValueExpression(FieldType);
-            }
-            return Value;
+            get { return Value; }
         }
 
         public IField Build()
