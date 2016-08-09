@@ -127,7 +127,7 @@ namespace Flame.Cecil
 
         #region IFieldBuilder Implementation
 
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
             var field = GetResolvedField();
             if (field.IsLiteral)
@@ -135,9 +135,13 @@ namespace Flame.Cecil
                 var result = Value.Evaluate();
                 object objVal = result.GetObjectValue();
                 field.Constant = objVal;
+                return true;
             }
             else
             {
+                // The consumers of this API should handle things like this,
+                // really. We'll just return false.
+                /*
                 if (DeclaringType.GetIsGenericDeclaration() && DeclaringType.GetIsGeneric())
                 {
                     var genericDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
@@ -148,6 +152,8 @@ namespace Flame.Cecil
                 {
                     ((ICecilTypeBuilder)DeclaringType).SetInitialValue(this, Value);
                 }
+                */
+                return false;
             }
         }
 

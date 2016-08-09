@@ -25,4 +25,25 @@ namespace Flame.Compiler.Build
         /// </summary>
         T Build();
     }
+
+    /// <summary>
+    /// Extension methods for member builders.
+    /// </summary>
+    public static class MemberBuilderExtensions
+    {
+        /// <summary>
+        /// Assigns the given field builder the given initial value.
+        /// Doing so is assumed to be a valid operation, and an assertion
+        /// makes sure that this is indeed the case.
+        /// </summary>
+        /// <remarks>
+        /// Note that the assertion is optimized away in release builds: only
+        /// debug builds will verify that setting the field's value is legal.
+        /// </remarks>
+        public static void SetValue(this IFieldBuilder Field, IExpression Value)
+        {
+            bool success = Field.TrySetValue(Value);
+            assert(success);
+        }
+    }
 }

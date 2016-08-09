@@ -27,9 +27,12 @@ namespace Flame.Intermediate.Emit
         public IRAssemblyBuilder Assembly { get; private set; }
         public FieldSignatureInstance Template { get; private set; }
 
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
-            this.InitialValueNode = new LazyNodeStructure<IExpression>(Value, () => IREmitHelpers.ConvertExpression(Assembly, Value, DeclaringType));
+            this.InitialValueNode = new LazyNodeStructure<IExpression>(
+                Value, () =>
+                    IREmitHelpers.ConvertExpression(Assembly, Value, DeclaringType));
+            return true;
         }
 
         public IField Build()

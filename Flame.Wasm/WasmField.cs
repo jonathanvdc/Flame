@@ -34,13 +34,25 @@ namespace Flame.Wasm
 		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
 		public IType FieldType { get { return TemplateInstance.FieldType.Value; } }
 
-		public void SetValue(IExpression Value)
+		public bool TrySetValue(IExpression Value)
 		{
-			this.Value = Value.EvaluateOrNull();
+			if (!IsStatic)
+				return false;
+
+			var val = Value.EvaluateOrNull();
+			if (val != null)
+			{
+				this.Value = val;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		public void Initialize()
-		{ 
+		{
             if (IsStatic)
             {
                 StaticStorageLocation = ModuleData.Memory.DeclareSection(
@@ -93,4 +105,3 @@ namespace Flame.Wasm
         }
 	}
 }
-

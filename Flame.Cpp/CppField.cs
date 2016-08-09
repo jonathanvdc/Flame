@@ -29,9 +29,10 @@ namespace Flame.Cpp
 
         public Func<INamespace, IConverter<IType, string>> TypeNamer { get { return Environment.TypeNamer; } }
 
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
             this.Value = Value;
+            return true;
         }
 
         public IExpression GetValue()
@@ -166,7 +167,7 @@ namespace Flame.Cpp
                 cb.AppendLine();
             }
             cb.Append(TypeNamer.Name(FieldType, this));
-            cb.Append(' '); 
+            cb.Append(' ');
             var genDeclType = DeclaringType.MakeGenericType(DeclaringType.GenericParameters);
             cb.Append(TypeNamer.Name(genDeclType, this));
             cb.Append("::");

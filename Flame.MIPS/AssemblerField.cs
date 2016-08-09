@@ -34,9 +34,17 @@ namespace Flame.MIPS
             get { return Template.Attributes.Value; }
         }
 
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
-            this.InitialValue = Value;
+            if (IsStatic && Value.GetIsConstant())
+            {
+                this.InitialValue = Value;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public IExpression GetValue()
@@ -48,13 +56,13 @@ namespace Flame.MIPS
         {
             return this;
         }
-        
+
         public void Initialize()
         {
             if (this.InitialValue == null)
             {
                 this.InitialValue = new DefaultValueExpression(FieldType);
-            }            
+            }
         }
     }
 }

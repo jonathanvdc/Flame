@@ -33,9 +33,10 @@ namespace Flame.Python
                 return assignedVal;
             }
         }
-        public void SetValue(IExpression Value)
+        public bool TrySetValue(IExpression Value)
         {
             this.assignedVal = Value;
+            return true;
         }
 
         public IField Build()
@@ -65,10 +66,10 @@ namespace Flame.Python
 
         public UnqualifiedName Name
         {
-            get 
+            get
             {
                 var descField = new DescribedField(Template.Name, DeclaringType, FieldType);
-                return new SimpleName(DeclaringType.DeclaringNamespace.GetMemberNamer().Name(descField)); 
+                return new SimpleName(DeclaringType.DeclaringNamespace.GetMemberNamer().Name(descField));
             }
         }
 
