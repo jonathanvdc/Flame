@@ -244,58 +244,7 @@ namespace Flame.Cecil
 
         public IType Build()
         {
-            initialValues = null;
             return this;
-        }
-
-        private Dictionary<IField, IExpression> initialValues;
-        public void SetInitialValue(IField Field, IExpression Value)
-        {
-            if (initialValues == null)
-            {
-                initialValues = new Dictionary<IField, IExpression>();
-            }
-            initialValues[Field] = Value;
-        }
-
-        public IEnumerable<IStatement> CreateFieldInitStatements()
-        {
-            var statements = new List<IStatement>();
-            if (initialValues == null)
-            {
-                return statements;
-            }
-            foreach (var item in initialValues)
-            {
-                var fieldType = item.Key.FieldType;
-                if (item.Value != null && !(item.Value is DefaultValueExpression && ((DefaultValueExpression)item.Value).Type.Equals(fieldType)))
-                {
-                    bool setField = false;
-                    if (item.Value.GetIsConstant())
-                    {
-                        if (fieldType.GetIsPrimitive())
-                        {
-                            if (!IsDefaultValue(item.Value, fieldType))
-                            {
-                                setField = true;
-                            }
-                        }
-                        else
-                        {
-                            setField = fieldType.GetIsValueType() || !IsNullValue(item.Value);
-                        }
-                    }
-                    else
-                    {
-                        setField = true;
-                    }
-                    if (setField)
-                    {
-                        statements.Add(new FieldVariable(item.Key, new ThisVariable(this).CreateGetExpression()).CreateSetStatement(item.Value));
-                    }
-                }
-            }
-            return statements;
         }
 
         #region IsDefaultPrimitiveValue

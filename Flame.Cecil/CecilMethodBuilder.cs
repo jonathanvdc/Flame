@@ -143,14 +143,6 @@ namespace Flame.Cecil
             {
                 throw new InvalidOperationException("Cannot set an abstract method's body.");
             }
-            var cg = GetBodyGenerator();
-            if (IsConstructor && DeclaringType is ICecilTypeBuilder)
-            {
-                foreach (var item in ((ICecilTypeBuilder)DeclaringType).CreateFieldInitStatements())
-                {
-                    ((ICecilBlock)item.Emit(cg)).Emit(context);
-                }
-            }
             ((ICecilBlock)Body).Emit(context);
             context.Flush();
             resolvedMethod.Body.OptimizeMacros();
