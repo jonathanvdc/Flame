@@ -1,0 +1,45 @@
+using System;
+
+public class InitClass
+{
+    public this();
+
+    public int X = 3;
+    public static double Y = 64;
+    public static double Z = new InitClass().X + 14;
+}
+
+public struct InitStruct
+{
+    public this(int XDelta)
+    {
+        X += XDelta;
+    }
+
+    public int X = 3;
+    public static double Y = 64;
+    public static double Z = new InitStruct(14).X;
+}
+
+public module InitializationTest
+{
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine(InitClass.Y);
+        Console.WriteLine(InitClass.Z);
+        Console.WriteLine(InitStruct.Y);
+        Console.WriteLine(InitStruct.Z);
+        InitClass.Y = 20;
+        InitClass.Z = 20;
+        InitStruct.Y = 20;
+        InitStruct.Z = 20;
+        var c = new InitClass();
+        var s = new InitStruct(23);
+        Console.WriteLine(c.X);
+        Console.WriteLine(InitClass.Y);
+        Console.WriteLine(InitClass.Z);
+        Console.WriteLine(s.X);
+        Console.WriteLine(InitStruct.Y);
+        Console.WriteLine(InitStruct.Z);
+    }
+}
