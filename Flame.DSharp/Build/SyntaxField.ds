@@ -61,7 +61,7 @@ namespace Flame.DSharp.Build
 				{
 					if (Syntax.FieldValueSyntax == null)
 					{
-						cachedFieldValue = null;
+						return null;
 					}
 					else
 					{

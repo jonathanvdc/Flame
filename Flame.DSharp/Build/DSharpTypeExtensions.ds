@@ -89,7 +89,8 @@ namespace Flame.DSharp.Build
 	    	var currentType = State.CurrentType;
             if (currentType.IsValueType)
             {
-            	return ThisReferenceVariable.Create(currentType).CreateSetStatement(new DefaultValueExpression(currentType));
+            	return InitializationHelpers.CreateUninitializedFieldInitializer(
+					currentType, false);
             }
             else
             {
