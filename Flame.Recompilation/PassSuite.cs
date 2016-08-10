@@ -203,10 +203,24 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public IStatement OptimizeBody(AssemblyRecompiler Recompiler, IBodyMethod SourceMethod)
         {
-            var metadata = Recompiler.MetadataManager.GetPassMetadata(SourceMethod);
-
             var initBody = Optimizer.GetOptimizedBody(SourceMethod);
-            return MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, initBody));
+
+            return OptimizeBody(Recompiler, SourceMethod, initBody);
+        }
+
+        /// <summary>
+        /// Applies the method body pass to the given method 
+        /// body statement.
+        /// </summary>
+        /// <param name="Recompiler"></param>
+        /// <param name="SourceMethod"></param>
+        /// <param name="Body">The method body to optimize.</param>
+        /// <returns></returns>
+        public IStatement OptimizeBody(
+            AssemblyRecompiler Recompiler, IMethod SourceMethod, IStatement Body)
+        {
+            var metadata = Recompiler.MetadataManager.GetPassMetadata(SourceMethod);
+            return MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, Body));
         }
 
 		/// <summary>
@@ -216,16 +230,30 @@ namespace Flame.Recompilation
 		/// <returns></returns>
 		/// <param name="Recompiler"></param>
 		/// <param name="Body"></param>
-		public IStatement GetLoweredBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
+		public IStatement LowerBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
 		{
 			var body = Recompiler.GetMethodBody(SourceMethod);
 
 			if (body == null)
 				return null;
 
-			var metadata = Recompiler.MetadataManager.GetPassMetadata(SourceMethod);
-			return LoweringPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, body));
+            return LowerBody(Recompiler, SourceMethod, body);
 		}
+
+        /// <summary>
+        /// Applies the lowering pass to the given method 
+        /// body statement.
+        /// </summary>
+        /// <param name="Recompiler"></param>
+        /// <param name="SourceMethod"></param>
+        /// <param name="Body">The method body to lower.</param>
+        /// <returns></returns>
+        public IStatement LowerBody(
+            AssemblyRecompiler Recompiler, IMethod SourceMethod, IStatement Body)
+        {
+            var metadata = Recompiler.MetadataManager.GetPassMetadata(SourceMethod);
+            return LoweringPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, Body));
+        }
 
         /// <summary>
         /// Applies the root pass to the given method and body, 
