@@ -72,7 +72,6 @@ namespace Flame.Recompilation
             this.MetadataManager = new MetadataManager();
             this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
             this.pendingRecompilationList = new List<IMember>();
-            this.finalizingActions = new ConcurrentBag<Action>();
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -106,9 +105,6 @@ namespace Flame.Recompilation
         /// Maintains a list of members that are still pending recompilation. 
         /// </summary>
         private List<IMember> pendingRecompilationList;
-
-        // Maintains a set of actions that finalize the codegen process.
-        private ConcurrentBag<Action> finalizingActions;
 
 		private HashSet<IMethod> ComputeImplementationsWorklist()
 		{
@@ -155,24 +151,6 @@ namespace Flame.Recompilation
                 }
                 RecompileImplementations();
             } while (pendingRecompilationList.Count > 0);
-        }
-
-        /// <summary>
-        /// Performs all finalization actions, and clears
-        /// the finalization action queue.
-        /// </summary>
-        private void PerformFinalization()
-        {
-            ConcurrentBag<Action> actions;
-            lock (finalizingActions)
-            {
-                actions = finalizingActions;
-                finalizingActions = new ConcurrentBag<Action>();
-            }
-            foreach (var item in actions)
-            {
-                item();
-            }
         }
 
         /// <summary>
@@ -960,6 +938,39 @@ namespace Flame.Recompilation
             var fieldTemplate = RecompiledFieldTemplate.GetRecompilerTemplate(this, SourceField);
             return DeclaringType.DeclareField(fieldTemplate);
         }
+
+        private IStatement CreateFieldInitializationStatement(
+            IField TargetField, IExpression Value,
+            bool IsStatic, IType DeclaringType)
+        {
+            var thisVal = IsStatic 
+                ? null 
+                : new ThisVariable(DeclaringType).CreateGetExpression();
+            IField refField;
+            var recGenericParams = DeclaringType.GetRecursiveGenericParameters().ToArray();
+            if (recGenericParams.Length > 0)
+            {
+                var thisRefTy = DeclaringType.MakeRecursiveGenericType(recGenericParams);
+                refField = new GenericInstanceField(
+                    TargetField, (IGenericResolver)thisRefTy, thisRefTy);
+            }
+            else
+            {
+                refField = TargetField;
+            }
+
+            return new FieldVariable(refField, thisVal)
+                .CreateSetStatement(Value);
+        }
+
+        private void RecompileInitializedFields(IType Type)
+        {
+            foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
+            {
+                GetField(field);
+            }
+        }
+
         private void RecompileFieldBody(IFieldBuilder TargetField, IField SourceField)
         {
             if (RecompileBodies)
@@ -972,36 +983,26 @@ namespace Flame.Recompilation
                     {
                         try
                         {
-                            var emptyMethod = CreateEmptyMethod(TargetField);
-                            var initVal = GetExpression(expr, emptyMethod);
+                            bool isStatic = TargetField.IsStatic;
+                            var initVal = isStatic 
+                                ? GetExpression(expr, CreateEmptyMethod(TargetField)) 
+                                : null;
                             TaskManager.RunSequential(() =>
                             {
-                                if (!TargetField.TrySetValue(initVal))
+                                if (!isStatic || !TargetField.TrySetValue(initVal))
                                 {
-                                    // If the back-end refuses to perform the field initialization,
+                                    // If the field is static, 
+                                    // -OR-
+                                    // if the back-end refuses to perform the field initialization,
                                     // then we'll take care of it here, by adding an element
                                     // to the set of initialization actions for the declaring type.
                                     // Constructors will then add them to their method bodies.
-                                    bool isStatic = TargetField.IsStatic;
-                                    var declTy = TargetField.DeclaringType;
+                                    var declTy = SourceField.DeclaringType;
                                     var initDict = isStatic ? staticFieldInit : instanceFieldInit;
-                                    var thisVal = isStatic ? null : new ThisVariable(declTy).CreateGetExpression();
-                                    IField refField;
-                                    var recGenericParams = declTy.GetRecursiveGenericParameters().ToArray();
-                                    if (recGenericParams.Length > 0)
-                                    {
-                                        var thisRefTy = declTy.MakeRecursiveGenericType(recGenericParams);
-                                        refField = new GenericInstanceField(
-                                            TargetField, (IGenericResolver)thisRefTy, thisRefTy);
-                                    }
-                                    else
-                                    {
-                                        refField = TargetField;
-                                    }
-
                                     initDict.Add(
-                                        declTy, new FieldVariable(refField, thisVal)
-                                            .CreateSetStatement(initVal));
+                                        declTy, 
+                                        CreateFieldInitializationStatement(
+                                            SourceField, expr, isStatic, declTy));
                                 }
                             });
                         }
@@ -1112,7 +1113,40 @@ namespace Flame.Recompilation
 
             try
             {
-                return Passes.OptimizeBody(this, bodyMethod);
+                var initBody = bodyMethod.GetMethodBody();
+                if (bodyMethod.IsConstructor)
+                {
+                    var declTy = bodyMethod.DeclaringType;
+
+                    // Constructors should also handle field initialization.
+                    // If any fields have to be initialized explicitly, then 
+                    // we will compile them now, and add them to the 
+                    // constructor's method body.
+
+                    ConcurrentMultiDictionary<IType, IStatement> initDict;
+                    if (bodyMethod.IsStatic)
+                        initDict = staticFieldInit;
+                    else
+                        initDict = instanceFieldInit;
+
+                    IEnumerable<IStatement> initActions;
+                    if (!initDict.TryGetValue(declTy, out initActions))
+                    {
+                        RecompileInitializedFields(declTy);
+                        // initDict[declTy] may silently create a new
+                        // bag, which is exactly what we want.
+                        initActions = initDict[declTy];
+                    }
+
+                    var stmtList = new List<IStatement>(initActions);
+                    if (stmtList.Count > 0)
+                    {
+                        stmtList.Add(initBody);
+                        // Update the body statement with the initialization actions.
+                        initBody = new BlockStatement(stmtList);
+                    }
+                }
+                return Passes.OptimizeBody(this, bodyMethod, initBody);
             }
             catch (Exception ex)
             {
@@ -1170,37 +1204,7 @@ namespace Flame.Recompilation
             try
             {
                 var bodyStatement = GetStatement(body, TargetMethod);
-
-                if (SourceMethod.IsConstructor)
-                {
-                    // Codegen for constructors should happen at the last possible moment,
-                    // because they may have to perform field initialization.
-                    // We can't do that right now, because we don't know which fields 
-                    // will be initialized.
-                    finalizingActions.Add(() => 
-                    {
-                        ConcurrentMultiDictionary<IType, IStatement> initDict;
-                        if (TargetMethod.IsStatic)
-                            initDict = staticFieldInit;
-                        else
-                            initDict = instanceFieldInit;
-                        
-                        IEnumerable<IStatement> initActions;
-                        if (initDict.TryGetValue(TargetMethod.DeclaringType, out initActions))
-                        {
-                            // Update the body statement with the initialization actions.
-                            bodyStatement = new BlockStatement(
-                                initActions
-                                .Concat(new IStatement[] { bodyStatement })
-                                .ToArray());
-                        }
-                        AssignMethodBody(TargetMethod, bodyStatement);
-                    });
-                }
-                else
-                {
-                    AssignMethodBody(TargetMethod, bodyStatement);
-                }
+                AssignMethodBody(TargetMethod, bodyStatement);
             }
             catch (AbortCompilationException)
             {
@@ -1351,7 +1355,6 @@ namespace Flame.Recompilation
             }
 
             RecompilePending();
-            PerformFinalization();
         }
 
         public async Task RecompileAsync()

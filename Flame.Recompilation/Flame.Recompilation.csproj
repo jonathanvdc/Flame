@@ -55,7 +55,6 @@
     <Compile Include="AsyncTaskManager.cs" />
     <Compile Include="CodeGeneratorRecompilationPass.cs" />
     <Compile Include="CompilationCache.cs" />
-    <Compile Include="DefaultOptimizer.cs" />
     <Compile Include="Emit\CollectionBlock.cs" />
     <Compile Include="Emit\IfElseBlock.cs" />
     <Compile Include="Emit\IStatementBlock.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="EmptyRootPass.cs" />
     <Compile Include="GenericSubstitutionConverter.cs" />
     <Compile Include="IAsyncTaskManager.cs" />
-    <Compile Include="IMethodOptimizer.cs" />
     <Compile Include="IRecompilationStrategy.cs" />
     <Compile Include="MetadataManager.cs" />
     <Compile Include="PassSuite.cs" />

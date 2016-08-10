@@ -31,6 +31,7 @@ namespace Flame.Front.Target
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotTreePassName));
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName));
+            GlobalPassManager.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName, optInfo => optInfo.OptimizeMinimal));
 
             // Activate -fstrip-assert whenever -g is turned off, and the
             // optimization level is at least -O1.
