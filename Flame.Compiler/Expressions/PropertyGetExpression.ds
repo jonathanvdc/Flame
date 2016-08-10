@@ -6,28 +6,21 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler.Expressions
 {
-	public class PropertyGetExpression : ComplexExpressionBase, IVariableNode,
-										 IPredicateNode
+	public class PropertyGetExpression : ComplexExpressionBase, IVariableNode
 	{
 		public const this(set PropertyVariable Variable);
 
 		public PropertyVariable Variable { const get; private set; }
 		public VariableNodeAction Action { const get return VariableNodeAction.Get; }
 
-		public const IVariable GetVariable()
+		public IVariable GetVariable()
 		{
 			return Variable;
 		}
 
-		protected override const IExpression Lower()
+		protected override IExpression Lower()
 		{
 			return Variable.Getter.CreateInvocationExpression(Variable.IndexerArguments);
-		}
-
-		public void AcceptPredicate(INodeVisitor Visitor)
-		{
-			Visitor.Visit(Variable.Getter);
-			Visitor.VisitAll(Variable.IndexerArguments);
 		}
 	}
 }
