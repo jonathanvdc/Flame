@@ -10,7 +10,7 @@ tests
     Exceptions/Exceptions3.test;
     Exceptions/Exceptions4.test;
     Foreach/Foreach.test;
-    // Initialization/Initialization.test;
+    Initialization/Initialization.test;
     LogicalOps/LogicalOps.test;
     LongLiterals/LongLiterals.test;
     StringEquality/StringEquality.test;
