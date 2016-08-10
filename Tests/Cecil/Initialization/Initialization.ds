@@ -21,6 +21,18 @@ public struct InitStruct
     public static double Z = new InitStruct(14).X;
 }
 
+public class GenericInitClass<T>
+{
+    public this();
+
+    public T X = (T)(object)42f;
+}
+
+public module GenericInitModule<T>
+{
+    public T X = (T)(object)28f;
+}
+
 public module InitializationTest
 {
     public static int W = 12;
@@ -38,11 +50,14 @@ public module InitializationTest
         InitStruct.Z = 20;
         var c = new InitClass();
         var s = new InitStruct(23);
+        var gc = new GenericInitClass<float>();
         Console.WriteLine(c.X);
         Console.WriteLine(InitClass.Y);
         Console.WriteLine(InitClass.Z);
         Console.WriteLine(s.X);
         Console.WriteLine(InitStruct.Y);
         Console.WriteLine(InitStruct.Z);
+        Console.WriteLine(gc.X);
+        Console.WriteLine(GenericInitModule<float>.X);
     }
 }
