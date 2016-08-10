@@ -288,13 +288,6 @@ namespace Flame.Front.Passes
 		public PassSuite CreateSuite(ICompilerLog Log)
 		{
 			var optInfo = new OptimizationInfo(Log);
-
-			// Call the `Optimize` method on method body statements
-			// if `-O1` or above is given. (`-Og` == `-O1 -g` is the
-			// default optimization level. `-O0` should only be used
-			// when hacking the compiler or something)
-			var methodOpt = new DefaultOptimizer(optInfo.OptimizeMinimal);
-
             var selector = CreateSelector(optInfo);
 
 			// Select passes by relying on the optimization info
@@ -305,7 +298,7 @@ namespace Flame.Front.Passes
             var selectedSigPasses = selector.InstantiateActive(SignaturePasses);
 
 			return new PassSuite(
-				methodOpt, selectedMethodPasses.Aggregate(), 
+				selectedMethodPasses.Aggregate(), 
 				selectedLoweringPasses.Aggregate(), 
 				Aggregate(selectedRootPasses), 
 				Aggregate(selectedSigPasses));

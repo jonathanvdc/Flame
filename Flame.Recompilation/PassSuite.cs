@@ -19,36 +19,28 @@ namespace Flame.Recompilation
     /// their bodies.
     /// </summary>
     public sealed class PassSuite
-    {        
+    {
         /// <summary>
-        /// Creates a new pass suite that does not perform any
-        /// optimizations at all.
-        /// </summary>
-        public PassSuite()
-            : this(new DefaultOptimizer(false))
-        { }
-
-        /// <summary>
-        /// Creates a new pass suite from the given method optimizer.
+        /// Creates a pass suite that does nothing.
         /// </summary>
         /// <param name="Optimizer"></param>
-        public PassSuite(IMethodOptimizer Optimizer)
-            : this(Optimizer, new SlimBodyPass(new EmptyPass<BodyPassArgument>()), EmptyRootPass.Instance)
+        public PassSuite()
+            : this(new SlimBodyPass(new EmptyPass<BodyPassArgument>()), EmptyRootPass.Instance)
         { }
 
         /// <summary>
-        /// Creates a new pass suite from the given method optimizer,
+        /// Creates a pass suite from the given 
         /// method pass and root pass.
         /// </summary>
         /// <param name="Optimizer"></param>
         /// <param name="MethodPass"></param>
         /// <param name="RootPass"></param>
-        public PassSuite(IMethodOptimizer Optimizer, IMethodPass MethodPass, IRootPass RootPass)
-            : this(Optimizer, MethodPass, RootPass, EmptyMemberSignaturePass<IMember>.Instance)
+        public PassSuite(IMethodPass MethodPass, IRootPass RootPass)
+            : this(MethodPass, RootPass, EmptyMemberSignaturePass<IMember>.Instance)
         { }
 
         /// <summary>
-        /// Creates a new pass suite from the given method optimizer,
+        /// Creates a pass suite from the given 
         /// method pass, root pass and member signature pass.
         /// </summary>
         /// <param name="Optimizer"></param>
@@ -56,39 +48,30 @@ namespace Flame.Recompilation
         /// <param name="RootPass"></param>
         /// <param name="MemberSignaturePass"></param>
         public PassSuite(
-			IMethodOptimizer Optimizer, IMethodPass MethodPass, 
-			IRootPass RootPass, 
+			IMethodPass MethodPass, IRootPass RootPass, 
             IMemberSignaturePass MemberSignaturePass)
-			: this(Optimizer, MethodPass, new SlimBodyPass(new EmptyPass<BodyPassArgument>()), 
+			: this(MethodPass, new SlimBodyPass(new EmptyPass<BodyPassArgument>()), 
 				   RootPass, MemberSignaturePass)
         { }
 
 		/// <summary>
-		/// Creates a new pass suite from the given method optimizer,
-		/// method pass, machine lowering pass, root pass and member signature pass.
+		/// Creates a pass suite from the given 
+        /// method pass, machine lowering pass, 
+        /// root pass and member signature pass.
 		/// </summary>
 		/// <param name="Optimizer"></param>
 		/// <param name="MethodPass"></param>
 		/// <param name="RootPass"></param>
 		/// <param name="MemberSignaturePass"></param>
 		public PassSuite(
-			IMethodOptimizer Optimizer, IMethodPass MethodPass, 
-			IMethodPass LoweringPass, IRootPass RootPass, 
-			IMemberSignaturePass MemberSignaturePass)
+			IMethodPass MethodPass, IMethodPass LoweringPass, 
+            IRootPass RootPass, IMemberSignaturePass MemberSignaturePass)
 		{
-			this.Optimizer = Optimizer;
 			this.MethodPass = MethodPass;
 			this.LoweringPass = LoweringPass;
 			this.RootPass = RootPass;
 			this.MemberSignaturePass = MemberSignaturePass;
 		}
-
-        /// <summary>
-        /// Gets the method's "optimizer", whose main job is 
-        /// to extract slightly optimized method bodies
-        /// from methods. 
-        /// </summary>
-        public IMethodOptimizer Optimizer { get; private set; }
 
         /// <summary>
         /// Gets the method pass this pass suite applies to its
@@ -135,7 +118,7 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite PrependPass(IMethodPass Pass)
         {
-            return new PassSuite(Optimizer, new AggregateBodyPass(Pass, MethodPass), RootPass, MemberSignaturePass);
+            return new PassSuite(new AggregateBodyPass(Pass, MethodPass), RootPass, MemberSignaturePass);
         }
 
         /// <summary>
@@ -145,7 +128,7 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IMethodPass Pass)
         {
-            return new PassSuite(Optimizer, new AggregateBodyPass(MethodPass, Pass), RootPass, MemberSignaturePass);
+            return new PassSuite(new AggregateBodyPass(MethodPass, Pass), RootPass, MemberSignaturePass);
         }
 
         /// <summary>
@@ -155,7 +138,7 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite PrependPass(IMemberSignaturePass Pass)
         {
-            return new PassSuite(Optimizer, MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
+            return new PassSuite(MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
         }
 
         /// <summary>
@@ -165,7 +148,7 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IMemberSignaturePass Pass)
         {
-            return new PassSuite(Optimizer, MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
+            return new PassSuite(MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
         }
 
         /// <summary>
@@ -175,7 +158,7 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IRootPass Pass)
         {
-            return new PassSuite(Optimizer, MethodPass, new AggregateRootPass(RootPass, Pass), MemberSignaturePass);
+            return new PassSuite(MethodPass, new AggregateRootPass(RootPass, Pass), MemberSignaturePass);
         }
 
         /// <summary>
@@ -188,24 +171,6 @@ namespace Flame.Recompilation
         public MemberSignaturePassResult ProcessSignature(AssemblyRecompiler Recompiler, IMember Member)
         {
             return MemberSignaturePass.Apply(new MemberSignaturePassArgument<IMember>(Member, Recompiler));
-        }
-
-        /// <summary>
-        /// Extracts and optimizes a source method's body.
-        /// First, the method "optimizer" extracts the 
-        /// method body. Next, the method body pass is 
-        /// applied to this method body.
-        /// The resulting optimized body statement is then 
-        /// returned.
-        /// </summary>
-        /// <param name="Recompiler"></param>
-        /// <param name="SourceMethod"></param>
-        /// <returns></returns>
-        public IStatement OptimizeBody(AssemblyRecompiler Recompiler, IBodyMethod SourceMethod)
-        {
-            var initBody = Optimizer.GetOptimizedBody(SourceMethod);
-
-            return OptimizeBody(Recompiler, SourceMethod, initBody);
         }
 
         /// <summary>
