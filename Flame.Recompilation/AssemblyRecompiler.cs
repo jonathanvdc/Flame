@@ -913,6 +913,7 @@ namespace Flame.Recompilation
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
+                RecompileInitializedFields(src);
                 RegisterStaticConstructors(src);
                 RegisterImplementations(src);
             });
@@ -1129,10 +1130,6 @@ namespace Flame.Recompilation
                     else
                         initDict = instanceFieldInit;
 
-                    // TODO: maybe we can somehow handle this more efficiently.
-                    // Right now, we're running this for every constructor body,
-                    // which means that some work is duplicated.
-                    RecompileInitializedFields(declTy);
                     var stmtList = new List<IStatement>(initDict[declTy]);
                     if (stmtList.Count > 0)
                     {
