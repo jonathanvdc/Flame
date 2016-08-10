@@ -23,8 +23,11 @@ public struct InitStruct
 
 public module InitializationTest
 {
+    public static int W = 12;
+
     public static void Main(string[] Args)
     {
+        Console.WriteLine(W);
         Console.WriteLine(InitClass.Y);
         Console.WriteLine(InitClass.Z);
         Console.WriteLine(InitStruct.Y);
