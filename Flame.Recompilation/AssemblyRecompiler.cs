@@ -969,10 +969,11 @@ namespace Flame.Recompilation
                 {
                     var expr = initField.InitialValue;
                     if (expr != null)
-                    { 
+                    {
                         try
                         {
-                            var initVal = GetExpression(expr, CreateEmptyMethod(TargetField));
+                            var emptyMethod = CreateEmptyMethod(TargetField);
+                            var initVal = GetExpression(expr, emptyMethod);
                             TaskManager.RunSequential(() =>
                             {
                                 if (!TargetField.TrySetValue(initVal))
@@ -1150,7 +1151,7 @@ namespace Flame.Recompilation
         private void RecompileMethodBodyCore(
             IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
-			var body = Passes.GetLoweredBody(this, SourceMethod);
+			var body = Passes.LowerBody(this, SourceMethod);
 
             // Don't proceed if there is no method body.
             if (body == null)
