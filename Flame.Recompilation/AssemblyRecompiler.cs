@@ -1129,16 +1129,11 @@ namespace Flame.Recompilation
                     else
                         initDict = instanceFieldInit;
 
-                    IEnumerable<IStatement> initActions;
-                    if (!initDict.TryGetValue(declTy, out initActions))
-                    {
-                        RecompileInitializedFields(declTy);
-                        // initDict[declTy] may silently create a new
-                        // bag, which is exactly what we want.
-                        initActions = initDict[declTy];
-                    }
-
-                    var stmtList = new List<IStatement>(initActions);
+                    // TODO: maybe we can somehow handle this more efficiently.
+                    // Right now, we're running this for every constructor body,
+                    // which means that some work is duplicated.
+                    RecompileInitializedFields(declTy);
+                    var stmtList = new List<IStatement>(initDict[declTy]);
                     if (stmtList.Count > 0)
                     {
                         stmtList.Add(initBody);
