@@ -968,8 +968,8 @@ namespace Flame.Recompilation
 
         /// <summary>
         /// Recompiles all initialized fields defined by the given type.
-        /// A boolean is returned that tells if any static initialized
-        /// fields were found.
+        /// A boolean is returned that tells if any static, non-constant
+        /// initialized fields were found.
         /// </summary>
         private bool RecompileInitializedFields(IType Type)
         {
@@ -977,7 +977,7 @@ namespace Flame.Recompilation
             foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
             {
                 GetField(field);
-                if (field.IsStatic)
+                if (field.IsStatic && !field.GetIsConstant())
                     success = true;
             }
             return success;
