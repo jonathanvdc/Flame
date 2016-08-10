@@ -1134,6 +1134,7 @@ namespace Flame.Recompilation
                     // If any fields have to be initialized explicitly, then 
                     // we will compile them now, and add them to the 
                     // constructor's method body.
+                    RecompileInitializedFields(declTy);
 
                     ConcurrentMultiDictionary<IType, IStatement> initDict;
                     if (bodyMethod.IsStatic)
