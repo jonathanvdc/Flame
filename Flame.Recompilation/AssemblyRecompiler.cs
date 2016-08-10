@@ -913,8 +913,10 @@ namespace Flame.Recompilation
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
-                RecompileInitializedFields(src);
-                RegisterStaticConstructors(src);
+                bool anyInitFields = RecompileInitializedFields(src);
+                bool anyStaticCtors = RegisterStaticConstructors(src);
+                if (anyInitFields && !anyStaticCtors)
+                    SynthetizeStaticConstructor(src);
                 RegisterImplementations(src);
             });
         }
@@ -964,12 +966,21 @@ namespace Flame.Recompilation
                 .CreateSetStatement(Value);
         }
 
-        private void RecompileInitializedFields(IType Type)
+        /// <summary>
+        /// Recompiles all initialized fields defined by the given type.
+        /// A boolean is returned that tells if any static initialized
+        /// fields were found.
+        /// </summary>
+        private bool RecompileInitializedFields(IType Type)
         {
+            bool success = false;
             foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
             {
                 GetField(field);
+                if (field.IsStatic)
+                    success = true;
             }
+            return success;
         }
 
         private void RecompileFieldBody(IFieldBuilder TargetField, IField SourceField)
@@ -1267,13 +1278,32 @@ namespace Flame.Recompilation
 
         /// <summary>
         /// Recompiles the given type's static constructors.
+        /// A boolean tells if any static constructors were registered.
         /// </summary>
-        private void RegisterStaticConstructors(IType SourceType)
+        private bool RegisterStaticConstructors(IType SourceType)
         {
+            bool success = false;
             foreach (var item in SourceType.GetConstructors().Where(item => item.IsStatic))
             {
                 RequestRecompilation(item);
+                success = true;
             }
+            return success;
+        }
+
+        /// <summary>
+        /// Synthetizes a static constructor for the given type.
+        /// </summary>
+        /// <param name="SourceType">The type to synthetize a static constructor for.</param>
+        private void SynthetizeStaticConstructor(IType SourceType)
+        {
+            var cctor = new DescribedBodyMethod(".cctor", SourceType);
+            cctor.IsStatic = true;
+            cctor.IsConstructor = true;
+            cctor.ReturnType = PrimitiveTypes.Void;
+            cctor.AddAttribute(PrimitiveAttributes.Instance.HiddenAttribute);
+            cctor.Body = new ReturnStatement();
+            RequestRecompilation(cctor);
         }
 
         #endregion
