@@ -20,5 +20,5 @@ configs
 init
 {
     Filename = Initialization;
-    return = @($echo 12)@($echo 64)@($echo 17)@($echo 64)@($echo 17)@($echo 3)@($echo 20)@($echo 20)@($echo 26)@($echo 20)@($echo 20);
+    return = @($echo 12)@($echo 64)@($echo 17)@($echo 64)@($echo 17)@($echo 3)@($echo 20)@($echo 20)@($echo 26)@($echo 20)@($echo 20)@($echo 42)@($echo 28);
 }
