@@ -138,9 +138,13 @@ namespace dsc.Projects
                     new PassCondition(
                         PassExtensions.EliminateDeadCodePassName,
                         optInfo => !optInfo.OptimizeAggressive && (optInfo.OptimizeMinimal || optInfo.OptimizeDebug)),
-                    new PassCondition(
-                        PassExtensions.InitializationPassName,
-                        optInfo => InitializationCountPass.IsUseful(optInfo.Log)),
+                    // Disable the initialization pass for now. 
+                    // -finitialization performs a flow-sensitive analysis, but
+                    // the analysis doesn't handle field-wise initialization well, and 
+                    // this type of analysis should really be performed on a flow graph.
+                    //     new PassCondition(
+                    //         PassExtensions.InitializationPassName,
+                    //         optInfo => InitializationCountPass.IsUseful(optInfo.Log)),
                     new PassCondition(
                         InfiniteRecursionPass.InfiniteRecursionPassName,
                         optInfo => InfiniteRecursionPass.IsUseful(optInfo.Log))
