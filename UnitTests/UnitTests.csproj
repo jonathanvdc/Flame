@@ -73,7 +73,7 @@
     <Compile Include="DSharp\ParserTests.cs" />
     <Compile Include="TestLog.cs" />
     <Compile Include="DSharp\SemanticsTests.cs" />
-    <!-- <Compile Include="IntegerValueTests.cs" /> -->
+    <Compile Include="IntegerValueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
