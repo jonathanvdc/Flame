@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Flame">
@@ -115,8 +117,17 @@
     <Compile Include="Target\WasmBuildTargetParser.cs" />
     <Compile Include="Target\SpecializationPass.cs" />
     <Compile Include="Target\ScalarReplacementPass.cs" />
-    <Compile Include="MonoGlobalAssemblyCache.cs" />
     <Compile Include="CompilerName.cs" />
+    <Compile Include="AssemblyResolution\MonoGlobalAssemblyCache.cs" />
+    <Compile Include="AssemblyResolution\ClrGlobalAssemblyCache.cs" />
+    <Compile Include="AssemblyResolution\FusionAssemblyIdentity.cs" />
+    <Compile Include="AssemblyResolution\GlobalAssemblyCache.cs" />
+    <Compile Include="AssemblyResolution\GlobalAssemblyCacheLocation.cs" />
+    <Compile Include="AssemblyResolution\AssemblyIdentity.cs" />
+    <Compile Include="AssemblyResolution\AssemblyIdentityComparer.cs" />
+    <Compile Include="AssemblyResolution\MetadataHelpers.cs" />
+    <Compile Include="AssemblyResolution\CryptoBlobParser.cs" />
+    <Compile Include="AssemblyResolution\CryptographicHashProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Cecil\Flame.Cecil.csproj">
@@ -178,5 +189,8 @@
   -->
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AssemblyResolution\" />
   </ItemGroup>
 </Project>

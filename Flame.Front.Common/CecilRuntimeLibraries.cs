@@ -36,7 +36,7 @@ namespace Flame.Front
                     asmPath = typeof(System.Xml.XmlDocument).Assembly.Location;
                     break;
                 default:
-                    asmPath = MonoGlobalAssemblyCache.ResolvePartialName(Identifier);
+                    AssemblyResolution.GlobalAssemblyCache.Instance.ResolvePartialName(Identifier, out asmPath);
                     break;
             }
             if (asmPath == null)

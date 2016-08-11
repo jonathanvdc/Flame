@@ -12,14 +12,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Flame.Front
+namespace Flame.Front.AssemblyResolution
 {
     /// <summary>
     /// Provides APIs to enumerate and look up assemblies stored in the Global Assembly Cache.
     /// </summary>
-    public static class MonoGlobalAssemblyCache
+    public sealed class MonoGlobalAssemblyCache : GlobalAssemblyCache
     {
-        public static readonly Lazy<IEnumerable<string>> RootLocations = new Lazy<IEnumerable<string>>(() => new string[] { GetMonoCachePath() });
+        public static readonly IReadOnlyList<string> RootLocations;
+
+        static MonoGlobalAssemblyCache()
+        {
+            RootLocations = new string[] { GetMonoCachePath() };
+        }
 
         private static string GetAssemblyLocation(Assembly assembly)
         {
@@ -93,11 +98,11 @@ namespace Flame.Front
             }
         }
 
-        private static IEnumerable<string> GetAssemblyPaths(AssemblyName name)
+        private static IEnumerable<Tuple<AssemblyIdentity, string>> GetAssemblyIdentitiesAndPaths(AssemblyName name, IReadOnlyList<ProcessorArchitecture> architectureFilter)
         {
             if (name == null)
             {
-                return GetAssemblyPaths(null, null, null);
+                return GetAssemblyIdentitiesAndPaths(null, null, null, architectureFilter);
             }
 
             string publicKeyToken = null;
@@ -112,12 +117,12 @@ namespace Flame.Front
                 publicKeyToken = sb.ToString();
             }
 
-            return GetAssemblyPaths(name.Name, name.Version, publicKeyToken);
+            return GetAssemblyIdentitiesAndPaths(name.Name, name.Version, publicKeyToken, architectureFilter);
         }
 
-        private static IEnumerable<string> GetAssemblyPaths(string name, Version version, string publicKeyToken)
+        private static IEnumerable<Tuple<AssemblyIdentity, string>> GetAssemblyIdentitiesAndPaths(string name, Version version, string publicKeyToken, IReadOnlyList<ProcessorArchitecture> architectureFilter)
         {
-            foreach (string gacPath in RootLocations.Value)
+            foreach (string gacPath in RootLocations)
             {
                 var assemblyPaths = (name == "mscorlib") ?
                     GetCorlibPaths(version) :
@@ -130,31 +135,99 @@ namespace Flame.Front
                         continue;
                     }
 
-                    yield return assemblyPath;
+                    var gacAssemblyName = new AssemblyName(assemblyPath);
+
+                    if (gacAssemblyName.ProcessorArchitecture != ProcessorArchitecture.None &&
+                        architectureFilter != null &&
+                        architectureFilter.Count > 0 &&
+                        !architectureFilter.Contains(gacAssemblyName.ProcessorArchitecture))
+                    {
+                        continue;
+                    }
+
+                    var assemblyIdentity = new AssemblyIdentity(
+                        gacAssemblyName.Name,
+                        gacAssemblyName.Version,
+                        gacAssemblyName.CultureName,
+                        gacAssemblyName.GetPublicKeyToken());
+
+                    yield return new Tuple<AssemblyIdentity, string>(assemblyIdentity, assemblyPath);
                 }
             }
         }
 
-        public static string ResolvePartialName(string displayName)
+        public override IEnumerable<AssemblyIdentity> GetAssemblyIdentities(AssemblyName partialName, IReadOnlyList<ProcessorArchitecture> architectureFilter = null)
+        {
+            return GetAssemblyIdentitiesAndPaths(partialName, architectureFilter).Select(identityAndPath => identityAndPath.Item1);
+        }
+
+        public override IEnumerable<AssemblyIdentity> GetAssemblyIdentities(string partialName = null, IReadOnlyList<ProcessorArchitecture> architectureFilter = null)
+        {
+            AssemblyName name;
+            try
+            {
+                name = (partialName == null) ? null : new AssemblyName(partialName);
+            }
+            catch
+            {
+                return Enumerable.Empty<AssemblyIdentity>();
+            }
+
+            return GetAssemblyIdentities(name, architectureFilter);
+        }
+
+        public override IEnumerable<string> GetAssemblySimpleNames(IReadOnlyList<ProcessorArchitecture> architectureFilter = null)
+        {
+            return GetAssemblyIdentitiesAndPaths(name: null, version: null, publicKeyToken: null, architectureFilter: architectureFilter).
+                Select(identityAndPath => identityAndPath.Item1.Name).Distinct();
+        }
+
+        public override AssemblyIdentity ResolvePartialName(
+            string displayName,
+            out string location,
+            IReadOnlyList<ProcessorArchitecture> architectureFilter,
+            CultureInfo preferredCulture)
         {
             if (displayName == null)
             {
                 throw new ArgumentNullException("displayName");
             }
 
-            var assemblyName = new AssemblyName(displayName);
+            string cultureName = (preferredCulture != null && !preferredCulture.IsNeutralCulture) ? preferredCulture.Name : null;
 
-            foreach (var assemblyPath in GetAssemblyPaths(assemblyName))
+            var assemblyName = new AssemblyName(displayName);
+            AssemblyIdentity assemblyIdentity = null;
+
+            location = null;
+            bool isBestMatch = false;
+
+            foreach (var identityAndPath in GetAssemblyIdentitiesAndPaths(assemblyName, architectureFilter))
             {
+                var assemblyPath = identityAndPath.Item2;
+
                 if (!File.Exists(assemblyPath))
                 {
                     continue;
                 }
 
-                return assemblyPath;
+                var gacAssemblyName = new AssemblyName(assemblyPath);
+
+                isBestMatch = cultureName == null || gacAssemblyName.CultureName == cultureName;
+                bool isBetterMatch = location == null || isBestMatch;
+
+                if (isBetterMatch)
+                {
+                    location = assemblyPath;
+                    assemblyIdentity = identityAndPath.Item1;
+                }
+
+                if (isBestMatch)
+                {
+                    break;
+                }
             }
 
-            return null;
+            return assemblyIdentity;
         }
     }
 }
