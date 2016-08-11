@@ -1,7 +1,7 @@
 version: 0.8.2.{build}
 
 install:
-  - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.7.3/dsc.zip > dsc_binaries.zip
+  - curl -L https://github.com/jonathanvdc/Flame/releases/download/dsc-v0.8.2/dsc.zip > dsc_binaries.zip
   - 7z x dsc_binaries.zip -obin_dsc
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.sln
@@ -65,6 +65,7 @@ deploy:
 
   - provider: GitHub
     release: dsc v$(SEMVER)
+    tag: $(APPVEYOR_REPO_TAG_NAME)
     description: 'Release description' # Fill this out later.
     auth_token:
       secure: 693ZX2DdyyjDOqpJaJlUMO1hcMtLbsqMnCLzQVUEq7JjGb+bfEbaB/oMO0b26KZo
