@@ -59,6 +59,7 @@
     <Reference Include="Flame.DSharp">
       <HintPath>..\Flame.DSharp\bin\Flame.DSharp.dll</HintPath>
     </Reference>
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="DSharp\ParserTests.cs" />
     <Compile Include="TestLog.cs" />
     <Compile Include="DSharp\SemanticsTests.cs" />
+    <Compile Include="IntegerValueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

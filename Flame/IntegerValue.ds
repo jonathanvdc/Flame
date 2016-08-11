@@ -1,0 +1,391 @@
+using System;
+using System.Numerics;
+
+namespace Flame
+{
+    /// <summary>
+    /// Describes the size and signedness of an integer. Signed integers are
+    /// assumed to use a two's complement scheme.
+    /// </summary>
+    public class IntegerSpec : IEquatable<IntegerSpec>
+    {
+        /// <summary>
+        /// Creates an integer size from the given number of bits,
+        /// and signedness.
+        /// </summary>
+        public this(set int Size, set bool IsSigned)
+            in { Size > 0 }
+        {
+            this.UnsignedModulus = BigInteger.Pow(new BigInteger((int)2), Size);
+            this.Modulus = BigInteger.Pow(new BigInteger((int)2), DataSize);
+            this.MaxValue = BigInteger.Subtract(Modulus, BigInteger.One);
+            this.AllOnes = BigInteger.Subtract(this.UnsignedModulus, BigInteger.One);
+
+            if (IsSigned)
+            {
+                this.MinValue = BigInteger.Negate(Modulus);
+            }
+            else
+            {
+                this.MinValue = BigInteger.Zero;
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of bits this integer represents, minus the sign
+        /// bit, if there is a sign bit.
+        /// </summary>
+        public int DataSize
+        {
+            get
+            {
+                if (IsSigned)
+                    return Size - 1;
+                else
+                    return Size;
+            }
+        }
+
+        /// <summary>
+        /// Gets the integer size, in bits.
+        /// </summary>
+        public int Size { get; private set; }
+
+        /// <summary>
+        /// Gets a boolean value that tells
+        /// </summary>
+        public bool IsSigned { get; private set; }
+
+        /// <summary>
+        /// Gets the biggest integer for this spec.
+        /// </summary>
+        public BigInteger MaxValue { get; private set; }
+
+        /// <summary>
+        /// Gets the smallest integer for this spec.
+        /// </summary>
+        public BigInteger MinValue { get; private set; }
+
+        /// <summary>
+        /// Gets the modulus for this integer spec: two to the power
+        /// of the number of data bits.
+        /// </summary>
+        public BigInteger Modulus { get; private set; }
+
+        /// <summary>
+        /// Gets the modulus for this integer spec: two to the power
+        /// of the number of total bits.
+        /// </summary>
+        public BigInteger UnsignedModulus { get; private set; }
+
+        /// <summary>
+        /// Gets the unsigned all-ones bitwise integer pattern for this
+        /// integer spec. This corresponds to the unsigned modulus minus one.
+        /// </summary>
+        public BigInteger AllOnes { get; private set; }
+
+        /// <summary>
+        /// Checks if the given integer is representible by an integer
+        /// value that adheres to this spec.
+        /// </summary>
+        public bool IsRepresentible(BigInteger Value)
+        {
+            return Value.CompareTo(MinValue) >= 0 && Value.CompareTo(MaxValue) <= 0;
+        }
+
+        /*
+        /// <summary>
+        /// Extends or wraps the given integer to match the signedness specified
+        /// by this. The integer's size is assumed to be within bounds.
+        /// </summary>
+        private BigInteger CastSignedness(BigInteger Value)
+        {
+            if (IsRepresentible(Value))
+            {
+                // No need to do anything.
+                return Value;
+            }
+            else if (IsSigned)
+            {
+                // We need to cast an unsigned value to a signed value, and
+                // we can't represent the current value as-is.
+                return BigInteger.Subtract(Value, UnsignedModulus);
+            }
+            else
+            {
+                // We need to cast a signed value to an unsigned value, and
+                // we can't represent the current value as-is.
+                return BigInteger.Add(Value, UnsignedModulus);
+            }
+        }
+        */
+
+        /// <summary>
+        /// Casts the given unsigned integer to match this spec.
+        /// </summary>
+        private BigInteger CastUnsigned(BigInteger Value)
+            in { Value.Sign >= 0 }
+        {
+            // We're dealing with a positive integer, so first, we'll make
+            // sure it fits in the number of bits we have.
+            var remainder = BigInteger.Remainder(Value, UnsignedModulus);
+            if (remainder.CompareTo(MaxValue) > 0)
+                // We're dealing with two's complement here.
+                return BigInteger.Subtract(BigInteger.Remainder(remainder, Modulus), Modulus);
+            else
+                // Unsigned number. Just return the remainder.
+                return remainder;
+        }
+
+        /// <summary>
+        /// Casts the given integer, which currently matches the given spec,
+        /// to match this spec.
+        /// </summary>
+        public BigInteger Cast(BigInteger Value, IntegerSpec ValueSpec)
+            in { ValueSpec.IsRepresentible(Value) }
+            out (result) { IsRepresentible(result) }
+        {
+            if (IsRepresentible(Value))
+                // This performs basic sign/zero-extension, and handles identity
+                // conversions.
+                return Value;
+
+            if (Size > ValueSpec.Size)
+            {
+                var spec = new IntegerSpec(Size, ValueSpec.IsSigned);
+                assert(spec.IsRepresentible(Value));
+                return Cast(Value, spec);
+            }
+
+            if (Value.Sign < 0)
+                Value = BigInteger.Add(Value, ValueSpec.UnsignedModulus);
+
+            return CastUnsigned(Value);
+        }
+
+        public bool Equals(IntegerSpec Other)
+        {
+            return Size == Other.Size && IsSigned == Other.IsSigned;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is IntegerSpec && Equals((IntegerSpec)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return ((int)IsSigned << 16) ^ Size;
+        }
+
+        public override string ToString()
+        {
+            return "{ Size : " + Size + ", IsSigned : " + IsSigned + " }";
+        }
+
+        static this()
+        {
+            i8 = new IntegerSpec(8, true);
+            i16 = new IntegerSpec(16, true);
+            i32 = new IntegerSpec(32, true);
+            i64 = new IntegerSpec(64, true);
+            u8 = new IntegerSpec(8, false);
+            u16 = new IntegerSpec(16, false);
+            u32 = new IntegerSpec(32, false);
+            u64 = new IntegerSpec(64, false);
+        }
+
+        private static IntegerSpec i8;
+        private static IntegerSpec i16;
+        private static IntegerSpec i32;
+        private static IntegerSpec i64;
+        private static IntegerSpec u8;
+        private static IntegerSpec u16;
+        private static IntegerSpec u32;
+        private static IntegerSpec u64;
+
+        /// <summary>
+        /// Gets the integer spec for 8-bit signed integers.
+        /// </summary>
+        public static IntegerSpec Int8 { get { return i8; } }
+
+        /// <summary>
+        /// Gets the integer spec for 8-bit unsigned integers.
+        /// </summary>
+        public static IntegerSpec UInt8 { get { return u8; } }
+
+        /// <summary>
+        /// Gets the integer spec for 16-bit signed integers.
+        /// </summary>
+        public static IntegerSpec Int16 { get { return i16; } }
+
+        /// <summary>
+        /// Gets the integer spec for 16-bit unsigned integers.
+        /// </summary>
+        public static IntegerSpec UInt16 { get { return u16; } }
+
+        /// <summary>
+        /// Gets the integer spec for 32-bit signed integers.
+        /// </summary>
+        public static IntegerSpec Int32 { get { return i32; } }
+
+        /// <summary>
+        /// Gets the integer spec for 32-bit unsigned integers.
+        /// </summary>
+        public static IntegerSpec UInt32 { get { return u32; } }
+
+        /// <summary>
+        /// Gets the integer spec for 64-bit signed integers.
+        /// </summary>
+        public static IntegerSpec Int64 { get { return i64; } }
+
+        /// <summary>
+        /// Gets the integer spec for 64-bit unsigned integers.
+        /// </summary>
+        public static IntegerSpec UInt64 { get { return u64; } }
+    }
+
+    /// <summary>
+    /// Describes an integer value that adheres to an integer spec.
+    /// </summary>
+    public struct IntegerValue
+    {
+        /// <summary>
+        /// Creates an integer value from the given integer and an integer spec.
+        /// Note that the given integer must conform to the spec.
+        /// </summary>
+        public this(set BigInteger Value, set IntegerSpec Spec)
+            in { Spec != null }
+            in { Spec.IsRepresentible(Value) }
+        { }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(sbyte Value)
+        {
+            this.Value = new BigInteger((int)Value);
+            this.Spec = IntegerSpec.Int8;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(short Value)
+        {
+            this.Value = new BigInteger((int)Value);
+            this.Spec = IntegerSpec.Int16;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(int Value)
+        {
+            this.Value = new BigInteger(Value);
+            this.Spec = IntegerSpec.Int32;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(long Value)
+        {
+            this.Value = new BigInteger(Value);
+            this.Spec = IntegerSpec.Int64;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(byte Value)
+        {
+            this.Value = new BigInteger((int)Value);
+            this.Spec = IntegerSpec.UInt8;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(ushort Value)
+        {
+            this.Value = new BigInteger((int)Value);
+            this.Spec = IntegerSpec.UInt16;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(uint Value)
+        {
+            this.Value = new BigInteger(Value);
+            this.Spec = IntegerSpec.UInt32;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given integer.
+        /// </summary>
+        public this(ulong Value)
+        {
+            this.Value = new BigInteger(Value);
+            this.Spec = IntegerSpec.UInt64;
+        }
+
+        /// <summary>
+        /// Gets this integer's value.
+        /// </summary>
+        public BigInteger Value { get; private set; }
+
+        /// <summary>
+        /// Gets this integer's spec, which defines its size and signedness.
+        /// </summary>
+        public IntegerSpec Spec { get; private set; }
+
+        /// <summary>
+        /// Extends or wraps this integer to match the given number of bits.
+        /// </summary>
+        public IntegerValue CastSize(int Size)
+            out (result) { result.Spec.IsRepresentible(result.Value) }
+        {
+            return Cast(new IntegerSpec(Size, Spec.IsSigned));
+        }
+
+        /// <summary>
+        /// Extends or wraps this integer to match the given signedness.
+        /// </summary>
+        public IntegerValue CastSignedness(bool IsSigned)
+            out (result) { result.Spec.IsRepresentible(result.Value) }
+        {
+            return Cast(new IntegerSpec(Spec.Size, IsSigned));
+        }
+
+        /// <summary>
+        /// Casts this integer value to match the given spec.
+        /// </summary>
+        public IntegerValue Cast(IntegerSpec NewSpec)
+            out (result) { NewSpec.IsRepresentible(result.Value) }
+        {
+            return new IntegerValue(NewSpec.Cast(Value, Spec), NewSpec);
+        }
+
+        public bool Equals(IntegerValue Other)
+        {
+            return Value.Equals(Other.Value) && Spec.Equals(Other.Spec);
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is IntegerValue && Equals((IntegerValue)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Spec.GetHashCode() << 8) ^ Value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "{ Value : " + Value + ", Size : " + Spec.Size + ", IsSigned : " + Spec.IsSigned + " }";
+        }
+    }
+}

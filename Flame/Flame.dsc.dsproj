@@ -8,6 +8,7 @@
 		<RuntimeLibrary Include="PortableRT" />
 		<RuntimeLibrary Include="System" />
 		<RuntimeLibrary Include="System.Core" />
+        <RuntimeLibrary Include="System.Numerics" />
 	</ItemGroup>
     <ItemGroup>
         <Reference Include="../Pixie/bin/Pixie.dll" />
@@ -60,6 +61,7 @@
         <Compile Include="GenericTypeBase.ds" />
         <Compile Include="IAncestryRules.ds" />
 		<Compile Include="INamespaceTree.ds" />
+        <Compile Include="IntegerValue.ds" />
 		<Compile Include="NamespaceTreeExtensions.ds" />
 		<Compile Include="SingletonExtensions.ds" />
 		<Compile Include="IGenericConstraint.ds" />
