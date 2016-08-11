@@ -226,9 +226,10 @@ namespace Flame.Front.AssemblyResolution
 
             fixed (char* p = new char[MAX_PATH])
             {
-                ASSEMBLY_INFO info = new ASSEMBLY_INFO
+                ASSEMBLY_INFO info = default(ASSEMBLY_INFO);
+                info = new ASSEMBLY_INFO
                 {
-                    cbAssemblyInfo = (uint)Marshal.SizeOf<ASSEMBLY_INFO>(),
+                    cbAssemblyInfo = (uint)Marshal.SizeOf(info),
                     pszCurrentAssemblyPathBuf = p,
                     cchBuf = MAX_PATH
                 };
