@@ -1,6 +1,7 @@
 
 tests
 {
+    AssemblyResolution/AssemblyResolution.test;
     Constrained/Constrained.test;
     Dictionaries/Dictionaries.test;
     Enumerables/Enumerables.test;
