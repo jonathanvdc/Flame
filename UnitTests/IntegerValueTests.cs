@@ -232,6 +232,7 @@ namespace UnitTests
             TestOp((x, y) => x.BitwiseXor(y), (x, y) => x ^ y, GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.ShiftLeft(y.BitwiseAnd(new IntegerValue(31))), (x, y) => x << (y & 31), GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.ShiftRight(y.BitwiseAnd(new IntegerValue(31))), (x, y) => x >> (y & 31), GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.BitwiseXor(y.OnesComplement), (x, y) => x ^ ~y, GetGeneralOpTestValues(rand));
         }
 
         private IEnumerable<Tuple<int, int>> GetGeneralOpTestValues(Random Rand)

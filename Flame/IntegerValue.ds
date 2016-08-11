@@ -351,6 +351,14 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the one's complement of this integer.
+        /// </summary>
+        public IntegerValue OnesComplement
+        {
+            get { return new IntegerValue(BigInteger.op_OnesComplement(Value), Spec); }
+        }
+
+        /// <summary>
         /// Extends or wraps this integer to match the given number of bits.
         /// </summary>
         public IntegerValue CastSize(int Size)
