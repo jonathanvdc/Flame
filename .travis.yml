@@ -7,7 +7,7 @@ install:
   - nuget restore Flame.Cecil/Flame.Cecil.sln
 script:
   # Perform one build to check that Flame is buildable
-  - ./BuildCI.sh bin_dsc/dsc/dsc.exe
+  - ./BuildCI.sh bin_dsc/dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - ./BuildCI.sh dsc/bin/Release/dsc.exe
   # Build compare-test, with -O3, to ensure that aggressive optimizations
