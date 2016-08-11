@@ -72,8 +72,8 @@ namespace UnitTests
             return RunTests.RunMany(
                 new SetTests(),
                 new ShadowingTests(),
-                new TypeSystemTests(),
-                new IntegerValueTests());
+                // new IntegerValueTests(),
+                new TypeSystemTests());
         }
 
         public static int Flame_Build_Lazy()
