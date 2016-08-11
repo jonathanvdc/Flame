@@ -342,6 +342,15 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the negated value of this integer. This may or may not
+        /// be representible by the integer spec this value adheres to.
+        /// </summary>
+        public IntegerValue Negated
+        {
+            get { return new IntegerValue(BigInteger.Negate(Value), Spec); }
+        }
+
+        /// <summary>
         /// Extends or wraps this integer to match the given number of bits.
         /// </summary>
         public IntegerValue CastSize(int Size)
@@ -475,20 +484,17 @@ namespace Flame
             return Value.CompareTo(Other.Value);
         }
 
-        /// <summary>
-        /// Converts this integer value to a 32-bit unsigned integer.
-        /// </summary>
-        public uint ToUInt32()
+        private byte[] ToPaddedByteArray(IntegerSpec NewSpec, int ArraySize)
         {
             // FIXME: dsc doesn't support implicit/explicit conversion operators,
             // and this is an ugly workaround.
 
-            byte[] byteArr = Cast(IntegerSpec.UInt32).Value.ToByteArray();
+            byte[] byteArr = Cast(NewSpec).Value.ToByteArray();
             int byteArrSize = byteArr.Length;
             while (byteArrSize > 0 && byteArr[byteArrSize - 1] == (byte)0)
                 byteArrSize--;
 
-            byte[] paddedByteArr = new byte[4];
+            byte[] paddedByteArr = new byte[ArraySize];
 
             if (BitConverter.IsLittleEndian)
             {
@@ -501,7 +507,15 @@ namespace Flame
                     paddedByteArr[i + paddedByteArr.Length - byteArrSize] = byteArr[i];
             }
 
-            return BitConverter.ToUInt32(paddedByteArr, 0);
+            return paddedByteArr;
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 32-bit unsigned integer.
+        /// </summary>
+        public uint ToUInt32()
+        {
+            return BitConverter.ToUInt32(ToPaddedByteArray(IntegerSpec.UInt32, 4), 0);
         }
 
         /// <summary>
@@ -510,6 +524,22 @@ namespace Flame
         public int ToInt32()
         {
             return (int)ToUInt32();
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 64-bit unsigned integer.
+        /// </summary>
+        public ulong ToUInt64()
+        {
+            return BitConverter.ToUInt64(ToPaddedByteArray(IntegerSpec.UInt64, 8), 0);
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 64-bit signed integer.
+        /// </summary>
+        public long ToInt64()
+        {
+            return (long)ToUInt64();
         }
 
         public bool Equals(IntegerValue Other)

@@ -206,6 +206,14 @@ namespace UnitTests
                     (uint)val, new IntegerValue(val).ToUInt32());
                 Assert.AreEqual(
                     val, new IntegerValue(val).ToInt32());
+                Assert.AreEqual(
+                    (ulong)val, new IntegerValue((ulong)val).ToUInt64());
+                Assert.AreEqual(
+                    (long)val, new IntegerValue((long)val).ToInt64());
+                Assert.AreEqual(
+                    (ulong)val, new IntegerValue(val).ToUInt64());
+                Assert.AreEqual(
+                    (long)val, new IntegerValue(val).ToInt64());
             }
         }
 
@@ -215,6 +223,7 @@ namespace UnitTests
             var rand = new Random();
             TestOp((x, y) => x.Add(y), (x, y) => x + y, GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.Subtract(y), (x, y) => x - y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.Add(y.Negated), (x, y) => x - y, GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.Multiply(y), (x, y) => x * y, GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.Divide(y), (x, y) => x / y, GetGeneralOpTestValues(rand));
             TestOp((x, y) => x.Remainder(y), (x, y) => x % y, GetGeneralOpTestValues(rand));
