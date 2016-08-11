@@ -195,6 +195,55 @@ namespace UnitTests
             }
         }
 
+        [Test]
+        public void RoundTrip()
+        {
+            foreach (var val in GetTestValues())
+            {
+                Assert.AreEqual(
+                    (uint)val, new IntegerValue((uint)val).ToUInt32());
+                Assert.AreEqual(
+                    (uint)val, new IntegerValue(val).ToUInt32());
+                Assert.AreEqual(
+                    val, new IntegerValue(val).ToInt32());
+            }
+        }
+
+        [Test]
+        public void Arithmetic()
+        {
+            var rand = new Random();
+            TestOp((x, y) => x.Add(y), (x, y) => x + y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.Subtract(y), (x, y) => x - y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.Multiply(y), (x, y) => x * y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.Divide(y), (x, y) => x / y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.Remainder(y), (x, y) => x % y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.BitwiseAnd(y), (x, y) => x & y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.BitwiseOr(y), (x, y) => x | y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.BitwiseXor(y), (x, y) => x ^ y, GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.ShiftLeft(y.BitwiseAnd(new IntegerValue(31))), (x, y) => x << (y & 31), GetGeneralOpTestValues(rand));
+            TestOp((x, y) => x.ShiftRight(y.BitwiseAnd(new IntegerValue(31))), (x, y) => x >> (y & 31), GetGeneralOpTestValues(rand));
+        }
+
+        private IEnumerable<Tuple<int, int>> GetGeneralOpTestValues(Random Rand)
+        {
+            foreach (var i in GetRandomValues(Rand, 200))
+            {
+                foreach (var j in GetRandomValues(Rand, 200))
+                {
+                    yield return Tuple.Create(i, j);
+                }
+            }
+        }
+
+        private IEnumerable<int> GetRandomValues(Random Rand, int Count)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return Rand.Next();
+            }
+        }
+
         private IEnumerable<int> GetTestValues()
         {
             for (int i = -10000; i < 10000; i++)
@@ -217,6 +266,19 @@ namespace UnitTests
         private ulong ToUInt(ulong Value, int Size)
         {
             return Value & ((1UL << Size) - 1);
+        }
+
+        private void TestOp(
+            Func<IntegerValue, IntegerValue, IntegerValue> IntValOp, 
+            Func<int, int, int> IntOp,
+            IEnumerable<Tuple<int, int>> TestVals)
+        {
+            foreach (var pair in TestVals)
+            {
+                Assert.AreEqual(
+                    IntValOp(new IntegerValue(pair.Item1), new IntegerValue(pair.Item2)).ToInt32(), 
+                    IntOp(pair.Item1, pair.Item2));
+            }
         }
     }
 }

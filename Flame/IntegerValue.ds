@@ -115,7 +115,6 @@ namespace Flame
         /// to match this spec.
         /// </summary>
         public BigInteger Cast(BigInteger Value, IntegerSpec ValueSpec)
-            in { ValueSpec.IsRepresentible(Value) }
             out (result) { IsRepresentible(result) }
         {
             if (IsRepresentible(Value))
@@ -134,6 +133,18 @@ namespace Flame
                 Value = BigInteger.Add(Value, ValueSpec.UnsignedModulus);
 
             return CastUnsigned(Value);
+        }
+
+        /// <summary>
+        /// "Normalizes" the given value, by casting it to this integer spec,
+        /// from this integer spec. The resulting of this operation will always be
+        /// representible, but this need not be the case for the input value.
+        /// </summary>
+        public BigInteger Normalize(BigInteger Value)
+            out (result) { IsRepresentible(result) }
+            out (result) { !IsRepresentible(Value) || Value.Equals(result) }
+        {
+            return Cast(Value, this);
         }
 
         public bool Equals(IntegerSpec Other)
@@ -225,11 +236,9 @@ namespace Flame
     {
         /// <summary>
         /// Creates an integer value from the given integer and an integer spec.
-        /// Note that the given integer must conform to the spec.
         /// </summary>
         public this(set BigInteger Value, set IntegerSpec Spec)
             in { Spec != null }
-            in { Spec.IsRepresentible(Value) }
         { }
 
         /// <summary>
@@ -315,10 +324,28 @@ namespace Flame
         public IntegerSpec Spec { get; private set; }
 
         /// <summary>
+        /// Checks if this value is valid, i.e. it conforms to the given
+        /// spec.
+        /// </summary>
+        public bool IsValid
+        {
+            get { return Spec.IsRepresentible(Value); }
+        }
+
+        /// <summary>
+        /// Gets a normalized value. A normalized value will always conform
+        /// to the integer spec.
+        /// </summary>
+        public IntegerValue Normalized
+        {
+            get { return new IntegerValue(Spec.Normalize(Value), Spec); }
+        }
+
+        /// <summary>
         /// Extends or wraps this integer to match the given number of bits.
         /// </summary>
         public IntegerValue CastSize(int Size)
-            out (result) { result.Spec.IsRepresentible(result.Value) }
+            out (result) { result.IsValid }
         {
             return Cast(new IntegerSpec(Size, Spec.IsSigned));
         }
@@ -327,7 +354,7 @@ namespace Flame
         /// Extends or wraps this integer to match the given signedness.
         /// </summary>
         public IntegerValue CastSignedness(bool IsSigned)
-            out (result) { result.Spec.IsRepresentible(result.Value) }
+            out (result) { result.IsValid }
         {
             return Cast(new IntegerSpec(Spec.Size, IsSigned));
         }
@@ -336,9 +363,145 @@ namespace Flame
         /// Casts this integer value to match the given spec.
         /// </summary>
         public IntegerValue Cast(IntegerSpec NewSpec)
-            out (result) { NewSpec.IsRepresentible(result.Value) }
+            out (result) { result.Spec.Equals(NewSpec) }
+            out (result) { result.IsValid }
         {
             return new IntegerValue(NewSpec.Cast(Value, Spec), NewSpec);
+        }
+
+        /// <summary>
+        /// Adds the given integer to this integer. This integer's spec is
+        /// maintained.
+        /// </summary>
+        public IntegerValue Add(IntegerValue Other)
+        {
+            return new IntegerValue(BigInteger.Add(Value, Other.Value), Spec);
+        }
+
+        /// <summary>
+        /// Subtracts the given integer from this integer. This integer's spec is
+        /// maintained.
+        /// </summary>
+        public IntegerValue Subtract(IntegerValue Other)
+        {
+            return new IntegerValue(BigInteger.Subtract(Value, Other.Value), Spec);
+        }
+
+        /// <summary>
+        /// Multiplies the given integer with this integer. This integer's spec is
+        /// maintained.
+        /// </summary>
+        public IntegerValue Multiply(IntegerValue Other)
+        {
+            return new IntegerValue(BigInteger.Multiply(Value, Other.Value), Spec);
+        }
+
+        /// <summary>
+        /// Divides this integer by the given integer. This integer's spec is
+        /// maintained.
+        /// </summary>
+        public IntegerValue Divide(IntegerValue Other)
+        {
+            return new IntegerValue(BigInteger.Divide(Value, Other.Value), Spec);
+        }
+
+        /// <summary>
+        /// Computes the remainder of the division of this integer by the given
+        /// integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue Remainder(IntegerValue Other)
+        {
+            return new IntegerValue(BigInteger.Remainder(Value, Other.Value), Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise 'and' operator to this integer and the given
+        /// other integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue BitwiseAnd(IntegerValue Other)
+        {
+            return new IntegerValue(Value & Other.Value, Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise 'or' operator to this integer and the given
+        /// other integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue BitwiseOr(IntegerValue Other)
+        {
+            return new IntegerValue(Value | Other.Value, Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise 'xor' operator to this integer and the given
+        /// other integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue BitwiseXor(IntegerValue Other)
+        {
+            return new IntegerValue(Value ^ Other.Value, Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise left shift operator to this integer and the given
+        /// other integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue ShiftLeft(IntegerValue Other)
+        {
+            return new IntegerValue(
+                BigInteger.Multiply(
+                    Value,
+                    BigInteger.Pow(new BigInteger((int)2), Other.ToInt32())),
+                Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise right shift operator to this integer and the given
+        /// other integer. This integer's spec is maintained.
+        /// </summary>
+        public IntegerValue ShiftRight(IntegerValue Other)
+        {
+            return new IntegerValue(
+                BigInteger.Divide(
+                    Value,
+                    BigInteger.Pow(new BigInteger((int)2), Other.ToInt32())),
+                Spec);
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 32-bit unsigned integer.
+        /// </summary>
+        public uint ToUInt32()
+        {
+            // FIXME: dsc doesn't support implicit/explicit conversion operators,
+            // and this is an ugly workaround.
+
+            byte[] byteArr = Cast(IntegerSpec.UInt32).Value.ToByteArray();
+            int byteArrSize = byteArr.Length;
+            while (byteArrSize > 0 && byteArr[byteArrSize - 1] == (byte)0)
+                byteArrSize--;
+
+            byte[] paddedByteArr = new byte[4];
+
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < byteArrSize; i++)
+                    paddedByteArr[i] = byteArr[i];
+            }
+            else
+            {
+                for (int i = 0; i < byteArrSize; i++)
+                    paddedByteArr[i + paddedByteArr.Length - byteArrSize] = byteArr[i];
+            }
+
+            return BitConverter.ToUInt32(paddedByteArr, 0);
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 32-bit signed integer.
+        /// </summary>
+        public int ToInt32()
+        {
+            return (int)ToUInt32();
         }
 
         public bool Equals(IntegerValue Other)
