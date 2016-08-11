@@ -1,7 +1,7 @@
 version: 0.8.3.{build}
 
 install:
-  - curl -L https://github.com/jonathanvdc/Flame/releases/download/dsc-v0.8.2/dsc.zip > dsc_binaries.zip
+  - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.8.3/dsc.zip > dsc_binaries.zip
   - 7z x dsc_binaries.zip -obin_dsc
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.sln

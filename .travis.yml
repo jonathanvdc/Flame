@@ -1,7 +1,7 @@
 language: csharp
 solution: Flame.Cecil/Flame.Cecil.sln
 install:
-  - curl -L https://github.com/jonathanvdc/Flame/releases/download/dsc-v0.8.2/dsc.zip > dsc.zip
+  - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.8.3/dsc.zip > dsc.zip
   - unzip dsc.zip -d bin_dsc
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil/Flame.Cecil.sln
