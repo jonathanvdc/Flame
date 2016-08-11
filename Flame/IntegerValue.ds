@@ -232,7 +232,7 @@ namespace Flame
     /// <summary>
     /// Describes an integer value that adheres to an integer spec.
     /// </summary>
-    public struct IntegerValue
+    public class IntegerValue : IComparable<IntegerValue>, IEquatable<IntegerValue>
     {
         /// <summary>
         /// Creates an integer value from the given integer and an integer spec.
@@ -465,6 +465,14 @@ namespace Flame
                     Value,
                     BigInteger.Pow(new BigInteger((int)2), Other.ToInt32())),
                 Spec);
+        }
+
+        /// <summary>
+        /// Compares this integer value to the given integer value.
+        /// </summary>
+        public int CompareTo(IntegerValue Other)
+        {
+            return Value.CompareTo(Other.Value);
         }
 
         /// <summary>
