@@ -387,8 +387,8 @@ namespace Flame
         }
 
         /// <summary>
-        /// Adds the given integer to this integer. This integer's spec is
-        /// maintained.
+        /// Adds the given integer to this integer.
+        /// The result retains this integer's spec.
         /// </summary>
         public IntegerValue Add(IntegerValue Other)
         {
@@ -396,8 +396,8 @@ namespace Flame
         }
 
         /// <summary>
-        /// Subtracts the given integer from this integer. This integer's spec is
-        /// maintained.
+        /// Subtracts the given integer from this integer.
+        /// The result retains this integer's spec.
         /// </summary>
         public IntegerValue Subtract(IntegerValue Other)
         {
@@ -405,8 +405,8 @@ namespace Flame
         }
 
         /// <summary>
-        /// Multiplies the given integer with this integer. This integer's spec is
-        /// maintained.
+        /// Multiplies the given integer with this integer.
+        /// The result retains this integer's spec.
         /// </summary>
         public IntegerValue Multiply(IntegerValue Other)
         {
@@ -414,8 +414,8 @@ namespace Flame
         }
 
         /// <summary>
-        /// Divides this integer by the given integer. This integer's spec is
-        /// maintained.
+        /// Divides this integer by the given integer.
+        /// The result retains this integer's spec.
         /// </summary>
         public IntegerValue Divide(IntegerValue Other)
         {
@@ -424,7 +424,7 @@ namespace Flame
 
         /// <summary>
         /// Computes the remainder of the division of this integer by the given
-        /// integer. This integer's spec is maintained.
+        /// integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue Remainder(IntegerValue Other)
         {
@@ -433,7 +433,7 @@ namespace Flame
 
         /// <summary>
         /// Applies the bitwise 'and' operator to this integer and the given
-        /// other integer. This integer's spec is maintained.
+        /// other integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue BitwiseAnd(IntegerValue Other)
         {
@@ -442,7 +442,7 @@ namespace Flame
 
         /// <summary>
         /// Applies the bitwise 'or' operator to this integer and the given
-        /// other integer. This integer's spec is maintained.
+        /// other integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue BitwiseOr(IntegerValue Other)
         {
@@ -451,7 +451,7 @@ namespace Flame
 
         /// <summary>
         /// Applies the bitwise 'xor' operator to this integer and the given
-        /// other integer. This integer's spec is maintained.
+        /// other integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue BitwiseXor(IntegerValue Other)
         {
@@ -460,7 +460,7 @@ namespace Flame
 
         /// <summary>
         /// Applies the bitwise left shift operator to this integer and the given
-        /// other integer. This integer's spec is maintained.
+        /// other integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue ShiftLeft(IntegerValue Other)
         {
@@ -473,7 +473,7 @@ namespace Flame
 
         /// <summary>
         /// Applies the bitwise right shift operator to this integer and the given
-        /// other integer. This integer's spec is maintained.
+        /// other integer. The result retains this integer's spec.
         /// </summary>
         public IntegerValue ShiftRight(IntegerValue Other)
         {
