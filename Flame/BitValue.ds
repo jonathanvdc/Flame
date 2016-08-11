@@ -89,18 +89,18 @@ namespace Flame
         /// Applies the bitwise left shift operator to this bit-value and the given
         /// other bit-value. The result retains this bit-value's size.
         /// </summary>
-        public BitValue ShiftLeft(BitValue Other)
+        public BitValue ShiftLeft(IntegerValue Other)
         {
-            return new BitValue(val.ShiftLeft(Other.val));
+            return new BitValue(val.ShiftLeft(Other));
         }
 
         /// <summary>
         /// Applies the bitwise right shift operator to this bit-value and the given
         /// other bit-value. The result retains this bit-value's size.
         /// </summary>
-        public BitValue ShiftRight(BitValue Other)
+        public BitValue ShiftRight(IntegerValue Other)
         {
-            return new BitValue(val.ShiftRight(Other.val));
+            return new BitValue(val.ShiftRight(Other));
         }
 
         /// <summary>
