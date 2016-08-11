@@ -93,33 +93,6 @@ namespace Flame
             return Value.CompareTo(MinValue) >= 0 && Value.CompareTo(MaxValue) <= 0;
         }
 
-        /*
-        /// <summary>
-        /// Extends or wraps the given integer to match the signedness specified
-        /// by this. The integer's size is assumed to be within bounds.
-        /// </summary>
-        private BigInteger CastSignedness(BigInteger Value)
-        {
-            if (IsRepresentible(Value))
-            {
-                // No need to do anything.
-                return Value;
-            }
-            else if (IsSigned)
-            {
-                // We need to cast an unsigned value to a signed value, and
-                // we can't represent the current value as-is.
-                return BigInteger.Subtract(Value, UnsignedModulus);
-            }
-            else
-            {
-                // We need to cast a signed value to an unsigned value, and
-                // we can't represent the current value as-is.
-                return BigInteger.Add(Value, UnsignedModulus);
-            }
-        }
-        */
-
         /// <summary>
         /// Casts the given unsigned integer to match this spec.
         /// </summary>
