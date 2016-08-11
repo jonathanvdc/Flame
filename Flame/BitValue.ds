@@ -1,0 +1,134 @@
+using System;
+
+namespace Flame
+{
+    /// <summary>
+    /// Describes a bit-value that has been allocated a fixed number of bits.
+    /// </summary>
+    public class BitValue : IEquatable<BitValue>
+    {
+        public this(bit8 Value)
+        {
+            this.val = new IntegerValue((byte)Value);
+        }
+
+        public this(bit16 Value)
+        {
+            this.val = new IntegerValue((ushort)Value);
+        }
+
+        public this(bit32 Value)
+        {
+            this.val = new IntegerValue((uint)Value);
+        }
+
+        public this(bit64 Value)
+        {
+            this.val = new IntegerValue((ulong)Value);
+        }
+
+        public this(float Value)
+        {
+            this.val = new IntegerValue((uint)(bit32)Value);
+        }
+
+        public this(double Value)
+        {
+            this.val = new IntegerValue((ulong)(bit64)Value);
+        }
+
+        /// <summary>
+        /// Creates a bit-value from the given integer value.
+        /// </summary>
+        public this(IntegerValue Value)
+        {
+            this.val = Value.CastSignedness(false);
+        }
+
+        private IntegerValue val;
+
+        /// <summary>
+        /// Gets this bit-value's size, in bits.
+        /// </summary>
+        public int Size { get { return val.Spec.Size; } }
+
+        /// <summary>
+        /// Checks if this value is valid, i.e. it fits in the number of bits
+        /// it had been allocated.
+        /// </summary>
+        public bool IsValid { get { return val.IsValid; } }
+
+        /// <summary>
+        /// Applies the bitwise 'and' operator to this bit-value and the given
+        /// other bit-value. The result retains this bit-value's size.
+        /// </summary>
+        public BitValue BitwiseAnd(BitValue Other)
+        {
+            return new BitValue(val.BitwiseAnd(Other.val));
+        }
+
+        /// <summary>
+        /// Applies the bitwise 'or' operator to this bit-value and the given
+        /// other bit-value. The result retains this bit-value's size.
+        /// </summary>
+        public BitValue BitwiseOr(BitValue Other)
+        {
+            return new BitValue(val.BitwiseOr(Other.val));
+        }
+
+        /// <summary>
+        /// Applies the bitwise 'xor' operator to this bit-value and the given
+        /// other bit-value. The result retains this bit-value's size.
+        /// </summary>
+        public BitValue BitwiseXor(BitValue Other)
+        {
+            return new BitValue(val.BitwiseXor(Other.val));
+        }
+
+        /// <summary>
+        /// Applies the bitwise left shift operator to this bit-value and the given
+        /// other bit-value. The result retains this bit-value's size.
+        /// </summary>
+        public BitValue ShiftLeft(BitValue Other)
+        {
+            return new BitValue(val.ShiftLeft(Other.val));
+        }
+
+        /// <summary>
+        /// Applies the bitwise right shift operator to this bit-value and the given
+        /// other bit-value. The result retains this bit-value's size.
+        /// </summary>
+        public BitValue ShiftRight(BitValue Other)
+        {
+            return new BitValue(val.ShiftRight(Other.val));
+        }
+
+        /// <summary>
+        /// Gets an integer that represents this bit-pattern.
+        /// </summary>
+        public IntegerValue ToInteger()
+        {
+            return val;
+        }
+
+        public bool Equals(BitValue Other)
+        {
+            return val.Equals(Other.val);
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is BitValue && Equals((BitValue)Other);
+        }
+
+        public override int GetHashCode()
+        {
+            return val.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "{ Value : " + val.Value + ", Size : " + Size + " }";
+        }
+    }
+}

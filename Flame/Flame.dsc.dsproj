@@ -19,6 +19,7 @@
 		<Compile Include="AncestryGraph.ds" />
 		<Compile Include="AndConstraint.ds" />
         <Compile Include="AttributeMap.ds" />
+        <Compile Include="BitValue.ds" />
 		<Compile Include="IMember.ds" />
 		<Compile Include="ITypeMember.ds" />
 		<Compile Include="IType.ds" />
