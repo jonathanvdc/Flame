@@ -7,10 +7,14 @@ namespace Flame.Primitives
 {
 	#region PrimitiveType
 
+	/// <summary>
+	/// A base class for primitive types: types whose every detail is known
+	/// to the compiler, including their size in bits.
+	/// </summary>
 	public virtual class PrimitiveType<T> : IType
 		where T : object
 	{
-        public const this(string Name, set int32 Magnitude, set T DefaultValue)
+        public const this(string Name, set int BitSize, set T DefaultValue)
 		{
 			this.Name = new SimpleName(Name);
 			this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
@@ -18,7 +22,11 @@ namespace Flame.Primitives
 			this.cachedFields = new Lazy<IField[]>(CreateFields);
 		}
 
-        public int32 Magnitude { const get; private set; }
+		/// <summary>
+		/// Gets this primitive type's size, in bits.
+		/// </summary>
+        public int BitSize { const get; private set; }
+
         public T DefaultValue { const get; private set; }
         public UnqualifiedName Name { const get; private set; }
 

@@ -7,7 +7,6 @@ namespace Flame.Primitives
 {
 	public static class NullPrimitiveType : IType
 	{
-        public int32 Magnitude { const get return 0; }
         public object DefaultValue { const get return null; }
         public UnqualifiedName Name { const get return new SimpleName("Null"); }
 

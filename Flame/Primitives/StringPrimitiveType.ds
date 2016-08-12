@@ -16,7 +16,6 @@ namespace Flame.Primitives
 			lazyAttrs = new Lazy<AttributeMap>(CreateAttributes);
 		}
 
-        public int32 Magnitude { const get return 0; }
         public string DefaultValue { const get return null; }
         public UnqualifiedName Name { const get return new SimpleName("String"); }
 

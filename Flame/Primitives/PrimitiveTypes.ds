@@ -50,25 +50,25 @@ namespace Flame
     {
     	static this()
     	{
-    		int32Type = new PrimitiveNumberType<int32>("Int32", 3, default(int32), int32.MinValue, int32.MaxValue);
+    		int32Type = new PrimitiveNumberType<int32>("Int32", 32, default(int32), int32.MinValue, int32.MaxValue);
     		booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool));
     		//stringType = new PrimitiveType<string>("String", 0 , null);
     		stringType = StringPrimitiveType;
-    		PrimitiveTypes.Int8 = new PrimitiveNumberType<int8>("Int8", 1, default(int8), int8.MinValue, int8.MaxValue);
-    		PrimitiveTypes.Int16 = new PrimitiveNumberType<int16>("Int16", 2, default(int16), int16.MinValue, int16.MaxValue);
-    		PrimitiveTypes.Int64 = new PrimitiveNumberType<int64>("Int64", 4, default(int64), int64.MinValue, int64.MaxValue);
-    		PrimitiveTypes.Bit8 = new PrimitiveType<bit8>("Bit8", 1, default(bit8));
-    		PrimitiveTypes.Bit16 = new PrimitiveType<bit16>("Bit16", 2, default(bit16));
-    		PrimitiveTypes.Bit32 = new PrimitiveType<bit32>("Bit32", 3, default(bit32));
-    		PrimitiveTypes.Bit64 = new PrimitiveType<bit64>("Bit64", 4, default(bit64));
-    		PrimitiveTypes.UInt8 = new PrimitiveNumberType<uint8>("UInt8", 1, default(uint8), uint8.MinValue, uint8.MaxValue);
-    		PrimitiveTypes.UInt16 = new PrimitiveNumberType<uint16>("UInt16", 2, default(uint16), uint16.MinValue, uint16.MaxValue);
-    		PrimitiveTypes.UInt32 = new PrimitiveNumberType<uint32>("UInt32", 3, default(uint32), uint32.MinValue, uint32.MaxValue);
-    		PrimitiveTypes.UInt64 = new PrimitiveNumberType<uint64>("UInt64", 4, default(uint64), uint64.MinValue, uint64.MaxValue);
-    		PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>("Float32", 3, default(float32), float32.MinValue, float32.MaxValue, (float32)1.0 / (float32)0.0, (float32)(-1.0) / (float32)0.0);
-    		PrimitiveTypes.Float64 = new PrimitiveFloatType<float64>("Float64", 4, default(float64), float64.MinValue, float64.MaxValue, 1.0 / 0.0, -1.0 / 0.0);
+    		PrimitiveTypes.Int8 = new PrimitiveNumberType<int8>("Int8", 8, default(int8), int8.MinValue, int8.MaxValue);
+    		PrimitiveTypes.Int16 = new PrimitiveNumberType<int16>("Int16", 16, default(int16), int16.MinValue, int16.MaxValue);
+    		PrimitiveTypes.Int64 = new PrimitiveNumberType<int64>("Int64", 64, default(int64), int64.MinValue, int64.MaxValue);
+    		PrimitiveTypes.Bit8 = new PrimitiveType<bit8>("Bit8", 8, default(bit8));
+    		PrimitiveTypes.Bit16 = new PrimitiveType<bit16>("Bit16", 16, default(bit16));
+    		PrimitiveTypes.Bit32 = new PrimitiveType<bit32>("Bit32", 32, default(bit32));
+    		PrimitiveTypes.Bit64 = new PrimitiveType<bit64>("Bit64", 64, default(bit64));
+    		PrimitiveTypes.UInt8 = new PrimitiveNumberType<uint8>("UInt8", 8, default(uint8), uint8.MinValue, uint8.MaxValue);
+    		PrimitiveTypes.UInt16 = new PrimitiveNumberType<uint16>("UInt16", 16, default(uint16), uint16.MinValue, uint16.MaxValue);
+    		PrimitiveTypes.UInt32 = new PrimitiveNumberType<uint32>("UInt32", 32, default(uint32), uint32.MinValue, uint32.MaxValue);
+    		PrimitiveTypes.UInt64 = new PrimitiveNumberType<uint64>("UInt64", 64, default(uint64), uint64.MinValue, uint64.MaxValue);
+    		PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>("Float32", 32, default(float32), float32.MinValue, float32.MaxValue, (float32)1.0 / (float32)0.0, (float32)(-1.0) / (float32)0.0);
+    		PrimitiveTypes.Float64 = new PrimitiveFloatType<float64>("Float64", 64, default(float64), float64.MinValue, float64.MaxValue, 1.0 / 0.0, -1.0 / 0.0);
     		//PrimitiveTypes.Char = new PrimitiveType<char>("Char", 2, default(char));
-    		PrimitiveTypes.Char = new CharPrimitiveType("Char", 2);
+    		PrimitiveTypes.Char = new CharPrimitiveType("Char", 16);
     		//PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);
     		PrimitiveTypes.Null = NullPrimitiveType;
     		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null);

@@ -8,8 +8,8 @@ namespace Flame.Primitives
 	public virtual class PrimitiveNumberType<T> : PrimitiveType<T>
 		where T : object
 	{
-		public const this(string Name, int32 Magnitude, T DefaultValue, set T MinValue, set T MaxValue)
-			: base(Name, Magnitude, DefaultValue);
+		public const this(string Name, int BitSize, T DefaultValue, set T MinValue, set T MaxValue)
+			: base(Name, BitSize, DefaultValue);
 
 		public T MinValue { const get; private set; }
 		public T MaxValue { const get; private set; }
@@ -25,9 +25,9 @@ namespace Flame.Primitives
 	public class PrimitiveFloatType<T> : PrimitiveNumberType<T>
 		where T : object
 	{
-		public const this(string Name, int32 Magnitude, T DefaultValue,
+		public const this(string Name, int BitSize, T DefaultValue,
 						  T MinValue, T MaxValue, set T PositiveInfinity, set T NegativeInfinity)
-		    : base(Name, Magnitude, DefaultValue, MinValue, MaxValue);
+		    : base(Name, BitSize, DefaultValue, MinValue, MaxValue);
 
 		public T PositiveInfinity { const get; private set; }
 		public T NegativeInfinity { const get; private set; }

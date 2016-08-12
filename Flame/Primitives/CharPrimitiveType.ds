@@ -8,8 +8,8 @@ namespace Flame.Primitives
 {
 	public class CharPrimitiveType : PrimitiveType<char>
 	{
-		public const this(string Name, int32 Magnitude)
-			: base(Name, Magnitude, default(char));
+		public const this(string Name, int BitSize)
+			: base(Name, BitSize, default(char));
 
 		private IMethod[] createExtraCharMethods()
 		{
