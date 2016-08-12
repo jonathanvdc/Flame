@@ -428,10 +428,9 @@ namespace Flame.Intermediate.Parsing
         {
             return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) =>
             {
-                IType resultType;
                 int size = GetInt32(node.Args.Single());
-                var val = CreateType(size);
-                if (val != null)
+                var resultType = CreateType(size);
+                if (resultType != null)
                 {
                     return new ConstantNodeStructure<IType>(node, resultType);
                 }
