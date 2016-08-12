@@ -51,11 +51,11 @@ namespace Flame.Cpp.Emit
             }
             else if ((SourceType.GetIsSignedInteger() && TargetType.GetIsSignedInteger()) || (SourceType.GetIsUnsignedInteger() && TargetType.GetIsUnsignedInteger()) || (SourceType.GetIsBit() && TargetType.GetIsBit()) || (SourceType.GetIsFloatingPoint() && TargetType.GetIsFloatingPoint()))
             {
-                return SourceType.GetPrimitiveMagnitude() <= TargetType.GetPrimitiveMagnitude();
+                return SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize();
             }
             else if (SourceType.GetIsUnsignedInteger() && TargetType.GetIsSignedInteger())
             {
-                return SourceType.GetPrimitiveMagnitude() < TargetType.GetPrimitiveMagnitude();
+                return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Flame.Cpp.Emit
 
         public static bool UseReinterpretBits(IType SourceType, IType TargetType)
         {
-            return (SourceType.GetIsBit() || TargetType.GetIsBit()) && SourceType.GetIsBit() != TargetType.GetIsBit() && SourceType.GetPrimitiveSize() != TargetType.GetPrimitiveSize();
+            return (SourceType.GetIsBit() || TargetType.GetIsBit()) && SourceType.GetIsBit() != TargetType.GetIsBit() && SourceType.GetPrimitiveBitSize() != TargetType.GetPrimitiveBitSize();
         }
 
         public static bool UseConvertToSharedPtr(IType SourceType, IType TargetType)
@@ -143,7 +143,7 @@ namespace Flame.Cpp.Emit
                 return null;
             }
             var cg = Block.CodeGenerator;
-            var tType = cg.GetEnvironment().TypeConverter.Convert(Target); 
+            var tType = cg.GetEnvironment().TypeConverter.Convert(Target);
             var sType = Block.Type;
             if (sType.Equals(tType))
             {

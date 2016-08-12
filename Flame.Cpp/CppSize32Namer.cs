@@ -13,37 +13,37 @@ namespace Flame.Cpp
         {
         }
 
-        public override string NameInt(int PrimitiveMagnitude)
+        public override string NameInt(int PrimitiveBitSize)
         {
-            switch (PrimitiveMagnitude)
+            switch (PrimitiveBitSize)
             {
-                case 1:
+                case 8:
                     return "char";
-                case 2:
+                case 16:
                     return "short";
-                case 3:
+                case 32:
                     return "int";
-                case 4:
+                case 64:
                     return "long long";
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public override string NameUInt(int PrimitiveMagnitude)
+        public override string NameUInt(int PrimitiveBitSize)
         {
-            return "unsigned " + NameInt(PrimitiveMagnitude);
+            return "unsigned " + NameInt(PrimitiveBitSize);
         }
 
-        public override string NameFloat(int PrimitiveMagnitude)
+        public override string NameFloat(int PrimitiveBitSize)
         {
-            switch (PrimitiveMagnitude)
+            switch (PrimitiveBitSize)
             {
-                case 3:
+                case 32:
                     return "float";
-                case 4:
+                case 64:
                     return "double";
-                case 5:
+                case 128:
                     return "long double";
                 default:
                     throw new NotImplementedException();

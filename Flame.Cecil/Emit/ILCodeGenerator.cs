@@ -352,7 +352,7 @@ namespace Flame.Cecil.Emit
         public ICodeBlock EmitConversion(ICodeBlock Value, IType Type)
         {
             var ilVal = (ICecilBlock)Value;
-            if (ilVal.IsInt32Literal() && Type.GetIsInteger() && Type.GetPrimitiveMagnitude() < 4)
+            if (ilVal.IsInt32Literal() && Type.GetIsInteger() && Type.GetPrimitiveSize() <= 4)
             {
                 return new RetypedBlock(ilVal, Type);
             }
@@ -384,7 +384,7 @@ namespace Flame.Cecil.Emit
 
         private ICodeBlock VirtualPop(ICodeBlock Block)
         {
-            // Replaces a non-canonical `void` type by the 
+            // Replaces a non-canonical `void` type by the
             // canonical `void` type. Methods imported from
             // reflection seem to have a `System.Void` type
             // which is not equal to `TypeSystem.Void`, and
@@ -398,7 +398,7 @@ namespace Flame.Cecil.Emit
                 "Assert", new Type[] { typeof(bool) }), (ICecilMember)Method);
 
             return VirtualPop(EmitInvocation(
-                    EmitMethod(method, null, Operator.GetDelegate), 
+                    EmitMethod(method, null, Operator.GetDelegate),
                     new ICodeBlock[] { Condition }));
         }
 
@@ -414,7 +414,7 @@ namespace Flame.Cecil.Emit
                     "Assert", new Type[] { typeof(bool), typeof(string) }), (ICecilMember)Method);
 
                 return VirtualPop(EmitInvocation(
-                        EmitMethod(method, null, Operator.GetDelegate), 
+                        EmitMethod(method, null, Operator.GetDelegate),
                         new ICodeBlock[] { Condition, Message }));
             }
         }
@@ -614,7 +614,7 @@ namespace Flame.Cecil.Emit
 
         public static bool IsCLRValueType(IType Type)
         {
-            return Type.GetIsValueType() || Type.GetIsEnum() || (Type.GetIsPrimitive() && Type.GetPrimitiveMagnitude() > 0);
+            return Type.GetIsValueType() || Type.GetIsEnum() || (Type.GetIsPrimitive() && Type.GetPrimitiveSize() > 0);
         }
 
         #endregion

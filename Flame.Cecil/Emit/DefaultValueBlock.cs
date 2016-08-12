@@ -38,17 +38,17 @@ namespace Flame.Cecil.Emit
         /// <returns></returns>
         public static bool PreferInitobj(IType Type)
         {
-            return RequiresInitobj(Type) || Type.GetPrimitiveMagnitude() > 3 || Type.GetIsFloatingPoint();
+            return RequiresInitobj(Type) || Type.GetPrimitiveBitSize() > 32 || Type.GetIsFloatingPoint();
         }
 
         public void Emit(IEmitContext Context)
         {
             if (Type.GetIsInteger() || Type.GetIsBit() || Type.Equals(PrimitiveTypes.Char) || Type.Equals(PrimitiveTypes.Boolean))
             {
-                int magnitude = Type.GetPrimitiveMagnitude();
+                int magnitude = Type.GetPrimitiveBitSize();
                 switch (magnitude)
                 {
-                    case 4:
+                    case 64:
                         Context.Emit(OpCodes.Ldc_I8, (long)0);
                         break;
                     default:

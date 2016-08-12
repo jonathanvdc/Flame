@@ -66,7 +66,7 @@ namespace Flame.Syntax.DSharp
         	else if (Warnings.Bitcast.UseWarning(State.Log.Options) &&
                      exprType.IsBit && type.IsBit)
         	{
-	       		if (exprType.GetPrimitiveMagnitude() > type.GetPrimitiveMagnitude())
+	       		if (exprType.GetPrimitiveBitSize() > type.GetPrimitiveBitSize())
 	       		{
 	       			State.Log.LogWarning(new LogEntry(
                         "bit type downcast",
@@ -162,7 +162,7 @@ namespace Flame.Syntax.DSharp
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{
-        		if (SourceType.GetPrimitiveMagnitude() <= TargetType.GetPrimitiveMagnitude())
+        		if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
         		{
         			if (SourceType.IsSignedInteger)
         			{
@@ -173,7 +173,7 @@ namespace Flame.Syntax.DSharp
 						if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
         					return true;
         				else if (TargetType.IsSignedInteger)
-        					return SourceType.GetPrimitiveMagnitude() < TargetType.GetPrimitiveMagnitude();
+        					return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
         				else
         					return false;
         			}

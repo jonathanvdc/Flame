@@ -17,9 +17,9 @@ namespace Flame.Cpp
 
         public INamespace CurrentNamespace { get; private set; }
 
-        public abstract string NameInt(int PrimitiveMagnitude);
-        public abstract string NameUInt(int PrimitiveMagnitude);
-        public abstract string NameFloat(int PrimitiveMagnitude);
+        public abstract string NameInt(int PrimitiveBitSize);
+        public abstract string NameUInt(int PrimitiveBitSize);
+        public abstract string NameFloat(int PrimitiveBitSize);
 
         protected override string ConvertPrimitiveType(IType Type)
         {
@@ -29,15 +29,15 @@ namespace Flame.Cpp
             }
             else if (Type.GetIsSignedInteger())
             {
-                return NameInt(Type.GetPrimitiveMagnitude());
+                return NameInt(Type.GetPrimitiveBitSize());
             }
             else if (Type.GetIsUnsignedInteger() || Type.GetIsBit())
             {
-                return NameUInt(Type.GetPrimitiveMagnitude());
+                return NameUInt(Type.GetPrimitiveBitSize());
             }
             else if (Type.GetIsFloatingPoint())
             {
-                return NameFloat(Type.GetPrimitiveMagnitude());
+                return NameFloat(Type.GetPrimitiveBitSize());
             }
             else if (Type.Equals(PrimitiveTypes.String))
             {

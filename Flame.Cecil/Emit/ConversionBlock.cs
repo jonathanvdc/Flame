@@ -34,15 +34,15 @@ namespace Flame.Cecil.Emit
         {
             if (Source.GetIsBit())
             {
-                int sourceMag = Source.GetPrimitiveMagnitude();
-                int targetMag = Target.GetPrimitiveMagnitude();
+                int sourceMag = Source.GetPrimitiveSize();
+                int targetMag = Target.GetPrimitiveSize();
                 if (Target.GetIsBit())
                 {
-                    if (sourceMag < 4 && targetMag == 4)
+                    if (sourceMag < 8 && targetMag == 8)
                     {
                         Context.Emit(OpCodes.Conv_U8);
                     }
-                    else if (sourceMag > 3 && targetMag == 3) // Downcasting bit types is not cool, really. I don't think the CLR back-end should be the one to complain about this, though.
+                    else if (sourceMag > 4 && targetMag == 4) // Downcasting bit types is not cool, really. I don't think the CLR back-end should be the one to complain about this, though.
                     {
                         Context.Emit(OpCodes.Conv_U4);
                     }
@@ -72,7 +72,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Target.GetIsBit())
             {
-                if (Source.GetPrimitiveMagnitude() == Target.GetPrimitiveMagnitude())
+                if (Source.GetPrimitiveBitSize() == Target.GetPrimitiveBitSize())
                 {
                     if (Source.GetIsFloatingPoint())
                     {
@@ -104,7 +104,7 @@ namespace Flame.Cecil.Emit
                 if (Source.GetIsUnsignedInteger())
                 {
                     Context.Emit(OpCodes.Conv_R_Un);
-                    if (Source.GetPrimitiveMagnitude() > 2) // ushort and byte always fit in a float32, so only perform this cast for uint and ulong 
+                    if (Source.GetPrimitiveBitSize() > 16) // ushort and byte always fit in a float32, so only perform this cast for uint and ulong
                     {
                         Context.Emit(OpCodes.Conv_R4);
                     }
@@ -151,7 +151,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Target.Equals(PrimitiveTypes.Char))
             {
-                if (Source.GetPrimitiveMagnitude() != 2)
+                if (Source.GetPrimitiveBitSize() != 16)
                 {
                     Context.Emit(OpCodes.Conv_I2);
                 }
@@ -210,7 +210,7 @@ namespace Flame.Cecil.Emit
             {
                 if (TargetType is ICecilType)
                 {
-                    EmitRetypedMethodBlock((MethodBlock)Value, (ICecilType)TargetType, Context); 
+                    EmitRetypedMethodBlock((MethodBlock)Value, (ICecilType)TargetType, Context);
                 }
                 else
                 {

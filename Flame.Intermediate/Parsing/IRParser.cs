@@ -429,7 +429,7 @@ namespace Flame.Intermediate.Parsing
             var dict = new Dictionary<int, IType>();
             for (int i = 0; i < Types.Length; i++)
             {
-                dict[Types[i].GetPrimitiveSize() * 8] = Types[i];
+                dict[Types[i].GetPrimitiveBitSize()] = Types[i];
             }
             return CreateIndexedTypeParser(dict);
         }

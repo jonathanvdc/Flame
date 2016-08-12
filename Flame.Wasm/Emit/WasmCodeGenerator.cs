@@ -71,9 +71,9 @@ namespace Flame.Wasm.Emit
 		{
 			get
 			{
-				return registers.Select(item => 
-					new CallExpr(OpCodes.DeclareLocal, 
-						new IdentifierExpr(item.Identifier), 
+				return registers.Select(item =>
+					new CallExpr(OpCodes.DeclareLocal,
+						new IdentifierExpr(item.Identifier),
 						new MnemonicExpr(WasmHelpers.GetScalarWasmName(item.Type, Abi))));
 			}
 		}
@@ -242,7 +242,7 @@ namespace Flame.Wasm.Emit
 			if (First is NopBlock)
 			{
 				return Second;
-			} 
+			}
 			else if (Second is NopBlock)
 			{
 				return First;
@@ -252,8 +252,8 @@ namespace Flame.Wasm.Emit
 				var lBlock = (CodeBlock)First;
 				var rBlock = (CodeBlock)Second;
 				return EmitCallBlock(
-					OpCodes.Block, 
-					lBlock.Type.Equals(PrimitiveTypes.Void) ? rBlock.Type : lBlock.Type, 
+					OpCodes.Block,
+					lBlock.Type.Equals(PrimitiveTypes.Void) ? rBlock.Type : lBlock.Type,
 					FlattenWasmBlock(lBlock.Expression).Concat(FlattenWasmBlock(rBlock.Expression)).ToArray());
 			}
 		}
@@ -263,9 +263,9 @@ namespace Flame.Wasm.Emit
 			var val = (CodeBlock)Contents;
 
 			return EmitCallBlock(
-				OpCodes.Loop, val.Type, 
-				new IdentifierExpr(breakTags[Tag]), 
-				new IdentifierExpr(continueTags[Tag]), 
+				OpCodes.Loop, val.Type,
+				new IdentifierExpr(breakTags[Tag]),
+				new IdentifierExpr(continueTags[Tag]),
 				val.Expression);
 		}
 
@@ -280,7 +280,7 @@ namespace Flame.Wasm.Emit
 				// emit:
 				//     (if <cond> <if-body>)
 				return EmitCallBlock(
-					OpCodes.If, PrimitiveTypes.Void, 
+					OpCodes.If, PrimitiveTypes.Void,
 					condBlock.Expression, lBlock.Expression);
 			}
 			else if (lBlock is NopBlock)
@@ -288,7 +288,7 @@ namespace Flame.Wasm.Emit
 				// emit:
 				//     (if (not <cond>) <else-body>)
 				return EmitCallBlock(
-					OpCodes.If, PrimitiveTypes.Void, 
+					OpCodes.If, PrimitiveTypes.Void,
 					CodeBlock.ToExpression(this.EmitNot(condBlock)), rBlock.Expression);
 			}
 			else
@@ -296,8 +296,8 @@ namespace Flame.Wasm.Emit
 				// emit:
 				//     (if_else <cond> <if-body> <else-body>)
 				return EmitCallBlock(
-					OpCodes.IfElse, lBlock.Type, 
-					condBlock.Expression, lBlock.Expression, rBlock.Expression); 
+					OpCodes.IfElse, lBlock.Type,
+					condBlock.Expression, lBlock.Expression, rBlock.Expression);
 			}
 		}
 
@@ -312,7 +312,7 @@ namespace Flame.Wasm.Emit
 				// emit:
 				//     (block <expr> (nop))
 				return EmitCallBlock(
-					OpCodes.Block, PrimitiveTypes.Void, 
+					OpCodes.Block, PrimitiveTypes.Void,
 					innerVal.Expression, new CallExpr(OpCodes.Nop));
 		}
 
@@ -356,7 +356,7 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanSigned) },
             { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanOrEqualSigned) },
-            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanOrEqualUnsigned) },			
+            { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32LessThanOrEqualUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanSigned) },
             { Tuple.Create(PrimitiveTypes.UInt32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int32GreaterThanOrEqualSigned) },
@@ -389,7 +389,7 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.Int64, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64LessThanSigned) },
             { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64LessThanUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64LessThanOrEqualSigned) },
-            { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64LessThanOrEqualUnsigned) },         
+            { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64LessThanOrEqualUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int64, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanSigned) },
             { Tuple.Create(PrimitiveTypes.UInt64, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanUnsigned) },
             { Tuple.Create(PrimitiveTypes.Int64, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Int64GreaterThanOrEqualSigned) },
@@ -402,7 +402,7 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32Equal) },
             { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32NotEqual) },
             { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32LessThan) },
-            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32LessThanOrEqual) },  
+            { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32LessThanOrEqual) },
             { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32GreaterThan) },
             { Tuple.Create(PrimitiveTypes.Float32, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float32GreaterThanOrEqual) },
 
@@ -413,7 +413,7 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckEquality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64Equal) },
             { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckInequality), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64NotEqual) },
             { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckLessThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64LessThan) },
-            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64LessThanOrEqual) },  
+            { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckLessThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64LessThanOrEqual) },
             { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckGreaterThan), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64GreaterThan) },
             { Tuple.Create(PrimitiveTypes.Float64, Operator.CheckGreaterThanOrEqual), Tuple.Create(PrimitiveTypes.Boolean, OpCodes.Float64GreaterThanOrEqual) }
 		};
@@ -426,13 +426,13 @@ namespace Flame.Wasm.Emit
             if (Op.Equals(Operator.Not))
             {
                 return EmitBinary(
-                    val, new DefaultValueExpression(val.Type).Optimize().Emit(this), 
+                    val, new DefaultValueExpression(val.Type).Optimize().Emit(this),
                     Operator.CheckEquality);
             }
             else if (unaryOps.TryGetValue(Tuple.Create(val.Type, Op), out wasmOp))
             {
                 return EmitCallBlock(
-                    wasmOp.Item2, wasmOp.Item1, 
+                    wasmOp.Item2, wasmOp.Item1,
                     val.Expression);
             }
 			else
@@ -458,10 +458,10 @@ namespace Flame.Wasm.Emit
 			if (binOps.TryGetValue(Tuple.Create(lTy, Op), out wasmOp))
 			{
 				return EmitCallBlock(
-                    wasmOp.Item2, 
-                    isPtr && !wasmOp.Item1.Equals(PrimitiveTypes.Boolean) 
-                        ? lVal.Type 
-                        : wasmOp.Item1, 
+                    wasmOp.Item2,
+                    isPtr && !wasmOp.Item1.Equals(PrimitiveTypes.Boolean)
+                        ? lVal.Type
+                        : wasmOp.Item1,
 					lVal.Expression, rVal.Expression);
 			}
 			else
@@ -524,28 +524,28 @@ namespace Flame.Wasm.Emit
             { Tuple.Create(PrimitiveTypes.Bit64, PrimitiveTypes.Float64), OpCodes.Float64ReinterpretInt64 },
 		};
 
-		private static readonly Dictionary<int, IType> intTys = new Dictionary<int, IType>() 
+		private static readonly Dictionary<int, IType> intTys = new Dictionary<int, IType>()
 		{
-			{ 1, PrimitiveTypes.Int8 },
-			{ 2, PrimitiveTypes.Int16 },
-			{ 3, PrimitiveTypes.Int32 },
-			{ 4, PrimitiveTypes.Int64 }
+			{ 8, PrimitiveTypes.Int8 },
+			{ 16, PrimitiveTypes.Int16 },
+			{ 32, PrimitiveTypes.Int32 },
+			{ 64, PrimitiveTypes.Int64 }
 		};
 
-		private static readonly Dictionary<int, IType> uintTys = new Dictionary<int, IType>() 
+		private static readonly Dictionary<int, IType> uintTys = new Dictionary<int, IType>()
 		{
-			{ 1, PrimitiveTypes.UInt8 },
-			{ 2, PrimitiveTypes.UInt16 },
-			{ 3, PrimitiveTypes.UInt32 },
-			{ 4, PrimitiveTypes.UInt64 }
+			{ 8, PrimitiveTypes.UInt8 },
+			{ 16, PrimitiveTypes.UInt16 },
+			{ 32, PrimitiveTypes.UInt32 },
+			{ 64, PrimitiveTypes.UInt64 }
 		};
 
-		private static readonly Dictionary<int, IType> bitTys = new Dictionary<int, IType>() 
+		private static readonly Dictionary<int, IType> bitTys = new Dictionary<int, IType>()
 		{
-			{ 1, PrimitiveTypes.Bit8 },
-			{ 2, PrimitiveTypes.Bit16 },
-			{ 3, PrimitiveTypes.Bit32 },
-			{ 4, PrimitiveTypes.Bit64 }
+			{ 8, PrimitiveTypes.Bit8 },
+			{ 16, PrimitiveTypes.Bit16 },
+			{ 32, PrimitiveTypes.Bit32 },
+			{ 64, PrimitiveTypes.Bit64 }
 		};
 
 		private CodeBlock EmitStaticCast(CodeBlock Value, IType FromType, IType ToType)
@@ -557,13 +557,13 @@ namespace Flame.Wasm.Emit
             }
             else
             {
-                int fromMag = FromType.GetPrimitiveMagnitude();
+                int fromSize = FromType.GetPrimitiveBitSize();
 
                 bool fromBit = FromType.GetIsBit();
                 bool toBit = ToType.GetIsBit();
                 if (fromBit && toBit)
                 {
-                    return EmitStaticCast(Value, uintTys[fromMag], uintTys[ToType.GetPrimitiveMagnitude()]);
+                    return EmitStaticCast(Value, uintTys[fromSize], uintTys[ToType.GetPrimitiveBitSize()]);
                 }
                 else if (fromBit || toBit)
                 {
@@ -571,11 +571,11 @@ namespace Flame.Wasm.Emit
                 }
                 if (ToType.GetIsSignedInteger() && !FromType.GetIsSignedInteger())
                 {
-                    return EmitStaticCast(Value, intTys[fromMag], ToType);
+                    return EmitStaticCast(Value, intTys[fromSize], ToType);
                 }
                 else if (ToType.GetIsUnsignedInteger() && !FromType.GetIsUnsignedInteger())
                 {
-                    return EmitStaticCast(Value, uintTys[fromMag], ToType);
+                    return EmitStaticCast(Value, uintTys[fromSize], ToType);
                 }
                 else
                 {
@@ -616,7 +616,7 @@ namespace Flame.Wasm.Emit
 				if (delegBlock.Target == null)
 				{
 					return EmitCallBlock(
-						OpCodes.Call, func.ReturnType, 
+						OpCodes.Call, func.ReturnType,
 						new WasmExpr[] { new IdentifierExpr(func.WasmName) }
 							.Concat(Arguments.Select(CodeBlock.ToExpression))
 							.ToArray());
@@ -672,9 +672,9 @@ namespace Flame.Wasm.Emit
                 var wasmField = (WasmField)Field;
                 return new MemoryLocation((CodeBlock)EmitTypeBinary(
                     new StaticCastExpression(
-                        new Int32Expression(wasmField.StaticStorageLocation.Offset), 
-                        Abi.PointerIntegerType).Simplify().Emit(this), 
-                    Field.FieldType.MakePointerType(PointerKind.ReferencePointer), 
+                        new Int32Expression(wasmField.StaticStorageLocation.Offset),
+                        Abi.PointerIntegerType).Simplify().Emit(this),
+                    Field.FieldType.MakePointerType(PointerKind.ReferencePointer),
                     Operator.ReinterpretCast));
             }
 
@@ -682,8 +682,8 @@ namespace Flame.Wasm.Emit
 			var layout = Abi.GetLayout(Field.DeclaringType);
 			var rawAddress = this.EmitAdd(targetBlock, EmitInt32(layout.Members[Field].Offset));
 			return new MemoryLocation((CodeBlock)EmitTypeBinary(
-				rawAddress, 
-				Field.FieldType.MakePointerType(PointerKind.ReferencePointer), 
+				rawAddress,
+				Field.FieldType.MakePointerType(PointerKind.ReferencePointer),
 				Operator.ReinterpretCast));
 		}
 
@@ -696,7 +696,7 @@ namespace Flame.Wasm.Emit
 
 		#region Pointer magic
 
-		private static readonly Dictionary<IType, OpCode> loadOpCodes = new Dictionary<IType, OpCode>() 
+		private static readonly Dictionary<IType, OpCode> loadOpCodes = new Dictionary<IType, OpCode>()
 		{
 			{ PrimitiveTypes.Int8, OpCodes.LoadInt8 },
 			{ PrimitiveTypes.UInt8, OpCodes.LoadUInt8 },
@@ -716,7 +716,7 @@ namespace Flame.Wasm.Emit
 			{ PrimitiveTypes.Float64, OpCodes.LoadFloat64 }
 		};
 
-		private static readonly Dictionary<IType, OpCode> storeOpCodes = new Dictionary<IType, OpCode>() 
+		private static readonly Dictionary<IType, OpCode> storeOpCodes = new Dictionary<IType, OpCode>()
 		{
 			{ PrimitiveTypes.Int8, OpCodes.StoreInt8 },
 			{ PrimitiveTypes.UInt8, OpCodes.StoreInt8 },
@@ -845,4 +845,3 @@ namespace Flame.Wasm.Emit
 		#endregion
 	}
 }
-

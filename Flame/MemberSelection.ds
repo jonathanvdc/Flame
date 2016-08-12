@@ -267,7 +267,7 @@ namespace Flame
         	}
         	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
         	{
-        		if (SourceType.GetPrimitiveMagnitude() <= TargetType.GetPrimitiveMagnitude())
+        		if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
         		{
         			if (SourceType.IsSignedInteger)
         			{
@@ -278,7 +278,7 @@ namespace Flame
 						if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
         					return true;
         				else if (TargetType.IsSignedInteger)
-        					return SourceType.GetPrimitiveMagnitude() < TargetType.GetPrimitiveMagnitude();
+        					return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
         				else
         					return false;
         			}

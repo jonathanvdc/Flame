@@ -229,5 +229,13 @@ namespace Flame
             	return (int)Math.Pow(2, magnitude - 1);
             }
         }
+
+		/// <summary>
+		/// Gets the given type's primitive size, in bits.
+		/// </summary>
+		public static int GetPrimitiveBitSize(this IType Type)
+		{
+			return Type.GetPrimitiveSize() * 8;
+		}
 	}
 }

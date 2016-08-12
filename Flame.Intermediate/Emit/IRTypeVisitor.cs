@@ -78,14 +78,14 @@ namespace Flame.Intermediate.Emit
             return NodeFactory.Id(Name);
         }
 
-        protected virtual LNode MakePrimitiveType(string Name, int PrimitiveSize)
+        protected virtual LNode MakePrimitiveType(string Name, int PrimitiveBitSize)
         {
-            return NodeFactory.Call(Name, new LNode[] { NodeFactory.VarLiteral(PrimitiveSize * 8) });
+            return NodeFactory.Call(Name, new LNode[] { NodeFactory.VarLiteral(PrimitiveBitSize) });
         }
 
         protected LNode MakePrimitiveType(string Name, IType Primitive)
         {
-            return MakePrimitiveType(Name, Primitive.GetPrimitiveSize());
+            return MakePrimitiveType(Name, Primitive.GetPrimitiveBitSize());
         }
 
         protected override LNode ConvertArrayType(ArrayType Type)
@@ -139,10 +139,10 @@ namespace Flame.Intermediate.Emit
 
         protected virtual LNode ConvertGenericNestedType(GenericInstanceType Type)
         {
-            return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[] 
-            { 
-                GetTypeReference(Type.DeclaringType), 
-                GetTypeReference(Type.Declaration) 
+            return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
+            {
+                GetTypeReference(Type.DeclaringType),
+                GetTypeReference(Type.Declaration)
             });
         }
 

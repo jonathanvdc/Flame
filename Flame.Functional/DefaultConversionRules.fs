@@ -33,14 +33,14 @@ type DefaultConversionRules(nameType : IType -> string) =
 
             else if sourceType.GetIsPrimitive() && targetType.GetIsPrimitive() then
 
-                if sourceType.GetPrimitiveMagnitude() <= targetType.GetPrimitiveMagnitude() then
+                if sourceType.GetPrimitiveBitSize() <= targetType.GetPrimitiveBitSize() then
                     if (sourceType.GetIsSignedInteger()) then
                         targetType.GetIsSignedInteger() || targetType.GetIsFloatingPoint();
                     else if (sourceType.GetIsUnsignedInteger()) then
                         if (targetType.GetIsUnsignedInteger() || targetType.GetIsFloatingPoint()) then
                             true
                         else if (targetType.GetIsSignedInteger()) then
-                            sourceType.GetPrimitiveMagnitude() < targetType.GetPrimitiveMagnitude()
+                            sourceType.GetPrimitiveBitSize() < targetType.GetPrimitiveBitSize()
                         else
                             false
                     else
