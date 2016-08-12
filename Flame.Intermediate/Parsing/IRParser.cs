@@ -419,7 +419,25 @@ namespace Flame.Intermediate.Parsing
                 }
                 else
                 {
-                    throw new InvalidOperationException("Could not create a '" + node.Name + "' type of size " + size + ".");
+                    throw new InvalidOperationException("Could not create a '" + node.Name + "' type of size '" + size + "'.");
+                }
+            });
+        }
+
+        public static Func<ParserState, LNode, INodeStructure<IType>> CreateIndexedTypeParser(Func<int, IType> CreateType)
+        {
+            return new Func<ParserState, LNode, INodeStructure<IType>>((state, node) =>
+            {
+                IType resultType;
+                int size = GetInt32(node.Args.Single());
+                var val = CreateType(size);
+                if (val != null)
+                {
+                    return new ConstantNodeStructure<IType>(node, resultType);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Could not create a '" + node.Name + "' type of size '" + size + "'.");
                 }
             });
         }
@@ -1027,7 +1045,7 @@ namespace Flame.Intermediate.Parsing
                     // Primitive types
                     { IntTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Int8, PrimitiveTypes.Int16, PrimitiveTypes.Int32, PrimitiveTypes.Int64) },
                     { UIntTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.UInt8, PrimitiveTypes.UInt16, PrimitiveTypes.UInt32, PrimitiveTypes.UInt64) },
-                    { BitTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Bit8, PrimitiveTypes.Bit16, PrimitiveTypes.Bit32, PrimitiveTypes.Bit64) },
+                    { BitTypeNodeName, CreateIndexedTypeParser(PrimitiveTypes.GetBitType) },
                     { FloatTypeNodeName, CreatePrimitiveTypeParser(PrimitiveTypes.Float32, PrimitiveTypes.Float64) },
                     { BooleanTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Boolean) },
                     { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
