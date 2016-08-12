@@ -3,21 +3,42 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+	/// <summary>
+	/// A common interface for bound objects: values that are associated with
+	/// a Flame type.
+	/// </summary>
 	public interface IBoundObject
 	{
+		/// <summary>
+		/// Gets this bound object's Flame type.
+		/// </summary>
 		IType Type { const get; }
 
+		/// <summary>
+		/// Assigns the given value to the given field on this object instance.
+		/// </summary>
 		void SetField(IField Field, IBoundObject Value);
+
+		/// <summary>
+		/// Gets this object instance's value for the given field.
+		/// </summary>
 		const IBoundObject GetField(IField Field);
 	}
+
 	public interface IBoundMethod : IBoundObject
 	{
 		IMethod Method { const get; }
 		IBoundObject Caller { const get; }
 	}
 
+	/// <summary>
+	/// An interface for bound objects that contain some primitive value.
+	/// </summary>
 	public interface IBoundPrimitive<out T> : IBoundObject
 	{
+		/// <summary>
+		/// Gets this bound object's value.
+		/// </summary>
 		T Value { const get; }
 	}
 
