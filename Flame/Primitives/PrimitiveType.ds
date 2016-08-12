@@ -8,10 +8,21 @@ namespace Flame.Primitives
 	#region PrimitiveType
 
 	/// <summary>
+	/// Defines an interface for types that have a constant bit-size.
+	/// </summary>
+	public interface IBitSizedType : IType
+	{
+		/// <summary>
+		/// Gets this type's size, in bits.
+		/// </summary>
+		int BitSize { get; }
+	}
+
+	/// <summary>
 	/// A base class for primitive types: types whose every detail is known
 	/// to the compiler, including their size in bits.
 	/// </summary>
-	public virtual class PrimitiveType<T> : IType
+	public virtual class PrimitiveType<T> : IBitSizedType
 		where T : object
 	{
         public const this(string Name, set int BitSize, set T DefaultValue)

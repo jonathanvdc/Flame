@@ -33,19 +33,7 @@ namespace Flame.Cecil
             var elemType = Convert(Type.ElementType);
             if (UsePrimitives && elemType.GetIsPrimitive() && Type.ModifierType.FullName == "System.Runtime.CompilerServices.IsSignUnspecifiedByte")
             {
-                switch (elemType.GetPrimitiveMagnitude())
-                {
-                    case 1:
-                        return PrimitiveTypes.Bit8;
-                    case 2:
-                        return PrimitiveTypes.Bit16;
-                    case 3:
-                        return PrimitiveTypes.Bit32;
-                    case 4:
-                        return PrimitiveTypes.Bit64;
-                    default:
-                        break;
-                }
+                return PrimitiveTypes.GetBitType(elemType.GetPrimitiveBitSize());
             }
             return elemType;
         }

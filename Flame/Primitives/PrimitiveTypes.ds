@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Flame.Primitives;
 
 namespace Flame
@@ -185,57 +186,49 @@ namespace Flame
 		}
 
 		/// <summary>
-		/// Gets the given type's primitive magnitude. The following table
-		/// maps primitive magnitudes to primitives:
-		/// * 4 - 64-bit primitives: float64, int64, uint64, bit64.
-		/// * 3 - 32-bit primitives: float32, int32, uint32, bit32.
-		/// * 2 - 16-bit primitives: int16, uint16, bit16, char.
-		/// * 1 - 8-bit primitives: int8, uint8, bit8, bool.
-		/// * 0 - everything else.
+		/// Gets a bit type of the given size.
 		/// </summary>
-		public static const int GetPrimitiveMagnitude(this IType Type)
-        {
-            if (Type.Equals(PrimitiveTypes.Float64) || Type.Equals(PrimitiveTypes.Int64) || Type.Equals(PrimitiveTypes.UInt64) || Type.Equals(PrimitiveTypes.Bit64))
-            {
-                return 4;
-            }
-            else if (Type.Equals(PrimitiveTypes.Float32) || Type.Equals(PrimitiveTypes.Int32) || Type.Equals(PrimitiveTypes.UInt32) || Type.Equals(PrimitiveTypes.Bit32))
-            {
-                return 3;
-            }
-            else if (Type.Equals(PrimitiveTypes.Int16) || Type.Equals(PrimitiveTypes.UInt16) || Type.Equals(PrimitiveTypes.Bit16) || Type.Equals(PrimitiveTypes.Char))
-            {
-                return 2;
-            }
-            else if (Type.Equals(PrimitiveTypes.Int8) || Type.Equals(PrimitiveTypes.UInt8) || Type.Equals(PrimitiveTypes.Bit8) || Type.Equals(PrimitiveTypes.Boolean))
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+		public static IType GetBitType(int BitSize)
+			in { BitSize > 0 }
+		{
+			if (BitSize == 8)
+				return PrimitiveTypes.Bit8;
+			else if (BitSize == 16)
+				return PrimitiveTypes.Bit16;
+			else if (BitSize == 32)
+				return PrimitiveTypes.Bit32;
+			else if (BitSize == 64)
+				return PrimitiveTypes.Bit64;
+			else
+				return null;
+		}
 
+		/// <summary>
+		/// Gets the given type's primitive size, in bytes.
+		/// A primitive type with a bit-size that is not a multiple
+		/// of eight will have its size in bytes rounded up.
+		/// </summary>
+		/// <returns>The byte-size of the given type, if it is a primitive type; otherwise, zero.</returns>
         public static int GetPrimitiveSize(this IType Type)
         {
-            int magnitude = Type.GetPrimitiveMagnitude();
-            if (magnitude == 0)
-            {
-            	return 0;
-            }
-            else
-            {
-            	return (int)Math.Pow(2, magnitude - 1);
-            }
+			int bitSize = Type.GetPrimitiveBitSize();
+			int rem;
+			int result = Math.DivRem(bitSize, 8, &rem);
+			if (rem > 0)
+				result++;
+			return result;
         }
 
 		/// <summary>
 		/// Gets the given type's primitive size, in bits.
 		/// </summary>
+		/// <returns>The bit-size of the given type, if it is a primitive type; otherwise, zero.</returns>
 		public static int GetPrimitiveBitSize(this IType Type)
 		{
-			return Type.GetPrimitiveSize() * 8;
+			if (Type is IBitSizedType)
+				return ((IBitSizedType)Type).BitSize;
+			else
+				return 0;
 		}
 	}
 }
