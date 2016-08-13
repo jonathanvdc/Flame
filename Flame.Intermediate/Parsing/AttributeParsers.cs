@@ -30,6 +30,7 @@ namespace Flame.Intermediate.Parsing
         public const string OutNodeName = "#out";
         public const string IndexerNodeName = "#indexer";
         public const string ImportNodeName = "#import";
+        public const string InitOnlyNodeName = "#init_only";
         public const string TotalInitializationNodeName = "#total_init";
 
         public const string AbstractNodeName = "#abstract";
@@ -165,6 +166,7 @@ namespace Flame.Intermediate.Parsing
                     { InNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InAttribute) },
                     { OutNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.OutAttribute) },
                     { ImportNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ImportAttribute) },
+                    { InitOnlyNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InitOnlyAttribute) },
                     { TotalInitializationNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.TotalInitializationAttribute) },
 
                     // Inheritance attributes
