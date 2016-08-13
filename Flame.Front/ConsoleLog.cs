@@ -42,6 +42,23 @@ namespace Flame.Front
         public INodeWriter NodeWriter { get; private set; }
         private object writeLock;
 
+        /// <summary>
+        /// Gets the object that is used to synchronize access to this
+        /// console log.
+        /// </summary>
+        /// <value>The synchronization root object.</value>
+        public object SyncRoot
+        {
+            get
+            {
+                return writeLock;
+            }
+        }
+
+        /// <summary>
+        /// Gets the width of the console's text buffer. 
+        /// </summary>
+        /// <value>The width of the text buffer.</value>
         public int BufferWidth
 		{
 			get
