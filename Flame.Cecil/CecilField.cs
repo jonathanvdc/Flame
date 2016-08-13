@@ -88,8 +88,9 @@ namespace Flame.Cecil
 
         public static FieldAttributes GetFieldAttributes(FieldSignatureInstance Template)
         {
+            var attrMap = Template.Attributes.Value;
             FieldAttributes attrs;
-            var accAttr = Template.Attributes.Value.Get(AccessAttribute.AccessAttributeType) as AccessAttribute;
+            var accAttr = attrMap.Get(AccessAttribute.AccessAttributeType) as AccessAttribute;
             switch (accAttr != null ? accAttr.Access : AccessModifier.Public)
             {
                 case AccessModifier.Protected:
@@ -111,7 +112,7 @@ namespace Flame.Cecil
                     attrs = FieldAttributes.Public;
                     break;
             }
-            if (Template.Attributes.Value.Contains(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) &&
+            if (attrMap.Contains(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType) &&
                 Template.FieldType.Value.GetIsPrimitive())
             {
                 attrs |= FieldAttributes.Literal | FieldAttributes.HasDefault | FieldAttributes.Static;
@@ -119,6 +120,10 @@ namespace Flame.Cecil
             else if (Template.IsStatic)
             {
                 attrs |= FieldAttributes.Static;
+            }
+            if (attrMap.Contains(PrimitiveAttributes.Instance.InitOnlyAttribute))
+            {
+                attrs |= FieldAttributes.InitOnly;
             }
             return attrs;
         }

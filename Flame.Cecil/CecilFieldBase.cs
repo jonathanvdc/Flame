@@ -46,6 +46,10 @@ namespace Flame.Cecil
             {
                 attrs.Add(PrimitiveAttributes.Instance.ConstantAttribute);
             }
+            if (resolvedField.IsInitOnly)
+            {
+                attrs.Add(PrimitiveAttributes.Instance.InitOnlyAttribute);
+            }
             return attrs;
         }
 
