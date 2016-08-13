@@ -137,17 +137,22 @@ namespace Flame.Compiler.Expressions
             }
         }
 
+        private bool IsSpecialType(IType Type)
+        {
+            return Type.IsDelegate || Type.IsPrimitive || Type.IsIntersectionType;
+        }
+
         /// <summary>
         /// Tests if a value of the given source type can be cast dynamically to a value
         /// of the given target type.
         /// </summary>
         public bool UseDynamicCast(IType SourceType, IType TargetType)
         {
-            return (SourceType.Equals(PrimitiveTypes.Null) || SourceType.IsReferenceType || SourceType.IsPointer) &&
-                   (TargetType.IsReferenceType || TargetType.IsPointer) &&
-                   !SourceType.IsDelegate && !TargetType.IsDelegate &&
-                   !SourceType.IsPrimitive && !TargetType.IsPrimitive &&
-                   !SourceType.IsIntersectionType && !TargetType.IsIntersectionType;
+            return (SourceType.Equals(PrimitiveTypes.Null)
+                    || SourceType.IsReferenceType
+                    || SourceType.IsPointer
+                    || (SourceType.IsGenericParameter && !SourceType.Is(TargetType)))
+                && !IsSpecialType(SourceType) && !IsSpecialType(TargetType);
         }
 
         /// <summary>

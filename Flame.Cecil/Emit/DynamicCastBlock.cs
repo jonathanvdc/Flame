@@ -63,7 +63,7 @@ namespace Flame.Cecil.Emit
                 {
                     Context.Emit(OpCodes.Unbox);
                 }
-                else if (ILCodeGenerator.IsCLRValueType(targetType))
+                else if (ILCodeGenerator.IsPossibleValueType(targetType))
                 {
                     // unbox.any can be used to convert reference types
                     // to value types.
@@ -74,14 +74,18 @@ namespace Flame.Cecil.Emit
                     throw CreateException(exprType, targetType);
                 }
             }
-            else if (ILCodeGenerator.IsPossibleValueType(exprType) 
-                && !ILCodeGenerator.IsCLRValueType(targetType))
+            else if (ILCodeGenerator.IsPossibleValueType(exprType)
+                     && !ILCodeGenerator.IsCLRValueType(targetType))
             {
                 Context.Emit(OpCodes.Box, exprType);
                 if (!exprType.Is(targetType))
                 {
                     Context.Emit(OpCodes.Castclass, targetType);
                 }
+            }
+            else
+            {
+                throw CreateException(exprType, targetType);
             }
 
             Context.Stack.Push(TargetType);
