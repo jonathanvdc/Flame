@@ -83,4 +83,4 @@ test_script:
   # optimizations at compile-time.
   - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug
   # Run the tests
-  - compare-test\src\bin\compare-test.exe all-tests.test
+  - compare-test\src\bin\compare-test.exe all-tests.test -j
