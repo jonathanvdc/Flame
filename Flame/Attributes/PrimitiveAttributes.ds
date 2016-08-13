@@ -27,6 +27,7 @@ namespace Flame
 			PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
 			PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
 			PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
+			PrimitiveAttributes.InitOnlyAttribute = new FlagAttribute("InitOnlyAttribute");
 			PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
 		}
 
@@ -48,6 +49,14 @@ namespace Flame
 		public static IAttribute StaticTypeAttribute { const get; private set; }
 		public static IAttribute CastAttribute { const get; private set; }
 		public static IAttribute ImportAttribute { const get; private set; }
+
+		/// <summary>
+		/// Specifies that some field can only be initialized by an
+		/// appropriate constructor, after which it cannot be assigned
+		/// a new value. A constructor is deemed appropriate if it has the
+		/// same staticness as the field, and the same enclosing type.
+		/// </summary>
+		public static IAttribute InitOnlyAttribute { get; private set; }
 
 		/// <summary>
 		/// Hints that a constructor performs total initialization, i.e.
