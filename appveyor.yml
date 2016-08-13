@@ -39,8 +39,8 @@ after_build:
   - 7z a dsc.zip %APPVEYOR_BUILD_FOLDER%\dsc_build\*
   # Do the same for the optimized compare-test binaries
   - mkdir compare-test-build
-  - xcopy compare-test\src\compare-test\bin\*.dll compare-test-build
-  - xcopy compare-test\src\compare-test\bin\*.exe compare-test-build
+  - xcopy compare-test\src\bin\*.dll compare-test-build
+  - xcopy compare-test\src\bin\*.exe compare-test-build
   - 7z a compare-test.zip %APPVEYOR_BUILD_FOLDER%\compare-test-build\*
   # Create NuGet packages
   - nuget pack -Version %PKG_VERSION% Flame.Compiler.nuspec
