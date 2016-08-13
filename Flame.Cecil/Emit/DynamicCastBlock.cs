@@ -24,6 +24,15 @@ namespace Flame.Cecil.Emit
             get { return Value.CodeGenerator; }
         }
 
+        private InvalidOperationException CreateException(
+            IType SourceType, IType TargetType)
+        {
+            return new InvalidOperationException(
+                "A value of type '" + SourceType.FullName + 
+                "' could not be converted to type '" + TargetType + 
+                "' by a dynamic_cast.");
+        }
+
         public void Emit(IEmitContext Context)
         {
             Value.Emit(Context);
@@ -40,16 +49,39 @@ namespace Flame.Cecil.Emit
                 }
                 // Else, do absolutely nothing
             }
-            else if (TargetType.GetIsReferenceType() && exprType.GetIsReferenceType()) // Castclass, then
+            else if (exprType.GetIsReferenceType())
             {
+                if (TargetType.GetIsReferenceType())
+                {
+                    if (!exprType.Is(targetType))
+                    {
+                        // castclass, then
+                        Context.Emit(OpCodes.Castclass, targetType);
+                    }
+                }
+                else if (targIsPtr && ILCodeGenerator.IsCLRValueType(TargetType.AsPointerType().ElementType))
+                {
+                    Context.Emit(OpCodes.Unbox);
+                }
+                else if (ILCodeGenerator.IsCLRValueType(targetType))
+                {
+                    // unbox.any can be used to convert reference types
+                    // to value types.
+                    Context.Emit(OpCodes.Unbox_Any, targetType);
+                }
+                else
+                {
+                    throw CreateException(exprType, targetType);
+                }
+            }
+            else if (ILCodeGenerator.IsPossibleValueType(exprType) 
+                && !ILCodeGenerator.IsCLRValueType(targetType))
+            {
+                Context.Emit(OpCodes.Box, exprType);
                 if (!exprType.Is(targetType))
                 {
                     Context.Emit(OpCodes.Castclass, targetType);
                 }
-            }
-            else
-            {
-                throw new InvalidOperationException("A value of type '" + exprType.FullName + "' could not be converted to type '" + targetType + "' by a dynamic_cast.");
             }
 
             Context.Stack.Push(TargetType);
