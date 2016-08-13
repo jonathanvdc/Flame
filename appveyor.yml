@@ -19,6 +19,10 @@ build_script:
   - BuildCI.bat bin_dsc\dsc.exe
   # Perform a second build to make sure that Flame can bootstrap
   - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION%
+  # Build compare-test, with -O3, to ensure that aggressive optimizations
+  # work for a real-life application. Use --debug to catch some incorrect
+  # optimizations at compile-time.
+  - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug
 
 assembly_info:
     patch: true
@@ -33,6 +37,12 @@ after_build:
   - xcopy dsc\bin\Release\*.dll dsc_build
   - xcopy dsc\bin\Release\*.exe dsc_build
   - 7z a dsc.zip %APPVEYOR_BUILD_FOLDER%\dsc_build\*
+  # Do the same for the optimized compare-test binaries
+  - mkdir compare-test-build
+  - xcopy compare-test\src\compare-test\bin\*.dll compare-test-build
+  - xcopy compare-test\src\compare-test\bin\*.exe compare-test-build
+  - 7z a compare-test.zip %APPVEYOR_BUILD_FOLDER%\compare-test-build\*
+  # Create NuGet packages
   - nuget pack -Version %PKG_VERSION% Flame.Compiler.nuspec
   - nuget pack -Version %PKG_VERSION% Flame.Optimization.nuspec
   - nuget pack -Version %PKG_VERSION% Flame.Front.nuspec
@@ -41,6 +51,8 @@ after_build:
 artifacts:
   - path: dsc.zip
     name: dsc
+  - path: compare-test.zip
+    name: compare-test
   - path: '*.nupkg'
     name: nupkgs
 
@@ -78,9 +90,5 @@ deploy:
       appveyor_repo_tag: true # Deploy on tag push only.
 
 test_script:
-  # Build compare-test, with -O3, to ensure that aggressive optimizations
-  # work for a real-life application. Use --debug to catch some incorrect
-  # optimizations at compile-time.
-  - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug
   # Run the tests
   - compare-test\src\bin\compare-test.exe all-tests.test -j
