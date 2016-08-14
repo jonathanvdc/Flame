@@ -26,7 +26,7 @@ namespace Flame.Compiler.Expressions
 
         public override IExpression Optimize()
         {
-            if (Type.IsPrimitiveExpressionType)
+            if (Type.IsPrimitiveExpressionType())
             {
                 var evalExpr = Evaluate();
             	if (evalExpr != null)
