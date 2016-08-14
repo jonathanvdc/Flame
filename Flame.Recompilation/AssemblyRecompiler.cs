@@ -179,6 +179,7 @@ namespace Flame.Recompilation
                 // externally-defined base method may be called by
                 // external code.
                 GetMethod(ImplementationMethod);
+                return;
             }
             lock (implementations)
             {
