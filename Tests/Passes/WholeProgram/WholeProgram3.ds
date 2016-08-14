@@ -1,0 +1,17 @@
+using System;
+
+public class ToStringOverrider
+{
+    public override string ToString()
+    {
+        return "Oh, hi!";
+    }
+}
+
+public static class Program
+{
+    public void Main(string[] Args)
+    {
+        Console.WriteLine(new ToStringOverrider());
+    }
+}

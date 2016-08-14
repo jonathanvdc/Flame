@@ -26,10 +26,6 @@ namespace FractalPerf
         {
             return r * r + i * i;
         }
-        public override string ToString()
-        {
-            return String.Format("[{0} + {1}i]", r, i);
-        }
         public complex add(complex b)
         {
             return new complex(this.r + b.r, this.i + b.i);

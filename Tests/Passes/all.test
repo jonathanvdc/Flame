@@ -23,4 +23,5 @@ tests
     SSAConstruction/SSAConstruction.test;
     WholeProgram/WholeProgram.test;
     WholeProgram/WholeProgram2.test;
+    WholeProgram/WholeProgram3.test;
 }
