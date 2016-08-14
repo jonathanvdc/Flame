@@ -172,6 +172,14 @@ namespace Flame.Recompilation
             {
                 BaseMethod = ((GenericMethodBase)BaseMethod).Declaration;
             }
+            if (IsExternal(BaseMethod))
+            {
+                // If the base method is external, then we absolutely
+                // must compile the implementation, because the
+                // externally-defined base method may be called by
+                // external code.
+                GetMethod(ImplementationMethod);
+            }
             lock (implementations)
             {
                 HashSet<IMethod> impls;
