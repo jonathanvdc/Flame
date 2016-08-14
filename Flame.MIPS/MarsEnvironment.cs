@@ -37,5 +37,11 @@ namespace Flame.MIPS
         {
             get { return null; }
         }
+
+        public IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> DefaultBaseTypes)
+        {
+            return Enumerable.Empty<IType>();
+        }
     }
 }

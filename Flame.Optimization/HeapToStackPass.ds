@@ -133,7 +133,7 @@ namespace Flame.Optimization
                 // First take the time to see if we're dealing with the
                 // parameterless root constructor, which needs to be given
                 // special treatment.
-                if (IsRootConstructor(genDecl, PassArgument))
+                if (IsRootConstructor(genDecl))
                 {
                     Cache[genSig] = null;
                     return null;
@@ -505,9 +505,21 @@ namespace Flame.Optimization
                 PassArgument.DeclaringType.DeclaringNamespace.DeclaringAssembly);
         }
 
-        private static bool IsRootConstructor(IMethod Method, BodyPassArgument Arg)
+        /// <summary>
+        /// Gets a boolean value that tells if the given method is a
+        /// root constructor.
+        /// </summary>
+        public static bool IsRootConstructor(IMethod Method)
         {
-            return Method.Equals(GetRootConstructor(Arg));
+            if (Method.IsConstructor && !Method.IsStatic)
+            {
+                var declType = Method.DeclaringType;
+                return declType != null && declType.IsRootType;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static IMethod GetRootConstructorImpl(IEnvironment Environment)
@@ -526,6 +538,8 @@ namespace Flame.Optimization
         /// </summary>
         public static IMethod GetRootConstructor(BodyPassArgument PassArgument)
         {
+            // TODO: remove this. Just use IsRootConstructor everywhere, because
+            // finding "the" root constructor is actually somewhat fragile.
             var globalMetadata = PassArgument.Metadata.GlobalMetadata;
             string key = "heap2stack-root-ctor";
             if (!globalMetadata.HasOption(key))
@@ -653,13 +667,6 @@ namespace Flame.Optimization
             if (srcLoc != null)
                 descTy.AddAttribute(new SourceLocationAttribute(srcLoc));
 
-            // Set the base type to the root type (if there is a root type).
-            var rootType = PassArgument.PassEnvironment.Environment.RootType;
-            if (rootType != null)
-            {
-                descTy.AddBaseType(rootType);
-            }
-
             // Clone all generic parameters.
             foreach (var item in GenericExtensions.CloneGenericParameters(
                 genDeclParams, descTy))
@@ -667,6 +674,11 @@ namespace Flame.Optimization
                 descTy.AddGenericParameter(item);
             }
 
+            // Add the default base types to the described type.
+            foreach (var rootType in PassArgument.PassEnvironment.Environment.GetDefaultBaseTypes(descTy))
+            {
+                descTy.AddBaseType(rootType);
+            }
 
             // Convert all instance fields. Take care to transform any
             // generic parameters while doing that.

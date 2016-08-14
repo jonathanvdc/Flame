@@ -58,6 +58,12 @@ namespace Flame.Cpp
             get { return DeclaringEnvironment.EnumeratorType; }
         }
 
+        public IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> DefaultBaseTypes)
+        {
+            return DeclaringEnvironment.GetDefaultBaseTypes(Type, DefaultBaseTypes);
+        }
+
         public string Name
         {
             get { return DeclaringEnvironment.Name; }

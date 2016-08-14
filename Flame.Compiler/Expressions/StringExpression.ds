@@ -33,7 +33,7 @@ namespace Flame.Compiler.Expressions
 
 		private static Dictionary<char, string> replDict;
 
-		public static const string ToLiteral(string Source, string Quote)
+		public static string ToLiteral(string Source, string Quote)
 		{
 			if (Source == null)
 				return "null";
@@ -52,7 +52,7 @@ namespace Flame.Compiler.Expressions
 			return result.ToString();
 		}
 
-		public override const string ToString()
+		public override string ToString()
 		{
 			return ToLiteral(Value, "\"");
 		}

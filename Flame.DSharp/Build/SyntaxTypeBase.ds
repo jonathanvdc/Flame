@@ -362,23 +362,15 @@ namespace Flame.DSharp.Build
         {
             var state = GetSyntaxState();
             var bTypes = new List<IType>();
-            bool allInterfaces = true;
             foreach (var item in Syntax.Signature.BaseTypes)
             {
             	var type = item.CreateVerifiedType(state);
             	if (type != null)
             	{
-	            	if (allInterfaces && !type.IsInterface)
-	            		allInterfaces = false;
 	            	bTypes.Add(type);
             	}
             }
-            if (allInterfaces && !this.IsInterface)
-            {
-            	var rootType = state.Binder.Environment.RootType;
-            	if (rootType != null)
-            		bTypes.Add(rootType);
-            }
+            bTypes.AddRange(state.Binder.Environment.GetDefaultBaseTypes(this, bTypes));
 
             return bTypes.ToArray();
         }

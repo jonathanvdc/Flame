@@ -1,6 +1,6 @@
 using System;
 
-public class ToStringOverrider
+public virtual class ToStringOverrider
 {
     public override string ToString()
     {
@@ -8,10 +8,18 @@ public class ToStringOverrider
     }
 }
 
+public class ToStringOverrider2 : ToStringOverrider
+{
+    public override string ToString()
+    {
+        return "Oh, hi, mate!";
+    }
+}
+
 public static class Program
 {
     public void Main(string[] Args)
     {
-        Console.WriteLine(new ToStringOverrider());
+        Console.WriteLine(new ToStringOverrider2().ToString());
     }
 }

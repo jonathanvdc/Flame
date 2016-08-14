@@ -39,5 +39,19 @@ namespace Flame.Python
         {
             get { return PythonIteratorType.Instance; }
         }
+
+        public IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> DefaultBaseTypes)
+        {
+            if (Type.GetIsInterface())
+                return Enumerable.Empty<IType>();
+
+            foreach (var baseTy in DefaultBaseTypes)
+            {
+                if (!baseTy.GetIsInterface())
+                    return Enumerable.Empty<IType>();
+            }
+            return new IType[] { RootType };
+        }
     }
 }

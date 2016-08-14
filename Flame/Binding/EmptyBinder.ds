@@ -13,6 +13,12 @@ namespace Flame.Binding
         public IType EnumerableType { const get return null; }
 
         public IType EnumeratorType { const get return null; }
+
+        public IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> DefaultBaseTypes)
+        {
+            return Enumerable.Empty<IType>();
+        }
     }
 
     public static class EmptyBinder : IBinder

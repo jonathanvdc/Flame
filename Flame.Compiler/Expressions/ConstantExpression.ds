@@ -63,7 +63,7 @@ namespace Flame.Compiler.Expressions
             return Value.GetHashCode();
         }
 
-        public override virtual const string ToString()
+        public override virtual string ToString()
         {
             return Value.ToString();
         }

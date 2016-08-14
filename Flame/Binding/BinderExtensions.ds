@@ -1,13 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame
 {
 	public static class BinderExtensions
 	{
+		/// <summary>
+		/// Gets a sequence of additional default base types for the given
+		/// type. 'Type.BaseTypes' is assumed to be empty.
+		/// </summary>
+		public IEnumerable<IType> GetDefaultBaseTypes(
+			this IEnvironment Environment, IType Type)
+		{
+			return Environment.GetDefaultBaseTypes(Type, Enumerable.Empty<IType>());
+		}
+
 		public static IType RootType[this IBinder Binder]
 		{
-			const get
+			get
 			{
 				return Binder.Environment.RootType;
 			}

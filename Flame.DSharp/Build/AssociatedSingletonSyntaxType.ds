@@ -96,12 +96,8 @@ namespace Flame.DSharp.Build
 				}
 				instanceParent = instanceParent.GetParent();
 			}
-			// No 'real' base types found. Look for root type
-			var rootType = InstanceState.Binder.Environment.RootType;
-			if (rootType != null)
-				return new IType[] { rootType };
-			else
-				return new IType[0];
+			return Enumerable.ToArray<IType>(
+				InstanceState.Binder.Environment.GetDefaultBaseTypes(this));
 		}
 
 		private Lazy<IMethod[]> methodCache;

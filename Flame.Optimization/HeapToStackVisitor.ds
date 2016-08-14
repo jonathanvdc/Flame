@@ -63,15 +63,10 @@ namespace Flame.Optimization
         protected bool IsRootConstructorCall(DissectedCall Call)
         {
             if (!Enumerable.Any<IExpression>(Call.Arguments)
-                && Call.ThisValue != null
-                && Call.Method.IsConstructor
-                && !Call.Method.IsStatic)
-            {
-                var declType = Call.Method.DeclaringType;
-                if (declType != null && declType.IsRootType)
-                    return true;
-            }
-            return false;
+                && Call.ThisValue != null)
+                return HeapToStackPassBase.IsRootConstructor(Call.Method);
+            else
+                return false;
         }
 
         /// <summary>

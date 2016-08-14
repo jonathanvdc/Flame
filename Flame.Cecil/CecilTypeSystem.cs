@@ -16,6 +16,8 @@ namespace Flame.Cecil
             this.objectType = new Lazy<IType>(() => Module.ConvertStrict(Module.Module.TypeSystem.Object));
             this.enumerableType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerable<>)));
             this.enumeratorType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
+            this.valueType = new Lazy<IType>(() => Module.ConvertStrict(typeof(ValueType)));
+            this.enumType = new Lazy<IType>(() => Module.ConvertStrict(typeof(Enum)));
             this.funcDelegates = new Dictionary<int, IType>();
             this.actionDelegates = new Dictionary<int, IType>();
             this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();            
@@ -27,11 +29,15 @@ namespace Flame.Cecil
         private Lazy<IType> objectType;
         private Lazy<IType> enumerableType;
         private Lazy<IType> enumeratorType;
+        private Lazy<IType> valueType;
+        private Lazy<IType> enumType;
 
         public IType MulticastDelegate { get { return multicastDelegate.Value; } }
         public IType Object { get { return objectType.Value; } }
         public IType Enumerable { get { return enumerableType.Value; } }
         public IType Enumerator { get { return enumeratorType.Value; } }
+        public IType ValueType { get { return valueType.Value; } }
+        public IType EnumType { get { return enumType.Value; } }
 
         private Dictionary<int, IType> funcDelegates;
         private Dictionary<int, IType> actionDelegates;

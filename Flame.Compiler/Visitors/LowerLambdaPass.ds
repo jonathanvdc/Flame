@@ -199,15 +199,16 @@ namespace Flame.Compiler.Visitors
             var declGenParameters = Enumerable.ToArray<IGenericParameter>(DeclaringMethod.GenericParameters);
             var closureType = new DescribedType(new SimpleName(name, declGenParameters.Length), nsBuilder);
             closureType.AddAttribute(new AccessAttribute(AccessModifier.Private));
-            if (Environment.RootType != null)
-            {
-                closureType.AddBaseType(Environment.RootType);
-            }
             foreach (var item in GenericExtensions.CloneGenericParameters(
                                             declGenParameters,
                                             closureType))
             {
                 closureType.AddGenericParameter(item);
+            }
+
+            foreach (var rootTy in Environment.GetDefaultBaseTypes(closureType))
+            {
+                closureType.AddBaseType(rootTy);
             }
 
             var convGenerics  = ConvertGenerics(closureType, LambdaBody);
@@ -219,9 +220,10 @@ namespace Flame.Compiler.Visitors
             var closureThis = ThisReferenceVariable.Create(closureType).CreateGetExpression();
 
             var ctorBody = new List<IStatement>();
-            if (Environment.RootType != null)
+            var parentTy = closureType.GetParent();
+            if (parentTy != null)
             {
-                var rootCtor = Environment.RootType.GetConstructor(new IType[] { }, false);
+                var rootCtor = parentTy.GetConstructor(new IType[] { }, false);
                 ctorBody.Add(new ExpressionStatement(
                     new InvocationExpression(rootCtor, closureThis, Enumerable.Empty<IExpression>())));
             }

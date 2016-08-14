@@ -111,7 +111,13 @@ namespace Flame.Recompilation
 			var worklist = new HashSet<IMethod>();
 			foreach (var pair in implementations)
 			{
-				if (MethodCache.ContainsKey(pair.Key))
+                // If the base method is used by this assembly,
+                // then we must compile the implementation as well.
+                // Moreover, if the base method is external, then we must
+                // also compile the implementation, because the
+                // externally-defined base method might be called by
+                // external code.
+                if (MethodCache.ContainsKey(pair.Key) || IsExternal(pair.Key))
 				{
 					worklist.UnionWith(pair.Value);
 				}
@@ -171,15 +177,6 @@ namespace Flame.Recompilation
             while (BaseMethod is GenericMethodBase)
             {
                 BaseMethod = ((GenericMethodBase)BaseMethod).Declaration;
-            }
-            if (IsExternal(BaseMethod))
-            {
-                // If the base method is external, then we absolutely
-                // must compile the implementation, because the
-                // externally-defined base method may be called by
-                // external code.
-                GetMethod(ImplementationMethod);
-                return;
             }
             lock (implementations)
             {

@@ -81,5 +81,11 @@ namespace Flame.Cpp
         {
             get { return DefaultTypeDefinitionPacker.Instance; }
         }
+
+        public IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> DefaultBaseTypes)
+        {
+            return Enumerable.Empty<IType>();
+        }
     }
 }
