@@ -98,4 +98,61 @@ namespace Flame.Compiler.Visitors
                 return TransformCore(Statement);
         }
     }
+
+    /// <summary>
+    /// A location visitor that finds the topmost source locations,
+    /// and stores them for later retrieval.
+    /// </summary>
+    public class LocationFinder : LocationVisitorBase
+    {
+        public this()
+        {
+            this.locs = new List<SourceLocation>();
+        }
+
+        private List<SourceLocation> locs;
+
+        /// <summary>
+        /// Gets the list of all topmost source locations.
+        /// </summary>
+        public IReadOnlyList<SourceLocation> Locations { get { return locs; } }
+
+        /// <summary>
+        /// Gets the concatenation of all topmost source locations.
+        /// </summary>
+        public SourceLocation ConcatLocation
+        {
+            get
+            {
+                SourceLocation result = null;
+                foreach (var item in locs)
+                    result = result.Concat(item);
+                return result;
+            }
+        }
+
+        protected override const bool MatchesCore(IExpression Value)
+        {
+            return CurrentLocation != null;
+        }
+
+        protected override const bool MatchesCore(IStatement Value)
+        {
+            return CurrentLocation != null;
+        }
+
+        protected override IExpression TransformCore(IExpression Value)
+        {
+            assert(CurrentLocation != null);
+            locs.Add(CurrentLocation);
+            return Value;
+        }
+
+        protected override IStatement TransformCore(IStatement Value)
+        {
+            assert(CurrentLocation != null);
+            locs.Add(CurrentLocation);
+            return Value;
+        }
+    }
 }

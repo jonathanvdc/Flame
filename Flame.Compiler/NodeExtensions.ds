@@ -35,6 +35,28 @@ namespace Flame.Compiler
 			return GetEssentialNode<IStatement>(Statement);
 		}
 
+		/// <summary>
+		/// Gets the concatenation of the given expression's topmost source
+		/// locations.
+		/// </summary>
+		public static SourceLocation GetSourceLocation(this IExpression Expression)
+		{
+			var finder = new LocationFinder();
+			finder.Visit(Expression);
+			return finder.ConcatLocation;
+		}
+
+		/// <summary>
+		/// Gets the concatenation of the given statement's topmost source
+		/// locations.
+		/// </summary>
+		public static SourceLocation GetSourceLocation(this IStatement Statement)
+		{
+			var finder = new LocationFinder();
+			finder.Visit(Statement);
+			return finder.ConcatLocation;
+		}
+
 		#region IsConstant
 
 		public static bool IsConstant[this IExpression Expression]
