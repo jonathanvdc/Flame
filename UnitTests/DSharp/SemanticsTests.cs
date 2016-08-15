@@ -56,22 +56,22 @@ namespace UnitTests.DSharp
             return ConversionExpression.Instance.Create(CreateExpression(Code), GetType<T>());
         }
 
-        public static bool EvaluatesTo<T>(string Code, T Value)
+        public static bool EvaluatesTo<TE, TV>(string Code, TV Value)
         {
-            var expr = CreateExpression<T>(Code);
-            return expr.EvaluatesTo<T>(Value);
+            var expr = CreateExpression<TE>(Code);
+            return expr.EvaluatesTo<TV>(Value);
         }
 
         [Test]
         public void ParseLiteral()
         {
-            Assert.IsTrue(EvaluatesTo<int>("1", 1));
+            Assert.IsTrue(EvaluatesTo<int, IntegerValue>("1", new IntegerValue(1)));
         }
 
         [Test]
         public void ParseSum()
         {
-            Assert.IsTrue(EvaluatesTo<int>("1 + 2", 3));
+            Assert.IsTrue(EvaluatesTo<int, IntegerValue>("1 + 2", new IntegerValue(3)));
         }
 
         [Test]

@@ -3,94 +3,59 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-	public class Int8Expression : ConstantExpression<int8>
-	{
-		public const this(set int8 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Int8; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitInt8(Value);
-		}
-	}
+	/// <summary>
+    /// An expression that contains a constant integer value.
+    /// </summary>
+    public class IntegerExpression : ConstantExpression<IntegerValue>
+    {
+        public this(IntegerValue Value)
+			: base(Value)
+        { }
 
-	public class Int16Expression : ConstantExpression<int16>
-	{
-		public const this(set int16 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Int16; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitInt16(Value);
-		}
-	}
-	public class Int32Expression : ConstantExpression<int32>
-	{
-		public const this(set int32 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Int32; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitInt32(Value);
-		}
-	}
-	public class Int64Expression : ConstantExpression<int64>
-	{
-		public const this(set int64 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Int64; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitInt64(Value);
-		}
-	}
-	public class UInt8Expression : ConstantExpression<uint8>
-	{
-		public const this(set uint8 Value);
-		
-		public IType Type { const get return PrimitiveTypes.UInt8; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitUInt8(Value);
-		}
-	}
+        public this(byte Value)
+            : base(new IntegerValue(Value))
+        { }
 
-	public class UInt16Expression : ConstantExpression<uint16>
-	{
-		public const this(set uint16 Value);
-		
-		public IType Type { const get return PrimitiveTypes.UInt16; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitUInt16(Value);
-		}
-	}
-	public class UInt32Expression : ConstantExpression<uint32>
-	{
-		public const this(set uint32 Value);
-		
-		public IType Type { const get return PrimitiveTypes.UInt32; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitUInt32(Value);
-		}
-	}
-	public class UInt64Expression : ConstantExpression<uint64>
-	{
-		public const this(set uint64 Value);
-		
-		public IType Type { const get return PrimitiveTypes.UInt64; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitUInt64(Value);
-		}
-	}
+        public this(ushort Value)
+            : base(new IntegerValue(Value))
+        { }
+
+        public this(uint Value)
+            : base(new IntegerValue(Value))
+        { }
+
+        public this(ulong Value)
+            : base(new IntegerValue(Value))
+        { }
+
+		public this(sbyte Value)
+			: base(new IntegerValue(Value))
+		{ }
+
+		public this(short Value)
+			: base(new IntegerValue(Value))
+		{ }
+
+		public this(int Value)
+			: base(new IntegerValue(Value))
+		{ }
+
+		public this(long Value)
+			: base(new IntegerValue(Value))
+		{ }
+
+        public IType Type
+        {
+            get
+			{
+				return PrimitiveTypes.GetIntegerType(
+					Value.Spec.Size, Value.Spec.IsSigned);
+			}
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitInteger(Value.Normalized);
+        }
+    }
 }

@@ -214,13 +214,13 @@ namespace Flame.Compiler.Visitors
 
             // if (state == -1) return false; <-- iteration is over
             results.Add(new IfElseStatement(
-                new EqualityExpression(getStateExpr, new Int32Expression(-1)),
+                new EqualityExpression(getStateExpr, new IntegerExpression((int)(-1))),
                 new ReturnStatement(new BooleanExpression(false))));
 
             // Otherwise, branch to an appropriate location
             for (int i = 0; i < states.Count; i++)
             {
-                var stateExpr = new Int32Expression(i + 1);
+                var stateExpr = new IntegerExpression(i + 1);
                 results.Add(states[i].CreateBranchStatement(
                     new EqualityExpression(getStateExpr, stateExpr)));
             }
@@ -233,7 +233,7 @@ namespace Flame.Compiler.Visitors
 
         public const IStatement CreateBody(IStatement Body)
         {
-            var mOneExpr = new Int32Expression(-1);
+            var mOneExpr = new IntegerExpression((int)(-1));
 
             return new BlockStatement(new IStatement[]
             {
@@ -267,7 +267,7 @@ namespace Flame.Compiler.Visitors
             }
             else if (Statement is YieldBreakStatement)
             {
-                var mOneExpr = new Int32Expression(-1); // Makes sure we don't iterate any further beyond this point.
+                var mOneExpr = new IntegerExpression((int)(-1)); // Makes sure we don't iterate any further beyond this point.
                 return new BlockStatement(new IStatement[]
                 {
                     StateVariable.CreateSetStatement(mOneExpr),
@@ -281,7 +281,7 @@ namespace Flame.Compiler.Visitors
 
                 var yieldVal = variableVisitor.Visit(((YieldReturnStatement)Statement).Value);
 
-                var stateExpr = new Int32Expression(states.Count);
+                var stateExpr = new IntegerExpression(states.Count);
                 return new BlockStatement(new IStatement[]
                 {
                     StateVariable.CreateSetStatement(stateExpr), // Update the current state

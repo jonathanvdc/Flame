@@ -2193,22 +2193,22 @@ namespace Flame.Intermediate.Parsing
 
                     // Constants
                     //  - Bit<n>
-                    { ConstantBit8Name, CreateLiteralParser(item => new Bit8Expression(Convert.ToByte(item))) },
-                    { ConstantBit16Name, CreateLiteralParser(item => new Bit16Expression(Convert.ToUInt16(item))) },
-                    { ConstantBit32Name, CreateLiteralParser(item => new Bit32Expression(Convert.ToUInt32(item))) },
-                    { ConstantBit64Name, CreateLiteralParser(item => new Bit64Expression(Convert.ToUInt64(item))) },
+                    { ConstantBit8Name, CreateLiteralParser(item => new BitExpression(Convert.ToByte(item))) },
+                    { ConstantBit16Name, CreateLiteralParser(item => new BitExpression(Convert.ToUInt16(item))) },
+                    { ConstantBit32Name, CreateLiteralParser(item => new BitExpression(Convert.ToUInt32(item))) },
+                    { ConstantBit64Name, CreateLiteralParser(item => new BitExpression(Convert.ToUInt64(item))) },
 
                     //  - UInt<n>
-                    { ConstantUInt8Name, CreateLiteralParser(item => new UInt8Expression(Convert.ToByte(item))) },
-                    { ConstantUInt16Name, CreateLiteralParser(item => new UInt16Expression(Convert.ToUInt16(item))) },
-                    { ConstantUInt32Name, CreateLiteralParser(item => new UInt32Expression(Convert.ToUInt32(item))) },
-                    { ConstantUInt64Name, CreateLiteralParser(item => new UInt64Expression(Convert.ToUInt64(item))) },
+                    { ConstantUInt8Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToByte(item))) },
+                    { ConstantUInt16Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToUInt16(item))) },
+                    { ConstantUInt32Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToUInt32(item))) },
+                    { ConstantUInt64Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToUInt64(item))) },
 
                     //  - Int<n>
-                    { ConstantInt8Name, CreateLiteralParser(item => new Int8Expression(Convert.ToSByte(item))) },
-                    { ConstantInt16Name, CreateLiteralParser(item => new Int16Expression(Convert.ToInt16(item))) },
-                    { ConstantInt32Name, CreateLiteralParser(item => new Int32Expression(Convert.ToInt32(item))) },
-                    { ConstantInt64Name, CreateLiteralParser(item => new Int64Expression(Convert.ToInt64(item))) },
+                    { ConstantInt8Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToSByte(item))) },
+                    { ConstantInt16Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToInt16(item))) },
+                    { ConstantInt32Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToInt32(item))) },
+                    { ConstantInt64Name, CreateLiteralParser(item => new IntegerExpression(Convert.ToInt64(item))) },
 
                     //  - Float<n>
                     { ConstantFloat32Name, CreateLiteralParser(item => new Float32Expression(Convert.ToSingle(item))) },

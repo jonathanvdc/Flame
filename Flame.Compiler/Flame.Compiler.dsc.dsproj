@@ -8,6 +8,7 @@
 		<RuntimeLibrary Include="PortableRT" />
 		<RuntimeLibrary Include="System" />
 		<RuntimeLibrary Include="System.Core" />
+		<RuntimeLibrary Include="System.Numerics" />
 	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="../Flame/bin/Flame.dll" />

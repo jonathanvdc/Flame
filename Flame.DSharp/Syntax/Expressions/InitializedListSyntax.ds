@@ -100,7 +100,7 @@ namespace Flame.Syntax.DSharp
                     }
                     else
                     {
-                        LogInvalidInitialization(State.Log, "vector", new Int32Expression(firstDim));
+                        LogInvalidInitialization(State.Log, "vector", new IntegerExpression(firstDim));
                     }
                 }
             }
@@ -112,7 +112,7 @@ namespace Flame.Syntax.DSharp
             for (int i = 0; i < initStatements.Length - 1; i++)
             {
                 var elemVar = new ElementVariable(localVar.CreateGetExpression(),
-                                                  new IExpression[] { new Int32Expression(i) });
+                                                  new IExpression[] { new IntegerExpression(i) });
                 var convVal = CastSyntax.CreateImplicitCast(State, Elements[i], elemVar.Type);
                 initStatements[i + 1] = elemVar.CreateSetStatement(convVal);
             }

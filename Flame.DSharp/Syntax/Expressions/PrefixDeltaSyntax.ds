@@ -47,11 +47,11 @@ namespace Flame.Syntax.DSharp
             IExpression val;
             if (Operator.Type == TokenType.PlusPlus)
             {
-            	val = new AddExpression(getExpr, ConversionExpression.Create(new Int32Expression(1), Variable.Type));
+            	val = new AddExpression(getExpr, ConversionExpression.Create(new IntegerExpression(1), Variable.Type));
             }
             else if (Operator.Type == TokenType.MinusMinus)
             {
-            	val = new SubtractExpression(getExpr, ConversionExpression.Create(new Int32Expression(1), Variable.Type));
+            	val = new SubtractExpression(getExpr, ConversionExpression.Create(new IntegerExpression(1), Variable.Type));
             }
             else
             {

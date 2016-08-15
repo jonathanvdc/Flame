@@ -173,6 +173,7 @@ namespace Flame
             i16 = new IntegerSpec(16, true);
             i32 = new IntegerSpec(32, true);
             i64 = new IntegerSpec(64, true);
+            u1 = new IntegerSpec(1, false);
             u8 = new IntegerSpec(8, false);
             u16 = new IntegerSpec(16, false);
             u32 = new IntegerSpec(32, false);
@@ -183,10 +184,16 @@ namespace Flame
         private static IntegerSpec i16;
         private static IntegerSpec i32;
         private static IntegerSpec i64;
+        private static IntegerSpec u1;
         private static IntegerSpec u8;
         private static IntegerSpec u16;
         private static IntegerSpec u32;
         private static IntegerSpec u64;
+
+        /// <summary>
+        /// Gets the integer spec for 1-bit unsigned integers.
+        /// </summary>
+        public static IntegerSpec UInt1 { get { return u1; } }
 
         /// <summary>
         /// Gets the integer spec for 8-bit signed integers.
@@ -242,12 +249,33 @@ namespace Flame
         { }
 
         /// <summary>
+        /// Creates an integer value that wraps the given boolean.
+        /// </summary>
+        public this(bool Value)
+        {
+            this.Spec = IntegerSpec.UInt1;
+            if (Value)
+                this.Value = BigInteger.One;
+            else
+                this.Value = BigInteger.Zero;
+        }
+
+        /// <summary>
         /// Creates an integer value that wraps the given integer.
         /// </summary>
         public this(sbyte Value)
         {
             this.Value = new BigInteger((int)Value);
             this.Spec = IntegerSpec.Int8;
+        }
+
+        /// <summary>
+        /// Creates an integer value that wraps the given cbaracter value.
+        /// </summary>
+        public this(char Value)
+        {
+            this.Value = new BigInteger((int)Value);
+            this.Spec = IntegerSpec.UInt16;
         }
 
         /// <summary>
@@ -516,6 +544,38 @@ namespace Flame
             }
 
             return paddedByteArr;
+        }
+
+        /// <summary>
+        /// Converts this integer value to an 8-bit unsigned integer.
+        /// </summary>
+        public byte ToUInt8()
+        {
+            return ToPaddedByteArray(IntegerSpec.UInt8, 1)[0];
+        }
+
+        /// <summary>
+        /// Converts this integer value to an 8-bit signed integer.
+        /// </summary>
+        public sbyte ToInt8()
+        {
+            return (sbyte)ToUInt8();
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 16-bit unsigned integer.
+        /// </summary>
+        public ushort ToUInt16()
+        {
+            return BitConverter.ToUInt16(ToPaddedByteArray(IntegerSpec.UInt16, 2), 0);
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 16-bit signed integer.
+        /// </summary>
+        public short ToInt16()
+        {
+            return (short)ToUInt16();
         }
 
         /// <summary>

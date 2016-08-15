@@ -215,36 +215,36 @@ module ExpressionBuilder =
         new InitializedExpression(EmptyStatement.Instance, value, scope.ReleaseStatement) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantInt8 value =
-        new Int8Expression(value) :> IExpression
+    let ConstantInt8 (value : int8) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantUInt8 value =
-        new UInt8Expression(value) :> IExpression
+    let ConstantUInt8 (value : int8) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantInt16 value =
-        new Int16Expression(value) :> IExpression
+    let ConstantInt16 (value : int16) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantUInt16 value =
-        new UInt16Expression(value) :> IExpression
+    let ConstantUInt16 (value : uint16) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantInt32 value =
-        new Int32Expression(value) :> IExpression
+    let ConstantInt32 (value : int32) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantUInt32 value =
-        new UInt32Expression(value) :> IExpression
+    let ConstantUInt32 (value : uint32) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantInt64 value =
-        new Int64Expression(value) :> IExpression
+    let ConstantInt64 (value : int64) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant integer.
-    let ConstantUInt64 value =
-        new UInt64Expression(value) :> IExpression
+    let ConstantUInt64 (value : uint64) =
+        new IntegerExpression(value) :> IExpression
 
     /// Creates an expression that captures the given constant single-precision float.
     let ConstantFloat32 value =
@@ -793,7 +793,7 @@ module ExpressionBuilder =
                 Error (new LogEntry("constructor resolution error", messageNode)) innerExpr
             else
                 Error (new LogEntry("constructor resolution error",
-                                    sprintf "type '%s' does not have any constructors. Expected a constructor with signature '%s'." 
+                                    sprintf "type '%s' does not have any constructors. Expected a constructor with signature '%s'."
                                             (scope.Global.TypeNamer instanceType) (expectedSignature.ToString())))
                       innerExpr
         | ctor ->
@@ -805,14 +805,14 @@ module ExpressionBuilder =
 
             NewObjectExpression(ctor, callArgs) :> IExpression
 
-    /// Constructs an instance of the given type. This is done in-place if the 
+    /// Constructs an instance of the given type. This is done in-place if the
     /// constructed instance expression is non-global. Otherwise,
     /// a new object is created and initialized.
     let ConstructObject (scope : LocalScope) (declaringType : IType) (constructedInstance : AccessedExpression) (args : seq<IExpression>) =
         match constructedInstance with
         | Global _ -> NewInstance scope declaringType args
         | _        ->
-            let deleg = 
+            let deleg =
                 declaringType.GetConstructors().FilterByStatic(false)
                 |> Seq.map (fun x -> AccessMethod scope x constructedInstance :> IExpression)
                 |> Intersection

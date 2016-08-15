@@ -82,12 +82,6 @@ namespace Flame
 
 		#endregion
 
-		public const static T GetPrimitiveValue<T>(this IBoundObject Value)
-		{
-			var primObj = (IBoundPrimitive<T>)Value;
-			return primObj.Value;
-		}
-
 		#region Attributes
 
 		public static [IAttribute] GetAttributes(this IMember Member, IType Type)

@@ -373,7 +373,7 @@ namespace Flame.Wasm
 				// so we don't have to restore the stack pointer's value later.
 				callArgs.Add(new AddExpression(
 					StackPointerRegister.CreateGetExpression(),
-					new StaticCastExpression(new Int32Expression(argStackSize), PointerIntegerType).Simplify()));
+					new StaticCastExpression(new IntegerExpression(argStackSize), PointerIntegerType).Simplify()));
 			}
 
 			// Optionally insert a 'this' pointer.

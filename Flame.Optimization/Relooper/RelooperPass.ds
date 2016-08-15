@@ -121,7 +121,7 @@ namespace Flame.Optimization.Relooper
                 initLabel = EmptyStatement;
             else
                 initLabel = labelVar.CreateSetStatement(
-                    new Int32Expression(nameMap[Graph.EntryPointTag]));
+                    new IntegerExpression(nameMap[Graph.EntryPointTag]));
 
             return new BlockStatement(new IStatement[]
             {

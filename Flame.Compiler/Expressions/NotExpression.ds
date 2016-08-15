@@ -21,57 +21,19 @@ namespace Flame.Compiler.Expressions
             var boundObject = Value.Evaluate();
             if (boundObject == null)
                 return null;
-            if (Value.Type.Equals(PrimitiveTypes.Boolean))
+
+            var valTy = Value.Type;
+            if (valTy.Equals(PrimitiveTypes.Boolean))
             {
-                return new BooleanExpression(!boundObject.GetPrimitiveValue<bool>());
+                return new BooleanExpression(!boundObject.GetValue<bool>());
             }
-            else if (Value.Type.Equals(PrimitiveTypes.Int8))
+            else if (valTy.IsInteger)
             {
-                return new Int8Expression(~boundObject.GetPrimitiveValue<int8>());
+                return new IntegerExpression(boundObject.GetValue<IntegerValue>().OnesComplement);
             }
-            else if (Value.Type.Equals(PrimitiveTypes.UInt8))
+            else if (valTy.IsBit)
             {
-                return new UInt8Expression(~boundObject.GetPrimitiveValue<uint8>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Bit8))
-            {
-                return new Bit8Expression(~boundObject.GetPrimitiveValue<bit8>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Int16))
-            {
-                return new Int16Expression(~boundObject.GetPrimitiveValue<int16>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.UInt16))
-            {
-                return new UInt16Expression(~boundObject.GetPrimitiveValue<uint16>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Bit16))
-            {
-                return new Bit16Expression(~boundObject.GetPrimitiveValue<bit16>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Int32))
-            {
-                return new Int32Expression(~boundObject.GetPrimitiveValue<int32>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.UInt32))
-            {
-                return new UInt32Expression(~boundObject.GetPrimitiveValue<uint32>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Bit32))
-            {
-                return new Bit32Expression(~boundObject.GetPrimitiveValue<bit32>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Int64))
-            {
-                return new Int64Expression(~boundObject.GetPrimitiveValue<int64>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.UInt64))
-            {
-                return new UInt64Expression(~boundObject.GetPrimitiveValue<uint64>());
-            }
-            else if (Value.Type.Equals(PrimitiveTypes.Bit64))
-            {
-                return new Bit64Expression(~boundObject.GetPrimitiveValue<bit64>());
+                return new BitExpression(boundObject.GetValue<BitValue>().Complement);
             }
             else
             {

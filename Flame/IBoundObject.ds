@@ -58,38 +58,7 @@ namespace Flame
 
 		public static int32 GetInt32Value(this IBoundObject Target)
 		{
-			if (Target is IBoundPrimitive<int64>)
-			{
-				return (int32)Target.GetValue<int64>();
-			}
-			else if (Target is IBoundPrimitive<uint64>)
-			{
-				return (int32)Target.GetValue<uint64>();
-			}
-			else if (Target is IBoundPrimitive<uint32>)
-			{
-				return (int32)Target.GetValue<uint32>();
-			}
-			else if (Target is IBoundPrimitive<int16>)
-			{
-				return (int32)Target.GetValue<int16>();
-			}
-			else if (Target is IBoundPrimitive<int8>)
-			{
-				return (int32)Target.GetValue<int8>();
-			}
-			else if (Target is IBoundPrimitive<uint16>)
-			{
-				return (int32)Target.GetValue<uint16>();
-			}
-			else if (Target is IBoundPrimitive<uint8>)
-			{
-				return (int32)Target.GetValue<uint8>();
-			}
-			else
-			{
-				return Target.GetValue<int32>();
-			}
+			return Target.GetValue<IntegerValue>().ToInt32();
 		}
 
 		public static object GetObjectValue(this IBoundObject Target)
@@ -99,7 +68,15 @@ namespace Flame
 				return null;
 			}
 
-			if (Target is IBoundPrimitive<int64>)
+			if (Target is IBoundPrimitive<BitValue>)
+			{
+				return (object)Target.GetValue<BitValue>();
+			}
+			else if (Target is IBoundPrimitive<IntegerValue>)
+			{
+				return (object)Target.GetValue<IntegerValue>();
+			}
+			else if (Target is IBoundPrimitive<int64>)
 			{
 				return (object)Target.GetValue<int64>();
 			}

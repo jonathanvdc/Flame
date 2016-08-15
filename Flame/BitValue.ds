@@ -59,6 +59,23 @@ namespace Flame
         public bool IsValid { get { return val.IsValid; } }
 
         /// <summary>
+        /// Gets a normalized value. A normalized value will always conform
+        /// to the bit size.
+        /// </summary>
+        public BitValue Normalized
+        {
+            get { return new BitValue(val.Normalized); }
+        }
+
+        /// <summary>
+        /// Gets this bit-value's complement.
+        /// </summary>
+        public BitValue Complement
+        {
+            get { return new BitValue(val.OnesComplement); }
+        }
+
+        /// <summary>
         /// Applies the bitwise 'and' operator to this bit-value and the given
         /// other bit-value. The result retains this bit-value's size.
         /// </summary>

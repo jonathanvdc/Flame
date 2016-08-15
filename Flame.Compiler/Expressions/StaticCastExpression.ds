@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Flame.Compiler.Expressions
 {
@@ -62,69 +63,78 @@ namespace Flame.Compiler.Expressions
             if (objVal == null)
                 return null;
 
-            if (TargetType.Equals(PrimitiveTypes.UInt8))
+            if (TargetType.IsInteger)
             {
-                return new UInt8Expression(Convert.ToByte(objVal));
+                var spec = PrimitiveTypes.GetIntegerSpec(TargetType);
+                // Don't do this, because it's dependent on the machine's
+                // endianness.
+                //     if (objVal is BitValue)
+                //         return ((BitValue)objVal).ToInteger().Cast(spec);
+                if (objVal is IntegerValue)
+                    return new IntegerExpression(
+                        ((IntegerValue)objVal).Cast(spec));
+                else if (objVal is bool)
+                    return new IntegerExpression(
+                        new IntegerValue((bool)objVal).Cast(spec));
+                else if (objVal is char)
+                    return new IntegerExpression(
+                        new IntegerValue((char)objVal).Cast(spec));
+                else
+                    // TODO: maybe convert float/double constants to integers
+                    // here.
+                    return null;
             }
-            else if (TargetType.Equals(PrimitiveTypes.Int8))
+            else if (TargetType.IsBit)
             {
-                return new Int8Expression(Convert.ToSByte(objVal));
+                // Don't do bit-to-bit casts, because they are sort of undefined.
+                //     if (objVal is BitValue)
+                //         return new BitExpression(((BitValue)objVal).ToInteger().Cast(spec));
+                // Don't do integer-to-bit casts, because they are dependent on
+                // the machine's endianness.
+                //     else if (objVal is IntegerValue)
+                //         return new BitExpression(((IntegerValue)objVal).Cast(spec));
+                //     else
+                // TODO: maybe convert float/double constants to bit values
+                // here. This is only safe if we can do so in a
+                // platform-independent manner, though.
+                return null;
             }
-            else if (TargetType.Equals(PrimitiveTypes.Bit8))
-            {
-                return new Bit8Expression((bit8)Convert.ToByte(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.UInt16))
-            {
-                return new UInt16Expression(Convert.ToUInt16(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Int16))
-            {
-                return new Int16Expression(Convert.ToInt16(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Bit16))
-            {
-                return new Bit16Expression((bit16)Convert.ToUInt16(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.UInt32))
-            {
-                return new UInt32Expression(Convert.ToUInt32(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Int32))
-            {
-                return new Int32Expression(Convert.ToInt32(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Bit32))
-            {
-                return new Bit32Expression((bit32)Convert.ToUInt32(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.UInt64))
-            {
-                return new UInt64Expression(Convert.ToUInt64(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Int64))
-            {
-                return new Int64Expression(Convert.ToInt64(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Bit64))
-            {
-                return new Bit64Expression((bit64)Convert.ToUInt64(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Float32))
-            {
-                return new Float32Expression(Convert.ToSingle(objVal));
-            }
-            else if (TargetType.Equals(PrimitiveTypes.Float64))
-            {
-                return new Float64Expression(Convert.ToDouble(objVal));
-            }
+            // TODO: re-implement this for IntegerValue.
+            // else if (TargetType.Equals(PrimitiveTypes.Float32))
+            // {
+            //     return new Float32Expression(Convert.ToSingle(objVal));
+            // }
+            // else if (TargetType.Equals(PrimitiveTypes.Float64))
+            // {
+            //     return new Float64Expression(Convert.ToDouble(objVal));
+            // }
             else if (TargetType.Equals(PrimitiveTypes.Boolean))
             {
-                return new BooleanExpression(Convert.ToBoolean(objVal));
+                if (objVal is bool)
+                    return new BooleanExpression((bool)objVal);
+                else if (objVal is char)
+                    return new BooleanExpression((char)objVal != (char)0);
+                else if (objVal is IntegerValue)
+                    return new BooleanExpression(
+                        !((IntegerValue)objVal).Value.Equals(BigInteger.Zero));
+                else
+                    return null;
             }
             else if (TargetType.Equals(PrimitiveTypes.Char))
             {
-                return new CharExpression(Convert.ToChar(objVal));
+                if (objVal is bool)
+                {
+                    if ((bool)objVal)
+                        return new CharExpression((char)0);
+                    else
+                        return new CharExpression((char)1);
+                }
+                else if (objVal is char)
+                    return new CharExpression((char)objVal);
+                else if (objVal is IntegerValue)
+                    return new CharExpression((char)((IntegerValue)objVal).ToInt16());
+                else
+                    return null;
             }
             else if (TargetType.Equals(PrimitiveTypes.String))
             {

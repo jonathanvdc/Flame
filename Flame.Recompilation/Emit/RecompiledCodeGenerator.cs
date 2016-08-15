@@ -163,44 +163,9 @@ namespace Flame.Recompilation.Emit
             return new ExpressionBlock(this, new StringExpression(Value));
         }
 
-        public ICodeBlock EmitUInt16(ushort Value)
+        public ICodeBlock EmitBit(BitValue Value)
         {
-            return new ExpressionBlock(this, new UInt16Expression(Value));
-        }
-
-        public ICodeBlock EmitUInt32(uint Value)
-        {
-            return new ExpressionBlock(this, new UInt32Expression(Value));
-        }
-
-        public ICodeBlock EmitUInt64(ulong Value)
-        {
-            return new ExpressionBlock(this, new UInt64Expression(Value));
-        }
-
-        public ICodeBlock EmitUInt8(byte Value)
-        {
-            return new ExpressionBlock(this, new UInt8Expression(Value));
-        }
-
-        public ICodeBlock EmitBit16(ushort Value)
-        {
-            return new ExpressionBlock(this, new Bit16Expression(Value));
-        }
-
-        public ICodeBlock EmitBit32(uint Value)
-        {
-            return new ExpressionBlock(this, new Bit32Expression(Value));
-        }
-
-        public ICodeBlock EmitBit64(ulong Value)
-        {
-            return new ExpressionBlock(this, new Bit64Expression(Value));
-        }
-
-        public ICodeBlock EmitBit8(byte Value)
-        {
-            return new ExpressionBlock(this, new Bit8Expression(Value));
+            return new ExpressionBlock(this, new BitExpression(Value));
         }
 
         public ICodeBlock EmitBoolean(bool Value)
@@ -223,24 +188,9 @@ namespace Flame.Recompilation.Emit
             return new ExpressionBlock(this, new Float64Expression(Value));
         }
 
-        public ICodeBlock EmitInt16(short Value)
+        public ICodeBlock EmitInteger(IntegerValue Value)
         {
-            return new ExpressionBlock(this, new Int16Expression(Value));
-        }
-
-        public ICodeBlock EmitInt32(int Value)
-        {
-            return new ExpressionBlock(this, new Int32Expression(Value));
-        }
-
-        public ICodeBlock EmitInt64(long Value)
-        {
-            return new ExpressionBlock(this, new Int64Expression(Value));
-        }
-
-        public ICodeBlock EmitInt8(sbyte Value)
-        {
-            return new ExpressionBlock(this, new Int8Expression(Value));
+            return new ExpressionBlock(this, new IntegerExpression(Value));
         }
 
         #endregion

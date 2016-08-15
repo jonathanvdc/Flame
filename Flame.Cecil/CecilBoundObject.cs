@@ -46,11 +46,11 @@ namespace Flame.Cecil
             object val;
             if (Value is IBoundPrimitive<string>)
             {
-                val = Value.GetPrimitiveValue<string>();
+                val = Value.GetValue<string>();
             }
             else
             {
-                val = Value.GetPrimitiveValue<object>();
+                val = Value.GetValue<object>();
             }
             clrField.SetValue(Value, val);
         }

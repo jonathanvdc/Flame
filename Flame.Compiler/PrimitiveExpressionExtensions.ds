@@ -25,53 +25,13 @@ namespace Flame.Compiler
 			{
 				return VoidExpression;
 			}
-			else if (valType.Equals(PrimitiveTypes.Int64))
+			else if (valType.IsInteger)
 			{
-				return new Int64Expression(Value.GetValue<int64>());
+				return new IntegerExpression(Value.GetValue<IntegerValue>());
 			}
-			else if (valType.Equals(PrimitiveTypes.UInt64))
+			else if (valType.IsBit)
 			{
-				return new UInt64Expression(Value.GetValue<uint64>());
-			}
-			else if (valType.Equals(PrimitiveTypes.UInt32))
-			{
-				return new UInt32Expression(Value.GetValue<uint32>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Int16))
-			{
-				return new Int16Expression(Value.GetValue<int16>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Int8))
-			{
-				return new Int8Expression(Value.GetValue<int8>());
-			}
-			else if (valType.Equals(PrimitiveTypes.UInt16))
-			{
-				return new UInt16Expression(Value.GetValue<uint16>());
-			}
-			else if (valType.Equals(PrimitiveTypes.UInt8))
-			{
-				return new UInt8Expression(Value.GetValue<uint8>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Int32))
-			{
-				return new Int32Expression(Value.GetValue<int32>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Bit64))
-			{
-				return new Bit64Expression(Value.GetValue<bit64>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Bit32))
-			{
-				return new Bit32Expression(Value.GetValue<bit32>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Bit16))
-			{
-				return new Bit16Expression(Value.GetValue<bit16>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Bit8))
-			{
-				return new Bit8Expression(Value.GetValue<bit8>());
+				return new BitExpression(Value.GetValue<BitValue>());
 			}
 			else if (valType.Equals(PrimitiveTypes.Float64))
 			{

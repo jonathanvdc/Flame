@@ -251,8 +251,8 @@ namespace Flame.Cecil
 
         private static bool IsDefaultValue(IExpression Value, IType Type)
         {
-            object eval = Value.Evaluate().GetPrimitiveValue<object>();
-            object def = Type.GetDefaultValue().GetPrimitiveValue<object>();
+            object eval = Value.Evaluate().GetValue<object>();
+            object def = Type.GetDefaultValue().GetValue<object>();
             return eval.Equals(def);
         }
 
@@ -262,7 +262,7 @@ namespace Flame.Cecil
 
         private static bool IsNullValue(IExpression Value)
         {
-            /*object eval = Value.Evaluate().GetPrimitiveValue<object>();
+            /*object eval = Value.Evaluate().GetValue<object>();
             return eval == null;*/
             return Value is NullExpression;
         }

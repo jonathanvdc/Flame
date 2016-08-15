@@ -24,38 +24,12 @@ namespace Flame.Compiler.Expressions
             if (rObj == null)
                 return null;
         	var resultType = Type;
-        	if (resultType.Equals(PrimitiveTypes.Int8))
-        	{
-        		return new Int8Expression(lObj.GetValue<int8>() / rObj.GetValue<int8>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int16))
-        	{
-        		return new Int16Expression(lObj.GetValue<int16>() / rObj.GetValue<int16>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int32))
-        	{
-        		return new Int32Expression(lObj.GetValue<int32>() / rObj.GetValue<int32>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int64))
-        	{
-        		return new Int64Expression(lObj.GetValue<int64>() / rObj.GetValue<int64>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt8))
-        	{
-        		return new UInt8Expression(lObj.GetValue<uint8>() / rObj.GetValue<uint8>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt16))
-        	{
-        		return new UInt16Expression(lObj.GetValue<uint16>() / rObj.GetValue<uint16>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt32))
-        	{
-        		return new UInt32Expression(lObj.GetValue<uint32>() / rObj.GetValue<uint32>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt64))
-        	{
-        		return new UInt64Expression(lObj.GetValue<uint64>() / rObj.GetValue<uint64>());
-        	}
+            if (resultType.IsInteger)
+            {
+                return new IntegerExpression(
+                    lObj.GetValue<IntegerValue>().Divide(
+                        rObj.GetValue<IntegerValue>()));
+            }
         	else if (resultType.Equals(PrimitiveTypes.Float32))
         	{
         		return new Float32Expression(lObj.GetValue<float32>() / rObj.GetValue<float32>());

@@ -70,66 +70,27 @@ namespace Flame.Compiler
 		/// Creates a boolean constant block.
 		/// </summary>
 		ICodeBlock EmitBoolean(bool Value);
+		
 		/// <summary>
 		/// Creates a character constant block.
 		/// </summary>
 		ICodeBlock EmitChar(char Value);
 
 		/// <summary>
-		/// Creates an 8-bit unsigned integer constant block.
+		/// Creates a bit-value constant block.
 		/// </summary>
-		ICodeBlock EmitUInt8(uint8 Value);
-		/// <summary>
-		/// Creates an 8-bit signed integer constant block.
-		/// </summary>
-		ICodeBlock EmitInt8(int8 Value);
-		/// <summary>
-		/// Creates an 8-bit constant block.
-		/// </summary>
-		ICodeBlock EmitBit8(bit8 Value);
+		ICodeBlock EmitBit(BitValue Value);
 
 		/// <summary>
-		/// Creates a 16-bit unsigned integer constant block.
+		/// Creates an integer-value constant block.
 		/// </summary>
-		ICodeBlock EmitUInt16(uint16 Value);
-		/// <summary>
-		/// Creates a 16-bit signed integer constant block.
-		/// </summary>
-		ICodeBlock EmitInt16(int16 Value);
-		/// <summary>
-		/// Creates a 16-bit constant block.
-		/// </summary>
-		ICodeBlock EmitBit16(bit16 Value);
+		ICodeBlock EmitInteger(IntegerValue Value);
 
-		/// <summary>
-		/// Creates a 32-bit unsigned integer constant block.
-		/// </summary>
-		ICodeBlock EmitUInt32(uint32 Value);
-		/// <summary>
-		/// Creates a 32-bit signed integer constant block.
-		/// </summary>
-		ICodeBlock EmitInt32(int32 Value);
-		/// <summary>
-		/// Creates a 32-bit constant block.
-		/// </summary>
-		ICodeBlock EmitBit32(bit32 Value);
 		/// <summary>
 		/// Creates a 32-bit floating point number constant block.
 		/// </summary>
 		ICodeBlock EmitFloat32(float32 Value);
 
-		/// <summary>
-		/// Creates a 64-bit unsigned integer constant block.
-		/// </summary>
-		ICodeBlock EmitUInt64(uint64 Value);
-		/// <summary>
-		/// Creates a 64-bit signed integer constant block.
-		/// </summary>
-		ICodeBlock EmitInt64(int64 Value);
-		/// <summary>
-		/// Creates a 64-bit constant block.
-		/// </summary>
-		ICodeBlock EmitBit64(bit64 Value);
 		/// <summary>
 		/// Creates a 64-bit floating point number constant block.
 		/// </summary>
@@ -139,6 +100,7 @@ namespace Flame.Compiler
 		/// Creates a string constant block.
 		/// </summary>
 		ICodeBlock EmitString(string Value);
+
 		/// <summary>
 		/// Creates a null constant block.
 		/// </summary>

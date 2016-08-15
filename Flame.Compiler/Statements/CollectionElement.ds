@@ -84,7 +84,7 @@ namespace Flame.Compiler.Statements
             IExpression lengthExpr;
             if (collectionVariable.Type.IsVector)
             {
-                lengthExpr = new Int32Expression(Enumerable.Single<int32>(collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().Dimensions));
+                lengthExpr = new IntegerExpression(Enumerable.Single<int32>(collectionVariable.CreateGetExpression().Type.AsContainerType().AsVectorType().Dimensions));
             }
             else
             {
@@ -102,8 +102,8 @@ namespace Flame.Compiler.Statements
             if (IndexVariable == null)
             {
                 index = new LocalVariable(lengthExpr.Type);
-                initStatements.Add(index.CreateSetStatement(ConversionExpression.Create(new Int32Expression(0), index.Type)));
-                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), ConversionExpression.Create(new Int32Expression(1), index.Type)));
+                initStatements.Add(index.CreateSetStatement(ConversionExpression.Create(new IntegerExpression((int)0), index.Type)));
+                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), ConversionExpression.Create(new IntegerExpression(1), index.Type)));
             }
             else
             {

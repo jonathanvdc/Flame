@@ -3,48 +3,39 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-    public class Bit8Expression : ConstantExpression<bit8>
-	{
-		public this(set bit8 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Bit8; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitBit8(Value);
-		}
-	}
-    public class Bit16Expression : ConstantExpression<bit16>
-	{
-		public this(set bit16 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Bit16; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitBit16(Value);
-		}
-	}
-    public class Bit32Expression : ConstantExpression<bit32>
-	{
-		public this(set bit32 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Bit32; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitBit32(Value);
-		}
-	}
-	public class Bit64Expression : ConstantExpression<bit64>
-	{
-		public this(set bit64 Value);
-		
-		public IType Type { const get return PrimitiveTypes.Bit64; }
-		
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitBit64(Value);
-		}
-	}
+    /// <summary>
+    /// An expression that contains a constant constant bit-value.
+    /// </summary>
+    public class BitExpression : ConstantExpression<BitValue>
+    {
+        public this(BitValue Value)
+            : base(Value)
+        { }
+
+        public this(bit8 Value)
+            : base(new BitValue(Value))
+        { }
+
+        public this(bit16 Value)
+            : base(new BitValue(Value))
+        { }
+
+        public this(bit32 Value)
+            : base(new BitValue(Value))
+        { }
+
+        public this(bit64 Value)
+            : base(new BitValue(Value))
+        { }
+
+        public IType Type
+        {
+            get { return PrimitiveTypes.GetBitType(Value.Size); }
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitBit(Value.Normalized);
+        }
+    }
 }

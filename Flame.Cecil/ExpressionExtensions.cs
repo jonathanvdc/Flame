@@ -14,27 +14,27 @@ namespace Flame.Cecil
         {
             if (Primitive is sbyte)
             {
-                return new Int8Expression((sbyte)Primitive);
+                return new IntegerExpression((sbyte)Primitive);
             }
             else if (Primitive is byte)
             {
-                return new UInt8Expression((byte)Primitive);
+                return new IntegerExpression((byte)Primitive);
             }
             else if (Primitive is short)
             {
-                return new Int16Expression((short)Primitive);
+                return new IntegerExpression((short)Primitive);
             }
             else if (Primitive is ushort)
             {
-                return new UInt16Expression((ushort)Primitive);
+                return new IntegerExpression((ushort)Primitive);
             }
             else if (Primitive is int)
             {
-                return new Int32Expression((int)Primitive);
+                return new IntegerExpression((int)Primitive);
             }
             else if (Primitive is uint)
             {
-                return new UInt32Expression((uint)Primitive);
+                return new IntegerExpression((uint)Primitive);
             }
             else if (Primitive is float)
             {
@@ -42,11 +42,11 @@ namespace Flame.Cecil
             }
             else if (Primitive is long)
             {
-                return new Int64Expression((long)Primitive);
+                return new IntegerExpression((long)Primitive);
             }
             else if (Primitive is ulong)
             {
-                return new UInt64Expression((ulong)Primitive);
+                return new IntegerExpression((ulong)Primitive);
             }
             else if (Primitive is double)
             {
@@ -59,6 +59,10 @@ namespace Flame.Cecil
             else if (Primitive is char)
             {
                 return new CharExpression((char)Primitive);
+            }
+            else if (Primitive is bool)
+            {
+                return new BooleanExpression((bool)Primitive);
             }
             else
             {

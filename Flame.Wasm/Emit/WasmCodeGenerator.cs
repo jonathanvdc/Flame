@@ -201,6 +201,44 @@ namespace Flame.Wasm.Emit
 			throw new NotImplementedException();
 		}
 
+        public ICodeBlock EmitBit(BitValue Value)
+        {
+            int size = Value.Size;
+            if (size == 8)
+                return EmitBit8(Value.ToInteger().ToUInt8());
+            else if (size == 16)
+                return EmitBit16(Value.ToInteger().ToUInt16());
+            else if (size == 32)
+                return EmitBit32(Value.ToInteger().ToUInt32());
+            else if (size == 64)
+                return EmitBit64(Value.ToInteger().ToUInt64());
+            else
+                throw new NotSupportedException("Unsupported bit size: " + size);
+        }
+
+        public ICodeBlock EmitInteger(IntegerValue Value)
+        {
+            var spec = Value.Spec;
+            if (spec.Equals(IntegerSpec.Int8))
+                return EmitInt8(Value.ToInt8());
+            else if (spec.Equals(IntegerSpec.Int16))
+                return EmitInt16(Value.ToInt16());
+            else if (spec.Equals(IntegerSpec.Int32))
+                return EmitInt32(Value.ToInt32());
+            else if (spec.Equals(IntegerSpec.Int64))
+                return EmitInt64(Value.ToInt64());
+            else if (spec.Equals(IntegerSpec.UInt8))
+                return EmitUInt8(Value.ToUInt8());
+            else if (spec.Equals(IntegerSpec.UInt16))
+                return EmitUInt16(Value.ToUInt16());
+            else if (spec.Equals(IntegerSpec.UInt32))
+                return EmitUInt32(Value.ToUInt32());
+            else if (spec.Equals(IntegerSpec.UInt64))
+                return EmitUInt64(Value.ToUInt64());
+            else
+                throw new NotSupportedException("Unsupported integer spec: " + spec.ToString());
+        }
+
 		#endregion
 
 		#region Control Flow
@@ -577,10 +615,21 @@ namespace Flame.Wasm.Emit
                 {
                     return EmitStaticCast(Value, uintTys[fromSize], ToType);
                 }
-                else
+                else if (fromSize < 32)
                 {
-                    return null;
+                    if (FromType.GetIsSignedInteger())
+                        return EmitStaticCast(Value, PrimitiveTypes.Int32, ToType);
+                    else if (FromType.GetIsUnsignedInteger())
+                        return EmitStaticCast(Value, PrimitiveTypes.UInt32, ToType);
                 }
+                else if (ToType.GetPrimitiveBitSize() < 32)
+                {
+                    if (ToType.GetIsSignedInteger())
+                        return EmitStaticCast(Value, FromType, PrimitiveTypes.Int32);
+                    else if (ToType.GetIsUnsignedInteger())
+                        return EmitStaticCast(Value, FromType, PrimitiveTypes.UInt32);
+                }
+                return null;
             }
 		}
 
@@ -672,7 +721,7 @@ namespace Flame.Wasm.Emit
                 var wasmField = (WasmField)Field;
                 return new MemoryLocation((CodeBlock)EmitTypeBinary(
                     new StaticCastExpression(
-                        new Int32Expression(wasmField.StaticStorageLocation.Offset),
+                        new IntegerExpression(wasmField.StaticStorageLocation.Offset),
                         Abi.PointerIntegerType).Simplify().Emit(this),
                     Field.FieldType.MakePointerType(PointerKind.ReferencePointer),
                     Operator.ReinterpretCast));

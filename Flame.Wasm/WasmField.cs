@@ -73,7 +73,8 @@ namespace Flame.Wasm
         {
             var ty = Object.Type;
             if (ty.GetIsPrimitive())
-                return GetPrimitiveBytes(Object.GetObjectValue());
+                return GetPrimitiveBytes(
+                    ToClrPrimitive(Object.GetObjectValue()));
 
             var layout = ModuleData.Abi.GetLayout(ty);
 
@@ -88,6 +89,37 @@ namespace Flame.Wasm
                 }
             }
             return results;
+        }
+
+        private static object ToClrPrimitive(object Value)
+        {
+            if (Value is IntegerValue)
+                return ToClrPrimitive((IntegerValue)Value);
+            else
+                return Value;
+        }
+
+        private static object ToClrPrimitive(IntegerValue Value)
+        {
+            var spec = Value.Spec;
+            if (spec.Equals(IntegerSpec.Int8))
+                return Value.ToInt8();
+            else if (spec.Equals(IntegerSpec.Int16))
+                return Value.ToInt16();
+            else if (spec.Equals(IntegerSpec.Int32))
+                return Value.ToInt32();
+            else if (spec.Equals(IntegerSpec.Int64))
+                return Value.ToInt64();
+            else if (spec.Equals(IntegerSpec.UInt8))
+                return Value.ToUInt8();
+            else if (spec.Equals(IntegerSpec.UInt16))
+                return Value.ToUInt16();
+            else if (spec.Equals(IntegerSpec.UInt32))
+                return Value.ToUInt32();
+            else if (spec.Equals(IntegerSpec.UInt64))
+                return Value.ToUInt64();
+            else
+                throw new NotSupportedException("Unsupported integer spec: " + spec.ToString());
         }
 
         private static byte[] GetPrimitiveBytes(object Value)

@@ -27,19 +27,19 @@ namespace Flame.Syntax.DSharp
         		int64 val = int64.Parse(tokenVal);
         		if (val < (int64)int32.MinValue)
 	        	{
-	        		return new Int64Expression(val);
+	        		return new IntegerExpression(val);
 	        	}
 	        	else if (val < (int64)int16.MinValue)
 	        	{
-	        		return new Int32Expression((int32)val);
+	        		return new IntegerExpression((int32)val);
 	        	}
 	        	else if (val < (int64)int8.MinValue)
 	        	{
-	        		return new Int16Expression((int16)val);
+	        		return new IntegerExpression((int16)val);
 	        	}
 	        	else
 	        	{
-	        		return new Int8Expression((int8)val);
+	        		return new IntegerExpression((int8)val);
 	        	}
         	}
         	else
@@ -47,35 +47,35 @@ namespace Flame.Syntax.DSharp
         		uint64 val = uint64.Parse(tokenVal);
         		if (val < (uint64)int8.MaxValue)
         		{
-        			return new Int8Expression((int8)val);
+        			return new IntegerExpression((int8)val);
         		}
 	        	else if (val > (uint64)int8.MaxValue && val < (uint64)uint8.MaxValue)
 	        	{
-	        		return new UInt8Expression((uint8)val);
+	        		return new IntegerExpression((uint8)val);
 	        	}
 	        	else if (val < (uint64)int16.MaxValue)
 	        	{
-	        		return new Int16Expression((int16)val);
+	        		return new IntegerExpression((int16)val);
 	        	}
 	        	else if (val > (uint64)int16.MaxValue && val < (uint64)uint16.MaxValue)
 	        	{
-	        		return new UInt16Expression((uint16)val);
+	        		return new IntegerExpression((uint16)val);
 	        	}
 	        	else if (val < (uint64)int32.MaxValue)
 	        	{
-	        		return new Int32Expression((int32)val);
+	        		return new IntegerExpression((int32)val);
 	        	}
 	        	else if (val > (uint64)int32.MaxValue && val < (uint64)uint32.MaxValue)
 	        	{
-	        		return new UInt32Expression((uint32)val);
+	        		return new IntegerExpression((uint32)val);
 	        	}
 	        	else if (val < (uint64)int64.MaxValue)
 	        	{
-	        		return new Int64Expression((int64)val);
+	        		return new IntegerExpression((int64)val);
 	        	}
 	        	else
 	        	{
-	        		return new UInt64Expression(val);
+	        		return new IntegerExpression(val);
 	        	}
         	}
         }
@@ -123,7 +123,7 @@ namespace Flame.Syntax.DSharp
                 	if (Binary[i] == '1')
                 		val += Pow2Long(Binary.Length - i - 1);
                 }
-                return new Bit64Expression((bit64)val);
+                return new BitExpression((bit64)val);
             }
             else if (Binary.Length > 16)
             {
@@ -133,7 +133,7 @@ namespace Flame.Syntax.DSharp
                 	if (Binary[i] == '1')
                 		val += Pow2(Binary.Length - i - 1);
                 }
-                return new Bit32Expression((bit32)val);
+                return new BitExpression((bit32)val);
             }
             else if (Binary.Length > 8)
             {
@@ -143,7 +143,7 @@ namespace Flame.Syntax.DSharp
                 	if (Binary[i] == '1')
                 		val += Pow2Short(Binary.Length - i - 1);
                 }
-                return new Bit16Expression((bit16)val);
+                return new BitExpression((bit16)val);
             }
             else
             {
@@ -153,7 +153,7 @@ namespace Flame.Syntax.DSharp
                 	if (Binary[i] == '1')
                 		val += Pow2Byte(Binary.Length - i - 1);
                 }
-                return new Bit8Expression((bit8)val);
+                return new BitExpression((bit8)val);
             }
         }
 

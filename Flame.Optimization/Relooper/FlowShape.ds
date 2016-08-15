@@ -98,7 +98,7 @@ namespace Flame.Optimization.Relooper
             {
                 var jump = (JumpFlow)Flow;
                 return LabelVariable.CreateSetStatement(
-                    new Int32Expression(LabelMap[jump.Branch.TargetTag]));
+                    new IntegerExpression(LabelMap[jump.Branch.TargetTag]));
             }
             else if (Flow is SelectFlow)
             {
@@ -106,9 +106,9 @@ namespace Flame.Optimization.Relooper
                 return new IfElseStatement(
                     selectFlow.Condition,
                     LabelVariable.CreateSetStatement(
-                        new Int32Expression(LabelMap[selectFlow.ThenBranch.TargetTag])),
+                        new IntegerExpression(LabelMap[selectFlow.ThenBranch.TargetTag])),
                     LabelVariable.CreateSetStatement(
-                        new Int32Expression(LabelMap[selectFlow.ElseBranch.TargetTag])));
+                        new IntegerExpression(LabelMap[selectFlow.ElseBranch.TargetTag])));
             }
             else
             {
@@ -194,7 +194,7 @@ namespace Flame.Optimization.Relooper
                 selection = new IfElseStatement(
                     new EqualityExpression(
                         LabelVariable.CreateGetExpression(),
-                        new Int32Expression(LabelMap[item.Key])),
+                        new IntegerExpression(LabelMap[item.Key])),
                     item.Value.Lower(LabelVariable, LabelMap),
                     selection);
             }

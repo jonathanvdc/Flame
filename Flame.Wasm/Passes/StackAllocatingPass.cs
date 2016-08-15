@@ -51,7 +51,7 @@ namespace Flame.Wasm.Passes
 			{
 				var result = new AtAddressVariable(
 					new ReinterpretCastExpression(
-						Abi.GetStackSlotAddress(new Int32Expression(StackSize)), 
+						Abi.GetStackSlotAddress(new IntegerExpression(StackSize)), 
 						ty.MakePointerType(PointerKind.ReferencePointer)));
 				var layout = Abi.GetLayout(ty);
 				StackSize += layout.Size;
@@ -118,7 +118,7 @@ namespace Flame.Wasm.Passes
 
 			var visitedBody = visitor.Visit(Arg.Body);
 			if (visitor.StackSize > 0)
-				resultStmts.Add(Abi.StackAllocate(new Int32Expression(visitor.StackSize)));
+				resultStmts.Add(Abi.StackAllocate(new IntegerExpression(visitor.StackSize)));
 			resultStmts.Add(visitedBody);
 			return new BlockStatement(resultStmts).Simplify();
 		}

@@ -46,7 +46,7 @@ namespace Flame.Compiler.Expressions
 		{
 			if (Elements.Length == 0)
 			{
-				return new NewArrayExpression(ElementType, new IExpression[] { new Int32Expression(0) });
+				return new NewArrayExpression(ElementType, new IExpression[] { new IntegerExpression((int)0) });
 			}
 			else
 			{
@@ -76,7 +76,7 @@ namespace Flame.Compiler.Expressions
 		{
 			if (Elements.Length == 0)
 			{
-				return Generator.EmitNewArray(ElementType, new ICodeBlock[] { Generator.EmitInt32(0) });
+				return Generator.EmitNewArray(ElementType, new ICodeBlock[] { Generator.EmitInteger(new IntegerValue(0)) });
 			}
 			else if (Generator is IInitializingCodeGenerator)
 			{
@@ -92,7 +92,7 @@ namespace Flame.Compiler.Expressions
 			{
 				var enumExpr = new NewArrayExpression(
 					ElementType,
-					new IExpression[] { new Int32Expression(Elements.Length) });
+					new IExpression[] { new IntegerExpression(Elements.Length) });
 
 				var localVar = new RegisterVariable(enumExpr.Type);
 
@@ -102,7 +102,7 @@ namespace Flame.Compiler.Expressions
 	            {
 	                var elemVar = new ElementVariable(
 						localVar.CreateGetExpression(),
-						new IExpression[] { new Int32Expression(i) });
+						new IExpression[] { new IntegerExpression(i) });
 	                initStatements[i + 1] = elemVar.CreateSetStatement(Elements[i]);
 	            }
 

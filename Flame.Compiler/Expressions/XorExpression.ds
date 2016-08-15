@@ -23,61 +23,28 @@ namespace Flame.Compiler.Expressions
         	var rObj = RightOperand.Evaluate();
             if (rObj == null)
                 return null;
-                
+
         	var resultType = Type;
         	if (resultType.Equals(PrimitiveTypes.Boolean))
         	{
         		return new BooleanExpression(lObj.GetValue<bool>() != rObj.GetValue<bool>());
         	}
-        	else if (resultType.Equals(PrimitiveTypes.Int8))
-        	{
-        		return new Int8Expression(lObj.GetValue<int8>() ^ rObj.GetValue<int8>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int16))
-        	{
-        		return new Int16Expression(lObj.GetValue<int16>() ^ rObj.GetValue<int16>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int32))
-        	{
-        		return new Int32Expression(lObj.GetValue<int32>() ^ rObj.GetValue<int32>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Int64))
-        	{
-        		return new Int64Expression(lObj.GetValue<int64>() ^ rObj.GetValue<int64>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt8))
-        	{
-        		return new UInt8Expression(lObj.GetValue<uint8>() ^ rObj.GetValue<uint8>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt16))
-        	{
-        		return new UInt16Expression(lObj.GetValue<uint16>() ^ rObj.GetValue<uint16>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt32))
-        	{
-        		return new UInt32Expression(lObj.GetValue<uint32>() ^ rObj.GetValue<uint32>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.UInt64))
-        	{
-        		return new UInt64Expression(lObj.GetValue<uint64>() ^ rObj.GetValue<uint64>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Bit8))
-        	{
-        		return new Bit8Expression(lObj.GetValue<bit8>() ^ rObj.GetValue<bit8>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Bit16))
-        	{
-        		return new Bit16Expression(lObj.GetValue<bit16>() ^ rObj.GetValue<bit16>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Bit32))
-        	{
-        		return new Bit32Expression(lObj.GetValue<bit32>() ^ rObj.GetValue<bit32>());
-        	}
-        	else if (resultType.Equals(PrimitiveTypes.Bit64))
-        	{
-        		return new Bit64Expression(lObj.GetValue<bit64>() ^ rObj.GetValue<bit64>());
-        	}
-            return null;
+            else if (resultType.IsInteger)
+            {
+                return new IntegerExpression(
+                    lObj.GetValue<IntegerValue>().BitwiseXor(
+                        rObj.GetValue<IntegerValue>()));
+            }
+            else if (resultType.IsBit)
+            {
+                return new BitExpression(
+                    lObj.GetValue<BitValue>().BitwiseXor(
+                        rObj.GetValue<BitValue>()));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected override const ICodeBlock EmitPrimitive(ICodeBlock Left, ICodeBlock Right, ICodeGenerator Generator)

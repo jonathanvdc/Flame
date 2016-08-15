@@ -137,7 +137,7 @@ namespace Flame.Cecil
             var attrDef = new CustomAttribute(ctor);
             foreach (var item in Arguments)
             {
-                attrDef.ConstructorArguments.Add(new CustomAttributeArgument(methodImporter.TypeImporter.Convert(item.Type), item.GetPrimitiveValue<object>()));
+                attrDef.ConstructorArguments.Add(new CustomAttributeArgument(methodImporter.TypeImporter.Convert(item.Type), item.GetValue<object>()));
             }
             return new CecilAttribute(attrDef, ImportingMember);
         }

@@ -174,7 +174,7 @@ namespace Flame.Wasm.Passes
 			return new ReinterpretCastExpression(
 				new AddExpression(
 					new ReinterpretCastExpression(BasePointer, Abi.PointerIntegerType).Simplify(),
-					new StaticCastExpression(new Int32Expression(Offset), Abi.PointerIntegerType).Simplify()),
+					new StaticCastExpression(new IntegerExpression(Offset), Abi.PointerIntegerType).Simplify()),
 				Type.MakePointerType(PointerKind.ReferencePointer));
 		}
 

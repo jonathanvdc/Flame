@@ -154,6 +154,21 @@ namespace Flame.Cecil.Emit
             return new RetypedBlock((ICecilBlock)EmitUInt8(Value), PrimitiveTypes.Bit8);
         }
 
+        public ICodeBlock EmitBit(BitValue Value)
+        {
+            int size = Value.Size;
+            if (size == 8)
+                return EmitBit8(Value.ToInteger().ToUInt8());
+            else if (size == 16)
+                return EmitBit16(Value.ToInteger().ToUInt16());
+            else if (size == 32)
+                return EmitBit32(Value.ToInteger().ToUInt32());
+            else if (size == 64)
+                return EmitBit64(Value.ToInteger().ToUInt64());
+            else
+                throw new NotSupportedException("Unsupported bit size: " + size);
+        }
+
         public ICodeBlock EmitBoolean(bool Value)
         {
             return new OpCodeBlock(this, Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0, new SinglePushBehavior(PrimitiveTypes.Boolean));
@@ -284,6 +299,29 @@ namespace Flame.Cecil.Emit
         public ICodeBlock EmitUInt8(byte Value)
         {
             return EmitLoadInt32Command((int)(sbyte)Value, PrimitiveTypes.UInt8);
+        }
+
+        public ICodeBlock EmitInteger(IntegerValue Value)
+        {
+            var spec = Value.Spec;
+            if (spec.Equals(IntegerSpec.Int8))
+                return EmitInt8(Value.ToInt8());
+            else if (spec.Equals(IntegerSpec.Int16))
+                return EmitInt16(Value.ToInt16());
+            else if (spec.Equals(IntegerSpec.Int32))
+                return EmitInt32(Value.ToInt32());
+            else if (spec.Equals(IntegerSpec.Int64))
+                return EmitInt64(Value.ToInt64());
+            else if (spec.Equals(IntegerSpec.UInt8))
+                return EmitUInt8(Value.ToUInt8());
+            else if (spec.Equals(IntegerSpec.UInt16))
+                return EmitUInt16(Value.ToUInt16());
+            else if (spec.Equals(IntegerSpec.UInt32))
+                return EmitUInt32(Value.ToUInt32());
+            else if (spec.Equals(IntegerSpec.UInt64))
+                return EmitUInt64(Value.ToUInt64());
+            else
+                throw new NotSupportedException("Unsupported integer spec: " + spec.ToString());
         }
 
         #endregion

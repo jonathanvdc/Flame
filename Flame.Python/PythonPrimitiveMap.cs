@@ -24,10 +24,10 @@ namespace Flame.Python
             MapPrimitiveMethod(concatMethod, (cg, caller) => new PartialBinaryOperation(cg, PrimitiveTypes.String, Operator.Add));
             var nullOrEmptyMethod = PrimitiveTypes.String.GetMethod(new SimpleName("IsNullOrEmpty"), true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(nullOrEmptyMethod, (cg, caller) =>
-                new PartialRedirectedBinaryOperation(cg, 
+                new PartialRedirectedBinaryOperation(cg,
                     new PartialRedirectedBinaryOperation(cg, new PartialArgumentBlock(cg, PrimitiveTypes.String, 0), Operator.CheckEquality, (IPythonBlock)cg.EmitNull()),
-                    Operator.LogicalOr, 
-                    new PartialRedirectedBinaryOperation(cg, new PartialInvocationBlock(cg, new PythonIdentifierBlock(cg, "len", PythonObjectType.Instance), PrimitiveTypes.Int32), Operator.CheckGreaterThan, (IPythonBlock)cg.EmitInt32(0))
+                    Operator.LogicalOr,
+                    new PartialRedirectedBinaryOperation(cg, new PartialInvocationBlock(cg, new PythonIdentifierBlock(cg, "len", PythonObjectType.Instance), PrimitiveTypes.Int32), Operator.CheckGreaterThan, (IPythonBlock)cg.EmitInteger(new IntegerValue(0)))
                 ));
             var nullOrWhitespaceMethod = PrimitiveTypes.String.GetMethod(new SimpleName("IsNullOrWhiteSpace"), true, PrimitiveTypes.Boolean, new IType[] { PrimitiveTypes.String });
             MapPrimitiveMethod(nullOrWhitespaceMethod, (cg, caller) =>

@@ -89,7 +89,7 @@ namespace Flame.Compiler.Expressions
 	            {
 	                var elemVar = new ElementVariable(
 						localVar.CreateGetExpression(),
-						new IExpression[] { new Int32Expression(i) });
+						new IExpression[] { new IntegerExpression(i) });
 	                initStatements[i + 1] = elemVar.CreateSetStatement(Elements[i]);
 	            }
 
