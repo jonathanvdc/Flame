@@ -1,0 +1,5 @@
+
+run
+{
+    $net-runtime ../bin/Release/UnitTests.exe 3;
+}

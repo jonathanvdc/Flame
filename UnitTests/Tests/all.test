@@ -5,6 +5,7 @@ tests
 {
     flame.test;
     flame-build-lazy.test;
+    flame-compiler.test;
     flame-dsharp.test;
     flame-optimization.test;
 }

@@ -16,6 +16,7 @@ namespace UnitTests
         {
             new Pair<string,Func<int>>("Run unit tests of Flame.dll",  Flame),
             new Pair<string,Func<int>>("Run unit tests of Flame.Build.Lazy.dll",  Flame_Build_Lazy),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll",  Flame_Compiler),
             new Pair<string,Func<int>>("Run unit tests of Flame.DSharp.dll",  Flame_DSharp),
             new Pair<string,Func<int>>("Run unit tests of Flame.Optimization.dll",  Flame_Optimization)
         };
@@ -80,6 +81,12 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new Build.Lazy.DeferredInitializerTests());
+        }
+
+        public static int Flame_Compiler()
+        {
+            return RunTests.RunMany(
+                new Compiler.LocationFinderTests());
         }
 
         public static int Flame_DSharp()
