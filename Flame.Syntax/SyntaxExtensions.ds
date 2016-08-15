@@ -12,7 +12,7 @@ namespace Flame.Syntax
 		/// Tries to get the node's source location by checking its ancestry for an ISourceSyntax implementation.
 		/// If the given node does not implement ISourceSyntax, null is returned.
 		/// </summary>
-		public static const SourceLocation GetSourceLocation(this ISyntaxNode Node)
+		public static SourceLocation GetSourceLocation(this ISyntaxNode Node)
 		{
 			if (Node is ISourceSyntax)
 			{

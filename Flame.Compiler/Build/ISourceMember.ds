@@ -55,7 +55,7 @@ namespace Flame.Compiler
 		/// <summary>
 		/// Tries to get the given member's source location.
 		/// </summary>
-		public static const SourceLocation GetSourceLocation(this IMember Member)
+		public static SourceLocation GetSourceLocation(this IMember Member)
 		{
 			if (Member == null)
 			{
