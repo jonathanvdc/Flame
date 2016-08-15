@@ -2,7 +2,7 @@ using System;
 
 public virtual class ToStringOverrider
 {
-    public override string ToString()
+    public override virtual string ToString()
     {
         return "Oh, hi!";
     }
@@ -20,6 +20,6 @@ public static class Program
 {
     public void Main(string[] Args)
     {
-        Console.WriteLine(new ToStringOverrider2().ToString());
+        Console.WriteLine(new ToStringOverrider2());
     }
 }
