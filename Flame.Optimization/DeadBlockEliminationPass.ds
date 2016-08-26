@@ -30,12 +30,14 @@ namespace Flame.Optimization
 
         protected override const bool MatchesCore(IExpression Value)
         {
-            return FoundLocation || (CurrentLocation != null && !Value.IsConstant);
+            return FoundLocation
+                || (CurrentLocation != null && !Value.IsConstantNode);
         }
 
         protected override const bool MatchesCore(IStatement Value)
         {
-            return FoundLocation || (CurrentLocation != null && !Value.IsEmpty);
+            return FoundLocation
+                || (CurrentLocation != null && !NodeExtensions.CanDelay(Value));
         }
 
         protected override IExpression TransformCore(IExpression Value)
@@ -106,9 +108,11 @@ namespace Flame.Optimization
                 {
                     var node = new MarkupNode("entry", new MarkupNode[]
                     {
-                        Warnings.DeadCodeWarning.CreateMessage("unreachable code detected and removed. "),
+                        Warnings.DeadCodeWarning.CreateMessage(
+                            "unreachable code detected and removed. "),
                         visitor.FirstLocation.CreateDiagnosticsNode(),
-                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode("in method: ")
+                        DeclaringMethod.GetSourceLocation().CreateRemarkDiagnosticsNode(
+                            "in method: ")
                     });
 
                     Log.LogWarning(new LogEntry("removed dead code", node));
