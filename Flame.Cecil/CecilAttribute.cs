@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConstructorInfo = System.Reflection.ConstructorInfo;
 
 namespace Flame.Cecil
 {
@@ -78,6 +79,9 @@ namespace Flame.Cecil
                     case "System.Runtime.CompilerServices.ExtensionAttribute":
                         attribute = PrimitiveAttributes.Instance.ExtensionAttribute;
                         break;
+                    case "System.ParamArrayAttribute":
+                        attribute = PrimitiveAttributes.Instance.VarArgsAttribute;
+                        break;
                     case "System.Diagnostics.Contracts.PureAttribute":
                         var args = item.ConstructorArguments;
                         if (args.Count > 0 && !(bool)item.ConstructorArguments[0].Value)
@@ -142,31 +146,44 @@ namespace Flame.Cecil
             return new CecilAttribute(attrDef, ImportingMember);
         }
 
+        private static readonly Dictionary<IType, Lazy<ConstructorInfo>> intrinsicAttrCtors = new Dictionary<IType, Lazy<ConstructorInfo>>()
+        {
+            { 
+                PrimitiveAttributes.Instance.ConstantAttribute.AttributeType, 
+                new Lazy<ConstructorInfo>(() => typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0])) 
+            },
+            { 
+                PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType, 
+                new Lazy<ConstructorInfo>(() => typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0])) 
+            },
+            { 
+                PrimitiveAttributes.Instance.VarArgsAttribute.AttributeType, 
+                new Lazy<ConstructorInfo>(() => typeof(System.ParamArrayAttribute).GetConstructor(new Type[0])) 
+            },
+            { 
+                PrimitiveAttributes.Instance.RecompileAttribute.AttributeType, 
+                new Lazy<ConstructorInfo>(() => typeof(Flame.RT.IncludeAttribute).GetConstructor(new Type[0])) 
+            }
+        };
+
         public static CecilAttribute ImportCecil(IAttribute Template, ICecilMember ImportingMember)
         {
-            CustomAttribute attrDef;
+            Lazy<ConstructorInfo> ctorInfo;
             if (Template is IConstructedAttribute)
             {
                 var constructedAttr = (IConstructedAttribute)Template;
                 return CreateCecil(constructedAttr.Constructor, constructedAttr.GetArguments(), ImportingMember);
             }
-            else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ConstantAttribute.AttributeType))
+            else if (intrinsicAttrCtors.TryGetValue(Template.AttributeType, out ctorInfo))
             {
-                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Diagnostics.Contracts.PureAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
-            }
-            else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.ExtensionAttribute.AttributeType))
-            {
-                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(System.Runtime.CompilerServices.ExtensionAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
-            }
-            else if (Template.AttributeType.Equals(PrimitiveAttributes.Instance.RecompileAttribute.AttributeType))
-            {
-                attrDef = new CustomAttribute(((ICecilMethod)CecilMethodBase.ImportCecil(typeof(Flame.RT.IncludeAttribute).GetConstructor(new Type[0]), ImportingMember)).GetMethodReference());
+                return new CecilAttribute(new CustomAttribute(
+                    ((ICecilMethod)CecilMethodBase.ImportCecil(ctorInfo.Value, ImportingMember)).GetMethodReference()), 
+                    ImportingMember);
             }
             else
             {
                 return null;
             }
-            return new CecilAttribute(attrDef, ImportingMember);
         }
 
         public static CecilAttribute DeclareAttributeOrDefault(Mono.Cecil.ICustomAttributeProvider AttributeProvider, ICecilMember Member, IAttribute Template)
