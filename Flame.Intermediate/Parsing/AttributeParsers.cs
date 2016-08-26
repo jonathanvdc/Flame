@@ -32,6 +32,7 @@ namespace Flame.Intermediate.Parsing
         public const string ImportNodeName = "#import";
         public const string InitOnlyNodeName = "#init_only";
         public const string TotalInitializationNodeName = "#total_init";
+        public const string VarArgsNodeName = "#varargs";
 
         public const string AbstractNodeName = "#abstract";
         public const string VirtualNodeName = "#virtual";
@@ -168,6 +169,7 @@ namespace Flame.Intermediate.Parsing
                     { ImportNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.ImportAttribute) },
                     { InitOnlyNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.InitOnlyAttribute) },
                     { TotalInitializationNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.TotalInitializationAttribute) },
+                    { VarArgsNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.VarArgsAttribute) },
 
                     // Inheritance attributes
                     { AbstractNodeName, CreateConstantAttributeParser(PrimitiveAttributes.Instance.AbstractAttribute) },

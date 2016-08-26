@@ -29,6 +29,7 @@ namespace Flame
 			PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
 			PrimitiveAttributes.InitOnlyAttribute = new FlagAttribute("InitOnlyAttribute");
 			PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
+			PrimitiveAttributes.VarArgsAttribute = new FlagAttribute("VarArgsAttribute");
 		}
 
 		public static IAttribute InterfaceAttribute { const get; private set; }
@@ -64,6 +65,12 @@ namespace Flame
 		/// constructor is run.
 		/// </summary>
 		public static IAttribute TotalInitializationAttribute { get; private set; }
+
+		/// <summary>
+		/// Informs callers that the parameter that this attribute is applied to,
+		/// can be constructed from zero or more arguments.
+		/// </summary>
+		public static IAttribute VarArgsAttribute { get; private set; }
 
 		#endregion
 	}
