@@ -846,7 +846,7 @@ namespace Flame.Optimization
     /// <summary>
     /// A base class for passes that replace scalars by aggregates.
     /// </summary>
-    public abstract class ScalarReplacementPassBase : LoopPassBase, IPass<BodyPassArgument, IStatement>
+    public abstract class ScalarReplacementPassBase : LoopPassBase
     {
         /// <summary>
         /// The scalar replacement of aggregates pass name.
@@ -883,20 +883,6 @@ namespace Flame.Optimization
         /// into account, as the scalar replacement visitor takes care of this.
         /// </summary>
         public abstract bool(DissectedCall) GetInliningCriteria(BodyPassArgument Argument);
-
-        /// <summary>
-        /// Creates a statement optimizer. Note that this should perform
-        /// simple intraprocedural optimizations, rather than more advanced
-        /// optimizations, such as inlining.
-        /// </summary>
-        public abstract IStatement(IStatement) GetBodyOptimizer(BodyPassArgument Argument);
-
-        /// <summary>
-        /// Gets the number of times this pass is allowed to
-        /// replace aggregates by scalars recursively. This corresponds
-        /// to the maximal number of replace-optimize iterations this pass makes.
-        /// </summary>
-        public abstract int GetMaxRecursion(BodyPassArgument Argument);
 
         /// <summary>
         /// Logs a message that proclaims that an inlining operation
@@ -993,74 +979,6 @@ namespace Flame.Optimization
                     Argument, visitor, Iteration, shouldRemarkDetails);
             }
             return new LoopPassResult(result, replCount > 0);
-        }
-
-        /// <summary>
-        /// Applies this pass to the given body pass argument.
-        /// </summary>
-        public IStatement Apply(BodyPassArgument Argument)
-            in { VerifyCFGPass.Apply(Argument.Body) }
-            in
-            {
-                VerifySSAPass.Apply(
-                    Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
-                    ScalarReplacementPassName + " (input)")
-            }
-            out (result) { VerifyCFGPass.Apply(result) }
-            out (result)
-            {
-                VerifySSAPass.Apply(
-                    result, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
-                    ScalarReplacementPassName + " (output)")
-            }
-        {
-            int maxRec = GetMaxRecursion(Argument);
-            var shouldReplace = GetReplacementCriteria(Argument);
-            var shouldInline = GetInliningCriteria(Argument);
-            var optimizeBody = GetBodyOptimizer(Argument);
-            var result = Argument.Body;
-            var log = Argument.PassEnvironment.Log;
-            bool shouldRemarkDetails = log.Options.GetOption<bool>(
-                ScalarReplacementDetailsRemarksOption, false);
-            bool shouldRemark = log.Options.GetOption<bool>(
-                ScalarReplacementRemarksOption, shouldRemarkDetails);
-
-            for (int i = 0; i < maxRec; i++)
-            {
-                var visitor = new ScalarReplacementVisitor(
-                    Argument, shouldReplace, shouldInline, shouldRemarkDetails);
-                result = visitor.Visit(result);
-
-                int replCount = visitor.Replacements.Count;
-                if (replCount > 0)
-                {
-                    if (shouldRemark)
-                    {
-                        // Let's print some diagnostics, because we're so proud of
-                        // our work.
-                        LogScalarReplacements(
-                            Argument, visitor, i, shouldRemarkDetails);
-                    }
-
-                    // Perform variable/control flow optimizations
-                    // to expose more inlining opportunities, and to
-                    // reconstruct the CFG form of choice (which inlining
-                    // operations may have broken)
-                    result = optimizeBody(result);
-                }
-                else
-                {
-                    // Visitor hasn't inlined anything, which implies the following:
-                    //   1. The method body has not changed.
-                    //   2. There are no viable candidates for
-                    //      scalar replacement in the method body.
-                    //
-                    // In other words, we're done here, and the statement
-                    // need not be optimized again, either.
-                    break;
-                }
-            }
-            return result;
         }
     }
 }

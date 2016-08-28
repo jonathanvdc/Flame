@@ -16,33 +16,6 @@ using Flame.Compiler.Statements;
 namespace Flame.Front.Target
 {
     /// <summary>
-    /// A pass that performs quick-and-dirty inlining, without any recursion.
-    /// </summary>
-    public sealed class FastInliningPass : InliningPassBase
-    {
-        private FastInliningPass() { }
-
-        public static readonly FastInliningPass Instance = new FastInliningPass();
-
-        public override Func<IStatement, IStatement> GetBodyOptimizer(BodyPassArgument Argument)
-        {
-            // Don't optimize statements. Just reconstruct the CFG.
-            return ConstructFlowGraphPass.Instance.Apply;
-        }
-
-        public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
-        {
-            // Use the same inlining criteria as the normal inlining pass.
-            return InliningPass.Instance.GetInliningCriteria(Argument);
-        }
-
-        public override int GetMaxRecursion(BodyPassArgument Argument)
-        {
-            return 1;
-        }
-    }
-
-    /// <summary>
     /// A node visitor that computes the relative cost of
     /// inlining a method, provided that its caller is
     /// a viable candidate for scalar replacement.
@@ -154,8 +127,6 @@ namespace Flame.Front.Target
         // boils down to 64 bytes.
         public const int DefaultScalarReplacementTolerance = 16 * InliningPass.WordSize;
 
-        public static readonly WarningDescription UnknownInlinerArgumentWarning = new WarningDescription("unknown-inliner", Warnings.Instance.Build);
-
         private IStatement GetMethodBody(BodyPassArgument Value, IMethod Method)
         {
             var result = Value.PassEnvironment.GetMethodBody(Method);
@@ -207,58 +178,6 @@ namespace Flame.Front.Target
                     return visitor.Size - inlineTolerance;
                 },
                 false);
-        }
-
-        public override int GetMaxRecursion(BodyPassArgument Argument)
-        {
-            var log = Argument.PassEnvironment.Log;
-            return log.Options.GetOption<int>("max-scalarrepl-recursion", 3);
-        }
-
-        private void AddInliningPass(PassManager Manager, BodyPassArgument Argument)
-        {
-            var log = Argument.PassEnvironment.Log;
-            const string optionName = "scalarrepl-inline";
-            string option = log.Options.GetOption<string>(optionName, "full");
-
-            if (option.Equals("fast", StringComparison.InvariantCultureIgnoreCase))
-            {
-                // Perform fast inlining
-                Manager.RegisterMethodPass(new AtomicPassInfo<BodyPassArgument, IStatement>(FastInliningPass.Instance, FastInliningPass.InliningPassName));
-                Manager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => true);
-            }
-            else if (option.Equals("full", StringComparison.InvariantCultureIgnoreCase))
-            {
-                // Perform full inlining
-                Manager.RegisterMethodPass(new AtomicPassInfo<BodyPassArgument, IStatement>(InliningPass.Instance, InliningPass.InliningPassName));
-                Manager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => true);
-            }
-            else if (!option.Equals("none", StringComparison.InvariantCultureIgnoreCase)
-                  && !string.IsNullOrWhiteSpace(option)
-                  && UnknownInlinerArgumentWarning.UseWarning(log.Options))
-            {
-                var nodes = new List<MarkupNode>();
-                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "'"));
-                nodes.Add(new MarkupNode(NodeConstants.BrightNodeType, "-" + optionName + "=" + option));
-                nodes.Add(new MarkupNode(NodeConstants.TextNodeType, "' was not recognized as a known inliner. Use 'full', 'fast' or 'none'. "));
-                nodes.Add(UnknownInlinerArgumentWarning.CauseNode);
-
-                log.LogWarning(new LogEntry(
-                    "unknown option", nodes));
-            }
-        }
-
-        public override Func<IStatement, IStatement> GetBodyOptimizer(BodyPassArgument Argument)
-        {
-            var emptyLog = new EmptyCompilerLog(Argument.PassEnvironment.Log.Options);
-            var passManager = new PassManager(PassExtensions.SSAPassManager);
-            AddInliningPass(passManager, Argument);
-
-            var optSuite = passManager.CreateSuite(emptyLog);
-            var newArgs = new BodyPassArgument(
-                new DerivedBodyPassEnvironment(Argument.PassEnvironment, emptyLog), Argument.Metadata,
-                Argument.DeclaringMethod, null);
-            return body => optSuite.MethodPass.Apply(new BodyPassArgument(newArgs, body));
         }
     }
 }

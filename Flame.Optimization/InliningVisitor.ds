@@ -47,7 +47,7 @@ namespace Flame.Optimization
     /// A pass that performs a number of iterations, which consist of
     /// inlining followed by whole-body optimization.
     /// </summary>
-    public abstract class InliningPassBase : LoopPassBase, IPass<BodyPassArgument, IStatement>
+    public abstract class InliningPassBase : LoopPassBase
     {
         /// <summary>
         /// Gets the default inlining pass name.
@@ -68,20 +68,6 @@ namespace Flame.Optimization
         /// direct call should be inlined.
         /// </summary>
         public abstract bool(DissectedCall) GetInliningCriteria(BodyPassArgument Argument);
-
-        /// <summary>
-        /// Creates a statement optimizer. Note that this should perform
-        /// simple intraprocedural optimizations, rather than more advanced
-        /// optimizations, such as inlining.
-        /// </summary>
-        public abstract IStatement(IStatement) GetBodyOptimizer(BodyPassArgument Argument);
-
-        /// <summary>
-        /// Gets the number of times this pass is allowed to
-        /// inline functions recursively. This corresponds
-        /// to the maximal number of inline-optimize iterations this pass makes.
-        /// </summary>
-        public abstract int GetMaxRecursion(BodyPassArgument Argument);
 
         /// <summary>
         /// Names the given method, for logging purposes.
@@ -163,58 +149,6 @@ namespace Flame.Optimization
                 }
             }
             return new LoopPassResult(result, visitor.HasInlined);
-        }
-
-        /// <summary>
-        /// Applies this pass to the given body pass argument.
-        /// </summary>
-        public IStatement Apply(BodyPassArgument Argument)
-            in { VerifyCFGPass.Apply(Argument.Body) }
-            in { VerifySSAPass.Apply(Argument.Body) }
-            out (result) { VerifyCFGPass.Apply(result) }
-            out (result) { VerifySSAPass.Apply(result) }
-        {
-            int maxRec = GetMaxRecursion(Argument);
-            var shouldInline = GetInliningCriteria(Argument);
-            var optimizeBody = GetBodyOptimizer(Argument);
-            var result = Argument.Body;
-            var log = Argument.PassEnvironment.Log;
-            bool shouldRemark = log.Options.ShouldRemark(InliningPassName);
-            for (int i = 0; i < maxRec; i++)
-            {
-                var visitor = new InliningVisitor(Argument, shouldInline);
-                result = visitor.Visit(result);
-                if (visitor.HasInlined)
-                {
-                    if (shouldRemark)
-                    {
-                        // Let's print some diagnostics, because we're so proud of
-                        // our work.
-                        foreach (var item in visitor.InlinedCallLocations)
-                        {
-                            LogInlinedCall(Argument, item.Value, item.Key, i);
-                        }
-                    }
-
-                    // Perform variable/control flow optimizations
-                    // to expose more inlining opportunities, and to
-                    // reconstruct the CFG form of choice (which the inlining
-                    // visitor may have violated)
-                    result = optimizeBody(result);
-                }
-                else
-                {
-                    // Visitor hasn't inlined anything, which implies the following:
-                    //   1. The method body has not changed.
-                    //   2. There are no viable candidates for
-                    //      inlining in the method body.
-                    //
-                    // In other words, we're done here, and the statement
-                    // need not be optimized again, either.
-                    break;
-                }
-            }
-            return result;
         }
     }
 

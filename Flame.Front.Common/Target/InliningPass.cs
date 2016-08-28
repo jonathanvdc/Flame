@@ -211,22 +211,5 @@ namespace Flame.Front.Target
             int inlineTolerance = log.Options.GetOption<int>(InlineToleranceOption, DefaultInlineTolerance);
 			return call => ShouldInline(Argument, call, inlineTolerance, true);
 		}
-
-		public override int GetMaxRecursion(BodyPassArgument Argument)
-		{
-			var log = Argument.PassEnvironment.Log;
-			return log.Options.GetOption<int>("max-inline-recursion", 3);
-		}
-
-		public override Func<IStatement, IStatement> GetBodyOptimizer(BodyPassArgument Argument)
-		{
-			var emptyLog = new EmptyCompilerLog(Argument.PassEnvironment.Log.Options);
-			var passManager = new PassManager(PassExtensions.SSAPassManager);
-			var optSuite = passManager.CreateSuite(emptyLog);
-			var newArgs = new BodyPassArgument(
-				new DerivedBodyPassEnvironment(Argument.PassEnvironment, emptyLog), Argument.Metadata,
-				Argument.DeclaringMethod, null);
-			return body => optSuite.MethodPass.Apply(new BodyPassArgument(newArgs, body));
-		}
     }
 }
