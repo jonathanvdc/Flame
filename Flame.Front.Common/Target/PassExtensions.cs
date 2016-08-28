@@ -68,39 +68,47 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(ImperativeCodePass.ImperativeCodePassName, optInfo => optInfo.OptimizeAggressive);
 
             var ssaPassManager = new PassManager();
+            var inliningLoopSsa = new PassManager();
 
             // Note: these CFG/SSA passes are -O3 for now
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName));
+
+            RegisterMethodPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ConstructFlowGraphPass.ConstructFlowGraphPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName));
+            RegisterMethodPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName));
+            RegisterMethodPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName, optInfo => optInfo.OptimizeAggressive);
+            // The inlining loop gets a different dead block elimination pass than the SSA pass manager.
+            // After the inlining loop has begun, dead code diagnostics just aren't representative
+            // anymore, so we should use a silent dead block elimination pass there.
             ssaPassManager.RegisterMethodPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName));
+            inliningLoopSsa.RegisterMethodPass(new StatementPassInfo(SilentDeadBlockEliminationPass.Instance, SilentDeadBlockEliminationPassName));
             ssaPassManager.RegisterPassCondition(DeadBlockEliminationPass.DeadBlockEliminationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName));
+            ssaPassManager.RegisterPassCondition(SilentDeadBlockEliminationPassName, optInfo => optInfo.OptimizeAggressive);
+
+            RegisterMethodPass(new MethodPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ConstructSSAPass.ConstructSSAPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(RemoveTrivialPhiPass.Instance, RemoveTrivialPhiPass.RemoveTrivialPhiPassName));
+            RegisterMethodPass(new StatementPassInfo(RemoveTrivialPhiPass.Instance, RemoveTrivialPhiPass.RemoveTrivialPhiPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(RemoveTrivialPhiPass.RemoveTrivialPhiPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(ConstantPropagationPass.Instance, ConstantPropagationPass.ConstantPropagationPassName));
+            RegisterMethodPass(new StatementPassInfo(ConstantPropagationPass.Instance, ConstantPropagationPass.ConstantPropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ConstantPropagationPass.ConstantPropagationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName));
+            RegisterMethodPass(new MethodPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(GlobalValuePropagationPass.Instance, GlobalValuePropagationPass.GlobalValuePropagationPassName));
+            RegisterMethodPass(new MethodPassInfo(GlobalValuePropagationPass.Instance, GlobalValuePropagationPass.GlobalValuePropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName));
+            RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(TailSplittingPass.Instance, TailSplittingPass.TailSplittingPassName));
+            RegisterMethodPass(new MethodPassInfo(TailSplittingPass.Instance, TailSplittingPass.TailSplittingPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(TailSplittingPass.TailSplittingPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(ValuePropagationPass.Instance, ValuePropagationPass.ValuePropagationPassName));
+            RegisterMethodPass(new StatementPassInfo(ValuePropagationPass.Instance, ValuePropagationPass.ValuePropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ValuePropagationPass.ValuePropagationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(MemoryToRegisterPass.Instance, MemoryToRegisterPass.MemoryToRegisterPassName));
+            RegisterMethodPass(new MethodPassInfo(MemoryToRegisterPass.Instance, MemoryToRegisterPass.MemoryToRegisterPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(MemoryToRegisterPass.MemoryToRegisterPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(TypePropagationPass.Instance, TypePropagationPass.TypePropagationPassName));
+            RegisterMethodPass(new MethodPassInfo(TypePropagationPass.Instance, TypePropagationPass.TypePropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(TypePropagationPass.TypePropagationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new MethodPassInfo(DevirtualizationPass.Instance, DevirtualizationPass.DevirtualizationPassName));
+            RegisterMethodPass(new MethodPassInfo(DevirtualizationPass.Instance, DevirtualizationPass.DevirtualizationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(DevirtualizationPass.DevirtualizationPassName, optInfo => optInfo.OptimizeAggressive);
-            ssaPassManager.RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName));
+            RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName, optInfo => optInfo.OptimizeAggressive);
 
             GlobalPassManager.Append(ssaPassManager.ToPreferences());
@@ -127,7 +135,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(ScalarReplacementPass.ScalarReplacementPassName, optInfo => optInfo.OptimizeAggressive);
 
             // Insert the inlining loop here.
-            GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, ssaPassManager.MethodPasses, 3));
+            GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, inliningLoopSsa.MethodPasses, 3));
             GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => true);
 
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
@@ -171,6 +179,23 @@ namespace Flame.Front.Target
         public const string SimplifyFlowPassName = "simplify-flow";
         public const string PropagateLocalsName = "propagate-locals";
         public const string InliningLoopName = "inline-loop";
+        public const string SilentDeadBlockEliminationPassName = "silent-" + DeadBlockEliminationPass.DeadBlockEliminationPassName;
+
+        private static void RegisterMethodPass(
+            PassInfo<BodyPassArgument, IStatement> Pass,
+            params PassManager[] PassManagers)
+        {
+            foreach (var item in PassManagers)
+                item.RegisterMethodPass(Pass);
+        }
+
+        private static void RegisterMethodPass(
+            PassInfo<IStatement, IStatement> Pass,
+            params PassManager[] PassManagers)
+        {
+            foreach (var item in PassManagers)
+                item.RegisterMethodPass(Pass);
+        }
 
 		private static PassManager WithPreferences(PassPreferences Preferences)
 		{

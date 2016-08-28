@@ -37,7 +37,8 @@ namespace Flame.Optimization
         protected override const bool MatchesCore(IStatement Value)
         {
             return FoundLocation
-                || (CurrentLocation != null && !NodeExtensions.CanDelay(Value));
+                || (CurrentLocation != null && !Value.IsConstantNode
+                    && !NodeExtensions.CanDelay(Value));
         }
 
         protected override IExpression TransformCore(IExpression Value)
