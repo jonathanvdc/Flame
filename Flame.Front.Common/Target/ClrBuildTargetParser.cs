@@ -84,12 +84,12 @@ namespace Flame.Front.Target
                 // Use -fdeconstruct-cfg-eh to deconstruct exception control-flow graphs,
                 // if -O3 or more has been specified (we won't construct
                 // a flow graph otherwise, anyway)
-                new PassCondition(DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName, optInfo => optInfo.OptimizeAggressive),
+                new PassCondition(DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName, optInfo => optInfo.OptimizeNormal),
 
                 // Use -fdeconstruct-cfg to deconstruct control-flow graphs,
                 // if -O3 or more has been specified (we won't construct
                 // a flow graph otherwise, anyway)
-                new PassCondition(DeconstructFlowGraphPass.DeconstructFlowGraphPassName, optInfo => optInfo.OptimizeAggressive)
+                new PassCondition(DeconstructFlowGraphPass.DeconstructFlowGraphPassName, optInfo => optInfo.OptimizeNormal)
             },
             new PassInfo<BodyPassArgument, IStatement>[]
             {

@@ -132,12 +132,12 @@ namespace dsc.Projects
                     new PassCondition(
                         ValueTypeDelegateVisitor.ValueTypeDelegatePassName,
                         optInfo => ValueTypeDelegateVisitor.ValueTypeDelegateWarning.UseWarning(optInfo.Log.Options)),
-                    // Use -fdead-code-elimination for -O0 -g, -O1, -Og and -O2 -g.
+                    // Use -fdead-code-elimination for -O0 -g, -O1 and -Og.
                     // Don't use it when a CFG is constructed, because that may
                     // hurt correctness.
                     new PassCondition(
                         PassExtensions.EliminateDeadCodePassName,
-                        optInfo => !optInfo.OptimizeAggressive && (optInfo.OptimizeMinimal || optInfo.OptimizeDebug)),
+                        optInfo => !optInfo.OptimizeNormal && (optInfo.OptimizeMinimal || optInfo.OptimizeDebug)),
                     // Disable the initialization pass for now. 
                     // -finitialization performs a flow-sensitive analysis, but
                     // the analysis doesn't handle field-wise initialization well, and 

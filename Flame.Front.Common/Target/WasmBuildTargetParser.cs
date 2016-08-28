@@ -102,33 +102,33 @@ namespace Flame.Front.Target
 			// run -fconstruct-cfg, because the lowering constructions may have
 			// inserted additional code that does not respect the control-flow graph.
 			extraPasses.RegisterLoweringPass(new StatementPassInfo(ConstructFlowGraphPass.Instance, ConstructFlowGraphPass.ConstructFlowGraphPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(ConstructFlowGraphPass.ConstructFlowGraphPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(ConstructFlowGraphPass.ConstructFlowGraphPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// run these passes to get a decent CFG
 			extraPasses.RegisterLoweringPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 			extraPasses.RegisterLoweringPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 			extraPasses.RegisterLoweringPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(DeadBlockEliminationPass.DeadBlockEliminationPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(DeadBlockEliminationPass.DeadBlockEliminationPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// run -fconstruct-ssa, because the lowering constructions use
 			// register variables instead of SSA variables.
 			extraPasses.RegisterLoweringPass(new MethodPassInfo(ConstructSSAPass.Instance, ConstructSSAPass.ConstructSSAPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(ConstructSSAPass.ConstructSSAPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(ConstructSSAPass.ConstructSSAPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// -fcopyprop should get rid of aliased variables
 			extraPasses.RegisterLoweringPass(new MethodPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// -fglobal-valueprop may be useful here, too.
 			extraPasses.RegisterLoweringPass(new MethodPassInfo(GlobalValuePropagationPass.Instance, GlobalValuePropagationPass.GlobalValuePropagationPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// -fdead-store-elimination should kill the -fprologue construction
 			// if it was redundant.
 			extraPasses.RegisterLoweringPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName + "-lowered"));
-			extraPasses.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName + "-lowered", optInfo => optInfo.OptimizeAggressive);
+            extraPasses.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
 
 			// -foptimize-nodes-lowered
 			extraPasses.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
@@ -138,7 +138,7 @@ namespace Flame.Front.Target
 			// Use -frelooper to deconstruct control-flow graphs,
 			// if -O3 or more has been specified (we won't construct
 			// a flow graph otherwise, anyway)
-			extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeAggressive));
+            extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeNormal));
 
 			return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
 		}
