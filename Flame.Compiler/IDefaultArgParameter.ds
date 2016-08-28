@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Flame.Compiler
+{
+	/// <summary>
+	/// An interface for parameters that may have a default value.
+	/// </summary>
+	public interface IDefaultArgParameter : IParameter
+	{
+		/// <summary>
+        /// Gets an expression that represents the parameter's default argument.
+        /// </summary>
+        /// <returns>
+		/// An expression that describes the parameter's default argument,
+		/// null if the parameter does not have a default argument.
+		/// </returns>
+        IExpression DefaultArgument { get; }
+	}
+}

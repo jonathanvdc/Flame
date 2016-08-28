@@ -10,6 +10,17 @@ namespace Flame.Compiler
 {
 	public static class ParameterExtensions
 	{
+		/// <summary>
+		/// Gets the given parameter's default argument expression, if any.
+		/// </summary>
+		public static IExpression GetDefaultArgument(this IParameter Parameter)
+		{
+			if (Parameter is IDefaultArgParameter)
+				return ((IDefaultArgParameter)Parameter).DefaultArgument;
+			else
+				return null;
+		}
+
 		#region Member-Setting Parameters
 
 		/// <summary>

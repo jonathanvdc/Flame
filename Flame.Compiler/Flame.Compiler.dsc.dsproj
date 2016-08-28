@@ -33,6 +33,7 @@
 		<Compile Include="IBodyMethod.ds" />
 		<Compile Include="PrimitiveExpressionExtensions.ds" />
 		<Compile Include="ICompilerOptions.ds" />
+		<Compile Include="IDefaultArgParameter.ds" />
 		<Compile Include="EmptyCompilerOptions.ds" />
 		<Compile Include="EmptyCompilerLog.ds" />
 		<Compile Include="Flags.ds" />
