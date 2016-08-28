@@ -148,7 +148,7 @@ namespace Flame
 
         public static Operator Add
         {
-            const get
+            get
             {
                 return Register("+");
             }
@@ -156,7 +156,7 @@ namespace Flame
 
         public static Operator Subtract
         {
-            const get
+            get
             {
                 return Register("-");
             }
@@ -164,7 +164,7 @@ namespace Flame
 
         public static Operator Multiply
         {
-            const get
+            get
             {
                 return Register("*");
             }
@@ -172,7 +172,7 @@ namespace Flame
 
         public static Operator Divide
         {
-            const get
+            get
             {
                 return Register("/");
             }
@@ -180,7 +180,7 @@ namespace Flame
 
         public static Operator Remainder
         {
-            const get
+            get
             {
                 return Register("%");
             }
@@ -188,7 +188,7 @@ namespace Flame
 
         public static Operator CheckEquality
         {
-            const get
+            get
             {
                 return Register("==");
             }
@@ -196,7 +196,7 @@ namespace Flame
 
         public static Operator CheckInequality
         {
-            const get
+            get
             {
                 return Register("!=");
             }
@@ -204,7 +204,7 @@ namespace Flame
 
         public static Operator CheckGreaterThan
         {
-            const get
+            get
             {
                 return Register(">");
             }
@@ -212,7 +212,7 @@ namespace Flame
 
         public static Operator CheckLessThan
         {
-            const get
+            get
             {
                 return Register("<");
             }
@@ -220,7 +220,7 @@ namespace Flame
 
         public static Operator CheckGreaterThanOrEqual
         {
-            const get
+            get
             {
                 return Register(">=");
             }
@@ -228,7 +228,7 @@ namespace Flame
 
         public static Operator CheckLessThanOrEqual
         {
-            const get
+            get
             {
                 return Register("<=");
             }
@@ -236,7 +236,7 @@ namespace Flame
 
         public static Operator Not
         {
-            const get
+            get
             {
                 return Register("!");
             }
@@ -249,7 +249,7 @@ namespace Flame
         /// </summary>
         public static Operator BitwiseComplement
         {
-            const get
+            get
             {
                 return Register("~");
             }
@@ -257,14 +257,14 @@ namespace Flame
 
         public static Operator Or
         {
-            const get
+            get
             {
                 return Register("|");
             }
         }
         public static Operator LogicalOr
         {
-            const get
+            get
             {
                 return Register("||");
             }
@@ -272,14 +272,14 @@ namespace Flame
 
         public static Operator And
         {
-            const get
+            get
             {
                 return Register("&");
             }
         }
         public static Operator LogicalAnd
         {
-            const get
+            get
             {
                 return Register("&&");
             }
@@ -287,7 +287,7 @@ namespace Flame
 
         public static Operator Xor
         {
-            const get
+            get
             {
                 return Register("^");
             }
@@ -295,28 +295,28 @@ namespace Flame
 
         public static Operator LeftShift
         {
-            const get
+            get
             {
                 return Register("<<");
             }
         }
         public static Operator RightShift
         {
-            const get
+            get
             {
                 return Register(">>");
             }
         }
         public static Operator Hash
         {
-        	const get
+        	get
         	{
         		return Register("hash");
         	}
         }
         public static Operator Concat
         {
-        	const get
+        	get
         	{
         		return Register("++");
         	}
@@ -324,7 +324,7 @@ namespace Flame
 
         public static Operator Increment
         {
-            const get
+            get
             {
                 return Register("+1");
             }
@@ -332,7 +332,7 @@ namespace Flame
 
         public static Operator Decrement
         {
-            const get
+            get
             {
                 return Register("-1");
             }
@@ -345,7 +345,7 @@ namespace Flame
         /// </summary>
         public static Operator IsInstance
         {
-            const get
+            get
             {
                 return Register("is_instance");
             }
@@ -358,7 +358,7 @@ namespace Flame
         /// </summary>
         public static Operator AsInstance
         {
-            const get
+            get
             {
                 return Register("as_instance");
             }
@@ -377,7 +377,7 @@ namespace Flame
         /// </example>
         public static Operator StaticCast
         {
-            const get
+            get
             {
                 return Register("static_cast");
             }
@@ -391,7 +391,7 @@ namespace Flame
         /// </summary>
         public static Operator DynamicCast
         {
-            const get
+            get
             {
                 return Register("dynamic_cast");
             }
@@ -404,7 +404,7 @@ namespace Flame
         /// </summary>
         public static Operator ReinterpretCast
         {
-            const get
+            get
             {
                 return Register("reinterpret_cast");
             }
@@ -417,7 +417,7 @@ namespace Flame
         /// </summary>
         public static Operator GetDelegate
         {
-            const get
+            get
             {
                 return Register("get_delegate");
             }
@@ -430,7 +430,7 @@ namespace Flame
         /// </summary>
         public static Operator GetVirtualDelegate
         {
-            const get
+            get
             {
                 return Register("get_virtual_delegate");
             }
@@ -445,7 +445,7 @@ namespace Flame
         /// </summary>
         public static Operator GetCurriedDelegate
         {
-            const get
+            get
             {
                 return Register("get_curried_delegate");
             }
