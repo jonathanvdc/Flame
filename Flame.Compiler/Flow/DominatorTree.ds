@@ -11,8 +11,9 @@ namespace Flame.Compiler.Flow
     {
         public this(set IReadOnlyDictionary<T, T> ImmediateDominators)
         {
-            this.strictDominatedNodes = new Lazy<Dictionary<T, HashSet<T>>>(
-                GetStrictDominatedNodesImpl);
+            this.immediatelyDominatedNodes = new Lazy<Dictionary<T, HashSet<T>>>(
+                GetImmediatelyDominatedNodesImpl);
+            this.strictlyDominatedNodes = new Dictionary<T, HashSet<T>>();
         }
 
         /// <summary>
@@ -26,7 +27,8 @@ namespace Flame.Compiler.Flow
         /// </summary>
         public [T] Nodes { get { return ImmediateDominators.Keys; } }
 
-        private Lazy<Dictionary<T, HashSet<T>>> strictDominatedNodes;
+        private Lazy<Dictionary<T, HashSet<T>>> immediatelyDominatedNodes;
+        private Dictionary<T, HashSet<T>> strictlyDominatedNodes;
 
         /// <summary>
         /// Gets the given tag's immediate dominator.
@@ -39,7 +41,7 @@ namespace Flame.Compiler.Flow
                 return default(T);
         }
 
-        private Dictionary<T, HashSet<T>> GetStrictDominatedNodesImpl()
+        private Dictionary<T, HashSet<T>> GetImmediatelyDominatedNodesImpl()
         {
             var results = new Dictionary<T, HashSet<T>>();
             foreach (var v in Nodes)
@@ -49,13 +51,38 @@ namespace Flame.Compiler.Flow
             {
                 var key = pair.Key;
                 var val = pair.Value;
-                var hashSet = results[val];
-                if (!hashSet.Comparer.Equals(key, val))
+                var valSet = results[val];
+                if (!valSet.Comparer.Equals(key, val))
                 {
-                    hashSet.Add(key);
+                    valSet.Add(key);
                 }
             }
 
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of nodes that are immediately dominated by this node.
+        /// </summary>
+        public [T] GetImmediatelyDominated(T Node)
+        {
+            return immediatelyDominatedNodes.Value[Node];
+        }
+
+        private HashSet<T> GetStrictlyDominatedImpl(T Node)
+        {
+            HashSet<T> results;
+            if (strictlyDominatedNodes.TryGetValue(Node, &results))
+                return results;
+
+            results = new HashSet<T>();
+            foreach (var v in GetImmediatelyDominated(Node))
+            {
+                results.Add(v);
+                results.UnionWith(GetStrictlyDominated(v));
+            }
+
+            strictlyDominatedNodes[Node] = results;
             return results;
         }
 
@@ -64,7 +91,7 @@ namespace Flame.Compiler.Flow
         /// </summary>
         public [T] GetStrictlyDominated(T Node)
         {
-            return strictDominatedNodes.Value[Node];
+            return GetStrictlyDominatedImpl(Node);
         }
     }
 }
