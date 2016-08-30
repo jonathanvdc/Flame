@@ -86,7 +86,8 @@ namespace Flame.Optimization
 
         public override const bool Matches(IExpression Value)
         {
-            return Value is DynamicCastExpression;
+            return Value is DynamicCastExpression
+                || Value is ReinterpretCastExpression;
         }
 
         public override const bool Matches(IStatement Value)
@@ -96,20 +97,29 @@ namespace Flame.Optimization
 
         protected override IExpression Transform(IExpression Expression)
         {
-            assert(Expression is DynamicCastExpression);
-            var castExpr = (DynamicCastExpression)Expression;
-            var target = castExpr.Value.GetEssentialExpression();
-            if (target is SSAGetExpression)
+            if (Expression is DynamicCastExpression)
             {
-                var ssaVar = ((SSAGetExpression)target).Variable;
-                Assertions.AddTypeAssertion(ssaVar, castExpr.TargetType);
+                var castExpr = (DynamicCastExpression)Expression;
+                var target = castExpr.Value.GetEssentialExpression();
+                if (target is SSAGetExpression)
+                {
+                    var ssaVar = ((SSAGetExpression)target).Variable;
+                    Assertions.AddTypeAssertion(ssaVar, castExpr.TargetType);
 
-                return Expression;
+                    return Expression;
+                }
             }
             else
             {
-                return Expression.Accept(this);
+                var decompReinCastTuple = ElideRuntimeCastPass
+                    .TryDecomposeReinterpretCastExpression(Expression);
+                if (decompReinCastTuple != null)
+                    Assertions.AddTypeAssertion(
+                        decompReinCastTuple.Item1, decompReinCastTuple.Item2);
+
+                return Expression;
             }
+            return Expression.Accept(this);
         }
 
         protected override IStatement Transform(IStatement Statement)
