@@ -511,14 +511,7 @@ namespace Flame.Compiler.Flow
 		/// </summary>
 		public IReadOnlyList<UniqueTag> SortPostorder()
 		{
-			var processed = new HashSet<UniqueTag>();
-			var results = new List<UniqueTag>();
-
-			SortPostorder(EntryPointTag, processed, results);
-			foreach (var item in BlockTags)
-				SortPostorder(item, processed, results);
-
-			return results;
+			return SortPostorder(new UniqueTag[] { EntryPointTag });
 		}
 
 		private UniqueTag IntersectImmediateDominators(
@@ -569,12 +562,15 @@ namespace Flame.Compiler.Flow
 				{
 					var b = postorderSort[i];
 					if (b == EntryPointTag)
-						break;
+						next;
 
 					UniqueTag newIdom = null;
 					foreach (var pair in preds[b])
 					{
 						var p = pair.Item1;
+						if (!postorderNums.ContainsKey(p))
+							next;
+
 						if (newIdom == null)
 							newIdom = p;
 						else if (idoms[p] != null)
