@@ -86,6 +86,7 @@ namespace UnitTests
         public static int Flame_Compiler()
         {
             return RunTests.RunMany(
+                new Compiler.FlowGraphTests(),
                 new Compiler.LocationFinderTests());
         }
 
