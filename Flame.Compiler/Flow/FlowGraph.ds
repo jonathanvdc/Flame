@@ -588,5 +588,13 @@ namespace Flame.Compiler.Flow
 
 			return idoms;
 		}
+
+		/// <summary>
+		/// Gets the dominator tree for this control-flow graph.
+		/// </summary>
+		public DominatorTree<UniqueTag> GetDominatorTree()
+		{
+			return new DominatorTree<UniqueTag>(GetImmediateDominators());
+		}
 	}
 }

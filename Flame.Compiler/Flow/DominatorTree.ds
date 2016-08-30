@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Flow
+{
+    /// <summary>
+    /// A data structure that allows for efficient bulk dominator information
+    /// queries.
+    /// </summary>
+    public class DominatorTree<T>
+    {
+        public this(set IReadOnlyDictionary<T, T> ImmediateDominators)
+        {
+            this.strictDominatedNodes = new Lazy<Dictionary<T, HashSet<T>>>(
+                GetStrictDominatedNodesImpl);
+        }
+
+        /// <summary>
+        /// Gets this dominator tree's immediate dominator map: nodes are mapped
+        /// to their immediate dominators. The entry point is mapped to itself.
+        /// </summary>
+        public IReadOnlyDictionary<T, T> ImmediateDominators { get; private set; }
+
+        /// <summary>
+        /// Gets the set of all nodes in this dominator tree.
+        /// </summary>
+        public [T] Nodes { get { return ImmediateDominators.Keys; } }
+
+        private Lazy<Dictionary<T, HashSet<T>>> strictDominatedNodes;
+
+        /// <summary>
+        /// Gets the given tag's immediate dominator.
+        /// </summary>
+        public T GetImmediateDominator(T Node)
+        {
+            if (ImmediateDominators.TryGetValue(Node, &T result))
+                return result;
+            else
+                return default(T);
+        }
+
+        private Dictionary<T, HashSet<T>> GetStrictDominatedNodesImpl()
+        {
+            var results = new Dictionary<T, HashSet<T>>();
+            foreach (var v in Nodes)
+                results[v] = new HashSet<T>();
+
+            foreach (var pair in ImmediateDominators)
+            {
+                var key = pair.Key;
+                var val = pair.Value;
+                var hashSet = results[val];
+                if (!hashSet.Comparer.Equals(key, val))
+                {
+                    hashSet.Add(key);
+                }
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of nodes that are strictly dominated by this node.
+        /// </summary>
+        public [T] GetStrictlyDominated(T Node)
+        {
+            return strictDominatedNodes.Value[Node];
+        }
+    }
+}
