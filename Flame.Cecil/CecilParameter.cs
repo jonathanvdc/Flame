@@ -26,7 +26,7 @@ namespace Flame.Cecil
             return Parameter.Resolve();
         }
 
-        protected IList<IAttribute> GetMemberAttributes(ParameterDefinition Parameter)
+        protected List<IAttribute> GetMemberAttributes(ParameterDefinition Parameter)
         {
             List<IAttribute> attrs = new List<IAttribute>();
             if (Parameter.IsOut)
