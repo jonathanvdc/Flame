@@ -93,5 +93,13 @@ namespace Flame.Compiler.Flow
         {
             return GetStrictlyDominatedImpl(Node);
         }
+
+        /// <summary>
+        /// Checks if the first node is strictly dominated by the first.
+        /// </summary>
+        public bool IsStrictlyDominatedBy(T Node, T Dominator)
+        {
+            return GetStrictlyDominatedImpl(Dominator).Contains(Node);
+        }
     }
 }

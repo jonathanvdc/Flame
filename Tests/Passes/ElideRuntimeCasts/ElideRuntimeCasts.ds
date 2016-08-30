@@ -1,0 +1,45 @@
+using System;
+
+public interface IA
+{
+    void SayHi();
+}
+
+public class A : IA
+{
+    public void SayHi()
+    {
+        Console.WriteLine("Hi!");
+    }
+}
+
+public class B
+{
+    public void SayBye()
+    {
+        Console.WriteLine("Bye");
+    }
+}
+
+public module Program
+{
+    public void Visit(object Value)
+    {
+        var localVal = Value;
+        if (localVal is B)
+        {
+            ((B)localVal).SayBye();
+        }
+        else
+        {
+            assert(localVal is IA);
+            ((IA)localVal).SayHi();
+        }
+    }
+
+    public void Main()
+    {
+        Visit(new A());
+        Visit(new B());
+    }
+}

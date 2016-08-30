@@ -31,12 +31,7 @@ namespace Flame.Front.Target
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName));
             GlobalPassManager.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName, optInfo => optInfo.OptimizeMinimal));
-
-            // Activate -fstrip-assert whenever -g is turned off, and the
-            // optimization level is at least -O1.
-			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(StripAssertPass.Instance, StripAssertPass.StripAssertPassName));
-			GlobalPassManager.RegisterPassCondition(new PassCondition(StripAssertPass.StripAssertPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeDebug));
-
+            
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(FlattenInitializationPass.Instance, FlattenInitializationPass.FlattenInitializationPassName));
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ReturnMotionPass.Instance, ReturnMotionPass.ReturnMotionPassName));
@@ -104,6 +99,8 @@ namespace Flame.Front.Target
             ssaPassManager.RegisterPassCondition(ValuePropagationPass.ValuePropagationPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new MethodPassInfo(MemoryToRegisterPass.Instance, MemoryToRegisterPass.MemoryToRegisterPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(MemoryToRegisterPass.MemoryToRegisterPassName, optInfo => optInfo.OptimizeNormal);
+            RegisterMethodPass(new MethodPassInfo(ElideRuntimeCastPass.Instance, ElideRuntimeCastPass.ElideRuntimeCastPassName), ssaPassManager, inliningLoopSsa);
+            ssaPassManager.RegisterPassCondition(ElideRuntimeCastPass.ElideRuntimeCastPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new MethodPassInfo(TypePropagationPass.Instance, TypePropagationPass.TypePropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(TypePropagationPass.TypePropagationPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new MethodPassInfo(DevirtualizationPass.Instance, DevirtualizationPass.DevirtualizationPassName), ssaPassManager, inliningLoopSsa);
@@ -139,6 +136,11 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => true);
 
 			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
+
+            // Activate -fstrip-assert whenever -g is turned off, and the
+            // optimization level is at least -O1.
+            GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(StripAssertPass.Instance, StripAssertPass.StripAssertPassName));
+            GlobalPassManager.RegisterPassCondition(new PassCondition(StripAssertPass.StripAssertPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeDebug));
 
             // Watch out with -fstack-intrinsics
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));

@@ -1,0 +1,490 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A data structure that stores assertions about the types of SSA variables,
+    /// and the use counts of SSA variables as specific types.
+    /// </summary>
+    public class TypeAssertionSet
+    {
+        public this()
+        {
+            this.assertions = new HashSet<KeyValuePair<SSAVariable, IType>>();
+        }
+        public this(TypeAssertionSet Other)
+        {
+            this.assertions = new HashSet<KeyValuePair<SSAVariable, IType>>(Other.assertions);
+        }
+
+        private HashSet<KeyValuePair<SSAVariable, IType>> assertions;
+
+        /// <summary>
+        /// Checks if the given variable has been asserted to be of the
+        /// given type.
+        /// </summary>
+        public bool IsOfType(SSAVariable Variable, IType Type)
+        {
+            return assertions.Contains(
+                new KeyValuePair<SSAVariable, IType>(Variable, Type));
+        }
+
+        /// <summary>
+        /// Checks if a cast of the given variable to the given type can
+        /// be elided.
+        /// </summary>
+        public bool CanElideCast(SSAVariable Variable, IType Type)
+        {
+            return IsOfType(Variable, Type)
+                && Variable.Type.IsReferenceType && Type.IsReferenceType
+                && !Variable.Type.IsPrimitive && !Type.IsPrimitive;
+        }
+
+        /// <summary>
+        /// Adds an assertion that specifies that the given variable is of
+        /// the given type.
+        /// </summary>
+        public bool AddTypeAssertion(SSAVariable Variable, IType Type)
+        {
+            var tuple = new KeyValuePair<SSAVariable, IType>(Variable, Type);
+            return assertions.Add(tuple);
+        }
+
+        /// <summary>
+        /// Adds all assertions and use counts in the given set to this set.
+        /// </summary>
+        public void UnionWith(TypeAssertionSet Other)
+        {
+            assertions.UnionWith(Other.assertions);
+        }
+    }
+
+    /// <summary>
+    /// A type of visitor that analyzes runtime casts within the context
+    /// of a single basic block.
+    /// </summary>
+    public class BlockRuntimeCastAnalyzer : NodeVisitorBase
+    {
+        public this()
+        {
+            this.Assertions = new TypeAssertionSet();
+        }
+
+        /// <summary>
+        /// Gets the type assertion set for this block analyzer.
+        /// </summary>
+        public TypeAssertionSet Assertions { get; private set; }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return Value is DynamicCastExpression;
+        }
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is AssertStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is DynamicCastExpression);
+            var castExpr = (DynamicCastExpression)Expression;
+            var target = castExpr.Value.GetEssentialExpression();
+            if (target is SSAGetExpression)
+            {
+                var ssaVar = ((SSAGetExpression)target).Variable;
+                Assertions.AddTypeAssertion(ssaVar, castExpr.TargetType);
+
+                return Expression;
+            }
+            else
+            {
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is AssertStatement);
+            var assertStmt = (AssertStatement)Statement;
+            var isExprTuple = ElideRuntimeCastPass.TryDecomposeIsExpression(
+                assertStmt.Expression.GetEssentialExpression());
+
+            if (isExprTuple != null && !isExprTuple.Item3)
+            {
+                Assertions.AddTypeAssertion(isExprTuple.Item1, isExprTuple.Item2);
+                return Statement;
+            }
+
+            return Statement.Accept(this);
+        }
+    }
+
+    /// <summary>
+    /// A type of visitor that analyzes runtime casts. It mostly tries to
+    /// figure out which casts depend on each other.
+    /// </summary>
+    public class RuntimeCastAnalyzer : FlowGraphVisitorBase
+    {
+        public this()
+        {
+            this.blockAnalyses = new Dictionary<UniqueTag, TypeAssertionSet>();
+        }
+
+        private Dictionary<UniqueTag, TypeAssertionSet> blockAnalyses;
+
+        /// <summary>
+        /// Gets a dictionary that maps unique tags for basic blocks to type
+        /// assertion sets that are applicable to entire blocks.
+        /// </summary>
+        public IReadOnlyDictionary<UniqueTag, TypeAssertionSet> TypeAssertions
+        {
+            get { return blockAnalyses; }
+        }
+
+        private void Analyze(
+            BasicBlock Block, DominatorTree<UniqueTag> Dominators)
+        {
+            // First, analyze the basic block's body.
+            var analyzer = new BlockRuntimeCastAnalyzer();
+            Block.Accept(analyzer);
+            foreach (var dom in Dominators.GetStrictlyDominated(Block.Tag))
+                blockAnalyses[dom].UnionWith(analyzer.Assertions);
+
+            if (Block.Flow is SelectFlow)
+            {
+                // Then, try to analyze things like
+                // `if (A is T) { ... } else { ... }`.
+                var selFlow = (SelectFlow)Block.Flow;
+                var isExprTuple = ElideRuntimeCastPass.TryDecomposeIsExpression(
+                    selFlow.Condition.GetEssentialExpression());
+
+                if (isExprTuple != null)
+                {
+                    UniqueTag targetTag;
+                    if (isExprTuple.Item3)
+                        // inverted is-expression: `!(A is T)`
+                        targetTag = selFlow.ElseBranch.TargetTag;
+                    else
+                        // is-expression: `A is T`
+                        targetTag = selFlow.ThenBranch.TargetTag;
+
+                    if (Dominators.IsStrictlyDominatedBy(targetTag, Block.Tag))
+                    {
+                        blockAnalyses[targetTag].AddTypeAssertion(
+                            isExprTuple.Item1, isExprTuple.Item2);
+                        foreach (var dom in Dominators.GetStrictlyDominated(targetTag))
+                            blockAnalyses[dom].AddTypeAssertion(
+                                isExprTuple.Item1, isExprTuple.Item2);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            // Compute the dominator tree for the current control-flow graph.
+            var dominators = Graph.GetDominatorTree();
+
+            foreach (var block in Graph.BlockTags)
+                blockAnalyses[block] = new TypeAssertionSet();
+
+            foreach (var block in Graph.Blocks)
+                Analyze(block, dominators);
+
+            return Graph;
+        }
+    }
+
+    /// <summary>
+    /// A type of visitor that elides runtime casts in basic blocks,
+    /// based on type assertions.
+    /// </summary>
+    public class ElideRuntimeCastBlockVisitor : INodeVisitor
+    {
+        public this(set TypeAssertionSet Assertions);
+
+        /// <summary>
+        /// Gets the set of type assertions for this block.
+        /// </summary>
+        public TypeAssertionSet Assertions { get; private set; }
+
+        public IExpression Visit(IExpression Expression)
+        {
+            var decompIsTuple = ElideRuntimeCastPass.TryDecomposeIsExpression(Expression);
+            if (decompIsTuple != null)
+            {
+                if (Assertions.IsOfType(decompIsTuple.Item1, decompIsTuple.Item2))
+                    return new BooleanExpression(!decompIsTuple.Item3);
+            }
+            else
+            {
+                var decompAsTuple = ElideRuntimeCastPass
+                    .TryDecomposeAsExpression(Expression);
+                if (decompAsTuple != null)
+                {
+                    if (Assertions.IsOfType(decompAsTuple.Item1, decompAsTuple.Item2))
+                        return new ReinterpretCastExpression(
+                            new SSAGetExpression(decompAsTuple.Item1),
+                            decompAsTuple.Item2);
+                }
+                else
+                {
+                    var decompDynCastTuple = ElideRuntimeCastPass
+                        .TryDecomposeDynamicCastExpression(Expression);
+                    if (decompDynCastTuple != null)
+                    {
+                        if (Assertions.CanElideCast(decompDynCastTuple.Item1, decompDynCastTuple.Item2))
+                            return new ReinterpretCastExpression(
+                                new SSAGetExpression(decompDynCastTuple.Item1),
+                                decompDynCastTuple.Item2);
+                        else
+                            Assertions.AddTypeAssertion(
+                                decompDynCastTuple.Item1, decompDynCastTuple.Item2);
+                    }
+                    else
+                    {
+                        var decompReinCastTuple = ElideRuntimeCastPass
+                            .TryDecomposeReinterpretCastExpression(Expression);
+                        if (decompReinCastTuple != null)
+                            Assertions.AddTypeAssertion(
+                                decompReinCastTuple.Item1, decompReinCastTuple.Item2);
+                    }
+                }
+            }
+            return Expression.Accept(this);
+        }
+
+        public IStatement Visit(IStatement Statement)
+        {
+            if (Statement is AssertStatement)
+            {
+                var assertStmt = (AssertStatement)Statement;
+                var isExprTuple = ElideRuntimeCastPass.TryDecomposeIsExpression(
+                    assertStmt.Expression.GetEssentialExpression());
+
+                if (isExprTuple != null && !isExprTuple.Item3)
+                {
+                    Assertions.AddTypeAssertion(isExprTuple.Item1, isExprTuple.Item2);
+                    return Statement;
+                }
+            }
+            return Statement.Accept(this);
+        }
+    }
+
+    /// <summary>
+    /// A type of visitor that elides runtime casts, based on type assertions.
+    /// </summary>
+    public class ElideRuntimeCastVisitor : FlowGraphVisitorBase
+    {
+        public this(set IReadOnlyDictionary<UniqueTag, TypeAssertionSet> TypeAssertions);
+
+        /// <summary>
+        /// Gets a dictionary that maps unique tags for basic blocks to type
+        /// assertion sets that are applicable to entire blocks.
+        /// </summary>
+        public IReadOnlyDictionary<UniqueTag, TypeAssertionSet> TypeAssertions { get; private set; }
+
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+
+            foreach (var block in Graph.Blocks)
+            {
+                var blockVisitor = new ElideRuntimeCastBlockVisitor(
+                    new TypeAssertionSet(TypeAssertions[block.Tag]));
+                var newBlock = block.Accept(blockVisitor);
+                results[newBlock.Tag] = newBlock;
+            }
+
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+    }
+
+    /// <summary>
+    /// A pass that tries to elide redundant runtime casts.
+    /// </summary>
+    public static class ElideRuntimeCastPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// The pass name for this pass.
+        /// </summary>
+        public const string ElideRuntimeCastPassName = "elide-runtime-casts";
+
+        /// <summary>
+        /// Checks if the given expression can be identified as the 'null'
+        /// value.
+        /// </summary>
+        public bool IsNullExpression(IExpression Expression)
+        {
+            if (Expression is NullExpression)
+            {
+                return true;
+            }
+            else if (Expression is ConversionExpressionBase)
+            {
+                var convExpr = (ConversionExpressionBase)Expression;
+                return IsNullExpression(convExpr.Value.GetEssentialExpression());
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to decompose the given as-expression into an SSA variable
+        /// and a type.
+        /// </summary>
+        public Tuple<SSAVariable, IType> TryDecomposeAsExpression(
+            IExpression Expression)
+        {
+            if (Expression is AsInstanceExpression)
+            {
+                var asExpr = (AsInstanceExpression)Expression;
+                var target = asExpr.Value.GetEssentialExpression();
+                if (target is SSAGetExpression)
+                {
+                    var ssaVar = ((SSAGetExpression)target).Variable;
+                    return new Tuple<SSAVariable, IType>(
+                        ssaVar, asExpr.TargetType);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to decompose the given dynamic cast-expression into an SSA
+        /// variable and a type.
+        /// </summary>
+        public Tuple<SSAVariable, IType> TryDecomposeDynamicCastExpression(
+            IExpression Expression)
+        {
+            if (Expression is DynamicCastExpression)
+            {
+                var dynCastExpr = (DynamicCastExpression)Expression;
+                var target = dynCastExpr.Value.GetEssentialExpression();
+                if (target is SSAGetExpression)
+                {
+                    var ssaVar = ((SSAGetExpression)target).Variable;
+                    return new Tuple<SSAVariable, IType>(
+                        ssaVar, dynCastExpr.TargetType);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to decompose the given reinterpret cast-expression into an
+        /// SSA variable and a type.
+        /// </summary>
+        public Tuple<SSAVariable, IType> TryDecomposeReinterpretCastExpression(
+            IExpression Expression)
+        {
+            if (Expression is ReinterpretCastExpression)
+            {
+                var dynCastExpr = (ReinterpretCastExpression)Expression;
+                var target = dynCastExpr.Value.GetEssentialExpression();
+                if (target is SSAGetExpression)
+                {
+                    var ssaVar = ((SSAGetExpression)target).Variable;
+                    return new Tuple<SSAVariable, IType>(
+                        ssaVar, dynCastExpr.TargetType);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to decompose the given is-expression into an SSA variable,
+        /// a type and a boolean that tells if the expression's result has
+        /// been inverted.
+        /// </summary>
+        public Tuple<SSAVariable, IType, bool> TryDecomposeIsExpression(
+            IExpression Expression)
+        {
+            if (Expression is IsExpression)
+            {
+                var isExpr = (IsExpression)Expression;
+                var target = isExpr.Target.GetEssentialExpression();
+                if (target is SSAGetExpression)
+                {
+                    var ssaVar = ((SSAGetExpression)target).Variable;
+                    return new Tuple<SSAVariable, IType, bool>(
+                        ssaVar, isExpr.TestType, false);
+                }
+            }
+            else if (Expression is NotExpression)
+            {
+                var notExpr = (NotExpression)Expression;
+                var innerVal = TryDecomposeIsExpression(
+                    notExpr.Value.GetEssentialExpression());
+                if (innerVal != null)
+                    return new Tuple<SSAVariable, IType, bool>(
+                        innerVal.Item1, innerVal.Item2, !innerVal.Item3);
+            }
+            else if (Expression is EqualityExpression
+                || Expression is InequalityExpression)
+            {
+                var condExpr = (ConditionalExpression)Expression;
+                var lhs = condExpr.LeftOperand.GetEssentialExpression();
+                var rhs = condExpr.RightOperand.GetEssentialExpression();
+                Tuple<SSAVariable, IType> decompAsExpr;
+                if (IsNullExpression(lhs))
+                    decompAsExpr = TryDecomposeAsExpression(rhs);
+                else if (IsNullExpression(rhs))
+                    decompAsExpr = TryDecomposeAsExpression(lhs);
+                else
+                    decompAsExpr = null;
+
+                if (decompAsExpr != null)
+                    return new Tuple<SSAVariable, IType, bool>(
+                        decompAsExpr.Item1, decompAsExpr.Item2,
+                        Expression is EqualityExpression);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Applies this pass to the given body pass argument.
+        /// </summary>
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    ElideRuntimeCastPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    ElideRuntimeCastPassName + " (output)")
+            }
+        {
+            var body = Arg.Body;
+            var analyzer = new RuntimeCastAnalyzer();
+            analyzer.Visit(body);
+            var visitor = new ElideRuntimeCastVisitor(analyzer.TypeAssertions);
+            return visitor.Visit(body);
+        }
+    }
+}

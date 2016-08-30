@@ -4,6 +4,7 @@ tests
     CFGConstruction/CFGConstruction.test;
     Devirtualization/Devirtualization.test;
     Devirtualization/Devirtualization2.test;
+    ElideRuntimeCasts/ElideRuntimeCasts.test;
     Heap2Stack/Heap2Stack.test;
     Heap2Stack/Heap2Stack2.test;
     ImperativeCode/ImperativeCode2.test;

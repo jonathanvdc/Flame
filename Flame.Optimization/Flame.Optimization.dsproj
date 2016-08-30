@@ -28,6 +28,7 @@
     <Compile Include="DeconstructFlowGraphPass.ds" />
     <Compile Include="DeconstructSSAPass.ds" />
     <Compile Include="DevirtualizationPass.ds" />
+    <Compile Include="ElideRuntimeCastPass.ds" />
     <Compile Include="EscapeAnalysisData.ds" />
     <Compile Include="FinalFlowRemover.ds" />
     <Compile Include="FlattenInitializationPass.ds" />

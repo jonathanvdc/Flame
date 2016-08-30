@@ -398,16 +398,16 @@ namespace Flame.Optimization
             IReadOnlyDictionary<SSAVariable, [IExpression]> Definitions,
             Dictionary<SSAVariable, IAnalysisType> AnalysisResults)
         {
-            if (Value is ReinterpretCastExpression)
-            {
-                var castExpr = (ReinterpretCastExpression)Value;
-                var newTy = new ConeAnalysisType(castExpr.Type);
-                return RefineType(
-                    Variable, castExpr.Value,
-                    new IntersectionAnalysisType(Hypothesis, newTy),
-                    Definitions, AnalysisResults);
-            }
-            else if (Value is IMetadataNode<IExpression>)
+            // if (Value is ReinterpretCastExpression)
+            // {
+            //     var castExpr = (ReinterpretCastExpression)Value;
+            //     var newTy = new ConeAnalysisType(castExpr.Type);
+            //     return RefineType(
+            //         Variable, castExpr.Value,
+            //         new IntersectionAnalysisType(Hypothesis, newTy),
+            //         Definitions, AnalysisResults);
+            // }
+            if (Value is IMetadataNode<IExpression>)
             {
                 var innerExpr = ((IMetadataNode<IExpression>)Value).Value;
                 return RefineType(
