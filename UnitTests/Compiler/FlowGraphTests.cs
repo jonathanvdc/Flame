@@ -19,7 +19,7 @@ namespace UnitTests.Compiler
         //        >   <
         //          2
         //          |
-        //          >
+        //          v
         //          1
 
         private static readonly BasicBlock Node1;
