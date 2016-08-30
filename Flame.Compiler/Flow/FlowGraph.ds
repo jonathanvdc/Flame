@@ -475,5 +475,122 @@ namespace Flame.Compiler.Flow
 			results.Remove(EntryPointTag);
 			return results.Values;
 		}
+
+		private void SortPostorder(
+			UniqueTag Tag,
+			HashSet<UniqueTag> Processed,
+			List<UniqueTag> Results)
+		{
+			if (!Processed.Add(Tag))
+				return;
+
+			foreach (var child in GetBlock(Tag).Flow.SuccessorTags)
+				SortPostorder(child, Processed, Results);
+
+			Results.Add(Tag);
+		}
+
+		/// <summary>
+		/// Produces a postorder traversal list for this graph, starting at the
+		/// given roots.
+		/// </summary>
+		public IReadOnlyList<UniqueTag> SortPostorder([UniqueTag] Roots)
+		{
+			var processed = new HashSet<UniqueTag>();
+			var results = new List<UniqueTag>();
+
+			foreach (var item in Roots)
+				SortPostorder(item, processed, results);
+
+			return results;
+		}
+
+		/// <summary>
+		/// Produces a postorder traversal list for this graph, with the entry
+		/// point as root.
+		/// </summary>
+		public IReadOnlyList<UniqueTag> SortPostorder()
+		{
+			var processed = new HashSet<UniqueTag>();
+			var results = new List<UniqueTag>();
+
+			SortPostorder(EntryPointTag, processed, results);
+			foreach (var item in BlockTags)
+				SortPostorder(item, processed, results);
+
+			return results;
+		}
+
+		private UniqueTag IntersectImmediateDominators(
+			UniqueTag b1, UniqueTag b2,
+			Dictionary<UniqueTag, UniqueTag> idoms,
+			Dictionary<UniqueTag, int> PostorderNums)
+		{
+			var finger1 = b1;
+			var finger2 = b2;
+			while (finger1 != finger2)
+			{
+				while (PostorderNums[finger1] < PostorderNums[finger2])
+					finger1 = idoms[finger1];
+				while (PostorderNums[finger2] < PostorderNums[finger1])
+					finger2 = idoms[finger2];
+			}
+			return finger1;
+		}
+
+		/// <summary>
+		/// Computes a mapping from basic block tags to their immediate
+		/// dominators. The entry point block mapped to itself.
+		/// </summary>
+		public IReadOnlyDictionary<UniqueTag, UniqueTag> GetImmediateDominators()
+		{
+			// Based on "A Simple, Fast Dominance Algorithm" by
+			// Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy
+			// (http://www.cs.rice.edu/~keith/Embed/dom.pdf)
+
+			var preds = GetPredecessors();
+			var idoms = new Dictionary<UniqueTag, UniqueTag>();
+			var postorderSort = Enumerable.ToArray<UniqueTag>(SortPostorder());
+			var postorderNums = new Dictionary<UniqueTag, int>();
+			for (int i = 0; i < postorderSort.Length; i++)
+			{
+				var item = postorderSort[i];
+				postorderNums[item] = i;
+				idoms[item] = null;
+			}
+
+			idoms[EntryPointTag] = EntryPointTag;
+
+			bool changed = true;
+			while (changed)
+			{
+				changed = false;
+				for (int i = postorderSort.Length - 1; i >= 0; i--)
+				{
+					var b = postorderSort[i];
+					if (b == EntryPointTag)
+						break;
+
+					UniqueTag newIdom = null;
+					foreach (var pair in preds[b])
+					{
+						var p = pair.Item1;
+						if (newIdom == null)
+							newIdom = p;
+						else if (idoms[p] != null)
+							newIdom = IntersectImmediateDominators(
+								p, newIdom, idoms, postorderNums);
+					}
+
+					if (idoms[b] != newIdom)
+					{
+						idoms[b] = newIdom;
+						changed = true;
+					}
+				}
+			}
+
+			return idoms;
+		}
 	}
 }
