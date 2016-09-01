@@ -31,7 +31,7 @@ namespace Flame.Front.Target
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName));
             GlobalPassManager.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName, optInfo => optInfo.OptimizeMinimal));
-            
+
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(SlimLambdaPass.Instance, SlimLambdaPass.SlimLambdaPassName));
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(FlattenInitializationPass.Instance, FlattenInitializationPass.FlattenInitializationPassName));
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(ReturnMotionPass.Instance, ReturnMotionPass.ReturnMotionPassName));
@@ -155,6 +155,8 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructExceptionFlowPass.Instance, DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName));
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
             GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(RelooperPass.Instance, RelooperPass.RelooperPassName));
+            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(ElideSelfAssignmentPass.Instance, ElideSelfAssignmentPass.ElideSelfAssignmentPassName));
+            GlobalPassManager.RegisterPassCondition(ElideSelfAssignmentPass.ElideSelfAssignmentPassName, optInfo => optInfo.OptimizeMinimal);
 
 			GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 

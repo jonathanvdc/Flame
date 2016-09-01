@@ -1,0 +1,100 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A node visitor that elides self-assignments. Elided self-assignments
+    /// are preserved as '(variable, location)' pairs.
+    /// </summary>
+    public class ElideSelfAssignmentVisitor : LocationVisitorBase
+    {
+        alias ElisionRecord = Tuple<IVariable, SourceLocation>;
+
+        public this()
+        {
+            this.elisionRecords = new List<ElisionRecord>();
+        }
+
+        private List<ElisionRecord> elisionRecords;
+
+        /// <summary>
+        /// Gets a list of self-assignments that were elided. These are recorded
+        /// as '(variable, location)' pairs. 'location' may be 'null', depending
+        /// on the presence of source location information.
+        /// </summary>
+        public IReadOnlyList<ElisionRecord> ElidedSelfAssignments
+        {
+            get { return elisionRecords; }
+        }
+
+        protected override const bool MatchesCore(IExpression Value)
+        {
+            return false;
+        }
+
+        protected override const bool MatchesCore(IStatement Value)
+        {
+            return Value is ISetVariableNode;
+        }
+
+        protected override IExpression TransformCore(IExpression Value)
+        {
+            return Value.Accept(this);
+        }
+
+        protected override IStatement TransformCore(IStatement Value)
+        {
+            assert(Value is ISetVariableNode);
+            var setVarNode = (ISetVariableNode)Value;
+            if (setVarNode.Action == VariableNodeAction.Set)
+            {
+                var lhs = setVarNode.GetVariable();
+                if (lhs is LocalVariableBase || lhs is ArgumentVariable)
+                {
+                    var valExpr = setVarNode.Value.GetEssentialExpression();
+                    if (valExpr is IVariableNode)
+                    {
+                        var getVarNode = (IVariableNode)valExpr;
+                        if (getVarNode.Action == VariableNodeAction.Get)
+                        {
+                            var rhs = getVarNode.GetVariable();
+                            if (lhs.Equals(rhs))
+                            {
+                                elisionRecords.Add(new ElisionRecord(
+                                    lhs, CurrentLocation));
+                                return EmptyStatement;
+                            }
+                        }
+                    }
+                }
+            }
+            return Value.Accept(this);
+        }
+    }
+
+    /// <summary>
+    /// A pass that elides self-assignments. No diagnostics are offered.
+    /// </summary>
+    public static class ElideSelfAssignmentPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// The pass name for this pass.
+        /// </summary>
+        public const string ElideSelfAssignmentPassName = "elide-self-assignments";
+
+        public IStatement Apply(IStatement Value)
+        {
+            var visitor = new ElideSelfAssignmentVisitor();
+            return visitor.Visit(Value);
+        }
+    }
+}
