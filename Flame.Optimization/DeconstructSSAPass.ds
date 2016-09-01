@@ -269,6 +269,153 @@ namespace Flame.Optimization
     }
 
     /// <summary>
+    /// A visitor that tracks down uses of argument variables. The information
+    /// extracted by this visitor can then be used to pre-color some SSA
+    /// variables with argument-variables.
+    /// </summary>
+    public class ArgumentPrecoloringAnalyzer : INodeVisitor
+    {
+        public this()
+        {
+            InGracePeriod = false;
+            defVariables = new Dictionary<SSAVariable, ArgumentVariable>();
+            escapedArgs = new HashSet<ArgumentVariable>();
+            usedArgs = new HashSet<ArgumentVariable>();
+        }
+
+        /// <summary>
+        /// A boolean that tells if we are currently in the grace period for
+        /// merging SSA variables with argument-variables.
+        /// </summary>
+        public bool InGracePeriod { get; private set; }
+
+        // Maps SSA variables to the argument variable values they have been
+        // defined as.
+        private Dictionary<SSAVariable, ArgumentVariable> defVariables;
+
+        // Contains all arguments that have been deemed to "escape."
+        private HashSet<ArgumentVariable> escapedArgs;
+
+        // Contains all arguments that have been used so far.
+        private HashSet<ArgumentVariable> usedArgs;
+
+        /// <summary>
+        /// Gets a dictionary that maps SSA variables to the argument variable
+        /// values they have been defined as. Arguments that have escaped are
+        /// not included.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IVariable> VariableDefinitions
+        {
+            get
+            {
+                var results = new Dictionary<SSAVariable, IVariable>();
+                foreach (var pair in defVariables)
+                {
+                    if (!escapedArgs.Contains(pair.Value))
+                        results[pair.Key] = pair.Value;
+                }
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// Explicitly marks the given argument variable as escaped.
+        /// </summary>
+        public void MarkEscaped(ArgumentVariable Arg)
+        {
+            escapedArgs.Add(Arg);
+        }
+
+        public IExpression Visit(IExpression Value)
+        {
+            if (Value is ArgumentGetExpression)
+            {
+                MarkEscaped(((ArgumentGetExpression)Value).Variable);
+                return Value;
+            }
+            else if (Value is ArgumentAddressOfExpression)
+            {
+                MarkEscaped(((ArgumentAddressOfExpression)Value).Variable);
+                return Value;
+            }
+            else
+            {
+                IExpression result;
+                if (Value is IPredicateNode)
+                {
+                    ((IPredicateNode)Value).AcceptPredicate(this);
+                    result = Value;
+                }
+                else
+                {
+                    result = Value.Accept(this);
+                }
+
+                if (InGracePeriod && !result.IsConstantNode)
+                    InGracePeriod = false;
+
+                return result;
+            }
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            if (Value is ArgumentSetStatement)
+            {
+                MarkEscaped(((ArgumentSetStatement)Value).Variable);
+                return Value;
+            }
+            else if (InGracePeriod && Value is SSADefineStatement)
+            {
+                var defStmt = (SSADefineStatement)Value;
+                var expr = defStmt.Value.GetEssentialExpression();
+                if (expr is ArgumentGetExpression)
+                {
+                    var argGetExpr = (ArgumentGetExpression)expr;
+                    defVariables[defStmt.Variable] = argGetExpr.Variable;
+                    if (!usedArgs.Add(argGetExpr.Variable))
+                        MarkEscaped(argGetExpr.Variable);
+                    return defStmt;
+                }
+                else
+                {
+                    return defStmt.Accept(this);
+                }
+            }
+            else
+            {
+                IStatement result;
+                if (Value is IPredicateNode)
+                {
+                    ((IPredicateNode)Value).AcceptPredicate(this);
+                    result = Value;
+                }
+                else
+                {
+                    result = Value.Accept(this);
+                }
+
+                if (InGracePeriod && !result.IsConstantNode)
+                    InGracePeriod = false;
+
+                return result;
+            }
+        }
+
+        public void Visit(BasicBlock Block, bool IsEntryPoint)
+        {
+            InGracePeriod = IsEntryPoint;
+            Block.Accept(this);
+        }
+
+        public void Visit(FlowGraph Graph)
+        {
+            foreach (var block in Graph.Blocks)
+                Visit(block, block.Tag == Graph.EntryPointTag);
+        }
+    }
+
+    /// <summary>
     /// A node visitor that deconstructs SSA form.
     /// </summary>
     public class DeconstructSSAVisitor : FlowGraphVisitorBase
@@ -398,6 +545,27 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Groups the given sequence of SSA variables by their types.
+        /// </summary>
+        private Dictionary<IType, Dictionary<SSAVariable, T>> GroupByType<T>(
+            IReadOnlyDictionary<SSAVariable, T> Variables)
+        {
+            var results = new Dictionary<IType, Dictionary<SSAVariable, T>>();
+            foreach (var pair in Variables)
+            {
+                var ty = pair.Key.Type;
+                Dictionary<SSAVariable, T> vars;
+                if (!results.TryGetValue(ty, &vars))
+                {
+                    vars = new Dictionary<SSAVariable, T>();
+                    results[ty] = vars;
+                }
+                vars[pair.Key] = pair.Value;
+            }
+            return results;
+        }
+
+        /// <summary>
         /// Creates an interference graph for the given sequence of vertices
         /// and liveness information.
         /// </summary>
@@ -465,6 +633,10 @@ namespace Flame.Optimization
 
             var liveness = ComputeLiveness(Graph);
             var groupedVars = GroupByType(liveness.DefinitionBlocks.Keys);
+            var argPrecoloringAnalyzer = new ArgumentPrecoloringAnalyzer();
+            argPrecoloringAnalyzer.Visit(Graph);
+            var precoloredVars = GroupByType<IVariable>(
+                argPrecoloringAnalyzer.VariableDefinitions);
             var regAlloc = new Dictionary<SSAVariable, IVariable>();
             // Creates a new color.
             var createColor = IVariable(SSAVariable v) => new RegisterVariable(v.Member);
@@ -473,8 +645,13 @@ namespace Flame.Optimization
             {
                 // Construct an interference graph.
                 var interGraph = CreateInterferenceGraph(pair.Value, liveness);
+                Dictionary<SSAVariable, IVariable> precol;
+                if (!precoloredVars.TryGetValue(pair.Key, &precol))
+                    precol = new Dictionary<SSAVariable, IVariable>();
                 // Color the graph.
-                var coloring = GraphColorer.Color(interGraph, liveness.Related, createColor);
+                var coloring = GraphColorer.Color(
+                    interGraph, liveness.Related, precol, createColor);
+
                 foreach (var item in coloring)
                 {
                     // Add the coloring to the results.

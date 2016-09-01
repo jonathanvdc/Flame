@@ -13,7 +13,7 @@ namespace Flame.Compiler.Visitors
     /// </summary>
     /// <remarks>
     /// This class inherits from 'NodeVisitorBase' to provide a common 'Matches' API,
-    /// which is a useful property creating an aggregate visitor.
+    /// which is a useful property for creating an aggregate visitor.
     /// </remarks>
     public abstract class AnyPredicateVisitorBase : NodeVisitorBase
     {

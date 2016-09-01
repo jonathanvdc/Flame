@@ -16,11 +16,14 @@ namespace Flame.Optimization
         /// Colors the given (undirected) interference graph. A 'related' graph
         /// expresses preferences: an edge connecting two vertices in this graph
         /// means that these vertices should preferably be allocated the same
-        /// color. A delegate is responsible for generating new colors.
+        /// color. A dictionary maps pre-colored vertices to the colors they
+        /// have been given, and a delegate is responsible for generating
+        /// new colors.
         /// </summary>
         IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
             TColor(TVertex) CreateColor);
     }
 
@@ -98,11 +101,28 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Copies all pre-colored vertices to the 'Results' dictionary, and
+        /// adds their colors to the 'Colors' set.
+        /// </summary>
+        protected void PreColor(
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
+            Dictionary<TVertex, TColor> Results,
+            HashSet<TColor> Colors)
+        {
+            foreach (var pair in PreColored)
+            {
+                Results[pair.Key] = pair.Value;
+                Colors.Add(pair.Value);
+            }
+        }
+
+        /// <summary>
         /// Greedily colors the given (undirected) interference graph.
         /// </summary>
         public abstract override IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
             TColor(TVertex) CreateColor);
     }
 
@@ -117,10 +137,14 @@ namespace Flame.Optimization
         public override IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
             TColor(TVertex) CreateColor)
         {
             var results = new Dictionary<TVertex, TColor>();
             var colors = new HashSet<TColor>();
+            // Pre-color the graph.
+            assert(CheckValidColoring(InterferenceGraph, PreColored));
+            PreColor(PreColored, results, colors);
 
             foreach (var vertex in InterferenceGraph.Vertices)
             {
@@ -167,10 +191,15 @@ namespace Flame.Optimization
         public override IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
             TColor(TVertex) CreateColor)
         {
             var results = new Dictionary<TVertex, TColor>();
             var colors = new HashSet<TColor>();
+            // Pre-color the graph.
+            assert(CheckValidColoring(InterferenceGraph, PreColored));
+            PreColor(PreColored, results, colors);
+
             var worklist = new LinkedList<TVertex>(InterferenceGraph.Vertices);
 
             while (worklist.First != null)
@@ -205,13 +234,18 @@ namespace Flame.Optimization
         public IReadOnlyDictionary<TVertex, TColor> Color(
             Graph<TVertex> InterferenceGraph,
             Graph<TVertex> RelatedGraph,
+            IReadOnlyDictionary<TVertex, TColor> PreColored,
             TColor(TVertex) CreateColor)
         {
             var results = new Dictionary<TVertex, TColor>();
 
             foreach (var v in InterferenceGraph.Vertices)
             {
-                results[v] = CreateColor(v);
+                TColor c;
+                if (!PreColored.TryGetValue(v, &c))
+                    c = CreateColor(v);
+
+                results[v] = c;
             }
 
             return results;
