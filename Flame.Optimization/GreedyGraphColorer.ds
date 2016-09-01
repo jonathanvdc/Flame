@@ -93,9 +93,27 @@ namespace Flame.Optimization
             {
                 foreach (var neighbor in InterferenceGraph[pair.Key])
                 {
-                    if (eqComp.Equals(Coloring[neighbor], pair.Value))
+                    TColor c;
+                    if (Coloring.TryGetValue(neighbor, &c)
+                        && eqComp.Equals(c, pair.Value))
                         return false;
                 }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks that the given coloring is total: every vertex has been
+        /// assigned a color.
+        /// </summary>
+        protected bool CheckTotalColoring(
+            Graph<TVertex> InterferenceGraph,
+            IReadOnlyDictionary<TVertex, TColor> Coloring)
+        {
+            foreach (var v in InterferenceGraph.Vertices)
+            {
+                if (!Coloring.ContainsKey(v))
+                    return false;
             }
             return true;
         }
@@ -154,6 +172,7 @@ namespace Flame.Optimization
             }
 
             assert(CheckValidColoring(InterferenceGraph, results));
+            assert(CheckTotalColoring(InterferenceGraph, results));
             return results;
         }
     }
@@ -218,6 +237,7 @@ namespace Flame.Optimization
             }
 
             assert(CheckValidColoring(InterferenceGraph, results));
+            assert(CheckTotalColoring(InterferenceGraph, results));
             return results;
         }
     }
