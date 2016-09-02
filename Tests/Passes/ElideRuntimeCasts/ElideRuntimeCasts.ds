@@ -25,15 +25,14 @@ public module Program
 {
     public void Visit(object Value)
     {
-        var localVal = Value;
-        if (localVal is B)
+        if (Value is B)
         {
-            ((B)localVal).SayBye();
+            ((B)Value).SayBye();
         }
         else
         {
-            assert(localVal is IA);
-            ((IA)localVal).SayHi();
+            assert(Value is IA);
+            ((IA)Value).SayHi();
         }
     }
 
