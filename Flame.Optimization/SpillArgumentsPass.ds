@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Emit;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Pixie;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A visitor that replaces argument-variables by register-variables.
+    /// </summary>
+    public class SpillArgumentsVisitor : VariableSubstitutingVisitorBase
+    {
+        public this(set IdentityVariableFinder IdentityAnalysis)
+        {
+            this.regVars = new Dictionary<ArgumentVariable, RegisterVariable>();
+        }
+
+        /// <summary>
+        /// Gets the identity-variable finder that was used to perform
+        /// identity analysis.
+        /// </summary>
+        public IdentityVariableFinder IdentityAnalysis { get; private set; }
+
+        private Dictionary<ArgumentVariable, RegisterVariable> regVars;
+
+        /// <summary>
+        /// Gets a dictionary that specifies all replacements.
+        /// </summary>
+        public IReadOnlyDictionary<ArgumentVariable, RegisterVariable> Replacements
+        {
+            get { return regVars; }
+        }
+
+        /// <summary>
+        /// Determines whether the given variable can be substituted or not.
+        /// </summary>
+        protected override bool CanSubstituteVariable(IVariable Variable)
+        {
+            return Variable is ArgumentVariable
+                && !IdentityAnalysis.IsIdentityVariable((ArgumentVariable)Variable);
+        }
+
+        /// <summary>
+        /// Substitutes the given variable.
+        /// </summary>
+        /// <pre>
+        /// CanSubstituteVariable(Variable) == true
+        /// </pre>
+        protected override IVariable SubstituteVariable(IVariable Variable)
+        {
+            assert(Variable is ArgumentVariable);
+            var argVar = (ArgumentVariable)Variable;
+            RegisterVariable result;
+            if (!regVars.TryGetValue(argVar, &result))
+            {
+                result = new RegisterVariable(new DescribedVariableMember(
+                    argVar.Parameter.Name, argVar.Type));
+                regVars[argVar] = result;
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// A pass that spills the values in arguments to local variables, except
+    /// for arguments whose addresses are taken.
+    /// </summary>
+    public static class SpillArgumentsPass : IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// The pass' name.
+        /// </summary>
+        public const string SpillArgumentsPassName = "spill-arguments";
+
+        private bool IsArgument(IVariable Variable)
+        {
+            return Variable is ArgumentVariable;
+        }
+
+        public IStatement Apply(IStatement Value)
+        {
+            var identityVisitor = new IdentityVariableFinder(IsArgument);
+            Value = identityVisitor.Visit(Value);
+            var argSubstVisitor = new SpillArgumentsVisitor(identityVisitor);
+            Value = argSubstVisitor.Visit(Value);
+
+            var resultStmts = new List<IStatement>();
+            foreach (var item in argSubstVisitor.Replacements)
+                resultStmts.Add(item.Value.CreateSetStatement(
+                    item.Key.CreateGetExpression()));
+
+            resultStmts.Add(Value);
+            return new BlockStatement(resultStmts);
+        }
+    }
+}

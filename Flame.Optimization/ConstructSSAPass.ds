@@ -35,6 +35,14 @@ namespace Flame.Optimization
         public [IVariable] IdentityVariables { get { return results; } }
 
         /// <summary>
+        /// Tests if the given variable has the identity property.
+        /// </summary>
+        public bool IsIdentityVariable(IVariable Variable)
+        {
+            return results.Contains(Variable);
+        }
+
+        /// <summary>
         /// A delegate that tells whether the user of this class is interested
         /// in a given variable or not. If this is not the case, then it will
         /// not be inserted in the identity variables set.

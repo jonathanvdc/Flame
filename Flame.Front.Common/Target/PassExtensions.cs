@@ -56,6 +56,11 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
             GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
 
+            // -fspill-arguments makes SSA optimizations more effective, because
+            // arguments are temporarily spilled to register locals.
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(SpillArgumentsPass.Instance, SpillArgumentsPass.SpillArgumentsPassName));
+            GlobalPassManager.RegisterPassCondition(SpillArgumentsPass.SpillArgumentsPassName, optInfo => optInfo.OptimizeNormal);
+
             // -fimperative-code is useful for high-level programming language output.
             // It also makes the optimizer's work easier, so enable it
             // for -O2.

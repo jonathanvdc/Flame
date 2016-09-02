@@ -60,6 +60,7 @@
     <Compile Include="SlimLambdaPass.ds" />
     <Compile Include="SpecializationPass.ds" />
     <Compile Include="SpeculativeStatement.ds" />
+    <Compile Include="SpillArgumentsPass.ds" />
     <Compile Include="StackIntrinsicsPass.ds" />
     <Compile Include="StatementRewriter.ds" />
     <Compile Include="TailRecursionPass.ds" />
