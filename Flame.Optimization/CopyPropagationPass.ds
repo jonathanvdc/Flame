@@ -122,14 +122,7 @@ namespace Flame.Optimization
                 // Don't emit arguments to trivial phi functions.
                 if (!IsCopyVariable(param) && !Definitions.ContainsKey(param))
                 {
-                    if (Copies.TryGetValue(arg, &SSAVariable copiedVar))
-                    {
-                        argList.Add(copiedVar);
-                    }
-                    else
-                    {
-                        argList.Add(arg);
-                    }
+                    argList.Add(GetCopiedVariable(arg));
                 }
             }
             return new BlockBranch(Branch.TargetTag, argList);
