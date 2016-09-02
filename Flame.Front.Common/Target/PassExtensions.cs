@@ -39,7 +39,11 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(TailRecursionPass.TailRecursionPassName, optInfo => optInfo.OptimizeNormal);
 
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerLambdaPass.Instance, LowerLambdaPassName));
+
+            // Enable the contract lowering pass when debug mode is turned off and optimizations
+            // are turned on, to avoid confusing the optimizer with method contract statements.
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(LowerContractPass.Instance, LowerContractPass.LowerContractPassName));
+            GlobalPassManager.RegisterPassCondition(LowerContractPass.LowerContractPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeDebug);
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(SimplifyFlowPass.Instance, SimplifyFlowPassName));
             GlobalPassManager.RegisterPassCondition(SimplifyFlowPassName, optInfo => optInfo.OptimizeNormal);
