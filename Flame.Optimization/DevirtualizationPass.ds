@@ -50,12 +50,19 @@ namespace Flame.Optimization
             {
                 assert(expr.Caller != null);
 
-                if (expr.Target.DeclaringType.IsValueType)
+                var targetDeclTy = expr.Target.DeclaringType;
+                if (targetDeclTy.IsValueType)
                     return expr;
 
                 var caller = SpecializedCall.UnwrapCast(expr.Caller);
                 var callerTy = caller.Type;
-                if (callerTy == expr.Caller.Type)
+                bool ptrCaller = callerTy.IsPointer;
+                if (ptrCaller)
+                    // Unwrap at most one level of pointer indirection.
+                    callerTy = callerTy.AsPointerType().ElementType;
+
+                if (callerTy.Equals(targetDeclTy))
+                    // We can't possibly hope to find a better implementation.
                     return expr;
 
                 var impl = expr.Target.GetImplementation(callerTy);
@@ -66,13 +73,21 @@ namespace Flame.Optimization
                 // Log a record before returning.
                 devirtRecords.Add(new DevirtualizationRecord(
                     CurrentLocation, expr.Target, impl));
-                if (impl.IsVirtual || impl.DeclaringType.IsInterface)
+
+                if (impl.IsVirtual)
                 {
-                    return new GetMethodExpression(impl, caller, Operator.GetVirtualDelegate);
+                    var implDeclTy = impl.DeclaringType;
+                    if (!ptrCaller && !callerTy.Equals(implDeclTy))
+                        // Insert a reinterpret cast if necessary
+                        caller = new ReinterpretCastExpression(caller, implDeclTy);
+
+                    return new GetMethodExpression(
+                        impl, caller, Operator.GetVirtualDelegate);
                 }
                 else
                 {
-                    return new GetMethodExpression(impl, caller, Operator.GetDelegate);
+                    return new GetMethodExpression(
+                        impl, caller, Operator.GetDelegate);
                 }
             }
 
