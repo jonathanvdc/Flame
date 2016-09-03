@@ -22,7 +22,7 @@ build_script:
   # Build compare-test, with -O3, to ensure that aggressive optimizations
   # work for a real-life application. Use --debug to catch some incorrect
   # optimizations at compile-time.
-  - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug
+  - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug -v
 
 assembly_info:
     patch: true
