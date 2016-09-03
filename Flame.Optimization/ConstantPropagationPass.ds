@@ -543,7 +543,7 @@ namespace Flame.Optimization
 
             // Apply the visitor to the graph, then apply a select flow
             // simplification pass.
-            return SimplifySelectFlowPass.Visit(
+            return SimplifySelectFlowPass.Apply(
                 Graph.Accept(visitor).Accept(NodeOptimizationPass));
         }
 
