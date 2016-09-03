@@ -102,7 +102,7 @@ namespace Flame.Recompilation
         private Dictionary<IMethod, HashSet<IMethod>> implementations;
 
         /// <summary>
-        /// Maintains a list of members that are still pending recompilation. 
+        /// Maintains a list of members that are still pending recompilation.
         /// </summary>
         private List<IMember> pendingRecompilationList;
 
@@ -909,7 +909,7 @@ namespace Flame.Recompilation
 
             if (LogRecompilation)
             {
-                Log.LogEvent(new LogEntry("Status", "recompiling " + SourceType.FullName));
+                Log.LogEvent(new LogEntry("Status", "compiling " + SourceType.FullName));
             }
 
             var typeTemplate = RecompiledTypeTemplate.GetRecompilerTemplate(this, SourceType);
@@ -952,8 +952,8 @@ namespace Flame.Recompilation
             IField TargetField, IExpression Value,
             bool IsStatic, IType DeclaringType)
         {
-            var thisVal = IsStatic 
-                ? null 
+            var thisVal = IsStatic
+                ? null
                 : new ThisVariable(DeclaringType).CreateGetExpression();
             IField refField;
             var recGenericParams = DeclaringType.GetRecursiveGenericParameters().ToArray();
@@ -1002,14 +1002,14 @@ namespace Flame.Recompilation
                         try
                         {
                             bool isStatic = TargetField.IsStatic;
-                            var initVal = isStatic 
-                                ? GetExpression(expr, CreateEmptyMethod(TargetField)) 
+                            var initVal = isStatic
+                                ? GetExpression(expr, CreateEmptyMethod(TargetField))
                                 : null;
                             TaskManager.RunSequential(() =>
                             {
                                 if (!isStatic || !TargetField.TrySetValue(initVal))
                                 {
-                                    // If the field is static, 
+                                    // If the field is static,
                                     // -OR-
                                     // if the back-end refuses to perform the field initialization,
                                     // then we'll take care of it here, by adding an element
@@ -1018,7 +1018,7 @@ namespace Flame.Recompilation
                                     var declTy = SourceField.DeclaringType;
                                     var initDict = isStatic ? staticFieldInit : instanceFieldInit;
                                     initDict.Add(
-                                        declTy, 
+                                        declTy,
                                         CreateFieldInitializationStatement(
                                             SourceField, expr, isStatic, declTy));
                                 }
@@ -1027,8 +1027,8 @@ namespace Flame.Recompilation
                         catch (Exception ex)
                         {
                             Log.LogError(new LogEntry(
-                                "unhandled exception while recompiling field",
-                                "an unhandled exception was thrown while recompiling value of field '" + SourceField.FullName + "'."));
+                                "unhandled exception while compiling field",
+                                "an unhandled exception was thrown while compiling value of field '" + SourceField.FullName + "'."));
                             Log.LogException(ex);
                             throw;
                         }
@@ -1082,7 +1082,7 @@ namespace Flame.Recompilation
         /// </summary>
         private static bool IsBodylessMethod(IMethod SourceMethod)
         {
-            return SourceMethod.GetIsAbstract() 
+            return SourceMethod.GetIsAbstract()
                 || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.GetIsInterface())
                 || SourceMethod.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType);
         }
@@ -1137,8 +1137,8 @@ namespace Flame.Recompilation
                     var declTy = bodyMethod.DeclaringType;
 
                     // Constructors should also handle field initialization.
-                    // If any fields have to be initialized explicitly, then 
-                    // we will compile them now, and add them to the 
+                    // If any fields have to be initialized explicitly, then
+                    // we will compile them now, and add them to the
                     // constructor's method body.
                     RecompileInitializedFields(declTy);
 
@@ -1185,8 +1185,8 @@ namespace Flame.Recompilation
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry(
-                    "unhandled exception while recompiling method",
-                    "an unhandled exception was thrown during codegen for method '" 
+                    "unhandled exception while compiling method",
+                    "an unhandled exception was thrown during codegen for method '"
                     + Target.FullName + "'."));
                 Log.LogException(ex);
             }
@@ -1223,8 +1223,8 @@ namespace Flame.Recompilation
             catch (Exception ex)
             {
                 Log.LogError(new LogEntry(
-                    "unhandled exception while recompiling method",
-                    "an unhandled exception was thrown while recompiling method '" + SourceMethod.FullName + "'."));
+                    "unhandled exception while compiling method",
+                    "an unhandled exception was thrown while compiling method '" + SourceMethod.FullName + "'."));
                 Log.LogException(ex);
             }
         }

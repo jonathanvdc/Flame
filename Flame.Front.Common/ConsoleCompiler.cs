@@ -127,7 +127,7 @@ namespace Flame.Front.Cli
                 Name.PrintInfo(log);
             }
 
-			if (mergedArgs.GetOption<bool>("print-palette", false)) 
+			if (mergedArgs.GetOption<bool>("print-palette", false))
 			{
 				CompilerName.PrintColorScheme(log);
 			}
@@ -290,7 +290,7 @@ namespace Flame.Front.Cli
         }
 
         /// <summary>
-        /// Parses the project that belongs to the given identifier. 
+        /// Parses the project that belongs to the given identifier.
         /// The result is returned as a parsed project-project handler pair.
         /// </summary>
         public static Tuple<ParsedProject, IProjectHandler> ParseProject(PathIdentifier Identifier, BuildArguments Args, ICompilerLog Log)
@@ -491,7 +491,7 @@ namespace Flame.Front.Cli
         {
             var target = CreateBuildTarget(MainAssembly);
 
-            State.Log.LogEvent(new LogEntry("Status", "recompiling..."));
+            State.Log.LogEvent(new LogEntry("Status", "compiling..."));
 
             var recompSettings = new RecompilationSettings(
                 GetRecompilationPass(State.Log),
@@ -517,7 +517,7 @@ namespace Flame.Front.Cli
             }
             await asmRecompiler.RecompileAsync();
 
-            State.Log.LogEvent(new LogEntry("Status", "done recompiling"));
+            State.Log.LogEvent(new LogEntry("Status", "done compiling"));
 
             target.TargetAssembly.Build();
 
