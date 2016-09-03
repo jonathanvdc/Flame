@@ -92,38 +92,30 @@ namespace Flame.Syntax.DSharp
 
         public static IExpression CreateCallerExpression(ISyntaxState State, IVariable Caller, ITypeMember Member)
         {
-            IExpression callerExpr;
             if (Member.IsStatic)
-            {
-                callerExpr = null;
-            }
+                return null;
             else
-            {
-                callerExpr = CreateInstanceCallerExpression(State, Caller, Member.DeclaringType);
-            }
-            return callerExpr;
+                return CreateInstanceCallerExpression(State, Caller, Member.DeclaringType);
         }
 
         #endregion
 
         #region CreateInstanceCallerExpression
 
+        private static bool IsPotentialValueType(IType Type)
+        {
+            return Type.IsValueType
+                || (Type.IsGenericParameter && !Type.IsReferenceType);
+        }
+
         public static IExpression CreateInstanceCallerExpression(ISyntaxState State, IVariable Caller, IType CallerType)
         {
-            IExpression callerExpr;
-            if (CallerType.IsValueType && !Caller.Type.IsPointer)
-            {
-                callerExpr = CreateAddressToValueExpression(Caller);
-            }
-            else if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(Caller.Type)))
-            {
-            	callerExpr = (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
-            }
+            if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(Caller.Type)))
+            	return (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
+            else if (Caller != null && IsPotentialValueType(Caller.Type))
+                return CreateAddressToValueExpression(Caller);
             else
-            {
-                callerExpr = Caller.CreateGetExpression();
-            }
-            return callerExpr;
+                return Caller.CreateGetExpression();
         }
 
         #endregion
@@ -134,10 +126,8 @@ namespace Flame.Syntax.DSharp
         {
             if (CallerType.IsPointer && !Caller.Type.IsPointer)
             	return CreateAddressToValueExpression(Caller);
-
             else if (CastSyntax.UseImplicitCast(State, Caller.Type, CallerType))
                 return ConversionExpression.Create(Caller.CreateGetExpression(), CallerType);
-
             else
                 return Caller.CreateGetExpression();
         }
