@@ -471,7 +471,7 @@ namespace Flame
         {
             get
             {
-                return Register("unbox.ref");
+                return Register("unbox_ref");
             }
         }
 
@@ -483,7 +483,7 @@ namespace Flame
         {
             get
             {
-                return Register("unbox.val");
+                return Register("unbox_val");
             }
         }
 
