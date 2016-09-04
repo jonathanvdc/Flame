@@ -39,6 +39,20 @@ namespace Flame.Compiler.Expressions
                 return evalVal;
         }
 
+        /// <summary>
+        /// Tries to apply simple node-based simplifications.
+        /// </summary>
+        public override IExpression Simplify()
+        {
+            // TODO: re-enable this when 'unbox_val' expressions replace
+            // 'dynamic_cast' for unboxing.
+
+            // if (Value.Type.Is(TargetType))
+            //     return new ReinterpretCastExpression(Value, TargetType);
+            // else
+            return this;
+        }
+
         public override ICodeBlock Emit(ICodeGenerator Generator)
         {
             var valueBlock = Value.Emit(Generator);

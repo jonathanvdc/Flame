@@ -114,6 +114,7 @@
 			<Compile Include="Expressions/CharExpression.ds" />
 			<Compile Include="Expressions/CodeBlockExpression.ds" />
 			<Compile Include="Expressions/UnaryExpression.ds" />
+			<Compile Include="Expressions/UnboxExpression.ds" />
 			<Compile Include="Expressions/UnknownExpression.ds" />
 			<Compile Include="Expressions/NegateExpression.ds" />
 			<Compile Include="Expressions/NotExpression.ds" />

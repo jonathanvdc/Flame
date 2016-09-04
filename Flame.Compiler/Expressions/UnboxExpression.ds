@@ -1,0 +1,126 @@
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// A type of expression that unboxes values.
+    /// </summary>
+    public class UnboxValueExpression : ConversionExpressionBase
+    {
+        /// <summary>
+        /// Creates an 'unbox_val' expression from the given value and type.
+        /// </summary>
+        public const this(IExpression Value, IType TargetType)
+            : base(Value, TargetType);
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected override ConversionExpressionBase Create(
+            IExpression NewValue, IType NewType)
+        {
+            return new UnboxValueExpression(NewValue, NewType);
+        }
+
+        /// <summary>
+        /// Tells if this conversion expression has no side-effects.
+        /// </summary>
+        public override bool IsConstantNode { get { return true; } }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public override IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Optimizes this conversion expression.
+        /// </summary>
+        public override IExpression Optimize()
+        {
+            var optVal = Value.Optimize();
+            var optValTy = optVal.Type;
+            if (optValTy.IsReferenceType && !optValTy.IsPointer)
+                // Found a non-box reference type. Replace this unboxing
+                // operation by a dynamic cast.
+                return new DynamicCastExpression(optVal, TargetType).Simplify();
+
+            var optExpr = Create(optVal, Type).Simplify();
+            if (optExpr.IsConstant)
+            {
+                var evalExpr = optExpr.Evaluate();
+                if (evalExpr != null)
+                    return evalExpr.ToExpression();
+            }
+
+            return optExpr;
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var valueBlock = Value.Emit(Generator);
+            var resultBlock = Generator.EmitTypeBinary(
+                valueBlock, TargetType, Operator.UnboxValue);
+            if (resultBlock != null)
+                return resultBlock;
+
+            return ((IUnmanagedCodeGenerator)Generator).EmitDereferencePointer(
+                Generator.EmitTypeBinary(
+                    valueBlock, TargetType, Operator.UnboxReference));
+        }
+
+        public override string ToString()
+        {
+            return "unbox_val(" + Value + ", " + TargetType.ToString() + ")";
+        }
+    }
+
+    /// <summary>
+    /// A type of expression that computes references to boxed objects.
+    /// </summary>
+    public class UnboxReferenceExpression : ConversionExpressionBase
+    {
+        /// <summary>
+        /// Creates an 'unbox_ref' expression from the given value and type.
+        /// </summary>
+        public const this(IExpression Value, IType TargetType)
+            : base(Value, TargetType);
+
+        /// <summary>
+        /// Creates a new conversion expression that converts the given
+        /// value to the given type.
+        /// </summary>
+        protected override ConversionExpressionBase Create(
+            IExpression NewValue, IType NewType)
+        {
+            return new UnboxReferenceExpression(NewValue, NewType);
+        }
+
+        /// <summary>
+        /// Tells if this conversion expression has no side-effects.
+        /// </summary>
+        public override bool IsConstantNode { get { return true; } }
+
+        /// <summary>
+        /// Evaluates this conversion expression at compile-time.
+        /// </summary>
+        public override IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var valueBlock = Value.Emit(Generator);
+            return Generator.EmitTypeBinary(
+                valueBlock, TargetType, Operator.UnboxReference);
+        }
+
+        public override string ToString()
+        {
+            return "unbox_ref(" + Value + ", " + TargetType.ToString() + ")";
+        }
+    }
+}

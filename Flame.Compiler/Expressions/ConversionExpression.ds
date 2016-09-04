@@ -34,7 +34,8 @@ namespace Flame.Compiler.Expressions
         /// Creates a new conversion expression that converts the given
         /// value to the given type.
         /// </summary>
-        protected abstract ConversionExpressionBase Create(IExpression NewValue, IType NewType);
+        protected abstract ConversionExpressionBase Create(
+            IExpression NewValue, IType NewType);
 
         /// <summary>
         /// Tells if this conversion expression does not have side-effects.
