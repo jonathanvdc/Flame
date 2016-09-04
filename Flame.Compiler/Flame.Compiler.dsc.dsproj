@@ -87,6 +87,7 @@
 			<Compile Include="Expressions/BitExpressions.ds" />
 			<Compile Include="Expressions/IntExpressions.ds" />
 			<Compile Include="Expressions/BooleanExpression.ds" />
+			<Compile Include="Expressions/BoxExpression.ds" />
 			<Compile Include="Expressions/CaughtExceptionExpression.ds" />
 			<Compile Include="Expressions/ContainerElementAddressOfExpression.ds" />
 			<Compile Include="Expressions/ContainerElementGetExpression.ds" />

@@ -1,0 +1,50 @@
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// A type of expression that boxes values. Boxing a value results in
+    /// the creation of a reference type box to contain said value.
+    /// Boxing reference types is a no-op.
+    /// </summary>
+    public class BoxExpression : UnaryOperatorExpression
+    {
+        public this(IExpression Value)
+            : base(Value)
+        { }
+
+        public override Operator Op
+        {
+            get { return Operator.Box; }
+        }
+
+        public override IType Type
+        {
+            get { return Value.Type.MakePointerType(PointerKind.BoxPointer); }
+        }
+
+        public override IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Simplify()
+        {
+            if (Value.Type.IsReferenceType)
+                // Elide box-expressions to reference types.
+                return Value;
+            else
+                return this;
+        }
+
+        public override IExpression Optimize()
+        {
+            var optVal = Value.Optimize();
+            return new BoxExpression(optVal).Simplify();
+        }
+
+        protected override IExpression Create(IExpression Operand)
+        {
+            return new BoxExpression(Operand);
+        }
+    }
+}
