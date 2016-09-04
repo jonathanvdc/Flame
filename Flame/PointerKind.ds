@@ -1,24 +1,32 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// A data structure that describes categories of pointers.
+    /// </summary>
     public struct PointerKind
     {
-        private const this(set int32 typeIndex);
+        private const this(set int typeIndex);
         public const this(PointerKind Other)
         {
             this.typeIndex = Other.typeIndex;
         }
 
-        private int32 typeIndex;
+        private int typeIndex;
 
+        /// <summary>
+        /// Tests if this pointer kind is defined.
+        /// </summary>
         public bool IsDefined
         {
             const get return typeIndex > -1;
         }
 
+        /// <summary>
+        /// Gets this pointer kind's extension.
+        /// </summary>
         public string Extension
         {
             const get
@@ -30,18 +38,37 @@ namespace Flame
             }
         }
 
+        /// <summary>
+        /// Gets the ancestry rules for this pointer kind.
+        /// </summary>
+        public IPointerAncestryRules AncestryRules
+        {
+            get
+            {
+                if (typeIndex >= 0)
+                    return ancRules[typeIndex];
+                else
+                    return null;
+            }
+        }
+
         #region Equality
 
-        public override const int32 GetHashCode()
+        public override const int GetHashCode()
         {
             return typeIndex.GetHashCode();
         }
 
-        public override const bool Equals(object obj)
+        public bool Equals(PointerKind Other)
+        {
+            return typeIndex == Other.typeIndex;
+        }
+
+        public override bool Equals(object obj)
         {
             if (obj is PointerKind)
             {
-                return ((PointerKind)obj).typeIndex == typeIndex;
+                return Equals((PointerKind)obj);
             }
             else
             {
@@ -67,26 +94,58 @@ namespace Flame
         static this()
         {
             typeNames = new List<string>();
-            kindDict = new ConcurrentDictionary<string, PointerKind>();
+            ancRules = new List<IPointerAncestryRules>();
+            kindDict = new Dictionary<string, PointerKind>();
             Register("*");
             Register("^");
+            Register("'box");
         }
 
         private static List<string> typeNames;
-        private static ConcurrentDictionary<string, PointerKind> kindDict;
+        private static List<IPointerAncestryRules> ancRules;
+        private static Dictionary<string, PointerKind> kindDict;
 
-        private static PointerKind RegisterNew(string Extension)
+        private static PointerKind RegisterNew(
+            string Extension, IPointerAncestryRules Rules)
         {
             typeNames.Add(Extension);
-            return new PointerKind(typeNames.Count - 1);
+            ancRules.Add(Rules);
+            var result = new PointerKind(typeNames.Count - 1);
+            kindDict[Extension] = result;
+            return result;
         }
 
+        /// <summary>
+        /// Registers a pointer kind with the given extension and set of pointer
+        /// ancestry rules.
+        /// </summary>
+        public static PointerKind Register(string Extension, IPointerAncestryRules Rules)
+        {
+            PointerKind result;
+            if (kindDict.TryGetValue(Extension, &result))
+            {
+                assert(result.AncestryRules.Equals(Rules));
+                return result;
+            }
+            else
+            {
+                return RegisterNew(Extension, Rules);
+            }
+        }
+
+        /// <summary>
+        /// Registers a pointer kind with the given extension. The default
+        /// set of ancestry rules is implied.
+        /// </summary>
         public static PointerKind Register(string Extension)
         {
-            return kindDict.GetOrAdd(Extension, RegisterNew);
+            return Register(Extension, PointerAncestryRules);
         }
 
-        public static const bool IsPointerExtension(string Extension)
+        /// <summary>
+        /// Checks if the given string is a pointer extension.
+        /// </summary>
+        public static bool IsPointerExtension(string Extension)
         {
             return kindDict.ContainsKey(Extension);
         }
@@ -134,7 +193,7 @@ namespace Flame
 
         public static PointerKind TransientPointer
         {
-            /*const*/ get // Marked not constant to avoid CTFE, which is not always supported
+            get
             {
                 return Register("*");
             }
@@ -142,9 +201,20 @@ namespace Flame
 
         public static PointerKind ReferencePointer
         {
-            /*const*/ get
+            get
             {
                 return Register("^");
+            }
+        }
+
+        /// <summary>
+        /// A reference to a boxed value.
+        /// </summary>
+        public static PointerKind BoxPointer
+        {
+            get
+            {
+                return Register("'box");
             }
         }
 

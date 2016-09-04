@@ -6,17 +6,17 @@ using System.Text;
 namespace Flame
 {
     /// <summary>
-    /// Defines a poiner name: an unqualified name that is turned into a pointer.
+    /// Defines a poiner name: a qualified name that is turned into a pointer.
     /// </summary>
     public class PointerName : UnqualifiedName, IEquatable<PointerName>
     {
         /// <summary>
-        /// Creates a new pointer name from the given unqualified name and pointer type.
+        /// Creates a new pointer name from the given qualified name and pointer type.
         /// </summary>
         public const this(set QualifiedName ElementName, set PointerKind Kind);
 
         /// <summary>
-        /// Gets the unqualified name that is turned into a pointer.
+        /// Gets the qualified name that is turned into a pointer.
         /// </summary>
         public QualifiedName ElementName { get; private set; }
 
@@ -32,7 +32,7 @@ namespace Flame
 
         public override bool Equals(PointerName Other)
         {
-            return ElementName == Other.ElementName
+            return ElementName.Equals(Other.ElementName)
                 && Kind == Other.Kind;
         }
         public override bool Equals(UnqualifiedName Other)

@@ -10,22 +10,33 @@ namespace Flame
     /// </summary>
     public class PointerType : ContainerTypeBase
     {
-        public const this(IType ElementType, set PointerKind PointerKind)
-            : base(ElementType);
+        public const this(
+            IType ElementType, set PointerKind PointerKind)
+            : base(ElementType)
+        {
+            this.ancRules = PointerKind.AncestryRules;
+        }
 
         /// <summary>
         /// Gets this pointer's kind.
         /// </summary>
         public PointerKind PointerKind { const get; private set; }
 
+        private IPointerAncestryRules ancRules;
+
         protected override UnqualifiedName GetName(QualifiedName ElementName)
         {
             return new PointerName(ElementName, PointerKind);
         }
 
+        public override AttributeMap Attributes
+        {
+            get { return ancRules.GetPointerAttributes(ElementType); }
+        }
+
         public override IAncestryRules AncestryRules
         {
-            const get { return PointerAncestryRules; }
+            get { return ancRules; }
         }
 
         public override bool Equals(object obj)
@@ -48,13 +59,33 @@ namespace Flame
     }
 
     /// <summary>
+    /// A common interface for pointer ancestry rules.
+    /// </summary>
+    public interface IPointerAncestryRules : IAncestryRules
+    {
+        /// <summary>
+        /// Gets the attributes that belong to a pointer with the given element
+        /// type, that adheres to these ancestry rules.
+        /// </summary>
+        AttributeMap GetPointerAttributes(IType ElementType);
+    }
+
+    /// <summary>
     /// Represents the following set of ancestry rules for pointers:
-    ///  * Null is a pointer type
-    ///  * Two pointer type of the same pointer kind have the same ancestry degree
+    ///  * Two pointer types of the same pointer kind have the same ancestry degree
     ///    as their elements.
     /// </summary>
-    public static class PointerAncestryRules : IAncestryRules
+    public static class PointerAncestryRules : IPointerAncestryRules
     {
+        /// <summary>
+        /// Gets the attributes that belong to a pointer with the given element
+        /// type, that adheres to these ancestry rules.
+        /// </summary>
+        public AttributeMap GetPointerAttributes(IType ElementType)
+        {
+            return AttributeMap.Empty;
+        }
+
         public int GetAncestryDegree(IType First, IType Second)
         {
             if (First.IsPointer && Second.IsPointer)
@@ -69,6 +100,60 @@ namespace Flame
             {
                 return -1;
             }
+        }
+    }
+
+    /// <summary>
+    /// Represents the following set of ancestry rules for boxed values:
+    ///  * Two box types of have the same ancestry degree as their elements.
+    ///  * A box type and a reference type have the same ancestry degree
+    ///    as the element type and said reference type.
+    /// </summary>
+    public static class BoxAncestryRules : IPointerAncestryRules
+    {
+        static this()
+        {
+            var attrBuilder = new AttributeMapBuilder();
+            attrBuilder.Add(PrimitiveAttributes.ReferenceTypeAttribute);
+            attrs = new AttributeMap(attrBuilder);
+        }
+
+        private AttributeMap attrs;
+
+        /// <summary>
+        /// Gets the attributes that belong to a pointer with the given element
+        /// type, that adheres to these ancestry rules.
+        /// </summary>
+        public AttributeMap GetPointerAttributes(IType ElementType)
+        {
+            return attrs;
+        }
+
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.IsPointer)
+            {
+                var lPtrTy = First.AsPointerType();
+                var lElemType = lPtrTy.ElementType;
+                if (lPtrTy.PointerKind.Equals(PointerKind.BoxPointer))
+                {
+                    if (Second.IsPointer)
+                    {
+                        var rPtrTy = Second.AsPointerType();
+                        if (rPtrTy.PointerKind.Equals(PointerKind.BoxPointer))
+                        {
+                            // Two box types.
+                            return lElemType.GetAncestryDegree(rPtrTy.ElementType);
+                        }
+                    }
+                    else if (Second.IsReferenceType)
+                    {
+                        // Left type is a box, right type is a reference type.
+                        return lElemType.GetAncestryDegree(Second);
+                    }
+                }
+            }
+            return -1;
         }
     }
 }

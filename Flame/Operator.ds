@@ -83,6 +83,7 @@ namespace Flame
             	Operator.Not, Operator.Hash, Operator.Concat,
                 Operator.IsInstance, Operator.AsInstance,
                 Operator.StaticCast, Operator.DynamicCast,
+                Operator.Box, Operator.UnboxReference, Operator.UnboxValue,
                 Operator.ReinterpretCast,
                 Operator.GetDelegate, Operator.GetVirtualDelegate,
                 Operator.GetCurriedDelegate,
@@ -448,6 +449,41 @@ namespace Flame
             get
             {
                 return Register("get_curried_delegate");
+            }
+        }
+
+        /// <summary>
+        /// Creates a boxed version of a value.
+        /// </summary>
+        public static Operator Box
+        {
+            get
+            {
+                return Register("box");
+            }
+        }
+
+        /// <summary>
+        /// Unboxes a boxed value, and returns a reference to the value in the
+        /// box. This operator cannot be applied to reference types.
+        /// </summary>
+        public static Operator UnboxReference
+        {
+            get
+            {
+                return Register("unbox.ref");
+            }
+        }
+
+        /// <summary>
+        /// Unboxes a boxed value, and returns the value in the box.
+        /// This is a no-op for reference types.
+        /// </summary>
+        public static Operator UnboxValue
+        {
+            get
+            {
+                return Register("unbox.val");
             }
         }
 
