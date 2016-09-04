@@ -248,7 +248,9 @@ namespace Flame.Intermediate.Emit
             { Operator.StaticCast, ExpressionParsers.StaticCastNode },
             { Operator.ReinterpretCast, ExpressionParsers.ReinterpretCastNode },
             { Operator.IsInstance, ExpressionParsers.IsInstanceNode },
-            { Operator.AsInstance, ExpressionParsers.AsInstanceNode }
+            { Operator.AsInstance, ExpressionParsers.AsInstanceNode },
+            { Operator.UnboxReference, ExpressionParsers.UnboxValNode },
+            { Operator.UnboxValue, ExpressionParsers.UnboxRefNode }
         };
 
         public ICodeBlock EmitPop(ICodeBlock Value)

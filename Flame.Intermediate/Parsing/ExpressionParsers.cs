@@ -176,6 +176,8 @@ namespace Flame.Intermediate.Parsing
         public const string ReinterpretCastNode = "#reinterpret_cast";
         public const string AsInstanceNode = "#as_instance";
         public const string IsInstanceNode = "#is_instance";
+        public const string UnboxRefNode = "#unbox_ref";
+        public const string UnboxValNode = "#unbox_val";
 
         public const string ConstantInt8Name = "#const_int8";
         public const string ConstantInt16Name = "#const_int16";
@@ -2157,6 +2159,8 @@ namespace Flame.Intermediate.Parsing
                     { DynamicCastNode, CreateTypeBinaryParser((expr, type) => new DynamicCastExpression(expr, type)) },
                     { AsInstanceNode, CreateTypeBinaryParser((expr, type) => new AsInstanceExpression(expr, type)) },
                     { IsInstanceNode, CreateTypeBinaryParser((expr, type) => new IsExpression(expr, type)) },
+                    { UnboxRefNode, CreateTypeBinaryParser((expr, type) => new UnboxReferenceExpression(expr, type)) },
+                    { UnboxValNode, CreateTypeBinaryParser((expr, type) => new UnboxValueExpression(expr, type)) },
 
                     // Container types
                     { NewArrayName, CreateParser(ParseNewArray) },
