@@ -292,12 +292,16 @@ namespace Flame.Compiler.Statements
 		{
 			var optTry = TryBody.Optimize();
 			var optFinally = FinallyBody.Optimize();
-			List<CatchClause> optClauses = new List<CatchClause>();
+			var optClauses = new List<CatchClause>();
 			foreach (var item in CatchClauses)
-			{
 				optClauses.Add(item.Optimize());
-			}
-			return new TryStatement(optTry, optFinally, optClauses);
+
+			if (optTry.IsEmpty)
+				return optFinally;
+			else if (optFinally.IsEmpty && optClauses.Count == 0)
+				return optTry;
+			else
+				return new TryStatement(optTry, optFinally, optClauses);
 		}
 
 		public ICodeBlock Emit(ICodeGenerator Generator)
