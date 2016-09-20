@@ -594,6 +594,26 @@ namespace Flame
 
 		#endregion
 
+		#region IsClosed
+
+		/// <summary>
+		/// Checks if the given type is "closed:" it cannot have any
+		/// subtypes.
+		/// </summary>
+		public static bool IsClosed[this IType Type]
+		{
+			get
+			{
+				if (Type.IsPointer)
+					return Type.AsPointerType().ElementType.IsClosed;
+
+				return !Type.IsVirtual && !Type.IsInterface
+					&& !Type.IsGenericParameter;
+			}
+		}
+
+		#endregion
+
         #region GetAncestryDegree
 
         public static const int GetAncestryDegree(this IType Type, IType Other)

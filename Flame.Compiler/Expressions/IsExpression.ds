@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
@@ -72,7 +73,8 @@ namespace Flame.Compiler.Expressions
 
         	var evalType = eval.Type;
         	if (evalType.Equals(PrimitiveTypes.Null))
-                return new BooleanExpression(TestType.Equals(PrimitiveTypes.Null));
+                return new BooleanExpression(
+                    TestType.Equals(PrimitiveTypes.Null));
             else
                 return new BooleanExpression(evalType.Is(TestType));
         }
@@ -87,29 +89,54 @@ namespace Flame.Compiler.Expressions
                     return new BooleanExpression(evalTarget.Type.Is(TestType));
             }
             var targetType = optTarget.Type;
-            if (targetType.IsReferenceType && targetType.Is(TestType))
+            if (targetType.Is(TestType))
             {
-                // `x is T` is equivalent to `x != null` if `typeof(x) : T`
-                return new InequalityExpression(
-                    optTarget,
-                    new ReinterpretCastExpression(NullExpression, targetType));
+                if ((targetType.IsPointer
+                    && targetType.AsPointerType().PointerKind.Equals(
+                        PointerKind.ReferencePointer))
+                    || targetType.IsValueType)
+                {
+                    // `x is T` is equivalent to `true` if `typeof(x) : T`
+                    // and `typeof(x)` is a `struct` or a reference pointer.
+                    return new InitializedExpression(
+                        new ExpressionStatement(optTarget),
+                        new BooleanExpression(true)).Simplify();
+                }
+                else if (targetType.IsReferenceType)
+                {
+                    // `x is T` is equivalent to `x != null` if `typeof(x) : T`
+                    return new InequalityExpression(
+                        optTarget,
+                        new ReinterpretCastExpression(
+                            NullExpression, targetType));
+                }
+
+                // TODO: box generic parameters, and compare those to `null`.
             }
-            else
+            else if (targetType.IsClosed)
             {
-                return new IsExpression(optTarget, TestType);
+                // `x is T` is equivalent to `false` if `typeof(x)` does not
+                // inherit from `T`, and `typeof(x)` does not have any subtypes.
+                return new InitializedExpression(
+                    new ExpressionStatement(optTarget),
+                    new BooleanExpression(false)).Simplify();
             }
+
+            return new IsExpression(optTarget, TestType);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
         {
             var targetBlock = Target.Emit(Generator);
-            var isInst = Generator.EmitTypeBinary(targetBlock, TestType, Operator.IsInstance);
+            var isInst = Generator.EmitTypeBinary(
+                targetBlock, TestType, Operator.IsInstance);
             if (isInst == null)
             {
                 // We can always try to create an `as_instance(value, type) != null` block
                 // if the code generator refuses to create an
                 // `is_instance(value, type)` block.
-                var asInst = Generator.EmitTypeBinary(targetBlock, TestType, Operator.AsInstance);
+                var asInst = Generator.EmitTypeBinary(
+                    targetBlock, TestType, Operator.AsInstance);
                 if (asInst != null)
                 {
                     return Generator.EmitNotEquals(asInst, Generator.EmitNull());
