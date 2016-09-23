@@ -114,13 +114,25 @@ namespace Flame.Front.Cli
             }
             return new DefaultConsole(DefaultConsole.GetBufferWidth(), GetForegroundColor(Options), GetBackgroundColor(Options));
         }
+
+        private static string GetDefaultTerminalName()
+        {
+            if (Console.IsOutputRedirected)
+                return "default";
+            else
+                return TerminalIdentifier;
+        }
+
         public static IConsole AcquireConsole(ICompilerOptions Options)
         {
-            return AcquireConsole(Options.GetOption<string>("terminal", TerminalIdentifier), Options);
+            string opt = Options.GetOption<string>("terminal", null);
+            if (opt == null)
+                opt = GetDefaultTerminalName();
+            return AcquireConsole(opt, Options);
         }
         public static IConsole AcquireConsole()
         {
-            return AcquireConsole(TerminalIdentifier, new StringCompilerOptions());
+            return AcquireConsole(GetDefaultTerminalName(), new StringCompilerOptions());
         }
     }
 }
