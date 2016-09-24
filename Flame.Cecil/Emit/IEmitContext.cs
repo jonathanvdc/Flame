@@ -59,7 +59,6 @@ namespace Flame.Cecil.Emit
             IEmitLabel HandlerStartLabel, IEmitLabel HandlerEndLabel);
 
         IEmitLocal DeclareLocal(IType Type);
-        void ReleaseLocal(IEmitLocal Local);
 
         void Flush();
     }

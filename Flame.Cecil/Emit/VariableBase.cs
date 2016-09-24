@@ -32,21 +32,11 @@ namespace Flame.Cecil.Emit
         /// This method must adjust the type stack appropriately.
         /// </summary>
         /// <param name="Context"></param>
-        public abstract void EmitStore(IEmitContext Context, ICecilBlock Value);
-        /// <summary>
-        /// Emits instructions that release this variable.
-        /// </summary>
-        /// <param name="Context"></param>
-        public abstract void EmitRelease(IEmitContext Context);        
+        public abstract void EmitStore(IEmitContext Context, ICecilBlock Value);    
 
         public ICecilBlock EmitGet()
         {
             return new VariableLoadBlock(this);
-        }
-
-        public ICecilBlock EmitRelease()
-        {
-            return new VariableReleaseBlock(this);
         }
 
         public ICecilBlock EmitSet(ICecilBlock Value)
@@ -61,7 +51,8 @@ namespace Flame.Cecil.Emit
 
         ICodeBlock IEmitVariable.EmitRelease()
         {
-            return EmitRelease();
+            // Release does nothing
+            return new EmptyBlock(CodeGenerator);
         }
 
         ICodeBlock IEmitVariable.EmitSet(ICodeBlock Value)

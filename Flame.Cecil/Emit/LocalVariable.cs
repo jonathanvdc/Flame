@@ -120,22 +120,5 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Stloc, emitVariable);
             }
         }
-
-        #region Recycling
-
-        public override void EmitRelease(IEmitContext Context)
-        {
-            Release(Context);
-        }
-
-        public void Release(IEmitContext Context)
-        {
-            if (emitLocal != null)
-            {
-                Context.ReleaseLocal(emitLocal);
-            }
-        }
-
-        #endregion
     }
 }

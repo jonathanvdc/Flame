@@ -43,10 +43,5 @@ namespace Flame.Cecil.Emit
             Context.Stack.Pop();
             new StoreAtAddressEmitter().Emit(Context, Type);
         }
-
-        public override void EmitRelease(IEmitContext Context)
-        {
-            // Do nothing.
-        }
     }
 }

@@ -81,10 +81,5 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Starg, Index);
             }
         }
-
-        public override void EmitRelease(IEmitContext Context)
-        {
-            // Do nothing.
-        }
     }
 }

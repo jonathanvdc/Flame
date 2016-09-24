@@ -19,7 +19,6 @@ namespace Flame.Cecil.Emit
             this.flowControls = new Stack<IFlowControlStructure>();
             PushFlowControl(new GlobalFlowControlStructure(CodeGenerator));
             this.Stack = new TypeStack();
-            this.localVarPool = new List<IEmitLocal>();
             this.labels = new List<CecilLabel>();
         }
 
@@ -525,8 +524,6 @@ namespace Flame.Cecil.Emit
 
         #region Locals
 
-        private List<IEmitLocal> localVarPool;
-
         public IEmitLocal DeclareLocal(IType Type)
         {
             var typeRef = GetTypeReference(Type);
@@ -534,16 +531,6 @@ namespace Flame.Cecil.Emit
             if (typeRef == null)
             {
                 throw new InvalidOperationException("Type '" + Type.FullName + "' could not be converted to a CLR type.");
-            }
-
-            for (int i = 0; i < localVarPool.Count; i++)
-            {
-                var local = localVarPool[i];
-                if (local.Variable.VariableType == typeRef)
-                {
-                    localVarPool.RemoveAt(i);
-                    return new RecycledLocal(local);
-                }
             }
 
             return DeclareNewLocal(typeRef);
@@ -558,11 +545,6 @@ namespace Flame.Cecil.Emit
                 Processor.Body.InitLocals = true;
             }
             return new CecilLocal(Processor.Body.Variables[Processor.Body.Variables.Count - 1]);
-        }
-
-        public void ReleaseLocal(IEmitLocal Variable)
-        {
-            localVarPool.Add(Variable);
         }
 
         #endregion

@@ -98,7 +98,6 @@
     <Compile Include="Emit\TryFinallyBlock.cs" />
     <Compile Include="Emit\UnboxAnyToPointerOptimization.cs" />
     <Compile Include="Emit\VariableLoadBlock.cs" />
-    <Compile Include="Emit\VariableReleaseBlock.cs" />
     <Compile Include="Emit\VariableStoreBlock.cs" />
     <Compile Include="GenericExtensions.cs" />
     <Compile Include="GenericParameterTransformer.cs" />

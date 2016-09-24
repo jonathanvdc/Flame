@@ -108,10 +108,5 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Call, getMethod);
             }
         }
-
-        public override void EmitRelease(IEmitContext Context)
-        {
-            // Do nothing.
-        }
     }
 }

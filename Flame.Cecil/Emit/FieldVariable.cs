@@ -81,10 +81,5 @@ namespace Flame.Cecil.Emit
                 Context.Emit(OpCodes.Stsfld, Field);
             }
         }
-
-        public override void EmitRelease(IEmitContext Context)
-        {
-            // Do nothing.
-        }
     }
 }
