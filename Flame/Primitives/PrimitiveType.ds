@@ -52,16 +52,31 @@ namespace Flame.Primitives
 
         protected IMethod[] GetCommonPrimitiveMethods()
         {
-        	var parseMethod = new DescribedMethod("Parse", this, this, true); // static const T Parse(string Value); where T is the current type
-        	parseMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.String));
+			// static const T Parse(string Value); where T is the current type
+        	var parseMethod = new DescribedMethod("Parse", this, this, true);
+        	parseMethod.AddParameter(
+				new DescribedParameter("Value", PrimitiveTypes.String));
         	parseMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+
+			// static bool TryParse(string Value, out T^ Result); where T is the current type
+			var tryParseMethod = new DescribedMethod(
+				"TryParse", this, PrimitiveTypes.Boolean, true);
+			tryParseMethod.AddParameter(
+				new DescribedParameter("Value", PrimitiveTypes.String));
+			var tryParseOutParam = new DescribedParameter(
+				"Result", this.MakePointerType(PointerKind.ReferencePointer));
+			tryParseOutParam.AddAttribute(PrimitiveAttributes.OutAttribute);
+			tryParseMethod.AddParameter(tryParseOutParam);
 
             return new IMethod[]
             {
-                new PrimitiveMethod(this, "ToString", false, PrimitiveTypes.String, new IParameter[0]),
+                new PrimitiveMethod(
+					this, "ToString", false,
+					PrimitiveTypes.String, new IParameter[0]),
                 new GetHashCodeImplementation<T>(this),
                 new EqualsImplementation<T>(this),
-                parseMethod
+                parseMethod,
+				tryParseMethod
             };
         }
 
