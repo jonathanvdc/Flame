@@ -9,7 +9,7 @@ namespace Flame.Primitives
 	public class CharPrimitiveType : PrimitiveType<char>
 	{
 		public const this(string Name, int BitSize)
-			: base(Name, BitSize, default(char));
+			: base(Name, BitSize, default(char), true);
 
 		private IMethod[] createExtraCharMethods()
 		{

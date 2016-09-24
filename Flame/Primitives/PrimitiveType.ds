@@ -31,6 +31,27 @@ namespace Flame.Primitives
 			this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
 			this.cachedProperties = new Lazy<IProperty[]>(CreateProperties);
 			this.cachedFields = new Lazy<IField[]>(CreateFields);
+			this.attrMap = AttributeMap.Empty;
+		}
+		public const this(
+			string Name, set int BitSize, set T DefaultValue,
+			bool IsValueType)
+		{
+			this.Name = new SimpleName(Name);
+			this.cachedMethods = new Lazy<IMethod[]>(CreateMethods);
+			this.cachedProperties = new Lazy<IProperty[]>(CreateProperties);
+			this.cachedFields = new Lazy<IField[]>(CreateFields);
+			if (IsValueType)
+			{
+				this.attrMap = new AttributeMap(new IAttribute[]
+				{
+					PrimitiveAttributes.ValueTypeAttribute
+				});
+			}
+			else
+			{
+				this.attrMap = AttributeMap.Empty;
+			}
 		}
 
 		/// <summary>
@@ -49,6 +70,7 @@ namespace Flame.Primitives
 		private Lazy<IMethod[]> cachedMethods;
 		private Lazy<IProperty[]> cachedProperties;
 		private Lazy<IField[]> cachedFields;
+		private AttributeMap attrMap;
 
         protected IMethod[] GetCommonPrimitiveMethods()
         {
@@ -132,7 +154,7 @@ namespace Flame.Primitives
 
         public AttributeMap Attributes
         {
-            const get { return AttributeMap.Empty; }
+            const get { return attrMap; }
         }
 
         public [IGenericParameter] GenericParameters

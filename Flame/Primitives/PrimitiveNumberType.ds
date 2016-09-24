@@ -9,7 +9,7 @@ namespace Flame.Primitives
 		where T : object
 	{
 		public const this(string Name, int BitSize, T DefaultValue, set T MinValue, set T MaxValue)
-			: base(Name, BitSize, DefaultValue);
+			: base(Name, BitSize, DefaultValue, true);
 
 		public T MinValue { const get; private set; }
 		public T MaxValue { const get; private set; }

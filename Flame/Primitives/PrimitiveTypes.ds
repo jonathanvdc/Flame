@@ -56,7 +56,7 @@ namespace Flame
 			intTypes = new ConcurrentDictionary<int, IType>();
 			uintTypes = new ConcurrentDictionary<int, IType>();
 
-    		booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool));
+    		booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool), true);
     		//stringType = new PrimitiveType<string>("String", 0 , null);
     		stringType = StringPrimitiveType;
     		PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>(
@@ -70,7 +70,7 @@ namespace Flame
     		PrimitiveTypes.Char = new CharPrimitiveType("Char", 16);
     		//PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);
     		PrimitiveTypes.Null = NullPrimitiveType;
-    		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null);
+    		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null, true);
     		PrimitiveTypes.IHashable = HashableType;
     		PrimitiveTypes.IEquatable = EquatableType;
 
