@@ -15,5 +15,6 @@ tests
     LogicalOps/LogicalOps.test;
     LongLiterals/LongLiterals.test;
     StringEquality/StringEquality.test;
+    TryParse/TryParse.test;
     WhileNext/WhileNext.test;
 }

@@ -1,0 +1,13 @@
+using System;
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        int result = 0;
+        Console.WriteLine(int.TryParse("2", &result));
+        Console.WriteLine(result);
+        Console.WriteLine(int.TryParse("not an integer", &result));
+        Console.WriteLine(result);
+    }
+}
