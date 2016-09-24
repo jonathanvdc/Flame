@@ -351,6 +351,18 @@ namespace Flame.Cecil.Emit
             {
                 return new ConversionBlock(this, val, Type);
             }
+            else if (Op.Equals(Operator.Box))
+            {
+                return new SimpleConversionBlock(val, Type, OpCodes.Box);
+            }
+            else if (Op.Equals(Operator.UnboxValue))
+            {
+                return new SimpleConversionBlock(val, Type, OpCodes.Unbox_Any);
+            }
+            else if (Op.Equals(Operator.UnboxReference))
+            {
+                return new SimpleConversionBlock(val, Type, OpCodes.Unbox);
+            }
             else
             {
                 return null;
