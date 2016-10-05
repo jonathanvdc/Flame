@@ -20,7 +20,7 @@ namespace Flame.Compiler.Expressions
         {
             // Rewrite this as '(decltype(Value))0 - Value'
             return new SubtractExpression(
-                ConversionExpression.Create(
+                new StaticCastExpression(
                     new IntegerExpression((int)0), Value.Type).Optimize(),
                 Value);
         }

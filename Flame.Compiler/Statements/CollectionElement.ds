@@ -102,8 +102,8 @@ namespace Flame.Compiler.Statements
             if (IndexVariable == null)
             {
                 index = new LocalVariable(lengthExpr.Type);
-                initStatements.Add(index.CreateSetStatement(ConversionExpression.Create(new IntegerExpression((int)0), index.Type)));
-                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), ConversionExpression.Create(new IntegerExpression(1), index.Type)));
+                initStatements.Add(index.CreateSetStatement(new StaticCastExpression(new IntegerExpression((int)0), index.Type)));
+                delta = index.CreateSetStatement(new AddExpression(index.CreateGetExpression(), new StaticCastExpression(new IntegerExpression(1), index.Type)));
             }
             else
             {
@@ -182,7 +182,7 @@ namespace Flame.Compiler.Statements
             IExpression deltaValueExpr = CreateInvocationExpression(currentAccessor, enumeratorVariable);
             if (iteratingVariable.Type != null)
             {
-                deltaValueExpr = ConversionExpression.Create(deltaValueExpr, iteratingVariable.Type).Optimize();
+                deltaValueExpr = new StaticCastExpression(deltaValueExpr, iteratingVariable.Type).Optimize();
             }
 
             var delta = iteratingVariable.CreateSetStatement(deltaValueExpr);
