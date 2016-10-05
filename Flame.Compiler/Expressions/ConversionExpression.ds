@@ -121,16 +121,25 @@ namespace Flame.Compiler.Expressions
             {
                 return interExpr;
             }
-            else if (UseDynamicCast(interType, Type))
+            else if (MaybeUseUnbox(interType))
+            {
+                if (IsNonBoxPointer(Type))
+                    return new UnboxReferenceExpression(interExpr, Type);
+                else if (Type.IsValueType)
+                    return new UnboxValueExpression(interExpr, Type);
+            }
+
+            if (UseDynamicCast(interType, Type))
             {
                 if (UseReinterpretAsDynamicCast(interType, Type))
-                {
                     return new ReinterpretCastExpression(interExpr, Type);
-                }
                 else
-                {
                     return new DynamicCastExpression(interExpr, Type);
-                }
+            }
+            else if (UseBox(interType, Type))
+            {
+                return new ReinterpretCastExpression(
+                    new BoxExpression(interExpr), Type);
             }
             else
             {
@@ -140,7 +149,74 @@ namespace Flame.Compiler.Expressions
 
         private bool IsSpecialType(IType Type)
         {
-            return Type.IsDelegate || Type.IsPrimitive || Type.IsIntersectionType;
+            return Type.IsDelegate || Type.IsPrimitive
+                || Type.IsIntersectionType || Type.IsEnum;
+        }
+
+        /// <summary>
+        /// Tests if the given type is a pointer type that is not a box
+        /// pointer.
+        /// </summary>
+        public bool IsNonBoxPointer(IType Type)
+        {
+            var ptrTy = Type.AsPointerType();
+            return ptrTy != null
+                && !ptrTy.PointerKind.Equals(PointerKind.BoxPointer);
+        }
+
+        /// <summary>
+        /// Tests if a boxing conversion should be used to convert the given
+        /// source type to the given target type.
+        /// </summary>
+        public bool UseBox(IType SourceType, IType TargetType)
+        {
+            return !SourceType.IsReferenceType
+                && !SourceType.IsPointer
+                && TargetType.IsReferenceType
+                && !IsNonBoxPointer(TargetType)
+                && !IsSpecialType(TargetType)
+                && SourceType.Is(TargetType);
+        }
+
+        /// <summary>
+        /// Checks if the given source type might be a candidate for an
+        /// unboxing conversion.
+        /// </summary>
+        private bool MaybeUseUnbox(IType SourceType)
+        {
+            return SourceType.IsReferenceType
+                && !IsSpecialType(SourceType)
+                && !IsNonBoxPointer(SourceType);
+        }
+
+        /// <summary>
+        /// Tests if a reference-unboxing operation should be used to convert
+        /// a value of the given source type to the given target type.
+        /// </summary>
+        public bool UseUnboxReference(IType SourceType, IType TargetType)
+        {
+            return MaybeUseUnbox(SourceType)
+                && IsNonBoxPointer(TargetType);
+        }
+
+        /// <summary>
+        /// Tests if a value-unboxing operation should be used to convert
+        /// a value of the given source type to the given target type.
+        /// </summary>
+        public bool UseUnboxValue(IType SourceType, IType TargetType)
+        {
+            return MaybeUseUnbox(SourceType)
+                && TargetType.IsValueType;
+        }
+
+        private bool IsReferenceOrPointerType(IType Type)
+        {
+            if (IsSpecialType(Type))
+                return false;
+
+            return Type.Equals(PrimitiveTypes.Null)
+                || Type.IsReferenceType
+                || Type.IsPointer;
         }
 
         /// <summary>
@@ -149,11 +225,8 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public bool UseDynamicCast(IType SourceType, IType TargetType)
         {
-            return (SourceType.Equals(PrimitiveTypes.Null)
-                    || SourceType.IsReferenceType
-                    || SourceType.IsPointer
-                    || (SourceType.IsGenericParameter && !SourceType.Is(TargetType)))
-                && !IsSpecialType(SourceType) && !IsSpecialType(TargetType);
+            return IsReferenceOrPointerType(SourceType)
+                && IsReferenceOrPointerType(TargetType);
         }
 
         /// <summary>
