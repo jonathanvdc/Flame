@@ -202,6 +202,18 @@ namespace Flame.Optimization
                         tmp.CreateReleaseStatement()));
                 }
             }
+            else if (Expression is ShortCircuitBinaryExpression)
+            {
+                // Lower short-circuiting binary operators to select-expressions,
+                // and lower those in turn.
+                var finder = new TopLevelFunctionalCodeFinder();
+                var resultExpr = finder.Visit(Expression);
+                if (finder.FoundFunctionalCode)
+                {
+                    assert(resultExpr is ShortCircuitBinaryExpression);
+                    return Visit(((ShortCircuitBinaryExpression)resultExpr).Lower());
+                }
+            }
 
             bool oldInExpr = inExpression;
 
