@@ -182,6 +182,12 @@ namespace Flame.Cecil
             {
                 return new ByReferenceType(ElementType);
             }
+            else if (Kind.Equals(PointerKind.BoxPointer))
+            {
+                // The CLR does not have a notion of "box pointers."
+                // The next best thing is a value of type object.
+                return Module.Module.TypeSystem.Object;
+            }
             else
             {
                 return new Mono.Cecil.PointerType(ElementType);

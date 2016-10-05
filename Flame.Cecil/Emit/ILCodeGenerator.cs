@@ -61,6 +61,10 @@ namespace Flame.Cecil.Emit
             {
                 return new UnaryOpBlock(this, val, Op);
             }
+            else if (Op.Equals(Operator.Box))
+            {
+                return new BoxBlock(val);
+            }
             else
             {
                 return null;
@@ -350,10 +354,6 @@ namespace Flame.Cecil.Emit
             else if (Op.Equals(Operator.StaticCast))
             {
                 return new ConversionBlock(this, val, Type);
-            }
-            else if (Op.Equals(Operator.Box))
-            {
-                return new SimpleConversionBlock(val, Type, OpCodes.Box);
             }
             else if (Op.Equals(Operator.UnboxValue))
             {
