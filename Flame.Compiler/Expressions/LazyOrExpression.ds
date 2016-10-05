@@ -39,19 +39,11 @@ namespace Flame.Compiler.Expressions
         /// Lowers this logical 'or' expression by creating an equivalent
         /// selection expression.
         /// </summary>
-        public const SelectExpression Lower()
+        public SelectExpression Lower()
         {
             // Left ? true : Right
             return new SelectExpression(
                 LeftOperand, new BooleanExpression(true), RightOperand);
-        }
-
-        /// <summary>
-        /// Reduces this logical 'or' expression to a sequence of basic blocks.
-        /// </summary>
-        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
-        {
-            return Lower().ToBlocks(Visitor);
         }
 
         public override const IExpression Optimize()

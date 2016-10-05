@@ -16,7 +16,20 @@ namespace Flame.Compiler.Expressions
         public const this(IExpression LeftOperand, IExpression RightOperand)
             : base(LeftOperand, RightOperand);
 
-        public abstract override SSAVariable ToBlocks(BlockBuildingVisitor Visitor);
+        /// <summary>
+        /// Reduces this short-circuiting binary expression to a sequence of
+        /// basic blocks.
+        /// </summary>
+        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            return Lower().ToBlocks(Visitor);
+        }
+
+        /// <summary>
+        /// Lowers this short-circuiting binary expression to a
+        /// select-expression.
+        /// </summary>
+        public abstract SelectExpression Lower();
 
         /// <summary>
         /// Accepts and interacts with a flow visitor.
@@ -82,19 +95,11 @@ namespace Flame.Compiler.Expressions
         /// Lowers this logical 'and' expression by creating an equivalent
         /// selection expression.
         /// </summary>
-        public const SelectExpression Lower()
+        public SelectExpression Lower()
         {
             // Left ? Right : false
             return new SelectExpression(
                 LeftOperand, RightOperand, new BooleanExpression(false));
-        }
-
-        /// <summary>
-        /// Reduces this logical 'and' expression to a sequence of basic blocks.
-        /// </summary>
-        public override SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
-        {
-            return Lower().ToBlocks(Visitor);
         }
 
         /// <summary>

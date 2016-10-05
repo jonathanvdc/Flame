@@ -154,6 +154,8 @@ namespace Flame.Compiler.Expressions
                 return new NegateExpression(Operand);
             else if (UnaryOp == Operator.Hash)
                 return new HashExpression(Operand);
+            else if (UnaryOp == Operator.Box)
+                return new BoxExpression(Operand);
             else
                 return new PrimitiveUnaryExpression(UnaryOp, Operand);
         }
