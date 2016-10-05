@@ -10,16 +10,18 @@ namespace Flame.Cecil.Emit
 {
     public class SimpleConversionBlock : ICecilBlock
     {
-        public SimpleConversionBlock(ICecilBlock Value, IType TargetType, OpCode Op)
+        public SimpleConversionBlock(ICecilBlock Value, IType TargetType, OpCode Op, IType OpType)
         {
             this.Value = Value;
             this.TargetType = TargetType;
             this.Op = Op;
+            this.OpType = OpType;
         }
 
         public ICecilBlock Value { get; private set; }
         public IType TargetType { get; private set; }
         public OpCode Op { get; private set; }
+        public IType OpType { get; private set; }
 
         public ICodeGenerator CodeGenerator
         {
@@ -32,7 +34,7 @@ namespace Flame.Cecil.Emit
             var exprType = Context.Stack.Pop();
             var targetType = TargetType;
             
-            Context.Emit(Op);
+            Context.Emit(Op, OpType);
 
             Context.Stack.Push(TargetType);
         }

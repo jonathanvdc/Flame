@@ -357,11 +357,11 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.UnboxValue))
             {
-                return new SimpleConversionBlock(val, Type, OpCodes.Unbox_Any);
+                return new SimpleConversionBlock(val, Type, OpCodes.Unbox_Any, Type);
             }
             else if (Op.Equals(Operator.UnboxReference))
             {
-                return new SimpleConversionBlock(val, Type, OpCodes.Unbox);
+                return new SimpleConversionBlock(val, Type, OpCodes.Unbox, Type.AsContainerType().ElementType);
             }
             else
             {
