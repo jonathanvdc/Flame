@@ -141,13 +141,21 @@ namespace Flame.Cpp.Emit
 
         public ICodeBlock EmitUnary(ICodeBlock Value, Operator Op)
         {
+            var cppBlock = (ICppBlock)Value;
             if (Op.Equals(Operator.Hash))
             {
-                return new HashBlock((ICppBlock)Value);
+                return new HashBlock(cppBlock);
+            }
+            else if (Op.Equals(Operator.Box)) 
+            {
+                // TODO: create a specialized boxing conversion node type.
+                return new ConversionBlock(
+                    this, cppBlock, 
+                    cppBlock.Type.MakePointerType(PointerKind.ReferencePointer));
             }
             else if (UnaryOperation.IsSupported(Op))
             {
-                return new UnaryOperation(this, (ICppBlock)Value, Op);
+                return new UnaryOperation(this, cppBlock, Op);
             }
             else
             {
@@ -323,8 +331,11 @@ namespace Flame.Cpp.Emit
                     return new ReinterpretCastBlock(Value, Type);
                 }
             }
-            else if (Op.Equals(Operator.AsInstance) || Op.Equals(Operator.DynamicCast)) // TODO: throw an exception if a dynamic_cast fails
+            else if (Op.Equals(Operator.AsInstance) || Op.Equals(Operator.DynamicCast)
+                || Op.Equals(Operator.UnboxValue) || Op.Equals(Operator.UnboxReference)) 
             {
+                // TODO: throw an exception if a dynamic_cast fails
+                // TODO: create specialized unbox nodes
                 return new DynamicCastBlock(Value, Type);
             }
             else if (Op.Equals(Operator.IsInstance))
