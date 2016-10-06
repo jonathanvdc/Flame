@@ -125,7 +125,7 @@ namespace Flame.Compiler.Expressions
             {
                 if (IsNonBoxPointer(Type))
                     return new UnboxReferenceExpression(interExpr, Type);
-                else if (Type.IsValueType)
+                else if (UseUnboxValueAsUnbox(Type))
                     return new UnboxValueExpression(interExpr, Type);
             }
 
@@ -182,11 +182,22 @@ namespace Flame.Compiler.Expressions
         /// Checks if the given source type might be a candidate for an
         /// unboxing conversion.
         /// </summary>
-        private bool MaybeUseUnbox(IType SourceType)
+        public bool MaybeUseUnbox(IType SourceType)
         {
             return SourceType.IsReferenceType
                 && !IsSpecialType(SourceType)
                 && !IsNonBoxPointer(SourceType);
+        }
+
+        /// <summary>
+        /// Tests if a value of the given source type should be cast to a value
+        /// of the given target type using an unbox-value operation, provided
+        /// that an unboxing operation will be used.
+        /// </summary>
+        public bool UseUnboxValueAsUnbox(IType TargetType)
+        {
+            return !TargetType.IsReferenceType
+                && !IsSpecialType(TargetType);
         }
 
         /// <summary>
@@ -206,7 +217,7 @@ namespace Flame.Compiler.Expressions
         public bool UseUnboxValue(IType SourceType, IType TargetType)
         {
             return MaybeUseUnbox(SourceType)
-                && TargetType.IsValueType;
+                && UseUnboxValueAsUnbox(TargetType);
         }
 
         private bool IsReferenceOrPointerType(IType Type)
