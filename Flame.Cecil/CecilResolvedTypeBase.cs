@@ -149,6 +149,8 @@ namespace Flame.Cecil
             if (t.IsEnum)
             {
                 attrs.Add(PrimitiveAttributes.Instance.EnumAttribute);
+                if (!t.IsValueType)
+                    attrs.Add(PrimitiveAttributes.Instance.ValueTypeAttribute);
             }
             string tName = t.FullName;
             if (tName == "System.Object")

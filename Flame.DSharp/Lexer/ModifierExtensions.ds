@@ -122,6 +122,7 @@ namespace Flame.DSharp.Lexer
             	else if (item.Type == TokenType.EnumKeyword)
             	{
             		attrs.Add(PrimitiveAttributes.EnumAttribute);
+					attrs.Add(PrimitiveAttributes.ValueTypeAttribute);
             	}
 				else if (item.Type == TokenType.ModuleKeyword)
 				{
