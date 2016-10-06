@@ -13,9 +13,9 @@ namespace Flame.Build.Lazy
         /// </summary>
         public LazyDescribedAccessor(
             AccessorType AccessorType, IProperty DeclaringProperty,
-            Action<LazyDescribedMethod> AnalyzeHeader,
-            Action<LazyDescribedMethod> AnalyzeBaseMethods,
-            Action<LazyDescribedMethod> AnalyzeBody)
+            Action<LazyDescribedAccessor> AnalyzeHeader,
+            Action<LazyDescribedAccessor> AnalyzeBaseMethods,
+            Action<LazyDescribedAccessor> AnalyzeBody)
             : base(
                 new SimpleName(
                     AccessorType.ToString().ToLower() + "_"
@@ -35,7 +35,7 @@ namespace Flame.Build.Lazy
         /// </summary>
         public LazyDescribedAccessor(
             AccessorType AccessorType, IProperty DeclaringProperty,
-            Action<LazyDescribedMethod> AnalyzeBody)
+            Action<LazyDescribedAccessor> AnalyzeBody)
             : base(
                 new SimpleName(
                     AccessorType.ToString().ToLower() + "_"
