@@ -2,6 +2,7 @@
 tests
 {
     Assembly/Assembly.test;
+    Boxing/Boxing.test;
     Cast/Cast.test;
     Color/Color.test;
     Constant/Constant.test;
