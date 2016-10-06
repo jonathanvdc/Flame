@@ -162,6 +162,8 @@ namespace Flame.Build.Lazy
         /// </summary>
 		public LazyDescribedMethod(
             UnqualifiedName Name, IType DeclaringType,
+            Action<LazyDescribedMethod> AnalyzeHeader,
+            Action<LazyDescribedMethod> AnalyzeBaseMethods,
             Action<LazyDescribedMethod> AnalyzeBody)
 			: base(Name, DeclaringType)
 		{
@@ -169,10 +171,32 @@ namespace Flame.Build.Lazy
             this.parameters = new List<IParameter>();
             this.baseMethods = new List<IMethod>();
             this.genericParams = new List<IGenericParameter>();
+            this.analyzeHeader = new DeferredInitializer<LazyDescribedMethod>(AnalyzeHeader);
+            this.analyzeBaseMethods = new DeferredInitializer<LazyDescribedMethod>(AnalyzeBaseMethods);
             this.analyzeBody = new DeferredInitializer<LazyDescribedMethod>(AnalyzeBody);
 		}
 
-		private DeferredInitializer<LazyDescribedMethod> analyzeBody;
+        /// <summary>
+        /// Creates a new lazily described method from the given name,
+        /// declaring type, and a deferred construction action.
+        /// </summary>
+        public LazyDescribedMethod(
+            UnqualifiedName Name, IType DeclaringType,
+            Action<LazyDescribedMethod> AnalyzeBody)
+            : base(Name, DeclaringType)
+        {
+            this.baseMethods = new List<IMethod>();
+            this.parameters = new List<IParameter>();
+            this.baseMethods = new List<IMethod>();
+            this.genericParams = new List<IGenericParameter>();
+            this.analyzeHeader = new DeferredInitializer<LazyDescribedMethod>(AnalyzeBody);
+            this.analyzeBaseMethods = new DeferredInitializer<LazyDescribedMethod>(x => analyzeHeader.Initialize(x));
+            this.analyzeBody = new DeferredInitializer<LazyDescribedMethod>(x => analyzeHeader.Initialize(x));
+        }
+
+		private DeferredInitializer<LazyDescribedMethod> analyzeHeader;
+        private DeferredInitializer<LazyDescribedMethod> analyzeBaseMethods;
+        private DeferredInitializer<LazyDescribedMethod> analyzeBody;
 
 		private IType retType;
 
@@ -221,12 +245,12 @@ namespace Flame.Build.Lazy
 		{
 			get
 			{
-				CreateBody();
+                analyzeBody.Initialize(this);
 				return bodyStmt;
 			}
 			set
 			{
-				CreateBody();
+                analyzeBody.Initialize(this);
 				bodyStmt = value;
 			}
 		}
@@ -236,7 +260,6 @@ namespace Flame.Build.Lazy
 		/// </summary>
 		public IStatement GetMethodBody()
 		{
-			CreateBody();
 			return Body;
 		}
 
@@ -246,7 +269,7 @@ namespace Flame.Build.Lazy
         /// </summary>
 		protected override void CreateBody()
 		{
-            analyzeBody.Initialize(this);
+            analyzeHeader.Initialize(this);
 		}
 
 		private List<IParameter> parameters;
@@ -279,7 +302,7 @@ namespace Flame.Build.Lazy
         /// </summary>
 		public virtual void AddBaseMethod(IMethod Method)
 		{
-            CreateBody();
+            analyzeBaseMethods.Initialize(this);
 			baseMethods.Add(Method);
 		}
 
@@ -290,7 +313,7 @@ namespace Flame.Build.Lazy
 		{
 			get
 			{
-				CreateBody();
+                analyzeBaseMethods.Initialize(this);
 				return baseMethods.ToArray();
 			}
 		}

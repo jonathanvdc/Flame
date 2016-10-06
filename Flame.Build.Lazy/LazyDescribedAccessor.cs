@@ -13,7 +13,29 @@ namespace Flame.Build.Lazy
         /// </summary>
         public LazyDescribedAccessor(
             AccessorType AccessorType, IProperty DeclaringProperty,
-            Action<LazyDescribedAccessor> AnalyzeBody)
+            Action<LazyDescribedMethod> AnalyzeHeader,
+            Action<LazyDescribedMethod> AnalyzeBaseMethods,
+            Action<LazyDescribedMethod> AnalyzeBody)
+            : base(
+                new SimpleName(
+                    AccessorType.ToString().ToLower() + "_"
+                    + DeclaringProperty.Name.ToString()),
+                DeclaringProperty.DeclaringType,
+                x => AnalyzeHeader((LazyDescribedAccessor)x),
+                x => AnalyzeBaseMethods((LazyDescribedAccessor)x),
+                x => AnalyzeBody((LazyDescribedAccessor)x))
+        {
+            this.AccessorType = AccessorType;
+            this.DeclaringProperty = DeclaringProperty;
+        }
+
+        /// <summary>
+        /// Creates a new lazily described method from the given accessor type,
+        /// the declaring property, and a deferred construction action.
+        /// </summary>
+        public LazyDescribedAccessor(
+            AccessorType AccessorType, IProperty DeclaringProperty,
+            Action<LazyDescribedMethod> AnalyzeBody)
             : base(
                 new SimpleName(
                     AccessorType.ToString().ToLower() + "_"
