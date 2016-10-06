@@ -79,9 +79,13 @@ namespace Flame.Compiler.Expressions
                 else if (objVal is char)
                     return new IntegerExpression(
                         new IntegerValue((char)objVal).Cast(spec));
+                else if (objVal is float)
+                    return new IntegerExpression(new IntegerValue(
+                        new BigInteger((float)objVal), spec).Normalized);
+                else if (objVal is double)
+                    return new IntegerExpression(new IntegerValue(
+                        new BigInteger((double)objVal), spec).Normalized);
                 else
-                    // TODO: maybe convert float/double constants to integers
-                    // here.
                     return null;
             }
             else if (TargetType.IsBit)
@@ -99,15 +103,26 @@ namespace Flame.Compiler.Expressions
                 // platform-independent manner, though.
                 return null;
             }
-            // TODO: re-implement this for IntegerValue.
-            // else if (TargetType.Equals(PrimitiveTypes.Float32))
-            // {
-            //     return new Float32Expression(Convert.ToSingle(objVal));
-            // }
-            // else if (TargetType.Equals(PrimitiveTypes.Float64))
-            // {
-            //     return new Float64Expression(Convert.ToDouble(objVal));
-            // }
+            else if (TargetType.Equals(PrimitiveTypes.Float32))
+            {
+                float floatVal;
+                if (objVal is IntegerValue)
+                    floatVal = ((IntegerValue)objVal).ToFloat32();
+                else
+                    floatVal = Convert.ToSingle(objVal);
+
+                return new Float32Expression(floatVal);
+            }
+            else if (TargetType.Equals(PrimitiveTypes.Float64))
+            {
+                double floatVal;
+                if (objVal is IntegerValue)
+                    floatVal = ((IntegerValue)objVal).ToFloat64();
+                else
+                    floatVal = Convert.ToDouble(objVal);
+
+                return new Float64Expression(floatVal);
+            }
             else if (TargetType.Equals(PrimitiveTypes.Boolean))
             {
                 if (objVal is bool)

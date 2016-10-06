@@ -610,6 +610,28 @@ namespace Flame
             return (long)ToUInt64();
         }
 
+        /// <summary>
+        /// Converts this integer value to a 32-bit floating point number.
+        /// </summary>
+        public float ToFloat32()
+        {
+            // HACK: this is not The Right Way to do this. Ideally, we'd
+            // use the user-defined conversion operator in BigInteger, but
+            // the D# compiler ignores that ATM.
+            return (float)ToInt64();
+        }
+
+        /// <summary>
+        /// Converts this integer value to a 64-bit floating point number.
+        /// </summary>
+        public double ToFloat64()
+        {
+            // HACK: this is not The Right Way to do this. Ideally, we'd
+            // use the user-defined conversion operator in BigInteger, but
+            // the D# compiler ignores that ATM.
+            return (double)ToInt64();
+        }
+
         public bool Equals(IntegerValue Other)
         {
             return Value.Equals(Other.Value) && Spec.Equals(Other.Spec);
