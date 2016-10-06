@@ -140,8 +140,8 @@ namespace Flame.Compiler
         public static MarkupNode CreateSourceNode(ISourceDocument doc, SourceGridPosition gridPos, int Length)
         {
             string lineText = doc.GetLine(gridPos.Line);
-            int offset = gridPos.Offset;
-            int length = Math.Min(Length, lineText.Length - offset);
+            int offset = Math.Max(0, Math.Min(lineText.Length - 1, gridPos.Offset));
+            int length = Math.Max(0, Math.Min(Length, lineText.Length - offset));
             var preTextNode = new MarkupNode(NodeConstants.TextNodeType, lineText.Substring(0, offset));
             string highlightedText = lineText.Substring(offset, length);
             if (string.IsNullOrWhiteSpace(highlightedText))
