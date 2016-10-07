@@ -136,7 +136,7 @@ namespace Flame.Compiler.Expressions
                 else
                     return new DynamicCastExpression(interExpr, Type);
             }
-            else if (UseBox(interType, Type))
+            else if (UseExplicitBox(interType, Type))
             {
                 return new DynamicCastExpression(
                     new BoxExpression(interExpr), Type).Simplify();
@@ -166,15 +166,26 @@ namespace Flame.Compiler.Expressions
 
         /// <summary>
         /// Tests if a boxing conversion should be used to convert the given
-        /// source type to the given target type.
+        /// source type to the given target type. This box may need to be
+        /// accompanied by a dynamic cast.
         /// </summary>
-        public bool UseBox(IType SourceType, IType TargetType)
+        public bool UseExplicitBox(IType SourceType, IType TargetType)
         {
             return !SourceType.IsReferenceType
                 && !SourceType.IsPointer
                 && TargetType.IsReferenceType
                 && !IsNonBoxPointer(TargetType)
                 && !IsSpecialType(TargetType);
+        }
+
+        /// <summary>
+        /// Tests if a single boxing conversion should be used to convert the
+        /// given source type to the given target type.
+        /// </summary>
+        public bool UseBox(IType SourceType, IType TargetType)
+        {
+            return UseExplicitBox(SourceType, TargetType)
+                && SourceType.Is(TargetType);
         }
 
         /// <summary>
