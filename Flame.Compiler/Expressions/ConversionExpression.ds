@@ -138,8 +138,8 @@ namespace Flame.Compiler.Expressions
             }
             else if (UseBox(interType, Type))
             {
-                return new ReinterpretCastExpression(
-                    new BoxExpression(interExpr), Type);
+                return new DynamicCastExpression(
+                    new BoxExpression(interExpr), Type).Simplify();
             }
             else
             {
@@ -174,8 +174,7 @@ namespace Flame.Compiler.Expressions
                 && !SourceType.IsPointer
                 && TargetType.IsReferenceType
                 && !IsNonBoxPointer(TargetType)
-                && !IsSpecialType(TargetType)
-                && SourceType.Is(TargetType);
+                && !IsSpecialType(TargetType);
         }
 
         /// <summary>
