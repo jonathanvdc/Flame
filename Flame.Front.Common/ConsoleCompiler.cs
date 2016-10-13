@@ -197,7 +197,12 @@ namespace Flame.Front.Cli
                 var buildTarget = LinkAsync(mainAsm, auxAsms, mainState, resolvedDependencies.Item2).Result;
 
                 // Compile, but do not save if '-fsyntax-only' is set to true.
-                if (!mainState.Options.GetFlag(Flags.VerifyOnlyFlagName, false))
+                // Furthermore, we should not write output if we have encountered
+                // errors on the way. They will typically manifest as codegen errors,
+                // which is the last thing we want. The '-force-write' flag can be used
+                // to override this.
+                if (!mainState.Options.GetFlag(Flags.VerifyOnlyFlagName, false)
+                    && (filteredLog.ErrorCount == 0 || mainState.Options.GetOption<bool>(ForceWriteOptionKey, false)))
                 {
                     var docs = Document(mainState, mainAsm, auxAsms);
 
@@ -551,6 +556,8 @@ namespace Flame.Front.Cli
 
         #region Saving
 
+        private const string ForceWriteOptionKey = "force-write";
+
         /// <summary>
         /// Saves the output assembly in the build target and the
         /// docs in the documentation builder as per the
@@ -569,7 +576,7 @@ namespace Flame.Front.Cli
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            bool forceWrite = State.Log.Options.GetOption<bool>("force-write", !Target.PreferPreserve);
+            bool forceWrite = State.Log.Options.GetOption<bool>(ForceWriteOptionKey, !Target.PreferPreserve);
             bool anyChanges = false;
 
             var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite);
