@@ -1,0 +1,14 @@
+using System;
+
+public module Program
+{
+    public int GetLength<T>(T[] Array)
+    {
+        return Array.Length;
+    }
+
+    public void Main()
+    {
+        Console.WriteLine(GetLength<int>(new int[4]));
+    }
+}

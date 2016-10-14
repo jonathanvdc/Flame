@@ -8,6 +8,7 @@ tests
     Heap2Stack/Heap2Stack.test;
     Heap2Stack/Heap2Stack2.test;
     ImperativeCode/ImperativeCode2.test;
+    Inlining/InlineArrayLength.test;
     Inlining/Inlining.test;
     Inlining/Inlining2.test;
     Linking/Linking.test;
