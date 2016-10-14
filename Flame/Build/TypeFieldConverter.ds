@@ -23,7 +23,7 @@ namespace Flame.Build
             var convDeclType = TypeConverter.Convert(declType);
 
             if (object.ReferenceEquals(declType, convDeclType)
-                || !convDeclType.IsRecursiveGenericInstance)
+                || !convDeclType.IsRecursiveGenericInstanceOrContainerType)
             {
                 return Field;
             }
