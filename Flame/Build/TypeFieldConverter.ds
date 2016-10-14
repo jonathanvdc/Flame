@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace Flame.Build
 {
-	/// <summary>
-	/// A converter that converts the declaring types of the fields it's given,
-	/// and creates generic field instances based on these converted declaring types.
-	/// This relies on the assumption that a converted type's recursive generic
-	/// declaration does not change.
-	/// </summary>
-	public class TypeFieldConverter : IConverter<IField, IField>
-	{
+    /// <summary>
+    /// A converter that converts the declaring types of the fields it's given,
+    /// and creates generic field instances based on these converted declaring types.
+    /// This relies on the assumption that a converted type's recursive generic
+    /// declaration does not change.
+    /// </summary>
+    public class TypeFieldConverter : IConverter<IField, IField>
+    {
         public const this(set IConverter<IType, IType> TypeConverter);
 
         public IConverter<IType, IType> TypeConverter { const get; private set; }
@@ -22,17 +22,19 @@ namespace Flame.Build
             var declType = Field.DeclaringType;
             var convDeclType = TypeConverter.Convert(declType);
 
-            if (object.ReferenceEquals(declType, convDeclType) || !convDeclType.IsRecursiveGenericInstance)
-			{
-				return Field;
-			}
+            if (object.ReferenceEquals(declType, convDeclType)
+                || !convDeclType.IsRecursiveGenericInstance)
+            {
+                return Field;
+            }
             else
             {
-				var genDeclType = (GenericTypeBase)convDeclType;
-				return new GenericInstanceField(Field.GetRecursiveGenericDeclaration(),
-												genDeclType.Resolver,
-												genDeclType);
-			}
+                var genDeclType = (GenericTypeBase)convDeclType;
+                return new GenericInstanceField(
+                    Field.GetRecursiveGenericDeclaration(),
+                    genDeclType.Resolver,
+                    genDeclType);
+            }
         }
     }
 }
