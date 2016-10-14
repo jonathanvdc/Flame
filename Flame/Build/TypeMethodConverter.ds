@@ -5,74 +5,74 @@ using System.Linq;
 
 namespace Flame.Build
 {
-	/// <summary>
-	/// A converter that converts the declaring types of the methods it's given,
-	/// and creates generic method instances based on these converted declaring types.
-	/// This relies on the assumption a the converted type's recursive generic
-	/// declaration does not change.
-	/// </summary>
-	public class TypeMethodConverter : IConverter<IMethod, IMethod>
-	{
+    /// <summary>
+    /// A converter that converts the declaring types of the methods it's given,
+    /// and creates generic method instances based on these converted declaring types.
+    /// This relies on the assumption a the converted type's recursive generic
+    /// declaration does not change.
+    /// </summary>
+    public class TypeMethodConverter : IConverter<IMethod, IMethod>
+    {
         public const this(set IConverter<IType, IType> TypeConverter);
 
         public IConverter<IType, IType> TypeConverter { const get; private set; }
 
-		private IType[] ConvertTypes([IType] Types)
-		{
-			return Enumerable.ToArray<IType>(Enumerable.Select<IType, IType>(Types, TypeConverter.Convert));
-		}
+        private IType[] ConvertTypes([IType] Types)
+        {
+            return Enumerable.ToArray<IType>(Enumerable.Select<IType, IType>(Types, TypeConverter.Convert));
+        }
 
         private IMethod ConvertGenericInstance(IMethod Method)
         {
-			var convDecl = Convert(Method.GetGenericDeclaration());
+            var convDecl = Convert(Method.GetGenericDeclaration());
             var convArgs = ConvertTypes(Method.GetGenericArguments());
             return convDecl.MakeGenericMethod(convArgs);
         }
 
-		private IMethod ConvertAnonymousMethod(IMethod Method)
-		{
-			// Converting anonymous method signatures is arguably more of
-			// a type problem. Leave it to the type converter.
-			return MethodType.GetMethod(TypeConverter.Convert(MethodType.Create(Method)));
-		}
+        private IMethod ConvertAnonymousMethod(IMethod Method)
+        {
+            // Converting anonymous method signatures is arguably more of
+            // a type problem. Leave it to the type converter.
+            return MethodType.GetMethod(TypeConverter.Convert(MethodType.Create(Method)));
+        }
 
         public IMethod Convert(IMethod Method)
         {
-			if (Method is GenericMethod)
-			{
-				return ConvertGenericInstance(Method);
-			}
-			else if (Method.IsAnonymous)
-			{
-				return ConvertAnonymousMethod(Method);
-			}
+            if (Method is GenericMethod)
+            {
+                return ConvertGenericInstance(Method);
+            }
+            else if (Method.IsAnonymous)
+            {
+                return ConvertAnonymousMethod(Method);
+            }
 
-			var declType = Method.DeclaringType;
-			var convDeclType = TypeConverter.Convert(declType);
+            var declType = Method.DeclaringType;
+            var convDeclType = TypeConverter.Convert(declType);
 
-			if (object.ReferenceEquals(declType, convDeclType) || !convDeclType.IsRecursiveGenericInstance)
-			{
-				return Method;
-			}
-			else
-			{
-				var genDeclType = (GenericTypeBase)convDeclType;
-				var recDecl = Method.GetRecursiveGenericDeclaration();
-				if (recDecl is IAccessor)
-				{
-					var accDecl = (IAccessor)recDecl;
-					var genProp = new GenericInstanceProperty(accDecl.DeclaringProperty,
-															  genDeclType.Resolver,
-															  genDeclType);
-				    return new GenericInstanceAccessor(accDecl, genProp.Resolver, genProp);
-				}
-				else
-				{
-					return new GenericInstanceMethod(recDecl,
-													 genDeclType.Resolver,
-													 genDeclType);
-				}
-			}
+            if (object.ReferenceEquals(declType, convDeclType) || !convDeclType.IsRecursiveGenericInstance)
+            {
+                return Method;
+            }
+            else
+            {
+                var genDeclType = (GenericTypeBase)convDeclType;
+                var recDecl = Method.GetRecursiveGenericDeclaration();
+                if (recDecl is IAccessor)
+                {
+                    var accDecl = (IAccessor)recDecl;
+                    var genProp = new GenericInstanceProperty(
+                        accDecl.DeclaringProperty,
+                        genDeclType.Resolver,
+                        genDeclType);
+                    return new GenericInstanceAccessor(accDecl, genProp.Resolver, genProp);
+                }
+                else
+                {
+                    return new GenericInstanceMethod(
+                        recDecl, genDeclType.Resolver, genDeclType);
+                }
+            }
         }
     }
 }
