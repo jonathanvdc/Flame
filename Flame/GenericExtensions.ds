@@ -71,6 +71,18 @@ namespace Flame
 		}
 
 		/// <summary>
+		/// Checks if the given type is either a recursive generic instance,
+		/// or a container type.
+		/// </summary>
+		public static bool IsRecursiveGenericInstanceOrContainerType[this IType Type]
+		{
+			const get
+			{
+				return Type.IsRecursiveGenericInstance || Type.IsContainerType;
+			}
+		}
+
+		/// <summary>
 		/// Tells if the given method is a recursive generic instance: a generic instance
 		/// or a method of a generic instance.
 		/// </summary>
