@@ -71,14 +71,15 @@ namespace Flame
 		}
 
 		/// <summary>
-		/// Checks if the given type is either a recursive generic instance,
-		/// or a container type.
+		/// Checks if the given type is capable of resolving type parameters.
+		/// Direct and indirect generic instance types, as well as container
+		/// types are examples of generic resolver types.
 		/// </summary>
-		public static bool IsRecursiveGenericInstanceOrContainerType[this IType Type]
+		public static bool IsGenericResolverType[this IType Type]
 		{
 			const get
 			{
-				return Type.IsRecursiveGenericInstance || Type.IsContainerType;
+				return Type is IGenericResolverType;
 			}
 		}
 

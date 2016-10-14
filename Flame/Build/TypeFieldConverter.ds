@@ -17,23 +17,37 @@ namespace Flame.Build
 
         public IConverter<IType, IType> TypeConverter { const get; private set; }
 
+        private IField Instantiate(
+            IField Field, IGenericResolver Resolver, IType DeclaringType)
+        {
+            return new GenericInstanceField(
+                Field.GetRecursiveGenericDeclaration(),
+                Resolver, DeclaringType);
+        }
+
         public IField Convert(IField Field)
         {
             var declType = Field.DeclaringType;
             var convDeclType = TypeConverter.Convert(declType);
 
-            if (object.ReferenceEquals(declType, convDeclType)
-                || !convDeclType.IsRecursiveGenericInstanceOrContainerType)
+            if (object.ReferenceEquals(declType, convDeclType))
             {
+                // Early-out for this common scenario.
                 return Field;
+            }
+            else if (convDeclType is GenericTypeBase)
+            {
+                var genDeclType = (GenericTypeBase)convDeclType;
+                return Instantiate(Field, genDeclType.Resolver, genDeclType);
+            }
+            else if (convDeclType is IGenericResolverType)
+            {
+                return Instantiate(
+                    Field, (IGenericResolverType)convDeclType, convDeclType);
             }
             else
             {
-                var genDeclType = (GenericTypeBase)convDeclType;
-                return new GenericInstanceField(
-                    Field.GetRecursiveGenericDeclaration(),
-                    genDeclType.Resolver,
-                    genDeclType);
+                return Field;
             }
         }
     }

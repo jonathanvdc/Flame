@@ -36,6 +36,25 @@ namespace Flame.Build
             return MethodType.GetMethod(TypeConverter.Convert(MethodType.Create(Method)));
         }
 
+        private IMethod Instantiate(
+            IMethod Method, IGenericResolver Resolver, IType DeclaringType)
+        {
+            var recDecl = Method.GetRecursiveGenericDeclaration();
+            if (recDecl is IAccessor)
+            {
+                var accDecl = (IAccessor)recDecl;
+                var genProp = new GenericInstanceProperty(
+                    accDecl.DeclaringProperty, Resolver, DeclaringType);
+                return new GenericInstanceAccessor(
+                    accDecl, genProp.Resolver, genProp);
+            }
+            else
+            {
+                return new GenericInstanceMethod(
+                    recDecl, Resolver, DeclaringType);
+            }
+        }
+
         public IMethod Convert(IMethod Method)
         {
             if (Method is GenericMethod)
@@ -50,29 +69,24 @@ namespace Flame.Build
             var declType = Method.DeclaringType;
             var convDeclType = TypeConverter.Convert(declType);
 
-            if (object.ReferenceEquals(declType, convDeclType)
-                || !convDeclType.IsRecursiveGenericInstanceOrContainerType)
+            if (object.ReferenceEquals(declType, convDeclType))
             {
+                // Early-out for this common scenario.
                 return Method;
+            }
+            else if (convDeclType is GenericTypeBase)
+            {
+                var genDeclType = (GenericTypeBase)convDeclType;
+                return Instantiate(Method, genDeclType.Resolver, genDeclType);
+            }
+            else if (convDeclType is IGenericResolverType)
+            {
+                return Instantiate(
+                    Method, (IGenericResolverType)convDeclType, convDeclType);
             }
             else
             {
-                var genDeclType = (GenericTypeBase)convDeclType;
-                var recDecl = Method.GetRecursiveGenericDeclaration();
-                if (recDecl is IAccessor)
-                {
-                    var accDecl = (IAccessor)recDecl;
-                    var genProp = new GenericInstanceProperty(
-                        accDecl.DeclaringProperty,
-                        genDeclType.Resolver,
-                        genDeclType);
-                    return new GenericInstanceAccessor(accDecl, genProp.Resolver, genProp);
-                }
-                else
-                {
-                    return new GenericInstanceMethod(
-                        recDecl, genDeclType.Resolver, genDeclType);
-                }
+                return Method;
             }
         }
     }
