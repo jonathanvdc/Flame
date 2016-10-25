@@ -74,7 +74,8 @@ namespace UnitTests
                 new SetTests(),
                 new ShadowingTests(),
                 new TypeSystemTests(),
-                new IntegerValueTests());
+                new IntegerValueTests(),
+                new QualifiedNameTests());
         }
 
         public static int Flame_Build_Lazy()

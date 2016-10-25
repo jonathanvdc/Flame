@@ -76,6 +76,7 @@
     <Compile Include="IntegerValueTests.cs" />
     <Compile Include="Compiler\LocationFinderTests.cs" />
     <Compile Include="Compiler\FlowGraphTests.cs" />
+    <Compile Include="QualifiedNameTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
