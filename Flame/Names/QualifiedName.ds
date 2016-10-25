@@ -80,28 +80,25 @@ namespace Flame
         /// <summary>
         /// Gets this qualified name's qualifier, or the
         /// unqualified name, if this name is not qualified.
+        /// This corresponds to the first element of the qualified name's
+        /// path representation.
         /// </summary>
         public UnqualifiedName Qualifier
         {
             get
             {
+                assert(!IsEmpty);
                 return qualifiers[qualifierIndex];
             }
         }
 
         /// <summary>
-        /// Gets the name that is qualified by the qualifier.
+        /// Gets the name that is qualified by the qualifier. This corresponds
+        /// to the tail of this qualified name's path representation.
         /// </summary>
         public QualifiedName Name
         {
-            get
-            {
-                int newIndex = qualifierIndex + 1;
-                if (newIndex < qualifiers.Length)
-                    return new QualifiedName(qualifiers, newIndex);
-                else
-                    return default(QualifiedName);
-            }
+            get { return Drop(1); }
         }
 
         /// <summary>
@@ -139,8 +136,6 @@ namespace Flame
             }
         }
 
-        private int PathLength { get { return qualifiers.Length - qualifierIndex; } }
-
         /// <summary>
         /// Describes this qualified name as a "path": a sequence of unqualified
         /// names that spell this qualified name.
@@ -156,6 +151,85 @@ namespace Flame
                         qualifiers, qualifierIndex,
                         qualifiers.Length - qualifierIndex);
             }
+        }
+
+        /// <summary>
+        /// Gets the number of elements in the path representation of this
+        /// qualified name.
+        /// </summary>
+        public int PathLength
+        {
+            get
+            {
+                if (IsEmpty)
+                    return 0;
+                else
+                    return qualifiers.Length - qualifierIndex;
+            }
+        }
+
+        /// <summary>
+        /// Gets the unqualified name at the given index in this path
+        /// representation of this qualified name.
+        /// </summary>
+        public UnqualifiedName this[int Index]
+        {
+            get
+            {
+                assert(!IsEmpty);
+                assert(Index >= 0);
+                assert(Index < PathLength);
+                return qualifiers[qualifierIndex + Index];
+            }
+        }
+
+        /// <summary>
+        /// Drops the given number of qualifiers from this qualified name.
+        /// If this drops all qualifiers, then the empty name is returned.
+        /// </summary>
+        /// <remarks>
+        /// This is equivalent to accessing 'Name' multiple times.
+        /// </remarks>
+        public QualifiedName Drop(int Count)
+        {
+            int newIndex = qualifierIndex + Count;
+            if (!IsEmpty && newIndex < qualifiers.Length)
+                return new QualifiedName(qualifiers, newIndex);
+            else
+                return default(QualifiedName);
+        }
+
+        /// <summary>
+        /// Creates a slice of the path representation of this qualified name,
+        /// and returns that as a new qualified name. Both the offset and
+        /// length must be greater than zero, and will be clamped to this
+        /// qualified name's bounds.
+        /// </summary>
+        public QualifiedName Slice(int Offset, int Length)
+            in { Offset >= 0 }
+            in { Length >= 0 }
+        {
+            // Get the length of this path.
+            int pLength = PathLength;
+            // Clamp the offset and length.
+            Offset = Math.Min(Offset, pLength);
+            int endPoint = Math.Min(Offset + Length, pLength);
+            Length = endPoint - Offset;
+
+            if (Length == 0)
+                // Return the empty qualified name if the length is zero.
+                return default(QualifiedName);
+
+            if (Offset + Length == pLength)
+                // Avoid memory allocation by dropping some values if possible.
+                return Drop(Offset);
+
+            // General case: copy the array.
+            var newPath = new UnqualifiedName[Length];
+            Array.Copy(
+                (Array)qualifiers, qualifierIndex + Offset,
+                (Array)newPath, 0, Length);
+            return new QualifiedName(newPath);
         }
 
         /// <summary>
