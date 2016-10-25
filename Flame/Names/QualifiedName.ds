@@ -5,248 +5,248 @@ using System.Text;
 
 namespace Flame
 {
-	/// <summary>
-	/// A data structure that represents a qualified name.
-	/// </summary>
-	public struct QualifiedName
-	{
-		private const this(UnqualifiedName[] qualifiers, int qualifierIndex)
-		{
-			this.qualifiers = qualifiers;
-			this.qualifierIndex = qualifierIndex;
-		}
+    /// <summary>
+    /// A data structure that represents a qualified name.
+    /// </summary>
+    public struct QualifiedName
+    {
+        private const this(UnqualifiedName[] qualifiers, int qualifierIndex)
+        {
+            this.qualifiers = qualifiers;
+            this.qualifierIndex = qualifierIndex;
+        }
 
-		assembly const this(UnqualifiedName[] qualifiers)
-		{
-			this.qualifiers = qualifiers;
-		}
+        assembly const this(UnqualifiedName[] qualifiers)
+        {
+            this.qualifiers = qualifiers;
+        }
 
-		public const this(UnqualifiedName Qualifier, QualifiedName Name)
-		{
-			if (Qualifier.IsEmpty)
-			{
-				this.qualifiers = Name.qualifiers;
-				this.qualifierIndex = Name.qualifierIndex;
-			}
-			else
-			{
-				this.qualifiers = Name.PrependQualifier(Qualifier);
-			}
-		}
+        public const this(UnqualifiedName Qualifier, QualifiedName Name)
+        {
+            if (Qualifier.IsEmpty)
+            {
+                this.qualifiers = Name.qualifiers;
+                this.qualifierIndex = Name.qualifierIndex;
+            }
+            else
+            {
+                this.qualifiers = Name.PrependQualifier(Qualifier);
+            }
+        }
 
-		public const this(UnqualifiedName Name)
-		{
-			if (!Name.IsEmpty)
-				this.qualifiers = new UnqualifiedName[] { Name };
-		}
+        public const this(UnqualifiedName Name)
+        {
+            if (!Name.IsEmpty)
+                this.qualifiers = new UnqualifiedName[] { Name };
+        }
 
-		public const this(string Qualifier, QualifiedName Name)
-		{
-			if (!string.IsNullOrWhiteSpace(Qualifier))
-				this.qualifiers = Name.PrependQualifier(new SimpleName(Qualifier));
-		}
+        public const this(string Qualifier, QualifiedName Name)
+        {
+            if (!string.IsNullOrWhiteSpace(Qualifier))
+                this.qualifiers = Name.PrependQualifier(new SimpleName(Qualifier));
+        }
 
-		public const this(string Name)
-		{
-			if (!string.IsNullOrWhiteSpace(Name))
-				this.qualifiers = new UnqualifiedName[] { new SimpleName(Name) };
-		}
+        public const this(string Name)
+        {
+            if (!string.IsNullOrWhiteSpace(Name))
+                this.qualifiers = new UnqualifiedName[] { new SimpleName(Name) };
+        }
 
-		private UnqualifiedName[] qualifiers;
-		private int qualifierIndex;
+        private UnqualifiedName[] qualifiers;
+        private int qualifierIndex;
 
-		private UnqualifiedName[] PrependQualifier(UnqualifiedName Prefix)
-		{
-			if (qualifiers == null)
-				return new UnqualifiedName[] { Prefix };
+        private UnqualifiedName[] PrependQualifier(UnqualifiedName Prefix)
+        {
+            if (qualifiers == null)
+                return new UnqualifiedName[] { Prefix };
 
-			int len = qualifiers.Length - qualifierIndex;
-			var results = new UnqualifiedName[len + 1];
-			results[0] = Prefix;
-			Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, 1, len);
-			return results;
-		}
+            int len = qualifiers.Length - qualifierIndex;
+            var results = new UnqualifiedName[len + 1];
+            results[0] = Prefix;
+            Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, 1, len);
+            return results;
+        }
 
-		private UnqualifiedName[] PrependArray(UnqualifiedName[] Prefix, int PrefixIndex)
-		{
-			int len = qualifiers.Length - qualifierIndex;
-			int preLen = Prefix.Length - PrefixIndex;
-			var results = new UnqualifiedName[len + preLen];
-			Array.Copy((Array)Prefix, PrefixIndex, (Array)results, 0, preLen);
-			Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, preLen, len);
-			return results;
-		}
+        private UnqualifiedName[] PrependArray(UnqualifiedName[] Prefix, int PrefixIndex)
+        {
+            int len = qualifiers.Length - qualifierIndex;
+            int preLen = Prefix.Length - PrefixIndex;
+            var results = new UnqualifiedName[len + preLen];
+            Array.Copy((Array)Prefix, PrefixIndex, (Array)results, 0, preLen);
+            Array.Copy((Array)qualifiers, qualifierIndex, (Array)results, preLen, len);
+            return results;
+        }
 
-		/// <summary>
-		/// Gets this qualified name's qualifier, or the
-		/// unqualified name, if this name is not qualified.
-		/// </summary>
-		public UnqualifiedName Qualifier
-		{
-			get
-			{
-				return qualifiers[qualifierIndex];
-			}
-		}
+        /// <summary>
+        /// Gets this qualified name's qualifier, or the
+        /// unqualified name, if this name is not qualified.
+        /// </summary>
+        public UnqualifiedName Qualifier
+        {
+            get
+            {
+                return qualifiers[qualifierIndex];
+            }
+        }
 
-		/// <summary>
-		/// Gets the name that is qualified by the qualifier.
-		/// </summary>
-		public QualifiedName Name
-		{
-			get
-			{
-				int newIndex = qualifierIndex + 1;
-				if (newIndex < qualifiers.Length)
-					return new QualifiedName(qualifiers, newIndex);
-				else
-					return default(QualifiedName);
-			}
-		}
+        /// <summary>
+        /// Gets the name that is qualified by the qualifier.
+        /// </summary>
+        public QualifiedName Name
+        {
+            get
+            {
+                int newIndex = qualifierIndex + 1;
+                if (newIndex < qualifiers.Length)
+                    return new QualifiedName(qualifiers, newIndex);
+                else
+                    return default(QualifiedName);
+            }
+        }
 
-		/// <summary>
-		/// Gets a value indicating whether this name is a qualified name,
-		/// rather than an unqualified name.
-		/// </summary>
-		/// <value><c>true</c> if this name is qualified; otherwise, <c>false</c>.</value>
-		public bool IsQualified { get { return qualifiers != null && qualifierIndex < qualifiers.Length - 1; } }
+        /// <summary>
+        /// Gets a value indicating whether this name is a qualified name,
+        /// rather than an unqualified name.
+        /// </summary>
+        /// <value><c>true</c> if this name is qualified; otherwise, <c>false</c>.</value>
+        public bool IsQualified { get { return qualifiers != null && qualifierIndex < qualifiers.Length - 1; } }
 
-		/// <summary>
-		/// Gets a value indicating whether this name is empty: it is both
-		/// unqualified, and its name null.
-		/// </summary>
-		/// <value><c>true</c> if this name is empty; otherwise, <c>false</c>.</value>
-		public bool IsEmpty { get { return qualifiers == null; } }
+        /// <summary>
+        /// Gets a value indicating whether this name is empty: it is both
+        /// unqualified, and its name null.
+        /// </summary>
+        /// <value><c>true</c> if this name is empty; otherwise, <c>false</c>.</value>
+        public bool IsEmpty { get { return qualifiers == null; } }
 
-		/// <summary>
-		/// Gets this qualified name's full name.
-		/// </summary>
-		public string FullName
-		{
-			get
-			{
-				if (IsEmpty)
-					return "";
+        /// <summary>
+        /// Gets this qualified name's full name.
+        /// </summary>
+        public string FullName
+        {
+            get
+            {
+                if (IsEmpty)
+                    return "";
 
-				var results = new StringBuilder();
-				results.Append(qualifiers[qualifierIndex].ToString());
-				for (int i = qualifierIndex + 1; i < qualifiers.Length; i++)
-				{
-					results.Append('.');
-					results.Append(qualifiers[i].ToString());
-				}
-				return results.ToString();
-			}
-		}
+                var results = new StringBuilder();
+                results.Append(qualifiers[qualifierIndex].ToString());
+                for (int i = qualifierIndex + 1; i < qualifiers.Length; i++)
+                {
+                    results.Append('.');
+                    results.Append(qualifiers[i].ToString());
+                }
+                return results.ToString();
+            }
+        }
 
-		private int PathLength { get { return qualifiers.Length - qualifierIndex; } }
+        private int PathLength { get { return qualifiers.Length - qualifierIndex; } }
 
-		/// <summary>
-		/// Describes this qualified name as a "path": a sequence of unqualified
-		/// names that spell this qualified name.
-		/// </summary>
-		public [UnqualifiedName] Path
-		{
-			get
-			{
-				if (IsEmpty)
-					return Enumerable.Empty<UnqualifiedName>();
-				else
-					return new ArraySegment<UnqualifiedName>(
-						qualifiers, qualifierIndex,
-						qualifiers.Length - qualifierIndex);
-			}
-		}
+        /// <summary>
+        /// Describes this qualified name as a "path": a sequence of unqualified
+        /// names that spell this qualified name.
+        /// </summary>
+        public [UnqualifiedName] Path
+        {
+            get
+            {
+                if (IsEmpty)
+                    return Enumerable.Empty<UnqualifiedName>();
+                else
+                    return new ArraySegment<UnqualifiedName>(
+                        qualifiers, qualifierIndex,
+                        qualifiers.Length - qualifierIndex);
+            }
+        }
 
-		/// <summary>
-		/// Qualifies this name with an additional qualifier.
-		/// A new instance is returned that represents the
-		/// concatenation of said qualifier and this
-		/// qualified name.
-		/// </summary>
-		public QualifiedName Qualify(string PreQualifier)
-		{
-			if (string.IsNullOrEmpty(PreQualifier))
-				return this;
-			else
-				return new QualifiedName(PreQualifier, this);
-		}
+        /// <summary>
+        /// Qualifies this name with an additional qualifier.
+        /// A new instance is returned that represents the
+        /// concatenation of said qualifier and this
+        /// qualified name.
+        /// </summary>
+        public QualifiedName Qualify(string PreQualifier)
+        {
+            if (string.IsNullOrEmpty(PreQualifier))
+                return this;
+            else
+                return new QualifiedName(PreQualifier, this);
+        }
 
-		/// <summary>
-		/// Qualifies this name with an additional qualifier.
-		/// A new instance is returned that represents the
-		/// concatenation of said qualifier and this
-		/// qualified name.
-		/// </summary>
-		public QualifiedName Qualify(UnqualifiedName PreQualifier)
-		{
-			if (PreQualifier.IsEmpty)
-				return this;
-			else
-				return new QualifiedName(PreQualifier, this);
-		}
+        /// <summary>
+        /// Qualifies this name with an additional qualifier.
+        /// A new instance is returned that represents the
+        /// concatenation of said qualifier and this
+        /// qualified name.
+        /// </summary>
+        public QualifiedName Qualify(UnqualifiedName PreQualifier)
+        {
+            if (PreQualifier.IsEmpty)
+                return this;
+            else
+                return new QualifiedName(PreQualifier, this);
+        }
 
-		/// <summary>
-		/// Qualifies this name with an additional qualifier.
-		/// A new instance is returned that represents the
-		/// concatenation of said qualifier and this
-		/// qualified name.
-		/// </summary>
-		public QualifiedName Qualify(QualifiedName PreQualifier)
-		{
-			if (IsEmpty)
-				return PreQualifier;
-			else if (PreQualifier.IsEmpty)
-				return this;
-			else
-				return new QualifiedName(PrependArray(
-					PreQualifier.qualifiers, PreQualifier.qualifierIndex));
-		}
+        /// <summary>
+        /// Qualifies this name with an additional qualifier.
+        /// A new instance is returned that represents the
+        /// concatenation of said qualifier and this
+        /// qualified name.
+        /// </summary>
+        public QualifiedName Qualify(QualifiedName PreQualifier)
+        {
+            if (IsEmpty)
+                return PreQualifier;
+            else if (PreQualifier.IsEmpty)
+                return this;
+            else
+                return new QualifiedName(PrependArray(
+                    PreQualifier.qualifiers, PreQualifier.qualifierIndex));
+        }
 
-		public bool Equals(QualifiedName Other)
-		{
-			var ownQuals = qualifiers;
-			var otherQuals = Other.qualifiers;
+        public bool Equals(QualifiedName Other)
+        {
+            var ownQuals = qualifiers;
+            var otherQuals = Other.qualifiers;
 
-			if (ownQuals == null || otherQuals == null)
-				return ownQuals == null && otherQuals == null;
+            if (ownQuals == null || otherQuals == null)
+                return ownQuals == null && otherQuals == null;
 
-			if (PathLength != Other.PathLength)
-				return false;
+            if (PathLength != Other.PathLength)
+                return false;
 
-			int delta = Other.qualifierIndex - qualifierIndex;
-			int qualLength = qualifiers.Length;
-			for (int i = qualifierIndex; i < qualLength; i++)
-			{
-				if (!ownQuals[i].Equals(otherQuals[i + delta]))
-					return false;
-			}
-			return true;
-		}
+            int delta = Other.qualifierIndex - qualifierIndex;
+            int qualLength = qualifiers.Length;
+            for (int i = qualifierIndex; i < qualLength; i++)
+            {
+                if (!ownQuals[i].Equals(otherQuals[i + delta]))
+                    return false;
+            }
+            return true;
+        }
 
-		public override bool Equals(object Other)
-		{
-			return Other is QualifiedName && Equals((QualifiedName)Other);
-		}
+        public override bool Equals(object Other)
+        {
+            return Other is QualifiedName && Equals((QualifiedName)Other);
+        }
 
-		public override int GetHashCode()
-		{
-			var quals = qualifiers;
-			if (quals == null)
-				return 0;
+        public override int GetHashCode()
+        {
+            var quals = qualifiers;
+            if (quals == null)
+                return 0;
 
-			int qualIndex = qualifierIndex;
-			int qualLen = quals.Length;
-			int result = 0;
-			for (int i = qualIndex; i < qualLen; i++)
-				result = (result << 1) ^ quals[i].GetHashCode();
+            int qualIndex = qualifierIndex;
+            int qualLen = quals.Length;
+            int result = 0;
+            for (int i = qualIndex; i < qualLen; i++)
+                result = (result << 1) ^ quals[i].GetHashCode();
 
-			return result;
-		}
+            return result;
+        }
 
-		public override string ToString()
-		{
-			return FullName;
-		}
-	}
+        public override string ToString()
+        {
+            return FullName;
+        }
+    }
 }
