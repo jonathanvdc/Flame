@@ -4,29 +4,29 @@ using System.Text;
 
 namespace Flame
 {
-	public static class NamespaceTreeExtensions
-	{
-		/// <summary>
-		/// Recursively retrieves all types defined by the given namespace
-		/// and its child namespaces.
-		/// </summary>
-		public static IReadOnlyList<IType> GetAllTypes(this INamespaceTree Tree)
-		{
-			var types = new List<IType>();
-			if (Tree is INamespace)
-			{
-				types.AddRange(((INamespace)Tree).Types);
-			}
-			foreach (var item in Tree.Namespaces)
-				types.AddRange(item.GetAllTypes());
-			return types;
-		}
+    public static class NamespaceTreeExtensions
+    {
+        /// <summary>
+        /// Recursively retrieves all types defined by the given namespace
+        /// and its child namespaces.
+        /// </summary>
+        public static IReadOnlyList<IType> GetAllTypes(this INamespaceTree Tree)
+        {
+            var types = new List<IType>();
+            if (Tree is INamespace)
+            {
+                types.AddRange(((INamespace)Tree).Types);
+            }
+            foreach (var item in Tree.Namespaces)
+                types.AddRange(item.GetAllTypes());
+            return types;
+        }
 
-		#region General Search
+        #region General Search
 
         public static IType FindType(this INamespaceTree Tree, QualifiedName Name)
         {
-			if (Tree is INamespaceBranch)
+            if (Tree is INamespaceBranch)
                 return ((INamespaceBranch)Tree).FindTypeInBranch(Name);
             else
                 return Tree.FindTypeInChildren(Name);
@@ -38,18 +38,17 @@ namespace Flame
 
         private static IType FindTypeInChildren(this INamespaceTree Tree, QualifiedName Name)
         {
-			var qualifier = Name.Qualifier;
+            if (Name.IsEmpty)
+                return null;
+
+            var qualifier = Name.Qualifier;
             foreach (var item in Tree.Namespaces)
             {
-				IType result = null;
-				var nsName = item.Name;
-				if (nsName.Equals(qualifier))
-					result = item.FindTypeInBranch(Name.Name);
-				else if (string.IsNullOrEmpty(nsName.ToString()))
-					result = item.FindTypeInBranch(Name);
-
-                if (result != null)
-                    return result;
+                var nsName = item.Name;
+                if (nsName.Equals(qualifier))
+                    return item.FindTypeInBranch(Name.Name);
+                else if (string.IsNullOrEmpty(nsName.ToString()))
+                    return item.FindTypeInBranch(Name);
             }
             return null;
         }
@@ -60,24 +59,23 @@ namespace Flame
 
         private static IType FindTypeInBranch(this INamespaceBranch Namespace, QualifiedName Name)
         {
-			var qualifier = Name.Qualifier;
+            if (Name.IsEmpty)
+                return null;
+
+            var qualifier = Name.Qualifier;
             foreach (var item in Namespace.Types)
             {
-				if (item.Name.Equals(qualifier))
-				{
-					IType result = null;
-					if (!Name.IsQualified)
-						return item;
-					else if (item is INamespaceTree)
-						result = ((INamespaceTree)item).FindType(Name.Name);
-
-					if (result != null)
-						return result;
-				}
+                if (item.Name.Equals(qualifier))
+                {
+                    if (!Name.IsQualified)
+                        return item;
+                    else if (item is INamespaceTree)
+                        return ((INamespaceTree)item).FindType(Name.Name);
+                }
             }
             return Namespace.FindTypeInChildren(Name);
         }
 
         #endregion
-	}
+    }
 }
