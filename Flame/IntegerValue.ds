@@ -239,7 +239,7 @@ namespace Flame
     /// <summary>
     /// Describes an integer value that adheres to an integer spec.
     /// </summary>
-    public class IntegerValue : IComparable<IntegerValue>, IEquatable<IntegerValue>
+    public class IntegerValue : IComparable<IntegerValue>, IEquatable<IntegerValue>, IComparable
     {
         /// <summary>
         /// Creates an integer value from the given integer and an integer spec.
@@ -518,6 +518,17 @@ namespace Flame
         public int CompareTo(IntegerValue Other)
         {
             return Value.CompareTo(Other.Value);
+        }
+
+        /// <summary>
+        /// Compares this integer value to the given object.
+        /// </summary>
+        public int CompareTo(object Other)
+        {
+            if (Other == null)
+                return 1;
+            else
+                return CompareTo((IntegerValue)Other);
         }
 
         private byte[] ToPaddedByteArray(IntegerSpec NewSpec, int ArraySize)
