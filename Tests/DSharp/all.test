@@ -6,6 +6,7 @@ tests
     Cast/Cast.test;
     Color/Color.test;
     Constant/Constant.test;
+    CustomAttribute/CustomAttribute.test;
     Flow/Flow.test;
     Fractal/Fractal.test;
     Monads/Monads.test;

@@ -1,0 +1,27 @@
+using System;
+using System.ComponentModel;
+using System.Diagnostics.Contracts;
+
+public class TestAttribute : Attribute
+{
+    public this(set int Input, set int Output);
+
+    public int Input { get; private set; }
+    public int Output { get; private set; }
+}
+
+
+public module Program
+{
+    [Obsolete("This method is marked obsolete for some reason", false)]
+    [Test(2, 4)]
+    public static int Square(int x)
+    {
+        return x * x;
+    }
+
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine(Square(15));
+    }
+}
