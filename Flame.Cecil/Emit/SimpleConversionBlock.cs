@@ -31,8 +31,7 @@ namespace Flame.Cecil.Emit
         public void Emit(IEmitContext Context)
         {
             Value.Emit(Context);
-            var exprType = Context.Stack.Pop();
-            var targetType = TargetType;
+            Context.Stack.Pop();
             
             Context.Emit(Op, OpType);
 
