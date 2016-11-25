@@ -134,16 +134,89 @@ namespace Flame.Cecil
             return CreateCecil(type.GetConstructor(new IType[0]), new IBoundObject[0], ImportingMember);
         }
 
-        public static CecilAttribute CreateCecil(IMethod Constructor, IEnumerable<IBoundObject> Arguments, ICecilMember ImportingMember)
+        public static CecilAttribute CreateCecil(
+            IMethod Constructor, IEnumerable<IBoundObject> Arguments, ICecilMember ImportingMember)
         {
             var methodImporter = new CecilMethodImporter(ImportingMember.Module);
             var ctor = methodImporter.Convert(Constructor);
             var attrDef = new CustomAttribute(ctor);
             foreach (var item in Arguments)
             {
-                attrDef.ConstructorArguments.Add(new CustomAttributeArgument(methodImporter.TypeImporter.Convert(item.Type), item.GetValue<object>()));
+                attrDef.ConstructorArguments.Add(
+                    ToCustomAttributeArgument(item, methodImporter.TypeImporter));
             }
             return new CecilAttribute(attrDef, ImportingMember);
+        }
+
+        private static CustomAttributeArgument ToCustomAttributeArgument(
+            IBoundObject BoundObject, IConverter<IType, TypeReference> TypeImporter)
+        {
+            var type = BoundObject.Type;
+            return new CustomAttributeArgument(
+                TypeImporter.Convert(type), 
+                ToCustomAttributeArgumentValue(type, BoundObject, TypeImporter));
+        }
+
+        private static object ToCustomAttributeArgumentValue(
+            IType ObjectType, IBoundObject BoundObject, 
+            IConverter<IType, TypeReference> TypeImporter)
+        {
+            if (ObjectType.GetIsInteger())
+            {
+                IntegerValue intVal = BoundObject.GetValue<IntegerValue>();
+                var spec = intVal.Spec;
+                if (spec.Equals(IntegerSpec.Int8))
+                    return intVal.ToInt8();
+                else if (spec.Equals(IntegerSpec.Int16))
+                    return intVal.ToInt16();
+                else if (spec.Equals(IntegerSpec.Int32))
+                    return intVal.ToInt32();
+                else if (spec.Equals(IntegerSpec.Int64))
+                    return intVal.ToInt64();
+                else if (spec.Equals(IntegerSpec.UInt8))
+                    return intVal.ToUInt8();
+                else if (spec.Equals(IntegerSpec.UInt16))
+                    return intVal.ToUInt16();
+                else if (spec.Equals(IntegerSpec.UInt32))
+                    return intVal.ToUInt32();
+                else if (spec.Equals(IntegerSpec.UInt64))
+                    return intVal.ToUInt64();
+                else
+                    throw new NotSupportedException("Unsupported integer spec: " + spec.ToString());
+            }
+            else if (ObjectType.GetIsBit())
+            {
+                BitValue bitVal = BoundObject.GetValue<BitValue>();
+                switch (bitVal.Size)
+                {
+                    case 8:
+                        return bitVal.ToInteger().ToUInt8();
+                    case 16:
+                        return bitVal.ToInteger().ToUInt16();
+                    case 32:
+                        return bitVal.ToInteger().ToUInt32();
+                    case 64:
+                        return bitVal.ToInteger().ToUInt64();
+                    default:
+                        throw new NotSupportedException("Unsupported bit size: " + bitVal.Size);
+                }
+            }
+            else if (PrimitiveTypes.Boolean.Equals(ObjectType))
+            {
+                return BoundObject.GetValue<bool>();
+            }
+            else if (PrimitiveTypes.Float32.Equals(ObjectType))
+            {
+                return BoundObject.GetValue<float>();
+            }
+            else if (PrimitiveTypes.Float64.Equals(ObjectType))
+            {
+                return BoundObject.GetValue<double>();
+            }
+            else
+            {
+                return BoundObject.GetValue<object>();
+            }
         }
 
         private static readonly Dictionary<IType, Lazy<ConstructorInfo>> intrinsicAttrCtors = new Dictionary<IType, Lazy<ConstructorInfo>>()
