@@ -62,6 +62,32 @@ namespace Flame.Collections
         }
 
         /// <summary>
+        /// Removes all key-value pairs with the given key from this dictionary.
+        /// </summary>
+        public bool Remove(TKey Key)
+        {
+            int hashCode = keyEq.GetHashCode(Key);
+            var items = pairs.Items;
+
+            bool removedAny = false;
+            int i = 0;
+            while (i < pairs.Count)
+            {
+                if (items[i].KeyHashCode == hashCode
+                    && keyEq.Equals(Key, items[i].Key))
+                {
+                    pairs.RemoveAt(i);
+                    removedAny = true;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            return removedAny;
+        }
+
+        /// <summary>
         /// Inserts a range of items into this dictionary.
         /// </summary>
         public void AddRange(SmallMultiDictionary<TKey, TValue> Other)
