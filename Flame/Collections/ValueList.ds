@@ -43,6 +43,9 @@ namespace Flame.Collections
         /// </summary>
         public int Capacity { get { return Items.Length; } }
 
+        /// <summary>
+        /// Gets the element at the given index in this list.
+        /// </summary>
         public T this[int Index]
         {
             get
@@ -57,6 +60,9 @@ namespace Flame.Collections
             }
         }
 
+        /// <summary>
+        /// Appends the given value to this list.
+        /// </summary>
         public void Add(T Value)
         {
             int newCount = Count + 1;
@@ -66,6 +72,22 @@ namespace Flame.Collections
             Count = newCount;
         }
 
+        /// <summary>
+        /// Removes the element at the given index. All values to the right
+        /// of the given index are shifted one position to the left.
+        /// </summary>
+        public void RemoveAt(int Index)
+        {
+            for (int i = Index + 1; i < Count; i++)
+            {
+                this[i - 1] = this[i];
+            }
+            this.Count--;
+        }
+
+        /// <summary>
+        /// Appends the given value list to this list.
+        /// </summary>
         public void AddRange(ValueList<T> Values)
         {
             int oldCount = Count;
@@ -79,6 +101,9 @@ namespace Flame.Collections
             Count = newCount;
         }
 
+        /// <summary>
+        /// Minimizes at least the given capacity in this list.
+        /// </summary>
         public void Reserve(int MinimalCapacity)
         {
             int cap = Capacity;
