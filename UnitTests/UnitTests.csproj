@@ -77,6 +77,8 @@
     <Compile Include="Compiler\LocationFinderTests.cs" />
     <Compile Include="Compiler\FlowGraphTests.cs" />
     <Compile Include="QualifiedNameTests.cs" />
+    <Compile Include="Collections\ValueListTests.cs" />
+    <Compile Include="Collections\SmallMultiDictionaryTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -93,5 +95,6 @@
     <Folder Include="Optimization\" />
     <Folder Include="DSharp\" />
     <Folder Include="Compiler\" />
+    <Folder Include="Collections\" />
   </ItemGroup>
 </Project>
