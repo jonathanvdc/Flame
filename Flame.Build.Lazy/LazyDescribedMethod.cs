@@ -75,6 +75,20 @@ namespace Flame.Build.Lazy
         }
 
         /// <summary>
+        /// Removes all attributes of the given type from
+        /// the attribute map.
+        /// </summary>
+        /// <param name="AttributeType">
+        /// The attribute type whose instances will be removed
+        /// from this attribute map.
+        /// </param>
+        public void RemoveAttributes(IType AttributeType)
+        {
+            CreateBody();
+            attributeList.RemoveAll(AttributeType);
+        }
+
+        /// <summary>
         /// Gets this member's attribute map.
         /// </summary>
         public AttributeMap Attributes
