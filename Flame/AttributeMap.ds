@@ -95,6 +95,14 @@ namespace Flame
         }
 
         /// <summary>
+        /// Removes all attributes that have the given type.
+        /// </summary>
+        public void RemoveAll(IType Type)
+        {
+            attributeDict.Remove(Type);
+        }
+
+        /// <summary>
         /// Gets all attributes in this attribute map with the given type.
         /// </summary>
         public [IAttribute] GetAll(IType Type)
