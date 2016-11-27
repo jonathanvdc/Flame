@@ -79,6 +79,7 @@
     <Compile Include="QualifiedNameTests.cs" />
     <Compile Include="Collections\ValueListTests.cs" />
     <Compile Include="Collections\SmallMultiDictionaryTests.cs" />
+    <Compile Include="AttributeMapTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

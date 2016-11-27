@@ -76,6 +76,7 @@ namespace UnitTests
                 new TypeSystemTests(),
                 new IntegerValueTests(),
                 new QualifiedNameTests(),
+                new AttributeMapTests(),
                 new Collections.ValueListTests(),
                 new Collections.SmallMultiDictionaryTests());
         }
