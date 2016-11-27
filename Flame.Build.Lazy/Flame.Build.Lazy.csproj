@@ -47,6 +47,8 @@
     <Compile Include="LazyDescribedMethod.cs" />
     <Compile Include="LazyDescribedProperty.cs" />
     <Compile Include="LazyDescribedType.cs" />
+    <Compile Include="LazyDescribedMember.cs" />
+    <Compile Include="LazyDescribedTypeMember.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
