@@ -11,7 +11,9 @@ namespace Flame.Recompilation
 {
     public class RecompiledTypeTemplate : RecompiledMemberTemplate<IType>, ITypeSignatureTemplate
     {
-        protected RecompiledTypeTemplate(AssemblyRecompiler Recompiler, IType SourceType, MemberSignaturePassResult SignaturePassResult)
+        protected RecompiledTypeTemplate(
+            AssemblyRecompiler Recompiler, IType SourceType,
+            MemberSignaturePassResult SignaturePassResult)
             : base(Recompiler, SignaturePassResult)
         {
             this.SourceType = SourceType;
@@ -19,9 +21,12 @@ namespace Flame.Recompilation
 
         #region Static
 
-        public static RecompiledTypeTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IType SourceType)
+        public static RecompiledTypeTemplate GetRecompilerTemplate(
+            AssemblyRecompiler Recompiler, IType SourceType)
         {
-            return new RecompiledTypeTemplate(Recompiler, SourceType, Recompiler.Passes.ProcessSignature(Recompiler, SourceType));
+            return new RecompiledTypeTemplate(
+                Recompiler, SourceType,
+                Recompiler.Passes.ProcessSignature(Recompiler, SourceType));
         }
 
         #endregion
@@ -32,26 +37,6 @@ namespace Flame.Recompilation
             return SourceType;
         }
 
-        #region Static
-
-        public static IType[] GetWeakRecompiledTypes(IType[] SourceTypes, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
-        {
-            IType[] results = new IType[SourceTypes.Length];
-            for (int i = 0; i < SourceTypes.Length; i++)
-            {
-                results[i] = GetWeakRecompiledType(SourceTypes[i], Recompiler, DeclaringMember);
-            }
-            return results;
-        }
-
-        public static IType GetWeakRecompiledType(IType SourceType, AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
-        {
-            var visitor = new WeakTypeRecompilingVisitor(Recompiler, DeclaringMember);
-            return visitor.Convert(SourceType);
-        }
-
-        #endregion
-
         public IEnumerable<IType> CreateBaseTypes(IType Type)
         {
             return Recompiler.GetTypes(SourceType.BaseTypes).ToArray();
@@ -59,7 +44,9 @@ namespace Flame.Recompilation
 
         public IEnumerable<IGenericParameter> CreateGenericParameters(IType Type)
         {
-            return GenericExtensions.CloneGenericParameters(SourceType.GenericParameters, Type, new WeakTypeRecompilingVisitor(Recompiler, SourceType));
+            return GenericExtensions.CloneGenericParameters(
+                SourceType.GenericParameters, Type,
+                new WeakTypeRecompilingVisitor(Recompiler, SourceType));
         }
     }
 }

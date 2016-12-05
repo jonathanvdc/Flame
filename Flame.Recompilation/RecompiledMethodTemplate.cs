@@ -11,15 +11,20 @@ namespace Flame.Recompilation
 {
     public class RecompiledMethodTemplate : RecompiledTypeMemberTemplate<IMethod>, IMethodSignatureTemplate
     {
-        public RecompiledMethodTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod, MemberSignaturePassResult SignaturePassResult)
+        public RecompiledMethodTemplate(
+            AssemblyRecompiler Recompiler, IMethod SourceMethod,
+            MemberSignaturePassResult SignaturePassResult)
             : base(Recompiler, SignaturePassResult)
         {
             this.SourceMethod = SourceMethod;
         }
 
-        public static RecompiledMethodTemplate GetRecompilerTemplate(AssemblyRecompiler Recompiler, IMethod SourceMethod)
+        public static RecompiledMethodTemplate GetRecompilerTemplate(
+            AssemblyRecompiler Recompiler, IMethod SourceMethod)
         {
-            return new RecompiledMethodTemplate(Recompiler, SourceMethod, Recompiler.Passes.ProcessSignature(Recompiler, SourceMethod));
+            return new RecompiledMethodTemplate(
+                Recompiler, SourceMethod,
+                Recompiler.Passes.ProcessSignature(Recompiler, SourceMethod));
         }
 
         public IMethod SourceMethod { get; private set; }
@@ -40,12 +45,16 @@ namespace Flame.Recompilation
 
         public IEnumerable<IGenericParameter> CreateGenericParameters(IMethod Method)
         {
-            return GenericExtensions.CloneGenericParameters(SourceMethod.GenericParameters, SourceMethod, new WeakTypeRecompilingVisitor(Recompiler, SourceMethod));
+            return GenericExtensions.CloneGenericParameters(
+                SourceMethod.GenericParameters, SourceMethod,
+                new WeakTypeRecompilingVisitor(Recompiler, SourceMethod));
         }
 
         public IEnumerable<IParameter> CreateParameters(IMethod Method)
         {
-            return SourceMethod.Parameters.Select(item => new RetypedParameter(item, Recompiler.GetType(item.ParameterType))).ToArray();
+            return SourceMethod.Parameters.Select(item =>
+                new RetypedParameter(item, Recompiler.GetType(item.ParameterType)))
+                .ToArray();
         }
 
         public IType CreateReturnType(IMethod Method)
