@@ -12,4 +12,5 @@ tests
     Monads/Monads.test;
     Overloading/Overloading.test;
     Point/Point.test;
+    RecursiveGenericConstraint/RecursiveGenericConstraint.test;
 }

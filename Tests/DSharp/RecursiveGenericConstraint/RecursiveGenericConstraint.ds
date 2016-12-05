@@ -1,0 +1,35 @@
+using System;
+
+public class Requires<T>
+    where T : IComparable<T>
+{
+    public this(set T Value);
+
+    public T Value { get; private set; }
+}
+
+public class ComparableInt : IComparable<ComparableInt>
+{
+    public this(set int Value);
+
+    public int Value { get; private set; }
+
+    public int CompareTo(ComparableInt Other)
+    {
+        if (Value == Other.Value)
+            return 0;
+        else if (Value < Other.Value)
+            return -1;
+        else
+            return 1;
+    }
+}
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        var req = new Requires<ComparableInt>(new ComparableInt(0));
+        Console.WriteLine(req.Value.Value);
+    }
+}
