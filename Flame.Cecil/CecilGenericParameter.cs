@@ -267,25 +267,34 @@ namespace Flame.Cecil
             }
         }
 
-        public static CecilGenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module, IGenericMember DeclaringMember)
-        {
-            return DeclareGenericParameters(ParameterProvider, Templates, Module).Select(item => new CecilGenericParameter(item, Module, DeclaringMember)).ToArray();
-        }
-
-        public static GenericParameter[] DeclareGenericParameters(IGenericParameterProvider ParameterProvider, IGenericParameter[] Templates, CecilModule Module)
+        public static CecilGenericParameter[] DeclareGenericParameters(
+            IGenericParameterProvider ParameterProvider, 
+            IGenericParameter[] Templates, CecilModule Module,
+            IGenericMember DeclaringMember)
         {
             GenericParameter[] parameters = new GenericParameter[Templates.Length];
+            CecilGenericParameter[] results = new CecilGenericParameter[Templates.Length];
+            var mapping = new Dictionary<IType, IType>();
             for (int i = 0; i < Templates.Length; i++)
             {
-                var param = new GenericParameter(Templates[i].Name.ToString(), ParameterProvider);
-                parameters[i] = param;
+                var paramTemplate = Templates[i];
+                var param = new GenericParameter(paramTemplate.Name.ToString(), ParameterProvider);
                 ParameterProvider.GenericParameters.Add(param);
+                parameters[i] = param;
+                var resultParam = new CecilGenericParameter(param, Module, DeclaringMember);
+                results[i] = resultParam;
+                mapping[paramTemplate] = resultParam;
             }
+
+            var conv = new TypeMappingConverter(mapping);
             for (int i = 0; i < parameters.Length; i++)
             {
+                var param = parameters[i];
                 foreach (var item in Templates[i].BaseTypes)
                 {
-                    parameters[i].Constraints.Add(item.GetImportedReference(Module, ParameterProvider));
+                    param.Constraints.Add(
+                        conv.Convert(item)
+                        .GetImportedReference(Module, ParameterProvider));
                 }
 
                 GenericParameterAttributes genericParamAttrs = default(GenericParameterAttributes);
@@ -311,9 +320,9 @@ namespace Flame.Cecil
                     }
                 }
 
-                parameters[i].Attributes = genericParamAttrs;
+                param.Attributes = genericParamAttrs;
             }
-            return parameters;
+            return results;
         }
 
         #endregion

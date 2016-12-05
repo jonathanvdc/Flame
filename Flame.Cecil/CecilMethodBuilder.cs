@@ -47,9 +47,7 @@ namespace Flame.Cecil
 
             methodDef.Attributes = attrs;
 
-            var cecilGenericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.Value.ToArray(), Module);
-
-            var genericParams = cecilGenericParams.Select(item => new CecilGenericParameter(item, Module, this)).ToArray();
+            var genericParams = CecilGenericParameter.DeclareGenericParameters(methodDef, Template.GenericParameters.Value.ToArray(), Module, this);
             var conv = new GenericParameterTransformer(genericParams);
             if (!methodDef.IsConstructor)
             {
