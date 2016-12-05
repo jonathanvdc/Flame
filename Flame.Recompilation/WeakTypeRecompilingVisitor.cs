@@ -9,7 +9,7 @@ namespace Flame.Recompilation
 {
     public class WeakTypeRecompilingVisitor : TypeTransformerBase
     {
-        public WeakTypeRecompilingVisitor(AssemblyRecompiler Recompiler, IGenericMember DeclaringType)
+        public WeakTypeRecompilingVisitor(AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
         {
             this.Recompiler = Recompiler;
             this.DeclaringMember = DeclaringMember;
