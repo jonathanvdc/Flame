@@ -8,7 +8,24 @@ namespace Flame.Optimization.AliasAnalysis
     public interface IAliasAnalysis
     {
         /// <summary>
-        /// Computes the aliasing relationship between the given expressions.
+        /// Analyzes the given method body.
+        /// </summary>
+        IAliasAnalysisResult Analyze(IStatement Statement);
+    }
+
+    /// <summary>
+    /// A common interface for alias analysis results.
+    /// </summary>
+    public interface IAliasAnalysisResult
+    {
+        /// <summary>
+        /// Gets the analysis that produced this result.
+        /// </summary>
+        IAliasAnalysis Analysis { get; private set; }
+
+        /// <summary>
+        /// Retrieves or computes the aliasing relationship between the
+        /// given expressions.
         /// </summary>
         Aliasing GetAliasing(IExpression First, IExpression Second);
     }
@@ -19,7 +36,8 @@ namespace Flame.Optimization.AliasAnalysis
         /// Checks if the given expressions definitely point to the same value.
         /// </summary>
         public static bool AreAliases(
-            this IAliasAnalysis Analysis, IExpression First, IExpression Second)
+            this IAliasAnalysisResult Analysis,
+            IExpression First, IExpression Second)
         {
             return Analysis.GetAliasing(First, Second) == Aliasing.Alias;
         }
@@ -29,7 +47,8 @@ namespace Flame.Optimization.AliasAnalysis
         /// definitely point to the same value.
         /// </summary>
         public static bool MayAlias(
-            this IAliasAnalysis Analysis, IExpression First, IExpression Second)
+            this IAliasAnalysisResult Analysis,
+            IExpression First, IExpression Second)
         {
             var result = Analysis.GetAliasing(First, Second);
             return result == Aliasing.MayAlias || result == Aliasing.Alias;
@@ -40,7 +59,8 @@ namespace Flame.Optimization.AliasAnalysis
         /// value.
         /// </summary>
         public static bool AreNotAliases(
-            this IAliasAnalysis Analysis, IExpression First, IExpression Second)
+            this IAliasAnalysisResult Analysis,
+            IExpression First, IExpression Second)
         {
             return Analysis.GetAliasing(First, Second) == Aliasing.NoAlias;
         }

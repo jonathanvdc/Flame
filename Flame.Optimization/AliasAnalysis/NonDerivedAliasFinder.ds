@@ -17,7 +17,7 @@ namespace Flame.Optimization.AliasAnalysis
     public class NonDerivedAliasFinder : NodeVisitorBase
     {
         public this(
-            set IAliasAnalysis AliasAnalysis,
+            set IAliasAnalysisResult AliasAnalysis,
             set IBodyPassEnvironment PassEnvironment,
             IEnumerable<IExpression> RelevantExpressions)
         {
@@ -40,7 +40,7 @@ namespace Flame.Optimization.AliasAnalysis
         /// <summary>
         /// Gets the alias analysis this external alias finder uses.
         /// </summary>
-        public IAliasAnalysis AliasAnalysis { get; private set; }
+        public IAliasAnalysisResult AliasAnalysis { get; private set; }
 
         /// <summary>
         /// A body pass environment that is used to retrieve method bodies
@@ -143,7 +143,8 @@ namespace Flame.Optimization.AliasAnalysis
             }
 
             var visitor = new NonDerivedAliasFinder(
-                AliasAnalysis, PassEnvironment, Relevant);
+                AliasAnalysis.Analysis.Analyze(body),
+                PassEnvironment, Relevant);
             visitor.Visit(body);
             FoundAnyAliases = visitor.FoundAnyAliases;
         }
