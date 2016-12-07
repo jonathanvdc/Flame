@@ -81,5 +81,6 @@
   <ItemGroup Name="AliasAnalysis">
     <Compile Include="AliasAnalysis/Aliasing.ds" />
     <Compile Include="AliasAnalysis/IAliasAnalysis.ds" />
+    <Compile Include="AliasAnalysis/NonDerivedAliasFinder.ds" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,263 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.AliasAnalysis
+{
+    /// <summary>
+    /// An analysis that looks for expressions that alias at least one element
+    /// in a set of relevant expressions and might not be derived from those
+    /// expressions.
+    /// </summary>
+    public class NonDerivedAliasFinder : NodeVisitorBase
+    {
+        public this(
+            set IAliasAnalysis AliasAnalysis,
+            set IBodyPassEnvironment PassEnvironment,
+            IEnumerable<IExpression> RelevantExpressions)
+        {
+            this.FoundAnyAliases = false;
+            this.relevantExprs = Enumerable.ToArray<IExpression>(
+                RelevantExpressions);
+        }
+
+        private IExpression[] relevantExprs;
+
+        /// <summary>
+        /// Gets the set of relevant expressions: the expressions for which
+        /// we want to find aliases.
+        /// </summary>
+        public IEnumerable<IExpression> RelevantExpressions
+        {
+            get { return relevantExprs; }
+        }
+
+        /// <summary>
+        /// Gets the alias analysis this external alias finder uses.
+        /// </summary>
+        public IAliasAnalysis AliasAnalysis { get; private set; }
+
+        /// <summary>
+        /// A body pass environment that is used to retrieve method bodies
+        /// for further analysis.
+        /// </summary>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        /// <summary>
+        /// Checks if any aliases were found.
+        /// </summary>
+        public bool FoundAnyAliases { get; private set; }
+
+        public override bool Matches(IExpression Value)
+        {
+            return true;
+        }
+
+        public override bool Matches(IStatement Value)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the given expression is derived from the given other
+        /// expression. This method errs on the safe side.
+        /// </summary>
+        private bool DerivesFrom(IExpression Derived, IExpression Original)
+        {
+            // Right now, just check for equality.
+            return Original.Equals(Derived);
+        }
+
+        private bool DerivesFromRelevantExpr(IExpression Expression)
+        {
+            foreach (var expr in relevantExprs)
+            {
+                if (DerivesFrom(Expression, expr))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool MayAliasRelevantExpression(IExpression Expression)
+        {
+            foreach (var expr in relevantExprs)
+            {
+                if (AliasAnalysis.MayAlias(expr, Expression))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Finds the set of derived expressions in the given argument list,
+        /// and encodes them as argument-get expressions. Meanwhile, search
+        /// for non-derived expressions that alias.
+        /// </summary>
+        private IEnumerable<ArgumentGetExpression> TransformArgumentList(
+            IEnumerable<IParameter> Parameters,
+            IEnumerable<IExpression> Arguments)
+        {
+            var results = new List<ArgumentGetExpression>();
+            int i = 0;
+            foreach (var arg in Arguments, var param in Parameters)
+            {
+                if (DerivesFromRelevantExpr(arg))
+                {
+                    results.Add(
+                        new ArgumentGetExpression(
+                            new ArgumentVariable(param, i)));
+                }
+                else if (MayAliasRelevantExpression(arg))
+                {
+                    // We found an alias. Nevermind the
+                    // relevant expression list construction.
+                    FoundAnyAliases = true;
+                    return results;
+                }
+
+                i++;
+            }
+            return results;
+        }
+
+        private void AnalyzeMethod(
+            IMethod Method,
+            IEnumerable<IExpression> Relevant)
+        {
+            if (FoundAnyAliases)
+                // Nothing we could do here can make `FoundAnyAliases` `false`
+                // again.
+                return;
+
+            var body = PassEnvironment.GetMethodBody(Method);
+            if (body == null)
+            {
+                // Assume that there might have been an alias in there.
+                FoundAnyAliases = true;
+                return;
+            }
+
+            var visitor = new NonDerivedAliasFinder(
+                AliasAnalysis, PassEnvironment, Relevant);
+            visitor.Visit(body);
+            FoundAnyAliases = visitor.FoundAnyAliases;
+        }
+
+        private IExpression TransformInvocation(InvocationExpression Expression)
+        {
+            var disCall = DissectedCallHelpers.DissectCall(Expression);
+
+            var newRelevantExprs = new List<IExpression>();
+            if (disCall.ThisValue != null)
+            {
+                if (DerivesFromRelevantExpr(disCall.ThisValue))
+                {
+                    newRelevantExprs.Add(new ThisVariable(
+                        disCall.Method.DeclaringType));
+                }
+                else if (MayAliasRelevantExpression(disCall.ThisValue))
+                {
+                    // We found a non-derived alias.
+                    FoundAnyAliases = true;
+                    return Expression;
+                }
+            }
+
+            newRelevantExprs.AddRange(
+                TransformArgumentList(
+                    disCall.Method.Parameters, disCall.Arguments));
+
+            AnalyzeMethod(disCall.Method, newRelevantExprs);
+
+            return Expression;
+        }
+
+        private IExpression TransformNewObject(NewObjectExpression Expression)
+        {
+            AnalyzeMethod(
+                Expression.Constructor,
+                TransformArgumentList(
+                    Expression.Constructor.Parameters,
+                    Expression.Arguments));
+            return Expression;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            if (FoundAnyAliases)
+            {
+                // We have already found at least one alias.
+                // Don't waste time looking for more.
+                return Expression;
+            }
+            else if (Expression is IMetadataNode<IExpression>)
+            {
+                // Don't waste time analyzing the metadata nodes themselves.
+                // Just skip right ahead to the children.
+                return Expression.Accept(this);
+            }
+            else if (Expression is InvocationExpression)
+            {
+                // A invocation's body might alias one of the relevant
+                // expressions, if it is passed as an argument.
+                return TransformInvocation((InvocationExpression)Expression);
+            }
+            else if (Expression is NewObjectExpression)
+            {
+                // A new-object expression acts a lot like a call.
+                return TransformNewObject((NewObjectExpression)Expression);
+            }
+            else if (!DerivesFromRelevantExpr(Expression)
+                && MayAliasRelevantExpression(Expression))
+            {
+                FoundAnyAliases = true;
+                return Expression;
+            }
+            else
+            {
+                // Look for aliases in the expression's children.
+                return Expression.Accept(this);
+            }
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            if (FoundAnyAliases)
+            {
+                // We have already found at least one alias.
+                // Don't waste time looking for more.
+                return Statement;
+            }
+            else if (Statement is ISetVariableNode)
+            {
+                // Assignments are special, as they might refer to a value
+                // with their right-hand side, despite the rhs not being stored
+                // as an expression.
+                var varNode = (ISetVariableNode)Statement;
+                assert(varNode.Action == VariableNodeAction.Set);
+                var variable = varNode.GetVariable();
+                if (variable is IUnmanagedVariable)
+                {
+                    // Create an address-of expression for the rhs, and
+                    // visit that.
+                    Visit(
+                        ((IUnmanagedVariable)variable)
+                        .CreateAddressOfExpression());
+                }
+                // Don't forget to visit the assignment's value.
+                Visit(varNode.Value);
+                return Statement;
+            }
+            else
+            {
+                // Look for aliases in the statement's children.
+                return Statement.Accept(this);
+            }
+        }
+    }
+}
