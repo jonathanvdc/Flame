@@ -1,0 +1,23 @@
+namespace Flame.Optimization.AliasAnalysis
+{
+    /// <summary>
+    /// Describes possible aliasing relationships between two pointers.
+    /// </summary>
+    public enum Aliasing : int
+    {
+        /// <summary>
+        /// Two pointers never point to the same value.
+        /// </summary>
+        NoAlias = 1,
+
+        /// <summary>
+        /// Two pointers always point to the same value.
+        /// </summary>
+        Alias = 2,
+
+        /// <summary>
+        /// Two pointers may point to the same value, but don't have to.
+        /// </summary>
+        MayAlias = 0
+    }
+}
