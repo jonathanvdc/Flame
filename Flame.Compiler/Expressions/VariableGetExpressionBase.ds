@@ -5,8 +5,9 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class VariableGetExpressionBase<T> : IExpression, IVariableNode
-        where T : IVariable
+    public abstract class VariableGetExpressionBase<T> : IExpression,
+        IVariableNode, IEquatable<VariableGetExpressionBase<T>>
+        where T : object, IVariable
     {
     	public const this();
     	public const this(set T Variable);
@@ -42,5 +43,19 @@ namespace Flame.Compiler.Expressions
 
         public abstract IExpression Accept(INodeVisitor Visitor);
         public abstract const ICodeBlock Emit(ICodeGenerator CodeGenerator);
+
+        public override const int GetHashCode()
+        {
+            return Variable.GetHashCode();
+        }
+        public virtual bool Equals(VariableGetExpressionBase<T> Other)
+        {
+            return Variable.Equals(Other.Variable);
+        }
+        public virtual override bool Equals(object Other)
+        {
+            return Other is VariableGetExpressionBase<T>
+                && Equals((VariableGetExpressionBase<T>)Other);
+        }
     }
 }
