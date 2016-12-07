@@ -44,6 +44,32 @@ namespace Flame.Optimization
     }
 
     /// <summary>
+    /// A container for dissected call helper functions.
+    /// </summary>
+    public module DissectedCallHelpers
+    {
+        /// <summary>
+        /// Dissects the given direct call expression, if possible. Otherwise,
+        /// returns null.
+        /// </summary>
+        public static DissectedCall DissectCall(IExpression Expression)
+        {
+            var essentialExpr = Expression.GetEssentialExpression();
+            if (essentialExpr is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)essentialExpr;
+                var invTrgt = invExpr.Target.GetEssentialExpression();
+                if (invTrgt is GetMethodExpression)
+                {
+                    var target = (GetMethodExpression)invTrgt;
+                    return new DissectedCall(target.Caller, target.Target, invExpr.Arguments);
+                }
+            }
+            return null;
+        }
+    }
+
+    /// <summary>
     /// A pass that performs a number of iterations, which consist of
     /// inlining followed by whole-body optimization.
     /// </summary>
@@ -215,21 +241,6 @@ namespace Flame.Optimization
             return false;
         }
 
-        private DissectedCall DissectCall(IExpression Expression)
-        {
-            if (Expression is InvocationExpression)
-            {
-                var invExpr = (InvocationExpression)Expression;
-                var invTrgt = invExpr.Target.GetEssentialExpression();
-                if (invTrgt is GetMethodExpression)
-                {
-                    var target = (GetMethodExpression)invTrgt;
-                    return new DissectedCall(target.Caller, target.Target, invExpr.Arguments);
-                }
-            }
-            return null;
-        }
-
         protected override const bool MatchesCore(IExpression Expression)
         {
             return Expression is InvocationExpression;
@@ -239,7 +250,7 @@ namespace Flame.Optimization
         {
             // We know we *should* inline this because it survived the "match"
             // step.
-            var dissected = DissectCall((InvocationExpression)Expression);
+            var dissected = DissectedCallHelpers.DissectCall((InvocationExpression)Expression);
 
             // Only inline functions if we can and should inline them.
             if (dissected == null
