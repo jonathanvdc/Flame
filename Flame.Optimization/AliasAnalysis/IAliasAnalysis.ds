@@ -21,7 +21,7 @@ namespace Flame.Optimization.AliasAnalysis
         /// <summary>
         /// Gets the analysis that produced this result.
         /// </summary>
-        IAliasAnalysis Analysis { get; private set; }
+        IAliasAnalysis Analysis { get; }
 
         /// <summary>
         /// Retrieves or computes the aliasing relationship between the

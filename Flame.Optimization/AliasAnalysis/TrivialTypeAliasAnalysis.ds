@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.AliasAnalysis
+{
+    /// <summary>
+    /// A trivial type-based alias analysis.
+    /// </summary>
+    public static class TrivialTypeAliasAnalysis : IAliasAnalysis, IAliasAnalysisResult
+    {
+        /// <inheritdoc/>
+        public IAliasAnalysis Analysis { get { return this; } }
+
+        /// <inheritdoc/>
+        public IAliasAnalysisResult Analyze(IStatement Body)
+        {
+            return this;
+        }
+
+        private bool IsAddressOfLocalExpression(IExpression Expression)
+        {
+            return Expression is LocalAddressOfExpression
+                || Expression is ArgumentAddressOfExpression
+                || Expression is ThisGetExpression;
+        }
+
+        /// <inheritdoc/>
+        public Aliasing GetAliasing(IExpression First, IExpression Second)
+        {
+            if (IsAddressOfLocalExpression(First)
+                && IsAddressOfLocalExpression(Second))
+            {
+                if (First.Equals(Second))
+                    return Aliasing.Alias;
+                else
+                    return Aliasing.NoAlias;
+            }
+
+            var firstTy = First.Type.AsPointerType();
+            if (firstTy == null)
+                return Aliasing.MayAlias;
+
+            var secondTy = Second.Type.AsPointerType();
+            if (secondTy == null)
+                return Aliasing.MayAlias;
+
+            if (firstTy.ElementType.Is(secondTy.ElementType)
+                || secondTy.ElementType.Is(firstTy.ElementType))
+                return Aliasing.MayAlias;
+            else
+                return Aliasing.NoAlias;
+        }
+    }
+}

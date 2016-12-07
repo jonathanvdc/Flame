@@ -82,5 +82,6 @@
     <Compile Include="AliasAnalysis/Aliasing.ds" />
     <Compile Include="AliasAnalysis/IAliasAnalysis.ds" />
     <Compile Include="AliasAnalysis/NonDerivedAliasFinder.ds" />
+    <Compile Include="AliasAnalysis/TrivialTypeAliasAnalysis.ds" />
   </ItemGroup>
 </Project>
