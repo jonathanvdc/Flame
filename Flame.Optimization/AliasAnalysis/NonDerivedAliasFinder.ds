@@ -27,6 +27,16 @@ namespace Flame.Optimization.AliasAnalysis
             this.rootExprs = Enumerable.ToArray<IExpression>(RootExpressions);
         }
 
+        public this(
+            set IAliasAnalysisResult AliasAnalysis,
+            set IBodyPassEnvironment PassEnvironment,
+            IEnumerable<IExpression> RootExpressions)
+        {
+            this.FoundAnyAliases = false;
+            this.aliasExprs = Enumerable.ToArray<IExpression>(AliasExpressions);
+            this.rootExprs = this.aliasExprs;
+        }
+
         private IExpression[] aliasExprs;
         private IExpression[] rootExprs;
 
