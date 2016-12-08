@@ -61,10 +61,7 @@ namespace Flame.Optimization.AliasAnalysis
                 // Value types don't point to anything at all.
                 return Aliasing.NoAlias;
 
-            if (firstTy.Is(secondTy) || secondTy.Is(firstTy))
-                return Aliasing.MayAlias;
-            else
-                return Aliasing.NoAlias;
+            return Aliasing.MayAlias;
         }
     }
 }
