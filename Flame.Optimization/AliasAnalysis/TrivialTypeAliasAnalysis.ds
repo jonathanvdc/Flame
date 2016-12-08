@@ -23,7 +23,12 @@ namespace Flame.Optimization.AliasAnalysis
             return this;
         }
 
-        private bool IsAddressOfLocalExpression(IExpression Expression)
+        /// <summary>
+        /// Gets a boolean value that tells if the given expression evaluates
+        /// to the address of well-known region of storage, which can be
+        /// compared to addresses of other regions of storage via equality.
+        /// </summary>
+        private bool IsAddressOfStorageExpression(IExpression Expression)
         {
             return Expression is LocalAddressOfExpression
                 || Expression is ArgumentAddressOfExpression
@@ -33,25 +38,30 @@ namespace Flame.Optimization.AliasAnalysis
         /// <inheritdoc/>
         public Aliasing GetAliasing(IExpression First, IExpression Second)
         {
-            if (IsAddressOfLocalExpression(First)
-                && IsAddressOfLocalExpression(Second))
+            if (IsAddressOfStorageExpression(First)
+                && IsAddressOfStorageExpression(Second))
             {
+                // The addresses of two different storage region never
+                // alias.
                 if (First.Equals(Second))
                     return Aliasing.Alias;
                 else
                     return Aliasing.NoAlias;
             }
 
-            var firstTy = First.Type.AsPointerType();
-            if (firstTy == null)
-                return Aliasing.MayAlias;
+            var firstTy = First.Type;
+            if (firstTy.IsValueType || firstTy.IsInteger
+                || firstTy.IsBit || firstTy.IsFloatingPoint)
+                // Value types don't point to anything at all.
+                return Aliasing.NoAlias;
 
-            var secondTy = Second.Type.AsPointerType();
-            if (secondTy == null)
-                return Aliasing.MayAlias;
+            var secondTy = Second.Type;
+            if (secondTy.IsValueType || secondTy.IsInteger
+                || secondTy.IsBit || secondTy.IsFloatingPoint)
+                // Value types don't point to anything at all.
+                return Aliasing.NoAlias;
 
-            if (firstTy.ElementType.Is(secondTy.ElementType)
-                || secondTy.ElementType.Is(firstTy.ElementType))
+            if (firstTy.Is(secondTy) || secondTy.Is(firstTy))
                 return Aliasing.MayAlias;
             else
                 return Aliasing.NoAlias;
