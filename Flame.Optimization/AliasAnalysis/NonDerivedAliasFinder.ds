@@ -11,30 +11,40 @@ namespace Flame.Optimization.AliasAnalysis
 {
     /// <summary>
     /// An analysis that looks for expressions that alias at least one element
-    /// in a set of relevant expressions and might not be derived from those
-    /// expressions.
+    /// in a set of expressions and might not be derived from an element in
+    /// an other set of expressions.
     /// </summary>
     public class NonDerivedAliasFinder : NodeVisitorBase
     {
         public this(
             set IAliasAnalysisResult AliasAnalysis,
             set IBodyPassEnvironment PassEnvironment,
-            IEnumerable<IExpression> RelevantExpressions)
+            IEnumerable<IExpression> AliasExpressions,
+            IEnumerable<IExpression> RootExpressions)
         {
             this.FoundAnyAliases = false;
-            this.relevantExprs = Enumerable.ToArray<IExpression>(
-                RelevantExpressions);
+            this.aliasExprs = Enumerable.ToArray<IExpression>(AliasExpressions);
+            this.rootExprs = Enumerable.ToArray<IExpression>(RootExpressions);
         }
 
-        private IExpression[] relevantExprs;
+        private IExpression[] aliasExprs;
+        private IExpression[] rootExprs;
 
         /// <summary>
-        /// Gets the set of relevant expressions: the expressions for which
-        /// we want to find aliases.
+        /// Gets the set of expressions for which we want to find aliases.
         /// </summary>
-        public IEnumerable<IExpression> RelevantExpressions
+        public IEnumerable<IExpression> AliasExpressions
         {
-            get { return relevantExprs; }
+            get { return aliasExprs; }
+        }
+
+        /// <summary>
+        /// Gets the set of expressions from which aliases can be safely
+        /// derived.
+        /// </summary>
+        public IEnumerable<IExpression> RootExpressions
+        {
+            get { return rootExprs; }
         }
 
         /// <summary>
@@ -73,9 +83,12 @@ namespace Flame.Optimization.AliasAnalysis
             return Original.Equals(Derived);
         }
 
+        /// <summary>
+        /// Tests if the given expression is derived from a root expression.
+        /// </summary>
         private bool DerivesFromRelevantExpr(IExpression Expression)
         {
-            foreach (var expr in relevantExprs)
+            foreach (var expr in rootExprs)
             {
                 if (DerivesFrom(Expression, expr))
                     return true;
@@ -83,9 +96,14 @@ namespace Flame.Optimization.AliasAnalysis
             return false;
         }
 
+        /// <summary>
+        /// Tests if the given expression may alias any relevant expression,
+        /// i.e., any expression for which we're trying to find (potential)
+        /// aliases.
+        /// </summary>
         private bool MayAliasRelevantExpression(IExpression Expression)
         {
-            foreach (var expr in relevantExprs)
+            foreach (var expr in aliasExprs)
             {
                 if (AliasAnalysis.MayAlias(expr, Expression))
                     return true;
@@ -94,40 +112,79 @@ namespace Flame.Optimization.AliasAnalysis
         }
 
         /// <summary>
-        /// Finds the set of derived expressions in the given argument list,
-        /// and encodes them as argument-get expressions. Meanwhile, search
-        /// for non-derived expressions that alias.
+        /// Appends the given mapped expression to the list of mapped root
+        /// expressions and remove it from the list of unmapped alias
+        /// expressions, if it derives from a root.
+        /// Otherwise, if may alias a relevant expression, then set the
+        /// `FoundAnyAliases` flag to true.
         /// </summary>
-        private IEnumerable<ArgumentGetExpression> TransformArgumentList(
-            IEnumerable<IParameter> Parameters,
-            IEnumerable<IExpression> Arguments)
+        private void MaybeMapRootExpression(
+            IExpression OriginalExpression,
+            IExpression MappedExpression,
+            List<IExpression> MappedRootExpressions,
+            HashSet<IExpression> UnmappedAliasExprs)
         {
-            var results = new List<ArgumentGetExpression>();
+            if (DerivesFromRelevantExpr(OriginalExpression))
+            {
+                UnmappedAliasExprs.Remove(OriginalExpression);
+                MappedRootExpressions.Add(MappedExpression);
+            }
+            else if (MayAliasRelevantExpression(OriginalExpression))
+            {
+                FoundAnyAliases = true;
+            }
+        }
+
+
+        /// <summary>
+        /// Creates a sequence of mapped aliases by merging all mapped root
+        /// expressions with unknown-expressions for the types of unmapped
+        /// alias-expressions.
+        /// </summary>
+        private IEnumerable<IExpression> CreateMappedAliasList(
+            IEnumerable<IExpression> MappedRootExpressions,
+            IEnumerable<IExpression> UnmappedAliasExprs)
+        {
+            var result = new List<IExpression>(MappedRootExpressions);
+            foreach (var expr in UnmappedAliasExprs)
+            {
+                result.Add(new UnknownExpression(expr.Type));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Tries to map argument root expressions to parameter root
+        /// expressions.
+        /// </summary>
+        private void MaybeMapArgumentRootExpressions(
+            IEnumerable<IExpression> Arguments,
+            IEnumerable<IParameter> Parameters,
+            List<IExpression> MappedRootExpressions,
+            HashSet<IExpression> UnmappedAliasExprs)
+        {
             int i = 0;
             foreach (var arg in Arguments, var param in Parameters)
             {
-                if (DerivesFromRelevantExpr(arg))
-                {
-                    results.Add(
-                        new ArgumentGetExpression(
-                            new ArgumentVariable(param, i)));
-                }
-                else if (MayAliasRelevantExpression(arg))
-                {
-                    // We found an alias. Nevermind the
-                    // relevant expression list construction.
-                    FoundAnyAliases = true;
-                    return results;
-                }
+                if (FoundAnyAliases)
+                    // It really doesn't matter what we do at this point.
+                    // Our search is over.
+                    return;
+
+                MaybeMapRootExpression(
+                    arg,
+                    new ArgumentGetExpression(new ArgumentVariable(param, i)),
+                    MappedRootExpressions,
+                    UnmappedAliasExprs);
 
                 i++;
             }
-            return results;
         }
 
         private void AnalyzeMethod(
             IMethod Method,
-            IEnumerable<IExpression> Relevant)
+            IEnumerable<IExpression> NewAliasExpressions,
+            IEnumerable<IExpression> NewRootExpressions)
         {
             if (FoundAnyAliases)
                 // Nothing we could do here can make `FoundAnyAliases` `false`
@@ -144,7 +201,9 @@ namespace Flame.Optimization.AliasAnalysis
 
             var visitor = new NonDerivedAliasFinder(
                 AliasAnalysis.Analysis.Analyze(body),
-                PassEnvironment, Relevant);
+                PassEnvironment,
+                NewAliasExpressions,
+                NewRootExpressions);
             visitor.Visit(body);
             FoundAnyAliases = visitor.FoundAnyAliases;
         }
@@ -153,38 +212,54 @@ namespace Flame.Optimization.AliasAnalysis
         {
             var disCall = DissectedCallHelpers.DissectCall(Expression);
 
-            var newRelevantExprs = new List<IExpression>();
+            var mappedRootExprs = new List<IExpression>();
+            var unmappedAliasExprs = new HashSet<IExpression>(AliasExpressions);
+
+            // Map the 'this' value.
             if (disCall.ThisValue != null)
             {
-                if (DerivesFromRelevantExpr(disCall.ThisValue))
-                {
-                    newRelevantExprs.Add(new ThisVariable(
-                        disCall.Method.DeclaringType));
-                }
-                else if (MayAliasRelevantExpression(disCall.ThisValue))
-                {
-                    // We found a non-derived alias.
-                    FoundAnyAliases = true;
-                    return Expression;
-                }
+                MaybeMapRootExpression(
+                    disCall.ThisValue,
+                    new ThisVariable(disCall.Method.DeclaringType)
+                        .CreateGetExpression(),
+                    mappedRootExprs,
+                    unmappedAliasExprs);
             }
 
-            newRelevantExprs.AddRange(
-                TransformArgumentList(
-                    disCall.Method.Parameters, disCall.Arguments));
+            // Map the argument expressions.
+            MaybeMapArgumentRootExpressions(
+                disCall.Arguments,
+                disCall.Method.Parameters,
+                mappedRootExprs,
+                unmappedAliasExprs);
 
-            AnalyzeMethod(disCall.Method, newRelevantExprs);
+            var mappedAliasExprs = CreateMappedAliasList(
+                mappedRootExprs, unmappedAliasExprs);
+
+            AnalyzeMethod(
+                disCall.Method, mappedAliasExprs, mappedRootExprs);
 
             return Expression;
         }
 
         private IExpression TransformNewObject(NewObjectExpression Expression)
         {
+            var mappedRootExprs = new List<IExpression>();
+            var unmappedAliasExprs = new HashSet<IExpression>(AliasExpressions);
+
+            // Map the argument expressions.
+            MaybeMapArgumentRootExpressions(
+                Expression.Arguments,
+                Expression.Constructor.Parameters,
+                mappedRootExprs,
+                unmappedAliasExprs);
+
+            var mappedAliasExprs = CreateMappedAliasList(
+                mappedRootExprs, unmappedAliasExprs);
+
             AnalyzeMethod(
-                Expression.Constructor,
-                TransformArgumentList(
-                    Expression.Constructor.Parameters,
-                    Expression.Arguments));
+                Expression.Constructor, mappedAliasExprs, mappedRootExprs);
+
             return Expression;
         }
 
