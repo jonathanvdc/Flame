@@ -73,6 +73,29 @@ namespace Flame.Optimization.AliasAnalysis
         /// </summary>
         public bool FoundAnyAliases { get; private set; }
 
+        /// <summary>
+        /// Gets the location of the first non-derived alias that was found,
+        /// if any.
+        /// </summary>
+        public SourceLocation AliasLocation { get; private set; }
+
+        // The current location.
+        private SourceLocation currentLoc;
+
+        private void FoundAlias(SourceLocation Location)
+        {
+            FoundAnyAliases = true;
+            if (Location == null)
+                AliasLocation = currentLoc;
+            else
+                AliasLocation = Location;
+        }
+
+        private void FoundAlias()
+        {
+            FoundAlias(currentLoc);
+        }
+
         public override bool Matches(IExpression Value)
         {
             return true;
@@ -167,7 +190,7 @@ namespace Flame.Optimization.AliasAnalysis
             }
             else if (MayAliasRelevantExpression(OriginalExpression))
             {
-                FoundAnyAliases = true;
+                FoundAlias();
             }
         }
 
@@ -219,8 +242,11 @@ namespace Flame.Optimization.AliasAnalysis
 
         /// <summary>
         /// Analyzes the given method for non-derived aliases.
+        /// If a method body can be found, a visitor that has analyzed the
+        /// method body is returned. Otherwise, an analyzer that hasn't analyzed
+        /// anything is returned, which claims to have found aliases.
         /// </summary>
-        public static bool AnalyzeMethod(
+        public static NonDerivedAliasFinder AnalyzeMethod(
             IMethod Method, IAliasAnalysis Analysis,
             IBodyPassEnvironment Environment,
             IEnumerable<IExpression> AliasExprs,
@@ -229,20 +255,29 @@ namespace Flame.Optimization.AliasAnalysis
             var body = Environment.GetMethodBody(Method);
             if (body == null)
             {
-                // Assume that there might have been an alias in there.
-                return true;
-            }
 
-            var visitor = new NonDerivedAliasFinder(
-                Analysis.Analyze(body), Environment, AliasExprs, RootExprs);
-            visitor.Visit(body);
-            return visitor.FoundAnyAliases;
+                var emptyVisitor = new NonDerivedAliasFinder(
+                    Analysis.Analyze(EmptyStatement), Environment,
+                    AliasExprs, RootExprs);
+                emptyVisitor.FoundAlias();
+                return emptyVisitor;
+            }
+            else
+            {
+
+                var visitor = new NonDerivedAliasFinder(
+                    Analysis.Analyze(body), Environment, AliasExprs, RootExprs);
+                visitor.Visit(body);
+                return visitor;
+            }
         }
 
         /// <summary>
         /// Analyzes the given method for non-derived aliases.
+        /// If a method body can be found, a visitor that has analyzed the
+        /// method body is returned. Otherwise, null is returned.
         /// </summary>
-        public static bool AnalyzeMethod(
+        public static NonDerivedAliasFinder AnalyzeMethod(
             IMethod Method, IAliasAnalysis Analysis,
             IBodyPassEnvironment Environment,
             IEnumerable<IExpression> AliasExprs)
@@ -253,8 +288,10 @@ namespace Flame.Optimization.AliasAnalysis
 
         /// <summary>
         /// Analyzes the given method for non-derived aliases.
+        /// If a method body can be found, a visitor that has analyzed the
+        /// method body is returned. Otherwise, null is returned.
         /// </summary>
-        public static bool AnalyzeMethod(
+        public static NonDerivedAliasFinder AnalyzeMethod(
             IMethod Method, IAliasAnalysis Analysis,
             IBodyPassEnvironment Environment,
             IExpression AliasExpr)
@@ -273,9 +310,14 @@ namespace Flame.Optimization.AliasAnalysis
                 // again.
                 return;
 
-            FoundAnyAliases = AnalyzeMethod(
+            var visitor = AnalyzeMethod(
                 Method, AliasAnalysis.Analysis, PassEnvironment,
                 NewAliasExpressions, NewRootExpressions);
+
+            if (visitor.FoundAnyAliases)
+            {
+                FoundAlias(visitor.AliasLocation);
+            }
         }
 
         private IExpression TransformInvocation(InvocationExpression Expression)
@@ -341,6 +383,15 @@ namespace Flame.Optimization.AliasAnalysis
                 // Don't waste time looking for more.
                 return Expression;
             }
+            else if (Expression is SourceExpression)
+            {
+                var srcExpr = (SourceExpression)Expression;
+                var oldLoc = currentLoc;
+                currentLoc = srcExpr.Location;
+                var result = srcExpr.Accept(this);
+                currentLoc = oldLoc;
+                return result;
+            }
             else if (Expression is IMetadataNode<IExpression>)
             {
                 // Don't waste time analyzing the metadata nodes themselves.
@@ -378,6 +429,15 @@ namespace Flame.Optimization.AliasAnalysis
                 // We have already found at least one alias.
                 // Don't waste time looking for more.
                 return Statement;
+            }
+            else if (Statement is SourceStatement)
+            {
+                var srcStmt = (SourceStatement)Statement;
+                var oldLoc = currentLoc;
+                currentLoc = srcStmt.Location;
+                var result = srcStmt.Accept(this);
+                currentLoc = oldLoc;
+                return result;
             }
             else if (Statement is ISetVariableNode)
             {

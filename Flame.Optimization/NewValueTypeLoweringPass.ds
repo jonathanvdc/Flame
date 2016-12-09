@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
@@ -173,10 +174,39 @@ namespace Flame.Optimization
         private static bool ContainsNonDerivedThisAliasesImpl(
             IMethod Constructor, BodyPassArgument PassArgument)
         {
-            return NonDerivedAliasFinder.AnalyzeMethod(
+            var visitor = NonDerivedAliasFinder.AnalyzeMethod(
                 Constructor, PassArgument.Metadata.GetAliasAnalysis(),
                 PassArgument.PassEnvironment,
                 new ThisVariable(Constructor.DeclaringType).CreateGetExpression());
+
+            if (visitor.FoundAnyAliases
+                && PassArgument.PassEnvironment.Log.Options.ShouldRemark(
+                    NewValueTypeLoweringPass.NewValueTypeOptimizationPassName))
+            {
+                var ctorName = new StringBuilder();
+                ctorName.Append(Constructor.FullName.ToString());
+                ctorName.Append("(");
+                bool first = true;
+                foreach (var item in Constructor.Parameters)
+                {
+                    if (first)
+                        first = false;
+                    else
+                        ctorName.Append(", ");
+
+                    ctorName.Append(item.ParameterType.FullName.ToString());
+                }
+                ctorName.Append(")");
+                PassArgument.PassEnvironment.Log.LogMessage(new LogEntry(
+                    "optimization remark",
+                    "new-object expressions that use constructor '" +
+                    ctorName.ToString() +
+                    "' cannot be replaced by a direct call, because the 'this' " +
+                    "pointer might have an alias.",
+                    visitor.AliasLocation));
+            }
+
+            return visitor.FoundAnyAliases;
         }
 
         /// <summary>
