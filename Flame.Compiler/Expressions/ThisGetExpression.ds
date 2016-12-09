@@ -58,5 +58,15 @@ namespace Flame.Compiler.Expressions
         {
             return GetVariable().ToString();
         }
+
+        public override int GetHashCode()
+        {
+            return 1027493;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is ThisGetExpression;
+        }
     }
 }

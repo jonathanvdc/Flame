@@ -60,5 +60,15 @@ namespace Flame.Compiler.Expressions
         {
             return "&" + GetVariable().ToString();
         }
+
+        public override int GetHashCode()
+        {
+            return 827537;
+        }
+
+        public override bool Equals(object Other)
+        {
+            return Other is ThisAddressOfExpression;
+        }
     }
 }
