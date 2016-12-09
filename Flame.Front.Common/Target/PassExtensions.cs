@@ -51,14 +51,21 @@ namespace Flame.Front.Target
 
             // -flower-new-struct replaces all new-value type expressions by temporaries and direct
             // calls. -flower-new-struct is used at -O3, as it may aid other optimizations.
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(true), NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(true, true), NewValueTypeLoweringPass.NewValueTypeLoweringPassName));
             GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeLoweringPassName, optInfo => optInfo.OptimizeAggressive && !optInfo.OptimizeSize);
 
             // -foptimize-new-struct is a watered-down version of -flower-new-struct which does
-            // not create temporaries. -foptimize-new-struct is used at -O1, -O2 and -Os, as it
+            // not create temporaries. -foptimize-new-struct is used at -O2 and -Os, as it
             // can improve code quality without introducing extra overhead.
-            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
-            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false, true), NewValueTypeLoweringPass.NewValueTypeOptimizationPassName));
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeNormal && (!optInfo.OptimizeAggressive || optInfo.OptimizeSize));
+
+            // -fsimplify-new-struct is a watered-down version of -flower-new-struct which does
+            // not create temporaries or use alias analysis. 
+            // -fsimplify-new-struct is used at -O1 as it can improve code quality 
+            // without introducing extra overhead and without attempting alias analysis.
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false, false), NewValueTypeLoweringPass.NewValueTypeSimplificationPassName));
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeNormal);
 
             // -fspill-arguments makes SSA optimizations more effective, because
             // arguments are temporarily spilled to register locals.
