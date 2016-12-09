@@ -20,6 +20,6 @@ configs
 
 init
 {
-    Filename = LowerNewValueType;
+    Filename = LowerNewValueType2;
     return = @(echo 5)@(echo 4);
 }

@@ -1,0 +1,45 @@
+using System;
+
+public struct Vector2
+{
+    public this(Vector2^ Other)
+    {
+        this.X = Other->X;
+        this.Y = Other->Y;
+    }
+    public this(Vector2 Other)
+    {
+        this.X = Other.X;
+        this.Y = Other.Y;
+    }
+    public this(set double X, set double Y);
+    public this(double^ X, double^ Y)
+    {
+        this.X = *X;
+        this.Y = *Y;
+    }
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+}
+
+public module Program
+{
+    public void Main()
+    {
+        // This can safely be converted to direct initialization,
+        // by the naive (and efficient) construction.
+        var vec = new Vector2(5, 4);
+        // This, too, can safely be converted to direct initialization,
+        // by the naive (and efficient) construction.
+        vec = new Vector2(vec);
+        // This can safely be converted to direct initialization,
+        // but not by the naive (and efficient) construction.
+        vec = new Vector2(&vec);
+        double x = vec.X;
+        double y = vec.Y;
+        vec = new Vector2(&x, &y);
+        Console.WriteLine(vec.X);
+        Console.WriteLine(vec.Y);
+    }
+}
