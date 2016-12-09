@@ -84,13 +84,39 @@ namespace Flame.Optimization.AliasAnalysis
         }
 
         /// <summary>
+        /// Gets the 'root' expression from which this expression was derived.
+        /// </summary>
+        private IExpression GetExpressionRoot(IExpression Derived)
+        {
+            if (Derived is FieldGetPointerExpression)
+            {
+                var fieldPtrExpr = (FieldGetPointerExpression)Derived;
+                return GetExpressionRoot(fieldPtrExpr.Target);
+            }
+            else if (Derived is ReinterpretCastExpression)
+            {
+                var castExpr = (ReinterpretCastExpression)Derived;
+                return GetExpressionRoot(castExpr.Value);
+            }
+            else if (Derived is IMetadataNode<IExpression>)
+            {
+                var metaExpr = (IMetadataNode<IExpression>)Derived;
+                return GetExpressionRoot(metaExpr.Value);
+            }
+            else
+            {
+                // TODO: does it make sense to handle other cases as well?
+                return Derived;
+            }
+        }
+
+        /// <summary>
         /// Checks if the given expression is derived from the given other
         /// expression. This method errs on the safe side.
         /// </summary>
         private bool DerivesFrom(IExpression Derived, IExpression Original)
         {
-            // Right now, just check for equality.
-            return Original.Equals(Derived);
+            return Original.Equals(GetExpressionRoot(Derived));
         }
 
         /// <summary>
@@ -191,6 +217,52 @@ namespace Flame.Optimization.AliasAnalysis
             }
         }
 
+        /// <summary>
+        /// Analyzes the given method for non-derived aliases.
+        /// </summary>
+        public static bool AnalyzeMethod(
+            IMethod Method, IAliasAnalysis Analysis,
+            IBodyPassEnvironment Environment,
+            IEnumerable<IExpression> AliasExprs,
+            IEnumerable<IExpression> RootExprs)
+        {
+            var body = Environment.GetMethodBody(Method);
+            if (body == null)
+            {
+                // Assume that there might have been an alias in there.
+                return true;
+            }
+
+            var visitor = new NonDerivedAliasFinder(
+                Analysis.Analyze(body), Environment, AliasExprs, RootExprs);
+            visitor.Visit(body);
+            return visitor.FoundAnyAliases;
+        }
+
+        /// <summary>
+        /// Analyzes the given method for non-derived aliases.
+        /// </summary>
+        public static bool AnalyzeMethod(
+            IMethod Method, IAliasAnalysis Analysis,
+            IBodyPassEnvironment Environment,
+            IEnumerable<IExpression> AliasExprs)
+        {
+            return AnalyzeMethod(
+                Method, Analysis, Environment, AliasExprs, AliasExprs);
+        }
+
+        /// <summary>
+        /// Analyzes the given method for non-derived aliases.
+        /// </summary>
+        public static bool AnalyzeMethod(
+            IMethod Method, IAliasAnalysis Analysis,
+            IBodyPassEnvironment Environment,
+            IExpression AliasExpr)
+        {
+            return AnalyzeMethod(
+                Method, Analysis, Environment, new IExpression[] { AliasExpr });
+        }
+
         private void AnalyzeMethod(
             IMethod Method,
             IEnumerable<IExpression> NewAliasExpressions,
@@ -201,21 +273,9 @@ namespace Flame.Optimization.AliasAnalysis
                 // again.
                 return;
 
-            var body = PassEnvironment.GetMethodBody(Method);
-            if (body == null)
-            {
-                // Assume that there might have been an alias in there.
-                FoundAnyAliases = true;
-                return;
-            }
-
-            var visitor = new NonDerivedAliasFinder(
-                AliasAnalysis.Analysis.Analyze(body),
-                PassEnvironment,
-                NewAliasExpressions,
-                NewRootExpressions);
-            visitor.Visit(body);
-            FoundAnyAliases = visitor.FoundAnyAliases;
+            FoundAnyAliases = AnalyzeMethod(
+                Method, AliasAnalysis.Analysis, PassEnvironment,
+                NewAliasExpressions, NewRootExpressions);
         }
 
         private IExpression TransformInvocation(InvocationExpression Expression)
