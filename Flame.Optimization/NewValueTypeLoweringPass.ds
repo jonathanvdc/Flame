@@ -8,6 +8,7 @@ using Flame.Compiler.Native;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Visitors;
 using Flame.Compiler.Variables;
+using Flame.Optimization.AliasAnalysis;
 
 namespace Flame.Optimization
 {
@@ -16,7 +17,10 @@ namespace Flame.Optimization
         /// <summary>
         /// Creates a new-value-type lowering visitor instance.
         /// </summary>
-        public const this(set bool MustLowerExpressions, set PassMetadata Metadata);
+        public const this(
+            set bool MustLowerExpressions,
+            set bool PerformAliasAnalysis,
+            set BodyPassArgument PassArg);
 
         /// <summary>
         /// A boolean value that tells whether new-value type expressions must
@@ -25,10 +29,16 @@ namespace Flame.Optimization
         public bool MustLowerExpressions { get; private set; }
 
         /// <summary>
-        /// Gets the body pass argument this visitor uses to access
-        /// global metadata.
+        /// A boolean value that tells this new-value type lowering visitor
+        /// if it should attempt to perform alias analysis to discover
+        /// cases where a new-value type expression can be lowered naively.
         /// </summary>
-        public PassMetadata Metadata { get; private set; }
+        public bool PerformAliasAnalysis { get; private set; }
+
+        /// <summary>
+        /// Gets the body pass argument for this visitor.
+        /// </summary>
+        public BodyPassArgument PassArg { get; private set; }
 
         public override bool Matches(IExpression Value)
         {
@@ -101,23 +111,72 @@ namespace Flame.Optimization
         /// are naively lowerable: direct assignments can be lowered
         /// without introducing any additional variables.
         /// </summary>
-        public static bool IsNaivelyLowerable(IMethod Constructor, PassMetadata PassMeta)
+        public static bool IsNaivelyLowerable(
+            IMethod Constructor, BodyPassArgument PassArgument,
+            bool UseAliasAnalysis)
         {
             if (!Constructor.IsConstant)
             {
-                // Non-pure constructors can use static variables to change
-                // their own state.
-                return false;
+                if (UseAliasAnalysis)
+                    // A constructor is only naively applicable if it does not
+                    // contain any potential aliases for the 'this' pointer
+                    // that are not derived from the 'this' pointer itself.
+                    return !ContainsNonDerivedThisAliases(Constructor, PassArgument);
+                else
+                    // Non-pure constructors can use static variables to change
+                    // their own state.
+                    return false;
             }
             else
             {
                 foreach (var parameter in Constructor.Parameters)
                 {
-                    if (MayReferenceMemory(parameter.ParameterType, PassMeta))
-                        return false;
+                    if (MayReferenceMemory(parameter.ParameterType, PassArgument.Metadata))
+                    {
+                        // If we're allowed to use alias analysis, then
+                        // we can still try that as a last resort.
+                        return UseAliasAnalysis
+                            && !ContainsNonDerivedThisAliases(
+                                Constructor, PassArgument);
+                    }
                 }
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Tests if the given constructor uses any potential aliases for
+        /// the 'this' pointer that are not derived from the 'this' pointer.
+        /// </summary>
+        public static bool ContainsNonDerivedThisAliases(
+            IMethod Constructor, BodyPassArgument PassArgument)
+        {
+            string optionName = "non-derived-this-alias-analysis";
+            var globalData = PassArgument.Metadata.GlobalMetadata;
+            var dict = globalData.GetOption<Dictionary<IMethod, bool>>(
+                optionName, null);
+            if (dict == null)
+            {
+                dict = new Dictionary<IMethod, bool>();
+                globalData.SetOption<Dictionary<IMethod, bool>>(optionName, dict);
+            }
+            bool result;
+            if (!dict.TryGetValue(Constructor, &result))
+            {
+                result = ContainsNonDerivedThisAliasesImpl(
+                    Constructor, PassArgument);
+                dict[Constructor] = result;
+            }
+            return result;
+        }
+
+        private static bool ContainsNonDerivedThisAliasesImpl(
+            IMethod Constructor, BodyPassArgument PassArgument)
+        {
+            return NonDerivedAliasFinder.AnalyzeMethod(
+                Constructor, PassArgument.Metadata.GetAliasAnalysis(),
+                PassArgument.PassEnvironment,
+                new ThisVariable(Constructor.DeclaringType).CreateGetExpression());
         }
 
         /// <summary>
@@ -180,9 +239,10 @@ namespace Flame.Optimization
         /// </summary>
         public static IStatement InitializeValueType(
             IUnmanagedVariable Variable, IMethod Constructor,
-            [IExpression] Arguments, PassMetadata PassMeta)
+            [IExpression] Arguments, BodyPassArgument PassArgument,
+            bool UseAliasAnalysis)
         {
-            if (IsNaivelyLowerable(Constructor, PassMeta))
+            if (IsNaivelyLowerable(Constructor, PassArgument, UseAliasAnalysis))
             {
                 // This case is simple and elegant.
                 return InitializeNaive(Variable, Constructor, Arguments);
@@ -259,7 +319,10 @@ namespace Flame.Optimization
         {
             var temp = new LocalVariable(Constructor.DeclaringType);
             return new InitializedExpression(
-                Visit(InitializeValueType(temp, Constructor, Arguments, Metadata)),
+                Visit(
+                    InitializeValueType(
+                        temp, Constructor, Arguments,
+                        PassArg, PerformAliasAnalysis)),
                 temp.CreateGetExpression(),
                 temp.CreateReleaseStatement());
         }
@@ -286,7 +349,8 @@ namespace Flame.Optimization
             var destVar = setVarNode.GetVariable();
 
             if (destVar is IUnmanagedVariable
-                && IsNaivelyLowerable(exprTuple.Constructor, Metadata))
+                && IsNaivelyLowerable(
+                    exprTuple.Constructor, PassArg, PerformAliasAnalysis))
             {
                 // Only naive lowering can be applied directly to the target
                 // variable.
@@ -308,7 +372,18 @@ namespace Flame.Optimization
         /// <summary>
         /// Creates a new-value type lowering pass instance.
         /// </summary>
-        public const this(set bool MustLowerExpressions);
+        public const this(
+            set bool MustLowerExpressions,
+            set bool PerformAliasAnalysis);
+
+        /// <summary>
+        /// Creates a new-value type lowering pass instance.
+        /// </summary>
+        public const this(
+            set bool MustLowerExpressions)
+        {
+            this.PerformAliasAnalysis = false;
+        }
 
         /// <summary>
         /// A boolean value that tells whether new-value type expressions must
@@ -317,19 +392,34 @@ namespace Flame.Optimization
         public bool MustLowerExpressions { get; private set; }
 
         /// <summary>
-        /// The name of the new-value type expression lowering pass.
+        /// A boolean value that tells this new-value type lowering visitor
+        /// if it should attempt to perform alias analysis to discover
+        /// cases where a new-value type expression can be lowered naively.
+        /// </summary>
+        public bool PerformAliasAnalysis { get; private set; }
+
+        /// <summary>
+        /// The name of the new-value type expression lowering pass, which
+        /// also performs alias analysis.
         /// </summary>
         public const string NewValueTypeLoweringPassName = "lower-new-struct";
 
         /// <summary>
         /// The name of the new-value type expression optimization pass.
+        /// This differs from the new-value type expression simplification pass
+        /// in that it performs alias analysis, whereas the former does not.
         /// </summary>
         public const string NewValueTypeOptimizationPassName = "optimize-new-struct";
+
+        /// <summary>
+        /// The name of the new-value type expression simplification pass.
+        /// </summary>
+        public const string NewValueTypeOptimizationPassName = "simplify-new-struct";
 
         public IStatement Apply(BodyPassArgument Arg)
         {
             var visitor = new NewValueTypeLoweringVisitor(
-                MustLowerExpressions, Arg.Metadata);
+                MustLowerExpressions, PerformAliasAnalysis, Arg);
             return visitor.Visit(Arg.Body);
         }
     }

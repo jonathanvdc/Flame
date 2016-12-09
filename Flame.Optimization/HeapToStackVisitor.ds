@@ -859,7 +859,7 @@ namespace Flame.Optimization
         public this(
             EscapeAnalysisData AnalysisData,
             set IMethod Method,
-            set PassMetadata Metadata,
+            set BodyPassArgument PassArgument,
             set IReadOnlyDictionary<IType, IType> TypeMap,
             set IReadOnlyDictionary<IField, IField> FieldMap,
             set IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> FunctionMap)
@@ -911,9 +911,9 @@ namespace Flame.Optimization
         public IMethod Method { get; private set; }
 
         /// <summary>
-        /// Gets the pass metadata object for this heap-to-stack rewriter.
+        /// Gets the pass argument for this heap-to-stack rewriter..
         /// </summary>
-        public PassMetadata Metadata { get; private set; }
+        public BodyPassArgument PassArgument { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps reference types to the value
@@ -1132,7 +1132,7 @@ namespace Flame.Optimization
                     return new InitializedExpression(
                         NewValueTypeLoweringVisitor.InitializeValueType(
                             tmpLocal, newObjectExpr.Constructor,
-                            newObjectExpr.Arguments, Metadata),
+                            newObjectExpr.Arguments, PassArgument, true),
                         tmpLocal.CreateAddressOfExpression());
                 }
                 else
