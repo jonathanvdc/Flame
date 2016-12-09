@@ -41,5 +41,10 @@ public module Program
         vec = new Vector2(&x, &y);
         Console.WriteLine(vec.X);
         Console.WriteLine(vec.Y);
+
+        var xs = new Vector2[1];
+        xs[0] = new Vector2(5, 4);
+        Console.WriteLine(xs[0].X);
+        Console.WriteLine(xs[0].Y);
     }
 }
