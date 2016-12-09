@@ -10,8 +10,8 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization.AliasAnalysis
 {
     /// <summary>
-    /// An analysis that looks for expressions that alias at least one element
-    /// in a set of expressions and might not be derived from an element in
+    /// An analysis that looks for expressions that (1) alias at least one element
+    /// in a set of expressions and (2) might not be derived from an element in
     /// an other set of expressions.
     /// </summary>
     public class NonDerivedAliasFinder : NodeVisitorBase
@@ -323,7 +323,7 @@ namespace Flame.Optimization.AliasAnalysis
         private IExpression TransformInvocation(InvocationExpression Expression)
         {
             var disCall = DissectedCallHelpers.DissectCall(Expression);
-            if (disCall == null)
+            if (disCall == null || disCall.IsVirtual)
             {
                 FoundAlias();
                 return Expression;

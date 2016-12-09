@@ -646,7 +646,8 @@ namespace Flame.Optimization
         {
             // Let's start by checking if the inlining operation makes sense,
             // theoretically, according to the inlining heuristic.
-            var theoreticalCall = new DissectedCall(TargetExpr, Method, Arguments);
+            var theoreticalCall = new DissectedCall(
+                TargetExpr, Method, Arguments, false);
 
             if (!ShouldInline(theoreticalCall))
                 return null;
@@ -697,7 +698,7 @@ namespace Flame.Optimization
                 }
             }
 
-            var call = new DissectedCall(TargetExpr, Method, argList);
+            var call = new DissectedCall(TargetExpr, Method, argList, false);
 
             inlineTarget = TargetVar;
 

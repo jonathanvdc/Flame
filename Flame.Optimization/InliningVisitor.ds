@@ -23,7 +23,7 @@ namespace Flame.Optimization
         /// </summary>
         public const this(
             set IExpression ThisValue, set IMethod Method,
-            set [IExpression] Arguments);
+            set [IExpression] Arguments, set bool IsVirtual);
 
         /// <summary>
         /// Gets the expression that produces the 'this' object for
@@ -41,6 +41,11 @@ namespace Flame.Optimization
         /// callee.
         /// </summary>
         public [IExpression] Arguments { const get; private set; }
+
+        /// <summary>
+        /// Gets a boolean that tells if this dissected call is a virtual call.
+        /// </summary>
+        public bool IsVirtual { get; private set; }
     }
 
     /// <summary>
@@ -62,7 +67,9 @@ namespace Flame.Optimization
                 if (invTrgt is GetMethodExpression)
                 {
                     var target = (GetMethodExpression)invTrgt;
-                    return new DissectedCall(target.Caller, target.Target, invExpr.Arguments);
+                    return new DissectedCall(
+                        target.Caller, target.Target, invExpr.Arguments,
+                        target.Op.Equals(Operator.GetVirtualDelegate));
                 }
             }
             return null;

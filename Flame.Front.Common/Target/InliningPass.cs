@@ -160,7 +160,7 @@ namespace Flame.Front.Target
 
         public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, Func<IStatement, int> ComputeCost, bool RespectAccess)
         {
-            if (Call.Method.GetIsVirtual() || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
+            if (Call.IsVirtual || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
             {
                 return false;
             }
