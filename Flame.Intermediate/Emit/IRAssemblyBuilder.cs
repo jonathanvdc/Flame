@@ -101,7 +101,7 @@ namespace Flame.Intermediate.Emit
             {
                 return (input, index) =>
                     Convert(input).PlusAttr(
-                        LNode.Trivia(CodeSymbols.TriviaSLCommentBefore, " " + index + ": " + Describe(input)));
+                        LNode.Trivia(CodeSymbols.TriviaSLComment, " " + index + ": " + Describe(input)));
             }
             else
             {

@@ -29,18 +29,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Loyc.Collections">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Essentials">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Essentials.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Syntax">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Syntax.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Utilities">
-      <HintPath>..\Flame.Cecil\packages\LoycCore.1.8.0\lib\net45\Loyc.Utilities.dll</HintPath>
-    </Reference>
     <Reference Include="Flame">
       <HintPath>..\Flame.Compiler\bin\Flame.dll</HintPath>
     </Reference>
@@ -60,6 +48,18 @@
       <HintPath>..\Flame.DSharp\bin\Flame.DSharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.2.1.2\lib\net45\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.2.1.2\lib\net45\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.2.1.2\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Utilities">
+      <HintPath>..\Flame.Cecil\packages\LoycCore.2.1.2\lib\net45\Loyc.Utilities.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -83,9 +83,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Flame.Build.Lazy\Flame.Build.Lazy.csproj">
       <Project>{CE744475-5A28-471C-96AC-42902D951CFB}</Project>
       <Name>Flame.Build.Lazy</Name>
@@ -97,5 +94,8 @@
     <Folder Include="DSharp\" />
     <Folder Include="Compiler\" />
     <Folder Include="Collections\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
