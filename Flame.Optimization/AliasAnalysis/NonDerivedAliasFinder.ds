@@ -323,6 +323,11 @@ namespace Flame.Optimization.AliasAnalysis
         private IExpression TransformInvocation(InvocationExpression Expression)
         {
             var disCall = DissectedCallHelpers.DissectCall(Expression);
+            if (disCall == null)
+            {
+                FoundAlias();
+                return Expression;
+            }
 
             var mappedRootExprs = new List<IExpression>();
             var unmappedAliasExprs = new HashSet<IExpression>(AliasExpressions);
