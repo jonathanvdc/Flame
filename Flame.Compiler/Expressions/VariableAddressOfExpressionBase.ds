@@ -5,21 +5,63 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-    public abstract class VariableAddressOfExpressionBase<T> : VariableGetExpressionBase<T>
-        where T : IVariable
+    public abstract class VariableAddressOfExpressionBase<T> : IExpression,
+        IVariableNode, IEquatable<VariableAddressOfExpressionBase<T>>
+        where T : object, IVariable
     {
-    	public const this();
-    	public const this(T Variable)
-            : base(Variable);
+    	public this();
+    	public this(set T Variable);
 
-        public virtual override VariableNodeAction Action
+        public T Variable { get; protected set; }
+
+        public virtual VariableNodeAction Action
         {
-            virtual override const get { return VariableNodeAction.AddressOf; }
+            virtual get { return VariableNodeAction.AddressOf; }
         }
 
-        public virtual override IType Type
+        public IVariable GetVariable() : IVariableNode.GetVariable
         {
-            virtual override const get { return Variable.Type.MakePointerType(PointerKind.ReferencePointer); }
+        	return Variable;
+        }
+
+        public virtual IType Type
+        {
+            virtual get
+            {
+                return Variable.Type.MakePointerType(PointerKind.ReferencePointer);
+            }
+        }
+
+        public virtual bool IsConstantNode
+        {
+            get { return true; }
+        }
+
+        public virtual const IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public virtual IExpression Optimize()
+        {
+            return this;
+        }
+
+        public abstract IExpression Accept(INodeVisitor Visitor);
+        public abstract ICodeBlock Emit(ICodeGenerator CodeGenerator);
+
+        public override int GetHashCode()
+        {
+            return Variable.GetHashCode();
+        }
+        public virtual bool Equals(VariableAddressOfExpressionBase<T> Other)
+        {
+            return Variable.Equals(Other.Variable);
+        }
+        public virtual override bool Equals(object Other)
+        {
+            return Other is VariableAddressOfExpressionBase<T>
+                && Equals((VariableAddressOfExpressionBase<T>)Other);
         }
     }
 }

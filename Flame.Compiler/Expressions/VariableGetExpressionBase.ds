@@ -9,29 +9,32 @@ namespace Flame.Compiler.Expressions
         IVariableNode, IEquatable<VariableGetExpressionBase<T>>
         where T : object, IVariable
     {
-    	public const this();
-    	public const this(set T Variable);
+    	public this();
+    	public this(set T Variable);
 
-        public T Variable { const get; protected set; }
+        public T Variable { get; protected set; }
 
-        public virtual VariableNodeAction Action { virtual const get return VariableNodeAction.Get; }
+        public virtual VariableNodeAction Action
+        {
+            virtual get { return VariableNodeAction.Get; }
+        }
 
-        public const IVariable GetVariable() : IVariableNode.GetVariable
+        public IVariable GetVariable() : IVariableNode.GetVariable
         {
         	return Variable;
         }
 
         public virtual IType Type
         {
-            virtual const get { return Variable.Type; }
+            virtual get { return Variable.Type; }
         }
 
         public virtual bool IsConstantNode
         {
-            const get { return true; }
+            get { return true; }
         }
 
-        public virtual const IBoundObject Evaluate()
+        public virtual IBoundObject Evaluate()
         {
             return null;
         }
@@ -42,9 +45,9 @@ namespace Flame.Compiler.Expressions
         }
 
         public abstract IExpression Accept(INodeVisitor Visitor);
-        public abstract const ICodeBlock Emit(ICodeGenerator CodeGenerator);
+        public abstract ICodeBlock Emit(ICodeGenerator CodeGenerator);
 
-        public override const int GetHashCode()
+        public override int GetHashCode()
         {
             return Variable.GetHashCode();
         }
