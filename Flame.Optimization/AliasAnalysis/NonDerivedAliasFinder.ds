@@ -85,10 +85,10 @@ namespace Flame.Optimization.AliasAnalysis
         private void FoundAlias(SourceLocation Location)
         {
             FoundAnyAliases = true;
-            if (Location == null)
-                AliasLocation = currentLoc;
-            else
+            if (Location != null)
                 AliasLocation = Location;
+            else
+                AliasLocation = currentLoc;
         }
 
         private void FoundAlias()
@@ -174,7 +174,7 @@ namespace Flame.Optimization.AliasAnalysis
         /// Appends the given mapped expression to the list of mapped root
         /// expressions and remove it from the list of unmapped alias
         /// expressions, if it derives from a root.
-        /// Otherwise, if may alias a relevant expression, then set the
+        /// Otherwise, if it may alias a relevant expression, then set the
         /// `FoundAnyAliases` flag to true.
         /// </summary>
         private void MaybeMapRootExpression(
@@ -412,7 +412,7 @@ namespace Flame.Optimization.AliasAnalysis
             else if (!DerivesFromRelevantExpr(Expression)
                 && MayAliasRelevantExpression(Expression))
             {
-                FoundAnyAliases = true;
+                FoundAlias();
                 return Expression;
             }
             else

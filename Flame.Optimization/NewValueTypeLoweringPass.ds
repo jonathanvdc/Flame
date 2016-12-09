@@ -116,7 +116,24 @@ namespace Flame.Optimization
             IMethod Constructor, BodyPassArgument PassArgument,
             bool UseAliasAnalysis)
         {
-            if (!Constructor.IsConstant)
+            if (Constructor.IsConstant)
+            {
+                foreach (var parameter in Constructor.Parameters)
+                {
+                    if (MayReferenceMemory(parameter.ParameterType, PassArgument.Metadata))
+                    {
+                        // If we're allowed to use alias analysis, then
+                        // we can still try that as a last resort.
+                        if (UseAliasAnalysis)
+                            return !ContainsNonDerivedThisAliases(
+                                Constructor, PassArgument);
+                        else
+                            return false;
+                    }
+                }
+                return true;
+            }
+            else
             {
                 if (UseAliasAnalysis)
                     // A constructor is only naively applicable if it does not
@@ -127,21 +144,6 @@ namespace Flame.Optimization
                     // Non-pure constructors can use static variables to change
                     // their own state.
                     return false;
-            }
-            else
-            {
-                foreach (var parameter in Constructor.Parameters)
-                {
-                    if (MayReferenceMemory(parameter.ParameterType, PassArgument.Metadata))
-                    {
-                        // If we're allowed to use alias analysis, then
-                        // we can still try that as a last resort.
-                        return UseAliasAnalysis
-                            && !ContainsNonDerivedThisAliases(
-                                Constructor, PassArgument);
-                    }
-                }
-                return true;
             }
         }
 
@@ -179,9 +181,10 @@ namespace Flame.Optimization
                 PassArgument.PassEnvironment,
                 new ThisVariable(Constructor.DeclaringType).CreateGetExpression());
 
-            if (visitor.FoundAnyAliases
-                && PassArgument.PassEnvironment.Log.Options.ShouldRemark(
-                    NewValueTypeLoweringPass.NewValueTypeOptimizationPassName))
+            var log = PassArgument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(
+                NewValueTypeLoweringPass.NewValueTypeOptimizationPassName);
+            if (visitor.FoundAnyAliases && shouldRemark)
             {
                 var ctorName = new StringBuilder();
                 ctorName.Append(Constructor.FullName.ToString());
@@ -197,7 +200,7 @@ namespace Flame.Optimization
                     ctorName.Append(item.ParameterType.FullName.ToString());
                 }
                 ctorName.Append(")");
-                PassArgument.PassEnvironment.Log.LogMessage(new LogEntry(
+                log.LogMessage(new LogEntry(
                     "optimization remark",
                     "new-object expressions that use constructor '" +
                     ctorName.ToString() +
