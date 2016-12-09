@@ -65,7 +65,7 @@ namespace Flame.Front.Target
             // -fsimplify-new-struct is used at -O1 as it can improve code quality 
             // without introducing extra overhead and without attempting alias analysis.
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(new NewValueTypeLoweringPass(false, false), NewValueTypeLoweringPass.NewValueTypeSimplificationPassName));
-            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeOptimizationPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeNormal);
+            GlobalPassManager.RegisterPassCondition(NewValueTypeLoweringPass.NewValueTypeSimplificationPassName, optInfo => optInfo.OptimizeMinimal && !optInfo.OptimizeNormal);
 
             // -fspill-arguments makes SSA optimizations more effective, because
             // arguments are temporarily spilled to register locals.
