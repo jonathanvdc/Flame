@@ -414,7 +414,7 @@ namespace Flame.Optimization
         /// <summary>
         /// The name of the new-value type expression simplification pass.
         /// </summary>
-        public const string NewValueTypeOptimizationPassName = "simplify-new-struct";
+        public const string NewValueTypeSimplificationPassName = "simplify-new-struct";
 
         public IStatement Apply(BodyPassArgument Arg)
         {
