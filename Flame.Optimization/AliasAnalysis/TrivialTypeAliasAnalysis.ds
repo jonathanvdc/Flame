@@ -50,14 +50,12 @@ namespace Flame.Optimization.AliasAnalysis
             }
 
             var firstTy = First.Type;
-            if (firstTy.IsValueType || firstTy.IsInteger
-                || firstTy.IsBit || firstTy.IsFloatingPoint)
+            if (firstTy.IsValueType)
                 // Value types don't point to anything at all.
                 return Aliasing.NoAlias;
 
             var secondTy = Second.Type;
-            if (secondTy.IsValueType || secondTy.IsInteger
-                || secondTy.IsBit || secondTy.IsFloatingPoint)
+            if (secondTy.IsValueType)
                 // Value types don't point to anything at all.
                 return Aliasing.NoAlias;
 
