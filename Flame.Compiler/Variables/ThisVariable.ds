@@ -5,9 +5,9 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Variables
 {
-    public class ThisVariable : IUnmanagedVariable
+    public class ThisVariable : IVariable
     {
-        public const this(set IType DeclaringType);
+        public this(set IType DeclaringType);
 
         public IType DeclaringType { const get; private set; }
 
@@ -17,10 +17,10 @@ namespace Flame.Compiler.Variables
             const get
             {
                 if (exprType == null)
-            	{
-            		exprType = ThisVariable.GetThisType(DeclaringType);
-            	}
-            	return exprType;
+                {
+                    exprType = ThisVariable.GetThisType(DeclaringType);
+                }
+                return exprType;
             }
         }
 
@@ -34,19 +34,14 @@ namespace Flame.Compiler.Variables
             else return new ThisVariable(resultType);
         }
 
-        public const IExpression CreateAddressOfExpression() : IUnmanagedVariable.CreateAddressOfExpression
-        {
-            return new ThisAddressOfExpression(Type.MakePointerType(PointerKind.ReferencePointer));
-        }
-
         public const IExpression CreateGetExpression() : IVariable.CreateGetExpression
         {
-        	return new ThisGetExpression(Type);
+            return new ThisGetExpression(Type);
         }
 
         public const IStatement CreateSetStatement(IExpression Value) : IVariable.CreateSetStatement
         {
-        	return new ThisSetStatement(Value);
+            return new ThisSetStatement(Value);
         }
 
         public const IStatement CreateReleaseStatement() : IVariable.CreateReleaseStatement
@@ -73,31 +68,33 @@ namespace Flame.Compiler.Variables
         /// Gets the type of the 'this' variable, if the given type is the
         /// declaring type.
         /// </summary>
-        public static const IType GetThisType(IType CurrentType)
-		{
-			var finalType = CurrentType;
-			if (finalType.IsGeneric && finalType.IsGenericDeclaration)
-			{
-				finalType = finalType.MakeGenericType((IEnumerable<IType>)finalType.GenericParameters);
-			}
-			if (finalType.IsValueType && !finalType.IsPointer)
-			{
-				finalType = finalType.MakePointerType(PointerKind.ReferencePointer);
-			}
-			return finalType;
-		}
+        public static IType GetThisType(IType CurrentType)
+        {
+            var finalType = CurrentType;
+            if (finalType.IsGeneric && finalType.IsGenericDeclaration)
+            {
+                finalType = finalType.MakeGenericType((IEnumerable<IType>)finalType.GenericParameters);
+            }
+            if (finalType.IsValueType && !finalType.IsPointer)
+            {
+                finalType = finalType.MakePointerType(PointerKind.ReferencePointer);
+            }
+            return finalType;
+        }
 
-		/// <summary>
-		/// Gets a boolean value that indicates whether the given variable refers directly or indirectly to a ThisVariable reference.
-		/// </summary>
-		public static const bool IsThisVariable(IVariable Variable)
-		{
-			if (Variable is ThisVariable) return true;
-			else if (Variable is AtAddressVariable)
-			{
-				if (((AtAddressVariable)Variable).Pointer is ThisGetExpression) return true;
-			}
-			return false;
-		}
+        /// <summary>
+        /// Gets a boolean value that indicates whether the given variable
+        /// refers directly or indirectly to a ThisVariable reference.
+        /// </summary>
+        public static bool IsThisVariable(IVariable Variable)
+        {
+            if (Variable is ThisVariable) return true;
+            else if (Variable is AtAddressVariable)
+            {
+                if (((AtAddressVariable)Variable).Pointer is ThisGetExpression)
+                    return true;
+            }
+            return false;
+        }
     }
 }

@@ -4,19 +4,30 @@ using System.Text;
 
 namespace Flame.Compiler.Variables
 {
-	public static class ThisReferenceVariable
-	{
-		public static const IUnmanagedVariable Create(IType DeclaringType)
-		{
-			var thisVar = new ThisVariable(DeclaringType);
-			if (thisVar.Type.IsPointer)
-			{
-				return new AtAddressVariable(thisVar.CreateGetExpression());
-			}
-			else
-			{
-				return thisVar;
-			}
-		}
-	}
+    /// <summary>
+    /// A small helper class that makes it easier to create a 'this' variable
+    /// that is an appropriately-typed reference. 
+    /// </summary>
+    public static class ThisReferenceVariable
+    {
+        /// <summary>
+        /// Creates the 'this' reference variable. If the given declaring type
+        /// is a reference types, then the 'this' variable itself is returned.
+        /// If it is a value type, then a dereferenced 'this' variable is
+        /// returned. This matches the behavior of the 'this' variable in
+        /// programming languages such as C#.
+        /// </summary>
+        public static IVariable Create(IType DeclaringType)
+        {
+            var thisVar = new ThisVariable(DeclaringType);
+            if (thisVar.Type.IsPointer)
+            {
+                return new AtAddressVariable(thisVar.CreateGetExpression());
+            }
+            else
+            {
+                return thisVar;
+            }
+        }
+    }
 }
