@@ -36,6 +36,9 @@ namespace Flame.Front.Target
 
         private bool IsLocalOrArgVariable(IExpression Expr)
         {
+            if (Expr == null)
+                return false;
+
             var varExpr = Expr.GetEssentialExpression() as IVariableNode;
             var srcVar = varExpr.GetVariable();
             return srcVar is ThisVariable
