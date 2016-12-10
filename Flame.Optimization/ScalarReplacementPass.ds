@@ -102,6 +102,7 @@ namespace Flame.Optimization
             this.specStmts = new Dictionary<LocalVariableBase, List<SpeculativeStatement>>();
             this.specRepls = new Dictionary<LocalVariableBase, IReadOnlyDictionary<IField, LocalVariableBase>>();
             this.variableNameMap = new UniqueNameMap<LocalVariableBase>(GetVariableName, "%");
+            this.inlineMethods = new HashSet<IMethod>();
         }
 
         /// <summary>
@@ -150,6 +151,11 @@ namespace Flame.Optimization
         // if the inline target is marked as irreplaceable, then the
         // inaccessible field accesses will disappear.
         private LocalVariableBase inlineTarget;
+
+        // Maintain a set of all methods that are currently being inlined,
+        // to keep us from recursively inlining recursive methods (as that
+        // may cause infinite recursion).
+        private HashSet<IMethod> inlineMethods;
 
         /// <summary>
         /// Gets a dictionary that maps local variables to their
@@ -644,6 +650,11 @@ namespace Flame.Optimization
             LocalVariableBase TargetVar, IExpression TargetExpr,
             IMethod Method, [IExpression] Arguments, IVariable ReturnVariable)
         {
+            var genMethodDecl = Method.GetRecursiveGenericDeclaration();
+            if (inlineMethods.Contains(genMethodDecl))
+                // Don't inline recursive methods.
+                return null;
+
             // Let's start by checking if the inlining operation makes sense,
             // theoretically, according to the inlining heuristic.
             var theoreticalCall = new DissectedCall(
@@ -700,6 +711,8 @@ namespace Flame.Optimization
 
             var call = new DissectedCall(TargetExpr, Method, argList, false);
 
+            inlineMethods.Add(genMethodDecl);
+            var oldInlineTarget = inlineTarget;
             inlineTarget = TargetVar;
 
             // Be sure to visit the inlined call, as it will probably impose
@@ -708,7 +721,8 @@ namespace Flame.Optimization
             // to inline the call).
             var result = Visit(InliningVisitor.InlineBody(call, ReturnVariable, PassArgument));
 
-            inlineTarget = null;
+            inlineTarget = oldInlineTarget;
+            inlineMethods.Remove(genMethodDecl);
 
             if (!AccessChecker.CanAccess(DeclaringType, result))
             {
