@@ -16,6 +16,18 @@ namespace Flame.Optimization.AliasAnalysis
     /// </summary>
     public class NonDerivedAliasFinder : NodeVisitorBase
     {
+        private this(
+            set IAliasAnalysisResult AliasAnalysis,
+            set IBodyPassEnvironment PassEnvironment,
+            IEnumerable<IExpression> AliasExpressions,
+            IEnumerable<IExpression> RootExpressions,
+            set HashSet<IMethod> visitedMethods)
+        {
+            this.FoundAnyAliases = false;
+            this.aliasExprs = Enumerable.ToArray<IExpression>(AliasExpressions);
+            this.rootExprs = Enumerable.ToArray<IExpression>(RootExpressions);
+        }
+
         public this(
             set IAliasAnalysisResult AliasAnalysis,
             set IBodyPassEnvironment PassEnvironment,
@@ -25,6 +37,7 @@ namespace Flame.Optimization.AliasAnalysis
             this.FoundAnyAliases = false;
             this.aliasExprs = Enumerable.ToArray<IExpression>(AliasExpressions);
             this.rootExprs = Enumerable.ToArray<IExpression>(RootExpressions);
+            this.visitedMethods = new HashSet<IMethod>();
         }
 
         public this(
@@ -35,10 +48,16 @@ namespace Flame.Optimization.AliasAnalysis
             this.FoundAnyAliases = false;
             this.aliasExprs = Enumerable.ToArray<IExpression>(AliasExpressions);
             this.rootExprs = this.aliasExprs;
+            this.visitedMethods = new HashSet<IMethod>();
         }
 
         private IExpression[] aliasExprs;
         private IExpression[] rootExprs;
+
+        // Recursively analyzing (mutually) recursive could lead to infinite
+        // recursion. We can avoid this by remembering which methods we've
+        // visited.
+        private HashSet<IMethod> visitedMethods;
 
         /// <summary>
         /// Gets the set of expressions for which we want to find aliases.
@@ -244,11 +263,12 @@ namespace Flame.Optimization.AliasAnalysis
         /// method body is returned. Otherwise, an analyzer that hasn't analyzed
         /// anything is returned, which claims to have found aliases.
         /// </summary>
-        public static NonDerivedAliasFinder AnalyzeMethod(
+        private static NonDerivedAliasFinder AnalyzeMethod(
             IMethod Method, IAliasAnalysis Analysis,
             IBodyPassEnvironment Environment,
             IEnumerable<IExpression> AliasExprs,
-            IEnumerable<IExpression> RootExprs)
+            IEnumerable<IExpression> RootExprs,
+            HashSet<IMethod> Visited)
         {
             var body = Environment.GetMethodBody(Method);
             if (body == null)
@@ -256,7 +276,7 @@ namespace Flame.Optimization.AliasAnalysis
 
                 var emptyVisitor = new NonDerivedAliasFinder(
                     Analysis.Analyze(EmptyStatement), Environment,
-                    AliasExprs, RootExprs);
+                    AliasExprs, RootExprs, Visited);
                 emptyVisitor.FoundAlias();
                 return emptyVisitor;
             }
@@ -264,10 +284,28 @@ namespace Flame.Optimization.AliasAnalysis
             {
 
                 var visitor = new NonDerivedAliasFinder(
-                    Analysis.Analyze(body), Environment, AliasExprs, RootExprs);
+                    Analysis.Analyze(body), Environment,
+                    AliasExprs, RootExprs, Visited);
                 visitor.Visit(body);
                 return visitor;
             }
+        }
+
+        /// <summary>
+        /// Analyzes the given method for non-derived aliases.
+        /// If a method body can be found, a visitor that has analyzed the
+        /// method body is returned. Otherwise, an analyzer that hasn't analyzed
+        /// anything is returned, which claims to have found aliases.
+        /// </summary>
+        public static NonDerivedAliasFinder AnalyzeMethod(
+            IMethod Method, IAliasAnalysis Analysis,
+            IBodyPassEnvironment Environment,
+            IEnumerable<IExpression> AliasExprs,
+            IEnumerable<IExpression> RootExprs)
+        {
+            return AnalyzeMethod(
+                Method, Analysis, Environment,
+                AliasExprs, RootExprs, new HashSet<IMethod>());
         }
 
         /// <summary>
@@ -308,9 +346,19 @@ namespace Flame.Optimization.AliasAnalysis
                 // again.
                 return;
 
+            if (visitedMethods.Contains(Method))
+            {
+                // Don't recursively visit recursive methods. That could
+                // lead to infinite recusion.
+                FoundAlias();
+                return;
+            }
+
+            var newVisitedMethods = new HashSet<IMethod>(visitedMethods);
+            newVisitedMethods.Add(Method);
             var visitor = AnalyzeMethod(
                 Method, AliasAnalysis.Analysis, PassEnvironment,
-                NewAliasExpressions, NewRootExpressions);
+                NewAliasExpressions, NewRootExpressions, newVisitedMethods);
 
             if (visitor.FoundAnyAliases)
             {
@@ -371,6 +419,14 @@ namespace Flame.Optimization.AliasAnalysis
 
             var mappedAliasExprs = CreateMappedAliasList(
                 mappedRootExprs, unmappedAliasExprs);
+
+            // Mark the called constructor's 'this' variable as a root,
+            // but not as an alias, because it is not reachable from the
+            // current scope (so we don't care if somebody might alias it),
+            // and it is unique, so it will never alias anything that we can see.
+            mappedRootExprs.Add(
+                new ThisVariable(Expression.Constructor.DeclaringType)
+                    .CreateGetExpression());
 
             AnalyzeMethod(
                 Expression.Constructor, mappedAliasExprs, mappedRootExprs);
