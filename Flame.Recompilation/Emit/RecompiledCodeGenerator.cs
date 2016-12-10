@@ -317,7 +317,7 @@ namespace Flame.Recompilation.Emit
 
         public IEmitVariable GetThis()
         {
-            return GetUnmanagedThis();
+            return new RecompiledVariable(this, new ThisVariable(Method.DeclaringType));
         }
 
         public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
@@ -353,11 +353,6 @@ namespace Flame.Recompilation.Emit
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new RecompiledVariable(this, new ArgumentVariable(Method.GetParameters()[Index], Index));
-        }
-
-        public IUnmanagedEmitVariable GetUnmanagedThis()
-        {
-            return new RecompiledVariable(this, new ThisVariable(Method.DeclaringType));
         }
 
         public IEmitVariable ReturnVariable

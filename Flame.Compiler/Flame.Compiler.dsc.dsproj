@@ -154,7 +154,6 @@
 			<Compile Include="Expressions/ConcatExpression.ds" />
 			<Compile Include="Expressions/SingletonGetExpression.ds" />
 			<Compile Include="Expressions/ConstantVariableGetExpression.ds" />
-			<Compile Include="Expressions/ThisAddressOfExpression.ds" />
 			<Compile Include="Expressions/RelaxedInvocation.ds" />
 			<Compile Include="Expressions/ComplexExpressionBase.ds" />
 			<Compile Include="Expressions/ReturnValueGetExpression.ds" />

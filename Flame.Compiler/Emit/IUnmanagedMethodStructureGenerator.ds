@@ -30,11 +30,5 @@ namespace Flame.Compiler.Emit
         /// Gets the nth argument as an unmanaged variable.
         /// </summary>
         IUnmanagedEmitVariable GetUnmanagedArgument(int Index);
-
-        /// <summary>
-        /// Gets the "this" argument.
-        /// </summary>
-        /// <returns></returns>
-        IUnmanagedEmitVariable GetUnmanagedThis();
     }
 }

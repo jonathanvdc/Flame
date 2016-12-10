@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator, 
+    public class AssemblerCodeGenerator : ICodeGenerator, IBranchingCodeGenerator,
                                           IUnmanagedCodeGenerator
     {
         public AssemblerCodeGenerator(IMethod Method)
@@ -410,11 +410,6 @@ namespace Flame.MIPS.Emit
         }
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IUnmanagedEmitVariable GetUnmanagedThis()
         {
             throw new NotImplementedException();
         }

@@ -843,7 +843,6 @@ namespace Flame.Intermediate.Parsing
                     var thisType = ThisVariable.GetThisType(EnclosingMethod.DeclaringType);
 
                     parserDict[ExpressionParsers.GetThisNodeName] = ExpressionParsers.CreateGetThisParser(thisType);
-                    parserDict[ExpressionParsers.AddressOfThisNodeName] = ExpressionParsers.CreateAddressOfThisParser(thisType);
                     parserDict[ExpressionParsers.SetThisNodeName] = ExpressionParsers.CreateParser(ExpressionParsers.ParseSetThis);
                     // TODO: implement #release_this as an actual release operation, instead of an empty statement.
                     parserDict[ExpressionParsers.ReleaseThisNodeName] = ExpressionParsers.CreateConstantParser(VoidExpression.Instance);

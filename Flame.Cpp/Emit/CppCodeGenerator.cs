@@ -146,11 +146,11 @@ namespace Flame.Cpp.Emit
             {
                 return new HashBlock(cppBlock);
             }
-            else if (Op.Equals(Operator.Box)) 
+            else if (Op.Equals(Operator.Box))
             {
                 // TODO: create a specialized boxing conversion node type.
                 return new ConversionBlock(
-                    this, cppBlock, 
+                    this, cppBlock,
                     cppBlock.Type.MakePointerType(PointerKind.ReferencePointer));
             }
             else if (UnaryOperation.IsSupported(Op))
@@ -332,7 +332,7 @@ namespace Flame.Cpp.Emit
                 }
             }
             else if (Op.Equals(Operator.AsInstance) || Op.Equals(Operator.DynamicCast)
-                || Op.Equals(Operator.UnboxValue) || Op.Equals(Operator.UnboxReference)) 
+                || Op.Equals(Operator.UnboxValue) || Op.Equals(Operator.UnboxReference))
             {
                 // TODO: throw an exception if a dynamic_cast fails
                 // TODO: create specialized unbox nodes
@@ -555,7 +555,7 @@ namespace Flame.Cpp.Emit
 
         public IEmitVariable GetThis()
         {
-            return GetUnmanagedThis();
+            return new CppThis(this);
         }
 
         public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)
@@ -571,11 +571,6 @@ namespace Flame.Cpp.Emit
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
             return new CppArgument(this, Index);
-        }
-
-        public IUnmanagedEmitVariable GetUnmanagedThis()
-        {
-            return new CppThis(this);
         }
 
         #endregion

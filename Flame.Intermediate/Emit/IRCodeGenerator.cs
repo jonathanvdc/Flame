@@ -579,14 +579,9 @@ namespace Flame.Intermediate.Emit
             return GetUnmanagedArgument(Index);
         }
 
-        public IUnmanagedEmitVariable GetUnmanagedThis()
-        {
-            return new NodeEmitVariable(this, ExpressionParsers.ThisVariableKindName);
-        }
-
         public IEmitVariable GetThis()
         {
-            return GetUnmanagedThis();
+            return new NodeEmitVariable(this, ExpressionParsers.ThisVariableKindName);
         }
 
         public IUnmanagedEmitVariable GetUnmanagedElement(ICodeBlock Value, IEnumerable<ICodeBlock> Index)

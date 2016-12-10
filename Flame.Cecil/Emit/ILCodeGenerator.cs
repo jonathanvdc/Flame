@@ -509,18 +509,13 @@ namespace Flame.Cecil.Emit
 
         #region This
 
-        public IUnmanagedEmitVariable GetUnmanagedThis()
+        public IEmitVariable GetThis()
         {
             if (Method.IsStatic)
             {
                 throw new InvalidOperationException("Static methods do not have a 'this' variable.");
             }
             return new ArgumentVariable(this, 0);
-        }
-
-        public IEmitVariable GetThis()
-        {
-            return GetUnmanagedThis();
         }
 
         #endregion

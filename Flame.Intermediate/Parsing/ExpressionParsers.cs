@@ -424,7 +424,6 @@ namespace Flame.Intermediate.Parsing
         public static readonly string GetThisNodeName = CreateGetVariableName(ThisVariableKindName);
         public static readonly string SetThisNodeName = CreateSetVariableName(ThisVariableKindName);
         public static readonly string ReleaseThisNodeName = CreateReleaseVariableName(ThisVariableKindName);
-        public static readonly string AddressOfThisNodeName = CreateAddressOfVariableName(ThisVariableKindName);
 
         /// <summary>
         /// Gets the argument ("arg") variable kind name.
@@ -1792,16 +1791,6 @@ namespace Flame.Intermediate.Parsing
         public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetThisParser(IType ThisType)
         {
             return CreateConstantParser(new ThisGetExpression(ThisType));
-        }
-
-        /// <summary>
-        /// Creates a parser that parses addressof-this expressions.
-        /// </summary>
-        /// <param name="Expression"></param>
-        /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfThisParser(IType ThisType)
-        {
-            return CreateConstantParser(new ThisAddressOfExpression(ThisType.MakePointerType(PointerKind.ReferencePointer)));
         }
 
         /// <summary>

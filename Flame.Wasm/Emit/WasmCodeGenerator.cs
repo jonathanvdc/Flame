@@ -886,11 +886,6 @@ namespace Flame.Wasm.Emit
 			throw new NotImplementedException();
 		}
 
-		public IUnmanagedEmitVariable GetUnmanagedThis()
-		{
-			throw new NotImplementedException();
-		}
-
 		#endregion
 	}
 }

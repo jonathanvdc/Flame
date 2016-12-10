@@ -64,7 +64,6 @@
     <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\StatementBlock.cs" />
     <Compile Include="Emit\StatementExpression.cs" />
-    <Compile Include="Emit\ThisAddressOfExpression.cs" />
     <Compile Include="Emit\TryBlockGenerator.cs" />
     <Compile Include="Emit\UnaryExpression.cs" />
     <Compile Include="EmptyMemberSignaturePass.cs" />
@@ -100,7 +99,7 @@
     <Compile Include="ConcurrentMultiDictionary.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
