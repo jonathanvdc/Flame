@@ -1,0 +1,57 @@
+using System;
+
+public struct Vector2
+{
+    public this(set double X, set double Y);
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+}
+
+public struct Vector3
+{
+    public this(set double X, set double Y, set double Z);
+
+    public this(set double Z)
+    {
+        SetXYToOrigin();
+    }
+
+    private void SetXYToOrigin()
+    {
+        XY = Program.Origin.XY;
+    }
+
+    public Vector2 XY { get; private set; }
+    public double X
+    {
+        get { return XY.X; }
+        private set { XY = new Vector2(value, Y); }
+    }
+    public double Y
+    {
+        get { return XY.Y; }
+        private set { XY = new Vector2(X, value); }
+    }
+    public double Z { get; private set; }
+}
+
+public module Program
+{
+    public static Vector3 Origin;
+
+    public void Main()
+    {
+        // Can be naively converted to a direct call.
+        Origin = new Vector3(5, 4, 0);
+        Console.WriteLine(Origin.X);
+        Console.WriteLine(Origin.Y);
+        Console.WriteLine(Origin.Z);
+
+        // Cannot be naively converted to a direct call.
+        Origin = new Vector3(10);
+        Console.WriteLine(Origin.X);
+        Console.WriteLine(Origin.Y);
+        Console.WriteLine(Origin.Z);
+    }
+}
