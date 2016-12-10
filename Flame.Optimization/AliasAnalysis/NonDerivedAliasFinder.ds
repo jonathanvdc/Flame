@@ -134,22 +134,14 @@ namespace Flame.Optimization.AliasAnalysis
         }
 
         /// <summary>
-        /// Checks if the given expression is derived from the given other
-        /// expression. This method errs on the safe side.
-        /// </summary>
-        private bool DerivesFrom(IExpression Derived, IExpression Original)
-        {
-            return Original.Equals(GetExpressionRoot(Derived));
-        }
-
-        /// <summary>
         /// Tests if the given expression is derived from a root expression.
         /// </summary>
         private bool DerivesFromRelevantExpr(IExpression Expression)
         {
+            var baseExpr = GetExpressionRoot(Expression);
             foreach (var expr in rootExprs)
             {
-                if (DerivesFrom(Expression, expr))
+                if (expr.Equals(baseExpr))
                     return true;
             }
             return false;
