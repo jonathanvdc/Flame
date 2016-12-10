@@ -15,6 +15,7 @@ tests
     LowerLambda/LowerLambda.test;
     LowerNewValueType/LowerNewValueType.test;
     LowerNewValueType/LowerNewValueType2.test;
+    LowerNewValueType/LowerNewValueType3.test;
     ScalarReplacement/ScalarReplacement.test;
     ScalarReplacement/ScalarReplacement2.test;
     ScalarReplacement/ScalarReplacement3.test;

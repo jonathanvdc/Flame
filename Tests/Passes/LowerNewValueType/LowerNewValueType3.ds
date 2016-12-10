@@ -1,0 +1,40 @@
+using System;
+
+public struct Vector2
+{
+    public this(set double X, set double Y);
+    public this(int Index)
+    {
+        this = Program.vecs[Index];
+    }
+    public this(bool CopyFromGlobal)
+    {
+        if (CopyFromGlobal)
+            this = Program.globalVec;
+    }
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+}
+
+public module Program
+{
+    public static Vector2[] vecs;
+    public static Vector2 globalVec;
+
+    public void Main()
+    {
+        vecs = new Vector2[1];
+        globalVec = new Vector2(12, 24);
+        // Can be naively converted to a direct call.
+        vecs[0] = new Vector2(5, 4);
+        // Can't be naively converted to a direct call.
+        vecs[0] = new Vector2(0);
+        Console.WriteLine(vecs[0].X);
+        Console.WriteLine(vecs[0].Y);
+        // Can't be naively converted to a direct call.
+        vecs[0] = new Vector2(true);
+        Console.WriteLine(globalVec.X);
+        Console.WriteLine(globalVec.Y);
+    }
+}
