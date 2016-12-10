@@ -12,7 +12,7 @@ run
 
 configs
 {
-    O0 { Flags = -O0 -w; }
+    O0 { Flags = -O0; }
     Og { Flags = -Og; }
     O2 { Flags = -O2; }
     O3 { Flags = -O3; }
