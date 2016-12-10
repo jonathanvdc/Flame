@@ -1,0 +1,34 @@
+using System;
+
+public struct FibPair
+{
+    public this(set long Index)
+    {
+        // Test if the analysis doesn't crash when it runs into
+        // a recursive function.
+        this.Value = Fib(Index);
+    }
+
+    private long Fib(long i)
+    {
+        if (i <= 0)
+            return 0;
+        else if (i == 1)
+            return 1;
+        else
+            return Fib(i - 1) + Fib(i - 2);
+    }
+
+    public long Index { get; private set; }
+    public long Value { get; private set; }
+}
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        var fPair = new FibPair(4);
+        Console.WriteLine(fPair.Index);
+        Console.WriteLine(fPair.Value);
+    }
+}
