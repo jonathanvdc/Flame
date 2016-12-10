@@ -139,6 +139,9 @@ namespace Flame.Optimization.AliasAnalysis
         private bool DerivesFromRelevantExpr(IExpression Expression)
         {
             var baseExpr = GetExpressionRoot(Expression);
+            if (baseExpr == null)
+                return false;
+
             foreach (var expr in rootExprs)
             {
                 if (expr.Equals(baseExpr))
@@ -412,11 +415,26 @@ namespace Flame.Optimization.AliasAnalysis
                 FoundAlias();
                 return Expression;
             }
-            else
+            else if (Expression is IVariableNode)
             {
-                // Look for aliases in the expression's children.
-                return Expression.Accept(this);
+                // Getting an unmanaged variable's value is conceptually
+                // the same as loading a pointer to said variable and
+                // dereferencing that. We should reflect that by examining
+                // the variable's address here.
+                var varNode = (IVariableNode)Expression;
+                if (varNode.Action == VariableNodeAction.Get)
+                {
+                    var variable = varNode.GetVariable();
+                    if (variable is IUnmanagedVariable)
+                    {
+                        Visit(
+                            ((IUnmanagedVariable)variable)
+                            .CreateAddressOfExpression());
+                    }
+                }
             }
+            // Look for aliases in the expression's children.
+            return Expression.Accept(this);
         }
 
         protected override IStatement Transform(IStatement Statement)
