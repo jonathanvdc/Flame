@@ -187,6 +187,9 @@ namespace Flame.Optimization.AliasAnalysis
             {
                 FoundAlias();
             }
+            // Search for any non-derived aliases in the original expression's
+            // child subtree.
+            OriginalExpression.Accept(this);
         }
 
 
