@@ -1,340 +1,340 @@
 <Project Name="Flame.Compiler">
-	<Setter Property="TargetPlatform" Value="CLR/Release" />
+    <Setter Property="TargetPlatform" Value="CLR/Release" />
     <Option Key="invariant-culture" Value="true" />
     <Option Key="fgenerate-static" Value="true" />
-	<Option Key="fwrap-extension-properties" Value="true" />
+    <Option Key="fwrap-extension-properties" Value="true" />
     <Option Key="docs" Value="xml" />
-	<ItemGroup>
-		<RuntimeLibrary Include="PortableRT" />
-		<RuntimeLibrary Include="System" />
-		<RuntimeLibrary Include="System.Core" />
-		<RuntimeLibrary Include="System.Numerics" />
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="../Flame/bin/Flame.dll" />
-		<Reference Include="../Pixie/bin/Pixie.dll" />
-	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="AbortCompilationException.ds" />
-		<Compile Include="UniqueTag.ds" />
-		<Compile Include="IMemberNode.ds" />
-		<Compile Include="IMetadataNode.ds" />
-		<Compile Include="INode.ds" />
-		<Compile Include="IExpression.ds" />
-		<Compile Include="IStatement.ds" />
-		<Compile Include="IVariable.ds" />
-		<Compile Include="IUnmanagedVariable.ds" />
-		<Compile Include="ICompilerLog.ds" />
-		<Compile Include="NodeExtensions.ds" />
-		<Compile Include="ParameterExtensions.ds" />
-		<Compile Include="IVariableNode.ds" />
-		<Compile Include="IInitializedField.ds" />
-		<Compile Include="ILambdaNode.ds" />
-		<Compile Include="IBodyMethod.ds" />
-		<Compile Include="PrimitiveExpressionExtensions.ds" />
-		<Compile Include="ICompilerOptions.ds" />
-		<Compile Include="IDefaultArgParameter.ds" />
-		<Compile Include="EmptyCompilerOptions.ds" />
-		<Compile Include="EmptyCompilerLog.ds" />
-		<Compile Include="Flags.ds" />
-		<Compile Include="IFlowNode.ds" />
-		<Compile Include="OperatorExtensions.ds" />
-		<Compile Include="OperatorCache.ds" />
-		<Compile Include="InitializationHelpers.ds" />
-		<Compile Include="ISourceDocument.ds" />
-		<Compile Include="SourceDocument.ds" />
-		<Compile Include="LogEntry.ds" />
-		<Compile Include="CompilerLogExtensions.ds" />
-		<Compile Include="SourceLocation.ds" />
-		<Compile Include="TypeDiffComparer.ds" />
-		<Compile Include="MethodDiffComparer.ds" />
-		<Compile Include="SilentLog.ds" />
-		<Compile Include="MethodGroupExtensions.ds" />
-		<Compile Include="WarningDescription.ds" />
-		<Compile Include="Warnings.ds" />
-	</ItemGroup>
-	<ItemGroup Name="Emit">
-		<ItemGroup>
-			<Compile Include="Emit/ICodeGenerator.ds" />
-			<Compile Include="Emit/IMethodStructureGenerator.ds" />
-			<Compile Include="Emit/ICodeBlock.ds" />
-			<Compile Include="Emit/IBlockCodeGenerator.ds" />
-			<Compile Include="Emit/IStackCodeGenerator.ds" />
-			<Compile Include="Emit/IUnmanagedCodeGenerator.ds" />
-			<Compile Include="Emit/IUnmanagedMethodStructureGenerator.ds" />
-			<Compile Include="Emit/IBranchingCodeGenerator.ds" />
-			<Compile Include="Emit/IEmitVariable.ds" />
-			<Compile Include="Emit/ILabel.ds" />
-			<Compile Include="Emit/ILambdaCodeGenerator.ds" />
-			<Compile Include="Emit/CodeGeneratorExtensions.ds" />
-			<Compile Include="Emit/IVariableMember.ds" />
-			<Compile Include="Emit/RetypedVariableMember.ds" />
-			<Compile Include="Emit/TypeVariableMember.ds" />
-			<Compile Include="Emit/DescribedVariableMember.ds" />
-			<Compile Include="Emit/IYieldCodeGenerator.ds" />
-			<Compile Include="Emit/LocalManager.ds" />
-			<Compile Include="Emit/IInitializingCodeGenerator.ds" />
-			<Compile Include="Emit/IForeachCodeGenerator.ds" />
-			<Compile Include="Emit/ICommentedCodeGenerator.ds" />
-			<Compile Include="Emit/IExceptionCodeGenerator.ds" />
-			<Compile Include="Emit/IContractBlockGenerator.ds" />
-			<Compile Include="Emit/IInvariantGenerator.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Expressions">
-		<ItemGroup>
-			<Compile Include="Expressions/ConstantExpression.ds" />
-			<Compile Include="Expressions/BitExpressions.ds" />
-			<Compile Include="Expressions/IntExpressions.ds" />
-			<Compile Include="Expressions/BooleanExpression.ds" />
-			<Compile Include="Expressions/BoxExpression.ds" />
-			<Compile Include="Expressions/CaughtExceptionExpression.ds" />
-			<Compile Include="Expressions/ContainerElementAddressOfExpression.ds" />
-			<Compile Include="Expressions/ContainerElementGetExpression.ds" />
-			<Compile Include="Expressions/DefaultValueExpression.ds" />
-			<Compile Include="Expressions/DelegateInstanceExpression.ds" />
-			<Compile Include="Expressions/DereferencePointerExpression.ds" />
-			<Compile Include="Expressions/FloatExpressions.ds" />
-			<Compile Include="Expressions/StringExpression.ds" />
-			<Compile Include="Expressions/NullExpression.ds" />
-			<Compile Include="Expressions/BinaryExpression.ds" />
-			<Compile Include="Expressions/InitializedExpression.ds" />
-			<Compile Include="Expressions/ThisGetExpression.ds" />
-			<Compile Include="Expressions/ConversionExpression.ds" />
-			<Compile Include="Expressions/VariableAddressOfExpressionBase.ds" />
-			<Compile Include="Expressions/VariableGetExpressionBase.ds" />
-			<Compile Include="Expressions/LateBoundVariableGetExpression.ds" />
-			<Compile Include="Expressions/FieldGetExpression.ds" />
-			<Compile Include="Expressions/InvocationExpression.ds" />
-			<Compile Include="Expressions/NewArrayExpression.ds" />
-			<Compile Include="Expressions/NewVectorExpression.ds" />
-			<Compile Include="Expressions/NewObjectExpression.ds" />
-			<Compile Include="Expressions/IsExpression.ds" />
-			<Compile Include="Expressions/LambdaExpression.ds" />
-			<Compile Include="Expressions/CharExpression.ds" />
-			<Compile Include="Expressions/CodeBlockExpression.ds" />
-			<Compile Include="Expressions/UnaryExpression.ds" />
-			<Compile Include="Expressions/UnboxExpression.ds" />
-			<Compile Include="Expressions/UnknownExpression.ds" />
-			<Compile Include="Expressions/NegateExpression.ds" />
-			<Compile Include="Expressions/NotExpression.ds" />
-			<Compile Include="Expressions/AddExpression.ds" />
-			<Compile Include="Expressions/SubtractExpression.ds" />
-			<Compile Include="Expressions/MemberlessExpression.ds" />
-			<Compile Include="Expressions/MultiplyExpression.ds" />
-			<Compile Include="Expressions/DivideExpression.ds" />
-			<Compile Include="Expressions/DynamicCastExpression.ds" />
-			<Compile Include="Expressions/ConditionalExpression.ds" />
-			<Compile Include="Expressions/LessThanExpression.ds" />
-			<Compile Include="Expressions/GreaterThanExpression.ds" />
-			<Compile Include="Expressions/EqualityExpression.ds" />
-			<Compile Include="Expressions/ErrorExpression.ds" />
-			<Compile Include="Expressions/AndExpression.ds" />
-			<Compile Include="Expressions/AsInstanceExpression.ds" />
-			<Compile Include="Expressions/OrExpression.ds" />
-			<Compile Include="Expressions/PopStackExpression.ds" />
-			<Compile Include="Expressions/XorExpression.ds" />
-			<Compile Include="Expressions/LazyAndExpression.ds" />
-			<Compile Include="Expressions/LazyOrExpression.ds" />
-			<Compile Include="Expressions/PropertyGetExpression.ds" />
-			<Compile Include="Expressions/ReinterpretCastExpression.ds" />
-			<Compile Include="Expressions/GetExtensionMethodExpression.ds" />
-			<Compile Include="Expressions/GetMethodExpression.ds" />
-			<Compile Include="Expressions/SizeOfExpression.ds" />
-			<Compile Include="Expressions/SourceExpression.ds" />
-			<Compile Include="Expressions/SpillableExpression.ds" />
-			<Compile Include="Expressions/StaticCastExpression.ds" />
-			<Compile Include="Expressions/InequalityExpression.ds" />
-			<Compile Include="Expressions/RemainderExpression.ds" />
-			<Compile Include="Expressions/HashExpression.ds" />
-			<Compile Include="Expressions/InitializedArrayExpression.ds" />
-			<Compile Include="Expressions/InitializedVectorExpression.ds" />
-			<Compile Include="Expressions/LeftShiftExpression.ds" />
-			<Compile Include="Expressions/RightShiftExpression.ds" />
-			<Compile Include="Expressions/ConcatExpression.ds" />
-			<Compile Include="Expressions/SingletonGetExpression.ds" />
-			<Compile Include="Expressions/ConstantVariableGetExpression.ds" />
-			<Compile Include="Expressions/RelaxedInvocation.ds" />
-			<Compile Include="Expressions/ComplexExpressionBase.ds" />
-			<Compile Include="Expressions/ReturnValueGetExpression.ds" />
-			<Compile Include="Expressions/SelectExpression.ds" />
-			<Compile Include="Expressions/VoidExpression.ds" />
-			<Compile Include="Expressions/IntersectionExpression.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Flow">
-		<ItemGroup>
-			<Compile Include="Flow/BasicBlock.ds" />
-			<Compile Include="Flow/BlockBuilder.ds" />
-			<Compile Include="Flow/BlockFlow.ds" />
-			<Compile Include="Flow/DominatorTree.ds" />
-			<Compile Include="Flow/ExceptionFlow.ds" />
-			<Compile Include="Flow/ExceptionFlowGraph.ds" />
-			<Compile Include="Flow/FlowGraph.ds" />
-			<Compile Include="Flow/IBasicBlockVisitor.ds" />
-			<Compile Include="Flow/JumpFlow.ds" />
-			<Compile Include="Flow/SelectFlow.ds" />
-			<Compile Include="Flow/UnreachableFlow.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Native">
-		<ItemGroup>
-			<Compile Include="Native/ArgumentLayout.ds" />
-			<Compile Include="Native/DataLayout.ds" />
-			<Compile Include="Native/IAbi.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Statements">
-		<ItemGroup>
-			<Compile Include="Statements/AssertStatement.ds" />
-			<Compile Include="Statements/BreakStatement.ds" />
-			<Compile Include="Statements/BlockStatement.ds" />
-			<Compile Include="Statements/CodeBlockStatement.ds" />
-			<Compile Include="Statements/CollectionElement.ds" />
-			<Compile Include="Statements/CommentedStatement.ds" />
-			<Compile Include="Statements/ComplexStatement.ds" />
-			<Compile Include="Statements/ContinueStatement.ds" />
-			<Compile Include="Statements/ContractBodyStatement.ds" />
-			<Compile Include="Statements/ContainerElementSetStatement.ds" />
-			<Compile Include="Statements/DoWhileStatement.ds" />
-			<Compile Include="Statements/ElementInCollection.ds" />
-			<Compile Include="Statements/EmitVariableSetStatement.ds" />
-			<Compile Include="Statements/EmptyStatement.ds" />
-			<Compile Include="Statements/ExpressionStatement.ds" />
-			<Compile Include="Statements/FieldSetStatement.ds" />
-			<Compile Include="Statements/FlowGraphStatement.ds" />
-			<Compile Include="Statements/ForeachStatement.ds" />
-			<Compile Include="Statements/ForStatement.ds" />
-			<Compile Include="Statements/IfElseStatement.ds" />
-			<Compile Include="Statements/LateBoundLabel.ds" />
-			<Compile Include="Statements/LateBoundVariableSetStatement.ds" />
-			<Compile Include="Statements/PushStackStatement.ds" />
-			<Compile Include="Statements/RawExpressionStatement.ds" />
-			<Compile Include="Statements/ReturnStatement.ds" />
-			<Compile Include="Statements/SourceStatement.ds" />
-			<Compile Include="Statements/StoreAtAddressStatement.ds" />
-			<Compile Include="Statements/TaggedStatement.ds" />
-			<Compile Include="Statements/ThisSetStatement.ds" />
-			<Compile Include="Statements/ThrowStatement.ds" />
-			<Compile Include="Statements/TryStatement.ds" />
-			<Compile Include="Statements/UnwrapStatement.ds" />
-			<Compile Include="Statements/VariableSetStatementBase.ds" />
-			<Compile Include="Statements/WhileStatement.ds" />
-			<Compile Include="Statements/YieldReturnStatement.ds" />
-			<Compile Include="Statements/YieldBreakStatement.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Variables">
-		<ItemGroup>
-			<Compile Include="Variables/IVariableProvider.ds" />
-			<Compile Include="Variables/ThisVariable.ds" />
-			<Compile Include="Variables/ExpressionVariable.ds" />
-			<Compile Include="Variables/ArgumentVariable.ds" />
-			<Compile Include="Variables/ManuallyBoundVariable.ds" />
-			<Compile Include="Variables/LocalVariable.ds" />
-			<Compile Include="Variables/FieldVariable.ds" />
-			<Compile Include="Variables/PropertyVariable.ds" />
-			<Compile Include="Variables/ElementVariable.ds" />
-			<Compile Include="Variables/AtAddressVariable.ds" />
-			<Compile Include="Variables/MethodParameterProvider.ds" />
-			<Compile Include="Variables/SingletonVariable.ds" />
-			<Compile Include="Variables/SSAVariable.ds" />
-			<Compile Include="Variables/ConstantVariable.ds" />
-			<Compile Include="Variables/ThisReferenceVariable.ds" />
-			<Compile Include="Variables/RegisterVariable.ds" />
-			<Compile Include="Variables/ReturnValueVariable.ds" />
-			<Compile Include="Variables/TypedEmitVariable.ds" />
-			<Compile Include="Variables/VariableHelpers.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Visitors">
-		<ItemGroup>
-			<Compile Include="Visitors/AggregatePass.ds" />
-			<Compile Include="Visitors/AggregateVisitor.ds" />
-			<Compile Include="Visitors/AnyPredicateVisitorBase.ds" />
-			<Compile Include="Visitors/BlockBuildingVisitor.ds" />
-			<Compile Include="Visitors/BodyPassBase.ds" />
-			<Compile Include="Visitors/CloningVisitor.ds" />
-			<Compile Include="Visitors/ConstnessVisitor.ds" />
-			<Compile Include="Visitors/ContextlessVisitorBase.ds" />
-			<Compile Include="Visitors/ContinueRewriter.ds" />
-			<Compile Include="Visitors/DeadCodeVisitor.ds" />
-			<Compile Include="Visitors/EmptyPass.ds" />
-			<Compile Include="Visitors/ExpressionRewriter.ds" />
-			<Compile Include="Visitors/IPass.ds" />
-			<Compile Include="Visitors/LocationVisitorBase.ds" />
-			<Compile Include="Visitors/LoggingVisitor.ds" />
-			<Compile Include="Visitors/LoopPass.ds" />
-			<Compile Include="Visitors/LowerContractPass.ds" />
-			<Compile Include="Visitors/LowerLambdaPass.ds" />
-			<Compile Include="Visitors/LowerYieldPass.ds" />
-			<Compile Include="Visitors/MemberNodeVisitor.ds" />
-			<Compile Include="Visitors/MemberSignaturePassArgument.ds" />
-			<Compile Include="Visitors/NodeVisitorBase.ds" />
-			<Compile Include="Visitors/PassMetadata.ds" />
-			<Compile Include="Visitors/StatementPass.ds" />
-			<Compile Include="Visitors/StatementVisitorBase.ds" />
-			<Compile Include="Visitors/StripAssertPass.ds" />
-			<Compile Include="Visitors/VariableCapturingVisitor.ds" />
-			<Compile Include="Visitors/VariableSubstitutingVisitor.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Code">
-		<ItemGroup>
-			<Compile Include="Code/AlignFormatter.ds" />
-			<Compile Include="Code/CodeBuilder.ds" />
-			<Compile Include="Code/CodeLine.ds" />
-			<Compile Include="Code/CodeOptionExtensions.ds" />
-			<Compile Include="Code/ICodeFormatter.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Build">
-		<ItemGroup>
-			<Compile Include="Build/DescribedBodyMethod.ds" />
-			<Compile Include="Build/DescribedInvariant.ds" />
-			<Compile Include="Build/FieldPrototypeTemplate.ds" />
-			<Compile Include="Build/FieldSignatureInstance.ds" />
-			<Compile Include="Build/IAssemblyBuilder.ds" />
-			<Compile Include="Build/IMethodBuilder.ds" />
-			<Compile Include="Build/IMethodSignatureTemplate.ds" />
-			<Compile Include="Build/IFieldBuilder.ds" />
-			<Compile Include="Build/IFieldSignatureTemplate.ds" />
-			<Compile Include="Build/IPropertyBuilder.ds" />
-			<Compile Include="Build/IPropertySignatureTemplate.ds" />
-			<Compile Include="Build/INamespaceBuilder.ds" />
-			<Compile Include="Build/IMemberBuilder.ds" />
-			<Compile Include="Build/IMemberSignatureTemplate.ds" />
-			<Compile Include="Build/IOutputProvider.ds" />
-			<Compile Include="Build/IInvariantTypeBuilder.ds" />
-			<Compile Include="Build/IInvariantType.ds" />
-			<Compile Include="Build/IInvariant.ds" />
-			<Compile Include="Build/ISourceMember.ds" />
-			<Compile Include="Build/InvariantExtensions.ds" />
-			<Compile Include="Build/ITypeBuilder.ds" />
-			<Compile Include="Build/ITypeSignatureTemplate.ds" />
-			<Compile Include="Build/MemberPrototypeTemplate.ds" />
-			<Compile Include="Build/MethodPrototypeTemplate.ds" />
-			<Compile Include="Build/MethodSignatureInstance.ds" />
-			<Compile Include="Build/PropertyPrototypeTemplate.ds" />
-			<Compile Include="Build/PropertySignatureInstance.ds" />
-			<Compile Include="Build/TypePrototypeTemplate.ds" />
-			<Compile Include="Build/TypeSignatureInstance.ds" />
-		</ItemGroup>
-	</ItemGroup>
-	<ItemGroup Name="Projects">
-		<ItemGroup>
-			<Compile Include="Projects/IProject.ds" />
-			<Compile Include="Projects/IProjectItem.ds" />
-			<Compile Include="Projects/IProjectNode.ds" />
-			<Compile Include="Projects/IProjectSourceItem.ds" />
-			<Compile Include="Projects/IProjectReferenceItem.ds" />
-			<Compile Include="Projects/ProjectExtensions.ds" />
-			<Compile Include="Projects/IMutableProjectNode.ds" />
-			<Compile Include="Projects/IMutableProject.ds" />
-			<Compile Include="Projects/IProjectOptionItem.ds" />
-			<Compile Include="Projects/ProjectNode.ds" />
-			<Compile Include="Projects/ProjectTrimmingVisitor.ds" />
-			<Compile Include="Projects/ProjectVisitorBase.ds" />
-		</ItemGroup>
-	</ItemGroup>
+    <ItemGroup>
+        <RuntimeLibrary Include="PortableRT" />
+        <RuntimeLibrary Include="System" />
+        <RuntimeLibrary Include="System.Core" />
+        <RuntimeLibrary Include="System.Numerics" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="../Flame/bin/Flame.dll" />
+        <Reference Include="../Pixie/bin/Pixie.dll" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="AbortCompilationException.ds" />
+        <Compile Include="UniqueTag.ds" />
+        <Compile Include="IMemberNode.ds" />
+        <Compile Include="IMetadataNode.ds" />
+        <Compile Include="INode.ds" />
+        <Compile Include="IExpression.ds" />
+        <Compile Include="IStatement.ds" />
+        <Compile Include="IVariable.ds" />
+        <Compile Include="IUnmanagedVariable.ds" />
+        <Compile Include="ICompilerLog.ds" />
+        <Compile Include="NodeExtensions.ds" />
+        <Compile Include="ParameterExtensions.ds" />
+        <Compile Include="IVariableNode.ds" />
+        <Compile Include="IInitializedField.ds" />
+        <Compile Include="ILambdaNode.ds" />
+        <Compile Include="IBodyMethod.ds" />
+        <Compile Include="PrimitiveExpressionExtensions.ds" />
+        <Compile Include="ICompilerOptions.ds" />
+        <Compile Include="IDefaultArgParameter.ds" />
+        <Compile Include="EmptyCompilerOptions.ds" />
+        <Compile Include="EmptyCompilerLog.ds" />
+        <Compile Include="Flags.ds" />
+        <Compile Include="IFlowNode.ds" />
+        <Compile Include="OperatorExtensions.ds" />
+        <Compile Include="OperatorCache.ds" />
+        <Compile Include="InitializationHelpers.ds" />
+        <Compile Include="ISourceDocument.ds" />
+        <Compile Include="SourceDocument.ds" />
+        <Compile Include="LogEntry.ds" />
+        <Compile Include="CompilerLogExtensions.ds" />
+        <Compile Include="SourceLocation.ds" />
+        <Compile Include="TypeDiffComparer.ds" />
+        <Compile Include="MethodDiffComparer.ds" />
+        <Compile Include="SilentLog.ds" />
+        <Compile Include="MethodGroupExtensions.ds" />
+        <Compile Include="WarningDescription.ds" />
+        <Compile Include="Warnings.ds" />
+    </ItemGroup>
+    <ItemGroup Name="Emit">
+        <ItemGroup>
+            <Compile Include="Emit/ICodeGenerator.ds" />
+            <Compile Include="Emit/IMethodStructureGenerator.ds" />
+            <Compile Include="Emit/ICodeBlock.ds" />
+            <Compile Include="Emit/IBlockCodeGenerator.ds" />
+            <Compile Include="Emit/IStackCodeGenerator.ds" />
+            <Compile Include="Emit/IUnmanagedCodeGenerator.ds" />
+            <Compile Include="Emit/IUnmanagedMethodStructureGenerator.ds" />
+            <Compile Include="Emit/IBranchingCodeGenerator.ds" />
+            <Compile Include="Emit/IEmitVariable.ds" />
+            <Compile Include="Emit/ILabel.ds" />
+            <Compile Include="Emit/ILambdaCodeGenerator.ds" />
+            <Compile Include="Emit/CodeGeneratorExtensions.ds" />
+            <Compile Include="Emit/IVariableMember.ds" />
+            <Compile Include="Emit/RetypedVariableMember.ds" />
+            <Compile Include="Emit/TypeVariableMember.ds" />
+            <Compile Include="Emit/DescribedVariableMember.ds" />
+            <Compile Include="Emit/IYieldCodeGenerator.ds" />
+            <Compile Include="Emit/LocalManager.ds" />
+            <Compile Include="Emit/IInitializingCodeGenerator.ds" />
+            <Compile Include="Emit/IForeachCodeGenerator.ds" />
+            <Compile Include="Emit/ICommentedCodeGenerator.ds" />
+            <Compile Include="Emit/IExceptionCodeGenerator.ds" />
+            <Compile Include="Emit/IContractBlockGenerator.ds" />
+            <Compile Include="Emit/IInvariantGenerator.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Expressions">
+        <ItemGroup>
+            <Compile Include="Expressions/ConstantExpression.ds" />
+            <Compile Include="Expressions/BitExpressions.ds" />
+            <Compile Include="Expressions/IntExpressions.ds" />
+            <Compile Include="Expressions/BooleanExpression.ds" />
+            <Compile Include="Expressions/BoxExpression.ds" />
+            <Compile Include="Expressions/CaughtExceptionExpression.ds" />
+            <Compile Include="Expressions/ContainerElementAddressOfExpression.ds" />
+            <Compile Include="Expressions/ContainerElementGetExpression.ds" />
+            <Compile Include="Expressions/DefaultValueExpression.ds" />
+            <Compile Include="Expressions/DelegateInstanceExpression.ds" />
+            <Compile Include="Expressions/DereferencePointerExpression.ds" />
+            <Compile Include="Expressions/FloatExpressions.ds" />
+            <Compile Include="Expressions/StringExpression.ds" />
+            <Compile Include="Expressions/NullExpression.ds" />
+            <Compile Include="Expressions/BinaryExpression.ds" />
+            <Compile Include="Expressions/InitializedExpression.ds" />
+            <Compile Include="Expressions/ThisGetExpression.ds" />
+            <Compile Include="Expressions/ConversionExpression.ds" />
+            <Compile Include="Expressions/VariableAddressOfExpressionBase.ds" />
+            <Compile Include="Expressions/VariableGetExpressionBase.ds" />
+            <Compile Include="Expressions/LateBoundVariableGetExpression.ds" />
+            <Compile Include="Expressions/FieldGetExpression.ds" />
+            <Compile Include="Expressions/InvocationExpression.ds" />
+            <Compile Include="Expressions/NewArrayExpression.ds" />
+            <Compile Include="Expressions/NewVectorExpression.ds" />
+            <Compile Include="Expressions/NewObjectExpression.ds" />
+            <Compile Include="Expressions/IsExpression.ds" />
+            <Compile Include="Expressions/LambdaExpression.ds" />
+            <Compile Include="Expressions/CharExpression.ds" />
+            <Compile Include="Expressions/CodeBlockExpression.ds" />
+            <Compile Include="Expressions/UnaryExpression.ds" />
+            <Compile Include="Expressions/UnboxExpression.ds" />
+            <Compile Include="Expressions/UnknownExpression.ds" />
+            <Compile Include="Expressions/NegateExpression.ds" />
+            <Compile Include="Expressions/NotExpression.ds" />
+            <Compile Include="Expressions/AddExpression.ds" />
+            <Compile Include="Expressions/SubtractExpression.ds" />
+            <Compile Include="Expressions/MemberlessExpression.ds" />
+            <Compile Include="Expressions/MultiplyExpression.ds" />
+            <Compile Include="Expressions/DivideExpression.ds" />
+            <Compile Include="Expressions/DynamicCastExpression.ds" />
+            <Compile Include="Expressions/ConditionalExpression.ds" />
+            <Compile Include="Expressions/LessThanExpression.ds" />
+            <Compile Include="Expressions/GreaterThanExpression.ds" />
+            <Compile Include="Expressions/EqualityExpression.ds" />
+            <Compile Include="Expressions/ErrorExpression.ds" />
+            <Compile Include="Expressions/AndExpression.ds" />
+            <Compile Include="Expressions/AsInstanceExpression.ds" />
+            <Compile Include="Expressions/OrExpression.ds" />
+            <Compile Include="Expressions/PopStackExpression.ds" />
+            <Compile Include="Expressions/XorExpression.ds" />
+            <Compile Include="Expressions/LazyAndExpression.ds" />
+            <Compile Include="Expressions/LazyOrExpression.ds" />
+            <Compile Include="Expressions/PropertyGetExpression.ds" />
+            <Compile Include="Expressions/ReinterpretCastExpression.ds" />
+            <Compile Include="Expressions/GetExtensionMethodExpression.ds" />
+            <Compile Include="Expressions/GetMethodExpression.ds" />
+            <Compile Include="Expressions/SizeOfExpression.ds" />
+            <Compile Include="Expressions/SourceExpression.ds" />
+            <Compile Include="Expressions/SpillableExpression.ds" />
+            <Compile Include="Expressions/StaticCastExpression.ds" />
+            <Compile Include="Expressions/InequalityExpression.ds" />
+            <Compile Include="Expressions/RemainderExpression.ds" />
+            <Compile Include="Expressions/HashExpression.ds" />
+            <Compile Include="Expressions/InitializedArrayExpression.ds" />
+            <Compile Include="Expressions/InitializedVectorExpression.ds" />
+            <Compile Include="Expressions/LeftShiftExpression.ds" />
+            <Compile Include="Expressions/RightShiftExpression.ds" />
+            <Compile Include="Expressions/ConcatExpression.ds" />
+            <Compile Include="Expressions/SingletonGetExpression.ds" />
+            <Compile Include="Expressions/ConstantVariableGetExpression.ds" />
+            <Compile Include="Expressions/RelaxedInvocation.ds" />
+            <Compile Include="Expressions/ComplexExpressionBase.ds" />
+            <Compile Include="Expressions/ReturnValueGetExpression.ds" />
+            <Compile Include="Expressions/SelectExpression.ds" />
+            <Compile Include="Expressions/VoidExpression.ds" />
+            <Compile Include="Expressions/IntersectionExpression.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Flow">
+        <ItemGroup>
+            <Compile Include="Flow/BasicBlock.ds" />
+            <Compile Include="Flow/BlockBuilder.ds" />
+            <Compile Include="Flow/BlockFlow.ds" />
+            <Compile Include="Flow/DominatorTree.ds" />
+            <Compile Include="Flow/ExceptionFlow.ds" />
+            <Compile Include="Flow/ExceptionFlowGraph.ds" />
+            <Compile Include="Flow/FlowGraph.ds" />
+            <Compile Include="Flow/IBasicBlockVisitor.ds" />
+            <Compile Include="Flow/JumpFlow.ds" />
+            <Compile Include="Flow/SelectFlow.ds" />
+            <Compile Include="Flow/UnreachableFlow.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Native">
+        <ItemGroup>
+            <Compile Include="Native/ArgumentLayout.ds" />
+            <Compile Include="Native/DataLayout.ds" />
+            <Compile Include="Native/IAbi.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Statements">
+        <ItemGroup>
+            <Compile Include="Statements/AssertStatement.ds" />
+            <Compile Include="Statements/BreakStatement.ds" />
+            <Compile Include="Statements/BlockStatement.ds" />
+            <Compile Include="Statements/CodeBlockStatement.ds" />
+            <Compile Include="Statements/CollectionElement.ds" />
+            <Compile Include="Statements/CommentedStatement.ds" />
+            <Compile Include="Statements/ComplexStatement.ds" />
+            <Compile Include="Statements/ContinueStatement.ds" />
+            <Compile Include="Statements/ContractBodyStatement.ds" />
+            <Compile Include="Statements/ContainerElementSetStatement.ds" />
+            <Compile Include="Statements/DoWhileStatement.ds" />
+            <Compile Include="Statements/ElementInCollection.ds" />
+            <Compile Include="Statements/EmitVariableSetStatement.ds" />
+            <Compile Include="Statements/EmptyStatement.ds" />
+            <Compile Include="Statements/ExpressionStatement.ds" />
+            <Compile Include="Statements/FieldSetStatement.ds" />
+            <Compile Include="Statements/FlowGraphStatement.ds" />
+            <Compile Include="Statements/ForeachStatement.ds" />
+            <Compile Include="Statements/ForStatement.ds" />
+            <Compile Include="Statements/IfElseStatement.ds" />
+            <Compile Include="Statements/LateBoundLabel.ds" />
+            <Compile Include="Statements/LateBoundVariableSetStatement.ds" />
+            <Compile Include="Statements/PushStackStatement.ds" />
+            <Compile Include="Statements/RawExpressionStatement.ds" />
+            <Compile Include="Statements/ReturnStatement.ds" />
+            <Compile Include="Statements/SourceStatement.ds" />
+            <Compile Include="Statements/StoreAtAddressStatement.ds" />
+            <Compile Include="Statements/TaggedStatement.ds" />
+            <Compile Include="Statements/ThisSetStatement.ds" />
+            <Compile Include="Statements/ThrowStatement.ds" />
+            <Compile Include="Statements/TryStatement.ds" />
+            <Compile Include="Statements/UnwrapStatement.ds" />
+            <Compile Include="Statements/VariableSetStatementBase.ds" />
+            <Compile Include="Statements/WhileStatement.ds" />
+            <Compile Include="Statements/YieldReturnStatement.ds" />
+            <Compile Include="Statements/YieldBreakStatement.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Variables">
+        <ItemGroup>
+            <Compile Include="Variables/IVariableProvider.ds" />
+            <Compile Include="Variables/ThisVariable.ds" />
+            <Compile Include="Variables/ExpressionVariable.ds" />
+            <Compile Include="Variables/ArgumentVariable.ds" />
+            <Compile Include="Variables/ManuallyBoundVariable.ds" />
+            <Compile Include="Variables/LocalVariable.ds" />
+            <Compile Include="Variables/FieldVariable.ds" />
+            <Compile Include="Variables/PropertyVariable.ds" />
+            <Compile Include="Variables/ElementVariable.ds" />
+            <Compile Include="Variables/AtAddressVariable.ds" />
+            <Compile Include="Variables/MethodParameterProvider.ds" />
+            <Compile Include="Variables/SingletonVariable.ds" />
+            <Compile Include="Variables/SSAVariable.ds" />
+            <Compile Include="Variables/ConstantVariable.ds" />
+            <Compile Include="Variables/ThisReferenceVariable.ds" />
+            <Compile Include="Variables/RegisterVariable.ds" />
+            <Compile Include="Variables/ReturnValueVariable.ds" />
+            <Compile Include="Variables/TypedEmitVariable.ds" />
+            <Compile Include="Variables/VariableHelpers.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Visitors">
+        <ItemGroup>
+            <Compile Include="Visitors/AggregatePass.ds" />
+            <Compile Include="Visitors/AggregateVisitor.ds" />
+            <Compile Include="Visitors/AnyPredicateVisitorBase.ds" />
+            <Compile Include="Visitors/BlockBuildingVisitor.ds" />
+            <Compile Include="Visitors/BodyPassBase.ds" />
+            <Compile Include="Visitors/CloningVisitor.ds" />
+            <Compile Include="Visitors/ConstnessVisitor.ds" />
+            <Compile Include="Visitors/ContextlessVisitorBase.ds" />
+            <Compile Include="Visitors/ContinueRewriter.ds" />
+            <Compile Include="Visitors/DeadCodeVisitor.ds" />
+            <Compile Include="Visitors/EmptyPass.ds" />
+            <Compile Include="Visitors/ExpressionRewriter.ds" />
+            <Compile Include="Visitors/IPass.ds" />
+            <Compile Include="Visitors/LocationVisitorBase.ds" />
+            <Compile Include="Visitors/LoggingVisitor.ds" />
+            <Compile Include="Visitors/LoopPass.ds" />
+            <Compile Include="Visitors/LowerContractPass.ds" />
+            <Compile Include="Visitors/LowerLambdaPass.ds" />
+            <Compile Include="Visitors/LowerYieldPass.ds" />
+            <Compile Include="Visitors/MemberNodeVisitor.ds" />
+            <Compile Include="Visitors/MemberSignaturePassArgument.ds" />
+            <Compile Include="Visitors/NodeVisitorBase.ds" />
+            <Compile Include="Visitors/PassMetadata.ds" />
+            <Compile Include="Visitors/StatementPass.ds" />
+            <Compile Include="Visitors/StatementVisitorBase.ds" />
+            <Compile Include="Visitors/StripAssertPass.ds" />
+            <Compile Include="Visitors/VariableCapturingVisitor.ds" />
+            <Compile Include="Visitors/VariableSubstitutingVisitor.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Code">
+        <ItemGroup>
+            <Compile Include="Code/AlignFormatter.ds" />
+            <Compile Include="Code/CodeBuilder.ds" />
+            <Compile Include="Code/CodeLine.ds" />
+            <Compile Include="Code/CodeOptionExtensions.ds" />
+            <Compile Include="Code/ICodeFormatter.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Build">
+        <ItemGroup>
+            <Compile Include="Build/DescribedBodyMethod.ds" />
+            <Compile Include="Build/DescribedInvariant.ds" />
+            <Compile Include="Build/FieldPrototypeTemplate.ds" />
+            <Compile Include="Build/FieldSignatureInstance.ds" />
+            <Compile Include="Build/IAssemblyBuilder.ds" />
+            <Compile Include="Build/IMethodBuilder.ds" />
+            <Compile Include="Build/IMethodSignatureTemplate.ds" />
+            <Compile Include="Build/IFieldBuilder.ds" />
+            <Compile Include="Build/IFieldSignatureTemplate.ds" />
+            <Compile Include="Build/IPropertyBuilder.ds" />
+            <Compile Include="Build/IPropertySignatureTemplate.ds" />
+            <Compile Include="Build/INamespaceBuilder.ds" />
+            <Compile Include="Build/IMemberBuilder.ds" />
+            <Compile Include="Build/IMemberSignatureTemplate.ds" />
+            <Compile Include="Build/IOutputProvider.ds" />
+            <Compile Include="Build/IInvariantTypeBuilder.ds" />
+            <Compile Include="Build/IInvariantType.ds" />
+            <Compile Include="Build/IInvariant.ds" />
+            <Compile Include="Build/ISourceMember.ds" />
+            <Compile Include="Build/InvariantExtensions.ds" />
+            <Compile Include="Build/ITypeBuilder.ds" />
+            <Compile Include="Build/ITypeSignatureTemplate.ds" />
+            <Compile Include="Build/MemberPrototypeTemplate.ds" />
+            <Compile Include="Build/MethodPrototypeTemplate.ds" />
+            <Compile Include="Build/MethodSignatureInstance.ds" />
+            <Compile Include="Build/PropertyPrototypeTemplate.ds" />
+            <Compile Include="Build/PropertySignatureInstance.ds" />
+            <Compile Include="Build/TypePrototypeTemplate.ds" />
+            <Compile Include="Build/TypeSignatureInstance.ds" />
+        </ItemGroup>
+    </ItemGroup>
+    <ItemGroup Name="Projects">
+        <ItemGroup>
+            <Compile Include="Projects/IProject.ds" />
+            <Compile Include="Projects/IProjectItem.ds" />
+            <Compile Include="Projects/IProjectNode.ds" />
+            <Compile Include="Projects/IProjectSourceItem.ds" />
+            <Compile Include="Projects/IProjectReferenceItem.ds" />
+            <Compile Include="Projects/ProjectExtensions.ds" />
+            <Compile Include="Projects/IMutableProjectNode.ds" />
+            <Compile Include="Projects/IMutableProject.ds" />
+            <Compile Include="Projects/IProjectOptionItem.ds" />
+            <Compile Include="Projects/ProjectNode.ds" />
+            <Compile Include="Projects/ProjectTrimmingVisitor.ds" />
+            <Compile Include="Projects/ProjectVisitorBase.ds" />
+        </ItemGroup>
+    </ItemGroup>
 </Project>
