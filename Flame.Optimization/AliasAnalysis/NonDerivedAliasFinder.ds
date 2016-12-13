@@ -451,10 +451,12 @@ namespace Flame.Optimization.AliasAnalysis
                 currentLoc = oldLoc;
                 return result;
             }
-            else if (Expression is IMetadataNode<IExpression>)
+            else if (Expression is IMetadataNode<IExpression>
+                || Expression is GetMethodExpression
+                || Expression is GetExtensionMethodExpression)
             {
-                // Don't waste time analyzing the metadata nodes themselves.
-                // Just skip right ahead to the children.
+                // These node types are whitelisted. They'll never access
+                // memory, so we might as well skip to their children.
                 return Expression.Accept(this);
             }
             else if (Expression is InvocationExpression)
