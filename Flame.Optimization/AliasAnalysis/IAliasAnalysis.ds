@@ -66,19 +66,31 @@ namespace Flame.Optimization.AliasAnalysis
             return Analysis.GetAliasing(First, Second) == Aliasing.NoAlias;
         }
 
-        private static IAliasAnalysis CreateDefaultAliasAnalysis()
-        {
-            return TrivialTypeAliasAnalysis;
-        }
-
         /// <summary>
         /// Gets the global alias analysis for this pass metadata.
         /// </summary>
         public static IAliasAnalysis GetAliasAnalysis(
-            this PassMetadata PassMeta)
+            this BodyPassArgument PassArgument)
         {
-            return PassMeta.GlobalMetadata.GetOrCreateOption<IAliasAnalysis>(
-                "alias-analysis", CreateDefaultAliasAnalysis);
+            var metaDict = PassArgument.Metadata.GlobalMetadata;
+
+            string optName = "alias-analysis";
+            var result = metaDict.GetOption<IAliasAnalysis>(optName, null);
+            if (result != null)
+                return result;
+
+            var aliasAnalysisName =
+                PassArgument.Log.Options.GetOption<string>(
+                    "alias-analysis", "trivial");
+
+            if (aliasAnalysisName.ToLower() == "type")
+                result = new TypeAliasAnalysis();
+            else
+                result = TrivialTypeAliasAnalysis;
+
+            metaDict.SetOption<IAliasAnalysis>(optName, result);
+
+            return result;
         }
     }
 }

@@ -1,0 +1,219 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.AliasAnalysis
+{
+    /// <summary>
+    /// A simple type-based alias analysis.
+    /// </summary>
+    public class TypeAliasAnalysis : IAliasAnalysis, IAliasAnalysisResult
+    {
+        public this()
+        {
+            this.containsMap =
+                new ThreadLocal<Dictionary<KeyValuePair<IType, IType>, bool>>(
+                    CreateDictionary<KeyValuePair<IType, IType>, bool>);
+            this.fieldTypesMap =
+                new ThreadLocal<Dictionary<IType, HashSet<IType>>>(
+                    CreateDictionary<IType, HashSet<IType>>);
+        }
+
+        /// <summary>
+        /// A dictionary that has as keys pairs of types in which some part of
+        /// the first type may subtype some part of the second type. These keys
+        /// are mapped to Boolean values that tell if there is such a containment
+        /// relationship.
+        /// </summary>
+        private ThreadLocal<Dictionary<KeyValuePair<IType, IType>, bool>> containsMap;
+
+        /// <summary>
+        /// A dictionary that maps types to the set of their field types.
+        /// All field types have been promoted to pointer types.
+        /// </summary>
+        private ThreadLocal<Dictionary<IType, HashSet<IType>>> fieldTypesMap;
+
+        private Dictionary<TKey, TValue> CreateDictionary<TKey, TValue>()
+        {
+            return new Dictionary<TKey, TValue>();
+        }
+
+        /// <summary>
+        /// "Dereferences" the type: if it is a pointer type, then the type's
+        /// pointee type is returned. Otherwise, the type itself is returned.
+        /// </summary>
+        private IType DereferenceType(IType Type)
+        {
+            if (Type.IsPointer)
+                return Type.AsPointerType().ElementType;
+            else
+                return Type;
+        }
+
+        /// <summary>
+        /// Gets the set of all instance field types in the given type.
+        /// </summary>
+        private HashSet<IType> GetRecursiveFieldTypesImpl(IType Type)
+        {
+            var results = new HashSet<IType>();
+            foreach (var field in Type.GetAllFields())
+            {
+                if (!field.IsStatic)
+                {
+                    var fieldTy = field.FieldType;
+                    if (results.Add(
+                        fieldTy.MakePointerType(PointerKind.ReferencePointer)))
+                    {
+                        if (fieldTy.IsValueType)
+                            results.UnionWith(GetRecursiveFieldTypes(fieldTy));
+                    }
+                }
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of all instance field types in the given type,
+        /// including fields types of value type fields.
+        /// </summary>
+        private HashSet<IType> GetRecursiveFieldTypes(IType Type)
+        {
+            var map = fieldTypesMap.Value;
+            HashSet<IType> result;
+            if (!map.TryGetValue(Type, &result))
+            {
+                // Compute the set of field types.
+                result = GetRecursiveFieldTypesImpl(Type);
+                // Stores the result.
+                map[Type] = result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tests if any field in the first type contains the second type.
+        /// </summary>
+        private bool AnyFieldContains(
+            IType ContainerPointer, IType ContainedPointer)
+        {
+            var allFieldTypes = GetRecursiveFieldTypes(
+                DereferenceType(ContainerPointer));
+            foreach (var fieldTy in allFieldTypes)
+            {
+                if (Contains(fieldTy, ContainedPointer))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the first type's pointee contains the second type's
+        /// pointee. This method always computes the result, never checking
+        /// the overlap dictionary.
+        /// </summary>
+        private bool ContainsImpl(IType ContainerPointer, IType ContainedPointer)
+        {
+            return ContainerPointer.Is(ContainedPointer)
+                || AnyFieldContains(ContainerPointer, ContainedPointer);
+        }
+
+        /// <summary>
+        /// Checks if the first type's pointee contains the second type's
+        /// pointee.
+        /// </summary>
+        public bool Contains(IType ContainerPointer, IType ContainedPointer)
+        {
+            var key = new KeyValuePair<IType, IType>(
+                ContainerPointer, ContainedPointer);
+
+            var map = containsMap.Value;
+            bool result;
+            if (!map.TryGetValue(key, &result))
+            {
+                // Conservatively mark cycles as overlap.
+                map[key] = true;
+                // Find out if the container actually contains the contained.
+                result = ContainsImpl(ContainerPointer, ContainedPointer);
+                // Stores the result.
+                map[key] = result;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Tests if any part of the first type might overlap with any part
+        /// of the second, and vice-versa.
+        /// </summary>
+        public bool Overlaps(IType First, IType Second)
+        {
+            Console.WriteLine(
+                "Overlaps(" + First.FullName.ToString() + ", " +
+                Second.FullName.ToString() + ")");
+            // Either the first type contains the second, or the second type
+            // contains the first.
+            return Contains(First, Second) || Contains(Second, First);
+        }
+
+        /// <inheritdoc/>
+        public IAliasAnalysis Analysis { get { return this; } }
+
+        /// <inheritdoc/>
+        public IAliasAnalysisResult Analyze(IStatement Body)
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if the given expression evaluates
+        /// to the address of well-known region of storage, which can be
+        /// compared to addresses of other regions of storage via equality.
+        /// </summary>
+        private bool IsAddressOfStorageExpression(IExpression Expression)
+        {
+            return Expression is LocalAddressOfExpression
+                || Expression is ArgumentAddressOfExpression
+                || Expression is ThisGetExpression;
+        }
+
+        /// <inheritdoc/>
+        public Aliasing GetAliasing(IExpression First, IExpression Second)
+        {
+            if (IsAddressOfStorageExpression(First)
+                && IsAddressOfStorageExpression(Second))
+            {
+                // The addresses of two different storage region never
+                // alias.
+                if (First.Equals(Second))
+                    return Aliasing.Alias;
+                else
+                    return Aliasing.NoAlias;
+            }
+
+            var firstTy = First.Type;
+            if (firstTy.IsValueType)
+                // Value types don't point to anything at all.
+                return Aliasing.NoAlias;
+
+            var secondTy = Second.Type;
+            if (secondTy.IsValueType)
+                // Value types don't point to anything at all.
+                return Aliasing.NoAlias;
+
+            if (Overlaps(firstTy, secondTy))
+                // Types might overlap, so the pointers may alias.
+                return Aliasing.MayAlias;
+            else
+                // Types won't even partially overlap. Pointers will never
+                // alias.
+                return Aliasing.NoAlias;
+        }
+    }
+}

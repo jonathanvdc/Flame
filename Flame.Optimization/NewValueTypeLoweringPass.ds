@@ -177,7 +177,7 @@ namespace Flame.Optimization
             IMethod Constructor, BodyPassArgument PassArgument)
         {
             var visitor = NonDerivedAliasFinder.AnalyzeMethod(
-                Constructor, PassArgument.Metadata.GetAliasAnalysis(),
+                Constructor, PassArgument.GetAliasAnalysis(),
                 PassArgument.PassEnvironment,
                 new ThisVariable(Constructor.DeclaringType).CreateGetExpression());
 
