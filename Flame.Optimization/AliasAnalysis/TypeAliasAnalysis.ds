@@ -154,9 +154,6 @@ namespace Flame.Optimization.AliasAnalysis
         /// </summary>
         public bool Overlaps(IType First, IType Second)
         {
-            Console.WriteLine(
-                "Overlaps(" + First.FullName.ToString() + ", " +
-                Second.FullName.ToString() + ")");
             // Either the first type contains the second, or the second type
             // contains the first.
             return Contains(First, Second) || Contains(Second, First);
