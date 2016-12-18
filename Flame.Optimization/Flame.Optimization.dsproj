@@ -79,6 +79,7 @@
     <Compile Include="Relooper/RelooperPass.ds" />
   </ItemGroup>
   <ItemGroup Name="AliasAnalysis">
+    <Compile Include="AliasAnalysis/AliasAnalysisHelpers.ds" />
     <Compile Include="AliasAnalysis/Aliasing.ds" />
     <Compile Include="AliasAnalysis/IAliasAnalysis.ds" />
     <Compile Include="AliasAnalysis/NonDerivedAliasFinder.ds" />

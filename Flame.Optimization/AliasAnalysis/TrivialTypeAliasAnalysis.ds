@@ -23,23 +23,11 @@ namespace Flame.Optimization.AliasAnalysis
             return this;
         }
 
-        /// <summary>
-        /// Gets a boolean value that tells if the given expression evaluates
-        /// to the address of well-known region of storage, which can be
-        /// compared to addresses of other regions of storage via equality.
-        /// </summary>
-        private bool IsAddressOfStorageExpression(IExpression Expression)
-        {
-            return Expression is LocalAddressOfExpression
-                || Expression is ArgumentAddressOfExpression
-                || Expression is ThisGetExpression;
-        }
-
         /// <inheritdoc/>
         public Aliasing GetAliasing(IExpression First, IExpression Second)
         {
-            if (IsAddressOfStorageExpression(First)
-                && IsAddressOfStorageExpression(Second))
+            if (AliasAnalysisHelpers.IsAddressOfLocalOrThisExpression(First)
+                && AliasAnalysisHelpers.IsAddressOfLocalOrThisExpression(Second))
             {
                 // The addresses of two different storage region never
                 // alias.

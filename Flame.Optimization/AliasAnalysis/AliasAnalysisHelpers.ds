@@ -1,0 +1,36 @@
+using System;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.AliasAnalysis
+{
+    /// <summary>
+    /// Defines a couple of functions that are useful to alias analyses.
+    /// </summary>
+    public module AliasAnalysisHelpers
+    {
+        /// <summary>
+        /// Gets a boolean value that tells if the given expression evaluates
+        /// to the address of a local variable or a parameter.
+        /// </summary>
+        public static bool IsAddressOfLocalExpression(IExpression Expression)
+        {
+            return Expression is LocalAddressOfExpression
+                || Expression is ArgumentAddressOfExpression;
+        }
+
+        /// <summary>
+        /// Gets a boolean value that tells if the given expression evaluates
+        /// to the address of a local variable or a parameter, or the 'this'
+        /// pointer.
+        /// </summary>
+        public static bool IsAddressOfLocalOrThisExpression(
+            IExpression Expression)
+        {
+            return IsAddressOfLocalExpression(Expression)
+                || Expression is ThisGetExpression;
+        }
+    }
+}
