@@ -186,8 +186,7 @@ namespace Flame.Optimization.AliasAnalysis
 
         /// <summary>
         /// Appends the given mapped expression to the list of mapped root
-        /// expressions and remove it from the list of unmapped alias
-        /// expressions, if it derives from a root.
+        /// expressions if it derives from a root.
         /// Otherwise, if it may alias a relevant expression, then set the
         /// `FoundAnyAliases` flag to true.
         /// </summary>
@@ -195,16 +194,33 @@ namespace Flame.Optimization.AliasAnalysis
             IExpression OriginalExpression,
             IExpression MappedExpression,
             List<IExpression> MappedRootExpressions,
+            HashSet<IExpression> MappedAliasExprs,
             HashSet<IExpression> UnmappedAliasExprs)
         {
+            bool mayAlias = MayAliasRelevantExpression(OriginalExpression);
             if (DerivesFromRelevantExpr(OriginalExpression))
             {
-                UnmappedAliasExprs.Remove(OriginalExpression);
+                // If the original expression derives from a root expression,
+                // then we should add it to the list of mapped root expressions.
                 MappedRootExpressions.Add(MappedExpression);
+                if (mayAlias)
+                {
+                    MappedAliasExprs.Add(MappedExpression);
+                    UnmappedAliasExprs.Remove(OriginalExpression);
+                }
             }
-            else if (MayAliasRelevantExpression(OriginalExpression))
+            else if (mayAlias)
             {
+                // We found a potential alias, which happened to be hiding
+                // in an argument list. Report what we found.
                 FoundAlias();
+            }
+            else
+            {
+                // This expression doesn't derive from a root and never aliases
+                // anything of interest. So the mapped version of this
+                // expression is really a root of the callee.
+                MappedRootExpressions.Add(MappedExpression);
             }
             // Search for any non-derived aliases in the original expression's
             // child subtree.
@@ -213,20 +229,17 @@ namespace Flame.Optimization.AliasAnalysis
 
 
         /// <summary>
-        /// Creates a sequence of mapped aliases by merging all mapped root
-        /// expressions with unknown-expressions for the types of unmapped
-        /// alias-expressions.
+        /// Adds all unmapped alias expressions in the given sequence
+        /// of unmapped alias expressions to the set of mapped alias expressions.
         /// </summary>
-        private IEnumerable<IExpression> CreateMappedAliasList(
-            IEnumerable<IExpression> MappedRootExpressions,
+        private void FlushUnmappedAliases(
+            HashSet<IExpression> MappedAliasExpressions,
             IEnumerable<IExpression> UnmappedAliasExprs)
         {
-            var result = new List<IExpression>(MappedRootExpressions);
             foreach (var expr in UnmappedAliasExprs)
             {
-                result.Add(new UnknownExpression(expr.Type));
+                MappedAliasExpressions.Add(new UnknownExpression(expr.Type));
             }
-            return result;
         }
 
         /// <summary>
@@ -237,6 +250,7 @@ namespace Flame.Optimization.AliasAnalysis
             IEnumerable<IExpression> Arguments,
             IEnumerable<IParameter> Parameters,
             List<IExpression> MappedRootExpressions,
+            HashSet<IExpression> MappedAliasExprs,
             HashSet<IExpression> UnmappedAliasExprs)
         {
             int i = 0;
@@ -249,8 +263,9 @@ namespace Flame.Optimization.AliasAnalysis
 
                 MaybeMapRootExpression(
                     arg,
-                    new ArgumentGetExpression(new ArgumentVariable(param, i)),
+                    new ArgumentVariable(param, i).CreateAddressOfExpression(),
                     MappedRootExpressions,
+                    MappedAliasExprs,
                     UnmappedAliasExprs);
 
                 i++;
@@ -376,6 +391,7 @@ namespace Flame.Optimization.AliasAnalysis
             }
 
             var mappedRootExprs = new List<IExpression>();
+            var mappedAliasExprs = new HashSet<IExpression>();
             var unmappedAliasExprs = new HashSet<IExpression>(AliasExpressions);
 
             // Map the 'this' value.
@@ -386,6 +402,7 @@ namespace Flame.Optimization.AliasAnalysis
                     new ThisVariable(disCall.Method.DeclaringType)
                         .CreateGetExpression(),
                     mappedRootExprs,
+                    mappedAliasExprs,
                     unmappedAliasExprs);
             }
 
@@ -394,10 +411,10 @@ namespace Flame.Optimization.AliasAnalysis
                 disCall.Arguments,
                 disCall.Method.Parameters,
                 mappedRootExprs,
+                mappedAliasExprs,
                 unmappedAliasExprs);
 
-            var mappedAliasExprs = CreateMappedAliasList(
-                mappedRootExprs, unmappedAliasExprs);
+            FlushUnmappedAliases(mappedAliasExprs, unmappedAliasExprs);
 
             AnalyzeMethod(
                 disCall.Method, mappedAliasExprs, mappedRootExprs);
@@ -408,6 +425,7 @@ namespace Flame.Optimization.AliasAnalysis
         private IExpression TransformNewObject(NewObjectExpression Expression)
         {
             var mappedRootExprs = new List<IExpression>();
+            var mappedAliasExprs = new HashSet<IExpression>();
             var unmappedAliasExprs = new HashSet<IExpression>(AliasExpressions);
 
             // Map the argument expressions.
@@ -415,10 +433,10 @@ namespace Flame.Optimization.AliasAnalysis
                 Expression.Arguments,
                 Expression.Constructor.Parameters,
                 mappedRootExprs,
+                mappedAliasExprs,
                 unmappedAliasExprs);
 
-            var mappedAliasExprs = CreateMappedAliasList(
-                mappedRootExprs, unmappedAliasExprs);
+            FlushUnmappedAliases(mappedAliasExprs, unmappedAliasExprs);
 
             // Mark the called constructor's 'this' variable as a root,
             // but not as an alias, because it is not reachable from the
