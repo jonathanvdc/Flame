@@ -11,12 +11,12 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Gets the target environment.
         /// </summary>
-        IEnvironment Environment { const get; }
+        IEnvironment Environment { get; }
 
         /// <summary>
         /// Gets the body pass environment's log.
         /// </summary>
-        ICompilerLog Log { const get; }
+        ICompilerLog Log { get; }
 
         /// <summary>
         /// Tries to retrieve the method body of the given method.
@@ -39,15 +39,15 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Creates a new body pass argument from the given values.
         /// </summary>
-        public const this(set IBodyPassEnvironment PassEnvironment,
+        public this(set IBodyPassEnvironment PassEnvironment,
                           set PassMetadata Metadata, set IMethod DeclaringMethod,
                           set IStatement Body);
 
         /// <summary>
         /// Creates a new body pass argument from the given previous body
-        /// pass argument and new method body.
+        /// pass argument and a new method body.
         /// </summary>
-        public const this(BodyPassArgument Previous, set IStatement Body)
+        public this(BodyPassArgument Previous, set IStatement Body)
         {
             this.Metadata = Previous.Metadata;
             this.PassEnvironment = Previous.PassEnvironment;
@@ -55,19 +55,31 @@ namespace Flame.Compiler.Visitors
         }
 
         /// <summary>
+        /// Creates a new body pass argument from the given previous body
+        /// pass argument with a new method and method body.
+        /// </summary>
+        public this(
+            BodyPassArgument Previous,
+            set IMethod DeclaringMethod, set IStatement Body)
+        {
+            this.Metadata = Previous.Metadata;
+            this.PassEnvironment = Previous.PassEnvironment;
+        }
+
+        /// <summary>
         /// Gets the body pass' environment.
         /// </summary>
-        public IBodyPassEnvironment PassEnvironment { const get; private set; }
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
 
         /// <summary>
         /// Gets the pass' metadata.
         /// </summary>
-        public PassMetadata Metadata { const get; private set; }
+        public PassMetadata Metadata { get; private set; }
 
         /// <summary>
         /// Gets the target method's environment.
         /// </summary>
-        public IEnvironment Environment { const get return PassEnvironment.Environment; }
+        public IEnvironment Environment { get return PassEnvironment.Environment; }
 
         /// <summary>
         /// Gets the compiler log.
@@ -77,17 +89,17 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Gets the declaring method's declaring type.
         /// </summary>
-        public IType DeclaringType { const get { return DeclaringMethod.DeclaringType; } }
+        public IType DeclaringType { get { return DeclaringMethod.DeclaringType; } }
 
         /// <summary>
         /// Gets the declaring method.
         /// </summary>
-        public IMethod DeclaringMethod { const get; private set; }
+        public IMethod DeclaringMethod { get; private set; }
 
         /// <summary>
         /// Gets the target method's body statement.
         /// </summary>
-        public IStatement Body { const get; private set; }
+        public IStatement Body { get; private set; }
     }
 
     /// <summary>
@@ -131,7 +143,7 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Gets the fat body pass' inner body pass.
         /// </summary>
-        public IPass<BodyPassArgument, IStatement> Pass { const get; private set; }
+        public IPass<BodyPassArgument, IStatement> Pass { get; private set; }
 
         public BodyPassArgument Apply(BodyPassArgument Value)
         {
@@ -153,7 +165,7 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Gets the slim body pass' inner fat body pass.
         /// </summary>
-        public IPass<BodyPassArgument, BodyPassArgument> Pass { const get; private set; }
+        public IPass<BodyPassArgument, BodyPassArgument> Pass { get; private set; }
 
         public IStatement Apply(BodyPassArgument Value)
         {
@@ -175,11 +187,12 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Gets the first body pass to apply to the input.
         /// </summary>
-        public IPass<BodyPassArgument, IStatement> First { const get; private set; }
+        public IPass<BodyPassArgument, IStatement> First { get; private set; }
+        
         /// <summary>
         /// Gets the second body pass to apply to the input.
         /// </summary>
-        public IPass<BodyPassArgument, IStatement> Second { const get; private set; }
+        public IPass<BodyPassArgument, IStatement> Second { get; private set; }
 
         /// <summary>
         /// Applies this pass to the given value.
