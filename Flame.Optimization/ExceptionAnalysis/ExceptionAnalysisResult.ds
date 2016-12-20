@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+
+namespace Flame.Optimization.ExceptionAnalysis
+{
+    /// <summary>
+    /// A type that constructs the result of exception analysis.
+    /// </summary>
+    public class ExceptionAnalysisResultBuilder
+    {
+        public this()
+        {
+            this.MayThrowUnknown = false;
+            this.exTypes = new HashSet<IType>();
+        }
+
+        /// <summary>
+        /// Gets a boolean that tells if exception analysis has discovered that
+        /// an exception of known or unknown type may be thrown.
+        /// </summary>
+        public bool MayThrow
+        {
+            get { return MayThrowUnknown || exTypes.Count > 0; }
+        }
+
+        /// <summary>
+        /// Gets a boolean that tells if exception analysis has discovered
+        /// that exceptions of an unknown type may be thrown.
+        /// </summary>
+        public bool MayThrowUnknown { get; private set; }
+
+        private HashSet<IType> exTypes;
+
+        /// <summary>
+        /// Gets the set of all known exception types that may be thrown.
+        /// </summary>
+        public IEnumerable<IType> KnownExceptionTypes
+        {
+            get { return exTypes; }
+        }
+
+        /// <summary>
+        /// Append a throw of a known type to this exception analysis builder.
+        /// </summary>
+        public void AppendThrowKnown(IType Type)
+        {
+            exTypes.Add(Type);
+        }
+
+        /// <summary>
+        /// Append a throw of an unkown type to this exception analysis builder.
+        /// </summary>
+        public void AppendThrowUnknown()
+        {
+            MayThrowUnknown = true;
+        }
+
+        /// <summary>
+        /// Appends the given exception analysis result to this exception
+        /// analysis result, by appending all its known and unknown throws.
+        /// </summary>
+        public void AppendResult(ExceptionAnalysisResult Result)
+        {
+            if (Result.MayThrowUnknown)
+                AppendThrowUnknown();
+
+            exTypes.UnionWith(Result.KnownExceptionTypes);
+        }
+    }
+
+    /// <summary>
+    /// A type that captures the result of exception analysis.
+    /// </summary>
+    public struct ExceptionAnalysisResult
+    {
+        public this(ExceptionAnalysisResultBuilder Builder)
+        {
+            this.contents = Builder;
+        }
+
+        private ExceptionAnalysisResultBuilder contents;
+
+        /// <summary>
+        /// Gets a boolean that tells if exception analysis has discovered that
+        /// an exception of known or unknown type may be thrown.
+        /// </summary>
+        public bool MayThrow { get { return contents.MayThrow; } }
+
+        /// <summary>
+        /// Gets a boolean that tells if exception analysis has discovered
+        /// that exceptions of an unknown type may be thrown.
+        /// </summary>
+        public bool MayThrowUnknown { get { return contents.MayThrowUnknown; } }
+
+        /// <summary>
+        /// Gets the set of all known exception types that may be thrown.
+        /// </summary>
+        public IEnumerable<IType> KnownExceptionTypes
+        {
+            get { return contents.KnownExceptionTypes; }
+        }
+    }
+}
