@@ -88,6 +88,7 @@
     <Compile Include="AliasAnalysis/TypeAliasAnalysis.ds" />
   </ItemGroup>
   <ItemGroup Name="ExceptionAnalysis">
+    <Compile Include="ExceptionAnalysis/ExceptionAnalysisExtensions.ds" />
     <Compile Include="ExceptionAnalysis/ExceptionAnalysisResult.ds" />
     <Compile Include="ExceptionAnalysis/ExceptionAnalysisVisitor.ds" />
   </ItemGroup>

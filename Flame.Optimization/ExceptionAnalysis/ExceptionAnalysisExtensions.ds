@@ -1,0 +1,27 @@
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.ExceptionAnalysis
+{
+    public static class ExceptionAnalysisExtensions
+    {
+        /// <summary>
+        /// Gets the global exception analyzer for the given pass argument.
+        /// </summary>
+        public static ExceptionAnalyzer GetExceptionAnalyzer(
+            this BodyPassArgument PassArgument)
+        {
+            var metaDict = PassArgument.Metadata.GlobalMetadata;
+
+            string optName = "exception-analysis";
+            var result = metaDict.GetOption<ExceptionAnalyzer>(optName, null);
+            if (result == null)
+            {
+                result = new ExceptionAnalyzer(PassArgument.PassEnvironment);
+                metaDict.SetOption<ExceptionAnalyzer>(optName, result);
+            }
+
+            return result;
+        }
+    }
+}
