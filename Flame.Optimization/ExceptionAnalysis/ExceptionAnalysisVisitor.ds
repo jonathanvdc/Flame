@@ -1,0 +1,135 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.ExceptionAnalysis
+{
+    /// <summary>
+    /// A type of visitor that performs exception analysis.
+    /// </summary>
+    public class ExceptionAnalysisVisitor : INodeVisitor
+    {
+        public this(
+            set ExceptionAnalyzer Analyzer)
+        {
+            this.resultBuilder = new ExceptionAnalysisResultBuilder();
+        }
+
+        /// <summary>
+        /// Gets the exception analysis that is used to analyze methods.
+        /// </summary>
+        public ExceptionAnalyzer Analyzer { get; private set; }
+
+        private ExceptionAnalysisResultBuilder resultBuilder;
+
+        /// <summary>
+        /// Gets the body pass environment.
+        /// </summary>
+        public IBodyPassEnvironment PassEnvironment
+        {
+            get { return Analyzer.PassEnvironment; }
+        }
+
+        /// <summary>
+        /// Gets the result of this analysis.
+        /// </summary>
+        public ExceptionAnalysisResult Result
+        {
+            get { return new ExceptionAnalysisResult(resultBuilder); }
+        }
+
+        private void AnalyzeCallee(IMethod Method)
+        {
+            resultBuilder.AppendResult(Analyzer.Analyze(Method));
+        }
+
+        public IExpression Visit(IExpression Expression)
+        {
+            if (Expression is InvocationExpression)
+            {
+                // Analyze the callee.
+                var call = DissectedCallHelpers.DissectCall(
+                    (InvocationExpression)Expression);
+
+                if (call == null || call.IsVirtual)
+                {
+                    // Assume that the worst will happen.
+                    resultBuilder.AppendThrowUnknown();
+                }
+                else
+                {
+                    AnalyzeCallee(call.Method);
+                }
+            }
+            else if (Expression is NewObjectExpression)
+            {
+                // Analyze the callee.
+                AnalyzeCallee(
+                    ((NewObjectExpression)Expression).Constructor);
+            }
+
+            return Expression.Accept(this);
+        }
+
+        public IStatement Visit(IStatement Statement)
+        {
+            if (Statement is ThrowStatement)
+            {
+                var throwStmt = (ThrowStatement)Statement;
+                resultBuilder.AppendThrowKnown(throwStmt.Exception.Type);
+            }
+            return Statement.Accept(this);
+        }
+    }
+
+    /// <summary>
+    /// An analyzer that tries to figure out which types of exceptions methods
+    /// may throw.
+    /// </summary>
+    public class ExceptionAnalyzer : OptimisticAnalysisBase<IMethod, ExceptionAnalysisResult>
+    {
+        public this(set IBodyPassEnvironment PassEnvironment)
+        {
+            var builder = new ExceptionAnalysisResultBuilder();
+            builder.AppendThrowUnknown();
+            PessimisticAssumption = new ExceptionAnalysisResult(builder);
+        }
+
+        /// <summary>
+        /// Gets the body pass environment.
+        /// </summary>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        private ExceptionAnalysisResult PessimisticAssumption { get; private set; }
+
+        /// <inheritdoc/>
+        protected override ExceptionAnalysisResult GetInitialAssumption(IMethod Value)
+        {
+            // Assume that the method does not throw any exceptions.
+            return new ExceptionAnalysisResult(
+                new ExceptionAnalysisResultBuilder());
+        }
+
+        /// <summary>
+        /// Analyzes the given value.
+        /// </summary>
+        protected override ExceptionAnalysisResult ComputeAnalysis(IMethod Value)
+        {
+            var body = PassEnvironment.GetMethodBody(Value);
+            if (body == null)
+            {
+                // Assume the callee may throw some unknown exception.
+                return PessimisticAssumption;
+            }
+            else
+            {
+                var visitor = new ExceptionAnalysisVisitor(this);
+                visitor.Visit(body);
+                return visitor.Result;
+            }
+        }
+    }
+}

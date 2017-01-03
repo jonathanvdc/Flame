@@ -89,5 +89,6 @@
   </ItemGroup>
   <ItemGroup Name="ExceptionAnalysis">
     <Compile Include="ExceptionAnalysis/ExceptionAnalysisResult.ds" />
+    <Compile Include="ExceptionAnalysis/ExceptionAnalysisVisitor.ds" />
   </ItemGroup>
 </Project>
