@@ -10,6 +10,7 @@ using Flame.Compiler.Statements;
 using Flame.Compiler.Visitors;
 using Flame.Compiler.Variables;
 using Flame.Optimization.AliasAnalysis;
+using Flame.Optimization.ExceptionAnalysis;
 
 namespace Flame.Optimization
 {
@@ -173,40 +174,72 @@ namespace Flame.Optimization
             return result;
         }
 
+        private static string SynthesizeConstructorDescription(IMethod Constructor)
+        {
+            var ctorName = new StringBuilder();
+            ctorName.Append(Constructor.FullName.ToString());
+            ctorName.Append("(");
+            bool first = true;
+            foreach (var item in Constructor.Parameters)
+            {
+                if (first)
+                    first = false;
+                else
+                    ctorName.Append(", ");
+
+                ctorName.Append(item.ParameterType.FullName.ToString());
+            }
+            ctorName.Append(")");
+            return ctorName.ToString();
+        }
+
         private static bool InPlaceIsObservableImpl(
             IMethod Constructor, BodyPassArgument PassArgument)
         {
+            var log = PassArgument.PassEnvironment.Log;
+            bool shouldRemark = log.Options.ShouldRemark(
+                NewValueTypeLoweringPass.NewValueTypeOptimizationPassName);
+
+            // Perform relatively cheap exception analysis first.
+            var exceptionAnalyzer = PassArgument.GetExceptionAnalyzer();
+
+            if (exceptionAnalyzer.Analyze(Constructor).MayThrow)
+            {
+                if (shouldRemark)
+                {
+                    var exceptionLoc = Constructor.GetSourceLocation();
+
+                    log.LogMessage(new LogEntry(
+                        "optimization remark",
+                        "new-object expressions that use constructor '" +
+                        SynthesizeConstructorDescription(Constructor) +
+                        "' cannot be replaced by a direct call, because the " +
+                        "constructor may throw an exception.",
+                        exceptionLoc));
+                }
+
+                return true;
+            }
+
+            // Try non-derived alias analysis.
             var visitor = NonDerivedAliasFinder.AnalyzeMethod(
                 Constructor, PassArgument.GetAliasAnalysis(),
                 PassArgument.PassEnvironment,
                 new ThisVariable(Constructor.DeclaringType).CreateGetExpression());
 
-            var log = PassArgument.PassEnvironment.Log;
-            bool shouldRemark = log.Options.ShouldRemark(
-                NewValueTypeLoweringPass.NewValueTypeOptimizationPassName);
             if (visitor.FoundAnyAliases && shouldRemark)
             {
-                var ctorName = new StringBuilder();
-                ctorName.Append(Constructor.FullName.ToString());
-                ctorName.Append("(");
-                bool first = true;
-                foreach (var item in Constructor.Parameters)
-                {
-                    if (first)
-                        first = false;
-                    else
-                        ctorName.Append(", ");
+                var aliasLoc = visitor.AliasLocation;
+                if (aliasLoc == null)
+                    aliasLoc = Constructor.GetSourceLocation();
 
-                    ctorName.Append(item.ParameterType.FullName.ToString());
-                }
-                ctorName.Append(")");
                 log.LogMessage(new LogEntry(
                     "optimization remark",
                     "new-object expressions that use constructor '" +
-                    ctorName.ToString() +
+                    SynthesizeConstructorDescription(Constructor) +
                     "' cannot be replaced by a direct call, because the 'this' " +
                     "pointer might have an alias.",
-                    visitor.AliasLocation));
+                    aliasLoc));
             }
 
             return visitor.FoundAnyAliases;
