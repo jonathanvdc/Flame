@@ -1,0 +1,265 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Flame;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A data structure that remembers data related to optimistic analyses.
+    /// This data structure is not thread-safe.
+    /// </summary>
+    public class OptimisticAnalysisAssumptionCache<TAnalyzed, TAnalysis>
+    {
+        public this()
+        {
+            this.Clear();
+        }
+
+        /// <summary>
+        /// Resets this analysis assumption cache's state.
+        /// </summary>
+        public void Clear()
+        {
+            conditionalResults = new Dictionary<TAnalyzed, Tuple<TAnalysis, int, int>>();
+            analysisDependencies = new Dictionary<int, HashSet<TAnalyzed>>();
+            analysisDependencies[0] = new HashSet<TAnalyzed>();
+            analysisStack = new Stack<TAnalyzed>();
+        }
+
+        // A dictionary that maps analyzed values to their conditional results,
+        // the indices of the last assumption on which they depend, and their
+        // own indices.
+        private Dictionary<TAnalyzed, Tuple<TAnalysis, int, int>> conditionalResults;
+
+        // A dictionary that maps analyzed value indices to the sets of
+        // analyzed values that depend on the former analyzed values.
+        private Dictionary<int, HashSet<TAnalyzed>> analysisDependencies;
+
+        // A stack of values that are being analyzed.
+        private Stack<TAnalyzed> analysisStack;
+
+        /// <summary>
+        /// Gets the top-of-stack element, that is, the element which is
+        /// currently being analyzed.
+        /// </summary>
+        private TAnalyzed Current
+        {
+            get { return analysisStack.Peek(); }
+        }
+
+        /// <summary>
+        /// Gets the index of the element that is currently being analyzed.
+        /// </summary>
+        private int CurrentIndex
+        {
+            get { return analysisStack.Count; }
+        }
+
+        /// <summary>
+        /// Checks if the current state is 'dirty,' i.e., it depends on an
+        /// assumption made for at least one value that is not the current
+        /// value.
+        /// </summary>
+        private bool IsDirty
+        {
+            get { return conditionalResults[Current].Item2 > 0; }
+        }
+
+        /// <summary>
+        /// Makes the current analyzed value dependent on the analyzed value
+        /// with the given index.
+        /// </summary>
+        private void UpdateDependencyIndex(int Index)
+        {
+            var oldDepTuple = conditionalResults[Current];
+            int oldIndex = oldDepTuple.Item2;
+            int ownIndex = oldDepTuple.Item3;
+            if (Index <= oldIndex || Index >= ownIndex)
+            {
+                // Do nothing. The current result already depends on a
+                // later assumption, or its own assumption eclipses the
+                // given analyzed value index.
+                return;
+            }
+
+            var newDepTuple = new Tuple<TAnalysis, int, int>(
+                oldDepTuple.Item1, Index, ownIndex);
+
+            // Update the entry in the table.
+            conditionalResults[Current] = newDepTuple;
+
+            // Update the dependency sets.
+            analysisDependencies[oldIndex].Remove(Current);
+            analysisDependencies[Index].Add(Current);
+        }
+
+        /// <summary>
+        /// Tries to add a dependency on the assumption for the given value.
+        /// If there is such an assumption, then 'true' is returned and the
+        /// result is written to the given reference. Otherwise, 'false' is
+        /// returned.
+        /// </summary>
+        public bool TryAddDependency(TAnalyzed Value, out TAnalysis^ Result)
+        {
+            Tuple<TAnalysis, int, int> depTuple;
+            if (conditionalResults.TryGetValue(Value, &depTuple))
+            {
+                *Result = depTuple.Item1;
+                UpdateDependencyIndex(depTuple.Item2);
+                return true;
+            }
+            else
+            {
+                *Result = default(TAnalysis);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Pushes an analyzed value onto the analysis stack, and makes the
+        /// given assumption about the analysis' result.
+        /// </summary>
+        public void Push(TAnalyzed Value, TAnalysis Assumption)
+        {
+            analysisStack.Push(Value);
+            conditionalResults[Value] = new Tuple<TAnalysis, int, int>(
+                Assumption, 0, CurrentIndex);
+            analysisDependencies[CurrentIndex] = new HashSet<TAnalyzed>();
+        }
+
+        /// <summary>
+        /// Pops an item from the evaluation stack, sets its analysis result
+        /// to the given value, and returns a value that tells if the analysis
+        /// is complete, i.e., it does not depend on any assumptions other than
+        /// its own.
+        /// </summary>
+        public bool Pop(TAnalysis Result)
+        {
+            // We return a boolean that tells if the analyzed value is dirty.
+            bool resultIsDirty = IsDirty;
+
+            // Get the set of values that depend on the current analysis.
+            var deps = analysisDependencies[CurrentIndex];
+            analysisDependencies.Remove(CurrentIndex);
+
+            // Pop the value on top of the analysis stack.
+            var popped = analysisStack.Pop();
+
+            var oldResult = conditionalResults[popped];
+            conditionalResults[popped] = new Tuple<TAnalysis, int, int>(
+                Result, oldResult.Item2, oldResult.Item3);
+
+            // Purge all elements that depend on the assumption made by this
+            // analysis.
+            foreach (var item in deps)
+            {
+                conditionalResults.Remove(item);
+            }
+
+            if (analysisStack.Count == 0)
+            {
+                Clear();
+            }
+
+            return !resultIsDirty;
+        }
+    }
+
+    /// <summary>
+    /// A base class for thread-safe optimistic analyses which may be
+    /// interdependent, even cyclically.
+    /// </summary>
+    public abstract class OptimisticAnalysisBase<TAnalyzed, TAnalysis>
+    {
+        public this()
+        {
+            finalResults = new Dictionary<TAnalyzed, TAnalysis>();
+            resultLock = new ReaderWriterLockSlim();
+            assumptions = new ThreadLocal<OptimisticAnalysisAssumptionCache<TAnalyzed, TAnalysis>>(
+                CreateAssumptionCache);
+        }
+
+        private OptimisticAnalysisAssumptionCache<TAnalyzed, TAnalysis> CreateAssumptionCache()
+        {
+            return new OptimisticAnalysisAssumptionCache<TAnalyzed, TAnalysis>();
+        }
+
+        /// <summary>
+        /// Gets the initial assumption of what the analysis result for the
+        /// given value will be. This assumption will persist until the
+        /// analysis for the value is complete, at which point it will be
+        /// discarded. Any analyses of other values that rely on this initial
+        /// assumption will be discarded.
+        /// </summary>
+        protected abstract TAnalysis GetInitialAssumption(TAnalyzed Value);
+
+        /// <summary>
+        /// Analyzes the given value.
+        /// </summary>
+        protected abstract TAnalysis ComputeAnalysis(TAnalyzed Value);
+
+        // A dictionary that maps analyses to their results.
+        private Dictionary<TAnalyzed, TAnalysis> finalResults;
+
+        // A reader-writer lock that protects the final results.
+        private ReaderWriterLockSlim resultLock;
+
+        // The assumption cache.
+        private ThreadLocal<OptimisticAnalysisAssumptionCache<TAnalyzed, TAnalysis>> assumptions;
+
+        /// <summary>
+        /// Analyzes the given value. If an analysis has already been computed,
+        /// then that analysis is returned. Otherwise, the analysis is actually
+        /// performed. If possible, it is then memoized.
+        /// </summary>
+        public TAnalysis Analyze(TAnalyzed Value)
+        {
+            TAnalysis result;
+
+            var assumptionCache = assumptions.Value;
+
+            // Check the assumptions map first, because that doesn't require
+            // locking.
+            if (assumptionCache.TryAddDependency(Value, &result))
+            {
+                return result;
+            }
+
+            // Acquire a read lock, and try to discover if we've already
+            // done this analysis.
+            resultLock.EnterReadLock();
+            try
+            {
+                if (finalResults.TryGetValue(Value, &result))
+                {
+                    // There. Easy enough, right?
+                    return result;
+                }
+            }
+            finally
+            {
+                resultLock.ExitReadLock();
+            }
+
+            // Actually compute the analysis.
+            assumptionCache.Push(Value, GetInitialAssumption(Value));
+            result = ComputeAnalysis(Value);
+            if (assumptionCache.Pop(result))
+            {
+                // Acquire a write lock, and update the result.
+                resultLock.EnterWriteLock();
+                try
+                {
+                    finalResults[Value] = result;
+                }
+                finally
+                {
+                    resultLock.ExitWriteLock();
+                }
+            }
+
+            return result;
+        }
+    }
+}
