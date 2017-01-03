@@ -125,7 +125,7 @@ namespace Flame.Optimization
                         // If we're allowed to use alias analysis, then
                         // we can still try that as a last resort.
                         if (UseAliasAnalysis)
-                            return !ContainsNonDerivedThisAliases(
+                            return !InPlaceIsObservable(
                                 Constructor, PassArgument);
                         else
                             return false;
@@ -139,7 +139,7 @@ namespace Flame.Optimization
                     // A constructor is only naively applicable if it does not
                     // contain any potential aliases for the 'this' pointer
                     // that are not derived from the 'this' pointer itself.
-                    return !ContainsNonDerivedThisAliases(Constructor, PassArgument);
+                    return !InPlaceIsObservable(Constructor, PassArgument);
                 else
                     // Non-pure constructors can use static variables to change
                     // their own state.
@@ -148,13 +148,13 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Tests if the given constructor uses any potential aliases for
-        /// the 'this' pointer that are not derived from the 'this' pointer.
+        /// Tests if in-place application of the given constructor may be
+        /// externally observable.
         /// </summary>
-        public static bool ContainsNonDerivedThisAliases(
+        public static bool InPlaceIsObservable(
             IMethod Constructor, BodyPassArgument PassArgument)
         {
-            string optionName = "non-derived-this-alias-analysis";
+            string optionName = "in-place-is-observable";
             var globalData = PassArgument.Metadata.GlobalMetadata;
             var dict = globalData.GetOption<Dictionary<IMethod, bool>>(
                 optionName, null);
@@ -166,14 +166,14 @@ namespace Flame.Optimization
             bool result;
             if (!dict.TryGetValue(Constructor, &result))
             {
-                result = ContainsNonDerivedThisAliasesImpl(
+                result = InPlaceIsObservableImpl(
                     Constructor, PassArgument);
                 dict[Constructor] = result;
             }
             return result;
         }
 
-        private static bool ContainsNonDerivedThisAliasesImpl(
+        private static bool InPlaceIsObservableImpl(
             IMethod Constructor, BodyPassArgument PassArgument)
         {
             var visitor = NonDerivedAliasFinder.AnalyzeMethod(
