@@ -1,0 +1,41 @@
+using System;
+
+public class FibGen
+{
+    public this() { }
+
+    public long Fib(long i)
+    {
+        if (i < 0)
+            throw new ArgumentException();
+        else if (i == 0)
+            return 0;
+        else if (i == 1)
+            return 1;
+        else
+            return Fib(i - 1) + Fib(i - 2);
+    }
+}
+
+public struct FibPair
+{
+    public this(set long Index, FibGen Gen)
+    {
+        // Test if the alias analysis is smart enough to understand that
+        // the `FibGen` reference can never alias with the `this` pointer.
+        this.Value = Gen.Fib(Index);
+    }
+
+    public long Index { get; private set; }
+    public long Value { get; private set; }
+}
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        var fPair = new FibPair(4, new FibGen());
+        Console.WriteLine(fPair.Index);
+        Console.WriteLine(fPair.Value);
+    }
+}
