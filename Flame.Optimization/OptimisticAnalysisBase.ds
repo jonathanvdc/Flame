@@ -228,18 +228,21 @@ namespace Flame.Optimization
 
             // Acquire a read lock, and try to discover if we've already
             // done this analysis.
+            bool resultExists;
             resultLock.EnterReadLock();
             try
             {
-                if (finalResults.TryGetValue(Value, &result))
-                {
-                    // There. Easy enough, right?
-                    return result;
-                }
+                resultExists = finalResults.TryGetValue(Value, &result);
             }
             finally
             {
                 resultLock.ExitReadLock();
+            }
+
+            if (resultExists)
+            {
+                // There. Easy enough, right?
+                return result;
             }
 
             // Actually compute the analysis.
