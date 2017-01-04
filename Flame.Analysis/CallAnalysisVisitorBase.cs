@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Optimization;
 
 namespace Flame.Analysis
 {
@@ -19,7 +20,7 @@ namespace Flame.Analysis
 
         public override bool Analyze(IExpression Value)
         {
-            var call = AnalysisHelpers.DissectCall(Value);
+            var call = DissectedCallHelpers.DissectCall(Value);
             if (call == null)
             {
                 return false;   

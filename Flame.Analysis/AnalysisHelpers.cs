@@ -28,20 +28,5 @@ namespace Flame.Analysis
                 return IsThisVariable(((ConversionExpressionBase)innerNode).Value);
 			return false;
         }
-
-        public static DissectedCall DissectCall(IExpression Node)
-        {
-            if (Node is InvocationExpression)
-            {
-                var invExpr = (InvocationExpression)Node;
-                var invTrgt = invExpr.Target.GetEssentialExpression();
-                if (invTrgt is GetMethodExpression)
-                {
-                    var target = (GetMethodExpression)invTrgt;
-                    return new DissectedCall(target.Caller, target.Target, invExpr.Arguments, target.Op.Equals(Operator.GetVirtualDelegate));
-                }
-            }
-            return null;
-        }
     }
 }

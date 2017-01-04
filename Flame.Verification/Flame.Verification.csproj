@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -49,6 +49,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Flame.Optimization">
+      <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessorVerifier.cs" />
@@ -71,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame.Analysis\Flame.Analysis.csproj">
-      <Project>{f998b4b6-9c78-4451-9c48-0467549adebf}</Project>
+      <Project>{F998B4B6-9C78-4451-9C48-0467549ADEBF}</Project>
       <Name>Flame.Analysis</Name>
     </ProjectReference>
   </ItemGroup>

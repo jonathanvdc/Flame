@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Optimization;
 
 namespace Flame.Analysis
 {
@@ -47,7 +48,7 @@ namespace Flame.Analysis
         {
             return new Func<INode, bool>(node =>
             {
-                var call = AnalysisHelpers.DissectCall(node as IExpression);
+                var call = DissectedCallHelpers.DissectCall(node as IExpression);
                 return call != null && Matches(call);
             });
         }
