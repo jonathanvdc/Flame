@@ -27,7 +27,7 @@ namespace Flame.Intermediate.Parsing
         public const string ReturnNodeName = "#return";
         public const string ThrowNodeName = "#throw";
         public const string AssertNodeName = "#assert";
-        public const string ContractNodeName = "#contract";
+		public const string ContractNodeName = "#contract";
 
         /// <summary>
         /// Defines a node type for yield-return nodes.
@@ -49,22 +49,22 @@ namespace Flame.Intermediate.Parsing
         /// </remarks>
         public const string YieldBreakNodeName = "#yield_break";
 
-        #region Flow graph
+		#region Flow graph
 
-        /// <summary>
-        /// Defines a node type for basic block nodes.
-        /// </summary>
-        public const string BasicBlockNodeName = "#basic_block";
+		/// <summary>
+		/// Defines a node type for basic block nodes.
+		/// </summary>
+		public const string BasicBlockNodeName = "#basic_block";
 
-        /// <summary>
-        /// Defines a node type for flow graph nodes.
-        /// </summary>
-        public const string FlowGraphNodeName = "#flow_graph";
+		/// <summary>
+		/// Defines a node type for flow graph nodes.
+		/// </summary>
+		public const string FlowGraphNodeName = "#flow_graph";
 
-        /// <summary>
-        /// Defines a node type that hints at unreachable control flow.
-        /// </summary>
-        public const string UnreachableFlowNodeName = "#unreachable";
+		/// <summary>
+		/// Defines a node type that hints at unreachable control flow.
+		/// </summary>
+		public const string UnreachableFlowNodeName = "#unreachable";
 
         /// <summary>
         /// Defines a node type that hints at terminated control flow.
@@ -77,23 +77,23 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public const string ExitFlowNodeName = "#exit";
 
-        /// <summary>
-        /// Defines a node type that encodes an unconditional branch
-        /// to a basic block.
-        /// </summary>
-        public const string JumpFlowNodeName = "#jump";
+		/// <summary>
+		/// Defines a node type that encodes an unconditional branch
+		/// to a basic block.
+		/// </summary>
+		public const string JumpFlowNodeName = "#jump";
 
-        /// <summary>
-        /// Defines a node type that encodes a condition branch to
-        /// one of two basic blocks.
-        /// </summary>
-        public const string SelectFlowNodeName = "#select";
+		/// <summary>
+		/// Defines a node type that encodes a condition branch to
+		/// one of two basic blocks.
+		/// </summary>
+		public const string SelectFlowNodeName = "#select";
 
-        /// <summary>
-        /// A node type that encodes data related to
-        /// control flow graph branches.
-        /// </summary>
-        public const string BranchNodeName = "#branch";
+		/// <summary>
+		/// A node type that encodes data related to
+		/// control flow graph branches.
+		/// </summary>
+		public const string BranchNodeName = "#branch";
 
         /// <summary>
         /// A node type that encodes a 'try' flow instruction.
@@ -121,7 +121,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public const string CaughtExceptionNodeName = "#caught_exception";
 
-        #endregion
+		#endregion
 
         #endregion
 
@@ -444,8 +444,8 @@ namespace Flame.Intermediate.Parsing
         public static readonly string SetLocalNodeName = CreateSetVariableName(LocalVariableKindName);
         public static readonly string ReleaseLocalNodeName = CreateReleaseVariableName(LocalVariableKindName);
         public static readonly string AddressOfLocalNodeName = CreateAddressOfVariableName(LocalVariableKindName);
-        public const string DefineLocalNodeName = "#def_local";
-        public const string DefineSSALocalNodeName = "#def_ssa_local";
+		public const string DefineLocalNodeName = "#def_local";
+		public const string DefineSSALocalNodeName = "#def_ssa_local";
 
         /// <summary>
         /// Gets the "element" variable kind name.
@@ -467,12 +467,12 @@ namespace Flame.Intermediate.Parsing
         public static readonly string ReleaseFieldNodeName = CreateReleaseVariableName(FieldVariableKindName);
         public static readonly string AddressOfFieldNodeName = CreateAddressOfVariableName(FieldVariableKindName);
 
-        /// <summary>
-        /// Gets the return value ("retval") variable kind name.
-        /// </summary>
-        public const string ReturnValueVariableKindName = "retval";
+		/// <summary>
+		/// Gets the return value ("retval") variable kind name.
+		/// </summary>
+		public const string ReturnValueVariableKindName = "retval";
 
-        public static readonly string GetReturnValueNodeName = CreateGetVariableName(ReturnValueVariableKindName);
+		public static readonly string GetReturnValueNodeName = CreateGetVariableName(ReturnValueVariableKindName);
 
         #endregion
 
@@ -494,16 +494,15 @@ namespace Flame.Intermediate.Parsing
 
         #region Parser Helpers
 
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
+        public static Func<ParserState, LNode, IExpression> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
         {
-            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyValueStructure<IExpression>(node, () => ParseExpression(state, node)));
+            return ParseExpression;
         }
 
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
+        public static Func<ParserState, LNode, IExpression> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
         {
-            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyValueStructure<IExpression>(node, () => ParseLiteral(node.Args[0].Value)));
+            return new Func<ParserState, LNode, IExpression>((state, node) => 
+                ParseLiteral(node.Args[0].Value));
         }
 
         #endregion
@@ -567,10 +566,15 @@ namespace Flame.Intermediate.Parsing
         /// <param name="State"></param>
         /// <param name="Nodes"></param>
         /// <returns></returns>
-        public static IEnumerable<IExpression> ParseExpressions(ParserState State, IEnumerable<LNode> Nodes)
+        public static IExpression[] ParseExpressions(ParserState State, IEnumerable<LNode> Nodes)
         {
             var parser = State.Parser.ExpressionParser;
-            return Nodes.Select(item => parser.Parse(State, item));
+            var results = new List<IExpression>();
+            foreach (var node in Nodes)
+            {
+                results.Add(parser.Parse(State, node));
+            }
+            return results.ToArray();
         }
 
         #endregion
@@ -661,27 +665,27 @@ namespace Flame.Intermediate.Parsing
             }
         }
 
-        /// <summary>
-        /// Parses a '#contract' node.
-        /// </summary>
-        /// <returns>An expression that contains a contract body statement.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        public static IExpression ParseContract(ParserState State, LNode Node)
-        {
-            if (Node.ArgCount != 3)
-            {
-                return new ErrorExpression(VoidExpression.Instance,
-                    new LogEntry("Invalid '" + ContractNodeName + "' node",
-                        "'" + ContractNodeName + "' nodes take exactly three arguments."));
-            }
+		/// <summary>
+		/// Parses a '#contract' node.
+		/// </summary>
+		/// <returns>An expression that contains a contract body statement.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParseContract(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 3)
+			{
+				return new ErrorExpression(VoidExpression.Instance,
+					new LogEntry("Invalid '" + ContractNodeName + "' node",
+						"'" + ContractNodeName + "' nodes take exactly three arguments."));
+			}
 
-            var body = ToStatement(ParseExpression(State, Node.Args[0]));
+			var body = ToStatement(ParseExpression(State, Node.Args[0]));
             var pre = ToStatement(ParseExpression(State, Node.Args[1]));
             var post = ToStatement(ParseExpression(State, Node.Args[2]));
 
-            return ToExpression(new ContractBodyStatement(body, pre, post));
-        }
+			return ToExpression(new ContractBodyStatement(body, pre, post));
+		}
 
         /// <summary>
         /// Parses a '#try' node.
@@ -782,7 +786,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static IExpression ParseBlock(ParserState State, LNode Node)
         {
-            var exprs = ParseExpressions(State, Node.Args).ToArray();
+            var exprs = ParseExpressions(State, Node.Args);
             var valueExpr = exprs.Select((item, index) => Tuple.Create(item, index))
                                  .LastOrDefault(item => !object.Equals(item.Item1.Type, PrimitiveTypes.Void));
             if (valueExpr == null)
@@ -981,9 +985,9 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Parser"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, UniqueTag, IExpression> Parse)
+        public static Func<ParserState, LNode, IExpression> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, UniqueTag, IExpression> Parse)
         {
-            var func = new Func<ParserState, LNode, IExpression>((state, node) =>
+            return new Func<ParserState, LNode, IExpression>((state, node) =>
             {
                 string tagName = GetTag(node);
                 var tag = new UniqueTag(tagName);
@@ -997,7 +1001,7 @@ namespace Flame.Intermediate.Parsing
 
                     if (IRParser.GetIdOrString(n.Args[0]) == tagName)
                     {
-                        return new ConstantNodeStructure<IExpression>(n, new TagReferenceExpression(tag));
+                        return new TagReferenceExpression(tag);
                     }
                     else
                     {
@@ -1008,7 +1012,6 @@ namespace Flame.Intermediate.Parsing
                 var newState = state.WithParser(newParser);
                 return Parse(newState, node, tag);
             });
-            return CreateParser(func);
         }
 
         /// <summary>
@@ -1030,69 +1033,69 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
-        #region Control flow graphs
+		#region Control flow graphs
 
-        /// <summary>
-        /// Parses the given SSA local reference node.
-        /// </summary>
-        /// <returns>The SSA local.</returns>
-        /// <param name="State"></param>
-        /// <param name="LocalIdentifier"></param>
-        public static SSAVariable ParseSSALocal(
-            ParserState State, LNode LocalIdentifier)
-        {
-            var localVar = ParseLocal(State, LocalIdentifier) as SSAVariable;
-            if (localVar == null)
-            {
-                throw new InvalidOperationException(
-                    "Expected an SSA local, which " +
-                    "must be declared as '" + DefineSSALocalNodeName + "', " +
-                    "not as '" + DefineLocalNodeName + "'.");
-            }
-            return localVar;
-        }
+		/// <summary>
+		/// Parses the given SSA local reference node.
+		/// </summary>
+		/// <returns>The SSA local.</returns>
+		/// <param name="State"></param>
+		/// <param name="LocalIdentifier"></param>
+		public static SSAVariable ParseSSALocal(
+			ParserState State, LNode LocalIdentifier)
+		{
+			var localVar = ParseLocal(State, LocalIdentifier) as SSAVariable;
+			if (localVar == null)
+			{
+				throw new InvalidOperationException(
+					"Expected an SSA local, which " +
+					"must be declared as '" + DefineSSALocalNodeName + "', " +
+					"not as '" + DefineLocalNodeName + "'.");
+			}
+			return localVar;
+		}
 
-        /// <summary>
-        /// Parses the given basic block branch node.
-        /// </summary>
-        /// <returns>The basic block branch.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        /// <param name="Tags">
-        /// A dictionary that contains all relevant basic block tags
-        /// for this basic block branch.
-        /// </param>
-        public static BlockBranch ParseBasicBlockBranch(
-            ParserState State, LNode Node,
-            IReadOnlyDictionary<string, UniqueTag> Tags)
-        {
-            var targetTag = Tags[IRParser.GetIdOrString(Node.Args[0])];
-            var args = Node.Args.Slice(1).Select(item => ParseSSALocal(State, item)).ToArray();
-            return new BlockBranch(targetTag, args);
-        }
+		/// <summary>
+		/// Parses the given basic block branch node.
+		/// </summary>
+		/// <returns>The basic block branch.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic block branch.
+		/// </param>
+		public static BlockBranch ParseBasicBlockBranch(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			var targetTag = Tags[IRParser.GetIdOrString(Node.Args[0])];
+			var args = Node.Args.Slice(1).Select(item => ParseSSALocal(State, item)).ToArray();
+			return new BlockBranch(targetTag, args);
+		}
 
-        /// <summary>
-        /// Parses the given outgoing basic block flow
-        /// node.
-        /// </summary>
-        /// <returns>The outgoing basic block flow.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        /// <param name="Tags">
-        /// A dictionary that contains all relevant basic block tags
-        /// for this basic flow node.
-        /// </param>
-        public static BlockFlow ParseBasicBlockFlow(
-            ParserState State, LNode Node,
-            IReadOnlyDictionary<string, UniqueTag> Tags)
-        {
-            string type = Node.Name.Name;
-            if (type == JumpFlowNodeName)
-            {
-                // #jump(#branch(...))
+		/// <summary>
+		/// Parses the given outgoing basic block flow
+		/// node.
+		/// </summary>
+		/// <returns>The outgoing basic block flow.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic flow node.
+		/// </param>
+		public static BlockFlow ParseBasicBlockFlow(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			string type = Node.Name.Name;
+			if (type == JumpFlowNodeName)
+			{
+				// #jump(#branch(...))
 
-                return new JumpFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
-            }
+				return new JumpFlow(ParseBasicBlockBranch(State, Node.Args[0], Tags));
+			}
             else if (type == TryFlowNodeName)
             {
                 // #try(#branch(...))
@@ -1127,21 +1130,21 @@ namespace Flame.Intermediate.Parsing
                 }
                 return new GuardedFlow(successBranch, finallyBranch, ehBranches);
             }
-            else if (type == SelectFlowNodeName)
-            {
-                // #select(cond, #branch(...), #branch(...))
+			else if (type == SelectFlowNodeName)
+			{
+				// #select(cond, #branch(...), #branch(...))
 
-                var cond = ParseExpression(State, Node.Args[0]);
-                var ifBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
-                var elseBranch = ParseBasicBlockBranch(State, Node.Args[2], Tags);
-                return new SelectFlow(cond, ifBranch, elseBranch);
-            }
-            else if (type == UnreachableFlowNodeName)
-            {
-                // #unreachable
+				var cond = ParseExpression(State, Node.Args[0]);
+				var ifBranch = ParseBasicBlockBranch(State, Node.Args[1], Tags);
+				var elseBranch = ParseBasicBlockBranch(State, Node.Args[2], Tags);
+				return new SelectFlow(cond, ifBranch, elseBranch);
+			}
+			else if (type == UnreachableFlowNodeName)
+			{
+				// #unreachable
 
-                return UnreachableFlow.Instance;
-            }
+				return UnreachableFlow.Instance;
+			}
             else if (type == TerminatedFlowNodeName)
             {
                 // #terminated
@@ -1154,63 +1157,63 @@ namespace Flame.Intermediate.Parsing
 
                 return ExitFlow.Instance;
             }
-            else
-            {
-                throw new NotSupportedException(
-                    "Unknown flow node type: '" + type + "'.");
-            }
-        }
+			else
+			{
+				throw new NotSupportedException(
+					"Unknown flow node type: '" + type + "'.");
+			}
+		}
 
-        /// <summary>
-        /// Parses the given basic block node.
-        /// </summary>
-        /// <returns>The basic block.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node">The node to parse.</param>
-        /// <param name="Tags">
-        /// A dictionary that contains all relevant basic block tags
-        /// for this basic block.
-        /// </param>
-        public static BasicBlock ParseBasicBlock(
-            ParserState State, LNode Node,
-            IReadOnlyDictionary<string, UniqueTag> Tags)
-        {
-            if (Node.ArgCount != 4)
-            {
-                throw new InvalidOperationException(
-                    "'" + BasicBlockNodeName + "' nodes take exactly four " +
-                    "arguments: a tag, a parameter list, a body statement, " +
-                    "and a final flow node.");
-            }
+		/// <summary>
+		/// Parses the given basic block node.
+		/// </summary>
+		/// <returns>The basic block.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node">The node to parse.</param>
+		/// <param name="Tags">
+		/// A dictionary that contains all relevant basic block tags
+		/// for this basic block.
+		/// </param>
+		public static BasicBlock ParseBasicBlock(
+			ParserState State, LNode Node,
+			IReadOnlyDictionary<string, UniqueTag> Tags)
+		{
+			if (Node.ArgCount != 4)
+			{
+				throw new InvalidOperationException(
+					"'" + BasicBlockNodeName + "' nodes take exactly four " +
+					"arguments: a tag, a parameter list, a body statement, " +
+					"and a final flow node.");
+			}
 
-            var tag = Tags[IRParser.GetIdOrString(Node.Args[0])];
-            // Synthesize a #get_local(tag) node for every parameter.
-            // Then parse that, and extract the SSA local it contains.
-            var parameterNodes = Node.Args[1].Args;
-            var parameters = parameterNodes.Select(item => ParseSSALocal(State, item)).ToArray();
-            var body = ToStatement(ParseExpression(State, Node.Args[2]));
-            var flow = ParseBasicBlockFlow(State, Node.Args[3], Tags);
+			var tag = Tags[IRParser.GetIdOrString(Node.Args[0])];
+			// Synthesize a #get_local(tag) node for every parameter.
+			// Then parse that, and extract the SSA local it contains.
+			var parameterNodes = Node.Args[1].Args;
+			var parameters = parameterNodes.Select(item => ParseSSALocal(State, item)).ToArray();
+			var body = ToStatement(ParseExpression(State, Node.Args[2]));
+			var flow = ParseBasicBlockFlow(State, Node.Args[3], Tags);
 
-            return new BasicBlock(tag, parameters, body, flow);
-        }
+			return new BasicBlock(tag, parameters, body, flow);
+		}
 
-        /// <summary>
-        /// Parses a flow graph node.
-        /// </summary>
-        /// <returns>The flow graph.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node">The node to parse.</param>
-        public static IExpression ParseFlowGraph(ParserState State, LNode Node)
-        {
-            var blockNodes = Node.Args[1].Args;
-            var tags = blockNodes
-                .Select(item => IRParser.GetIdOrString(item.Args[0]))
-                .ToDictionary(item => item, item => new UniqueTag(item));
-            var epTag = tags[IRParser.GetIdOrString(Node.Args[0])];
-            var blocks = blockNodes.Select(item => ParseBasicBlock(State, item, tags)).ToArray();
+		/// <summary>
+		/// Parses a flow graph node.
+		/// </summary>
+		/// <returns>The flow graph.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node">The node to parse.</param>
+		public static IExpression ParseFlowGraph(ParserState State, LNode Node)
+		{
+			var blockNodes = Node.Args[1].Args;
+			var tags = blockNodes
+				.Select(item => IRParser.GetIdOrString(item.Args[0]))
+				.ToDictionary(item => item, item => new UniqueTag(item));
+			var epTag = tags[IRParser.GetIdOrString(Node.Args[0])];
+			var blocks = blockNodes.Select(item => ParseBasicBlock(State, item, tags)).ToArray();
 
-            return ToExpression(new FlowGraphStatement(new FlowGraph(epTag, blocks)));
-        }
+			return ToExpression(new FlowGraphStatement(new FlowGraph(epTag, blocks)));
+		}
 
         /// <summary>
         /// Parses a caught exception node.
@@ -1231,7 +1234,7 @@ namespace Flame.Intermediate.Parsing
             return new CaughtExceptionExpression(ty);
         }
 
-        #endregion
+		#endregion
 
         #endregion
 
@@ -1281,7 +1284,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseNewVector(ParserState State, LNode Node)
         {
             var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-            var dims = Node.Args.Slice(1).Select(item => IRParser.GetInt32(item)).ToArray();
+			var dims = Node.Args.Slice(1).Select(IRParser.GetInt32).ToArray();
             return new NewVectorExpression(elemTy, dims);
         }
 
@@ -1294,7 +1297,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseNewInitializedArray(ParserState State, LNode Node)
         {
             var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-            var elems = ParseExpressions(State, Node.Args.Slice(1)).ToArray();
+            var elems = ParseExpressions(State, Node.Args.Slice(1));
             return new InitializedArrayExpression(elemTy, elems);
         }
 
@@ -1307,7 +1310,7 @@ namespace Flame.Intermediate.Parsing
         public static IExpression ParseNewInitializedVector(ParserState State, LNode Node)
         {
             var elemTy = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-            var elems = ParseExpressions(State, Node.Args.Slice(1)).ToArray();
+            var elems = ParseExpressions(State, Node.Args.Slice(1));
             return new InitializedVectorExpression(elemTy, elems);
         }
 
@@ -1467,7 +1470,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="CreateCast"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTypeBinaryParser(Func<IExpression, IType, IExpression> CreateCastExpression)
+        public static Func<ParserState, LNode, IExpression> CreateTypeBinaryParser(Func<IExpression, IType, IExpression> CreateCastExpression)
         {
             return CreateParser((state, node) =>
             {
@@ -1488,7 +1491,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateConstantParser(IExpression Expression)
+        public static Func<ParserState, LNode, IExpression> CreateConstantParser(IExpression Expression)
         {
             return CreateParser((state, node) => Expression);
         }
@@ -1559,13 +1562,13 @@ namespace Flame.Intermediate.Parsing
                 descMethod.AddParameter(item);
             }
 
-            var captureList = ParseExpressions(State, Node.Args[3].Args).ToArray();
+            var captureList = ParseExpressions(State, Node.Args[3].Args);
             var header = new LambdaHeader(descMethod, captureList);
             var boundHeaderBlock = new LambdaBoundHeaderBlock();
 
             var exprParser = State.Parser.ExpressionParser
                 .WithParser(CapturedValueNodeName, CreateParser((state, node) =>
-                    new LambdaCapturedValueExpression(header, boundHeaderBlock, IRParser.GetInt32(node.Args.Single()))))
+					new LambdaCapturedValueExpression(header, boundHeaderBlock, IRParser.GetInt32(node.Args.Single()))))
                 .WithParser(RecursiveLambdaDelegateNodeName, CreateParser((state, node) =>
                     new LambdaDelegateExpression(header, boundHeaderBlock)));
             var newState = State.WithParser(State.Parser.WithExpressionParser(exprParser));
@@ -1619,72 +1622,72 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
-        #region Stack intrinsics
+		#region Stack intrinsics
 
-        /// <summary>
-        /// Parses the given '#push_stack' node.
-        /// </summary>
-        /// <returns>A stack push statement wrapped as an expression.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        public static IExpression ParsePushStackNode(ParserState State, LNode Node)
-        {
-            if (Node.ArgCount != 1)
-            {
-                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
-                    "Invalid '" + PushStackName + "' node.",
-                    "'" + PushStackName + "' nodes must have exactly one argument: " +
-                    "an expression that represents the value to push on the stack."));
-            }
+		/// <summary>
+		/// Parses the given '#push_stack' node.
+		/// </summary>
+		/// <returns>A stack push statement wrapped as an expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePushStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PushStackName + "' node.",
+					"'" + PushStackName + "' nodes must have exactly one argument: " +
+					"an expression that represents the value to push on the stack."));
+			}
 
-            var inner = ParseExpression(State, Node.Args.Single());
+			var inner = ParseExpression(State, Node.Args.Single());
 
-            return ToExpression(new PushStackStatement(inner));
-        }
+			return ToExpression(new PushStackStatement(inner));
+		}
 
-        /// <summary>
-        /// Parses the given '#peek_stack' node.
-        /// </summary>
-        /// <returns>A stack peek expression.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        public static IExpression ParsePeekStackNode(ParserState State, LNode Node)
-        {
-            if (Node.ArgCount != 1)
-            {
-                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
-                    "Invalid '" + PeekStackName + "' node.",
-                    "'" + PeekStackName + "' nodes must have exactly one argument: " +
-                    "the type of the value on the stack."));
-            }
+		/// <summary>
+		/// Parses the given '#peek_stack' node.
+		/// </summary>
+		/// <returns>A stack peek expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePeekStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PeekStackName + "' node.",
+					"'" + PeekStackName + "' nodes must have exactly one argument: " +
+					"the type of the value on the stack."));
+			}
 
-            var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
+			var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
 
-            return new PeekStackExpression(typeRef);
-        }
+			return new PeekStackExpression(typeRef);
+		}
 
-        /// <summary>
-        /// Parses the given '#pop_stack' node.
-        /// </summary>
-        /// <returns>A stack pop expression.</returns>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        public static IExpression ParsePopStackNode(ParserState State, LNode Node)
-        {
-            if (Node.ArgCount != 1)
-            {
-                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
-                    "Invalid '" + PopStackName + "' node.",
-                    "'" + PopStackName + "' nodes must have exactly one argument: " +
-                    "the type of the value on the stack."));
-            }
+		/// <summary>
+		/// Parses the given '#pop_stack' node.
+		/// </summary>
+		/// <returns>A stack pop expression.</returns>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		public static IExpression ParsePopStackNode(ParserState State, LNode Node)
+		{
+			if (Node.ArgCount != 1)
+			{
+				return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+					"Invalid '" + PopStackName + "' node.",
+					"'" + PopStackName + "' nodes must have exactly one argument: " +
+					"the type of the value on the stack."));
+			}
 
-            var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
+			var typeRef = State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value;
 
-            return new PopStackExpression(typeRef);
-        }
+			return new PopStackExpression(typeRef);
+		}
 
-        #endregion
+		#endregion
 
         #region Variables
 
@@ -1695,7 +1698,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateGetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) => ParseVariable(state, node.Args).CreateGetExpression());
         }
@@ -1705,7 +1708,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateSetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) =>
             {
@@ -1720,7 +1723,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) => ToExpression(ParseVariable(state, node.Args).CreateReleaseStatement()));
         }
@@ -1730,7 +1733,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfVariableParser(Func<ParserState, IEnumerable<LNode>, IUnmanagedVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfVariableParser(Func<ParserState, IEnumerable<LNode>, IUnmanagedVariable> ParseVariable)
         {
             return CreateParser((state, node) => ParseVariable(state, node.Args).CreateAddressOfExpression());
         }
@@ -1788,7 +1791,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetThisParser(IType ThisType)
+        public static Func<ParserState, LNode, IExpression> CreateGetThisParser(IType ThisType)
         {
             return CreateConstantParser(new ThisGetExpression(ThisType));
         }
@@ -1815,11 +1818,11 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateGetArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
-                int index = IRParser.GetInt32(item.Args[0]);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return new ArgumentVariable(Parameters[index], index).CreateGetExpression();
             });
         }
@@ -1829,11 +1832,11 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
-                int index = IRParser.GetInt32(item.Args[0]);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return new ArgumentVariable(Parameters[index], index).CreateAddressOfExpression();
             });
         }
@@ -1843,11 +1846,11 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateSetArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
-                int index = IRParser.GetInt32(item.Args[0]);
+				int index = IRParser.GetInt32(item.Args[0]);
                 var value = ParseExpression(state, item.Args[1]);
                 return ToExpression(new ArgumentVariable(Parameters[index], index).CreateSetStatement(value));
             });
@@ -1858,11 +1861,11 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
-                int index = IRParser.GetInt32(item.Args[0]);
+				int index = IRParser.GetInt32(item.Args[0]);
                 return ToExpression(new ArgumentVariable(Parameters[index], index).CreateReleaseStatement());
             });
         }
@@ -1876,7 +1879,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateGetLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1896,7 +1899,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfLocalParser(string Name, IUnmanagedVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfLocalParser(string Name, IUnmanagedVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1911,29 +1914,29 @@ namespace Flame.Intermediate.Parsing
             });
         }
 
-        /// <summary>
-        /// Parses the local variable identified by the given local identifier.
-        /// </summary>
-        /// <returns>The local variable.</returns>
-        /// <param name="State"></param>
-        /// <param name="LocalIdentifier">An LNode that identifies a local variable.</param>
-        public static IVariable ParseLocal(ParserState State, LNode LocalIdentifier)
-        {
-            // HACK: create a synthetic #get_local node, parse it,
-            //       and extract its variable.
+		/// <summary>
+		/// Parses the local variable identified by the given local identifier.
+		/// </summary>
+		/// <returns>The local variable.</returns>
+		/// <param name="State"></param>
+		/// <param name="LocalIdentifier">An LNode that identifies a local variable.</param>
+		public static IVariable ParseLocal(ParserState State, LNode LocalIdentifier)
+		{
+			// HACK: create a synthetic #get_local node, parse it,
+			//       and extract its variable.
 
-            var synthNode = NodeFactory.Call(GetLocalNodeName, new LNode[] { LocalIdentifier });
-            var variable = ParseExpression(State, synthNode) as IVariableNode;
+			var synthNode = NodeFactory.Call(GetLocalNodeName, new LNode[] { LocalIdentifier });
+			var variable = ParseExpression(State, synthNode) as IVariableNode;
 
-            return variable.GetVariable();
-        }
+			return variable.GetVariable();
+		}
 
         /// <summary>
         /// Creates a parser that parses set-variable statements.
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateSetLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1945,16 +1948,16 @@ namespace Flame.Intermediate.Parsing
                 else
                 {
                     // Explicitly parse this set-variable statement's
-                    // underlying variable, and then create the set
-                    // statement.
+					// underlying variable, and then create the set
+					// statement.
                     // We can't just delegate parsing this expression
                     // to the old state will also cause the old state
                     // to parse the #set_local's value, which breaks
                     // scoping rules.
 
-                    return ToExpression(
-                        ParseLocal(OldState, node.Args[0])
-                            .CreateSetStatement(value));
+					return ToExpression(
+						ParseLocal(OldState, node.Args[0])
+							.CreateSetStatement(value));
                 }
             });
         }
@@ -1964,7 +1967,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -2001,27 +2004,27 @@ namespace Flame.Intermediate.Parsing
             return ParseWithLocal(State, localName, local, Node.Args[3]);
         }
 
-        /// <summary>
-        /// Parses a single local definition block.
-        /// </summary>
-        /// <param name="State"></param>
-        /// <param name="Node"></param>
-        /// <returns></returns>
-        public static IExpression ParseSSALocalDefinition(ParserState State, LNode Node)
-        {
-            // Format:
-            //
-            // #def_ssa_local(local_name, #member(name, attrs...), type, body)
+		/// <summary>
+		/// Parses a single local definition block.
+		/// </summary>
+		/// <param name="State"></param>
+		/// <param name="Node"></param>
+		/// <returns></returns>
+		public static IExpression ParseSSALocalDefinition(ParserState State, LNode Node)
+		{
+			// Format:
+			//
+			// #def_ssa_local(local_name, #member(name, attrs...), type, body)
 
-            string localName = IRParser.GetIdOrString(Node.Args[0]);
-            var sig = IRParser.ParseSignature(State, Node.Args[1]);
-            var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]).Value;
-            var member = CreateVariableMember(sig, ty);
+			string localName = IRParser.GetIdOrString(Node.Args[0]);
+			var sig = IRParser.ParseSignature(State, Node.Args[1]);
+			var ty = State.Parser.TypeReferenceParser.Parse(State, Node.Args[2]).Value;
+			var member = CreateVariableMember(sig, ty);
 
-            var local = new SSAVariable(member);
+			var local = new SSAVariable(member);
 
-            return ParseWithLocal(State, localName, local, Node.Args[3]);
-        }
+			return ParseWithLocal(State, localName, local, Node.Args[3]);
+		}
 
         /// <summary>
         /// Creates a variable member from the given IR signature and type.
@@ -2048,7 +2051,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static ParserState ScopeLocal(ParserState State, string LocalIdentifier, IVariable Local)
         {
-            var extraParsers = new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+            var extraParsers = new Dictionary<string, Func<ParserState, LNode, IExpression>>()
             {
                 { GetLocalNodeName, CreateGetLocalParser(LocalIdentifier, Local, State) },
                 { SetLocalNodeName, CreateSetLocalParser(LocalIdentifier, Local, State) },
@@ -2087,17 +2090,17 @@ namespace Flame.Intermediate.Parsing
 
         #region Default Parser
 
-        public static ReferenceParser<IExpression> DefaultExpressionParser
+        public static ValueParser<IExpression> DefaultExpressionParser
         {
             get
             {
-                return new ReferenceParser<IExpression>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                return new ValueParser<IExpression>(new Dictionary<string, Func<ParserState, LNode, IExpression>>()
                 {
                     // Interprocedural control flow
                     { ReturnNodeName, CreateParser(ParseReturn) },
                     { ThrowNodeName, CreateParser(ParseThrow) },
                     { AssertNodeName, CreateParser(ParseAssert) },
-                    { ContractNodeName, CreateParser(ParseContract) },
+					{ ContractNodeName, CreateParser(ParseContract) },
                     { TryNodeName, CreateParser(ParseTry) },
                     { YieldBreakNodeName, CreateParser(ParseYieldBreak) },
                     { YieldReturnNodeName, CreateParser(ParseYieldReturn) },
@@ -2113,7 +2116,7 @@ namespace Flame.Intermediate.Parsing
                     { BreakNodeName, CreateParser(ParseBreak) },
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) => { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); }  },
-                    { FlowGraphNodeName, CreateParser(ParseFlowGraph) },
+					{ FlowGraphNodeName, CreateParser(ParseFlowGraph) },
                     { CaughtExceptionNodeName, CreateParser(ParseCaughtException) },
 
                     // Locals
@@ -2123,8 +2126,8 @@ namespace Flame.Intermediate.Parsing
                     { SetLocalNodeName, (state, node) => { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); }  },
                     { ReleaseLocalNodeName, CreateParser((state, node) => new WarningExpression(VoidExpression.Instance, new LogEntry("Undefined local", "Local '" + IRParser.GetIdOrString(node.Args[0]) + "' was not defined within the scope of the '#release_local' node."))) },
 
-                    // SSA locals
-                    { DefineSSALocalNodeName, CreateParser(ParseSSALocalDefinition) },
+					// SSA locals
+					{ DefineSSALocalNodeName, CreateParser(ParseSSALocalDefinition) },
 
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
@@ -2179,10 +2182,10 @@ namespace Flame.Intermediate.Parsing
                     { StoreAtName, CreateParser(ParseStoreAtNode) },
                     { SizeOfName, CreateParser(ParseSizeOfNode) },
 
-                    // Stack intrinsics
-                    { PushStackName, CreateParser(ParsePushStackNode) },
-                    { PeekStackName, CreateParser(ParsePeekStackNode) },
-                    { PopStackName, CreateParser(ParsePopStackNode) },
+					// Stack intrinsics
+					{ PushStackName, CreateParser(ParsePushStackNode) },
+					{ PeekStackName, CreateParser(ParsePeekStackNode) },
+					{ PopStackName, CreateParser(ParsePopStackNode) },
 
                     // Constants
                     //  - Bit<n>
