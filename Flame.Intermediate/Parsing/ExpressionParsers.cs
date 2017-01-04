@@ -494,16 +494,15 @@ namespace Flame.Intermediate.Parsing
 
         #region Parser Helpers
 
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
+        public static Func<ParserState, LNode, IExpression> CreateParser(Func<ParserState, LNode, IExpression> ParseExpression)
         {
-            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyValueStructure<IExpression>(node, () => ParseExpression(state, node)));
+            return ParseExpression;
         }
 
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
+        public static Func<ParserState, LNode, IExpression> CreateLiteralParser(Func<object, IExpression> ParseLiteral)
         {
-            return new Func<ParserState, LNode, INodeStructure<IExpression>>((state, node) =>
-                new LazyValueStructure<IExpression>(node, () => ParseLiteral(node.Args[0].Value)));
+            return new Func<ParserState, LNode, IExpression>((state, node) => 
+                ParseLiteral(node.Args[0].Value));
         }
 
         #endregion
@@ -557,7 +556,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static IExpression ParseExpression(ParserState State, LNode Node)
         {
-            return State.Parser.ExpressionParser.Parse(State, Node).Value;
+            return State.Parser.ExpressionParser.Parse(State, Node);
         }
 
         /// <summary>
@@ -570,7 +569,7 @@ namespace Flame.Intermediate.Parsing
         public static IEnumerable<IExpression> ParseExpressions(ParserState State, IEnumerable<LNode> Nodes)
         {
             var parser = State.Parser.ExpressionParser;
-            return Nodes.Select(item => parser.Parse(State, item).Value);
+            return Nodes.Select(item => parser.Parse(State, item));
         }
 
         #endregion
@@ -981,9 +980,9 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Parser"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, UniqueTag, IExpression> Parse)
+        public static Func<ParserState, LNode, IExpression> CreateTaggedNodeParser(Func<LNode, string> GetTag, Func<ParserState, LNode, UniqueTag, IExpression> Parse)
         {
-            var func = new Func<ParserState, LNode, IExpression>((state, node) =>
+            return new Func<ParserState, LNode, IExpression>((state, node) =>
             {
                 string tagName = GetTag(node);
                 var tag = new UniqueTag(tagName);
@@ -997,7 +996,7 @@ namespace Flame.Intermediate.Parsing
 
                     if (IRParser.GetIdOrString(n.Args[0]) == tagName)
                     {
-                        return new ConstantNodeStructure<IExpression>(n, new TagReferenceExpression(tag));
+                        return new TagReferenceExpression(tag);
                     }
                     else
                     {
@@ -1008,7 +1007,6 @@ namespace Flame.Intermediate.Parsing
                 var newState = state.WithParser(newParser);
                 return Parse(newState, node, tag);
             });
-            return CreateParser(func);
         }
 
         /// <summary>
@@ -1467,7 +1465,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="CreateCast"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateTypeBinaryParser(Func<IExpression, IType, IExpression> CreateCastExpression)
+        public static Func<ParserState, LNode, IExpression> CreateTypeBinaryParser(Func<IExpression, IType, IExpression> CreateCastExpression)
         {
             return CreateParser((state, node) =>
             {
@@ -1488,7 +1486,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateConstantParser(IExpression Expression)
+        public static Func<ParserState, LNode, IExpression> CreateConstantParser(IExpression Expression)
         {
             return CreateParser((state, node) => Expression);
         }
@@ -1695,7 +1693,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateGetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) => ParseVariable(state, node.Args).CreateGetExpression());
         }
@@ -1705,7 +1703,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateSetVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) =>
             {
@@ -1720,7 +1718,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseVariableParser(Func<ParserState, IEnumerable<LNode>, IVariable> ParseVariable)
         {
             return CreateParser((state, node) => ToExpression(ParseVariable(state, node.Args).CreateReleaseStatement()));
         }
@@ -1730,7 +1728,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="ParseVariable"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfVariableParser(Func<ParserState, IEnumerable<LNode>, IUnmanagedVariable> ParseVariable)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfVariableParser(Func<ParserState, IEnumerable<LNode>, IUnmanagedVariable> ParseVariable)
         {
             return CreateParser((state, node) => ParseVariable(state, node.Args).CreateAddressOfExpression());
         }
@@ -1788,7 +1786,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetThisParser(IType ThisType)
+        public static Func<ParserState, LNode, IExpression> CreateGetThisParser(IType ThisType)
         {
             return CreateConstantParser(new ThisGetExpression(ThisType));
         }
@@ -1815,7 +1813,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateGetArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
@@ -1829,7 +1827,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
@@ -1843,7 +1841,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateSetArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
@@ -1858,7 +1856,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseArgumentParser(IParameter[] Parameters)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseArgumentParser(IParameter[] Parameters)
         {
             return CreateParser((state, item) =>
             {
@@ -1876,7 +1874,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateGetLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateGetLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1896,7 +1894,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateAddressOfLocalParser(string Name, IUnmanagedVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateAddressOfLocalParser(string Name, IUnmanagedVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1933,7 +1931,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateSetLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateSetLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -1964,7 +1962,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Expression"></param>
         /// <returns></returns>
-        public static Func<ParserState, LNode, INodeStructure<IExpression>> CreateReleaseLocalParser(string Name, IVariable Variable, ParserState OldState)
+        public static Func<ParserState, LNode, IExpression> CreateReleaseLocalParser(string Name, IVariable Variable, ParserState OldState)
         {
             return CreateParser((state, node) =>
             {
@@ -2048,7 +2046,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public static ParserState ScopeLocal(ParserState State, string LocalIdentifier, IVariable Local)
         {
-            var extraParsers = new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+            var extraParsers = new Dictionary<string, Func<ParserState, LNode, IExpression>>()
             {
                 { GetLocalNodeName, CreateGetLocalParser(LocalIdentifier, Local, State) },
                 { SetLocalNodeName, CreateSetLocalParser(LocalIdentifier, Local, State) },
@@ -2087,11 +2085,11 @@ namespace Flame.Intermediate.Parsing
 
         #region Default Parser
 
-        public static ReferenceParser<IExpression> DefaultExpressionParser
+        public static ValueParser<IExpression> DefaultExpressionParser
         {
             get
             {
-                return new ReferenceParser<IExpression>(new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                return new ValueParser<IExpression>(new Dictionary<string, Func<ParserState, LNode, IExpression>>()
                 {
                     // Interprocedural control flow
                     { ReturnNodeName, CreateParser(ParseReturn) },

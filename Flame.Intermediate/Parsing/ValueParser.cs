@@ -8,40 +8,38 @@ using System.Threading.Tasks;
 namespace Flame.Intermediate.Parsing
 {
     /// <summary>
-    /// A class that parses references to values, which may be resolved lazily.
+    /// A class that parses nodes based on their ids.
     /// </summary>
-    public struct ReferenceParser<T>
+    public struct ValueParser<T>
     {
-        private ReferenceParser(ValueParser<INodeStructure<T>> innerParser)
+        public ValueParser(IReadOnlyDictionary<string, Func<ParserState, LNode, T>> Parsers)
         {
-            this.innerParser = innerParser;
+            this.Parsers = Parsers;
         }
-        public ReferenceParser(IReadOnlyDictionary<string, Func<ParserState, LNode, INodeStructure<T>>> Parsers)
-        {
-            this.innerParser = new ValueParser<INodeStructure<T>>(Parsers);
-        }
-
-        private ValueParser<INodeStructure<T>> innerParser;
 
         /// <summary>
         /// Gets a dictionary of node tags to parsers.
         /// </summary>
         /// <value>The parser dictionary.</value>
-        public IReadOnlyDictionary<string, Func<ParserState, LNode, INodeStructure<T>>> Parsers
+        public IReadOnlyDictionary<string, Func<ParserState, LNode, T>> Parsers { get; private set; }
+
+        public ValueParser<T> WithParser(
+            string Name, Func<ParserState, LNode, T> Parser)
         {
-            get { return innerParser.Parsers; }
+            var dict = Parsers.ToDictionary(item => item.Key, item => item.Value);
+            dict[Name] = Parser;
+            return new ValueParser<T>(dict);
         }
 
-        public ReferenceParser<T> WithParser(
-            string Name, Func<ParserState, LNode, INodeStructure<T>> Parser)
+        public ValueParser<T> WithParsers(
+            IEnumerable<KeyValuePair<string, Func<ParserState, LNode, T>>> Parsers)
         {
-            return new ReferenceParser<T>(innerParser.WithParser(Name, Parser));
-        }
-
-        public ReferenceParser<T> WithParsers(
-            IEnumerable<KeyValuePair<string, Func<ParserState, LNode, INodeStructure<T>>>> Parsers)
-        {
-            return new ReferenceParser<T>(innerParser.WithParsers(Parsers));
+            var dict = this.Parsers.ToDictionary(item => item.Key, item => item.Value);
+            foreach (var item in Parsers)
+            {
+                dict[item.Key] = item.Value;
+            }
+            return new ValueParser<T>(dict);
         }
 
         /// <summary>
@@ -52,7 +50,7 @@ namespace Flame.Intermediate.Parsing
         /// <returns></returns>
         public bool CanParse(LNode Node)
         {
-            return innerParser.CanParse(Node);
+            return Parsers.ContainsKey(Node.Name.Name);
         }
 
         /// <summary>
@@ -60,16 +58,16 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="State">The state to parse the node with.</param>
         /// <param name="Node">The node to parse.</param>
-        public INodeStructure<T> Parse(ParserState State, LNode Node)
+        public T Parse(ParserState State, LNode Node)
         {
-            Func<ParserState, LNode, INodeStructure<T>> parser;
+            Func<ParserState, LNode, T> parser;
             if (Parsers.TryGetValue(Node.Name.Name, out parser))
             {
                 return parser(State, Node);
             }
             else if (Node.IsLiteral && Node.Value == null)
             {
-                return new ConstantNodeStructure<T>(Node, default(T));
+                return default(T);
             }
             else
             {

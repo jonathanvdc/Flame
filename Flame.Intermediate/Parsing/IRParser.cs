@@ -777,7 +777,10 @@ namespace Flame.Intermediate.Parsing
             var result = new IRField(DeclaringType, sig, isStatic, fieldType);
             if (Node.ArgCount == 4)
             {
-                result.InitialValueNode = State.Parser.ExpressionParser.Parse(State, Node.Args[3]);
+                var valArg = Node.Args[3];
+                result.InitialValueNode = new LazyValueStructure<IExpression>(
+                    valArg,
+                    () => State.Parser.ExpressionParser.Parse(State, valArg));
             }
             return result;
         }
@@ -828,7 +831,7 @@ namespace Flame.Intermediate.Parsing
             {
                 var paramList = EnclosingMethod.GetParameters();
 
-                var parserDict = new Dictionary<string, Func<ParserState, LNode, INodeStructure<IExpression>>>()
+                var parserDict = new Dictionary<string, Func<ParserState, LNode, IExpression>>()
                 {
                     { ExpressionParsers.GetArgumentNodeName, ExpressionParsers.CreateGetArgumentParser(paramList) },
                     { ExpressionParsers.AddressOfArgumentNodeName, ExpressionParsers.CreateAddressOfArgumentParser(paramList) },
@@ -1141,7 +1144,7 @@ namespace Flame.Intermediate.Parsing
                         ReferenceParser<IMethod> MethodReferenceParser,
                         ReferenceParser<IAttribute> AttributeParser,
                         ReferenceParser<IGenericConstraint> GenericConstraintParser,
-                        ReferenceParser<IExpression> ExpressionParser,
+                        ValueParser<IExpression> ExpressionParser,
                         DefinitionParser<INamespace, IType> TypeDefinitionParser,
                         DefinitionParser<IType, ITypeMember> TypeMemberParser)
         {
@@ -1175,7 +1178,7 @@ namespace Flame.Intermediate.Parsing
         public ReferenceParser<IMethod> MethodReferenceParser { get; private set; }
         public ReferenceParser<IAttribute> AttributeParser { get; private set; }
         public ReferenceParser<IGenericConstraint> GenericConstraintParser { get; private set; }
-        public ReferenceParser<IExpression> ExpressionParser { get; private set; }
+        public ValueParser<IExpression> ExpressionParser { get; private set; }
 
         public DefinitionParser<INamespace, IType> TypeDefinitionParser { get; private set; }
         public DefinitionParser<IType, ITypeMember> TypeMemberParser { get; private set; }
@@ -1208,7 +1211,7 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         /// <param name="Parser"></param>
         /// <returns></returns>
-        public IRParser WithExpressionParser(ReferenceParser<IExpression> Parser)
+        public IRParser WithExpressionParser(ValueParser<IExpression> Parser)
         {
             return new IRParser(TypeReferenceParser,
                                 FieldReferenceParser,
