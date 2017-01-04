@@ -118,7 +118,7 @@ namespace Flame.Intermediate.Parsing
                 if (args.Any(item => item == null))
                 {
                     throw new InvalidOperationException("Invalid '" + ConstructedAttributeNodeName + 
-                        "' node: one of the attribute node's arguments could be evaluated at compile-time.");
+                        "' node: one of the attribute node's arguments could not be evaluated at compile-time.");
                 }
 
                 int paramCount = attrCtor.Parameters.Count();
