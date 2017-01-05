@@ -5,22 +5,26 @@ using Flame.Binding;
 
 namespace Flame.Build
 {
+    /// <summary>
+    /// A type of assembly that is created piecewise, by adding types and
+    /// namespaces to the assembly in an imperative fashion.
+    /// </summary>
     public class DescribedAssembly : DescribedMember, IAssembly, INamespaceBranch
     {
-        public const this(UnqualifiedName Name)
+        public this(UnqualifiedName Name)
             : base(Name)
         {
             this.types = new List<IType>();
             this.nsBranches = new List<INamespaceBranch>();
             this.Environment = EmptyEnvironment;
         }
-        public const this(UnqualifiedName Name, set IEnvironment Environment)
+        public this(UnqualifiedName Name, set IEnvironment Environment)
             : base(Name)
         {
             this.types = new List<IType>();
             this.nsBranches = new List<INamespaceBranch>();
         }
-        public const this(
+        public this(
             UnqualifiedName Name, set Version AssemblyVersion,
             set IEnvironment Environment)
             : base(Name)
@@ -29,12 +33,25 @@ namespace Flame.Build
             this.nsBranches = new List<INamespaceBranch>();
         }
 
-        public override QualifiedName FullName { get { return new QualifiedName(Name); } }
+        public override QualifiedName FullName
+        {
+            get { return new QualifiedName(Name); }
+        }
 
-        public Version AssemblyVersion { const get; private set; }
-        public IEnvironment Environment { const get; private set; }
+        /// <summary>
+        /// Gets or sets this assembly's version number.
+        /// </summary>
+        public Version AssemblyVersion { get; set; }
 
-        public IMethod EntryPoint { const get; set; }
+        /// <summary>
+        /// Gets this assembly's environment.
+        /// </summary>
+        public IEnvironment Environment { get; private set; }
+
+        /// <summary>
+        /// Gets or sets this assembly's entry point method.
+        /// </summary>
+        public IMethod EntryPoint { get; set; }
 
         private List<IType> types;
         private List<INamespaceBranch> nsBranches;
