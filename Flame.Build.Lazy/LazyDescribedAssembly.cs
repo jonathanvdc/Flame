@@ -43,6 +43,8 @@ namespace Flame.Build.Lazy
             this.Environment = Environment;
             this.initializer = new DeferredInitializer<LazyDescribedAssembly>(
                 Initialize);
+            this.types = new List<IType>();
+            this.nsBranches = new List<INamespaceBranch>();
         }
 
         /// <summary>
