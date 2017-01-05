@@ -22,8 +22,8 @@
         <dependency id="Flame.Optimization" version="$version$" />
         <dependency id="Mono.Cecil" version="0.9.6.4" />
         <dependency id="Newtonsoft.Json" version="9.0.1" />
-        <dependency id="LoycCore" version="1.8.0" />
-        <dependency id="Loyc.Binary" version="0.1.4" />
+        <dependency id="LoycCore" version="2.1.2" />
+        <dependency id="Loyc.Binary" version="0.1.5" />
     </dependencies>
   </metadata>
   <files>
