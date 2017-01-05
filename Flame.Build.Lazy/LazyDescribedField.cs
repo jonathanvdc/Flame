@@ -7,7 +7,7 @@ namespace Flame.Build.Lazy
     /// <summary>
     /// A field implementation that constructs itself lazily.
     /// </summary>
-    public class LazyDescribedField : LazyDescribedTypeMember, IInitializedField
+    public sealed class LazyDescribedField : LazyDescribedTypeMember, IInitializedField
     {
         /// <summary>
         /// Creates a new lazily constructed field from the given name,

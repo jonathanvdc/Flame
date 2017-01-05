@@ -8,7 +8,7 @@ namespace Flame.Build.Lazy
     /// A type of assembly that constructs itself lazily in an imperative
     /// fashion.
     /// </summary>
-    public class LazyDescribedAssembly :
+    public sealed class LazyDescribedAssembly :
         LazyDescribedMember, IAssembly, INamespaceBranch
     {
         /// <summary>

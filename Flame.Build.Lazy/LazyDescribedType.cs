@@ -8,7 +8,7 @@ namespace Flame.Build.Lazy
     /// <summary>
     /// A type implementation that constructs itself lazily.
     /// </summary>
-    public class LazyDescribedType : LazyDescribedMember, IType, INamespace
+    public sealed class LazyDescribedType : LazyDescribedMember, IType, INamespace
 	{
         /// <summary>
         /// Creates a new lazily described type from the given name,
