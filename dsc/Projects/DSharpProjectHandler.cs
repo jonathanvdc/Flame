@@ -59,8 +59,8 @@ namespace dsc.Projects
             var binder = await Parameters.BinderTask;
 
             var dsAsm = new SyntaxAssembly(
-                DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder), 
-                new SimpleName(Parameters.Log.GetAssemblyName(Project.AssemblyName ?? Project.Name ?? "")), 
+                DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder),
+                new SimpleName(Parameters.Log.GetAssemblyName(Project)), 
                 GetTypeNamer(Parameters.Log.Options));
             foreach (var item in units)
             {
@@ -138,9 +138,9 @@ namespace dsc.Projects
                     new PassCondition(
                         PassExtensions.EliminateDeadCodePassName,
                         optInfo => !optInfo.OptimizeNormal && (optInfo.OptimizeMinimal || optInfo.OptimizeDebug)),
-                    // Disable the initialization pass for now. 
+                    // Disable the initialization pass for now.
                     // -finitialization performs a flow-sensitive analysis, but
-                    // the analysis doesn't handle field-wise initialization well, and 
+                    // the analysis doesn't handle field-wise initialization well, and
                     // this type of analysis should really be performed on a flow graph.
                     //     new PassCondition(
                     //         PassExtensions.InitializationPassName,

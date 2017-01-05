@@ -55,7 +55,7 @@ namespace Flame.Front.Projects
 
         public string Name
         {
-            get { return Path.Arguments.GetAssemblyName(null) ?? FilePath.NameWithoutExtension; }
+            get { return Path.Arguments.GetAssemblyName(FilePath.NameWithoutExtension); }
         }
     }
 }
