@@ -55,14 +55,8 @@
     <Reference Include="Loyc.Collections">
       <HintPath>..\Flame.Cecil\packages\Loyc.Collections.24.3.0\lib\net45\Loyc.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="Loyc.Math">
-      <HintPath>..\Flame.Cecil\packages\Loyc.Math.24.3.0\lib\net45\Loyc.Math.dll</HintPath>
-    </Reference>
     <Reference Include="Loyc.Syntax">
       <HintPath>..\Flame.Cecil\packages\Loyc.Syntax.24.3.0\lib\net45\Loyc.Syntax.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Utilities">
-      <HintPath>..\Flame.Cecil\packages\Loyc.Utilities.24.3.0\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
