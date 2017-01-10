@@ -222,9 +222,10 @@ namespace Flame.Optimization.AliasAnalysis
                 // expression is really a root of the callee.
                 MappedRootExpressions.Add(MappedExpression);
             }
+
             // Search for any non-derived aliases in the original expression's
             // child subtree.
-            OriginalExpression.Accept(this);
+            Visit(OriginalExpression);
         }
 
 
@@ -469,11 +470,9 @@ namespace Flame.Optimization.AliasAnalysis
                 currentLoc = oldLoc;
                 return result;
             }
-            else if (Expression is IMetadataNode<IExpression>
-                || Expression is GetMethodExpression
-                || Expression is GetExtensionMethodExpression)
+            else if (Expression is IMetadataNode<IExpression>)
             {
-                // These node types are whitelisted. They'll never access
+                // Metadata nodes never access
                 // memory, so we might as well skip to their children.
                 return Expression.Accept(this);
             }
@@ -548,16 +547,14 @@ namespace Flame.Optimization.AliasAnalysis
                     Visit(
                         ((IUnmanagedVariable)variable)
                         .CreateAddressOfExpression());
+
+                    // Don't forget to visit the assignment's value.
+                    Visit(varNode.Value);
+                    return Statement;
                 }
-                // Don't forget to visit the assignment's value.
-                Visit(varNode.Value);
-                return Statement;
             }
-            else
-            {
-                // Look for aliases in the statement's children.
-                return Statement.Accept(this);
-            }
+            // Look for aliases in the statement's children.
+            return Statement.Accept(this);
         }
     }
 }

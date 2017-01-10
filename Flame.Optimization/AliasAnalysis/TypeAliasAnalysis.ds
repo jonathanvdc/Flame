@@ -120,7 +120,8 @@ namespace Flame.Optimization.AliasAnalysis
         /// </summary>
         private bool ContainsImpl(IType ContainerPointer, IType ContainedPointer)
         {
-            return ContainerPointer.Is(ContainedPointer)
+            return DereferenceType(ContainerPointer).Is(
+                    DereferenceType(ContainedPointer))
                 || AnyFieldContains(ContainerPointer, ContainedPointer);
         }
 
