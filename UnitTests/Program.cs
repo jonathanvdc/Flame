@@ -46,7 +46,7 @@ namespace UnitTests
                 Console.WriteLine();
                 Console.WriteLine("What do you want to do? (Esc to quit)");
                 for (int i = 0; i < menu.Count; i++)
-                    Console.WriteLine(ParseHelpers.HexDigitChar(i+1) + ". " + menu[i].Key);
+                    Console.WriteLine(PrintHelpers.HexDigitChar(i+1) + ". " + menu[i].Key);
                 Console.WriteLine("Space. Run all tests");
 
                 if (!reader.MoveNext())
