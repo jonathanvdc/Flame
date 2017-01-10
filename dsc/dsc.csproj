@@ -93,9 +93,6 @@
     <Reference Include="Mono.Cecil.Rocks">
       <HintPath>..\Flame.Cecil\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="Loyc.Binary">
-      <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.5\lib\net45\Loyc.Binary.dll</HintPath>
-    </Reference>
     <Reference Include="Loyc.Essentials">
       <HintPath>..\Flame.Cecil\packages\Loyc.Essentials.24.3.0\lib\net45\Loyc.Essentials.dll</HintPath>
     </Reference>
@@ -104,6 +101,9 @@
     </Reference>
     <Reference Include="Loyc.Syntax">
       <HintPath>..\Flame.Cecil\packages\Loyc.Syntax.24.3.0\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Binary">
+      <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.8\lib\net45\Loyc.Binary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
