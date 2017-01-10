@@ -1,0 +1,33 @@
+using System;
+
+public struct Vector2
+{
+    public this(double X, double Y)
+    {
+        this.X = X;
+        this.Y = Y;
+    }
+    public this(double X)
+    {
+        this.X = X;
+        this.Y = Program.ptr->Y;
+    }
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+}
+
+public module Program
+{
+    public Vector2* ptr;
+
+    public void Main()
+    {
+        Vector2 vec;
+        vec = new Vector2(1, 2);
+        ptr = &vec;
+        vec = new Vector2(1);
+        Console.WriteLine(vec.X);
+        Console.WriteLine(vec.Y);
+    }
+}

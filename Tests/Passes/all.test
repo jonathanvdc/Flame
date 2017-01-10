@@ -20,6 +20,7 @@ tests
     LowerNewValueType/LowerNewValueType5.test;
     LowerNewValueType/LowerNewValueType6.test;
     LowerNewValueType/LowerNewValueType7.test;
+    LowerNewValueType/LowerNewValueType8.test;
     ScalarReplacement/ScalarReplacement.test;
     ScalarReplacement/ScalarReplacement2.test;
     ScalarReplacement/ScalarReplacement3.test;
