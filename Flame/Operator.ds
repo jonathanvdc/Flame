@@ -63,11 +63,16 @@ namespace Flame
             return typeIndex.GetHashCode();
         }
 
+        public bool Equals(Operator Other)
+        {
+            return Other.typeIndex == typeIndex;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Operator)
             {
-                return ((Operator)obj).typeIndex == typeIndex;
+                return Equals((Operator)obj);
             }
             else
             {
