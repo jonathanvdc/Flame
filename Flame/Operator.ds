@@ -11,13 +11,13 @@ namespace Flame
     /// </summary>
     public struct Operator
     {
-        private this(set int32 typeIndex);
+        private this(set int typeIndex);
         public this(Operator Other)
         {
             this.typeIndex = Other.typeIndex;
         }
 
-        private int32 typeIndex;
+        private int typeIndex;
 
         /// <summary>
         /// Gets a boolean value that tells if this operator is a defined
@@ -58,7 +58,7 @@ namespace Flame
 
         #region Equality
 
-        public override int32 GetHashCode()
+        public override int GetHashCode()
         {
             return typeIndex.GetHashCode();
         }
