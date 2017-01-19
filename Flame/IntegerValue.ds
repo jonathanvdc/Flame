@@ -251,6 +251,10 @@ namespace Flame
         /// <summary>
         /// Creates an integer value that wraps the given boolean.
         /// </summary>
+        /// <remarks>
+        /// The resulting integer value's spec is that of a one-bit unsigned
+        /// integer.
+        /// </remarks>
         public this(bool Value)
         {
             this.Spec = IntegerSpec.UInt1;
@@ -263,6 +267,10 @@ namespace Flame
         /// <summary>
         /// Creates an integer value that wraps the given integer.
         /// </summary>
+        /// <remarks>
+        /// The resulting integer value's spec is that of a sixteen-bit
+        /// unsigned integer.
+        /// </remarks>
         public this(sbyte Value)
         {
             this.Value = new BigInteger((int)Value);
@@ -523,38 +531,12 @@ namespace Flame
                 return CompareTo((IntegerValue)Other);
         }
 
-        private byte[] ToPaddedByteArray(IntegerSpec NewSpec, int ArraySize)
-        {
-            // FIXME: dsc doesn't support implicit/explicit conversion operators,
-            // and this is an ugly workaround.
-
-            byte[] byteArr = Cast(NewSpec).Value.ToByteArray();
-            int byteArrSize = byteArr.Length;
-            while (byteArrSize > 0 && byteArr[byteArrSize - 1] == (byte)0)
-                byteArrSize--;
-
-            byte[] paddedByteArr = new byte[ArraySize];
-
-            if (BitConverter.IsLittleEndian)
-            {
-                for (int i = 0; i < byteArrSize; i++)
-                    paddedByteArr[i] = byteArr[i];
-            }
-            else
-            {
-                for (int i = 0; i < byteArrSize; i++)
-                    paddedByteArr[i + paddedByteArr.Length - byteArrSize] = byteArr[i];
-            }
-
-            return paddedByteArr;
-        }
-
         /// <summary>
         /// Converts this integer value to an 8-bit unsigned integer.
         /// </summary>
         public byte ToUInt8()
         {
-            return ToPaddedByteArray(IntegerSpec.UInt8, 1)[0];
+            return (byte)IntegerSpec.UInt8.Normalize(Value);
         }
 
         /// <summary>
@@ -562,7 +544,7 @@ namespace Flame
         /// </summary>
         public sbyte ToInt8()
         {
-            return (sbyte)ToUInt8();
+            return (sbyte)IntegerSpec.Int8.Normalize(Value);
         }
 
         /// <summary>
@@ -570,7 +552,7 @@ namespace Flame
         /// </summary>
         public ushort ToUInt16()
         {
-            return BitConverter.ToUInt16(ToPaddedByteArray(IntegerSpec.UInt16, 2), 0);
+            return (ushort)IntegerSpec.UInt16.Normalize(Value);
         }
 
         /// <summary>
@@ -578,7 +560,7 @@ namespace Flame
         /// </summary>
         public short ToInt16()
         {
-            return (short)ToUInt16();
+            return (short)IntegerSpec.Int16.Normalize(Value);
         }
 
         /// <summary>
@@ -586,7 +568,7 @@ namespace Flame
         /// </summary>
         public uint ToUInt32()
         {
-            return BitConverter.ToUInt32(ToPaddedByteArray(IntegerSpec.UInt32, 4), 0);
+            return (uint)IntegerSpec.UInt32.Normalize(Value);
         }
 
         /// <summary>
@@ -594,7 +576,7 @@ namespace Flame
         /// </summary>
         public int ToInt32()
         {
-            return (int)ToUInt32();
+            return (int)IntegerSpec.Int32.Normalize(Value);
         }
 
         /// <summary>
@@ -602,7 +584,7 @@ namespace Flame
         /// </summary>
         public ulong ToUInt64()
         {
-            return BitConverter.ToUInt64(ToPaddedByteArray(IntegerSpec.UInt64, 8), 0);
+            return (ulong)IntegerSpec.UInt64.Normalize(Value);
         }
 
         /// <summary>
@@ -610,7 +592,7 @@ namespace Flame
         /// </summary>
         public long ToInt64()
         {
-            return (long)ToUInt64();
+            return (long)IntegerSpec.Int64.Normalize(Value);
         }
 
         /// <summary>
@@ -618,12 +600,7 @@ namespace Flame
         /// </summary>
         public float ToFloat32()
         {
-            // HACK: this is not The Right Way to do this. Ideally, we'd
-            // use the user-defined conversion operator in BigInteger, but
-            // older versions of the D# compiler don't support that.
-            // TODO: update the D# compiler after the next release, and
-            // replace this with a proper user-defined conversion.
-            return (float)ToInt64();
+            return (float)Value;
         }
 
         /// <summary>
@@ -631,12 +608,7 @@ namespace Flame
         /// </summary>
         public double ToFloat64()
         {
-            // HACK: this is not The Right Way to do this. Ideally, we'd
-            // use the user-defined conversion operator in BigInteger, but
-            // older versions of the D# compiler don't support that.
-            // TODO: update the D# compiler after the next release, and
-            // replace this with a proper user-defined conversion.
-            return (double)ToInt64();
+            return (double)Value;
         }
 
         public bool Equals(IntegerValue Other)
