@@ -17,6 +17,9 @@ namespace Flame
             this.typeIndex = Other.typeIndex;
         }
 
+        // The index of this operator in the typeNames list. This index is
+        // one-based, not zero-based (because that makes more sense for
+        // `default(Operator)`)
         private int typeIndex;
 
         /// <summary>
@@ -25,7 +28,7 @@ namespace Flame
         /// </summary>
         public bool IsDefined
         {
-            get { return typeIndex > -1; }
+            get { return typeIndex > 0; }
         }
 
         /// <summary>
@@ -35,13 +38,15 @@ namespace Flame
         {
             get
             {
-                if (typeIndex >= 0)
+                if (IsDefined)
                 {
                     string result;
                     rwLock.EnterReadLock();
                     try
                     {
-                        result = typeNames[typeIndex];
+                        // typeIndex is one-based, so we'll have to decrement
+                        // it before retrieving the operator type's name.
+                        result = typeNames[typeIndex - 1];
                     }
                     finally
                     {
@@ -148,7 +153,9 @@ namespace Flame
                         // Define the operator.
                         int index = typeNames.Count;
                         typeNames.Add(Name);
-                        result = new Operator(index);
+                        // Note: the typeIndex field is one-based, not
+                        // zero-based.
+                        result = new Operator(index + 1);
                         operatorDict[Name] = result;
                     }
                     finally
@@ -230,11 +237,14 @@ namespace Flame
 
         #region Common Accessors
 
+        /// <summary>
+        /// Gets the undefined operator.
+        /// </summary>
         public static Operator Undefined
         {
-            const get
+            get
             {
-                return new Operator(-1);
+                return default(Operator);
             }
         }
 
