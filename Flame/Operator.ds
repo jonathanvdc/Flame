@@ -85,6 +85,7 @@ namespace Flame
                 Operator.StaticCast, Operator.DynamicCast,
                 Operator.Box, Operator.UnboxReference, Operator.UnboxValue,
                 Operator.ReinterpretCast,
+                Operator.ConvertImplicit, Operator.ConvertExplicit,
                 Operator.GetDelegate, Operator.GetVirtualDelegate,
                 Operator.GetCurriedDelegate,
                 Operator.Increment, Operator.Decrement
@@ -130,9 +131,12 @@ namespace Flame
         public static const bool IsComparisonOperator(Operator Op)
         {
             int tIndex = Op.typeIndex;
-            return     tIndex == Operator.CheckEquality.typeIndex || tIndex == Operator.CheckInequality.typeIndex ||
-                    tIndex == Operator.CheckGreaterThan.typeIndex || tIndex == Operator.CheckGreaterThanOrEqual.typeIndex ||
-                    tIndex == Operator.CheckLessThan.typeIndex || tIndex == Operator.CheckLessThanOrEqual.typeIndex;
+            return tIndex == Operator.CheckEquality.typeIndex
+                || tIndex == Operator.CheckInequality.typeIndex
+                || tIndex == Operator.CheckGreaterThan.typeIndex
+                || tIndex == Operator.CheckGreaterThanOrEqual.typeIndex
+                || tIndex == Operator.CheckLessThan.typeIndex
+                || tIndex == Operator.CheckLessThanOrEqual.typeIndex;
         }
 
         #endregion
@@ -484,6 +488,28 @@ namespace Flame
             get
             {
                 return Register("unbox_val");
+            }
+        }
+
+        /// <summary>
+        /// A user-defined implicit conversion operator.
+        /// </summary>
+        public static Operator ConvertImplicit
+        {
+            get
+            {
+                return Register("convert_implicit");
+            }
+        }
+
+        /// <summary>
+        /// A user-defined explicit conversion operator.
+        /// </summary>
+        public static Operator ConvertExplicit
+        {
+            get
+            {
+                return Register("convert_explicit");
             }
         }
 
