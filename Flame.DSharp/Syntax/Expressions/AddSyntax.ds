@@ -37,10 +37,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-                var tType = BinaryExpressionSyntax.GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type);
-                var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, tType);
-                var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, tType);
-                return new AddExpression(lExpr, rExpr);
+                return BinaryExpressionSyntax.CreateExpression(State, Left, Operator.Add, Right);
             }
         }
     }
