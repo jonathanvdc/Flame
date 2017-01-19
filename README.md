@@ -28,7 +28,7 @@ __Note__: Flame is still under development. It contains its fair share of bugs. 
 
 [![NuGet](https://img.shields.io/nuget/v/Flame.Front.svg?maxAge=2592000)](https://www.nuget.org/packages/Flame.Front/)
 
-If you want to use Flame as a library, then I recommend you get the latest stable ["Flame.Front" NuGet package](https://www.nuget.org/packages/Flame.Front/), and add that to your project.
+If you want to use Flame as a library, then I recommend you get the latest stable [`Flame.Front` NuGet package](https://www.nuget.org/packages/Flame.Front/), and add that to your project.
 
 If you for some reason can't, or don't want to, use NuGet, then you can get a pre-built version of `dsc` (and the Flame libraries it ships with) and optionally compile Flame yourself.
 
