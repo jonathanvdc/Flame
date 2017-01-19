@@ -13,7 +13,7 @@ namespace Flame.Syntax.DSharp
 
     public abstract class BinaryExpressionSyntax : IExpressionSyntax, ITokenNode, IRelevantSyntax<Token>, ISourceSyntax
     {
-    	protected const this();
+        protected const this();
         public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);
 
         public IExpressionSyntax Left { const get; protected set; }
@@ -22,77 +22,77 @@ namespace Flame.Syntax.DSharp
 
         public SourceLocation Location
         {
-        	const get return Left.GetSourceLocation().Concat(OperatorToken.Location).Concat(Right.GetSourceLocation());
+            const get return Left.GetSourceLocation().Concat(OperatorToken.Location).Concat(Right.GetSourceLocation());
         }
 
         public [Token] LeadingTrivia
         {
-        	const get return OperatorToken.GetAllTrivia();
+            const get return OperatorToken.GetAllTrivia();
         }
 
         public [Token] TrailingTrivia
         {
-        	const get return Enumerable.Empty<Token>();
+            const get return Enumerable.Empty<Token>();
         }
 
         public IReadOnlyList<Token> Tokens
         {
-        	const get
-        	{
-        		var tks = new List<Token>();
-				tks.AddRange(Left.GetTokens());
-				tks.Add(OperatorToken);
-				tks.AddRange(Right.GetTokens());
-				return tks;
-        	}
+            const get
+            {
+                var tks = new List<Token>();
+                tks.AddRange(Left.GetTokens());
+                tks.Add(OperatorToken);
+                tks.AddRange(Right.GetTokens());
+                return tks;
+            }
         }
 
         public static const IType GetBinaryExpressionType(ISyntaxState State, IType Left, IType Right)
         {
-        	if (CastSyntax.UseImplicitCast(State, Left, Right))
-        	{
-        		return Right;
-        	}
-        	else
-        	{
-        		return Left;
-        	}
+            if (CastSyntax.UseImplicitCast(State, Left, Right))
+            {
+                return Right;
+            }
+            else
+            {
+                return Left;
+            }
         }
 
         public static const IExpression CastLeftOperand(ISyntaxState State, IType TargetType, IExpression Left, ISyntaxNode Node, Operator Op)
         {
-        	return CastSyntax.CreateImplicitCast(State, Left, Node, TargetType);
+            return CastSyntax.CreateImplicitCast(State, Left, Node, TargetType);
         }
 
         public static const IExpression CastRightOperand(ISyntaxState State, IType TargetType, IExpression Right, ISyntaxNode Node, Operator Op)
         {
-        	/*if (Op == Operator.RightShift || Op == Operator.LeftShift)
-        	{
-        		return Right;
-        	}
-        	else
-        	{
-        		return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
-        	}*/
-        	return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
+            /*if (Op == Operator.RightShift || Op == Operator.LeftShift)
+            {
+                return Right;
+            }
+            else
+            {
+                return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
+            }*/
+            return CastSyntax.CreateImplicitCast(State, Right, Node, TargetType);
         }
 
         private static const bool IsPrimitiveOperation(IType Left, IType Right, Operator Op)
         {
-        	return (Left.IsEnum || Left.IsPrimitive) && (Right.IsEnum || Right.IsPrimitive);
+            return (Left.IsEnum || Left.IsPrimitive) && (Right.IsEnum || Right.IsPrimitive);
         }
 
         private static const bool IsReferenceComparison(IType Left, IType Right, Operator Op)
         {
-        	return (Op == Operator.CheckEquality || Op == Operator.CheckInequality)
-        		&& (Left.Equals(PrimitiveTypes.Null) || Left.IsPointer || Left.IsReferenceType)
-        		&& (Right.Equals(PrimitiveTypes.Null) || Right.IsPointer || Right.IsReferenceType)
-        		&& (Left.Is(Right) || Right.Is(Left));
+            return (Op == Operator.CheckEquality || Op == Operator.CheckInequality)
+                && (Left.Equals(PrimitiveTypes.Null) || Left.IsPointer || Left.IsReferenceType)
+                && (Right.Equals(PrimitiveTypes.Null) || Right.IsPointer || Right.IsReferenceType)
+                && (Left.Is(Right) || Right.Is(Left));
         }
 
         public static const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Operator Op, IExpressionSyntax Right)
         {
-        	var leftExpr = Left.CreateVerifiedExpression(State);
+            var leftExpr = Left.CreateVerifiedExpression(State);
             var rightExpr = Right.CreateVerifiedExpression(State);
 
             var lType = leftExpr.Type;
@@ -101,13 +101,13 @@ namespace Flame.Syntax.DSharp
             IMethod overload;
             if (IsPrimitiveOperation(lType, rType, Op))
             {
-            	overload = null;
+                overload = null;
             }
             else
             {
-            	overload = Op.GetOperatorOverload(new IType[] { lType, rType });
+                overload = Op.GetOperatorOverload(new IType[] { lType, rType });
 
-            	if (overload == null && !IsReferenceComparison(lType, rType, Op))
+                if (overload == null && !IsReferenceComparison(lType, rType, Op))
                 {
                     if (lType.IsGenericParameter || rType.IsGenericParameter)
                     {
@@ -136,30 +136,30 @@ namespace Flame.Syntax.DSharp
 
             if (overload == null)
             {
-			    var tType = GetBinaryExpressionType(State, lType, rType);
+                var tType = GetBinaryExpressionType(State, lType, rType);
 
-		    	var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
-		    	var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
-		        return DirectBinaryExpression.Create(lExpr, Op, rExpr);
-	        }
-	        else
-	        {
-	        	var overloadParams = overload.GetParameters();
-	        	if (overloadParams.Length == 2)
-	        	{
-		        	var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overloadParams[0].ParameterType);
-		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[1].ParameterType);
+                var lExpr = CastLeftOperand(State, tType, leftExpr, Left, Op);
+                var rExpr = CastRightOperand(State, tType, rightExpr, Right, Op);
+                return DirectBinaryExpression.Create(lExpr, Op, rExpr);
+            }
+            else
+            {
+                var overloadParams = overload.GetParameters();
+                if (overloadParams.Length == 2)
+                {
+                    var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overloadParams[0].ParameterType);
+                    var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[1].ParameterType);
 
                     return new InvocationExpression(overload, null, new IExpression[] { lExpr, rExpr });
-	        	}
-	        	else
-	        	{
-	        		var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overload.DeclaringType);
-		        	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[0].ParameterType);
+                }
+                else
+                {
+                    var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, overload.DeclaringType);
+                    var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, overloadParams[0].ParameterType);
 
                     return new InvocationExpression(overload, lExpr, new IExpression[] { rExpr });
-	        	}
-	        }
+                }
+            }
         }
 
         protected abstract const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Op, IExpressionSyntax Right);

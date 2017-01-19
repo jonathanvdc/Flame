@@ -26,32 +26,32 @@ namespace Flame.Syntax.DSharp
 
         public SourceLocation Location
         {
-        	const get return CastLocation.Concat(Expression.GetSourceLocation());
+            const get return CastLocation.Concat(Expression.GetSourceLocation());
         }
 
         public SourceLocation CastLocation
         {
-        	const get return OpeningToken.Location.Concat(TargetType.GetSourceLocation()).Concat(ClosingToken.Location);
+            const get return OpeningToken.Location.Concat(TargetType.GetSourceLocation()).Concat(ClosingToken.Location);
         }
 
         public IReadOnlyList<Token> Tokens
         {
-        	const get
-        	{
-        		var tks = new List<Token>();
-        		tks.Add(OpeningToken);
-				tks.AddRange(TargetType.GetTokens());
-				tks.Add(ClosingToken);
-				tks.AddRange(Expression.GetTokens());
-				return tks;
-        	}
+            const get
+            {
+                var tks = new List<Token>();
+                tks.Add(OpeningToken);
+                tks.AddRange(TargetType.GetTokens());
+                tks.Add(ClosingToken);
+                tks.AddRange(Expression.GetTokens());
+                return tks;
+            }
         }
 
         public const IExpression CreateExpression(ISyntaxState State)
         {
-        	var expr = Expression.CreateVerifiedExpression(State);
-        	var type = TargetType.CreateVerifiedType(State);
-        	var exprType = expr.Type;
+            var expr = Expression.CreateVerifiedExpression(State);
+            var type = TargetType.CreateVerifiedType(State);
+            var exprType = expr.Type;
 
             if (Warnings.MeaninglessCast.UseWarning(State.Log.Options) &&
                 exprType.Equals(type))
@@ -63,20 +63,20 @@ namespace Flame.Syntax.DSharp
                     Expression.GetCode().Trim().ToString() + "'. "),
                 CastLocation));
             }
-        	else if (Warnings.Bitcast.UseWarning(State.Log.Options) &&
+            else if (Warnings.Bitcast.UseWarning(State.Log.Options) &&
                      exprType.IsBit && type.IsBit)
-        	{
-	       		if (exprType.GetPrimitiveBitSize() > type.GetPrimitiveBitSize())
-	       		{
-	       			State.Log.LogWarning(new LogEntry(
+            {
+                   if (exprType.GetPrimitiveBitSize() > type.GetPrimitiveBitSize())
+                   {
+                       State.Log.LogWarning(new LogEntry(
                         "bit type downcast",
                         Warnings.Bitcast.CreateMessage(
                             "'" + this.GetCode().Trim().ToString() + "' implies a downcast of bit types ('" +
                             State.TypeNamer.Convert(exprType) + "' to '" + State.TypeNamer.Convert(type) +
                             "'). This could lead to an arbitrary loss of information. "),
                         CastLocation));
-	       		}
-	       	}
+                   }
+               }
             return ConversionExpression.Create(expr, type);
         }
 
@@ -109,19 +109,19 @@ namespace Flame.Syntax.DSharp
 
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpressionSyntax Value, IType TargetType)
         {
-        	var expr = Value.CreateVerifiedExpression(State);
-        	return CastSyntax.CreateImplicitCast(State, expr, Value, TargetType);
+            var expr = Value.CreateVerifiedExpression(State);
+            return CastSyntax.CreateImplicitCast(State, expr, Value, TargetType);
         }
 
         public static const IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
         {
-        	var valType = expr.Type;
-        	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
-        	{
-        		return ConversionExpression.Create(expr, TargetType);
-        	}
-        	else
-        	{
+            var valType = expr.Type;
+            if (CastSyntax.UseImplicitCast(State, valType, TargetType))
+            {
+                return ConversionExpression.Create(expr, TargetType);
+            }
+            else
+            {
                 var diffBuilder = new TypeDiffComparer(State.TypeNamer);
                 var leftDiff = diffBuilder.Compare(TargetType, valType);
                 var rightDiff = diffBuilder.Compare(valType, TargetType);
@@ -135,69 +135,69 @@ namespace Flame.Syntax.DSharp
                 nodes.Add(TypeDiffComparer.ToTextNode("'"));
                 var message = new MarkupNode("entry", nodes);
 
-        		State.Log.LogError(new LogEntry("cast error", message, Value.GetSourceLocation()));
-        		return ConversionExpression.Create(expr, TargetType);
-        	}
+                State.Log.LogError(new LogEntry("cast error", message, Value.GetSourceLocation()));
+                return ConversionExpression.Create(expr, TargetType);
+            }
         }
 
         public static const bool UseImplicitCast(ISyntaxState State, IType SourceType, IType TargetType)
         {
-        	if (SourceType.Is(TargetType))
-        	{
-        		return true;
-        	}
-        	else if (SourceType.IsVector && TargetType.IsArray)
-        	{
-        		return SourceType.AsContainerType().ElementType.Is(
+            if (SourceType.Is(TargetType))
+            {
+                return true;
+            }
+            else if (SourceType.IsVector && TargetType.IsArray)
+            {
+                return SourceType.AsContainerType().ElementType.Is(
                             TargetType.AsContainerType().ElementType) &&
                        SourceType.AsContainerType().AsVectorType().Dimensions.Count ==
                             TargetType.AsContainerType().AsArrayType().ArrayRank;
-        	}
-        	if (SourceType.IsPointer && TargetType.IsPointer)
-        	{
-        		var firstPtrType = SourceType.AsContainerType().AsPointerType();
+            }
+            if (SourceType.IsPointer && TargetType.IsPointer)
+            {
+                var firstPtrType = SourceType.AsContainerType().AsPointerType();
                 var secondPtrType = TargetType.AsContainerType().AsPointerType();
                 return firstPtrType.PointerKind.Equals(PointerKind.ReferencePointer) &&
                        secondPtrType.PointerKind.Equals(PointerKind.TransientPointer);
-        	}
-        	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
-        	{
-        		if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
-        		{
-        			if (SourceType.IsSignedInteger)
-        			{
-					 	return TargetType.IsSignedInteger || TargetType.IsFloatingPoint;
-					}
-        			else if (SourceType.IsUnsignedInteger)
-					{
-						if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
-        					return true;
-        				else if (TargetType.IsSignedInteger)
-        					return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
-        				else
-        					return false;
-        			}
-        			else if (SourceType.IsBit && TargetType.IsBit)
-        			{
-        				return true;
-        			}
-        			else if (SourceType.IsFloatingPoint && TargetType.IsFloatingPoint)
-        			{
-        				return true;
-        			}
-        			else
-        			{
-        				return false;
-        			}
-        		}
-        	}
-        	else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.GetGenericDeclaration().Equals(State.Environment.EnumerableType))
-        	{
-        		if (!TargetType.IsGeneric)
-        			return true;
-        		return SourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
-        	}
-        	return false;
+            }
+            if (SourceType.IsPrimitive && TargetType.IsPrimitive)
+            {
+                if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
+                {
+                    if (SourceType.IsSignedInteger)
+                    {
+                         return TargetType.IsSignedInteger || TargetType.IsFloatingPoint;
+                    }
+                    else if (SourceType.IsUnsignedInteger)
+                    {
+                        if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
+                            return true;
+                        else if (TargetType.IsSignedInteger)
+                            return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
+                        else
+                            return false;
+                    }
+                    else if (SourceType.IsBit && TargetType.IsBit)
+                    {
+                        return true;
+                    }
+                    else if (SourceType.IsFloatingPoint && TargetType.IsFloatingPoint)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.GetGenericDeclaration().Equals(State.Environment.EnumerableType))
+            {
+                if (!TargetType.IsGeneric)
+                    return true;
+                return SourceType.AsContainerType().ElementType.Is(Enumerable.First<IType>(TargetType.GetGenericArguments()));
+            }
+            return false;
         }
 
         #endregion

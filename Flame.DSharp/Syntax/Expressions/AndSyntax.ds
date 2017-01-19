@@ -13,7 +13,7 @@ namespace Flame.Syntax.DSharp
 
         protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Op, IExpressionSyntax Right)
         {
-        	return BinaryExpressionSyntax.CreateExpression(State, Left, Operator.And, Right);
+            return BinaryExpressionSyntax.CreateExpression(State, Left, Operator.And, Right);
         }
     }
 }

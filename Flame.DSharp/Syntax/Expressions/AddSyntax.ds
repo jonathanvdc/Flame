@@ -19,7 +19,7 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-            	return ConversionExpression.Create(Expression, PrimitiveTypes.String);
+                return ConversionExpression.Create(Expression, PrimitiveTypes.String);
                 //var method = Expression.Type.GetMethod("ToString", false, PrimitiveTypes.String, new IType[0]);
                 //return new InvocationExpression(method, Expression, new IExpression[0]);
             }
@@ -31,15 +31,15 @@ namespace Flame.Syntax.DSharp
             var rightExpr = Right.CreateVerifiedExpression(State);
             if (leftExpr.Type.Equals(PrimitiveTypes.String) || rightExpr.Type.Equals(PrimitiveTypes.String))
             {
-            	return new ConcatExpression(ToString(leftExpr), ToString(rightExpr));
+                return new ConcatExpression(ToString(leftExpr), ToString(rightExpr));
                 /*var concatMethod = PrimitiveTypes.String.GetMethod("Concat", true, PrimitiveTypes.String, new IType[] { PrimitiveTypes.String, PrimitiveTypes.String });
                 return new InvocationExpression(concatMethod, null, new IExpression[] { ToString(leftExpr), ToString(rightExpr) });*/
             }
             else
             {
-            	var tType = BinaryExpressionSyntax.GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type);
-            	var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, tType);
-            	var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, tType);
+                var tType = BinaryExpressionSyntax.GetBinaryExpressionType(State, leftExpr.Type, rightExpr.Type);
+                var lExpr = CastSyntax.CreateImplicitCast(State, leftExpr, Left, tType);
+                var rExpr = CastSyntax.CreateImplicitCast(State, rightExpr, Right, tType);
                 return new AddExpression(lExpr, rExpr);
             }
         }
