@@ -245,7 +245,9 @@ namespace Flame.Cecil
                 { Operator.Decrement, DecrementOperatorName },
                 { Operator.Increment, IncrementOperatorName },
                 { Operator.Not, LogicalNotOperatorName },
-                { Operator.Subtract, UnaryNegationOperatorName }
+                { Operator.Subtract, UnaryNegationOperatorName },
+                { Operator.ConvertImplicit, ImplicitConversionName },
+                { Operator.ConvertExplicit, ExplicitConversionName }
             };
 
             opMap = new Dictionary<string, Operator>();
