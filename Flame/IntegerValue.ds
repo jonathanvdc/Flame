@@ -492,13 +492,7 @@ namespace Flame
         /// </summary>
         public IntegerValue ShiftLeft(IntegerValue Other)
         {
-            // TODO: replace this with an operator application after upgrading
-            // the D# compiler version.
-            return new IntegerValue(
-                BigInteger.Multiply(
-                    Value,
-                    BigInteger.Pow(new BigInteger((int)2), Other.ToInt32())),
-                Spec);
+            return new IntegerValue(Value << Other.ToInt32(), Spec);
         }
 
         /// <summary>
@@ -507,13 +501,7 @@ namespace Flame
         /// </summary>
         public IntegerValue ShiftRight(IntegerValue Other)
         {
-            // TODO: replace this with an operator application after upgrading
-            // the D# compiler version.
-            return new IntegerValue(
-                BigInteger.Divide(
-                    Value,
-                    BigInteger.Pow(new BigInteger((int)2), Other.ToInt32())),
-                Spec);
+            return new IntegerValue(Value >> Other.ToInt32(), Spec);
         }
 
         /// <summary>
