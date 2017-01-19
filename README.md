@@ -114,13 +114,13 @@ Flame.Compiler provides a common API for code generation, and is written in D#.
 A brief list of its functionality is as follows.
 
 ### Low-level code generation
-This is achieved by the ICodeGenerator interface, which allows for the creation of ICodeBlocks, which are rather opaque, implementation-defined objects.
-Any ICodeBlock implementation must support yielding zero or one values, like a statement or expression.
+This is achieved by the `ICodeGenerator` interface, which allows for the creation of `ICodeBlocks`: opaque, implementation-defined objects that represent a chunk of target-specific code.
+Any `ICodeBlock` implementation must support yielding zero or one values, like a statement or expression.
 These code blocks need not, however, restrict themselves to this model.
-The ICodeBlock implementations for the .Net Framework IL, for example, conveniently model a stack, whereas a code block implementation for a register-based architecture may use registers instead.
+The `ICodeBlock` implementations for the .Net Framework IL, for example, conveniently model a stack, whereas a code block implementation for a register-based architecture may use registers instead.
 
 ### High-level expression-statement trees
-The IExpression and IStatement interfaces are a programmer-friendly abstraction over the lower-level emit API.
+The `IExpression` and `IStatement` interfaces are a programmer-friendly abstraction over the lower-level emit API.
 Expressions can be queried for their type, and support compile-time evaluation.
 Both statements and expressions have an "Optimize" method, which is intended to perform simple optimizations, like compile-time string concatenation.
 
@@ -128,10 +128,10 @@ Both statements and expressions have an "Optimize" method, which is intended to 
 Flame.Compiler also includes some simple interfaces that define common project behavior to make project file format interoperation easier.
 
 ### Textual code generation
-CodeBuilder and CodeLine ease the process of generating well-formatted textual code.
+`CodeBuilder` and `CodeLine` ease the process of generating well-formatted textual code.
 
 ### Assembly creation
-IAssemblyBuilder, INamespaceBuilder, ITypeBuilder, etc function as a portable interface for any back-end.
+`IAssemblyBuilder`, `INamespaceBuilder`, `ITypeBuilder`, etc function as a portable interface for any back-end.
 
 ## Flame.Syntax
 Flame.Syntax is a small project that makes writing front-ends and back-ends for various programming languages easier.  
