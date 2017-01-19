@@ -11,19 +11,19 @@ namespace Flame.Syntax.DSharp
     {
         public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);
 
-        protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Operator, IExpressionSyntax Right)
+        protected override IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token OpToken, IExpressionSyntax Right)
         {
-            return new LeftShiftExpression(Left.CreateVerifiedExpression(State), Right.CreateVerifiedExpression(State));
+            return BinaryExpressionSyntax.CreateExpression(State, Left, Operator.LeftShift, Right);
         }
     }
-    
+
     public class RightShiftSyntax : BinaryExpressionSyntax
     {
         public const this(set IExpressionSyntax Left, set Token OperatorToken, set IExpressionSyntax Right);
 
-        protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Operator, IExpressionSyntax Right)
+        protected override IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token OpToken, IExpressionSyntax Right)
         {
-            return new RightShiftExpression(Left.CreateVerifiedExpression(State), Right.CreateVerifiedExpression(State));
+            return BinaryExpressionSyntax.CreateExpression(State, Left, Operator.RightShift, Right);
         }
     }
 }

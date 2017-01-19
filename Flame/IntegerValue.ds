@@ -492,6 +492,8 @@ namespace Flame
         /// </summary>
         public IntegerValue ShiftLeft(IntegerValue Other)
         {
+            // TODO: replace this with an operator application after upgrading
+            // the D# compiler version.
             return new IntegerValue(
                 BigInteger.Multiply(
                     Value,
@@ -505,6 +507,8 @@ namespace Flame
         /// </summary>
         public IntegerValue ShiftRight(IntegerValue Other)
         {
+            // TODO: replace this with an operator application after upgrading
+            // the D# compiler version.
             return new IntegerValue(
                 BigInteger.Divide(
                     Value,
