@@ -17,18 +17,18 @@ namespace Flame
 
         public bool IsDefined
         {
-        	const get return typeIndex > -1;
+            const get return typeIndex > -1;
         }
 
         public string Name
         {
-	        const get
-	        {
-	        	if (typeIndex >= 0)
-	        		return typeNames[typeIndex];
-	        	else
-	        		return null;
-	        }
+            const get
+            {
+                if (typeIndex >= 0)
+                    return typeNames[typeIndex];
+                else
+                    return null;
+            }
         }
 
         #region Equality
@@ -71,16 +71,16 @@ namespace Flame
             operatorDict = new ConcurrentDictionary<string, Operator>();
             RegisterAll(new Operator[]
             {
-            	Operator.Add, Operator.Subtract,
-            	Operator.Multiply, Operator.Divide, Operator.Remainder,
-            	Operator.LeftShift, Operator.RightShift,
-            	Operator.Or, Operator.And, Operator.Xor,
-            	Operator.LogicalOr, Operator.LogicalAnd,
+                Operator.Add, Operator.Subtract,
+                Operator.Multiply, Operator.Divide, Operator.Remainder,
+                Operator.LeftShift, Operator.RightShift,
+                Operator.Or, Operator.And, Operator.Xor,
+                Operator.LogicalOr, Operator.LogicalAnd,
                 Operator.BitwiseComplement,
-            	Operator.CheckEquality, Operator.CheckInequality,
-            	Operator.CheckLessThan, Operator.CheckLessThanOrEqual,
-            	Operator.CheckGreaterThan, Operator.CheckGreaterThanOrEqual,
-            	Operator.Not, Operator.Hash, Operator.Concat,
+                Operator.CheckEquality, Operator.CheckInequality,
+                Operator.CheckLessThan, Operator.CheckLessThanOrEqual,
+                Operator.CheckGreaterThan, Operator.CheckGreaterThanOrEqual,
+                Operator.Not, Operator.Hash, Operator.Concat,
                 Operator.IsInstance, Operator.AsInstance,
                 Operator.StaticCast, Operator.DynamicCast,
                 Operator.Box, Operator.UnboxReference, Operator.UnboxValue,
@@ -117,7 +117,7 @@ namespace Flame
         }
         public static Operator GetOperator(string OperatorName)
         {
-        	if (TryGetOperator(OperatorName, &Operator result))
+            if (TryGetOperator(OperatorName, &Operator result))
             {
                 return result;
             }
@@ -129,23 +129,23 @@ namespace Flame
 
         public static const bool IsComparisonOperator(Operator Op)
         {
-        	int tIndex = Op.typeIndex;
-        	return 	tIndex == Operator.CheckEquality.typeIndex || tIndex == Operator.CheckInequality.typeIndex ||
-        			tIndex == Operator.CheckGreaterThan.typeIndex || tIndex == Operator.CheckGreaterThanOrEqual.typeIndex ||
-        			tIndex == Operator.CheckLessThan.typeIndex || tIndex == Operator.CheckLessThanOrEqual.typeIndex;
+            int tIndex = Op.typeIndex;
+            return     tIndex == Operator.CheckEquality.typeIndex || tIndex == Operator.CheckInequality.typeIndex ||
+                    tIndex == Operator.CheckGreaterThan.typeIndex || tIndex == Operator.CheckGreaterThanOrEqual.typeIndex ||
+                    tIndex == Operator.CheckLessThan.typeIndex || tIndex == Operator.CheckLessThanOrEqual.typeIndex;
         }
 
         #endregion
 
         #region Common Accessors
 
-		public static Operator Undefined
-		{
-			const get
-			{
-				return new Operator(-1);
-			}
-		}
+        public static Operator Undefined
+        {
+            const get
+            {
+                return new Operator(-1);
+            }
+        }
 
         public static Operator Add
         {
@@ -310,17 +310,17 @@ namespace Flame
         }
         public static Operator Hash
         {
-        	get
-        	{
-        		return Register("hash");
-        	}
+            get
+            {
+                return Register("hash");
+            }
         }
         public static Operator Concat
         {
-        	get
-        	{
-        		return Register("++");
-        	}
+            get
+            {
+                return Register("++");
+            }
         }
 
         public static Operator Increment
