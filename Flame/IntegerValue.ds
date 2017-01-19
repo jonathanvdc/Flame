@@ -628,7 +628,9 @@ namespace Flame
         {
             // HACK: this is not The Right Way to do this. Ideally, we'd
             // use the user-defined conversion operator in BigInteger, but
-            // the D# compiler ignores that ATM.
+            // older versions of the D# compiler don't support that.
+            // TODO: update the D# compiler after the next release, and
+            // replace this with a proper user-defined conversion.
             return (float)ToInt64();
         }
 
@@ -639,7 +641,9 @@ namespace Flame
         {
             // HACK: this is not The Right Way to do this. Ideally, we'd
             // use the user-defined conversion operator in BigInteger, but
-            // the D# compiler ignores that ATM.
+            // older versions of the D# compiler don't support that.
+            // TODO: update the D# compiler after the next release, and
+            // replace this with a proper user-defined conversion.
             return (double)ToInt64();
         }
 
