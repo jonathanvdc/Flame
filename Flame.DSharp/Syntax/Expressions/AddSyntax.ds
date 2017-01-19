@@ -25,7 +25,7 @@ namespace Flame.Syntax.DSharp
             }
         }
 
-        protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token Operator, IExpressionSyntax Right)
+        protected override const IExpression CreateExpression(ISyntaxState State, IExpressionSyntax Left, Token OpToken, IExpressionSyntax Right)
         {
             var leftExpr = Left.CreateVerifiedExpression(State);
             var rightExpr = Right.CreateVerifiedExpression(State);
