@@ -2,43 +2,68 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Flame
 {
+    /// <summary>
+    /// Represents an operator type.
+    /// </summary>
     public struct Operator
     {
-        private const this(set int32 typeIndex);
-        public const this(Operator Other)
+        private this(set int32 typeIndex);
+        public this(Operator Other)
         {
             this.typeIndex = Other.typeIndex;
         }
 
         private int32 typeIndex;
 
+        /// <summary>
+        /// Gets a boolean value that tells if this operator is a defined
+        /// operator or not.
+        /// </summary>
         public bool IsDefined
         {
-            const get return typeIndex > -1;
+            get { return typeIndex > -1; }
         }
 
+        /// <summary>
+        /// Gets this operator's name.
+        /// </summary>
         public string Name
         {
-            const get
+            get
             {
                 if (typeIndex >= 0)
-                    return typeNames[typeIndex];
+                {
+                    string result;
+                    rwLock.EnterReadLock();
+                    try
+                    {
+                        result = typeNames[typeIndex];
+                    }
+                    finally
+                    {
+                        rwLock.ExitReadLock();
+                    }
+                    return result;
+                }
                 else
+                {
                     return null;
+                }
             }
         }
 
         #region Equality
 
-        public override const int32 GetHashCode()
+        public override int32 GetHashCode()
         {
             return typeIndex.GetHashCode();
         }
 
-        public override const bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             if (obj is Operator)
             {
@@ -68,7 +93,8 @@ namespace Flame
         static this()
         {
             typeNames = new List<string>();
-            operatorDict = new ConcurrentDictionary<string, Operator>();
+            operatorDict = new Dictionary<string, Operator>();
+            rwLock = new ReaderWriterLockSlim();
             RegisterAll(new Operator[]
             {
                 Operator.Add, Operator.Subtract,
@@ -93,42 +119,98 @@ namespace Flame
         }
 
         private static List<string> typeNames;
-        private static ConcurrentDictionary<string, Operator> operatorDict;
+        private static Dictionary<string, Operator> operatorDict;
+        private static ReaderWriterLockSlim rwLock;
 
         private static void RegisterAll(Operator[] Operators); // Does nothing. 'Operator' values are already registered.
 
-        private static Operator RegisterNew(string Name)
-        {
-            typeNames.Add(Name);
-            return new Operator(typeNames.Count - 1);
-        }
-
+        /// <summary>
+        /// Returns the operator with the given name if it exists. If not,
+        /// then a new operator is defined.
+        /// </summary>
         public static Operator Register(string Name)
         {
-            return operatorDict.GetOrAdd(Name, RegisterNew);
+            rwLock.EnterUpgradeableReadLock();
+            Operator result;
+            try
+            {
+                // Check if the operator has already been defined.
+                if (!operatorDict.TryGetValue(Name, &result))
+                {
+                    rwLock.EnterWriteLock();
+                    try
+                    {
+                        // Define the operator.
+                        int index = typeNames.Count;
+                        typeNames.Add(Name);
+                        result = new Operator(index);
+                        operatorDict[Name] = result;
+                    }
+                    finally
+                    {
+                        rwLock.ExitWriteLock();
+                    }
+                }
+            }
+            finally
+            {
+                rwLock.ExitUpgradeableReadLock();
+            }
+            return result;
         }
 
+        /// <summary>
+        /// Tests if an operator with the given name has been defined.
+        /// </summary>
         public static bool IsOperator(string Operator)
         {
-            return typeNames.Contains(Operator);
+            rwLock.EnterReadLock();
+            bool result;
+            try
+            {
+                result = typeNames.Contains(Operator);
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+            return result;
         }
+
+        /// <summary>
+        /// Gets the operator with the given name, if it exists.
+        /// </summary>
         public static bool TryGetOperator(string OperatorName, out Operator^ Result)
         {
-            return operatorDict.TryGetValue(OperatorName, Result);
+            rwLock.EnterReadLock();
+            bool result;
+            try
+            {
+                result = operatorDict.TryGetValue(OperatorName, Result);
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+            return result;
         }
+
+        /// <summary>
+        /// Gets the operator with the given name, if it exists. Otherwise,
+        /// returns the undefined operator.
+        /// </summary>
         public static Operator GetOperator(string OperatorName)
         {
             if (TryGetOperator(OperatorName, &Operator result))
-            {
                 return result;
-            }
             else
-            {
                 return Undefined;
-            }
         }
 
-        public static const bool IsComparisonOperator(Operator Op)
+        /// <summary>
+        /// Tests if the given operator is a comparison operator.
+        /// </summary>
+        public static bool IsComparisonOperator(Operator Op)
         {
             int tIndex = Op.typeIndex;
             return tIndex == Operator.CheckEquality.typeIndex
