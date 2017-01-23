@@ -5,167 +5,171 @@ using System.Linq;
 
 namespace Flame.Build
 {
-	public abstract class TypeConverterBase<TTarget> : IConverter<IType, TTarget>
-	{
-		public const this();
+    /// <summary>
+    /// A base class for classes that convert types to arbitrary values, based
+    /// on the structure of those types.
+    /// </summary>
+    public abstract class TypeConverterBase<TTarget> : IConverter<IType, TTarget>
+    {
+        public this();
 
-		protected abstract TTarget MakePointerType(TTarget ElementType, PointerKind Kind);
-		protected abstract TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
-		protected abstract TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
-		protected abstract TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
-		protected abstract TTarget ConvertTypeDefault(IType Type);
+        protected abstract TTarget MakePointerType(TTarget ElementType, PointerKind Kind);
+        protected abstract TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
+        protected abstract TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
+        protected abstract TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
+        protected abstract TTarget ConvertTypeDefault(IType Type);
 
-		protected virtual TTarget ConvertPointerType(PointerType Type)
-		{
-			return MakePointerType(Convert(Type.ElementType), Type.PointerKind);
-		}
+        protected virtual TTarget ConvertPointerType(PointerType Type)
+        {
+            return MakePointerType(Convert(Type.ElementType), Type.PointerKind);
+        }
 
-		protected virtual TTarget ConvertArrayType(ArrayType Type)
-		{
-			return MakeArrayType(Convert(Type.ElementType), Type.ArrayRank);
-		}
+        protected virtual TTarget ConvertArrayType(ArrayType Type)
+        {
+            return MakeArrayType(Convert(Type.ElementType), Type.ArrayRank);
+        }
 
-		protected virtual TTarget ConvertVectorType(VectorType Type)
-		{
-			return MakeVectorType(Convert(Type.ElementType), Type.Dimensions);
-		}
+        protected virtual TTarget ConvertVectorType(VectorType Type)
+        {
+            return MakeVectorType(Convert(Type.ElementType), Type.Dimensions);
+        }
 
-		protected virtual TTarget ConvertGenericParameter(IGenericParameter Type)
-		{
-			return ConvertTypeDefault(Type);
-		}
+        protected virtual TTarget ConvertGenericParameter(IGenericParameter Type)
+        {
+            return ConvertTypeDefault(Type);
+        }
 
-		protected virtual TTarget ConvertGenericInstance(IType Type)
-		{
-			return MakeGenericType(Convert(Type.GetGenericDeclaration()), Convert(Type.GetGenericArguments()));
-		}
+        protected virtual TTarget ConvertGenericInstance(IType Type)
+        {
+            return MakeGenericType(Convert(Type.GetGenericDeclaration()), Convert(Type.GetGenericArguments()));
+        }
 
-		protected virtual TTarget ConvertTypeDeclaration(IType Type)
-		{
-			if (Type.IsPrimitive)
-			{
-				return ConvertPrimitiveType(Type);
-			}
-			else if (Type.IsGenericParameter)
-			{
-				return ConvertGenericParameter((IGenericParameter)Type);
-			}
-			else if (Type.IsDelegate && (Type.IsGenericInstance || !Type.IsGeneric))
-			{
-				return ConvertDelegateType(Type);
-			}
-			else if (Type.DeclaringNamespace is IType)
-			{
-				return ConvertNestedType(Type, (IType)Type.DeclaringNamespace);
-			}
-			else
-			{
-				return ConvertUserType(Type);
-			}
-		}
+        protected virtual TTarget ConvertTypeDeclaration(IType Type)
+        {
+            if (Type.IsPrimitive)
+            {
+                return ConvertPrimitiveType(Type);
+            }
+            else if (Type.IsGenericParameter)
+            {
+                return ConvertGenericParameter((IGenericParameter)Type);
+            }
+            else if (Type.IsDelegate && (Type.IsGenericInstance || !Type.IsGeneric))
+            {
+                return ConvertDelegateType(Type);
+            }
+            else if (Type.DeclaringNamespace is IType)
+            {
+                return ConvertNestedType(Type, (IType)Type.DeclaringNamespace);
+            }
+            else
+            {
+                return ConvertUserType(Type);
+            }
+        }
 
-		protected virtual TTarget ConvertNestedType(IType Type, IType DeclaringType)
-		{
-			return ConvertUserType(Type);
-		}
+        protected virtual TTarget ConvertNestedType(IType Type, IType DeclaringType)
+        {
+            return ConvertUserType(Type);
+        }
 
-		protected virtual TTarget ConvertDelegateType(IType Type)
-		{
-			return ConvertUserType(Type);
-		}
+        protected virtual TTarget ConvertDelegateType(IType Type)
+        {
+            return ConvertUserType(Type);
+        }
 
-		protected virtual TTarget ConvertIntersectionType(IntersectionType Type)
-		{
-			return ConvertTypeDefault(Type);
-		}
+        protected virtual TTarget ConvertIntersectionType(IntersectionType Type)
+        {
+            return ConvertTypeDefault(Type);
+        }
 
-		private const TTarget ConvertUserType(IType Type)
-		{
-			if (Type.IsGenericParameter)
-			{
-				return ConvertGenericParameter((IGenericParameter)Type);
-			}
-			else if (Type.IsEnum)
-			{
-				return ConvertEnumType(Type);
-			}
-			else if (Type.IsInterface)
-			{
-				return ConvertInterfaceType(Type);
-			}
-			else if (Type.IsValueType)
-			{
-				return ConvertValueType(Type);
-			}
-			else
-			{
-				return ConvertReferenceType(Type);
-			}
-		}
+        protected virtual TTarget ConvertUserType(IType Type)
+        {
+            if (Type.IsGenericParameter)
+            {
+                return ConvertGenericParameter((IGenericParameter)Type);
+            }
+            else if (Type.IsEnum)
+            {
+                return ConvertEnumType(Type);
+            }
+            else if (Type.IsInterface)
+            {
+                return ConvertInterfaceType(Type);
+            }
+            else if (Type.IsValueType)
+            {
+                return ConvertValueType(Type);
+            }
+            else
+            {
+                return ConvertReferenceType(Type);
+            }
+        }
 
-		protected virtual TTarget ConvertReferenceType(IType Type)
-		{
-			return ConvertTypeDefault(Type);
-		}
+        protected virtual TTarget ConvertReferenceType(IType Type)
+        {
+            return ConvertTypeDefault(Type);
+        }
 
-		protected virtual TTarget ConvertValueType(IType Type)
-		{
-			return ConvertTypeDefault(Type);
-		}
+        protected virtual TTarget ConvertValueType(IType Type)
+        {
+            return ConvertTypeDefault(Type);
+        }
 
-		protected virtual TTarget ConvertEnumType(IType Type)
-		{
-			return ConvertValueType(Type);
-		}
+        protected virtual TTarget ConvertEnumType(IType Type)
+        {
+            return ConvertValueType(Type);
+        }
 
-		protected virtual TTarget ConvertInterfaceType(IType Type)
-		{
-			return ConvertReferenceType(Type);
-		}
+        protected virtual TTarget ConvertInterfaceType(IType Type)
+        {
+            return ConvertReferenceType(Type);
+        }
 
-		protected virtual TTarget ConvertPrimitiveType(IType Type)
-		{
-			if (Type.IsValueType)
-			{
-				return ConvertValueType(Type);
-			}
-			else
-			{
-				return ConvertReferenceType(Type);
-			}
-		}
+        protected virtual TTarget ConvertPrimitiveType(IType Type)
+        {
+            if (Type.IsValueType)
+            {
+                return ConvertValueType(Type);
+            }
+            else
+            {
+                return ConvertReferenceType(Type);
+            }
+        }
 
-		public virtual [TTarget] Convert([IType] Values)
-		{
-			return Enumerable.Select<IType, TTarget>(Values, Convert);
-		}
+        public virtual [TTarget] Convert([IType] Values)
+        {
+            return Enumerable.Select<IType, TTarget>(Values, Convert);
+        }
 
-		public virtual TTarget Convert(IType Value)
-		{
-			if (Value.IsPointer)
-			{
-				return ConvertPointerType((PointerType)Value);
-			}
-			else if (Value.IsArray)
-			{
-				return ConvertArrayType((ArrayType)Value);
-			}
-			else if (Value.IsVector)
-			{
-				return ConvertVectorType((VectorType)Value);
-			}
-			else if (Value.IsGenericInstance)
-			{
-				return ConvertGenericInstance(Value);
-			}
-			else if (Value.IsIntersectionType)
-			{
-				return ConvertIntersectionType((IntersectionType)Value);
-			}
-			else
-			{
-				return ConvertTypeDeclaration(Value);
-			}
-		}
-	}
+        public virtual TTarget Convert(IType Value)
+        {
+            if (Value.IsPointer)
+            {
+                return ConvertPointerType((PointerType)Value);
+            }
+            else if (Value.IsArray)
+            {
+                return ConvertArrayType((ArrayType)Value);
+            }
+            else if (Value.IsVector)
+            {
+                return ConvertVectorType((VectorType)Value);
+            }
+            else if (Value.IsGenericInstance)
+            {
+                return ConvertGenericInstance(Value);
+            }
+            else if (Value.IsIntersectionType)
+            {
+                return ConvertIntersectionType((IntersectionType)Value);
+            }
+            else
+            {
+                return ConvertTypeDeclaration(Value);
+            }
+        }
+    }
 }
