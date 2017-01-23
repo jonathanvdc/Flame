@@ -7,9 +7,9 @@ namespace Flame.Build
 {
     public virtual class TypeTransformerBase : TypeConverterBase<IType>
     {
-        public const this();
+        public this();
 
-        private static const bool TypeReferencesEqual([IType] First, [IType] Second)
+        private static bool TypeReferencesEqual([IType] First, [IType] Second)
         {
             foreach (var left in First, var right in Second)
                 if (!object.ReferenceEquals(left, right))
@@ -19,27 +19,27 @@ namespace Flame.Build
             return true;
         }
 
-        protected override virtual const IType MakePointerType(IType ElementType, PointerKind Kind)
+        protected override virtual IType MakePointerType(IType ElementType, PointerKind Kind)
         {
             return ElementType.MakePointerType(Kind);
         }
 
-        protected override virtual const IType MakeArrayType(IType ElementType, int ArrayRank)
+        protected override virtual IType MakeArrayType(IType ElementType, int ArrayRank)
         {
             return ElementType.MakeArrayType(ArrayRank);
         }
 
-        protected override virtual const IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
+        protected override virtual IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
         {
             return ElementType.MakeVectorType(Dimensions);
         }
 
-        protected override virtual const IType MakeGenericType(IType GenericDeclaration, [IType] TypeArguments)
+        protected override virtual IType MakeGenericType(IType GenericDeclaration, [IType] TypeArguments)
         {
             return GenericDeclaration.MakeGenericType(TypeArguments);
         }
 
-        protected override virtual const IType ConvertDelegateType(IType Type)
+        protected override virtual IType ConvertDelegateType(IType Type)
         {
             var method = MethodType.GetMethod(Type);
             var retType = Convert(method.ReturnType);
@@ -68,7 +68,7 @@ namespace Flame.Build
             return MethodType.Create(descMethod);
         }
 
-        protected override virtual const IType ConvertIntersectionType(IntersectionType Type)
+        protected override virtual IType ConvertIntersectionType(IntersectionType Type)
         {
             var convFirst = Convert(Type.First);
             var convSecond = Convert(Type.Second);
@@ -82,7 +82,7 @@ namespace Flame.Build
             return new IntersectionType(Convert(Type.First), Convert(Type.Second));
         }
 
-        protected override virtual const IType ConvertGenericInstance(IType Type)
+        protected override virtual IType ConvertGenericInstance(IType Type)
         {
             var genDecl = Type.GetGenericDeclaration();
             var genArgs = Type.GetGenericArguments();
@@ -99,7 +99,7 @@ namespace Flame.Build
             return MakeGenericType(convDecl, convArgs);
         }
 
-        protected override virtual const IType ConvertPointerType(PointerType Type)
+        protected override virtual IType ConvertPointerType(PointerType Type)
         {
             var elemType = Type.ElementType;
             var convElem = Convert(elemType);
@@ -112,7 +112,7 @@ namespace Flame.Build
             return MakePointerType(convElem, Type.PointerKind);
         }
 
-        protected override virtual const IType ConvertArrayType(ArrayType Type)
+        protected override virtual IType ConvertArrayType(ArrayType Type)
         {
             var elemType = Type.ElementType;
             var convElem = Convert(elemType);
@@ -125,7 +125,7 @@ namespace Flame.Build
             return MakeArrayType(convElem, Type.ArrayRank);
         }
 
-        protected override virtual const IType ConvertVectorType(VectorType Type)
+        protected override virtual IType ConvertVectorType(VectorType Type)
         {
             var elemType = Type.ElementType;
             var convElem = Convert(elemType);
@@ -138,7 +138,7 @@ namespace Flame.Build
             return MakeVectorType(convElem, Type.Dimensions);
         }
 
-        protected override virtual const IType ConvertTypeDefault(IType Type)
+        protected override virtual IType ConvertTypeDefault(IType Type)
         {
             return Type;
         }
