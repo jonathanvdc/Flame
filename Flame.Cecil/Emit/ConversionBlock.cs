@@ -42,8 +42,13 @@ namespace Flame.Cecil.Emit
                     {
                         Context.Emit(OpCodes.Conv_U8);
                     }
-                    else if (sourceMag > 4 && targetMag == 4) // Downcasting bit types is not cool, really. I don't think the CLR back-end should be the one to complain about this, though.
+                    else if (sourceMag > 4 && targetMag == 4)
                     {
+                        // Downcasting bit types is not cool, really. 
+                        // I don't think the CLR back-end is the 
+                        // right place to complain about conversions 
+                        // like these, though. So let's just permit
+                        // them and make the front-ends catch them.
                         Context.Emit(OpCodes.Conv_U4);
                     }
                     else if (sourceMag > 2 && targetMag == 2)
@@ -104,8 +109,10 @@ namespace Flame.Cecil.Emit
                 if (Source.GetIsUnsignedInteger())
                 {
                     Context.Emit(OpCodes.Conv_R_Un);
-                    if (Source.GetPrimitiveBitSize() > 16) // ushort and byte always fit in a float32, so only perform this cast for uint and ulong
+                    if (Source.GetPrimitiveBitSize() > 16)
                     {
+                        // ushort and byte always fit in a float32, 
+                        // so only perform this cast for uint and ulong
                         Context.Emit(OpCodes.Conv_R4);
                     }
                 }
@@ -114,16 +121,17 @@ namespace Flame.Cecil.Emit
                     Context.Emit(OpCodes.Conv_R4);
                 }
             }
+            else if (CanElideIntegerCast(Source, Target))
+            {
+                // Do nothing.
+            }
             else if (Target.Equals(PrimitiveTypes.Int8))
             {
                 Context.Emit(OpCodes.Conv_I1);
             }
             else if (Target.Equals(PrimitiveTypes.Int16))
             {
-                if (!Source.Equals(PrimitiveTypes.Char))
-                {
-                    Context.Emit(OpCodes.Conv_I2);
-                }
+                Context.Emit(OpCodes.Conv_I2);
             }
             else if (Target.Equals(PrimitiveTypes.Int32))
             {
@@ -137,7 +145,7 @@ namespace Flame.Cecil.Emit
             {
                 Context.Emit(OpCodes.Conv_U1);
             }
-            else if (Target.Equals(PrimitiveTypes.UInt16) && !Source.Equals(PrimitiveTypes.Char))
+            else if (Target.Equals(PrimitiveTypes.UInt16))
             {
                 Context.Emit(OpCodes.Conv_U2);
             }
@@ -151,14 +159,61 @@ namespace Flame.Cecil.Emit
             }
             else if (Target.Equals(PrimitiveTypes.Char))
             {
-                if (Source.GetPrimitiveBitSize() != 16)
-                {
-                    Context.Emit(OpCodes.Conv_I2);
-                }
+                Context.Emit(OpCodes.Conv_I2);
             }
             else
             {
                 throw new NotSupportedException();
+            }
+        }
+
+        /// <summary>
+        /// Determines if an integer cast from the first type to the
+        /// second can be elided.
+        /// </summary>
+        /// <returns><c>true</c> if the integer cast can be elided; otherwise, <c>false</c>.</returns>
+        /// <param name="From">The source integer type.</param>
+        /// <param name="To">The target integer type.</param>
+        private static bool CanElideIntegerCast(IType From, IType To)
+        {
+            // We can elide the following types of integer casts:
+            //
+            // *  Casts that convert an i_n to an i_m or a u_n to a u_m,
+            //    where n <= m <= 4. This will simply chop off part 
+            //    of the original value, and then sign/zero-extend 
+            //    the result. However, the original values was _already_ 
+            //    sign/zero-extended to an i4. So this is a nop.
+            //
+            // * Casts that convert an i_n to an i4/u4 or a u_n to an i4/u4.
+            //   These casts don't do anything at all.
+            //
+            // We can reformulate this as: any integer-to-integer cast
+            // can be elided, provided that the to-type is smaller than or
+            // equal to an i4 in size, that the from-type is smaller
+            // than or equal to the to-type, and that one of the following
+            // holds:
+            //
+            // *  The to-type and from-type have the same signedness.
+            // 
+            // *  The to-type is either i4 or u4.
+            //
+            if ((From.GetIsInteger() || From.Equals(PrimitiveTypes.Char))
+                && (To.GetIsInteger() || To.Equals(PrimitiveTypes.Char)))
+            {
+                var toBitSize = To.GetPrimitiveBitSize();
+                if (toBitSize > 32)
+                    return false;
+
+                if (From.GetPrimitiveBitSize() > toBitSize)
+                    return false;
+
+                return (To.GetIsSignedInteger() && From.GetIsSignedInteger())
+                || (To.GetIsUnsignedInteger() && From.GetIsUnsignedInteger())
+                || (To.Equals(PrimitiveTypes.Int32) || To.Equals(PrimitiveTypes.UInt32));
+            }
+            else
+            {
+                return false;
             }
         }
 
