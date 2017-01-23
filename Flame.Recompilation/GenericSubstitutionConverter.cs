@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class GenericSubstitutionConverter : TypeTransformerBase
+    public class GenericSubstitutionConverter : GenericTypeTransformerBase
     {
         public GenericSubstitutionConverter(IType GenericDeclaration, IType GenericInstance)
         {
@@ -28,8 +28,8 @@ namespace Flame.Recompilation
                     map = GenericInstance.GetRecursiveGenericParameters()
                             .Zip(GenericInstance.GetRecursiveGenericArguments(), (a, b) => new KeyValuePair<IGenericParameter, IType>(a, b))
                             .ToDictionary<KeyValuePair<IGenericParameter, IType>, IGenericParameter, IType>(
-                                item => item.Key, 
-                                item => item.Value, 
+                                item => item.Key,
+                                item => item.Value,
                                 TypeNameComparer.Instance);
                 }
                 return map;

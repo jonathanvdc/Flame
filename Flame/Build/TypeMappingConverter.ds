@@ -7,7 +7,7 @@ namespace Flame.Build
 	/// <summary>
 	/// A type converter that maps specific types to specific other types.
 	/// </summary>
-	public class TypeMappingConverter : TypeTransformerBase
+	public class TypeMappingConverter : GenericTypeTransformerBase
 	{
 		public const this(set IReadOnlyDictionary<IType, IType> Mapping);
 
@@ -30,7 +30,7 @@ namespace Flame.Build
 	/// A type converter that replaces type parameters by a generic member's
 	/// (recursive) type parameters.
 	/// </summary>
-	public class TypeParameterConverter : TypeTransformerBase
+	public class TypeParameterConverter : GenericTypeTransformerBase
 	{
 		public this(set IGenericMember DeclaringMember)
 		{

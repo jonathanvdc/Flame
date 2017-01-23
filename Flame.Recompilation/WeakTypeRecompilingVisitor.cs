@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class WeakTypeRecompilingVisitor : TypeTransformerBase
+    public class WeakTypeRecompilingVisitor : GenericTypeTransformerBase
     {
         public WeakTypeRecompilingVisitor(AssemblyRecompiler Recompiler, IGenericMember DeclaringMember)
         {

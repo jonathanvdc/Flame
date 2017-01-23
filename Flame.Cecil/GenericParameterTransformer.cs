@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class GenericParameterTransformer : TypeTransformerBase
+    public class GenericParameterTransformer : GenericTypeTransformerBase
     {
         public GenericParameterTransformer(IEnumerable<IGenericParameter> GenericParameters)
         {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Recompilation
 {
-    public class RecompilingTypeVisitor : TypeTransformerBase
+    public class RecompilingTypeVisitor : GenericTypeTransformerBase
     {
         public RecompilingTypeVisitor(AssemblyRecompiler Recompiler)
         {
