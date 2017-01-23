@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace Flame.Build
 {
+    /// <summary>
+    /// A base class for classes that recursively transform types: they can
+    /// target and rewrite specific types, even when they occur as parts of
+    /// other types.
+    /// </summary>
     public virtual class TypeTransformerBase : TypeConverterBase<IType>
     {
         public this();
