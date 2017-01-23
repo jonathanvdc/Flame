@@ -3,10 +3,11 @@ using System;
 namespace Flame.Build
 {
     /// <summary>
-    /// A base class for classes that recursively transform generic parameters
-    /// types, generic instance types and general user-defined types: they can
+    /// A base class for classes that recursively transform types: they can
     /// target and rewrite specific types, even when they occur as parts of
-    /// other types.
+    /// other types. This type of transformer does not distinguish types based
+    /// on attributes: it cannot tell interfaces, classes, structs and enums
+    /// apart.
     /// </summary>
     /// <remarks>
     /// GenericTypeTransformer explicitly promises not to access type
@@ -27,7 +28,7 @@ namespace Flame.Build
             // which we absolutely cannot touch here.
             else
             {
-                return ConvertReferenceType(Type);
+                return ConvertTypeDefault(Type);
             }
         }
     }
