@@ -23,7 +23,7 @@ namespace Flame.Build
             {
                 return ConvertGenericParameter((IGenericParameter)Type);
             }
-            // NOTE: we're not checking if `Type` is a `struct`, and `enum`,
+            // NOTE: we're not checking if `Type` is a `struct`, an `enum`,
             // or an `interface`, because that'd touch its attribute map,
             // which we absolutely cannot touch here.
             else
