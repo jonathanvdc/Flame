@@ -10,14 +10,14 @@ namespace Flame
     /// </summary>
     public class MethodType : IType
     {
-        protected const this(set IMethod Method);
+        protected this(set IMethod Method);
 
         /// <summary>
         /// Gets the method this method type is based on.
         /// </summary>
         public IMethod Method { const get; private set; }
 
-        public static const IType Create(IMethod Method)
+        public static IType Create(IMethod Method)
         {
             if (Method is IType)
             {
@@ -29,23 +29,23 @@ namespace Flame
             }
         }
 
-        public static const IMethod GetMethod(IType Type)
+        public static IMethod GetMethod(IType Type)
         {
-        	if (Type is MethodType)
-        	{
-        		return ((MethodType)Type).Method;
-        	}
-        	else if (Type is IMethod)
-        	{
-        		return (IMethod)Type;
-        	}
-        	else
-        	{
-        		return null;
-        	}
+            if (Type is MethodType)
+            {
+                return ((MethodType)Type).Method;
+            }
+            else if (Type is IMethod)
+            {
+                return (IMethod)Type;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public static const [IMethod] GetIntersectedMethods(IType Type)
+        public static [IMethod] GetIntersectedMethods(IType Type)
         {
             var results = new List<IMethod>();
             foreach (var item in IntersectionType.GetIntersectedTypes(Type))
