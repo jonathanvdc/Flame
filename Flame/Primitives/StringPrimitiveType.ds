@@ -197,5 +197,10 @@ namespace Flame.Primitives
         {
             const get { return DefinitionAncestryRules; }
         }
+
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 }

@@ -5,8 +5,8 @@ using Flame.Build;
 
 namespace Flame.Primitives
 {
-	public static class NullPrimitiveType : IType
-	{
+    public static class NullPrimitiveType : IType
+    {
         public object DefaultValue { const get return null; }
         public UnqualifiedName Name { const get return new SimpleName("Null"); }
 
@@ -59,9 +59,14 @@ namespace Flame.Primitives
 
         #endregion
 
-		public IAncestryRules AncestryRules
-		{
-			const get { return NullAncestryRules; }
-		}
+        public IAncestryRules AncestryRules
+        {
+            const get { return NullAncestryRules; }
+        }
+
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 }
