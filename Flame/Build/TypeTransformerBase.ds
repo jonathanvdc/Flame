@@ -5,142 +5,142 @@ using System.Linq;
 
 namespace Flame.Build
 {
-	public virtual class TypeTransformerBase : TypeConverterBase<IType>
-	{
-		public const this();
+    public virtual class TypeTransformerBase : TypeConverterBase<IType>
+    {
+        public const this();
 
-		private static const bool TypeReferencesEqual([IType] First, [IType] Second)
-		{
-			foreach (var left in First, var right in Second)
-				if (!object.ReferenceEquals(left, right))
-			{
-				return false;
-			}
-			return true;
-		}
+        private static const bool TypeReferencesEqual([IType] First, [IType] Second)
+        {
+            foreach (var left in First, var right in Second)
+                if (!object.ReferenceEquals(left, right))
+            {
+                return false;
+            }
+            return true;
+        }
 
-		protected override virtual const IType MakePointerType(IType ElementType, PointerKind Kind)
-		{
-			return ElementType.MakePointerType(Kind);
-		}
+        protected override virtual const IType MakePointerType(IType ElementType, PointerKind Kind)
+        {
+            return ElementType.MakePointerType(Kind);
+        }
 
-		protected override virtual const IType MakeArrayType(IType ElementType, int ArrayRank)
-		{
-			return ElementType.MakeArrayType(ArrayRank);
-		}
+        protected override virtual const IType MakeArrayType(IType ElementType, int ArrayRank)
+        {
+            return ElementType.MakeArrayType(ArrayRank);
+        }
 
-		protected override virtual const IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
-		{
-			return ElementType.MakeVectorType(Dimensions);
-		}
+        protected override virtual const IType MakeVectorType(IType ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return ElementType.MakeVectorType(Dimensions);
+        }
 
-		protected override virtual const IType MakeGenericType(IType GenericDeclaration, [IType] TypeArguments)
-		{
-			return GenericDeclaration.MakeGenericType(TypeArguments);
-		}
+        protected override virtual const IType MakeGenericType(IType GenericDeclaration, [IType] TypeArguments)
+        {
+            return GenericDeclaration.MakeGenericType(TypeArguments);
+        }
 
-		protected override virtual const IType ConvertDelegateType(IType Type)
-		{
-			var method = MethodType.GetMethod(Type);
-			var retType = Convert(method.ReturnType);
+        protected override virtual const IType ConvertDelegateType(IType Type)
+        {
+            var method = MethodType.GetMethod(Type);
+            var retType = Convert(method.ReturnType);
 
-			var parameters = method.GetParameters();
-			var paramTypes = parameters.GetTypes();
-			var convTypes = Enumerable.ToArray<IType>(Convert(paramTypes));
+            var parameters = method.GetParameters();
+            var paramTypes = parameters.GetTypes();
+            var convTypes = Enumerable.ToArray<IType>(Convert(paramTypes));
 
-			if (object.ReferenceEquals(retType, method.ReturnType) &&
-				TypeReferencesEqual(convTypes, paramTypes))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(retType, method.ReturnType) &&
+                TypeReferencesEqual(convTypes, paramTypes))
+            {
+                return Type;
+            }
 
-			var descMethod = new DescribedMethod("", method.DeclaringType, retType, method.IsStatic);
+            var descMethod = new DescribedMethod("", method.DeclaringType, retType, method.IsStatic);
 
-			foreach (var type in convTypes, var item in parameters)
-			{
-				descMethod.AddParameter(new RetypedParameter(item, type));
-			}
-			foreach (var attr in method.Attributes)
-			{
-				descMethod.AddAttribute(attr);
-			}
+            foreach (var type in convTypes, var item in parameters)
+            {
+                descMethod.AddParameter(new RetypedParameter(item, type));
+            }
+            foreach (var attr in method.Attributes)
+            {
+                descMethod.AddAttribute(attr);
+            }
 
-			return MethodType.Create(descMethod);
-		}
+            return MethodType.Create(descMethod);
+        }
 
-		protected override virtual const IType ConvertIntersectionType(IntersectionType Type)
-		{
-			var convFirst = Convert(Type.First);
-			var convSecond = Convert(Type.Second);
+        protected override virtual const IType ConvertIntersectionType(IntersectionType Type)
+        {
+            var convFirst = Convert(Type.First);
+            var convSecond = Convert(Type.Second);
 
-			if (object.ReferenceEquals(convFirst, Type.First) &&
-				object.ReferenceEquals(convSecond, Type.Second))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(convFirst, Type.First) &&
+                object.ReferenceEquals(convSecond, Type.Second))
+            {
+                return Type;
+            }
 
-			return new IntersectionType(Convert(Type.First), Convert(Type.Second));
-		}
+            return new IntersectionType(Convert(Type.First), Convert(Type.Second));
+        }
 
-		protected override virtual const IType ConvertGenericInstance(IType Type)
-		{
-			var genDecl = Type.GetGenericDeclaration();
-			var genArgs = Type.GetGenericArguments();
+        protected override virtual const IType ConvertGenericInstance(IType Type)
+        {
+            var genDecl = Type.GetGenericDeclaration();
+            var genArgs = Type.GetGenericArguments();
 
-			var convDecl = Convert(genDecl);
-			var convArgs = Enumerable.ToArray<IType>(Convert(genArgs));
+            var convDecl = Convert(genDecl);
+            var convArgs = Enumerable.ToArray<IType>(Convert(genArgs));
 
-			if (object.ReferenceEquals(convDecl, genDecl) &&
-				TypeReferencesEqual(convArgs, genArgs))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(convDecl, genDecl) &&
+                TypeReferencesEqual(convArgs, genArgs))
+            {
+                return Type;
+            }
 
-			return MakeGenericType(convDecl, convArgs);
-		}
+            return MakeGenericType(convDecl, convArgs);
+        }
 
-		protected override virtual const IType ConvertPointerType(PointerType Type)
-		{
-			var elemType = Type.ElementType;
-			var convElem = Convert(elemType);
+        protected override virtual const IType ConvertPointerType(PointerType Type)
+        {
+            var elemType = Type.ElementType;
+            var convElem = Convert(elemType);
 
-			if (object.ReferenceEquals(convElem, elemType))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(convElem, elemType))
+            {
+                return Type;
+            }
 
-			return MakePointerType(convElem, Type.PointerKind);
-		}
+            return MakePointerType(convElem, Type.PointerKind);
+        }
 
-		protected override virtual const IType ConvertArrayType(ArrayType Type)
-		{
-			var elemType = Type.ElementType;
-			var convElem = Convert(elemType);
+        protected override virtual const IType ConvertArrayType(ArrayType Type)
+        {
+            var elemType = Type.ElementType;
+            var convElem = Convert(elemType);
 
-			if (object.ReferenceEquals(convElem, elemType))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(convElem, elemType))
+            {
+                return Type;
+            }
 
-			return MakeArrayType(convElem, Type.ArrayRank);
-		}
+            return MakeArrayType(convElem, Type.ArrayRank);
+        }
 
-		protected override virtual const IType ConvertVectorType(VectorType Type)
-		{
-			var elemType = Type.ElementType;
-			var convElem = Convert(elemType);
+        protected override virtual const IType ConvertVectorType(VectorType Type)
+        {
+            var elemType = Type.ElementType;
+            var convElem = Convert(elemType);
 
-			if (object.ReferenceEquals(convElem, elemType))
-			{
-				return Type;
-			}
+            if (object.ReferenceEquals(convElem, elemType))
+            {
+                return Type;
+            }
 
-			return MakeVectorType(convElem, Type.Dimensions);
-		}
+            return MakeVectorType(convElem, Type.Dimensions);
+        }
 
-		protected override virtual const IType ConvertTypeDefault(IType Type)
-		{
-			return Type;
-		}
-	}
+        protected override virtual const IType ConvertTypeDefault(IType Type)
+        {
+            return Type;
+        }
+    }
 }
