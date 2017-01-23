@@ -1,0 +1,34 @@
+using System;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// A base class for classes that recursively transform generic parameters
+    /// types, generic instance types and general user-defined types: they can
+    /// target and rewrite specific types, even when they occur as parts of
+    /// other types.
+    /// </summary>
+    /// <remarks>
+    /// GenericTypeTransformer explicitly promises not to access type
+    /// attributes on user-defined types. This makes it a safe choice for
+    /// scenarios where touching attributes is not allowed, e.g., during type
+    /// construction in the back-end.
+    /// </remarks>
+    public virtual class GenericTypeTransformerBase : TypeTransformerBase
+    {
+        protected virtual override IType ConvertUserType(IType Type)
+        {
+            if (Type.IsGenericParameter)
+            {
+                return ConvertGenericParameter((IGenericParameter)Type);
+            }
+            // NOTE: we're not checking if `Type` is a `struct`, and `enum`,
+            // or an `interface`, because that'd touch its attribute map,
+            // which we absolutely cannot touch here.
+            else
+            {
+                return ConvertReferenceType(Type);
+            }
+        }
+    }
+}

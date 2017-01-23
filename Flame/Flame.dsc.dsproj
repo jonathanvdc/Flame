@@ -162,6 +162,7 @@
             <Compile Include="Build/GenericAncestryRules.ds" />
             <Compile Include="Build/GenericInstanceComparer.ds" />
             <Compile Include="Build/GenericResolvingConverter.ds" />
+            <Compile Include="Build/GenericTypeTransformerBase.ds" />
             <Compile Include="Build/IGenericParameterBuilder.ds" />
             <Compile Include="Build/IGenericResolver.ds" />
             <Compile Include="Build/IntersectionType.ds" />
