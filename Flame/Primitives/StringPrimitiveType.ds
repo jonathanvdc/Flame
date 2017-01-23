@@ -6,15 +6,15 @@ using Flame.Attributes;
 
 namespace Flame.Primitives
 {
-	public static class StringPrimitiveType : IType
-	{
-		static this()
-		{
-			cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
-			cachedFields     = new Lazy<IField[]>(CreateFields);
-			cachedProperties = new Lazy<IProperty[]>(CreateProperties);
-			lazyAttrs = new Lazy<AttributeMap>(CreateAttributes);
-		}
+    public static class StringPrimitiveType : IType
+    {
+        static this()
+        {
+            cachedMethods    = new Lazy<IMethod[]>(CreateMethods);
+            cachedFields     = new Lazy<IField[]>(CreateFields);
+            cachedProperties = new Lazy<IProperty[]>(CreateProperties);
+            lazyAttrs = new Lazy<AttributeMap>(CreateAttributes);
+        }
 
         public string DefaultValue { const get return null; }
         public UnqualifiedName Name { const get return new SimpleName("String"); }
@@ -24,86 +24,86 @@ namespace Flame.Primitives
             const get return PrimitivesNamespace;
         }
 
-		private Lazy<IMethod[]> cachedMethods;
-		public [IMethod] Methods
-		{
-			const get return cachedMethods.Value;
-		}
+        private Lazy<IMethod[]> cachedMethods;
+        public [IMethod] Methods
+        {
+            const get return cachedMethods.Value;
+        }
 
-		private Lazy<IField[]> cachedFields;
-		public [IField] Fields
-		{
-			const get return cachedFields.Value;
-		}
+        private Lazy<IField[]> cachedFields;
+        public [IField] Fields
+        {
+            const get return cachedFields.Value;
+        }
 
-		private Lazy<IProperty[]> cachedProperties;
-		public [IProperty] Properties
-		{
-			const get return cachedProperties.Value;
-		}
+        private Lazy<IProperty[]> cachedProperties;
+        public [IProperty] Properties
+        {
+            const get return cachedProperties.Value;
+        }
 
-		private IMethod[] CreateMethods()
-		{
-        	var endsWithMethod = new DescribedMethod("EndsWith", this, PrimitiveTypes.Boolean, false); // const bool EndsWith(string Value);
-        	endsWithMethod.AddParameter(new DescribedParameter("Value", this));
-        	endsWithMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var startsWithMethod = new DescribedMethod("StartsWith", this, PrimitiveTypes.Boolean, false); // const bool StartsWith(string Value);
-        	startsWithMethod.AddParameter(new DescribedParameter("Value", this));
-        	startsWithMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var substringMethod = new DescribedMethod("Substring", this, this, false); // const string Substring(int StartIndex, int Length);
-        	substringMethod.AddParameter(new DescribedParameter("StartIndex", PrimitiveTypes.Int32));
-        	substringMethod.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
-        	substringMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var substringStartMethod = new DescribedMethod("Substring", this, this, false); // const string Substring(int StartIndex);
-        	substringStartMethod.AddParameter(new DescribedParameter("StartIndex", PrimitiveTypes.Int32));
-        	substringStartMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var indexOfCharMethod = new DescribedMethod("IndexOf", this, PrimitiveTypes.Int32, false); // const int IndexOf(char Value);
-        	indexOfCharMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
-        	indexOfCharMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var indexOfStringMethod = new DescribedMethod("IndexOf", this, PrimitiveTypes.Int32, false); // const int IndexOf(string Value);
-        	indexOfStringMethod.AddParameter(new DescribedParameter("Value", this));
-        	indexOfStringMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var concatMethod = new DescribedMethod("Concat", this, this, true); // static const string Concat(string First, string Second);
-        	concatMethod.AddParameter(new DescribedParameter("First", this));   // (doubles as "static const string operator~(string First, string Second);"
-        	concatMethod.AddParameter(new DescribedParameter("Second", this));
-        	concatMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	concatMethod.AddAttribute(new OperatorAttribute(Operator.Concat));
-        	var nullOrEmptyMethod = new DescribedMethod("IsNullOrEmpty", this, PrimitiveTypes.Boolean, true); // static const bool IsNullOrEmpty(string Value);
-        	nullOrEmptyMethod.AddParameter(new DescribedParameter("Value", this));
-        	nullOrEmptyMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var nullOrWhitespaceMethod = new DescribedMethod("IsNullOrWhiteSpace", this, PrimitiveTypes.Boolean, true); // static const bool IsNullOrWhiteSpace(string Value);
-        	nullOrWhitespaceMethod.AddParameter(new DescribedParameter("Value", this));
-        	nullOrWhitespaceMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var splitMethod = new DescribedMethod("Split", this, this.MakeArrayType(1), false); // const string[] Split(char[] Delimiters);
-        	splitMethod.AddParameter(new DescribedParameter("Delimiters", PrimitiveTypes.Char.MakeArrayType(1)));
-        	splitMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var replaceMethod = new DescribedMethod("Replace", this, this, false); // const string Replace(string Value, string NewValue);
-        	replaceMethod.AddParameter(new DescribedParameter("Value", this));
-        	replaceMethod.AddParameter(new DescribedParameter("NewValue", this));
-        	replaceMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var replaceCharMethod = new DescribedMethod("Replace", this, this, false); // const string Replace(char Value, char NewValue);
-        	replaceCharMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
-        	replaceCharMethod.AddParameter(new DescribedParameter("NewValue", PrimitiveTypes.Char));
-        	replaceCharMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var toLowerMethod = new DescribedMethod("ToLower", this, this, false); // const string ToLower();
-        	toLowerMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var toUpperMethod = new DescribedMethod("ToUpper", this, this, false); // const string ToUpper();
-        	toUpperMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	var trimEndMethod = new DescribedMethod("TrimEnd", this, this, false); // const string TrimEnd(char[] Elements);
-        	trimEndMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	trimEndMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
-        	var trimStartMethod = new DescribedMethod("TrimStart", this, this, false); // const string TrimStart(char[] Elements);
-        	trimStartMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	trimStartMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
-        	var trimMethod = new DescribedMethod("Trim", this, this, false); // const string Trim(char[] Elements);
-        	trimMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	trimMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
+        private IMethod[] CreateMethods()
+        {
+            var endsWithMethod = new DescribedMethod("EndsWith", this, PrimitiveTypes.Boolean, false); // const bool EndsWith(string Value);
+            endsWithMethod.AddParameter(new DescribedParameter("Value", this));
+            endsWithMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var startsWithMethod = new DescribedMethod("StartsWith", this, PrimitiveTypes.Boolean, false); // const bool StartsWith(string Value);
+            startsWithMethod.AddParameter(new DescribedParameter("Value", this));
+            startsWithMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var substringMethod = new DescribedMethod("Substring", this, this, false); // const string Substring(int StartIndex, int Length);
+            substringMethod.AddParameter(new DescribedParameter("StartIndex", PrimitiveTypes.Int32));
+            substringMethod.AddParameter(new DescribedParameter("Length", PrimitiveTypes.Int32));
+            substringMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var substringStartMethod = new DescribedMethod("Substring", this, this, false); // const string Substring(int StartIndex);
+            substringStartMethod.AddParameter(new DescribedParameter("StartIndex", PrimitiveTypes.Int32));
+            substringStartMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var indexOfCharMethod = new DescribedMethod("IndexOf", this, PrimitiveTypes.Int32, false); // const int IndexOf(char Value);
+            indexOfCharMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+            indexOfCharMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var indexOfStringMethod = new DescribedMethod("IndexOf", this, PrimitiveTypes.Int32, false); // const int IndexOf(string Value);
+            indexOfStringMethod.AddParameter(new DescribedParameter("Value", this));
+            indexOfStringMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var concatMethod = new DescribedMethod("Concat", this, this, true); // static const string Concat(string First, string Second);
+            concatMethod.AddParameter(new DescribedParameter("First", this));   // (doubles as "static const string operator~(string First, string Second);"
+            concatMethod.AddParameter(new DescribedParameter("Second", this));
+            concatMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            concatMethod.AddAttribute(new OperatorAttribute(Operator.Concat));
+            var nullOrEmptyMethod = new DescribedMethod("IsNullOrEmpty", this, PrimitiveTypes.Boolean, true); // static const bool IsNullOrEmpty(string Value);
+            nullOrEmptyMethod.AddParameter(new DescribedParameter("Value", this));
+            nullOrEmptyMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var nullOrWhitespaceMethod = new DescribedMethod("IsNullOrWhiteSpace", this, PrimitiveTypes.Boolean, true); // static const bool IsNullOrWhiteSpace(string Value);
+            nullOrWhitespaceMethod.AddParameter(new DescribedParameter("Value", this));
+            nullOrWhitespaceMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var splitMethod = new DescribedMethod("Split", this, this.MakeArrayType(1), false); // const string[] Split(char[] Delimiters);
+            splitMethod.AddParameter(new DescribedParameter("Delimiters", PrimitiveTypes.Char.MakeArrayType(1)));
+            splitMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var replaceMethod = new DescribedMethod("Replace", this, this, false); // const string Replace(string Value, string NewValue);
+            replaceMethod.AddParameter(new DescribedParameter("Value", this));
+            replaceMethod.AddParameter(new DescribedParameter("NewValue", this));
+            replaceMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var replaceCharMethod = new DescribedMethod("Replace", this, this, false); // const string Replace(char Value, char NewValue);
+            replaceCharMethod.AddParameter(new DescribedParameter("Value", PrimitiveTypes.Char));
+            replaceCharMethod.AddParameter(new DescribedParameter("NewValue", PrimitiveTypes.Char));
+            replaceCharMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var toLowerMethod = new DescribedMethod("ToLower", this, this, false); // const string ToLower();
+            toLowerMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var toUpperMethod = new DescribedMethod("ToUpper", this, this, false); // const string ToUpper();
+            toUpperMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            var trimEndMethod = new DescribedMethod("TrimEnd", this, this, false); // const string TrimEnd(char[] Elements);
+            trimEndMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            trimEndMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
+            var trimStartMethod = new DescribedMethod("TrimStart", this, this, false); // const string TrimStart(char[] Elements);
+            trimStartMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            trimStartMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
+            var trimMethod = new DescribedMethod("Trim", this, this, false); // const string Trim(char[] Elements);
+            trimMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            trimMethod.AddParameter(new DescribedParameter("Elements", PrimitiveTypes.Char.MakeArrayType(1)));
 
-			var staticEqMethod = new DescribedMethod("Equals", this, PrimitiveTypes.Boolean, true); // static const bool Equals(string Left, string Right);
-			staticEqMethod.AddParameter(new DescribedParameter("Left", this));
-			staticEqMethod.AddParameter(new DescribedParameter("Right", this));
-        	staticEqMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-			staticEqMethod.AddAttribute(new OperatorAttribute(Operator.CheckEquality));
+            var staticEqMethod = new DescribedMethod("Equals", this, PrimitiveTypes.Boolean, true); // static const bool Equals(string Left, string Right);
+            staticEqMethod.AddParameter(new DescribedParameter("Left", this));
+            staticEqMethod.AddParameter(new DescribedParameter("Right", this));
+            staticEqMethod.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            staticEqMethod.AddAttribute(new OperatorAttribute(Operator.CheckEquality));
 
             return new IMethod[]
             {
@@ -125,7 +125,7 @@ namespace Flame.Primitives
                 trimEndMethod,
                 trimStartMethod,
                 trimMethod,
-				staticEqMethod,
+                staticEqMethod,
                 new GetHashCodeImplementation<string>(this),
                 new EqualsImplementation<string>(this)
             };
@@ -133,27 +133,27 @@ namespace Flame.Primitives
 
         private IProperty[] CreateProperties()
         {
-        	var lenProp = new DescribedProperty("Length", this, PrimitiveTypes.Int32, false);
-        	var getter = new DescribedAccessor(AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
-        	getter.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	lenProp.AddAccessor(getter);
+            var lenProp = new DescribedProperty("Length", this, PrimitiveTypes.Int32, false);
+            var getter = new DescribedAccessor(AccessorType.GetAccessor, lenProp, PrimitiveTypes.Int32);
+            getter.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            lenProp.AddAccessor(getter);
 
-        	var indexerProp = new DescribedProperty("this", this, PrimitiveTypes.Char, false);
-        	indexerProp.AddAttribute(PrimitiveAttributes.IndexerAttribute);
-        	var indexerParam = new DescribedParameter("Index", PrimitiveTypes.Int32);
-        	indexerProp.AddIndexerParameter(indexerParam);
-        	var indexerGetter = new DescribedAccessor(AccessorType.GetAccessor, indexerProp, PrimitiveTypes.Char);
-        	indexerGetter.AddParameter(indexerParam);
-        	indexerGetter.AddAttribute(PrimitiveAttributes.ConstantAttribute);
-        	indexerProp.AddAccessor(indexerGetter);
+            var indexerProp = new DescribedProperty("this", this, PrimitiveTypes.Char, false);
+            indexerProp.AddAttribute(PrimitiveAttributes.IndexerAttribute);
+            var indexerParam = new DescribedParameter("Index", PrimitiveTypes.Int32);
+            indexerProp.AddIndexerParameter(indexerParam);
+            var indexerGetter = new DescribedAccessor(AccessorType.GetAccessor, indexerProp, PrimitiveTypes.Char);
+            indexerGetter.AddParameter(indexerParam);
+            indexerGetter.AddAttribute(PrimitiveAttributes.ConstantAttribute);
+            indexerProp.AddAccessor(indexerGetter);
 
-        	return new IProperty[] { lenProp, indexerProp };
+            return new IProperty[] { lenProp, indexerProp };
         }
 
         private IField[] CreateFields()
         {
             var emptyField = new DescribedLiteralField<string>("Empty", this, this, string.Empty); // static const string Empty = "";
-			return new IField[] { emptyField };
+            return new IField[] { emptyField };
         }
 
         public IBoundObject GetDefaultValue()
@@ -165,8 +165,8 @@ namespace Flame.Primitives
         {
             const get return new IType[]
             {
-            	PrimitiveTypes.IHashable,
-            	PrimitiveTypes.IEquatable
+                PrimitiveTypes.IHashable,
+                PrimitiveTypes.IEquatable
             };
         }
 
@@ -175,14 +175,14 @@ namespace Flame.Primitives
             const get return Name.Qualify(DeclaringNamespace.FullName);
         }
 
-		private Lazy<AttributeMap> lazyAttrs;
-		private AttributeMap CreateAttributes()
-		{
-			return new AttributeMap(new IAttribute[]
-			{
-				PrimitiveAttributes.ReferenceTypeAttribute
-			});
-		}
+        private Lazy<AttributeMap> lazyAttrs;
+        private AttributeMap CreateAttributes()
+        {
+            return new AttributeMap(new IAttribute[]
+            {
+                PrimitiveAttributes.ReferenceTypeAttribute
+            });
+        }
         public AttributeMap Attributes
         {
             const get { return lazyAttrs.Value; }
@@ -193,9 +193,9 @@ namespace Flame.Primitives
             const get return new IGenericParameter[0];
         }
 
-		public IAncestryRules AncestryRules
-		{
-			const get { return DefinitionAncestryRules; }
-		}
+        public IAncestryRules AncestryRules
+        {
+            const get { return DefinitionAncestryRules; }
+        }
     }
 }
