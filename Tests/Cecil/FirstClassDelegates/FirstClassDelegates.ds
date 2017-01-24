@@ -1,0 +1,34 @@
+using System;
+
+public module Program
+{
+    public static T[] Map<T>(T[] Values, Func<T, T> Mapping)
+    {
+        var results = new T[Values.Length];
+        for (int i = 0; i < results.Length; i++)
+            results[i] = Mapping(Values[i]);
+
+        return results;
+    }
+
+    public static void Apply<T>(T[] Values, Action<T> Action)
+    {
+        foreach (var item in Values)
+            Action(item);
+    }
+
+    public static void Print(int Value)
+    {
+        Console.WriteLine(Value);
+    }
+
+    public static int Square(int Value)
+    {
+        return Value * Value;
+    }
+
+    public static void Main(string[] Args)
+    {
+        Apply<int>(Map<int>(new int[] { 1, 2, 3, 4, 5 }, Square), Print);
+    }
+}
