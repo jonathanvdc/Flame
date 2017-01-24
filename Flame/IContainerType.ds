@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public interface IContainerType : IType
+    /// <summary>
+    /// An interface for types that are based on some element type.
+    /// </summary>
+    public interface IContainerType : IType
     {
         /// <summary>
         /// Gets the type referred to by the current container type.

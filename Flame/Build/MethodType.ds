@@ -17,6 +17,9 @@ namespace Flame
         /// </summary>
         public IMethod Method { const get; private set; }
 
+        /// <summary>
+        /// Creates a delegate type from the given method.
+        /// </summary>
         public static IType Create(IMethod Method)
         {
             if (Method is IType)
@@ -29,6 +32,10 @@ namespace Flame
             }
         }
 
+        /// <summary>
+        /// Gets the given (delegate) type's method signature. If the type
+        /// is not a delegate type, then null is returned.
+        /// </summary>
         public static IMethod GetMethod(IType Type)
         {
             if (Type is MethodType)
@@ -45,7 +52,11 @@ namespace Flame
             }
         }
 
-        public static [IMethod] GetIntersectedMethods(IType Type)
+        /// <summary>
+        /// Gets a sequence of methods defined by the given type or intersection
+        /// of types.
+        /// </summary>
+        public static IReadOnlyList<IMethod> GetIntersectedMethods(IType Type)
         {
             var results = new List<IMethod>();
             foreach (var item in IntersectionType.GetIntersectedTypes(Type))
