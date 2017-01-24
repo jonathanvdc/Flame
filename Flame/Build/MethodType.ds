@@ -15,7 +15,7 @@ namespace Flame
         /// <summary>
         /// Gets the method this method type is based on.
         /// </summary>
-        public IMethod Method { const get; private set; }
+        public IMethod Method { get; private set; }
 
         /// <summary>
         /// Creates a delegate type from the given method.
@@ -102,12 +102,12 @@ namespace Flame
 
         public IType DeclaringType
         {
-            const get { return Method.DeclaringType; }
+            get { return Method.DeclaringType; }
         }
 
         public INamespace DeclaringNamespace
         {
-            const get
+            get
             {
                 if (DeclaringType == null)
                     return null;
@@ -145,12 +145,12 @@ namespace Flame
 
         public IAncestryRules AncestryRules
         {
-            const get { return MethodTypeAncestryRules; }
+            get { return MethodTypeAncestryRules; }
         }
 
         #endregion
 
-        public override const bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             if (obj is MethodType)
             {
@@ -161,11 +161,11 @@ namespace Flame
                 return false;
             }
         }
-        public override const int GetHashCode()
+        public override int GetHashCode()
         {
             return Method.GetHashCode();
         }
-        public override const string ToString()
+        public override string ToString()
         {
             if (Method.IsAnonymous)
                 return this.SignatureName;
