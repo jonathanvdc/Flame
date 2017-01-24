@@ -6,7 +6,7 @@ using Flame.Build;
 namespace Flame
 {
     /// <summary>
-    /// The type of a delegate expression.
+    /// A type for delegate values obtained from methods.
     /// </summary>
     public class MethodType : IType
     {
