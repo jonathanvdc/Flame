@@ -271,7 +271,7 @@ namespace Flame.Recompilation
             {
                 return IsExternal(Type.GetGenericDeclaration()) && Type.GetGenericArguments().All(IsExternal);
             }
-            else if (Type.GetIsDelegate())
+            else if (Type is MethodType)
             {
                 var method = MethodType.GetMethod(Type);
                 return IsExternal(method.ReturnType) && method.Parameters.GetTypes().All(IsExternal);
@@ -469,7 +469,7 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> GetNewType(IType SourceType)
         {
-            if (SourceType.GetIsDelegate())
+            if (SourceType is MethodType)
             {
                 return new MemberCreationResult<IType>(MethodType.Create(GetMethod(MethodType.GetMethod(SourceType))));
             }
