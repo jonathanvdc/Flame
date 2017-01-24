@@ -23,46 +23,17 @@ namespace Flame.Cecil
         }
 
         /// <summary>
-        /// Gets the given CLR delegate type's invoke method.
+        /// Creates a CLR delegate type from the given type.
         /// </summary>
-        /// <param name="Type"></param>
-        /// <returns></returns>
-        public static IMethod GetInvokeMethod(IType Type)
-        {
-            return Type.GetMethods().Single(item => item.Name.ToString() == "Invoke" && !item.IsStatic);
-        }
-
-        /// <summary>
-        /// Gets the given method type's method signature,
-        /// taking into account that the given type may be a
-        /// CLR delegate type.
-        /// </summary>
-        /// <param name="Type"></param>
-        /// <returns></returns>
-        public static IMethod GetDelegateMethod(IType Type)
-        {
-            var method = MethodType.GetMethod(Type);
-            if (method != null)
-            {
-                return method;
-            }
-            else if (CecilDelegateType.IsDelegateType(Type))
-            {
-                return CecilDelegateType.GetInvokeMethod(Type);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
+        /// <param name="Type">Type.</param>
+        /// <param name="CodeGenerator">Code generator.</param>
         public static IType Create(IType Type, ICodeGenerator CodeGenerator)
         {
             if (IsDelegateType(Type))
-            {
                 return Type;
-            }
-            return CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(GetDelegateMethod(Type));
+            else
+                return CodeGenerator.GetModule().TypeSystem.GetCanonicalDelegate(
+                    MethodType.GetMethod(Type));
         }
     }
 }

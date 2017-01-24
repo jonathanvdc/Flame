@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil
 {
-    public class CecilType : CecilResolvedTypeBase
+    public class CecilType : CecilResolvedTypeBase, IDelegateType
     {
         public CecilType(TypeReference Reference, CecilModule Module)
             : base(Module)
         {
             SetReference(Reference);
+            delegateSig = new Lazy<IMethod>(GetDelegateSignature);
         }
 
         private void SetReference(TypeReference Reference)
@@ -53,6 +54,20 @@ namespace Flame.Cecil
         public override IAncestryRules AncestryRules
         {
             get { return CecilAncestryRules.Instance; }
+        }
+
+        private Lazy<IMethod> delegateSig;
+        public IMethod DelegateSignature
+        {
+            get { return delegateSig.Value; }
+        }
+
+        private IMethod GetDelegateSignature()
+        {
+            if (CecilDelegateType.IsDelegateType(this))
+                return GetMethods().Single(item => item.Name.ToString() == "Invoke" && !item.IsStatic);
+            else
+                return null;
         }
     }
 }

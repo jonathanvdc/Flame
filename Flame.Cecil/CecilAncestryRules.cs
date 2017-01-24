@@ -48,8 +48,8 @@ namespace Flame.Cecil
                 }
             }
 
-            var leftMethod = CecilDelegateType.GetDelegateMethod(First);
-            var rightMethod = CecilDelegateType.GetDelegateMethod(Second);
+            var leftMethod = MethodType.GetMethod(First);
+            var rightMethod = MethodType.GetMethod(Second);
 
             if (leftMethod != null && rightMethod != null)
             {
