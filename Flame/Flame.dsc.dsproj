@@ -45,6 +45,7 @@
         <Compile Include="IEnvironment.ds" />
         <Compile Include="MethodExtensions.ds" />
         <Compile Include="IConverter.ds" />
+        <Compile Include="IDelegateType.ds" />
         <Compile Include="EnumerableExtensions.ds" />
         <Compile Include="Operator.ds" />
         <Compile Include="OperatorCache.ds" />

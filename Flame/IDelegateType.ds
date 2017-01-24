@@ -1,0 +1,15 @@
+
+namespace Flame
+{
+    /// <summary>
+    /// An interface that defines what it means for a type to possibly be
+    /// a delegate, i.e., a type that may be invocable.
+    /// </summary>
+    public interface IDelegateType : IType
+    {
+        /// <summary>
+        /// Gets this delegate type's signature.
+        /// </summary>
+        IMethod DelegateSignature { get; }
+    }
+}

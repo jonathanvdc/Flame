@@ -8,14 +8,14 @@ namespace Flame
     /// <summary>
     /// A type for delegate values obtained from methods.
     /// </summary>
-    public class MethodType : IType
+    public class MethodType : IDelegateType
     {
-        protected this(set IMethod Method);
+        protected this(set IMethod DelegateSignature);
 
         /// <summary>
         /// Gets the method this method type is based on.
         /// </summary>
-        public IMethod Method { get; private set; }
+        public IMethod DelegateSignature { get; private set; }
 
         /// <summary>
         /// Creates a delegate type from the given method.
@@ -23,13 +23,9 @@ namespace Flame
         public static IType Create(IMethod Method)
         {
             if (Method is IType)
-            {
                 return (IType)Method;
-            }
             else
-            {
                 return new MethodType(Method);
-            }
         }
 
         /// <summary>
@@ -38,18 +34,12 @@ namespace Flame
         /// </summary>
         public static IMethod GetMethod(IType Type)
         {
-            if (Type is MethodType)
-            {
-                return ((MethodType)Type).Method;
-            }
+            if (Type is IDelegateType)
+                return ((IDelegateType)Type).DelegateSignature;
             else if (Type is IMethod)
-            {
                 return (IMethod)Type;
-            }
             else
-            {
                 return null;
-            }
         }
 
         /// <summary>
@@ -70,17 +60,17 @@ namespace Flame
 
         public QualifiedName FullName
         {
-            get { return Method.FullName; }
+            get { return DelegateSignature.FullName; }
         }
 
         public AttributeMap Attributes
         {
-            get { return Method.Attributes; }
+            get { return DelegateSignature.Attributes; }
         }
 
         public UnqualifiedName Name
         {
-            get { return Method.Name; }
+            get { return DelegateSignature.Name; }
         }
 
         /// <summary>
@@ -97,12 +87,12 @@ namespace Flame
 
         public [IGenericParameter] GenericParameters
         {
-            get { return Method.GenericParameters; }
+            get { return DelegateSignature.GenericParameters; }
         }
 
         public IType DeclaringType
         {
-            get { return Method.DeclaringType; }
+            get { return DelegateSignature.DeclaringType; }
         }
 
         public INamespace DeclaringNamespace
@@ -154,7 +144,7 @@ namespace Flame
         {
             if (obj is MethodType)
             {
-                return Method == ((MethodType)obj).Method;
+                return DelegateSignature == ((MethodType)obj).DelegateSignature;
             }
             else
             {
@@ -163,14 +153,14 @@ namespace Flame
         }
         public override int GetHashCode()
         {
-            return Method.GetHashCode();
+            return DelegateSignature.GetHashCode();
         }
         public override string ToString()
         {
-            if (Method.IsAnonymous)
+            if (DelegateSignature.IsAnonymous)
                 return this.SignatureName;
             else
-                return Method.FullName.ToString();
+                return DelegateSignature.FullName.ToString();
         }
     }
 
