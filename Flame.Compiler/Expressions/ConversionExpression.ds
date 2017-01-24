@@ -111,6 +111,28 @@ namespace Flame.Compiler.Expressions
     public static class ConversionExpression
     {
         /// <summary>
+        /// Strips away all top-level conversions and metadata from the given
+        /// expression, and returns the result.
+        /// </summary>
+        public IExpression GetRawValueExpression(IExpression Expression)
+        {
+            if (Expression is ConversionExpressionBase)
+            {
+                return GetRawValueExpression(
+                    ((ConversionExpressionBase)Expression).Value);
+            }
+            else if (Expression is IMetadataNode<IExpression>)
+            {
+                return GetRawValueExpression(
+                    ((IMetadataNode<IExpression>)Expression).Value);
+            }
+            else
+            {
+                return Expression;
+            }
+        }
+
+        /// <summary>
         /// Creates an expression that converts the given value to the given type.
         /// </summary>
         public IExpression Create(IExpression Value, IType Type)

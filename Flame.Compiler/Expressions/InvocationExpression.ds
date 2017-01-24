@@ -110,19 +110,11 @@ namespace Flame.Compiler.Expressions
 			return ((IBoundMethod)targetObj).Invoke(allArgs);
 		}
 
-		private IExpression GetInnerExpression(IExpression Expression)
-		{
-			if (Expression is ConversionExpressionBase)
-				return GetInnerExpression(((ConversionExpressionBase)Expression).Value);
-			else if (Expression is IMetadataNode<IExpression>)
-				return GetInnerExpression(((IMetadataNode<IExpression>)Expression).Value);
-			else
-				return Expression;
-		}
-
 		private IExpression RemoveRedundantConversions(IExpression Expression)
 		{
-			var innerExpr = GetInnerExpression(Expression);
+			var innerExpr = ConversionExpression.GetRawValueExpression(
+				Expression);
+
 			if (innerExpr is IDelegateExpression)
 				return innerExpr;
 			else
