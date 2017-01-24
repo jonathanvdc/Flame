@@ -13,44 +13,44 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Front.Target
 {
-	/// <summary>
-	/// A body pass that is derived from another underlying
-	/// body pass environment, but comes with its own log.
-	/// </summary>
-	public class DerivedBodyPassEnvironment : IBodyPassEnvironment
-	{
-		public DerivedBodyPassEnvironment(
-			IBodyPassEnvironment BaseEnvironment, ICompilerLog Log)
-		{
-			this.BaseEnvironment = BaseEnvironment;
-			this.Log = Log;
-		}
+    /// <summary>
+    /// A body pass that is derived from another underlying
+    /// body pass environment, but comes with its own log.
+    /// </summary>
+    public class DerivedBodyPassEnvironment : IBodyPassEnvironment
+    {
+        public DerivedBodyPassEnvironment(
+            IBodyPassEnvironment BaseEnvironment, ICompilerLog Log)
+        {
+            this.BaseEnvironment = BaseEnvironment;
+            this.Log = Log;
+        }
 
-		/// <summary>
-		/// Gets the body pass environment this body pass environment
-		/// is based on.
-		/// </summary>
-		/// <value>The base environment.</value>
-		public IBodyPassEnvironment BaseEnvironment { get; private set; }
+        /// <summary>
+        /// Gets the body pass environment this body pass environment
+        /// is based on.
+        /// </summary>
+        /// <value>The base environment.</value>
+        public IBodyPassEnvironment BaseEnvironment { get; private set; }
 
-		/// <summary>
-		/// Gets the body pass' log.
-		/// </summary>
-		public ICompilerLog Log { get; private set; }
+        /// <summary>
+        /// Gets the body pass' log.
+        /// </summary>
+        public ICompilerLog Log { get; private set; }
 
-		/// <summary>
-		/// Gets the body pass' environment.
-		/// </summary>
-		public IEnvironment Environment { get { return BaseEnvironment.Environment; } }
+        /// <summary>
+        /// Gets the body pass' environment.
+        /// </summary>
+        public IEnvironment Environment { get { return BaseEnvironment.Environment; } }
 
-		/// <summary>
-		/// Gets the method body for the given method.
-		/// </summary>
-		/// <returns>The method body.</returns>
-		public IStatement GetMethodBody(IMethod Method)
-		{
-			return BaseEnvironment.GetMethodBody(Method);
-		}
+        /// <summary>
+        /// Gets the method body for the given method.
+        /// </summary>
+        /// <returns>The method body.</returns>
+        public IStatement GetMethodBody(IMethod Method)
+        {
+            return BaseEnvironment.GetMethodBody(Method);
+        }
 
         /// <summary>
         /// Checks if the given type can be extended with additional members.
@@ -60,14 +60,14 @@ namespace Flame.Front.Target
         {
             return BaseEnvironment.CanExtend(Type);
         }
-	}
+    }
 
     public class InliningPass : InliningPassBase
     {
         private InliningPass()
         { }
 
-		public static readonly InliningPass Instance = new InliningPass();
+        public static readonly InliningPass Instance = new InliningPass();
 
         public const string InlineToleranceOption = "inline-tolerance";
         public const int DefaultInlineTolerance = 0;
@@ -75,7 +75,7 @@ namespace Flame.Front.Target
         /// <summary>
         /// The word size that is used for inlining heuristics.
         /// </summary>
-		public const int WordSize = 4;
+        public const int WordSize = 4;
 
         /// <summary>
         /// Heuristically tries to approximate the given type's size.
@@ -87,32 +87,32 @@ namespace Flame.Front.Target
             {
                 return primSize;
             }
-			else if (Type.GetIsReferenceType() || Type.GetIsPointer() || Type.GetIsArray())
+            else if (Type.GetIsReferenceType() || Type.GetIsPointer() || Type.GetIsArray())
             {
                 return WordSize;
             }
-			else if (Type.GetIsVector())
+            else if (Type.GetIsVector())
             {
                 return ApproximateSize(Type.GetEnumerableElementType()) * Type.AsContainerType().AsVectorType().Dimensions.Aggregate(1, (aggr, val) => aggr * val);
             }
-			else if (Type.GetIsEnum())
-			{
-				var parentTy = Type.GetParent();
-				if (parentTy == null)
-					return WordSize;
-				else
-					return ApproximateSize(parentTy);
-			}
-			else if (Type.GetIsValueType())
-			{
-				return Type.Fields.Where(item => !item.IsStatic).Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
-			}
-			else
-			{
-				// We have absolutely no idea of what this thing is.
-				// Assume that it's two words wide.
-				return 2 * WordSize;
-			}
+            else if (Type.GetIsEnum())
+            {
+                var parentTy = Type.GetParent();
+                if (parentTy == null)
+                    return WordSize;
+                else
+                    return ApproximateSize(parentTy);
+            }
+            else if (Type.GetIsValueType())
+            {
+                return Type.Fields.Where(item => !item.IsStatic).Aggregate(0, (aggr, field) => aggr + ApproximateSize(field.FieldType));
+            }
+            else
+            {
+                // We have absolutely no idea of what this thing is.
+                // Assume that it's two words wide.
+                return 2 * WordSize;
+            }
         }
 
         private static int RateArgument(IType ParameterType, IExpression Argument)
@@ -135,7 +135,7 @@ namespace Flame.Front.Target
             int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;
 
             // We also want to boost addresses to local variables.
-			// These addresses can often be converted to direct variable access
+            // These addresses can often be converted to direct variable access
             // once inlining has been performed.
             // Inlining things that involve local variables
             // also tends to help scalar replacement of aggregates
@@ -205,11 +205,11 @@ namespace Flame.Front.Target
             return CloningVisitor.Instance.Visit(result);
         }
 
-		public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
-		{
-			var log = Argument.PassEnvironment.Log;
+        public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
+        {
+            var log = Argument.PassEnvironment.Log;
             int inlineTolerance = log.Options.GetOption<int>(InlineToleranceOption, DefaultInlineTolerance);
-			return call => ShouldInline(Argument, call, inlineTolerance, true);
-		}
+            return call => ShouldInline(Argument, call, inlineTolerance, true);
+        }
     }
 }
