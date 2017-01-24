@@ -57,23 +57,23 @@ namespace Flame
                 }
                 else
                 {
-                	bool anyEmpty = false;
-                	foreach (var item in dimensions)
-                	{
-                		if (string.IsNullOrWhiteSpace(item))
-                			anyEmpty = true;
-                	}
+                    bool anyEmpty = false;
+                    foreach (var item in dimensions)
+                    {
+                        if (string.IsNullOrWhiteSpace(item))
+                            anyEmpty = true;
+                    }
                     if (anyEmpty)
                     {
                         return new QualifiedName(new ArrayName(elementName, dimensions.Count));
                     }
                     else
                     {
-                    	var vectorDims = new int[dimensions.Count];
-                    	foreach (var input in dimensions, var output in vectorDims)
-                    	{
-	                    	output = int.Parse(input.Trim(null));
-	                    }
+                        var vectorDims = new int[dimensions.Count];
+                        foreach (var input in dimensions, var output in vectorDims)
+                        {
+                            output = int.Parse(input.Trim(null));
+                        }
                         return new QualifiedName(new VectorName(
                             elementName, (IReadOnlyList<int>)vectorDims));
                     }
@@ -146,13 +146,13 @@ namespace Flame
                 {
                     var anyEmpty = false;
                     var allEmpty = true;
-                	foreach (var item in typeArgs)
-                	{
-                		if (item.IsEmpty)
+                    foreach (var item in typeArgs)
+                    {
+                        if (item.IsEmpty)
                             anyEmpty = true;
                         else
                             allEmpty = false;
-                	}
+                    }
                     if (anyEmpty && allEmpty)
                     {
                         return MakeGenericDeclName(elementName, typeArgs.Count);
