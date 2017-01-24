@@ -259,13 +259,14 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            bool targetIsDeleg = TargetType.GetIsDelegate();
+            var targetType = TargetType;
+            bool targetIsDeleg = targetType.GetIsDelegate();
 
             if (Value is MethodBlock && targetIsDeleg)
             {
                 if (TargetType is ICecilType)
                 {
-                    EmitRetypedMethodBlock((MethodBlock)Value, (ICecilType)TargetType, Context);
+                    EmitRetypedMethodBlock((MethodBlock)Value, (ICecilType)targetType, Context);
                 }
                 else
                 {
@@ -276,7 +277,6 @@ namespace Flame.Cecil.Emit
 
             Value.Emit(Context);
             var exprType = Context.Stack.Pop();
-            var targetType = TargetType;
 
             if (targetType.GetIsGeneric() && targetType.GetIsGenericDeclaration())
             {
