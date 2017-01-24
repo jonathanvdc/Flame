@@ -36,9 +36,9 @@ namespace Flame
         {
             var result = Qualify();
             if (Qualifier.IsEmpty)
-				return result;
-			else
-				return result.Qualify(Qualifier);
+                return result;
+            else
+                return result.Qualify(Qualifier);
         }
 
         public int CompareTo(UnqualifiedName Other)
@@ -145,18 +145,18 @@ namespace Flame
         public override string ToString()
         {
             if (!Enumerable.Any<QualifiedName>(TypeArgumentNames))
-				return DeclarationName.ToString();
+                return DeclarationName.ToString();
 
-			var sb = new StringBuilder(DeclarationName.ToString());
-			sb.Append('<');
-			sb.Append(Enumerable.First<QualifiedName>(TypeArgumentNames));
-			foreach (var item in Enumerable.Skip<QualifiedName>(TypeArgumentNames, 1))
-			{
-				sb.Append(',');
-				sb.Append(item.FullName);
-			}
-			sb.Append('>');
-			return sb.ToString();
+            var sb = new StringBuilder(DeclarationName.ToString());
+            sb.Append('<');
+            sb.Append(Enumerable.First<QualifiedName>(TypeArgumentNames));
+            foreach (var item in Enumerable.Skip<QualifiedName>(TypeArgumentNames, 1))
+            {
+                sb.Append(',');
+                sb.Append(item.FullName);
+            }
+            sb.Append('>');
+            return sb.ToString();
         }
 
         public override bool Equals(GenericName Other)
