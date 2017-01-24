@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Flame.Build;
 
 namespace Flame
@@ -110,7 +111,7 @@ namespace Flame
 
         public [IType] BaseTypes
         {
-            get { return new IType[0]; }
+            get { return Enumerable.Empty<IType>(); }
         }
 
         public IBoundObject GetDefaultValue()
@@ -120,17 +121,17 @@ namespace Flame
 
         public [IField] Fields
         {
-            get { return new IField[0]; }
+            get { return Enumerable.Empty<IField>(); }
         }
 
         public [IMethod] Methods
         {
-            get { return new IMethod[0]; }
+            get { return Enumerable.Empty<IMethod>(); }
         }
 
         public [IProperty] Properties
         {
-            get { return new IProperty[0]; }
+            get { return Enumerable.Empty<IProperty>(); }
         }
 
         public IAncestryRules AncestryRules
