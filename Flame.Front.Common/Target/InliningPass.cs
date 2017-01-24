@@ -1,6 +1,3 @@
-﻿using Flame.Compiler;
-using Flame.Compiler.Visitors;
-using Flame.Optimization;
 using Pixie;
 using System;
 using System.Collections.Generic;
@@ -9,7 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.Contracts;
 using Flame.Front.Passes;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+using Flame.Optimization;
 
 namespace Flame.Front.Target
 {
@@ -115,33 +116,60 @@ namespace Flame.Front.Target
             }
         }
 
+        /// <summary>
+        /// The boost obtained from having a parameter that may get rid of
+        /// a level of indirection.
+        /// </summary>
+        private const int IndirectParameterBoost = 2 * WordSize;
+
+        private static bool IsGetMethodExpression(IExpression Expression)
+        {
+            return Expression is GetMethodExpression
+                || Expression is GetExtensionMethodExpression;
+        }
+
+        private static bool IsGetDirectMethodExpression(IExpression Expression)
+        {
+            var getMethodExpr = Expression as GetMethodExpression;
+            if (getMethodExpr == null)
+                return Expression is GetExtensionMethodExpression;
+            else
+                return getMethodExpr.Op.Equals(Operator.GetDelegate);
+        }
+
         private static int RateArgument(IType ParameterType, IExpression Argument)
         {
-            var argType = Argument.Type;
+            var essentialExpr = ConversionExpression.Instance.GetRawValueExpression(
+                Argument.GetEssentialExpression());
+
+            var argType = essentialExpr.Type;
 
             // The bigger the size of the argument type,
             // the costlier the function call itself is.
-            int argSize = ApproximateSize(argType);
+            int rating = ApproximateSize(argType);
 
             // This is interesting, because it may allow us to
             // replace indirect calls with direct calls.
-            int inheritanceBoost = !argType.Equals(ParameterType) ? 4 : 0;
+            if (!argType.Equals(ParameterType))
+            {
+                rating += IndirectParameterBoost;
+                if (!argType.GetIsVirtual())
+                {
+                    // Bingo. A `sealed` class can always have all of its
+                    // methods inlined, so this is quite useful to inline.
+                    rating += IndirectParameterBoost;
+                }
+            }
 
             // Constants may allow us to eliminate branches.
-            int constantBoost = Argument.GetIsConstant() ? 4 : 0;
+            rating += essentialExpr.GetIsConstant() ? IndirectParameterBoost : 0;
 
-            // Delegates can be sometimes be replaced
-            // with direct or virtual calls.
-            int delegateBoost = ParameterType.GetIsDelegate() ? 4 : 0;
-
-            // We also want to boost addresses to local variables.
+            // We want to boost addresses to local variables.
             // These addresses can often be converted to direct variable access
             // once inlining has been performed.
             // Inlining things that involve local variables
             // also tends to help scalar replacement of aggregates
             // a great deal.
-            var essentialExpr = Argument.GetEssentialExpression();
-            int localBoost = 0;
             if (essentialExpr is IVariableNode)
             {
                 var varNode = (IVariableNode)essentialExpr;
@@ -150,12 +178,26 @@ namespace Flame.Front.Target
                 {
                     if (varNode.Action == VariableNodeAction.AddressOf)
                     {
-                        localBoost = ApproximateSize(variable.Type);
+                        rating += ApproximateSize(variable.Type);
                     }
                 }
             }
+            // Delegate calls can often be replaced with more direct calls
+            // when the callee is inlined. We should make this
+            else if (IsGetMethodExpression(essentialExpr))
+            {
+                // Inlining may remove a level of indirection, so we should
+                // encourage it.
+                rating += IndirectParameterBoost;
+                if (IsGetDirectMethodExpression(essentialExpr))
+                {
+                    // Inlining may remove a level of indirection, _and_ it may
+                    // cause further inlining, so we should boost it even more.
+                    rating += IndirectParameterBoost;
+                }
+            }
 
-            return argSize + inheritanceBoost + constantBoost + delegateBoost + localBoost;
+            return rating;
         }
 
         public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, Func<IStatement, int> ComputeCost, bool RespectAccess)
