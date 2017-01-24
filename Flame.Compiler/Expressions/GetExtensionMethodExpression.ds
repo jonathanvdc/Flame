@@ -8,8 +8,8 @@ namespace Flame.Compiler.Expressions
     {
         public const this(set IMethod Target, set IExpression Caller);
 
-		public IExpression Caller { const get; private set; }
-		public IMethod Target { const get; private set; }
+        public IExpression Caller { const get; private set; }
+        public IMethod Target { const get; private set; }
 
         public [IType] ParameterTypes
         {
@@ -42,43 +42,43 @@ namespace Flame.Compiler.Expressions
             else return new GetExtensionMethodExpression(convMethod, Caller);
         }
 
-		public IExpression Accept(INodeVisitor Visitor)
-		{
-			var transCaller = Visitor.Visit(Caller);
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transCaller = Visitor.Visit(Caller);
 
-			if (transCaller == Caller)
-			{
-				return this;
-			}
-			else
-			{
-				return new GetExtensionMethodExpression(Target, transCaller);
-			}
-		}
+            if (transCaller == Caller)
+            {
+                return this;
+            }
+            else
+            {
+                return new GetExtensionMethodExpression(Target, transCaller);
+            }
+        }
 
-		public IType Type
-		{
-			const get return MethodType.Create(Target);
-		}
+        public IType Type
+        {
+            const get return MethodType.Create(Target);
+        }
 
-		public bool IsConstantNode
-		{
-			const get { return true; }
-		}
+        public bool IsConstantNode
+        {
+            const get { return true; }
+        }
 
-		public const IBoundObject Evaluate()
-		{
-			return null; // Evaluating extension method delegates is not supported at this time.
-		}
+        public const IBoundObject Evaluate()
+        {
+            return null; // Evaluating extension method delegates is not supported at this time.
+        }
 
-		public IExpression Optimize()
-		{
-			var callerExpr = Caller.OptimizeOrNull();
-			return new GetExtensionMethodExpression(Target, callerExpr);
-		}
+        public IExpression Optimize()
+        {
+            var callerExpr = Caller.OptimizeOrNull();
+            return new GetExtensionMethodExpression(Target, callerExpr);
+        }
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
             var block = Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Operator.GetCurriedDelegate);
             if (block == null)
                 throw new NotSupportedException("Emitting extension method delegates is not supported at this time.");

@@ -4,138 +4,138 @@ using System.Text;
 
 namespace Flame.Compiler.Expressions
 {
-	/// <summary>
-	/// A type of expression that creates a delegate that wraps a method and its
-	/// calling expression.
-	/// </summary>
-	public class GetMethodExpression : IDelegateExpression, IMemberNode
-	{
-		/// <summary>
-		/// Creates a get-method expression from the given method and calling expression.
-		/// The resulting delegate is created by the given operator.
-		/// </summary>
-		public const this(set IMethod Target, set IExpression Caller, set Operator Op);
+    /// <summary>
+    /// A type of expression that creates a delegate that wraps a method and its
+    /// calling expression.
+    /// </summary>
+    public class GetMethodExpression : IDelegateExpression, IMemberNode
+    {
+        /// <summary>
+        /// Creates a get-method expression from the given method and calling expression.
+        /// The resulting delegate is created by the given operator.
+        /// </summary>
+        public const this(set IMethod Target, set IExpression Caller, set Operator Op);
 
-		/// <summary>
-		/// Creates a get-method expression from the given method and calling
-		/// expression.
-		/// </summary>
-		public const this(set IMethod Target, set IExpression Caller)
-		{
-			if (!Target.IsConstructor && Target.IsVirtual)
-				Op = Operator.GetVirtualDelegate;
-			else
-				Op = Operator.GetDelegate;
-		}
+        /// <summary>
+        /// Creates a get-method expression from the given method and calling
+        /// expression.
+        /// </summary>
+        public const this(set IMethod Target, set IExpression Caller)
+        {
+            if (!Target.IsConstructor && Target.IsVirtual)
+                Op = Operator.GetVirtualDelegate;
+            else
+                Op = Operator.GetDelegate;
+        }
 
-		/// <summary>
-		/// Gets the get-method expression's calling expression.
-		/// </summary>
-		public IExpression Caller { const get; private set; }
+        /// <summary>
+        /// Gets the get-method expression's calling expression.
+        /// </summary>
+        public IExpression Caller { const get; private set; }
 
-		/// <summary>
-		/// Gets the method that is wrapped in a delegate.
-		/// </summary>
-		public IMethod Target { const get; private set; }
+        /// <summary>
+        /// Gets the method that is wrapped in a delegate.
+        /// </summary>
+        public IMethod Target { const get; private set; }
 
-		/// <summary>
-		/// Gets the operator that creates the resulting delegate.
-		/// </summary>
-		public Operator Op { const get; private set; }
+        /// <summary>
+        /// Gets the operator that creates the resulting delegate.
+        /// </summary>
+        public Operator Op { const get; private set; }
 
-		public [IType] ParameterTypes { const get return Target.Parameters.GetTypes(); }
+        public [IType] ParameterTypes { const get return Target.Parameters.GetTypes(); }
 
-		public IType ReturnType
-		{
-			const get return Target.ReturnType;
-		}
+        public IType ReturnType
+        {
+            const get return Target.ReturnType;
+        }
 
-		public const IExpression CreateInvocationExpression([IExpression] Arguments)
-		{
-			return new InvocationExpression(this, Arguments);
-		}
+        public const IExpression CreateInvocationExpression([IExpression] Arguments)
+        {
+            return new InvocationExpression(this, Arguments);
+        }
 
-		public const IDelegateExpression MakeGenericExpression([IType] TypeArguments)
-		{
-			return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
-		}
+        public const IDelegateExpression MakeGenericExpression([IType] TypeArguments)
+        {
+            return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
+        }
 
-		public IMemberNode ConvertMembers(MemberConverter Converter)
-		{
-			var convMethod = Converter.Convert(Target);
-			if (object.ReferenceEquals(Target, convMethod))
-			{
-				return this;
-			}
-			else
-			{
-				return new GetMethodExpression(convMethod, Caller);
-			}
-		}
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convMethod = Converter.Convert(Target);
+            if (object.ReferenceEquals(Target, convMethod))
+            {
+                return this;
+            }
+            else
+            {
+                return new GetMethodExpression(convMethod, Caller);
+            }
+        }
 
-		public IExpression Accept(INodeVisitor Visitor)
-		{
-			if (Caller == null) return this;
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            if (Caller == null) return this;
 
-			var transCaller = Visitor.Visit(Caller);
+            var transCaller = Visitor.Visit(Caller);
 
-			if (transCaller == Caller)
-			{
-				return this;
-			}
-			else
-			{
-				return new GetMethodExpression(Target, transCaller);
-			}
-		}
+            if (transCaller == Caller)
+            {
+                return this;
+            }
+            else
+            {
+                return new GetMethodExpression(Target, transCaller);
+            }
+        }
 
-		public IType Type
-		{
-			const get
-			{
-				return MethodType.Create(Target);
-			}
-		}
+        public IType Type
+        {
+            const get
+            {
+                return MethodType.Create(Target);
+            }
+        }
 
-		public bool IsConstantNode
-		{
-			const get { return true; }
-		}
+        public bool IsConstantNode
+        {
+            const get { return true; }
+        }
 
-		public const IBoundObject Evaluate()
-		{
-			var callerObj = Caller.EvaluateOrNull();
-			if (callerObj != null)
-				return new BoundMethod(Target, callerObj);
-			else
-				return null;
-		}
+        public const IBoundObject Evaluate()
+        {
+            var callerObj = Caller.EvaluateOrNull();
+            if (callerObj != null)
+                return new BoundMethod(Target, callerObj);
+            else
+                return null;
+        }
 
-		public IExpression Optimize()
-		{
-			var callerExpr = Caller.OptimizeOrNull();
-			return new GetMethodExpression(Target, callerExpr);
-		}
+        public IExpression Optimize()
+        {
+            var callerExpr = Caller.OptimizeOrNull();
+            return new GetMethodExpression(Target, callerExpr);
+        }
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Op);
-		}
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitMethod(Target, Caller.EmitOrNull(Generator), Op);
+        }
 
-		public override string ToString()
-		{
-			var result = new StringBuilder();
-			result.Append("get-method(");
-			result.Append(Op.ToString());
-			result.Append(", ");
-			result.Append(Target.FullName.ToString());
-			if (Caller != null)
-			{
-				result.Append(", ");
-				result.Append(Caller.ToString());
-			}
-			result.Append(")");
-			return result.ToString();
-		}
-	}
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.Append("get-method(");
+            result.Append(Op.ToString());
+            result.Append(", ");
+            result.Append(Target.FullName.ToString());
+            if (Caller != null)
+            {
+                result.Append(", ");
+                result.Append(Caller.ToString());
+            }
+            result.Append(")");
+            return result.ToString();
+        }
+    }
 }
