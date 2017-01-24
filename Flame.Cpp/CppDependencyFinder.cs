@@ -71,9 +71,9 @@ namespace Flame.Cpp
             }
         }
 
-        protected override IEnumerable<IHeaderDependency> ConvertDelegateType(IType Type)
+        protected override IEnumerable<IHeaderDependency> ConvertMethodType(MethodType Type)
         {
-            var sig = MethodType.GetMethod(Type);
+            var sig = Type.DelegateSignature;
             if (sig.GetIsAnonymous())
             {
                 return Convert(sig.ReturnType).MergeDependencies(

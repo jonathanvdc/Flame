@@ -54,9 +54,9 @@ namespace Flame.Build
             {
                 return ConvertGenericParameter((IGenericParameter)Type);
             }
-            else if (Type.IsDelegate && (Type.IsGenericInstance || !Type.IsGeneric))
+            else if (Type is MethodType)
             {
-                return ConvertDelegateType(Type);
+                return ConvertMethodType((MethodType)Type);
             }
             else if (Type.DeclaringNamespace is IType)
             {
@@ -73,7 +73,7 @@ namespace Flame.Build
             return ConvertUserType(Type);
         }
 
-        protected virtual TTarget ConvertDelegateType(IType Type)
+        protected virtual TTarget ConvertMethodType(MethodType Type)
         {
             return ConvertUserType(Type);
         }

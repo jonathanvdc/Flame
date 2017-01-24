@@ -70,7 +70,7 @@ namespace Flame.Intermediate.Emit
 
         protected override bool ConvertGenericParameter(IGenericParameter Type)
         {
-            return Type.DeclaringMember.Equals(GenericMember) && 
+            return Type.DeclaringMember.Equals(GenericMember) &&
                    GenericMember.GenericParameters.Any(item => item.Equals(Type));
         }
 
@@ -94,9 +94,9 @@ namespace Flame.Intermediate.Emit
             return ElementType;
         }
 
-        protected override bool ConvertDelegateType(IType Type)
+        protected override bool ConvertMethodType(MethodType Type)
         {
-            var method = MethodType.GetMethod(Type);
+            var method = Type.DelegateSignature;
 
             return Convert(method.ReturnType) || Convert(method.Parameters.GetTypes()).Any();
         }

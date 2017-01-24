@@ -36,11 +36,30 @@ namespace Flame
         public static IMethod GetMethod(IType Type)
         {
             if (Type is IDelegateType)
+            {
                 return ((IDelegateType)Type).DelegateSignature;
+            }
             else if (Type is IMethod)
+            {
                 return (IMethod)Type;
+            }
+            else if (Type.IsRecursiveGenericInstance)
+            {
+                var genericMethod = GetMethod(
+                    Type.GetRecursiveGenericDeclaration());
+                if (genericMethod == null)
+                    return null;
+                    
+                var genericInstType = (GenericTypeBase)Type;
+                return new GenericInstanceMethod(
+                    genericMethod,
+                    genericInstType.Resolver,
+                    genericInstType);
+            }
             else
+            {
                 return null;
+            }
         }
 
         /// <summary>

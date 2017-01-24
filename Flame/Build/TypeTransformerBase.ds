@@ -44,9 +44,9 @@ namespace Flame.Build
             return GenericDeclaration.MakeGenericType(TypeArguments);
         }
 
-        protected override virtual IType ConvertDelegateType(IType Type)
+        protected override virtual IType ConvertMethodType(MethodType Type)
         {
-            var method = MethodType.GetMethod(Type);
+            var method = Type.DelegateSignature;
             var retType = Convert(method.ReturnType);
 
             var parameters = method.GetParameters();

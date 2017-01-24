@@ -45,11 +45,13 @@ namespace Flame.Optimization
             return ElementType;
         }
 
-        protected override bool ConvertDelegateType(IType Type)
+        protected override bool ConvertMethodType(MethodType Type)
         {
-            var method = MethodType.GetMethod(Type);
+            var method = Type.DelegateSignature;
 
-            return Convert(method.ReturnType) || Enumerable.Any<bool>(Convert(method.Parameters.GetTypes()), Id);
+            return Convert(method.ReturnType)
+                || Enumerable.Any<bool>(
+                    Convert(method.Parameters.GetTypes()), Id);
         }
 
         protected override bool ConvertIntersectionType(IntersectionType Type)

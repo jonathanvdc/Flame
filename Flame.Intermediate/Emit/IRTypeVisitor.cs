@@ -191,13 +191,13 @@ namespace Flame.Intermediate.Emit
             }
         }
 
-        protected override LNode ConvertDelegateType(IType Type)
+        protected override LNode ConvertMethodType(MethodType Type)
         {
             // Format:
             //
             // #delegate_type(return_type, parameter_types...)
 
-            var signature = MethodType.GetMethod(Type);
+            var signature = Type.DelegateSignature;
 
             var retType = GetTypeReference(signature.ReturnType);
             var paramTypes = signature.Parameters.Select(item => GetTypeReference(item.ParameterType));

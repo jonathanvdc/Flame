@@ -6,13 +6,13 @@ namespace Flame.Build
     /// A base class for classes that recursively transform types: they can
     /// target and rewrite specific types, even when they occur as parts of
     /// other types. This type of transformer does not distinguish types based
-    /// on attributes: it cannot tell interfaces, classes, structs and enums
-    /// apart.
+    /// on non-RTTI based information: it cannot tell interfaces, classes,
+    /// structs and enums apart.
     /// </summary>
     /// <remarks>
-    /// GenericTypeTransformer explicitly promises not to access type
-    /// attributes on user-defined types. This makes it a safe choice for
-    /// scenarios where touching attributes is not allowed, e.g., during type
+    /// GenericTypeTransformer explicitly promises not to access Properties
+    /// on user-defined types. This makes it a safe choice for scenarios where
+    /// touching certain properties is not allowed, e.g., during type
     /// construction in the back-end.
     /// </remarks>
     public virtual class GenericTypeTransformerBase : TypeTransformerBase

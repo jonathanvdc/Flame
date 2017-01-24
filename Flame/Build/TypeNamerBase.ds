@@ -6,36 +6,36 @@ namespace Flame.Build
 {
 	public virtual class TypeNamerBase : TypeConverterBase<string>
 	{
-		public const this();
+		public this();
 
-		protected override virtual const string MakePointerType(string ElementType, PointerKind Kind)
+		protected override virtual string MakePointerType(string ElementType, PointerKind Kind)
 		{
 			return ElementType + Kind.Extension;
 		}
 
-		protected override virtual const string MakeArrayType(string ElementType, int ArrayRank)
+		protected override virtual string MakeArrayType(string ElementType, int ArrayRank)
 		{
 			return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
 		}
 
-		protected override virtual const string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
+		protected override virtual string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
 		{
 			return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
 		}
 
-		protected override virtual const string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
+		protected override virtual string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
 		{
 			return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
 		}
 
-		protected override virtual const string ConvertGenericParameter(IGenericParameter Type)
+		protected override virtual string ConvertGenericParameter(IGenericParameter Type)
 		{
 			return Type.Name.ToString();
 		}
 
-		protected override virtual const string ConvertDelegateType(IType Type)
+		protected override virtual string ConvertMethodType(MethodType Type)
 		{
-			var deleg = MethodType.GetMethod(Type);
+			var deleg = Type.DelegateSignature;
 			var sb = new StringBuilder();
 			sb.Append(Convert(deleg.ReturnType));
 			sb.Append('(');
@@ -49,12 +49,12 @@ namespace Flame.Build
 			return (string)sb;
 		}
 
-		protected override virtual const string ConvertIntersectionType(IntersectionType Type)
+		protected override virtual string ConvertIntersectionType(IntersectionType Type)
 		{
 			return Convert(Type.First) + "&" + Convert(Type.Second);
 		}
 
-		protected override virtual const string ConvertTypeDefault(IType Type)
+		protected override virtual string ConvertTypeDefault(IType Type)
 		{
 			if (Type == null)
 				return "<unresolved type>";
