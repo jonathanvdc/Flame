@@ -1,0 +1,16 @@
+using System;
+
+public enum PrimaryColor : int
+{
+    Red = 0,
+    Blue = 1,
+    Green = 2
+}
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine((object)PrimaryColor.Green);
+    }
+}
