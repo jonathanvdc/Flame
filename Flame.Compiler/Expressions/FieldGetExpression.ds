@@ -98,16 +98,27 @@ namespace Flame.Compiler.Expressions
                     return null;
 
                 var targetType = Type;
-                if (!primExpr.Type.Equals(targetType))
+                var exprType = primExpr.Type;
+                if (!exprType.Equals(targetType))
                 {
-                    // Insert a reinterpret cast to preserve the type of
-                    // this expression.
-                    return new ReinterpretCastExpression(
-                        primExpr, targetType);
+                    if (exprType.IsEnum != targetType.IsEnum)
+                    {
+                        // Insert a static cast to preserve the type of
+                        // the expression.
+                        return new StaticCastExpression(
+                            primExpr, targetType);
+                    }
+                    else
+                    {
+                        // Insert a reinterpret cast to preserve the type of
+                        // the expression.
+                        return new ReinterpretCastExpression(
+                            primExpr, targetType);
+                    }
                 }
                 else
                 {
-                    // No reinterpret cast necessary.
+                    // No cast necessary.
                     return primExpr;
                 }
             }
