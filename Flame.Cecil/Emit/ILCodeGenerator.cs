@@ -180,7 +180,7 @@ namespace Flame.Cecil.Emit
 
         public ICodeBlock EmitChar(char Value)
         {
-            return EmitInt16((short)Value);
+            return new RetypedBlock((ICecilBlock)EmitInt16((short)Value), PrimitiveTypes.Char);
         }
 
         public ICodeBlock EmitFloat32(float Value)
