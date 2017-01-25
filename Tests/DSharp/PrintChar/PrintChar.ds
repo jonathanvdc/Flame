@@ -1,0 +1,9 @@
+using System;
+
+public module Program
+{
+    public static void Main(string[] Args)
+    {
+        Console.WriteLine((object)'a');
+    }
+}

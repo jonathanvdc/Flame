@@ -13,6 +13,7 @@ tests
     Monads/Monads.test;
     Overloading/Overloading.test;
     Point/Point.test;
+    PrintChar/PrintChar.test;
     PrintEnum/PrintEnum.test;
     RecursiveGenericConstraint/RecursiveGenericConstraint.test;
 }
