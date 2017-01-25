@@ -3,75 +3,75 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public static class PrimitiveAttributes
-	{
-		#region Static
+    public static class PrimitiveAttributes
+    {
+        #region Static
 
-		static this()
-		{
-			PrimitiveAttributes.InterfaceAttribute = new FlagAttribute("InterfaceAttribute");
-			PrimitiveAttributes.ValueTypeAttribute = new FlagAttribute("ValueTypeAttribute");
-			PrimitiveAttributes.ReferenceTypeAttribute = new FlagAttribute("ReferenceTypeAttribute");
-			PrimitiveAttributes.EnumAttribute = new FlagAttribute("EnumAttribute");
-			PrimitiveAttributes.ExtensionAttribute = new FlagAttribute("ExtensionAttribute");
-			PrimitiveAttributes.ConstantAttribute = new FlagAttribute("ConstantAttribute");
-			PrimitiveAttributes.AbstractAttribute = new FlagAttribute("AbstractAttribute");
-			PrimitiveAttributes.VirtualAttribute = new FlagAttribute("VirtualAttribute");
-			PrimitiveAttributes.RootTypeAttribute = new FlagAttribute("RootTypeAttribute");
-			PrimitiveAttributes.HiddenAttribute = new FlagAttribute("HiddenAttribute");
-			PrimitiveAttributes.RecompileAttribute = new FlagAttribute("RecompileAttribute");
-			PrimitiveAttributes.IndexerAttribute = new FlagAttribute("IndexerAttribute");
-			PrimitiveAttributes.InlineAttribute = new FlagAttribute("InlineAttribute");
-			PrimitiveAttributes.OutAttribute = new FlagAttribute("OutAttribute");
-			PrimitiveAttributes.InAttribute = new FlagAttribute("InAttribute");
-			PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
-			PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
-			PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
-			PrimitiveAttributes.InitOnlyAttribute = new FlagAttribute("InitOnlyAttribute");
-			PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
-			PrimitiveAttributes.VarArgsAttribute = new FlagAttribute("VarArgsAttribute");
-		}
+        static this()
+        {
+            PrimitiveAttributes.InterfaceAttribute = new FlagAttribute("InterfaceAttribute");
+            PrimitiveAttributes.ValueTypeAttribute = new FlagAttribute("ValueTypeAttribute");
+            PrimitiveAttributes.ReferenceTypeAttribute = new FlagAttribute("ReferenceTypeAttribute");
+            PrimitiveAttributes.EnumAttribute = new FlagAttribute("EnumAttribute");
+            PrimitiveAttributes.ExtensionAttribute = new FlagAttribute("ExtensionAttribute");
+            PrimitiveAttributes.ConstantAttribute = new FlagAttribute("ConstantAttribute");
+            PrimitiveAttributes.AbstractAttribute = new FlagAttribute("AbstractAttribute");
+            PrimitiveAttributes.VirtualAttribute = new FlagAttribute("VirtualAttribute");
+            PrimitiveAttributes.RootTypeAttribute = new FlagAttribute("RootTypeAttribute");
+            PrimitiveAttributes.HiddenAttribute = new FlagAttribute("HiddenAttribute");
+            PrimitiveAttributes.RecompileAttribute = new FlagAttribute("RecompileAttribute");
+            PrimitiveAttributes.IndexerAttribute = new FlagAttribute("IndexerAttribute");
+            PrimitiveAttributes.InlineAttribute = new FlagAttribute("InlineAttribute");
+            PrimitiveAttributes.OutAttribute = new FlagAttribute("OutAttribute");
+            PrimitiveAttributes.InAttribute = new FlagAttribute("InAttribute");
+            PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
+            PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
+            PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
+            PrimitiveAttributes.InitOnlyAttribute = new FlagAttribute("InitOnlyAttribute");
+            PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
+            PrimitiveAttributes.VarArgsAttribute = new FlagAttribute("VarArgsAttribute");
+        }
 
-		public static IAttribute InterfaceAttribute { const get; private set; }
-		public static IAttribute ValueTypeAttribute { const get; private set; }
-		public static IAttribute ReferenceTypeAttribute { const get; private set; }
-		public static IAttribute EnumAttribute { const get; private set; }
-		public static IAttribute ExtensionAttribute { const get; private set; }
-		public static IAttribute ConstantAttribute { const get; private set; }
-		public static IAttribute AbstractAttribute { const get; private set; }
-		public static IAttribute VirtualAttribute { const get; private set; }
-		public static IAttribute RootTypeAttribute { const get; private set; }
-		public static IAttribute HiddenAttribute { const get; private set; }
-		public static IAttribute RecompileAttribute { const get; private set; }
-		public static IAttribute IndexerAttribute { const get; private set; }
-		public static IAttribute InlineAttribute { const get; private set; }
-		public static IAttribute OutAttribute { const get; private set; }
-		public static IAttribute InAttribute { const get; private set; }
-		public static IAttribute StaticTypeAttribute { const get; private set; }
-		public static IAttribute CastAttribute { const get; private set; }
-		public static IAttribute ImportAttribute { const get; private set; }
+        public static IAttribute InterfaceAttribute { const get; private set; }
+        public static IAttribute ValueTypeAttribute { const get; private set; }
+        public static IAttribute ReferenceTypeAttribute { const get; private set; }
+        public static IAttribute EnumAttribute { const get; private set; }
+        public static IAttribute ExtensionAttribute { const get; private set; }
+        public static IAttribute ConstantAttribute { const get; private set; }
+        public static IAttribute AbstractAttribute { const get; private set; }
+        public static IAttribute VirtualAttribute { const get; private set; }
+        public static IAttribute RootTypeAttribute { const get; private set; }
+        public static IAttribute HiddenAttribute { const get; private set; }
+        public static IAttribute RecompileAttribute { const get; private set; }
+        public static IAttribute IndexerAttribute { const get; private set; }
+        public static IAttribute InlineAttribute { const get; private set; }
+        public static IAttribute OutAttribute { const get; private set; }
+        public static IAttribute InAttribute { const get; private set; }
+        public static IAttribute StaticTypeAttribute { const get; private set; }
+        public static IAttribute CastAttribute { const get; private set; }
+        public static IAttribute ImportAttribute { const get; private set; }
 
-		/// <summary>
-		/// Specifies that some field can only be initialized by an
-		/// appropriate constructor, after which it cannot be assigned
-		/// a new value. A constructor is deemed appropriate if it has the
-		/// same staticness as the field, and the same enclosing type.
-		/// </summary>
-		public static IAttribute InitOnlyAttribute { get; private set; }
+        /// <summary>
+        /// Specifies that some field can only be initialized by an
+        /// appropriate constructor, after which it cannot be assigned
+        /// a new value. A constructor is deemed appropriate if it has the
+        /// same staticness as the field, and the same enclosing type.
+        /// </summary>
+        public static IAttribute InitOnlyAttribute { get; private set; }
 
-		/// <summary>
-		/// Hints that a constructor performs total initialization, i.e.
-		/// there is no need to initialize memory contents before the
-		/// constructor is run.
-		/// </summary>
-		public static IAttribute TotalInitializationAttribute { get; private set; }
+        /// <summary>
+        /// Hints that a constructor performs total initialization, i.e.
+        /// there is no need to initialize memory contents before the
+        /// constructor is run.
+        /// </summary>
+        public static IAttribute TotalInitializationAttribute { get; private set; }
 
-		/// <summary>
-		/// Informs callers that the parameter that this attribute is applied to,
-		/// can be constructed from zero or more arguments.
-		/// </summary>
-		public static IAttribute VarArgsAttribute { get; private set; }
+        /// <summary>
+        /// Informs callers that the parameter that this attribute is applied to
+        /// can be constructed from zero or more arguments.
+        /// </summary>
+        public static IAttribute VarArgsAttribute { get; private set; }
 
-		#endregion
-	}
+        #endregion
+    }
 }
