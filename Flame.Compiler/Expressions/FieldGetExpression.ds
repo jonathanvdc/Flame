@@ -6,10 +6,10 @@ namespace Flame.Compiler.Expressions
 {
     public class FieldGetExpression : IExpression, IVariableNode, IMemberNode, IPredicateNode
     {
-        public const this(set IField Field, set IExpression Target);
+        public this(set IField Field, set IExpression Target);
 
-        public IField Field { const get; private set; }
-        public IExpression Target { const get; private set; }
+        public IField Field { get; private set; }
+        public IExpression Target { get; private set; }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
@@ -44,22 +44,22 @@ namespace Flame.Compiler.Expressions
 
         public IType Type
         {
-            const get { return Field.FieldType; }
+            get { return Field.FieldType; }
         }
 
-        public const IVariable GetVariable() : IVariableNode.GetVariable
+        public IVariable GetVariable() : IVariableNode.GetVariable
         {
             return new FieldVariable(Field, Target);
         }
 
         public VariableNodeAction Action
         {
-            const get return VariableNodeAction.Get;
+            get return VariableNodeAction.Get;
         }
 
         public bool IsConstantNode
         {
-            const get
+            get
             {
                 return true;
             }
@@ -119,21 +119,21 @@ namespace Flame.Compiler.Expressions
             return Generator.EmitGetField(Field, targetBlock);
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
             return GetVariable().ToString();
         }
     }
     public class FieldGetPointerExpression : IExpression, IVariableNode, IPredicateNode, IMemberNode
     {
-        public const this(set IField Field, set IExpression Target);
+        public this(set IField Field, set IExpression Target);
 
-        public IField Field { const get; private set; }
-        public IExpression Target { const get; private set; }
+        public IField Field { get; private set; }
+        public IExpression Target { get; private set; }
 
         public IType Type
         {
-            const get { return Field.FieldType.MakePointerType(PointerKind.ReferencePointer); }
+            get { return Field.FieldType.MakePointerType(PointerKind.ReferencePointer); }
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
@@ -167,19 +167,19 @@ namespace Flame.Compiler.Expressions
             }
         }
 
-        public const IVariable GetVariable() : IVariableNode.GetVariable
+        public IVariable GetVariable() : IVariableNode.GetVariable
         {
             return new FieldVariable(Field, Target);
         }
 
         public VariableNodeAction Action
         {
-            const get return VariableNodeAction.AddressOf;
+            get return VariableNodeAction.AddressOf;
         }
 
         public bool IsConstantNode
         {
-            const get { return true; }
+            get { return true; }
         }
 
         public IBoundObject Evaluate()
@@ -209,7 +209,7 @@ namespace Flame.Compiler.Expressions
             return cg.EmitGetFieldAddress(Field, targetBlock);
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
             return "&" + GetVariable().ToString();
         }
