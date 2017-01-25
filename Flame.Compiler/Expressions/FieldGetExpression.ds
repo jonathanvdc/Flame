@@ -86,15 +86,44 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
+        private IExpression EvaluateAsExpression()
+        {
+            var eval = Evaluate();
+            if (eval != null)
+            {
+                var primExpr = PrimitiveExpressionExtensions
+                    .ToExpression(eval);
+
+                if (primExpr == null)
+                    return null;
+
+                var targetType = Type;
+                if (!primExpr.Type.Equals(targetType))
+                {
+                    // Insert a reinterpret cast to preserve the type of
+                    // this expression.
+                    return new ReinterpretCastExpression(
+                        primExpr, targetType);
+                }
+                else
+                {
+                    // No reinterpret cast necessary.
+                    return primExpr;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public IExpression Optimize()
         {
-            if (Type.IsPrimitive)
-            {
-                var eval = this.Evaluate();
-                if (eval != null)
-                    return PrimitiveExpressionExtensions.ToExpression(eval);
-            }
-            return this;
+            var result = EvaluateAsExpression();
+            if (result == null)
+                return this;
+            else
+                return result;
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
@@ -103,13 +132,9 @@ namespace Flame.Compiler.Expressions
             if (Target == null)
             {
                 targetBlock = null;
-                var eval = this.Evaluate();
-                if (eval != null)
-                {
-                    var evaluatedExpr = PrimitiveExpressionExtensions.ToExpression(eval);
-                    if (evaluatedExpr != null)
-                        return evaluatedExpr.Emit(Generator);
-                }
+                var evalExpr = EvaluateAsExpression();
+                if (evalExpr != null)
+                    return evalExpr.Emit(Generator);
             }
             else
             {
