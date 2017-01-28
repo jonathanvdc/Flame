@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Flame
 {
@@ -36,16 +37,26 @@ namespace Flame
         {
             get
             {
-                if (typeIndex > 0)
+                string result;
+                rwLock.EnterReadLock();
+                try
                 {
-                    // Decrement typeIndex before indexing, because typeIndex
-                    // is one-based.
-                    return typeNames[typeIndex - 1];
+                    if (typeIndex > 0)
+                    {
+                        // Decrement typeIndex before indexing, because
+                        // typeIndex is one-based.
+                        result = typeNames[typeIndex - 1];
+                    }
+                    else
+                    {
+                        result = null;
+                    }
                 }
-                else
+                finally
                 {
-                    return null;
+                    rwLock.ExitReadLock();
                 }
+                return result;
             }
         }
 
@@ -56,16 +67,26 @@ namespace Flame
         {
             get
             {
-                if (typeIndex > 0)
+                IPointerAncestryRules result;
+                rwLock.EnterReadLock();
+                try
                 {
-                    // Decrement typeIndex before indexing, because typeIndex
-                    // is one-based.
-                    return ancRules[typeIndex - 1];
+                    if (typeIndex > 0)
+                    {
+                        // Decrement typeIndex before indexing, because
+                        // typeIndex is one-based.
+                        result = ancRules[typeIndex - 1];
+                    }
+                    else
+                    {
+                        result = null;
+                    }
                 }
-                else
+                finally
                 {
-                    return null;
+                    rwLock.ExitReadLock();
                 }
+                return result;
             }
         }
 
@@ -113,6 +134,7 @@ namespace Flame
             typeNames = new List<string>();
             ancRules = new List<IPointerAncestryRules>();
             kindDict = new Dictionary<string, PointerKind>();
+            rwLock = new ReaderWriterLockSlim();
             Register("*");
             Register("^");
             Register("'box");
@@ -121,6 +143,7 @@ namespace Flame
         private static List<string> typeNames;
         private static List<IPointerAncestryRules> ancRules;
         private static Dictionary<string, PointerKind> kindDict;
+        private static ReaderWriterLockSlim rwLock;
 
         private static PointerKind RegisterNew(
             string Extension, IPointerAncestryRules Rules)
@@ -136,18 +159,35 @@ namespace Flame
         /// Registers a pointer kind with the given extension and set of pointer
         /// ancestry rules.
         /// </summary>
-        public static PointerKind Register(string Extension, IPointerAncestryRules Rules)
+        public static PointerKind Register(
+            string Extension, IPointerAncestryRules Rules)
         {
             PointerKind result;
-            if (kindDict.TryGetValue(Extension, &result))
+            rwLock.EnterUpgradeableReadLock();
+            try
             {
-                assert(result.AncestryRules.Equals(Rules));
-                return result;
+                if (kindDict.TryGetValue(Extension, &result))
+                {
+                    assert(result.AncestryRules.Equals(Rules));
+                }
+                else
+                {
+                    rwLock.EnterWriteLock();
+                    try
+                    {
+                        result = RegisterNew(Extension, Rules);
+                    }
+                    finally
+                    {
+                        rwLock.ExitWriteLock();
+                    }
+                }
             }
-            else
+            finally
             {
-                return RegisterNew(Extension, Rules);
+                rwLock.ExitUpgradeableReadLock();
             }
+            return result;
         }
 
         /// <summary>
@@ -164,14 +204,25 @@ namespace Flame
         /// </summary>
         public static bool IsPointerExtension(string Extension)
         {
-            return kindDict.ContainsKey(Extension);
+            bool result;
+            rwLock.EnterReadLock();
+            try
+            {
+                result = kindDict.ContainsKey(Extension);
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+            return result;
         }
 
         /// <summary>
         /// Tries to get the pointer kind that is suffixed to the given type
-        /// name, if any.
+        /// name, if any. This method is not thread-safe.
         /// </summary>
-        public static bool TryGetPointerKind(string TypeName, out PointerKind^ Result)
+        private static bool TryGetPointerKindVolatile(
+            string TypeName, out PointerKind^ Result)
         {
             if (kindDict.TryGetValue(TypeName, Result))
             {
@@ -188,6 +239,26 @@ namespace Flame
             }
             *Result = Undefined;
             return false;
+        }
+
+        /// <summary>
+        /// Tries to get the pointer kind that is suffixed to the given type
+        /// name, if any.
+        /// </summary>
+        public static bool TryGetPointerKind(
+            string TypeName, out PointerKind^ Result)
+        {
+            bool success;
+            rwLock.EnterReadLock();
+            try
+            {
+                success = TryGetPointerKindVolatile(TypeName, Result);
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+            return success;
         }
 
         /// <summary>
