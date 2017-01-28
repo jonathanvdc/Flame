@@ -14,6 +14,7 @@ namespace Flame
             this.typeIndex = Other.typeIndex;
         }
 
+        // The one-based index in the type names and ancestry rules lists.
         private int typeIndex;
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace Flame
         /// </summary>
         public bool IsDefined
         {
-            get return typeIndex > -1;
+            get { return typeIndex > 0; }
         }
 
         /// <summary>
@@ -31,10 +32,16 @@ namespace Flame
         {
             get
             {
-                if (typeIndex >= 0)
-                    return typeNames[typeIndex];
+                if (typeIndex > 0)
+                {
+                    // Decrement typeIndex before indexing, because typeIndex
+                    // is one-based.
+                    return typeNames[typeIndex - 1];
+                }
                 else
+                {
                     return null;
+                }
             }
         }
 
@@ -45,10 +52,16 @@ namespace Flame
         {
             get
             {
-                if (typeIndex >= 0)
-                    return ancRules[typeIndex];
+                if (typeIndex > 0)
+                {
+                    // Decrement typeIndex before indexing, because typeIndex
+                    // is one-based.
+                    return ancRules[typeIndex - 1];
+                }
                 else
+                {
                     return null;
+                }
             }
         }
 
@@ -110,7 +123,7 @@ namespace Flame
         {
             typeNames.Add(Extension);
             ancRules.Add(Rules);
-            var result = new PointerKind(typeNames.Count - 1);
+            var result = new PointerKind(typeNames.Count);
             kindDict[Extension] = result;
             return result;
         }
@@ -160,7 +173,7 @@ namespace Flame
             {
                 if (TypeName.EndsWith(typeNames[i]))
                 {
-                	*Result = new PointerKind(i);
+                    *Result = new PointerKind(i + 1);
                     return true;
                 }
             }
@@ -187,7 +200,7 @@ namespace Flame
         {
             get
             {
-                return new PointerKind(-1);
+                return default(PointerKind);
             }
         }
 
