@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Flame
 {
-	public static class GenericNameExtensions
-	{
-		/// <summary>
+    public static class GenericNameExtensions
+    {
+        /// <summary>
         /// Gets the member's name, without generic parameters.
         /// </summary>
         /// <param name="Member"></param>
@@ -28,15 +28,15 @@ namespace Flame
             return RemoveGenerics(genericName);
         }
 
-		public static const string TrimGenerics(string Name)
-		{
-			return RemoveGenerics(Name);
-		}
+        public static const string TrimGenerics(string Name)
+        {
+            return RemoveGenerics(Name);
+        }
 
-		public static const string ChangeTypeArguments(string Name, [string] TypeArgumentNames)
-		{
-			return AppendTypeArguments(TrimGenerics(Name), TypeArgumentNames);
-		}
+        public static const string ChangeTypeArguments(string Name, [string] TypeArgumentNames)
+        {
+            return AppendTypeArguments(TrimGenerics(Name), TypeArgumentNames);
+        }
 
         private const static string RemoveGenerics(string genericName)
         {
@@ -70,58 +70,58 @@ namespace Flame
         }
 
         public static const string AppendTypeArguments(string Name, [string] TypeArgumentNames)
-		{
-			if (!Enumerable.Any<string>(TypeArgumentNames))
-			{
-				return Name;
-			}
-			StringBuilder sb = new StringBuilder(Name);
-			sb.Append('<');
-			sb.Append(Enumerable.First<string>(TypeArgumentNames));
-			foreach (var item in Enumerable.Skip<string>(TypeArgumentNames, 1))
-			{
-				sb.Append(", ");
-				sb.Append(item);
-			}
-			sb.Append('>');
-			return sb.ToString();
-		}
+        {
+            if (!Enumerable.Any<string>(TypeArgumentNames))
+            {
+                return Name;
+            }
+            StringBuilder sb = new StringBuilder(Name);
+            sb.Append('<');
+            sb.Append(Enumerable.First<string>(TypeArgumentNames));
+            foreach (var item in Enumerable.Skip<string>(TypeArgumentNames, 1))
+            {
+                sb.Append(", ");
+                sb.Append(item);
+            }
+            sb.Append('>');
+            return sb.ToString();
+        }
 
-		public static const string AppendArraySuffix(string Name, int Rank)
-		{
-			if (Rank > 0)
-			{
-				StringBuilder sb = new StringBuilder(Name);
-				sb.Append('[');
-				for (int i = 1; i < Rank; i++)
-				{
-					sb.Append(',');
-				}
-				sb.Append(']');
-				return sb.ToString();
-			}
-			else
-			{
-				return Name;
-			}
-		}
+        public static const string AppendArraySuffix(string Name, int Rank)
+        {
+            if (Rank > 0)
+            {
+                StringBuilder sb = new StringBuilder(Name);
+                sb.Append('[');
+                for (int i = 1; i < Rank; i++)
+                {
+                    sb.Append(',');
+                }
+                sb.Append(']');
+                return sb.ToString();
+            }
+            else
+            {
+                return Name;
+            }
+        }
 
-		public static const string AppendVectorSuffix(string Name, [int] Dimensions)
-		{
-			if (Enumerable.Any<int>(Dimensions))
-			{
-				StringBuilder sb = new StringBuilder(Name);
-				sb.Append('[');
-				sb.Append(Enumerable.First<int>(Dimensions));
-				foreach (var item in Enumerable.Skip<int>(Dimensions, 1))
-				{
-					sb.Append(", ");
-					sb.Append(item);
-				}
-				sb.Append(']');
-				return sb.ToString();
-			}
-			else return Name;
-		}
-	}
+        public static const string AppendVectorSuffix(string Name, [int] Dimensions)
+        {
+            if (Enumerable.Any<int>(Dimensions))
+            {
+                StringBuilder sb = new StringBuilder(Name);
+                sb.Append('[');
+                sb.Append(Enumerable.First<int>(Dimensions));
+                foreach (var item in Enumerable.Skip<int>(Dimensions, 1))
+                {
+                    sb.Append(", ");
+                    sb.Append(item);
+                }
+                sb.Append(']');
+                return sb.ToString();
+            }
+            else return Name;
+        }
+    }
 }

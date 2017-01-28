@@ -9,14 +9,14 @@ namespace Flame
     /// <summary>
     /// Defines a generic method instantiation.
     /// </summary>
-	public virtual class GenericMethod : GenericMethodBase, IGenericMemberInstance,
-									     IGenericResolver, IEquatable<IMethod>
-	{
+    public virtual class GenericMethod : GenericMethodBase, IGenericMemberInstance,
+                                         IGenericResolver, IEquatable<IMethod>
+    {
         /// <summary>
         /// Creates a generic instantiation of the given method with the given
         /// type arguments.
         /// </summary>
-		public const this(IMethod Declaration, set [IType] GenericArguments)
+        public const this(IMethod Declaration, set [IType] GenericArguments)
             : base(Declaration);
 
         /// <summary>
@@ -24,10 +24,10 @@ namespace Flame
         /// </summary>
         public [IType] GenericArguments { const get; private set; }
 
-		public override IGenericResolver Resolver { const get { return this; } }
-		public override IType DeclaringType { const get { return Declaration.DeclaringType; } }
+        public override IGenericResolver Resolver { const get { return this; } }
+        public override IType DeclaringType { const get { return Declaration.DeclaringType; } }
 
-		public override UnqualifiedName Name
+        public override UnqualifiedName Name
         {
             get
             {
@@ -65,23 +65,23 @@ namespace Flame
 
         public override const bool Equals(object Other)
         {
-        	if (Other is IMethod)
-        		return Equals((IMethod)Other);
-        	else
+            if (Other is IMethod)
+                return Equals((IMethod)Other);
+            else
                 return false;
         }
 
         public const bool Equals(IMethod Other)
         {
-        	if (Other is GenericMethod)
-        		return Equals((GenericMethod)Other);
+            if (Other is GenericMethod)
+                return Equals((GenericMethod)Other);
             else
-        	   return false;
+               return false;
         }
 
         public const bool Equals(GenericMethod Other)
         {
-        	return this.Declaration == Other.Declaration &&
+            return this.Declaration == Other.Declaration &&
                    this.GenericArguments.AreEqual(Other.GenericArguments);
         }
 
@@ -92,9 +92,9 @@ namespace Flame
             {
                 result = (result << 1) ^ item.GetHashCode();
             }
-        	return result;
+            return result;
         }
 
         #endregion
-	}
+    }
 }

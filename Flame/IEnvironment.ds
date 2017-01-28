@@ -3,34 +3,34 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public interface IEnvironment
-	{
-		/// <summary>
-		/// Gets the environment's name.
-		/// </summary>
-		string Name { get; }
+    public interface IEnvironment
+    {
+        /// <summary>
+        /// Gets the environment's name.
+        /// </summary>
+        string Name { get; }
 
-		/// <summary>
-		/// Gets the root type for this environment, if any.
-		/// </summary>
-		IType RootType { get; }
+        /// <summary>
+        /// Gets the root type for this environment, if any.
+        /// </summary>
+        IType RootType { get; }
 
-		/// <summary>
-		/// Gets the generic enumerable type declaration for this environment, if any.
-		/// </summary>
-		IType EnumerableType { get; }
+        /// <summary>
+        /// Gets the generic enumerable type declaration for this environment, if any.
+        /// </summary>
+        IType EnumerableType { get; }
 
-		/// <summary>
-		/// Gets the generic enumerator type declaration for this environment, if any.
-		/// </summary>
-		IType EnumeratorType { get; }
+        /// <summary>
+        /// Gets the generic enumerator type declaration for this environment, if any.
+        /// </summary>
+        IType EnumeratorType { get; }
 
-		/// <summary>
-		/// Gets a sequence of additional default base types for the given
-		/// type. A sequence of already-picked base types is also given, which
-		/// the environment will use instead of 'Type.BaseTypes'.
-		/// </summary>
-		IEnumerable<IType> GetDefaultBaseTypes(
-			IType Type, IEnumerable<IType> CurrentBaseTypes);
-	}
+        /// <summary>
+        /// Gets a sequence of additional default base types for the given
+        /// type. A sequence of already-picked base types is also given, which
+        /// the environment will use instead of 'Type.BaseTypes'.
+        /// </summary>
+        IEnumerable<IType> GetDefaultBaseTypes(
+            IType Type, IEnumerable<IType> CurrentBaseTypes);
+    }
 }

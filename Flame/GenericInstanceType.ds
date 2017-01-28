@@ -9,32 +9,32 @@ namespace Flame
     /// <summary>
     /// Defines a type belonging to a generic type instantiation.
     /// </summary>
-	public virtual class GenericInstanceType : GenericTypeBase, IEquatable<IType>
-	{
+    public virtual class GenericInstanceType : GenericTypeBase, IEquatable<IType>
+    {
         /// <summary>
         /// Creates a generic type instantiation from the given type,
         /// resolver and declaring type.
         /// </summary>
-		public const this(IType Declaration, set IGenericResolver resolver, set IType declaringType)
+        public const this(IType Declaration, set IGenericResolver resolver, set IType declaringType)
             : base(Declaration);
 
         /// <summary>
         /// Creates a generic type instantiation from the given type and
         /// declaring type.
         /// </summary>
-		public const this(IType Declaration, IGenericResolverType DeclaringType)
+        public const this(IType Declaration, IGenericResolverType DeclaringType)
             : base(Declaration)
-		{
+        {
             this.resolver = DeclaringType;
-			this.declaringType = DeclaringType;
-		}
+            this.declaringType = DeclaringType;
+        }
 
         private IGenericResolver resolver;
         private IType declaringType;
 
-		public override IGenericResolver Resolver { const get { return resolver; } }
-		public IType DeclaringType { const get { return declaringType; } }
-		public override INamespace DeclaringNamespace { const get { return (INamespace)declaringType; } }
+        public override IGenericResolver Resolver { const get { return resolver; } }
+        public IType DeclaringType { const get { return declaringType; } }
+        public override INamespace DeclaringNamespace { const get { return (INamespace)declaringType; } }
 
         public QualifiedName FullName
         {
@@ -46,40 +46,40 @@ namespace Flame
             const get { return Declaration.Name; }
         }
 
-		public override IAncestryRules AncestryRules
-		{
-			const get { return Declaration.AncestryRules; }
-		}
+        public override IAncestryRules AncestryRules
+        {
+            const get { return Declaration.AncestryRules; }
+        }
 
         #region Equality
 
         public override const bool Equals(object Other)
         {
-        	if (Other is IType)
-        		return Equals((IType)Other);
-        	else
+            if (Other is IType)
+                return Equals((IType)Other);
+            else
                 return false;
         }
 
         public const bool Equals(IType Other)
         {
-        	if (Other is GenericInstanceType)
-        		return Equals((GenericInstanceType)Other);
+            if (Other is GenericInstanceType)
+                return Equals((GenericInstanceType)Other);
             else
-        	   return false;
+               return false;
         }
 
         public const bool Equals(GenericInstanceType Other)
         {
-        	return this.Declaration.Equals(Other.Declaration) &&
+            return this.Declaration.Equals(Other.Declaration) &&
                    this.DeclaringType.Equals(Other.DeclaringType);
         }
 
         public override const int GetHashCode()
         {
-        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+            return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion
-	}
+    }
 }

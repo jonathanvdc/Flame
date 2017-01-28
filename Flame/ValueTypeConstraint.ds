@@ -4,63 +4,63 @@ using System.Text;
 
 namespace Flame
 {
-	/// <summary>
-	/// A constraint that is satisfied by value types only.
-	/// </summary>
-	public static class ValueTypeConstraint : IGenericConstraint
-	{
-		/// <summary>
-		/// Transforms the types in this generic constraint using the
-		/// given type converter.
-		/// </summary>
-		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
-		{
-			return this;
-		}
+    /// <summary>
+    /// A constraint that is satisfied by value types only.
+    /// </summary>
+    public static class ValueTypeConstraint : IGenericConstraint
+    {
+        /// <summary>
+        /// Transforms the types in this generic constraint using the
+        /// given type converter.
+        /// </summary>
+        public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+        {
+            return this;
+        }
 
-		public const bool Satisfies(IType TypeArgument)
-		{
-			return TypeArgument.IsValueType;
-		}
-	}
+        public const bool Satisfies(IType TypeArgument)
+        {
+            return TypeArgument.IsValueType;
+        }
+    }
 
-	/// <summary>
-	/// A constraint that is satisfied by reference types only.
-	/// </summary>
-	public static class ReferenceTypeConstraint : IGenericConstraint
-	{
-		/// <summary>
-		/// Transforms the types in this generic constraint using the
-		/// given type converter.
-		/// </summary>
-		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
-		{
-			return this;
-		}
+    /// <summary>
+    /// A constraint that is satisfied by reference types only.
+    /// </summary>
+    public static class ReferenceTypeConstraint : IGenericConstraint
+    {
+        /// <summary>
+        /// Transforms the types in this generic constraint using the
+        /// given type converter.
+        /// </summary>
+        public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+        {
+            return this;
+        }
 
-		public const bool Satisfies(IType TypeArgument)
-		{
-			return TypeArgument.IsReferenceType;
-		}
-	}
+        public const bool Satisfies(IType TypeArgument)
+        {
+            return TypeArgument.IsReferenceType;
+        }
+    }
 
-	/// <summary>
-	/// A constraint that is satisfied by enum types only.
-	/// </summary>
-	public static class EnumConstraint : IGenericConstraint
-	{
-		/// <summary>
-		/// Transforms the types in this generic constraint using the
-		/// given type converter.
-		/// </summary>
-		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
-		{
-			return this;
-		}
+    /// <summary>
+    /// A constraint that is satisfied by enum types only.
+    /// </summary>
+    public static class EnumConstraint : IGenericConstraint
+    {
+        /// <summary>
+        /// Transforms the types in this generic constraint using the
+        /// given type converter.
+        /// </summary>
+        public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+        {
+            return this;
+        }
 
-		public const bool Satisfies(IType TypeArgument)
-		{
-			return TypeArgument.IsEnum;
-		}
-	}
+        public const bool Satisfies(IType TypeArgument)
+        {
+            return TypeArgument.IsEnum;
+        }
+    }
 }

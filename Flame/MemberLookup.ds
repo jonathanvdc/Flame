@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Flame
 {
-	public static class MemberLookup
-	{
-		#region GetAllFields
+    public static class MemberLookup
+    {
+        #region GetAllFields
 
         public const static [IField] GetAllFields(this IType Type, UnqualifiedName Name)
         {
@@ -21,12 +21,12 @@ namespace Flame
         /// </remarks>
         public static const [IField] GetAllFields(this IType Type)
         {
-        	var results = new HashSet<IField>(Type.Fields);
-        	foreach (var item in Type.BaseTypes)
-        	{
-				results.UnionWith(item.GetAllFields());
-        	}
-        	return results;
+            var results = new HashSet<IField>(Type.Fields);
+            foreach (var item in Type.BaseTypes)
+            {
+                results.UnionWith(item.GetAllFields());
+            }
+            return results;
         }
 
         #endregion
@@ -35,12 +35,12 @@ namespace Flame
 
         public const static IField GetField(this IType Type, UnqualifiedName Name)
         {
-        	return Type.GetAllFields().GetField(Name);
+            return Type.GetAllFields().GetField(Name);
         }
 
         public const static IField GetField(this [IField] Fields, UnqualifiedName Name)
         {
-			return Enumerable.FirstOrDefault<IField>(MemberSelection.FilterByName<IField>(Fields, Name));
+            return Enumerable.FirstOrDefault<IField>(MemberSelection.FilterByName<IField>(Fields, Name));
         }
 
         #endregion
@@ -52,10 +52,10 @@ namespace Flame
             var props = new HashSet<IProperty>(Type.Properties);
             foreach (var baseType in Type.BaseTypes)
             {
-            	foreach (var property in baseType.GetAllProperties())
-            	{
-					props.Add(property);
-            	}
+                foreach (var property in baseType.GetAllProperties())
+                {
+                    props.Add(property);
+                }
             }
             return props;
         }
@@ -74,11 +74,11 @@ namespace Flame
             var methods = new HashSet<IMethod>(Type.Methods);
             foreach (var baseType in Type.BaseTypes)
             {
-            	foreach (var method in baseType.GetAllMethods())
-            	{
-					if (!method.IsConstructor)
-        				methods.Add(method);
-            	}
+                foreach (var method in baseType.GetAllMethods())
+                {
+                    if (!method.IsConstructor)
+                        methods.Add(method);
+                }
             }
             return methods;
         }
@@ -94,9 +94,9 @@ namespace Flame
 
         public const static [ITypeMember] GetAllMembers(this IType Type)
         {
-			return Enumerable.Concat<ITypeMember>(Type.GetAllFields(),
-				   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(),
-							   					  Type.GetAllProperties()));
+            return Enumerable.Concat<ITypeMember>(Type.GetAllFields(),
+                   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(),
+                                                     Type.GetAllProperties()));
         }
 
         #endregion
@@ -105,11 +105,11 @@ namespace Flame
 
         public const static [ITypeMember] GetAllMembers(this IType Type, UnqualifiedName Name)
         {
-			return Enumerable.Concat<ITypeMember>(Type.GetAllFields(Name),
-				   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(Name),
-				                                  Type.GetAllProperties(Name)));
+            return Enumerable.Concat<ITypeMember>(Type.GetAllFields(Name),
+                   Enumerable.Concat<ITypeMember>(Type.GetAllMethods(Name),
+                                                  Type.GetAllProperties(Name)));
         }
 
         #endregion
-	}
+    }
 }

@@ -4,27 +4,27 @@ using System.Linq;
 
 namespace Flame
 {
-	public static class EnumerableExtensions
-	{
-		private static const IType getParameterType(IParameter parameter)
-		{
-			return parameter.ParameterType;
-		}
+    public static class EnumerableExtensions
+    {
+        private static const IType getParameterType(IParameter parameter)
+        {
+            return parameter.ParameterType;
+        }
 
-		public static const IType[] GetTypes(this IParameter[] Parameters)
-		{
-			[IParameter] enumerable = Parameters;
-			return Enumerable.ToArray<IType>(enumerable.GetTypes());
-		}
+        public static const IType[] GetTypes(this IParameter[] Parameters)
+        {
+            [IParameter] enumerable = Parameters;
+            return Enumerable.ToArray<IType>(enumerable.GetTypes());
+        }
 
-		public static const [IType] GetTypes(this [IParameter] Parameters)
-		{
-			return Enumerable.Select<IParameter, IType>(Parameters, getParameterType);
-		}
+        public static const [IType] GetTypes(this [IParameter] Parameters)
+        {
+            return Enumerable.Select<IParameter, IType>(Parameters, getParameterType);
+        }
 
-		public static const bool AreEqual(this [IType] Types, [IType] Others)
-		{
-			return Enumerable.SequenceEqual<IType>(Types, Others);
-		}
-	}
+        public static const bool AreEqual(this [IType] Types, [IType] Others)
+        {
+            return Enumerable.SequenceEqual<IType>(Types, Others);
+        }
+    }
 }

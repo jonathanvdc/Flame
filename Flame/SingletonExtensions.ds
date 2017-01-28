@@ -5,140 +5,140 @@ using System.Linq;
 
 namespace Flame
 {
-	public static class SingletonExtensions
-	{
-		/// <summary>
-		/// Tests if the given type is a singleton.
-		/// </summary>
-		public static bool IsSingleton[this IType Type]
-		{
-			const get return Type.HasAttribute(SingletonAttribute.SingletonAttributeType);
-		}
+    public static class SingletonExtensions
+    {
+        /// <summary>
+        /// Tests if the given type is a singleton.
+        /// </summary>
+        public static bool IsSingleton[this IType Type]
+        {
+            const get return Type.HasAttribute(SingletonAttribute.SingletonAttributeType);
+        }
 
-		/// <summary>
-		/// Gets the given type's singleton member, which may be either
-		/// a property or a field.
-		/// </summary>
-		public static const ITypeMember GetSingletonMember(this IType Type)
-		{
-			var attr = (SingletonAttribute)Type.GetAttribute(SingletonAttribute.SingletonAttributeType);
-			if (attr == null)
-			{
-				return null;
-			}
-			else
-			{
-				var name = new SimpleName(attr.InstanceMemberName);
-				var field = Type.GetField(name, true);
-				if (field != null)
-					return field;
-				return Type.GetAllProperties().GetProperty(name, true);
-			}
-		}
+        /// <summary>
+        /// Gets the given type's singleton member, which may be either
+        /// a property or a field.
+        /// </summary>
+        public static const ITypeMember GetSingletonMember(this IType Type)
+        {
+            var attr = (SingletonAttribute)Type.GetAttribute(SingletonAttribute.SingletonAttributeType);
+            if (attr == null)
+            {
+                return null;
+            }
+            else
+            {
+                var name = new SimpleName(attr.InstanceMemberName);
+                var field = Type.GetField(name, true);
+                if (field != null)
+                    return field;
+                return Type.GetAllProperties().GetProperty(name, true);
+            }
+        }
 
-		/// <summary>
-		/// Gets the sequence of all associated types of the given
-		/// type.
-		/// </summary>
-		public static const [IType] GetAssociatedTypes(this IType Type)
-		{
-			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
-			var results = new List<IType>();
-			foreach (var item in attrs)
-			{
-				results.Add(((AssociatedTypeAttribute)item).AssociatedType);
-			}
-			return results;
-		}
+        /// <summary>
+        /// Gets the sequence of all associated types of the given
+        /// type.
+        /// </summary>
+        public static const [IType] GetAssociatedTypes(this IType Type)
+        {
+            var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
+            var results = new List<IType>();
+            foreach (var item in attrs)
+            {
+                results.Add(((AssociatedTypeAttribute)item).AssociatedType);
+            }
+            return results;
+        }
 
-		/// <summary>
-		/// Gets all singleton types that are associated with the
-		/// given type.
-		/// </summary>
-		public static const [IType] GetAssociatedSingletons(this IType Type)
-		{
-			var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
-			var results = new List<IType>();
-			foreach (var item in attrs)
-			{
-				var type = ((AssociatedTypeAttribute)item).AssociatedType;
-				if (type.IsSingleton)
-					results.Add(type);
-			}
-			return results;
-		}
+        /// <summary>
+        /// Gets all singleton types that are associated with the
+        /// given type.
+        /// </summary>
+        public static const [IType] GetAssociatedSingletons(this IType Type)
+        {
+            var attrs = Type.GetAttributes(AssociatedTypeAttribute.AssociatedTypeAttributeType);
+            var results = new List<IType>();
+            foreach (var item in attrs)
+            {
+                var type = ((AssociatedTypeAttribute)item).AssociatedType;
+                if (type.IsSingleton)
+                    results.Add(type);
+            }
+            return results;
+        }
 
-		/// <summary>
-		/// Gets the given type's single associated singleton type,
-		/// if any. Otherwise, null is returned.
-		/// </summary>
-		public static const IType GetAssociatedSingleton(this IType Type)
-		{
-			var singletons = Type.GetAssociatedSingletons();
-			return Enumerable.SingleOrDefault<IType>(singletons);
-		}
+        /// <summary>
+        /// Gets the given type's single associated singleton type,
+        /// if any. Otherwise, null is returned.
+        /// </summary>
+        public static const IType GetAssociatedSingleton(this IType Type)
+        {
+            var singletons = Type.GetAssociatedSingletons();
+            return Enumerable.SingleOrDefault<IType>(singletons);
+        }
 
-		/// <summary>
-		/// Checks if the first type is an associated singleton
-		/// of the given target type.
-		/// </summary>
-		public static const bool IsAssociatedSingletonOf(this IType Type, IType Target)
-		{
-			return Enumerable.Contains<IType>(Target.GetAssociatedSingletons(), Type);
-		}
+        /// <summary>
+        /// Checks if the first type is an associated singleton
+        /// of the given target type.
+        /// </summary>
+        public static const bool IsAssociatedSingletonOf(this IType Type, IType Target)
+        {
+            return Enumerable.Contains<IType>(Target.GetAssociatedSingletons(), Type);
+        }
 
-		/// <summary>
-		/// Gets the "owner" of this associated singleton type.
-		/// Null is returned if no owner could be found.
-		/// </summary>
-		public static const IType GetAssociatedSingletonOwner(this IType Type)
-		{
-			if (!Type.IsSingleton) return null;
-			if (Type.DeclaringNamespace is IType)
-			{
-				var declType = (IType)Type.DeclaringNamespace;
-				if (Type.IsAssociatedSingletonOf(declType))
-				{
-					return declType;
-				}
-			}
-			foreach (var item in Type.GetAssociatedTypes())
-				if (Type.IsAssociatedSingletonOf(item))
-			{
-				return item;
-			}
-			return null;
-		}
+        /// <summary>
+        /// Gets the "owner" of this associated singleton type.
+        /// Null is returned if no owner could be found.
+        /// </summary>
+        public static const IType GetAssociatedSingletonOwner(this IType Type)
+        {
+            if (!Type.IsSingleton) return null;
+            if (Type.DeclaringNamespace is IType)
+            {
+                var declType = (IType)Type.DeclaringNamespace;
+                if (Type.IsAssociatedSingletonOf(declType))
+                {
+                    return declType;
+                }
+            }
+            foreach (var item in Type.GetAssociatedTypes())
+                if (Type.IsAssociatedSingletonOf(item))
+            {
+                return item;
+            }
+            return null;
+        }
 
-		/// <summary>
-		/// Checks if the given type is the associated singleton of
-		/// some other type.
-		/// </summary>
-		public static const bool IsAssociatedSingleton(this IType Type)
-		{
-			return Type.GetAssociatedSingletonOwner() != null;
-		}
+        /// <summary>
+        /// Checks if the given type is the associated singleton of
+        /// some other type.
+        /// </summary>
+        public static const bool IsAssociatedSingleton(this IType Type)
+        {
+            return Type.GetAssociatedSingletonOwner() != null;
+        }
 
-		public static const [IMethod] GetAssociatedOperatorMethods(this IType Type)
-		{
-			var results = new List<IMethod>();
-			results.AddRange(Type.GetOperatorMethods());
-			foreach (var item in Type.GetAssociatedTypes())
-			{
-				results.AddRange(item.GetOperatorMethods());
-			}
-			return results;
-		}
+        public static const [IMethod] GetAssociatedOperatorMethods(this IType Type)
+        {
+            var results = new List<IMethod>();
+            results.AddRange(Type.GetOperatorMethods());
+            foreach (var item in Type.GetAssociatedTypes())
+            {
+                results.AddRange(item.GetOperatorMethods());
+            }
+            return results;
+        }
 
-		public static const [IMethod] GetAssociatedOperatorMethods(this IType Type, Operator Op)
-		{
-			var results = new List<IMethod>();
-			results.AddRange(Type.GetOperatorMethods(Op));
-			foreach (var item in Type.GetAssociatedTypes())
-			{
-				results.AddRange(item.GetOperatorMethods(Op));
-			}
-			return results;
-		}
-	}
+        public static const [IMethod] GetAssociatedOperatorMethods(this IType Type, Operator Op)
+        {
+            var results = new List<IMethod>();
+            results.AddRange(Type.GetOperatorMethods(Op));
+            foreach (var item in Type.GetAssociatedTypes())
+            {
+                results.AddRange(item.GetOperatorMethods(Op));
+            }
+            return results;
+        }
+    }
 }

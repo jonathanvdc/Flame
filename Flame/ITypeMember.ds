@@ -2,13 +2,13 @@ using System;
 
 namespace Flame
 {
-	/// <summary>
-	/// Defines type membes: members that are declared within the scope
-	/// of a type.
-	/// </summary>
-	public interface ITypeMember : IMember
-	{
-		/// <summary>
+    /// <summary>
+    /// Defines type membes: members that are declared within the scope
+    /// of a type.
+    /// </summary>
+    public interface ITypeMember : IMember
+    {
+        /// <summary>
         /// Gets the type that declared this member.
         /// </summary>
         IType DeclaringType { get; }
@@ -17,5 +17,5 @@ namespace Flame
         /// Gets a boolean value that indicates whether the member is static or not.
         /// </summary>
         bool IsStatic { get; }
-	}
+    }
 }

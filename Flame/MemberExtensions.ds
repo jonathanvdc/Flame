@@ -6,158 +6,158 @@ using Flame.Build;
 
 namespace Flame
 {
-	public static class MemberExtensions
-	{
-		#region Member Manipulation
+    public static class MemberExtensions
+    {
+        #region Member Manipulation
 
-		public static const string CombineNames(string First, string Second)
-		{
-			if (string.IsNullOrEmpty(First))
-			{
-				return Second;
-			}
-			else if (string.IsNullOrEmpty(Second))
-			{
-				return First;
-			}
-			else
-			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append(First);
-				sb.Append(".");
-				sb.Append(Second);
-				return sb.ToString();
-			}
-		}
-
-		public static [UnqualifiedName] Names[this [IMember] Members]
-		{
-			const get
-			{
-				var results = new List<UnqualifiedName>();
-				foreach (var item in Members)
-				{
-					results.Add(item.Name);
-				}
-				return results;
-			}
-		}
-		public static [UnqualifiedName] Names[this [IType] Types]
-		{
-			const get
-			{
-				var results = new List<UnqualifiedName>();
-				foreach (var item in Types)
-				{
-					results.Add(item.Name);
-				}
-				return results;
-			}
-		}
-
-		public static [QualifiedName] FullNames[this [IMember] Members]
-		{
-			const get
-			{
-				var results = new List<QualifiedName>();
-				foreach (var item in Members)
-				{
-					results.Add(item.FullName);
-				}
-				return results;
-			}
-		}
-		public static [QualifiedName] FullNames[this [IType] Types]
-		{
-			const get
-			{
-				var results = new List<QualifiedName>();
-				foreach (var item in Types)
-				{
-					results.Add(item.FullName);
-				}
-				return results;
-			}
-		}
-
-		#endregion
-
-		#region Attributes
-
-		public static [IAttribute] GetAttributes(this IMember Member, IType Type)
+        public static const string CombineNames(string First, string Second)
         {
-        	return Member.Attributes.GetAll(Type);
+            if (string.IsNullOrEmpty(First))
+            {
+                return Second;
+            }
+            else if (string.IsNullOrEmpty(Second))
+            {
+                return First;
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(First);
+                sb.Append(".");
+                sb.Append(Second);
+                return sb.ToString();
+            }
+        }
+
+        public static [UnqualifiedName] Names[this [IMember] Members]
+        {
+            const get
+            {
+                var results = new List<UnqualifiedName>();
+                foreach (var item in Members)
+                {
+                    results.Add(item.Name);
+                }
+                return results;
+            }
+        }
+        public static [UnqualifiedName] Names[this [IType] Types]
+        {
+            const get
+            {
+                var results = new List<UnqualifiedName>();
+                foreach (var item in Types)
+                {
+                    results.Add(item.Name);
+                }
+                return results;
+            }
+        }
+
+        public static [QualifiedName] FullNames[this [IMember] Members]
+        {
+            const get
+            {
+                var results = new List<QualifiedName>();
+                foreach (var item in Members)
+                {
+                    results.Add(item.FullName);
+                }
+                return results;
+            }
+        }
+        public static [QualifiedName] FullNames[this [IType] Types]
+        {
+            const get
+            {
+                var results = new List<QualifiedName>();
+                foreach (var item in Types)
+                {
+                    results.Add(item.FullName);
+                }
+                return results;
+            }
+        }
+
+        #endregion
+
+        #region Attributes
+
+        public static [IAttribute] GetAttributes(this IMember Member, IType Type)
+        {
+            return Member.Attributes.GetAll(Type);
         }
 
         public static IAttribute GetAttribute(this IMember Member, IType Type)
         {
-        	return Member.Attributes.Get(Type);
+            return Member.Attributes.Get(Type);
         }
 
         public static bool HasAttribute(this IMember Member, IType AttributeType)
         {
-			return Member.Attributes.Contains(AttributeType);
+            return Member.Attributes.Contains(AttributeType);
         }
 
         public static AccessAttribute GetAccessAttribute(this IMember Member)
         {
-        	return new AccessAttribute(Member.Access);
+            return new AccessAttribute(Member.Access);
         }
 
         public static AccessModifier Access[this IMember Member]
         {
-        	const get
-        	{
-	        	var accessAttr = (AccessAttribute)Member.GetAttribute(AccessAttribute.AccessAttributeType);
-	        	if (accessAttr == null)
-	        	{
-	        		return AccessModifier.Public;
-	        	}
-	        	else
-	        	{
-	        		return accessAttr.Access;
-	        	}
-        	}
+            const get
+            {
+                var accessAttr = (AccessAttribute)Member.GetAttribute(AccessAttribute.AccessAttributeType);
+                if (accessAttr == null)
+                {
+                    return AccessModifier.Public;
+                }
+                else
+                {
+                    return accessAttr.Access;
+                }
+            }
         }
 
         #region GetAncestryGraph
 
         public static AncestryGraph GetAncestryGraph(this IMember Member)
         {
-        	var attr = Member.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
-        	if (attr == null)
-        	{
-        		return new AncestryGraph();
-        	}
-        	else
-        	{
-        		return ((AncestryGraphAttribute)attr).Graph;
-        	}
+            var attr = Member.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+            if (attr == null)
+            {
+                return new AncestryGraph();
+            }
+            else
+            {
+                return ((AncestryGraphAttribute)attr).Graph;
+            }
         }
 
         public static AncestryGraph GetAncestryGraph(IMember First, IMember Second)
         {
-        	var attr = First.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
-        	if (attr == null)
-        	{
-        		return Second.GetAncestryGraph();
-        	}
-        	else
-        	{
-        		return ((AncestryGraphAttribute)attr).Graph;
-        	}
+            var attr = First.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+            if (attr == null)
+            {
+                return Second.GetAncestryGraph();
+            }
+            else
+            {
+                return ((AncestryGraphAttribute)attr).Graph;
+            }
         }
 
-		public static AncestryGraph GetAncestryGraph([IMember] Members)
-		{
-			foreach (var item in Members)
-			{
-				var attr = item.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
-				if (attr != null)
-					return ((AncestryGraphAttribute)attr).Graph;
-			}
-			return new AncestryGraph();
-		}
+        public static AncestryGraph GetAncestryGraph([IMember] Members)
+        {
+            foreach (var item in Members)
+            {
+                var attr = item.GetAttribute(AncestryGraphAttribute.AncestryGraphAttributeType);
+                if (attr != null)
+                    return ((AncestryGraphAttribute)attr).Graph;
+            }
+            return new AncestryGraph();
+        }
 
         #endregion
 
@@ -166,9 +166,9 @@ namespace Flame
         public static bool IsCovariant[this IGenericParameter Type]
         {
             const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.OutAttribute.AttributeType);
-        	}
+            {
+                return Type.HasAttribute(PrimitiveAttributes.OutAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -178,9 +178,9 @@ namespace Flame
         public static bool IsContravariant[this IGenericParameter Type]
         {
             const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.InAttribute.AttributeType);
-        	}
+            {
+                return Type.HasAttribute(PrimitiveAttributes.InAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -190,24 +190,24 @@ namespace Flame
         public static bool IsInterface[this IType Type]
         {
             const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.InterfaceAttribute.AttributeType);
-        	}
+            {
+                return Type.HasAttribute(PrimitiveAttributes.InterfaceAttribute.AttributeType);
+            }
         }
 
-		private static bool IsPureInterfaceCore(IType Type)
-		{
-			return Type.IsInterface && Enumerable.All<IType>(Type.BaseTypes, IsPureInterfaceCore);
-		}
+        private static bool IsPureInterfaceCore(IType Type)
+        {
+            return Type.IsInterface && Enumerable.All<IType>(Type.BaseTypes, IsPureInterfaceCore);
+        }
 
-		/// <summary>
-		/// Determines if this type is a "pure interface", i.e. an interface whose
-		/// base types are all pure interfaces.
-		/// </summary>
-		public static bool IsPureInterface[this IType Type]
-		{
-			const get return IsPureInterfaceCore(Type);
-		}
+        /// <summary>
+        /// Determines if this type is a "pure interface", i.e. an interface whose
+        /// base types are all pure interfaces.
+        /// </summary>
+        public static bool IsPureInterface[this IType Type]
+        {
+            const get return IsPureInterfaceCore(Type);
+        }
 
         #endregion
 
@@ -215,10 +215,10 @@ namespace Flame
 
         public static bool IsValueType[this IType Type]
         {
-        	const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.ValueTypeAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Type.HasAttribute(PrimitiveAttributes.ValueTypeAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -227,10 +227,10 @@ namespace Flame
 
         public static bool IsEnum[this IType Type]
         {
-        	const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.EnumAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Type.HasAttribute(PrimitiveAttributes.EnumAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -239,14 +239,14 @@ namespace Flame
 
         public static bool IsReferenceType[this IType Type]
         {
-        	const get
-        	{
-        		if (Type.HasAttribute(PrimitiveAttributes.ReferenceTypeAttribute.AttributeType))
-        		{
-        			return true;
-        		}
-        		return !Type.IsValueType && !Type.IsGenericParameter;
-        	}
+            const get
+            {
+                if (Type.HasAttribute(PrimitiveAttributes.ReferenceTypeAttribute.AttributeType))
+                {
+                    return true;
+                }
+                return !Type.IsValueType && !Type.IsGenericParameter;
+            }
         }
 
         #endregion
@@ -255,61 +255,61 @@ namespace Flame
 
         public static bool IsRootType[this IType Type]
         {
-        	const get
-        	{
-        		return Type.HasAttribute(PrimitiveAttributes.RootTypeAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Type.HasAttribute(PrimitiveAttributes.RootTypeAttribute.AttributeType);
+            }
         }
 
         #endregion
 
-		#region IsStaticType
+        #region IsStaticType
 
-		/// <summary>
-		/// Determines if the given type has a 'static type' attribute.
-		/// </summary>
-		public static bool IsStaticType[this IType Type]
-		{
-			get
-			{
-				return Type.HasAttribute(PrimitiveAttributes.StaticTypeAttribute.AttributeType);
-			}
-		}
+        /// <summary>
+        /// Determines if the given type has a 'static type' attribute.
+        /// </summary>
+        public static bool IsStaticType[this IType Type]
+        {
+            get
+            {
+                return Type.HasAttribute(PrimitiveAttributes.StaticTypeAttribute.AttributeType);
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region IsDelegate
+        #region IsDelegate
 
-		public static bool IsDelegate[this IType Type]
-		{
-			const get
-			{
-				return MethodType.GetMethod(Type) != null;
-			}
-		}
+        public static bool IsDelegate[this IType Type]
+        {
+            const get
+            {
+                return MethodType.GetMethod(Type) != null;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region IsIntersectionType
+        #region IsIntersectionType
 
-		public static bool IsIntersectionType[this IType Type]
-		{
-			const get
-			{
-				return Type is IntersectionType;
-			}
-		}
+        public static bool IsIntersectionType[this IType Type]
+        {
+            const get
+            {
+                return Type is IntersectionType;
+            }
+        }
 
-		#endregion
+        #endregion
 
         #region IsEnumerable
 
         public static bool IsEnumerableType[this IType Type]
         {
-        	const get
-        	{
-        		return Type.HasAttribute(EnumerableAttribute.EnumerableAttributeType);
-        	}
+            const get
+            {
+                return Type.HasAttribute(EnumerableAttribute.EnumerableAttributeType);
+            }
         }
 
         #endregion
@@ -318,62 +318,62 @@ namespace Flame
 
         public static IType GetEnumerableElementType(this IType Type)
         {
-        	if (Type.IsContainerType)
-        	{
-        		return Type.AsContainerType().ElementType;
-        	}
-        	else
-        	{
-        		var attr = (EnumerableAttribute)Type.GetAttribute(EnumerableAttribute.EnumerableAttributeType);
-        		if (attr == null)
-        		{
-        			IType result = null;
-        			foreach (var bType in Type.BaseTypes)
-        			{
-        				var elemType = bType.GetEnumerableElementType();
-        				if (elemType != null)
-        				{
-        					if (result == null)
-        						result = elemType;
-        					else if (elemType.Is(result)) // Pick the more derived type
-        						result = elemType;
-        					else if (!result.Is(elemType)) // If one type does not inherit from the other, no definite result can be selected
-        						return null;
-        				}
-        			}
-        			return result;
-        		}
-				else if (Type.IsRecursiveGenericInstance)
-				{
-					return ((GenericTypeBase)Type).Resolver.ResolveType(attr.ElementType);
-				}
-        		else
-        		{
-        			return attr.ElementType;
-        		}
-        	}
+            if (Type.IsContainerType)
+            {
+                return Type.AsContainerType().ElementType;
+            }
+            else
+            {
+                var attr = (EnumerableAttribute)Type.GetAttribute(EnumerableAttribute.EnumerableAttributeType);
+                if (attr == null)
+                {
+                    IType result = null;
+                    foreach (var bType in Type.BaseTypes)
+                    {
+                        var elemType = bType.GetEnumerableElementType();
+                        if (elemType != null)
+                        {
+                            if (result == null)
+                                result = elemType;
+                            else if (elemType.Is(result)) // Pick the more derived type
+                                result = elemType;
+                            else if (!result.Is(elemType)) // If one type does not inherit from the other, no definite result can be selected
+                                return null;
+                        }
+                    }
+                    return result;
+                }
+                else if (Type.IsRecursiveGenericInstance)
+                {
+                    return ((GenericTypeBase)Type).Resolver.ResolveType(attr.ElementType);
+                }
+                else
+                {
+                    return attr.ElementType;
+                }
+            }
         }
 
         #endregion
 
-		#region IsAnonymous
+        #region IsAnonymous
 
-		public static bool IsAnonymous[this ITypeMember Member]
-		{
-			const get return string.IsNullOrEmpty(Member.Name.ToString())
-				&& Member.DeclaringType == null;
-		}
+        public static bool IsAnonymous[this ITypeMember Member]
+        {
+            const get return string.IsNullOrEmpty(Member.Name.ToString())
+                && Member.DeclaringType == null;
+        }
 
-		#endregion
+        #endregion
 
         #region IsHidden
 
         public static bool IsHidden[this IMember Member]
         {
-        	const get
-        	{
-        		return Member.HasAttribute(PrimitiveAttributes.HiddenAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Member.HasAttribute(PrimitiveAttributes.HiddenAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -382,49 +382,49 @@ namespace Flame
 
         public static bool IsOperator[this IMethod Method]
         {
-        	const get
-        	{
-        		if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
-        		{
-        			return true;
-        		}
-        		foreach (var item in Method.BaseMethods)
-        		{
-        			if (item.IsOperator) return true;
-        		}
-        		return false;
-        	}
+            const get
+            {
+                if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
+                {
+                    return true;
+                }
+                foreach (var item in Method.BaseMethods)
+                {
+                    if (item.IsOperator) return true;
+                }
+                return false;
+            }
         }
 
         public static const Operator GetOperator(this IMethod Method)
         {
             if (Method.HasAttribute(OperatorAttribute.OperatorAttributeType))
-    		{
-    			return ((OperatorAttribute)Method.GetAttribute(OperatorAttribute.OperatorAttributeType)).Operator;
-    		}
-    		foreach (var item in Method.BaseMethods)
-    		{
-    			var result = item.GetOperator();
-    			if (result.IsDefined)
-					return result;
-    		}
-        	return Operator.Undefined;
+            {
+                return ((OperatorAttribute)Method.GetAttribute(OperatorAttribute.OperatorAttributeType)).Operator;
+            }
+            foreach (var item in Method.BaseMethods)
+            {
+                var result = item.GetOperator();
+                if (result.IsDefined)
+                    return result;
+            }
+            return Operator.Undefined;
         }
 
         /*public static Operator Operator[this IMethod Method]
         {
-        	const get
-        	{
-        		return Method.GetOperator();
-        	}
+            const get
+            {
+                return Method.GetOperator();
+            }
         }*/
 
         public static bool IsCast[this IMethod Method]
         {
-        	const get
-        	{
-        		return Method.HasAttribute(PrimitiveAttributes.CastAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Method.HasAttribute(PrimitiveAttributes.CastAttribute.AttributeType);
+            }
         }
 
         #endregion
@@ -433,10 +433,10 @@ namespace Flame
 
         public static bool SetsMember[this IParameter Parameter]
         {
-        	const get
-        	{
-        		return Parameter.HasAttribute(SetsMemberAttribute.SetsMemberAttributeType);
-        	}
+            const get
+            {
+                return Parameter.HasAttribute(SetsMemberAttribute.SetsMemberAttributeType);
+            }
         }
 
         #endregion
@@ -445,36 +445,36 @@ namespace Flame
 
         private static bool AreExtensionParameters([IParameter] Parameters)
         {
-			var first = Enumerable.FirstOrDefault<IParameter>(Parameters);
-        	if (first != null)
-        	{
-        		return first.IsExtension;
-        	}
-        	else
-        	{
-        		return false;
-        	}
+            var first = Enumerable.FirstOrDefault<IParameter>(Parameters);
+            if (first != null)
+            {
+                return first.IsExtension;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static bool IsExtension[this IMember Member]
         {
-        	const get
-        	{
-        		var attr = MemberExtensions.GetAttribute(Member, PrimitiveAttributes.ExtensionAttribute.AttributeType);
-        		if (attr != null)
-        		{
-        			return true;
-        		}
-        		else if (Member is IMethod)
-        		{
-        			return AreExtensionParameters(((IMethod)Member).GetParameters());
-        		}
-        		else if (Member is IProperty)
-        		{
-        			return AreExtensionParameters(((IProperty)Member).IndexerParameters);
-        		}
-        		return false;
-        	}
+            const get
+            {
+                var attr = MemberExtensions.GetAttribute(Member, PrimitiveAttributes.ExtensionAttribute.AttributeType);
+                if (attr != null)
+                {
+                    return true;
+                }
+                else if (Member is IMethod)
+                {
+                    return AreExtensionParameters(((IMethod)Member).GetParameters());
+                }
+                else if (Member is IProperty)
+                {
+                    return AreExtensionParameters(((IProperty)Member).IndexerParameters);
+                }
+                return false;
+            }
         }
 
         #endregion
@@ -483,62 +483,62 @@ namespace Flame
 
         public static bool IsConstant[this IMember Member]
         {
-        	const get
-        	{
-        		return Member.HasAttribute(PrimitiveAttributes.ConstantAttribute.AttributeType);
-        	}
+            const get
+            {
+                return Member.HasAttribute(PrimitiveAttributes.ConstantAttribute.AttributeType);
+            }
         }
 
         #endregion
 
-		#endregion
+        #endregion
 
-		#region IsContainerType
+        #region IsContainerType
 
-		public static bool IsContainerType[this IType Type]
-		{
-			const get return Type is IContainerType;
-		}
+        public static bool IsContainerType[this IType Type]
+        {
+            const get return Type is IContainerType;
+        }
 
-		#endregion
+        #endregion
 
-		#region AsContainerType
+        #region AsContainerType
 
-		private static const T AsTypeInstance<T>(IType Value)
-		{
-			if (Value is T)
-				return (T)Value;
-			else
-				return default(T);
-		}
+        private static const T AsTypeInstance<T>(IType Value)
+        {
+            if (Value is T)
+                return (T)Value;
+            else
+                return default(T);
+        }
 
-		public static const IContainerType AsContainerType(this IType Type)
-		{
-			return AsTypeInstance<IContainerType>(Type);
-		}
+        public static const IContainerType AsContainerType(this IType Type)
+        {
+            return AsTypeInstance<IContainerType>(Type);
+        }
 
-		public static const ArrayType AsArrayType(this IType Type)
-		{
-			return AsTypeInstance<ArrayType>(Type);
-		}
+        public static const ArrayType AsArrayType(this IType Type)
+        {
+            return AsTypeInstance<ArrayType>(Type);
+        }
 
-		public static const PointerType AsPointerType(this IType Type)
-		{
-			return AsTypeInstance<PointerType>(Type);
-		}
+        public static const PointerType AsPointerType(this IType Type)
+        {
+            return AsTypeInstance<PointerType>(Type);
+        }
 
-		public static const VectorType AsVectorType(this IType Type)
-		{
-			return AsTypeInstance<VectorType>(Type);
-		}
+        public static const VectorType AsVectorType(this IType Type)
+        {
+            return AsTypeInstance<VectorType>(Type);
+        }
 
-		#endregion
+        #endregion
 
-		#region IsPointer
+        #region IsPointer
 
         public static bool IsPointer[this IType Type]
         {
-        	const get return Type is PointerType;
+            const get return Type is PointerType;
         }
 
         #endregion
@@ -547,7 +547,7 @@ namespace Flame
 
         public static bool IsArray[this IType Type]
         {
-        	const get return Type is ArrayType;
+            const get return Type is ArrayType;
         }
 
         #endregion
@@ -556,7 +556,7 @@ namespace Flame
 
         public static bool IsVector[this IType Type]
         {
-        	const get return Type is VectorType;
+            const get return Type is VectorType;
         }
 
         #endregion
@@ -564,55 +564,55 @@ namespace Flame
         #region IsVirtual
 
         public static bool IsVirtual[this IMember Member]
-		{
-			const get
-			{
-				if (Member is ITypeMember)
-				if (((ITypeMember)Member).DeclaringType.IsInterface)
-				{
-					return true;
-				}
-				if (Member.IsAbstract)
-				{
-					return true;
-				}
-				return Member.HasAttribute(PrimitiveAttributes.VirtualAttribute.AttributeType);
-			}
-		}
+        {
+            const get
+            {
+                if (Member is ITypeMember)
+                if (((ITypeMember)Member).DeclaringType.IsInterface)
+                {
+                    return true;
+                }
+                if (Member.IsAbstract)
+                {
+                    return true;
+                }
+                return Member.HasAttribute(PrimitiveAttributes.VirtualAttribute.AttributeType);
+            }
+        }
 
-		#endregion
+        #endregion
 
         #region IsAbstract
 
         public static bool IsAbstract[this IMember Member]
-		{
-			const get
-			{
-				return Member.HasAttribute(PrimitiveAttributes.AbstractAttribute.AttributeType);
-			}
-		}
+        {
+            const get
+            {
+                return Member.HasAttribute(PrimitiveAttributes.AbstractAttribute.AttributeType);
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region IsClosed
+        #region IsClosed
 
-		/// <summary>
-		/// Checks if the given type is "closed:" it cannot have any
-		/// subtypes.
-		/// </summary>
-		public static bool IsClosed[this IType Type]
-		{
-			get
-			{
-				if (Type.IsPointer)
-					return Type.AsPointerType().ElementType.IsClosed;
+        /// <summary>
+        /// Checks if the given type is "closed:" it cannot have any
+        /// subtypes.
+        /// </summary>
+        public static bool IsClosed[this IType Type]
+        {
+            get
+            {
+                if (Type.IsPointer)
+                    return Type.AsPointerType().ElementType.IsClosed;
 
-				return !Type.IsVirtual && !Type.IsInterface
-					&& !Type.IsGenericParameter;
-			}
-		}
+                return !Type.IsVirtual && !Type.IsInterface
+                    && !Type.IsGenericParameter;
+            }
+        }
 
-		#endregion
+        #endregion
 
         #region GetAncestryDegree
 
@@ -622,27 +622,27 @@ namespace Flame
             return graph.GetAncestryDegree(Type, Other);
         }
 
-		/// <summary>
-		/// Gets the lowest non-zero ancestry degree between the given set
-		/// of type and right-hand type operand.
-		/// </summary>
-		public static const int GetLowestAncestryDegree(this [IType] Types, IType Other)
-		{
-			int bestAncestry = -1;
-			foreach (var item in Types)
-			{
-				int degree = item.GetAncestryDegree(Other);
-				if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
-				{
-					if (degree == 0) // Early-out for zero ancestry degrees.
-					{
-						return 0;
-					}
-					bestAncestry = degree;
-				}
-			}
-			return bestAncestry;
-		}
+        /// <summary>
+        /// Gets the lowest non-zero ancestry degree between the given set
+        /// of type and right-hand type operand.
+        /// </summary>
+        public static const int GetLowestAncestryDegree(this [IType] Types, IType Other)
+        {
+            int bestAncestry = -1;
+            foreach (var item in Types)
+            {
+                int degree = item.GetAncestryDegree(Other);
+                if (degree > -1 && (degree <= bestAncestry || bestAncestry == -1))
+                {
+                    if (degree == 0) // Early-out for zero ancestry degrees.
+                    {
+                        return 0;
+                    }
+                    bestAncestry = degree;
+                }
+            }
+            return bestAncestry;
+        }
 
         #endregion
 
@@ -659,15 +659,15 @@ namespace Flame
             return graph.Is(Type, Other);
         }
 
-		/// <summary>
-		/// Tests if the given type is equivalent with the given other type, i.e.
-		/// it has ancestry degree zero. This method also has an equality fast-path,
-		/// as equality implies equivalence.
-		/// </summary>
-		public const static bool IsEquivalent(this IType Type, IType Other)
-		{
-			return Type.Equals(Other) || Type.GetAncestryDegree(Other) == 0;
-		}
+        /// <summary>
+        /// Tests if the given type is equivalent with the given other type, i.e.
+        /// it has ancestry degree zero. This method also has an equality fast-path,
+        /// as equality implies equivalence.
+        /// </summary>
+        public const static bool IsEquivalent(this IType Type, IType Other)
+        {
+            return Type.Equals(Other) || Type.GetAncestryDegree(Other) == 0;
+        }
 
         #endregion
 
@@ -675,93 +675,93 @@ namespace Flame
 
         /// <summary>
         /// Gets the type's parent type, which is the first non-interface type
-		/// in the type's base type list. Null is returned if no such type
-		/// exists.
+        /// in the type's base type list. Null is returned if no such type
+        /// exists.
         /// </summary>
         /// <param name="Other"></param>
         /// <returns></returns>
         public const static IType GetParent(this IType Type)
         {
-        	foreach (var item in Type.BaseTypes)
-        		if (!item.IsInterface)
-			{
-				return item;
-			}
-        	return null;
+            foreach (var item in Type.BaseTypes)
+                if (!item.IsInterface)
+            {
+                return item;
+            }
+            return null;
         }
 
-		/// <summary>
-		/// Gets all interfaces implemented by the given type.
-		/// </summary>
+        /// <summary>
+        /// Gets all interfaces implemented by the given type.
+        /// </summary>
         public const static [IType] GetInterfaces(this IType Type)
         {
-        	var interfs = new List<IType>();
-        	foreach (var item in Type.BaseTypes)
-        		if (item.IsInterface)
-			{
-				interfs.Add(item);
-			}
-        	return interfs;
+            var interfs = new List<IType>();
+            foreach (var item in Type.BaseTypes)
+                if (item.IsInterface)
+            {
+                interfs.Add(item);
+            }
+            return interfs;
         }
 
         #endregion
 
         #region GetAllBaseTypes
 
-		/// <summary>
-		/// Recursively finds all direct and indirect base types for this type.
-		/// </summary>
+        /// <summary>
+        /// Recursively finds all direct and indirect base types for this type.
+        /// </summary>
         public const static [IType] GetAllBaseTypes(this IType Type)
         {
-			var bTypes = new HashSet<IType>(Type.BaseTypes);
-        	var allTypes = new HashSet<IType>(bTypes);
-        	foreach (var item in bTypes)
-        	{
-				allTypes.UnionWith(item.GetAllBaseTypes());
-        	}
+            var bTypes = new HashSet<IType>(Type.BaseTypes);
+            var allTypes = new HashSet<IType>(bTypes);
+            foreach (var item in bTypes)
+            {
+                allTypes.UnionWith(item.GetAllBaseTypes());
+            }
             return allTypes;
         }
 
         #endregion
 
-		#region Make*Type
+        #region Make*Type
 
-		/// <summary>
-		/// Creates an array type based on the given element type and
-		/// array rank.
-		/// </summary>
-		public const static ArrayType MakeArrayType(this IType ElementType, int ArrayRank)
-		{
-			return new ArrayType(ElementType, ArrayRank);
-		}
+        /// <summary>
+        /// Creates an array type based on the given element type and
+        /// array rank.
+        /// </summary>
+        public const static ArrayType MakeArrayType(this IType ElementType, int ArrayRank)
+        {
+            return new ArrayType(ElementType, ArrayRank);
+        }
 
-		/// <summary>
-		/// Creates a pointer type that points to an object of the given type
-		/// and is of the given pointer kind.
-		/// </summary>
-		public const static PointerType MakePointerType(this IType ElementType, PointerKind Kind)
-		{
-			return new PointerType(ElementType, Kind);
-		}
+        /// <summary>
+        /// Creates a pointer type that points to an object of the given type
+        /// and is of the given pointer kind.
+        /// </summary>
+        public const static PointerType MakePointerType(this IType ElementType, PointerKind Kind)
+        {
+            return new PointerType(ElementType, Kind);
+        }
 
-		/// <summary>
-		/// Creates a vector type that contains objects of the given type
-		/// and has the given dimensions.
-		/// </summary>
-		public const static VectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
-		{
-			return new VectorType(ElementType, Dimensions);
-		}
+        /// <summary>
+        /// Creates a vector type that contains objects of the given type
+        /// and has the given dimensions.
+        /// </summary>
+        public const static VectorType MakeVectorType(this IType ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return new VectorType(ElementType, Dimensions);
+        }
 
-		/// <summary>
-		/// Creates a vector type that contains objects of the given type
-		/// and has the given dimensions.
-		/// </summary>
-		public const static VectorType MakeVectorType(this IType ElementType, int[] Dimensions)
-		{
-			return ElementType.MakeVectorType((IReadOnlyList<int>)Dimensions);
-		}
+        /// <summary>
+        /// Creates a vector type that contains objects of the given type
+        /// and has the given dimensions.
+        /// </summary>
+        public const static VectorType MakeVectorType(this IType ElementType, int[] Dimensions)
+        {
+            return ElementType.MakeVectorType((IReadOnlyList<int>)Dimensions);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

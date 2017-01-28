@@ -5,83 +5,83 @@ using System.Linq;
 
 namespace Flame
 {
-	public struct TypeSequence
-	{
-		public const this(set [IType] Types)
-		{
-			this.cachedHash = hashImpl();
-		}
+    public struct TypeSequence
+    {
+        public const this(set [IType] Types)
+        {
+            this.cachedHash = hashImpl();
+        }
 
-		public [IType] Types { const get; private set; }
-		private int cachedHash;
+        public [IType] Types { const get; private set; }
+        private int cachedHash;
 
-		private const int hashImpl()
-		{
-			int result = 0;
-			int index = 0;
-			foreach (var item in Types)
-			{
-				result ^= (item.GetHashCode() << index);
-				index++;
-			}
-			return result;
-		}
+        private const int hashImpl()
+        {
+            int result = 0;
+            int index = 0;
+            foreach (var item in Types)
+            {
+                result ^= (item.GetHashCode() << index);
+                index++;
+            }
+            return result;
+        }
 
-		public const override int GetHashCode()
-		{
-			return cachedHash;
-		}
-		public const bool Equals(TypeSequence Types)
-		{
-			return Enumerable.SequenceEqual<IType>(this.Types, Types.Types);
-		}
-		public const override bool Equals(object Other)
-		{
-			return Other is TypeSequence && Equals((TypeSequence)Other);
-		}
-	}
+        public const override int GetHashCode()
+        {
+            return cachedHash;
+        }
+        public const bool Equals(TypeSequence Types)
+        {
+            return Enumerable.SequenceEqual<IType>(this.Types, Types.Types);
+        }
+        public const override bool Equals(object Other)
+        {
+            return Other is TypeSequence && Equals((TypeSequence)Other);
+        }
+    }
 
-	/// <summary>
-	/// Describes an object that caches operator overload methods.
-	/// </summary>
-	public class OperatorCache
-	{
-		public const this()
-		{
-			this.bestOperatorFunc = new MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod>(GetBestOperatorOverloadImpl);
-		}
+    /// <summary>
+    /// Describes an object that caches operator overload methods.
+    /// </summary>
+    public class OperatorCache
+    {
+        public const this()
+        {
+            this.bestOperatorFunc = new MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod>(GetBestOperatorOverloadImpl);
+        }
 
-		private MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod> bestOperatorFunc;
+        private MemoizedFunc<Tuple<Operator, TypeSequence>, IMethod> bestOperatorFunc;
 
-		private const IMethod GetBestOperatorOverloadImpl(Operator Op, TypeSequence Types)
-		{
-			var argTypes = Types.Types;
+        private const IMethod GetBestOperatorOverloadImpl(Operator Op, TypeSequence Types)
+        {
+            var argTypes = Types.Types;
 
-			var methods = Op.GetAllOperatorOverloads(argTypes);
-			var bestStatic = methods.GetBestMethod(Enumerable.ToArray<IType>(argTypes));
-			// Try static/singleton overloads first
-			if (bestStatic != null)
-			{
-				return bestStatic;
-			}
-			return methods.GetBestMethod(Enumerable.First<IType>(argTypes),
-				   Enumerable.ToArray<IType>(Enumerable.Skip<IType>(argTypes, 1)));
-				   // Try instance methods
-		}
+            var methods = Op.GetAllOperatorOverloads(argTypes);
+            var bestStatic = methods.GetBestMethod(Enumerable.ToArray<IType>(argTypes));
+            // Try static/singleton overloads first
+            if (bestStatic != null)
+            {
+                return bestStatic;
+            }
+            return methods.GetBestMethod(Enumerable.First<IType>(argTypes),
+                   Enumerable.ToArray<IType>(Enumerable.Skip<IType>(argTypes, 1)));
+                   // Try instance methods
+        }
 
-		private const IMethod GetBestOperatorOverloadImpl(Tuple<Operator, TypeSequence> Pair)
-		{
-			return GetBestOperatorOverloadImpl(Pair.Item1, Pair.Item2);
-		}
+        private const IMethod GetBestOperatorOverloadImpl(Tuple<Operator, TypeSequence> Pair)
+        {
+            return GetBestOperatorOverloadImpl(Pair.Item1, Pair.Item2);
+        }
 
-		public const IMethod GetBestOperatorMethod(Operator Op, TypeSequence Types)
-		{
-			return bestOperatorFunc.Apply(new Tuple<Operator, TypeSequence>(Op, Types));
-		}
+        public const IMethod GetBestOperatorMethod(Operator Op, TypeSequence Types)
+        {
+            return bestOperatorFunc.Apply(new Tuple<Operator, TypeSequence>(Op, Types));
+        }
 
-		public const IMethod GetBestOperatorMethod(Operator Op, [IType] Types)
-		{
-			return GetBestOperatorMethod(Op, new TypeSequence(Types));
-		}
-	}
+        public const IMethod GetBestOperatorMethod(Operator Op, [IType] Types)
+        {
+            return GetBestOperatorMethod(Op, new TypeSequence(Types));
+        }
+    }
 }

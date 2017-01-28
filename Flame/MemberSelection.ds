@@ -4,32 +4,32 @@ using System.Linq;
 
 namespace Flame
 {
-	public static class MemberSelection
-	{
-		public static const T[] Concat<T>(T Value, T[] Array)
-		{
-			T[] arr = new T[Array.Length + 1];
-			arr[0] = Value;
-			for (int32 i = 0; i < Array.Length; i++)
-			{
-				arr[i + 1] = Array[i];
-			}
-			return arr;
-		}
-		public static const T[] Append<T>(T[] Array, T Value)
-		{
-			T[] arr = new T[Array.Length + 1];
-			for (int32 i = 0; i < Array.Length; i++)
-			{
-				arr[i] = Array[i];
-			}
-			arr[Array.Length] = Value;
-			return arr;
-		}
+    public static class MemberSelection
+    {
+        public static const T[] Concat<T>(T Value, T[] Array)
+        {
+            T[] arr = new T[Array.Length + 1];
+            arr[0] = Value;
+            for (int32 i = 0; i < Array.Length; i++)
+            {
+                arr[i + 1] = Array[i];
+            }
+            return arr;
+        }
+        public static const T[] Append<T>(T[] Array, T Value)
+        {
+            T[] arr = new T[Array.Length + 1];
+            for (int32 i = 0; i < Array.Length; i++)
+            {
+                arr[i] = Array[i];
+            }
+            arr[Array.Length] = Value;
+            return arr;
+        }
 
-		#region GetBestProperties
+        #region GetBestProperties
 
-		/// <summary>
+        /// <summary>
         /// Gets the properties that match the specified parameter types best.
         /// </summary>
         /// <param name="Type"></param>
@@ -43,18 +43,18 @@ namespace Flame
             var dict = new Dictionary<IProperty, IType[]>();
             foreach (var elem in Candidates)
             {
-            	var parameterTypes = elem.GetIndexerParameters().GetTypes();
+                var parameterTypes = elem.GetIndexerParameters().GetTypes();
                 if (elem.IsExtension && CallerType != null)
                 {
                     dict[elem] = parameterTypes;
                 }
                 else if (elem.IsStatic)
                 {
-					dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
+                    dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
                 }
                 else
                 {
-					dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
+                    dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
                 }
             }
             return SortByParameterMatch<IProperty>(paramTypes, dict).ToArray();
@@ -64,7 +64,7 @@ namespace Flame
 
         #region GetBestMethods
 
-		/// <summary>
+        /// <summary>
         /// Gets the methods that match the specified parameter types best.
         /// </summary>
         /// <param name="Type"></param>
@@ -78,18 +78,18 @@ namespace Flame
             var dict = new Dictionary<IMethod, IType[]>();
             foreach (var elem in Candidates)
             {
-            	var parameterTypes = elem.GetParameters().GetTypes();
+                var parameterTypes = elem.GetParameters().GetTypes();
                 if (elem.IsExtension && CallerType != null)
                 {
-					dict[elem] = parameterTypes;
+                    dict[elem] = parameterTypes;
                 }
                 else if (elem.IsStatic)
                 {
-					dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
+                    dict[elem] = MemberSelection.Concat<IType>(null, parameterTypes);
                 }
                 else
                 {
-					dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
+                    dict[elem] = MemberSelection.Concat<IType>(elem.DeclaringType, parameterTypes);
                 }
             }
             List<IMethod> sortedMethodList = SortByParameterMatch<IMethod>(paramTypes, dict);
@@ -109,15 +109,15 @@ namespace Flame
             var dict = new Dictionary<IMethod, IType[]>();
             foreach (var elem in Candidates)
             {
-            	var parameterTypes = elem.GetParameters().GetTypes();
+                var parameterTypes = elem.GetParameters().GetTypes();
                 if (elem.IsExtension)
                 {
-					dict[elem] = Enumerable.ToArray<IType>(Enumerable.Skip<IType>(parameterTypes, 1));
+                    dict[elem] = Enumerable.ToArray<IType>(Enumerable.Skip<IType>(parameterTypes, 1));
                 }
-				else
-				{
-					dict[elem] = parameterTypes;
-				}
+                else
+                {
+                    dict[elem] = parameterTypes;
+                }
             }
             var sortedMethodList = SortByParameterMatch<IMethod>(ParameterTypes, dict);
             return sortedMethodList.ToArray().FilterBaseMethods();
@@ -132,74 +132,74 @@ namespace Flame
         /// </summary>
         public static const IMethod[] FilterBaseMethods(this IMethod[] Methods)
         {
-        	List<IMethod> results = new List<IMethod>();
-        	foreach (var item in Methods)
-        	{
-        		bool inserted = false;
+            List<IMethod> results = new List<IMethod>();
+            foreach (var item in Methods)
+            {
+                bool inserted = false;
 
-        		for (int i = 0; i < results.Count; i++)
-        		{
-        			if (item.IsImplementationOf(results[i]))
-	    			{
-	    				results[i] = item;
-	    				inserted = true;
-	    				break;
-	    			}
-	    			else if (results[i].IsImplementationOf(item))
-	    			{
-	    				inserted = true;
-	    				break;
-	    			}
-    			}
+                for (int i = 0; i < results.Count; i++)
+                {
+                    if (item.IsImplementationOf(results[i]))
+                    {
+                        results[i] = item;
+                        inserted = true;
+                        break;
+                    }
+                    else if (results[i].IsImplementationOf(item))
+                    {
+                        inserted = true;
+                        break;
+                    }
+                }
 
-        		if (!inserted)
-        		{
-        			results.Add(item);
-        		}
-        	}
-        	return results.ToArray();
+                if (!inserted)
+                {
+                    results.Add(item);
+                }
+            }
+            return results.ToArray();
         }
 
         #endregion
 
-		public static const [T] FilterByName<T>(this [T] Candidates, UnqualifiedName Name)
-			where T : ITypeMember
-		{
-			var results = new List<T>();
-        	foreach (var item in Candidates)
-        	{
-        		if (item.Name.Equals(Name))
-        		{
-        			results.Add(item);
-        		}
-        	}
-        	return results;
-		}
+        public static const [T] FilterByName<T>(this [T] Candidates, UnqualifiedName Name)
+            where T : ITypeMember
+        {
+            var results = new List<T>();
+            foreach (var item in Candidates)
+            {
+                if (item.Name.Equals(Name))
+                {
+                    results.Add(item);
+                }
+            }
+            return results;
+        }
 
         public static const [T] FilterByStatic<T>(this [T] Candidates, bool IsStatic) where T : ITypeMember
         {
-        	var props = new List<T>();
-        	foreach (var item in Candidates)
-        	{
-        		if (item.IsStatic == IsStatic)
-        		{
-        			props.Add(item);
-        		}
-        	}
-        	return props;
+            var props = new List<T>();
+            foreach (var item in Candidates)
+            {
+                if (item.IsStatic == IsStatic)
+                {
+                    props.Add(item);
+                }
+            }
+            return props;
         }
 
-		public static const [T] FilterVisible<T>(this [T] Members)
-			where T : IMember
-		{
-			var results = new List<T>();
-			foreach (var item in Members)
-				if (!item.IsHidden)
-			{
-				results.Add(item);
-			}
-			return results;
-		}
+        public static const [T] FilterVisible<T>(this [T] Members)
+            where T : IMember
+        {
+            var results = new List<T>();
+            foreach (var item in Members)
+                if (!item.IsHidden)
+            {
+                results.Add(item);
+            }
+            return results;
+        }
 
         #region Rating and sorting
 
@@ -211,8 +211,8 @@ namespace Flame
             var filteredPossibleMembers = new Dictionary<T, IType[]>();
             foreach (var member in PossibleMembers)
             {
-            	if (member.Value.Length == parameterTypesLength)
-            		filteredPossibleMembers.Add(member.Key, member.Value);
+                if (member.Value.Length == parameterTypesLength)
+                    filteredPossibleMembers.Add(member.Key, member.Value);
             }
             //var filteredPossibleMembers = PossibleMembers.Where((member) => !member.Key.IsHidden && member.Value.Length == parameterTypesLength);
             var possibleParameterTypes = Enumerable.ToArray<IType[]>(filteredPossibleMembers.Values);
@@ -249,71 +249,71 @@ namespace Flame
 
         private static int GetMaxAncestryDegree(IEnumerable<IType[]> Types, int Index, IType BaseType)
         {
-        	int maxDegree = -1;
-        	foreach (var item in Types)
-        	{
-        		int degree = item[Index].GetAncestryDegree(BaseType);
-        		if (degree > maxDegree)
-        			maxDegree = degree;
-        	}
-        	return maxDegree;
+            int maxDegree = -1;
+            foreach (var item in Types)
+            {
+                int degree = item[Index].GetAncestryDegree(BaseType);
+                if (degree > maxDegree)
+                    maxDegree = degree;
+            }
+            return maxDegree;
         }
 
         public static const bool UseImplicitCast(IType SourceType, IType TargetType)
         {
-        	if (SourceType.IsVector && TargetType.IsArray)
-        	{
-        		return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().Dimensions.Count == TargetType.AsContainerType().AsArrayType().ArrayRank;
-        	}
-        	if (SourceType.IsPrimitive && TargetType.IsPrimitive)
-        	{
-        		if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
-        		{
-        			if (SourceType.IsSignedInteger)
-        			{
-					 	return TargetType.IsSignedInteger || TargetType.IsFloatingPoint;
-					}
-        			else if (SourceType.IsUnsignedInteger)
-					{
-						if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
-        					return true;
-        				else if (TargetType.IsSignedInteger)
-        					return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
-        				else
-        					return false;
-        			}
-        			else if (SourceType.IsBit && TargetType.IsBit)
-        			{
-        				return true;
-        			}
-        			else if (SourceType.IsFloatingPoint && TargetType.IsFloatingPoint)
-        			{
-        				return true;
-        			}
-        			else
-        			{
-        				return false;
-        			}
-        		}
-        	}
-        	else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.IsEnumerableType)
-        	{
-        		return SourceType.AsContainerType().ElementType.Is(TargetType.GetEnumerableElementType());
-        	}
-        	return false;
+            if (SourceType.IsVector && TargetType.IsArray)
+            {
+                return SourceType.AsContainerType().ElementType.Is(TargetType.AsContainerType().ElementType) && SourceType.AsContainerType().AsVectorType().Dimensions.Count == TargetType.AsContainerType().AsArrayType().ArrayRank;
+            }
+            if (SourceType.IsPrimitive && TargetType.IsPrimitive)
+            {
+                if (SourceType.GetPrimitiveBitSize() <= TargetType.GetPrimitiveBitSize())
+                {
+                    if (SourceType.IsSignedInteger)
+                    {
+                         return TargetType.IsSignedInteger || TargetType.IsFloatingPoint;
+                    }
+                    else if (SourceType.IsUnsignedInteger)
+                    {
+                        if (TargetType.IsUnsignedInteger || TargetType.IsFloatingPoint)
+                            return true;
+                        else if (TargetType.IsSignedInteger)
+                            return SourceType.GetPrimitiveBitSize() < TargetType.GetPrimitiveBitSize();
+                        else
+                            return false;
+                    }
+                    else if (SourceType.IsBit && TargetType.IsBit)
+                    {
+                        return true;
+                    }
+                    else if (SourceType.IsFloatingPoint && TargetType.IsFloatingPoint)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if ((SourceType.IsArray || SourceType.IsVector) && TargetType.IsEnumerableType)
+            {
+                return SourceType.AsContainerType().ElementType.Is(TargetType.GetEnumerableElementType());
+            }
+            return false;
         }
 
         private static IType GetRootType(IType Value)
         {
-        	if (Value == null)
-        		return null;
-        	var ns = Value.DeclaringNamespace;
-        	if (ns == null)
-        		return null;
-        	var asm = ns.DeclaringAssembly;
-        	if (asm == null)
-        		return null;
-        	return asm.CreateBinder().RootType;
+            if (Value == null)
+                return null;
+            var ns = Value.DeclaringNamespace;
+            if (ns == null)
+                return null;
+            var asm = ns.DeclaringAssembly;
+            if (asm == null)
+                return null;
+            return asm.CreateBinder().RootType;
         }
 
         private static int RateMatch(IType[] DesiredParameterTypes, IType[] ActualParameterTypes, IEnumerable<IType[]> AllParameterTypes)
@@ -327,41 +327,41 @@ namespace Flame
             int score = 0;
             for (int i = 0; i < DesiredParameterTypes.Length; i++)
             {
-            	if (DesiredParameterTypes[i] == null)
-            	{
-            		if (ActualParameterTypes[i] != null)
-            		{
-            			return DisqualificationScore;
-            		}
-            	}
-            	else if (ActualParameterTypes[i] == null)
-            	{
-            		if (DesiredParameterTypes[i] != null)
-            		{
-            			return DisqualificationScore;
-            		}
-            	}
-            	else if (!object.ReferenceEquals(DesiredParameterTypes[i], ActualParameterTypes[i]))
-            	if (!DesiredParameterTypes[i].Equals(ActualParameterTypes[i]))
+                if (DesiredParameterTypes[i] == null)
+                {
+                    if (ActualParameterTypes[i] != null)
+                    {
+                        return DisqualificationScore;
+                    }
+                }
+                else if (ActualParameterTypes[i] == null)
+                {
+                    if (DesiredParameterTypes[i] != null)
+                    {
+                        return DisqualificationScore;
+                    }
+                }
+                else if (!object.ReferenceEquals(DesiredParameterTypes[i], ActualParameterTypes[i]))
+                if (!DesiredParameterTypes[i].Equals(ActualParameterTypes[i]))
                 {
                     if (DesiredParameterTypes[i].Equals(PrimitiveTypes.Null))
                     {
                         var rootType = GetRootType(ActualParameterTypes[i]);
                         if (rootType != null)
                         {
-	                        int highestRootDegree = GetMaxAncestryDegree(AllParameterTypes, i, rootType);
-	                        score += highestRootDegree - ActualParameterTypes[i].GetAncestryDegree(rootType);
+                            int highestRootDegree = GetMaxAncestryDegree(AllParameterTypes, i, rootType);
+                            score += highestRootDegree - ActualParameterTypes[i].GetAncestryDegree(rootType);
                         }
                         else
                         {
-                        	score += 1;
+                            score += 1;
                         }
                     }
-					else if (ActualParameterTypes[i].IsRootType)
-					{
-						int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
-						score += highestAncestryDegree + 1;
-					}
+                    else if (ActualParameterTypes[i].IsRootType)
+                    {
+                        int highestAncestryDegree = GetMaxAncestryDegree(AllParameterTypes, i, ActualParameterTypes[i]);
+                        score += highestAncestryDegree + 1;
+                    }
                     else
                     {
                         int ancestryDegree = DesiredParameterTypes[i].GetAncestryDegree(ActualParameterTypes[i]);
@@ -384,5 +384,5 @@ namespace Flame
         }
 
         #endregion
-	}
+    }
 }

@@ -3,135 +3,135 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	/// <summary>
-	/// A common interface for bound objects: values that are associated with
-	/// a Flame type.
-	/// </summary>
-	public interface IBoundObject
-	{
-		/// <summary>
-		/// Gets this bound object's Flame type.
-		/// </summary>
-		IType Type { const get; }
+    /// <summary>
+    /// A common interface for bound objects: values that are associated with
+    /// a Flame type.
+    /// </summary>
+    public interface IBoundObject
+    {
+        /// <summary>
+        /// Gets this bound object's Flame type.
+        /// </summary>
+        IType Type { const get; }
 
-		/// <summary>
-		/// Assigns the given value to the given field on this object instance.
-		/// </summary>
-		void SetField(IField Field, IBoundObject Value);
+        /// <summary>
+        /// Assigns the given value to the given field on this object instance.
+        /// </summary>
+        void SetField(IField Field, IBoundObject Value);
 
-		/// <summary>
-		/// Gets this object instance's value for the given field.
-		/// </summary>
-		const IBoundObject GetField(IField Field);
-	}
+        /// <summary>
+        /// Gets this object instance's value for the given field.
+        /// </summary>
+        const IBoundObject GetField(IField Field);
+    }
 
-	public interface IBoundMethod : IBoundObject
-	{
-		IMethod Method { const get; }
-		IBoundObject Caller { const get; }
-	}
+    public interface IBoundMethod : IBoundObject
+    {
+        IMethod Method { const get; }
+        IBoundObject Caller { const get; }
+    }
 
-	/// <summary>
-	/// An interface for bound objects that contain some primitive value.
-	/// </summary>
-	public interface IBoundPrimitive<out T> : IBoundObject
-	{
-		/// <summary>
-		/// Gets this bound object's value.
-		/// </summary>
-		T Value { const get; }
-	}
+    /// <summary>
+    /// An interface for bound objects that contain some primitive value.
+    /// </summary>
+    public interface IBoundPrimitive<out T> : IBoundObject
+    {
+        /// <summary>
+        /// Gets this bound object's value.
+        /// </summary>
+        T Value { const get; }
+    }
 
-	public static class BoundObjectExtensions
-	{
-		public static IBoundObject Invoke(this IBoundMethod Target, [IBoundObject] Arguments)
-		{
-			if (Target.Method is IInvocableMethod)
-				return ((IInvocableMethod)Target.Method).Invoke(Target.Caller, Arguments);
-			else
-				return null;
-		}
-		public static T GetValue<T>(this IBoundObject Target)
-		{
-			return ((IBoundPrimitive<T>)Target).Value;
-		}
+    public static class BoundObjectExtensions
+    {
+        public static IBoundObject Invoke(this IBoundMethod Target, [IBoundObject] Arguments)
+        {
+            if (Target.Method is IInvocableMethod)
+                return ((IInvocableMethod)Target.Method).Invoke(Target.Caller, Arguments);
+            else
+                return null;
+        }
+        public static T GetValue<T>(this IBoundObject Target)
+        {
+            return ((IBoundPrimitive<T>)Target).Value;
+        }
 
-		public static int32 GetInt32Value(this IBoundObject Target)
-		{
-			return Target.GetValue<IntegerValue>().ToInt32();
-		}
+        public static int32 GetInt32Value(this IBoundObject Target)
+        {
+            return Target.GetValue<IntegerValue>().ToInt32();
+        }
 
-		public static object GetObjectValue(this IBoundObject Target)
-		{
-			if (Target == null)
-			{
-				return null;
-			}
+        public static object GetObjectValue(this IBoundObject Target)
+        {
+            if (Target == null)
+            {
+                return null;
+            }
 
-			if (Target is IBoundPrimitive<BitValue>)
-			{
-				return (object)Target.GetValue<BitValue>();
-			}
-			else if (Target is IBoundPrimitive<IntegerValue>)
-			{
-				return (object)Target.GetValue<IntegerValue>();
-			}
-			else if (Target is IBoundPrimitive<int64>)
-			{
-				return (object)Target.GetValue<int64>();
-			}
-			else if (Target is IBoundPrimitive<uint64>)
-			{
-				return (object)Target.GetValue<uint64>();
-			}
-			else if (Target is IBoundPrimitive<uint32>)
-			{
-				return (object)Target.GetValue<uint32>();
-			}
-			else if (Target is IBoundPrimitive<int16>)
-			{
-				return (object)Target.GetValue<int16>();
-			}
-			else if (Target is IBoundPrimitive<int8>)
-			{
-				return (object)Target.GetValue<int8>();
-			}
-			else if (Target is IBoundPrimitive<uint16>)
-			{
-				return (object)Target.GetValue<uint16>();
-			}
-			else if (Target is IBoundPrimitive<uint8>)
-			{
-				return (object)Target.GetValue<uint8>();
-			}
-			else if (Target is IBoundPrimitive<int32>)
-			{
-				return (object)Target.GetValue<int32>();
-			}
-			else if (Target is IBoundPrimitive<float64>)
-			{
-				return (object)Target.GetValue<float64>();
-			}
-			else if (Target is IBoundPrimitive<float32>)
-			{
-				return (object)Target.GetValue<float32>();
-			}
-			else if (Target is IBoundPrimitive<bool>)
-			{
-				return (object)Target.GetValue<bool>();
-			}
-			else if (Target is IBoundPrimitive<char>)
-			{
-				return (object)Target.GetValue<char>();
-			}
-			else if (Target is IBoundPrimitive<string>)
-			{
-				return (object)Target.GetValue<string>();
-			}
-			else
-			{
-				return Target.GetValue<object>();
-			}
-		}
-	}
+            if (Target is IBoundPrimitive<BitValue>)
+            {
+                return (object)Target.GetValue<BitValue>();
+            }
+            else if (Target is IBoundPrimitive<IntegerValue>)
+            {
+                return (object)Target.GetValue<IntegerValue>();
+            }
+            else if (Target is IBoundPrimitive<int64>)
+            {
+                return (object)Target.GetValue<int64>();
+            }
+            else if (Target is IBoundPrimitive<uint64>)
+            {
+                return (object)Target.GetValue<uint64>();
+            }
+            else if (Target is IBoundPrimitive<uint32>)
+            {
+                return (object)Target.GetValue<uint32>();
+            }
+            else if (Target is IBoundPrimitive<int16>)
+            {
+                return (object)Target.GetValue<int16>();
+            }
+            else if (Target is IBoundPrimitive<int8>)
+            {
+                return (object)Target.GetValue<int8>();
+            }
+            else if (Target is IBoundPrimitive<uint16>)
+            {
+                return (object)Target.GetValue<uint16>();
+            }
+            else if (Target is IBoundPrimitive<uint8>)
+            {
+                return (object)Target.GetValue<uint8>();
+            }
+            else if (Target is IBoundPrimitive<int32>)
+            {
+                return (object)Target.GetValue<int32>();
+            }
+            else if (Target is IBoundPrimitive<float64>)
+            {
+                return (object)Target.GetValue<float64>();
+            }
+            else if (Target is IBoundPrimitive<float32>)
+            {
+                return (object)Target.GetValue<float32>();
+            }
+            else if (Target is IBoundPrimitive<bool>)
+            {
+                return (object)Target.GetValue<bool>();
+            }
+            else if (Target is IBoundPrimitive<char>)
+            {
+                return (object)Target.GetValue<char>();
+            }
+            else if (Target is IBoundPrimitive<string>)
+            {
+                return (object)Target.GetValue<string>();
+            }
+            else
+            {
+                return Target.GetValue<object>();
+            }
+        }
+    }
 }

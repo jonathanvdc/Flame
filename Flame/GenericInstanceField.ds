@@ -6,13 +6,13 @@ using Flame.Build;
 
 namespace Flame
 {
-	public class GenericInstanceField : IField, IEquatable<IField>
-	{
-		public const this(set IField Declaration, set IGenericResolverType Resolver)
-		{
-			this.DeclaringType = Resolver;
-		}
-		public const this(set IField Declaration, set IGenericResolver Resolver, set IType DeclaringType);
+    public class GenericInstanceField : IField, IEquatable<IField>
+    {
+        public const this(set IField Declaration, set IGenericResolverType Resolver)
+        {
+            this.DeclaringType = Resolver;
+        }
+        public const this(set IField Declaration, set IGenericResolver Resolver, set IType DeclaringType);
 
         /// <summary>
         /// Gets the generic instance field's original definition.
@@ -38,7 +38,7 @@ namespace Flame
             const get { return Declaration.IsStatic; }
         }
 
-		public QualifiedName FullName
+        public QualifiedName FullName
         {
             const get { return Declaration.Name.Qualify(DeclaringType.FullName); }
         }
@@ -62,31 +62,31 @@ namespace Flame
 
         public override const bool Equals(object Other)
         {
-        	if (Other is IField)
-        		return Equals((IField)Other);
-        	else
-				return false;
+            if (Other is IField)
+                return Equals((IField)Other);
+            else
+                return false;
         }
 
         public const bool Equals(IField Other)
         {
-        	if (Other is GenericInstanceField)
-        		return Equals((GenericInstanceField)Other);
-        	else
-				return false;
+            if (Other is GenericInstanceField)
+                return Equals((GenericInstanceField)Other);
+            else
+                return false;
         }
 
         public const bool Equals(GenericInstanceField Other)
         {
-        	return this.DeclaringType.Equals(Other.DeclaringType) &&
-			       this.Declaration.Equals(Other.Declaration);
+            return this.DeclaringType.Equals(Other.DeclaringType) &&
+                   this.Declaration.Equals(Other.Declaration);
         }
 
         public override const int GetHashCode()
         {
-        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+            return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion
-	}
+    }
 }

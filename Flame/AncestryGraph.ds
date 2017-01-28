@@ -5,85 +5,85 @@ using System.Text;
 
 namespace Flame
 {
-	public class MemoizedFunc<TArg, TResult>
-	{
-		public const this(set TResult(TArg) func)
-		{
-			this.cache = new ConcurrentDictionary<TArg, TResult>();
-		}
+    public class MemoizedFunc<TArg, TResult>
+    {
+        public const this(set TResult(TArg) func)
+        {
+            this.cache = new ConcurrentDictionary<TArg, TResult>();
+        }
 
-		private TResult(TArg) func;
-		private ConcurrentDictionary<TArg, TResult> cache;
+        private TResult(TArg) func;
+        private ConcurrentDictionary<TArg, TResult> cache;
 
-		public const bool HasComputed(TArg Arg)
-		{
-			return cache.ContainsKey(Arg);
-		}
+        public const bool HasComputed(TArg Arg)
+        {
+            return cache.ContainsKey(Arg);
+        }
 
-		public const TResult Apply(TArg Arg)
-		{
-			return cache.GetOrAdd(Arg, func);
-		}
-	}
+        public const TResult Apply(TArg Arg)
+        {
+            return cache.GetOrAdd(Arg, func);
+        }
+    }
 
-	public class AncestryGraph
-	{
-		public const this()
-		{
-			this.ancestryFunc = new MemoizedFunc<Tuple<IType, IType>, int>(ComputeAncestry);
-			this.Operators = new OperatorCache();
-		}
+    public class AncestryGraph
+    {
+        public const this()
+        {
+            this.ancestryFunc = new MemoizedFunc<Tuple<IType, IType>, int>(ComputeAncestry);
+            this.Operators = new OperatorCache();
+        }
 
-		private MemoizedFunc<Tuple<IType, IType>, int> ancestryFunc;
-		public OperatorCache Operators { const get; private set; }
+        private MemoizedFunc<Tuple<IType, IType>, int> ancestryFunc;
+        public OperatorCache Operators { const get; private set; }
 
-		public const int GetAncestryDegree(IType Target, IType Other)
-		{
-			return ancestryFunc.Apply(new Tuple<IType, IType>(Target, Other));
-		}
+        public const int GetAncestryDegree(IType Target, IType Other)
+        {
+            return ancestryFunc.Apply(new Tuple<IType, IType>(Target, Other));
+        }
 
-		public const bool Is(IType Target, IType Other)
-		{
-			return GetAncestryDegree(Target, Other) >= 0;
-		}
+        public const bool Is(IType Target, IType Other)
+        {
+            return GetAncestryDegree(Target, Other) >= 0;
+        }
 
-		private const int ComputeAncestry(Tuple<IType, IType> Pair)
-		{
-			var invPair = new Tuple<IType, IType>(Pair.Item2, Pair.Item1);
+        private const int ComputeAncestry(Tuple<IType, IType> Pair)
+        {
+            var invPair = new Tuple<IType, IType>(Pair.Item2, Pair.Item1);
 
-			if (ancestryFunc.HasComputed(invPair))
-			{
-				int invAncestry = ancestryFunc.Apply(invPair);
-				if (invAncestry == 0)
-					return 0;
-				else if (invAncestry > 0)
-					return -1;
-			}
+            if (ancestryFunc.HasComputed(invPair))
+            {
+                int invAncestry = ancestryFunc.Apply(invPair);
+                if (invAncestry == 0)
+                    return 0;
+                else if (invAncestry > 0)
+                    return -1;
+            }
 
-			return ComputeAncestry(Pair.Item1, Pair.Item2);
-		}
+            return ComputeAncestry(Pair.Item1, Pair.Item2);
+        }
 
-		private const int ComputeAncestry(IType Type, IType Other)
-		{
-			// Ancestry is computed as follows:
-			// * Use both the first and second type's ancestry rules to compute
-			//   their ancestry degree.
-			// * Select the "best" result: i.e. the least non-zero value.
+        private const int ComputeAncestry(IType Type, IType Other)
+        {
+            // Ancestry is computed as follows:
+            // * Use both the first and second type's ancestry rules to compute
+            //   their ancestry degree.
+            // * Select the "best" result: i.e. the least non-zero value.
 
-			var firstRules = Type.AncestryRules;
-			int leftAncestry = firstRules.GetAncestryDegree(Type, Other);
+            var firstRules = Type.AncestryRules;
+            int leftAncestry = firstRules.GetAncestryDegree(Type, Other);
 
-			if (leftAncestry == 0 || firstRules == Other.AncestryRules)
-				return leftAncestry;
+            if (leftAncestry == 0 || firstRules == Other.AncestryRules)
+                return leftAncestry;
 
-			int rightAncestry = Other.AncestryRules.GetAncestryDegree(Type, Other);
+            int rightAncestry = Other.AncestryRules.GetAncestryDegree(Type, Other);
 
-			if (leftAncestry < 0)
-				return rightAncestry;
-			else if (rightAncestry < 0)
-				return leftAncestry;
-			else
-				return Math.Min(leftAncestry, rightAncestry);
-		}
-	}
+            if (leftAncestry < 0)
+                return rightAncestry;
+            else if (rightAncestry < 0)
+                return leftAncestry;
+            else
+                return Math.Min(leftAncestry, rightAncestry);
+        }
+    }
 }

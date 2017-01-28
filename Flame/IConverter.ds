@@ -3,58 +3,58 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public interface IConverter<in TSource, out TTarget>
-	{
-		TTarget Convert(TSource Value);
-	}
+    public interface IConverter<in TSource, out TTarget>
+    {
+        TTarget Convert(TSource Value);
+    }
 
-	public class EmptyConverter<T> : IConverter<T, T>
-	{
-		public const this();
+    public class EmptyConverter<T> : IConverter<T, T>
+    {
+        public const this();
 
-		public const T Convert(T Value)
-		{
-			return Value;
-		}
-	}
+        public const T Convert(T Value)
+        {
+            return Value;
+        }
+    }
 
-	/// <summary>
-	/// A converter implementation that represents the composition of two
-	/// converters.
-	/// </summary>
-	public class CompositeConverter<T1, T2, T3> : IConverter<T1, T3>
-	{
-		/// <summary>
-		/// Creates a converter that represents the composition of the given
-		/// converters.
-		/// </summary>
-		public const this(set IConverter<T1, T2> First,
-						  set IConverter<T2, T3> Second);
+    /// <summary>
+    /// A converter implementation that represents the composition of two
+    /// converters.
+    /// </summary>
+    public class CompositeConverter<T1, T2, T3> : IConverter<T1, T3>
+    {
+        /// <summary>
+        /// Creates a converter that represents the composition of the given
+        /// converters.
+        /// </summary>
+        public const this(set IConverter<T1, T2> First,
+                          set IConverter<T2, T3> Second);
 
-		/// <summary>
-		/// Gets the first converter to apply.
-		/// </summary>
-		public IConverter<T1, T2> First { const get; private set; }
-		/// <summary>
-		/// Gets the second converter to apply.
-		/// </summary>
-		public IConverter<T2, T3> Second { const get; private set; }
+        /// <summary>
+        /// Gets the first converter to apply.
+        /// </summary>
+        public IConverter<T1, T2> First { const get; private set; }
+        /// <summary>
+        /// Gets the second converter to apply.
+        /// </summary>
+        public IConverter<T2, T3> Second { const get; private set; }
 
-		public T3 Convert(T1 Value)
-		{
-			return Second.Convert(First.Convert(Value));
-		}
-	}
+        public T3 Convert(T1 Value)
+        {
+            return Second.Convert(First.Convert(Value));
+        }
+    }
 
-	public class DelegateConverter<TIn, TOut> : IConverter<TIn, TOut>
-	{
-		public const this(set TOut(TIn) Delegate);
+    public class DelegateConverter<TIn, TOut> : IConverter<TIn, TOut>
+    {
+        public const this(set TOut(TIn) Delegate);
 
-		public TOut(TIn) Delegate { const get; private set; }
+        public TOut(TIn) Delegate { const get; private set; }
 
-		public const TOut Convert(TIn Value)
-		{
-			return Delegate(Value);
-		}
-	}
+        public const TOut Convert(TIn Value)
+        {
+            return Delegate(Value);
+        }
+    }
 }

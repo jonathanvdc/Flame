@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	public static class FieldExtensions
-	{
-		/// <summary>
+    public static class FieldExtensions
+    {
+        /// <summary>
         /// Gets the field's value for the specified object.
         /// </summary>
         /// <param name="Target"></param>
         /// <returns></returns>
         public static IBoundObject GetField(this IField Field, IBoundObject Target)
         {
-        	if (Field is ILiteralField)
-        		return ((ILiteralField)Field).Value;
-        	else
-        		return Target.GetField(Field);
+            if (Field is ILiteralField)
+                return ((ILiteralField)Field).Value;
+            else
+                return Target.GetField(Field);
         }
 
         /// <summary>
@@ -25,37 +25,37 @@ namespace Flame
         /// <param name="Value"></param>
         public static void SetField(this IField Field, IBoundObject Target, IBoundObject Value)
         {
-        	Target.SetField(Field, Value);
+            Target.SetField(Field, Value);
         }
 
         public static IField GetField(this [IField] Candidates, UnqualifiedName Name, bool IsStatic)
         {
-        	foreach (var item in Candidates)
-        	{
-        		if (item.Name.Equals(Name) && item.IsStatic == IsStatic)
-					return item;
-        	}
-        	return null;
+            foreach (var item in Candidates)
+            {
+                if (item.Name.Equals(Name) && item.IsStatic == IsStatic)
+                    return item;
+            }
+            return null;
         }
 
         public static IField GetField(this IType Type, UnqualifiedName Name, bool IsStatic)
         {
-        	return Type.GetAllFields().GetField(Name, IsStatic);
+            return Type.GetAllFields().GetField(Name, IsStatic);
         }
 
-		/// <summary>
-		/// Filters all fields with the given staticness from the given sequence
-		/// of fields.
-		/// </summary>
-		public static IReadOnlyList<IField> GetFields(this [IField] Fields, bool IsStatic)
-		{
-			var results = new List<IField>();
-			foreach (var field in Fields)
-			{
-				if (field.IsStatic == IsStatic)
-					results.Add(field);
-			}
-			return results;
-		}
-	}
+        /// <summary>
+        /// Filters all fields with the given staticness from the given sequence
+        /// of fields.
+        /// </summary>
+        public static IReadOnlyList<IField> GetFields(this [IField] Fields, bool IsStatic)
+        {
+            var results = new List<IField>();
+            foreach (var field in Fields)
+            {
+                if (field.IsStatic == IsStatic)
+                    results.Add(field);
+            }
+            return results;
+        }
+    }
 }

@@ -6,16 +6,16 @@ using Flame.Build;
 
 namespace Flame
 {
-	public class GenericInstanceProperty : IProperty, IEquatable<IProperty>
+    public class GenericInstanceProperty : IProperty, IEquatable<IProperty>
     {
-    	public const this(set IProperty Declaration, set IGenericResolver Resolver, set IType DeclaringType)
+        public const this(set IProperty Declaration, set IGenericResolver Resolver, set IType DeclaringType)
         {
             this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
             this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
         }
         public const this(set IProperty Declaration, set IGenericResolverType Resolver)
         {
-        	this.DeclaringType = Resolver;
+            this.DeclaringType = Resolver;
             this.cachedAccessors = new Lazy<IAccessor[]>(createAccessors);
             this.cachedIndexerParameters = new Lazy<IParameter[]>(createIndexerParameters);
         }
@@ -56,11 +56,11 @@ namespace Flame
 
         private IAccessor[] createAccessors()
         {
-        	var results = new List<IAccessor>();
-        	foreach (var input in Declaration.Accessors)
-        	{
-        		results.Add(new GenericInstanceAccessor(input, Resolver, this));
-        	}
+            var results = new List<IAccessor>();
+            foreach (var input in Declaration.Accessors)
+            {
+                results.Add(new GenericInstanceAccessor(input, Resolver, this));
+            }
             return results.ToArray();
         }
 
@@ -74,40 +74,40 @@ namespace Flame
             return Enumerable.ToArray<IParameter>(Resolver.ResolveParameters(Declaration.IndexerParameters));
         }
 
-		public override string ToString()
-		{
-			return FullName.ToString();
-		}
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
 
         #region Equality
 
         public override const bool Equals(object Other)
         {
-        	if (Other is IProperty)
-        		return Equals((IProperty)Other);
-        	else
+            if (Other is IProperty)
+                return Equals((IProperty)Other);
+            else
                 return false;
         }
 
         public const bool Equals(IProperty Other)
         {
-        	if (Other is GenericInstanceProperty)
-        		return Equals((GenericInstanceProperty)Other);
-        	else
+            if (Other is GenericInstanceProperty)
+                return Equals((GenericInstanceProperty)Other);
+            else
                 return false;
         }
 
         public const bool Equals(GenericInstanceProperty Other)
         {
-        	return this.DeclaringType.Equals(Other.DeclaringType) &&
-			       this.Declaration.Equals(Other.Declaration);
+            return this.DeclaringType.Equals(Other.DeclaringType) &&
+                   this.Declaration.Equals(Other.Declaration);
         }
 
         public override const int GetHashCode()
         {
-        	return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
+            return DeclaringType.GetHashCode() ^ Declaration.GetHashCode();
         }
 
         #endregion
-	}
+    }
 }

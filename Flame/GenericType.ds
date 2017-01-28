@@ -9,26 +9,26 @@ namespace Flame
     /// <summary>
     /// Defines a generic type instantiation.
     /// </summary>
-	public virtual class GenericType : GenericTypeBase, IGenericMemberInstance,
-									   IGenericResolverType, IEquatable<IType>
-	{
+    public virtual class GenericType : GenericTypeBase, IGenericMemberInstance,
+                                       IGenericResolverType, IEquatable<IType>
+    {
         /// <summary>
         /// Creates a generic instantiation of the given type with the given
         /// type arguments.
         /// </summary>
-		public const this(IType Declaration, set [IType] GenericArguments)
+        public const this(IType Declaration, set [IType] GenericArguments)
             : base(Declaration)
-		{
-			this.ancestryRules = new GenericAncestryRules(Declaration.AncestryRules);
-		}
+        {
+            this.ancestryRules = new GenericAncestryRules(Declaration.AncestryRules);
+        }
 
         /// <summary>
         /// Gets this generic instantiation's type arguments.
         /// </summary>
         public [IType] GenericArguments { const get; private set; }
 
-		public override IGenericResolver Resolver { const get { return this; } }
-		public override INamespace DeclaringNamespace { const get { return Declaration.DeclaringNamespace; } }
+        public override IGenericResolver Resolver { const get { return this; } }
+        public override INamespace DeclaringNamespace { const get { return Declaration.DeclaringNamespace; } }
 
         public override UnqualifiedName Name
         {
@@ -52,11 +52,11 @@ namespace Flame
             }
         }
 
-		private IAncestryRules ancestryRules;
-		public override IAncestryRules AncestryRules
-		{
-			const get { return ancestryRules; }
-		}
+        private IAncestryRules ancestryRules;
+        public override IAncestryRules AncestryRules
+        {
+            const get { return ancestryRules; }
+        }
 
         public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
         {
@@ -67,37 +67,37 @@ namespace Flame
                     return arg;
                 }
             }
-			if (Declaration is GenericTypeBase)
-			{
-				return ((GenericTypeBase)Declaration).Resolver.ResolveTypeParameter(TypeParameter);
-			}
+            if (Declaration is GenericTypeBase)
+            {
+                return ((GenericTypeBase)Declaration).Resolver.ResolveTypeParameter(TypeParameter);
+            }
             else
-			{
-				return TypeParameter;
-			}
+            {
+                return TypeParameter;
+            }
         }
 
         #region Equality
 
         public override const bool Equals(object Other)
         {
-        	if (Other is IType)
-        		return Equals((IType)Other);
-        	else
+            if (Other is IType)
+                return Equals((IType)Other);
+            else
                 return false;
         }
 
         public const bool Equals(IType Other)
         {
-        	if (Other is GenericType)
-        		return Equals((GenericType)Other);
+            if (Other is GenericType)
+                return Equals((GenericType)Other);
             else
-        	   return false;
+               return false;
         }
 
         public const bool Equals(GenericType Other)
         {
-        	return this.Declaration.Equals(Other.Declaration) &&
+            return this.Declaration.Equals(Other.Declaration) &&
                    this.GenericArguments.AreEqual(Other.GenericArguments);
         }
 
@@ -108,9 +108,9 @@ namespace Flame
             {
                 result = (result << 1) ^ item.GetHashCode();
             }
-        	return result;
+            return result;
         }
 
         #endregion
-	}
+    }
 }

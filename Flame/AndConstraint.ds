@@ -4,39 +4,39 @@ using System.Text;
 
 namespace Flame
 {
-	/// <summary>
-	/// A generic constraint that specifies that the type argument should satisfy all given child constraints.
-	/// </summary>
-	public class AndConstraint : IGenericConstraint
-	{
-		public const this(set [IGenericConstraint] Constraints);
+    /// <summary>
+    /// A generic constraint that specifies that the type argument should satisfy all given child constraints.
+    /// </summary>
+    public class AndConstraint : IGenericConstraint
+    {
+        public const this(set [IGenericConstraint] Constraints);
 
-		public [IGenericConstraint] Constraints { const get; private set; }
+        public [IGenericConstraint] Constraints { const get; private set; }
 
-		/// <summary>
-		/// Transforms the types in this generic constraint using the
-		/// given type converter.
-		/// </summary>
-		public IGenericConstraint Transform(IConverter<IType, IType> Converter)
-		{
-			var results = new List<IGenericConstraint>();
-			foreach (var item in Constraints)
-			{
-				results.Add(item.Transform(Converter));
-			}
-			return new AndConstraint(results);
-		}
+        /// <summary>
+        /// Transforms the types in this generic constraint using the
+        /// given type converter.
+        /// </summary>
+        public IGenericConstraint Transform(IConverter<IType, IType> Converter)
+        {
+            var results = new List<IGenericConstraint>();
+            foreach (var item in Constraints)
+            {
+                results.Add(item.Transform(Converter));
+            }
+            return new AndConstraint(results);
+        }
 
-		public bool Satisfies(IType TypeArgument)
-		{
-			foreach (var item in Constraints)
-			{
-				if (!item.Satisfies(TypeArgument))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-	}
+        public bool Satisfies(IType TypeArgument)
+        {
+            foreach (var item in Constraints)
+            {
+                if (!item.Satisfies(TypeArgument))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 }

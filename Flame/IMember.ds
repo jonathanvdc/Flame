@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Flame
 {
-	/// <summary>
-	/// A root interface for members: objects that have a name, a full name,
-	/// and a set of attributes.
-	/// </summary>
-	public interface IMember
-	{
-		/// <summary>
+    /// <summary>
+    /// A root interface for members: objects that have a name, a full name,
+    /// and a set of attributes.
+    /// </summary>
+    public interface IMember
+    {
+        /// <summary>
         /// Gets the member's name.
         /// </summary>
         UnqualifiedName Name { get; }
@@ -23,5 +23,5 @@ namespace Flame
         /// Gets the member's attributes.
         /// </summary>
         AttributeMap Attributes { get; }
-	}
+    }
 }
