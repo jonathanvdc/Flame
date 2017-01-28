@@ -9,6 +9,10 @@ namespace Flame
     public struct PointerKind
     {
         private this(set int typeIndex);
+
+        /// <summary>
+        /// Creates a pointer kind that is a copy of the given pointer kind.
+        /// </summary>
         public this(PointerKind Other)
         {
             this.typeIndex = Other.typeIndex;
@@ -162,6 +166,11 @@ namespace Flame
         {
             return kindDict.ContainsKey(Extension);
         }
+
+        /// <summary>
+        /// Tries to get the pointer kind that is suffixed to the given type
+        /// name, if any.
+        /// </summary>
         public static bool TryGetPointerKind(string TypeName, out PointerKind^ Result)
         {
             if (kindDict.TryGetValue(TypeName, Result))
@@ -180,6 +189,12 @@ namespace Flame
             *Result = Undefined;
             return false;
         }
+
+        /// <summary>
+        /// Gets the pointer kind that is suffixed to the given type name. If
+        /// no pointer kind is suffixed to the type name, then the undefined
+        /// pointer kind is returned.
+        /// </summary>
         public static PointerKind GetPointerKind(string TypeName)
         {
             if (TryGetPointerKind(TypeName, &PointerKind result))
@@ -196,6 +211,9 @@ namespace Flame
 
         #region Common Accessors
 
+        /// <summary>
+        /// Gets the undefined pointer kind.
+        /// </summary>
         public static PointerKind Undefined
         {
             get
@@ -204,6 +222,9 @@ namespace Flame
             }
         }
 
+        /// <summary>
+        /// Gets the pointer kind for transient pointers.
+        /// </summary>
         public static PointerKind TransientPointer
         {
             get
@@ -212,6 +233,9 @@ namespace Flame
             }
         }
 
+        /// <summary>
+        /// Gets the pointer kind for reference pointers.
+        /// </summary>
         public static PointerKind ReferencePointer
         {
             get
