@@ -8,8 +8,8 @@ namespace Flame
     /// </summary>
     public struct PointerKind
     {
-        private const this(set int typeIndex);
-        public const this(PointerKind Other)
+        private this(set int typeIndex);
+        public this(PointerKind Other)
         {
             this.typeIndex = Other.typeIndex;
         }
@@ -21,7 +21,7 @@ namespace Flame
         /// </summary>
         public bool IsDefined
         {
-            const get return typeIndex > -1;
+            get return typeIndex > -1;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Flame
         /// </summary>
         public string Extension
         {
-            const get
+            get
             {
                 if (typeIndex >= 0)
                     return typeNames[typeIndex];
@@ -54,7 +54,7 @@ namespace Flame
 
         #region Equality
 
-        public override const int GetHashCode()
+        public override int GetHashCode()
         {
             return typeIndex.GetHashCode();
         }
@@ -185,7 +185,7 @@ namespace Flame
 
         public static PointerKind Undefined
         {
-            const get
+            get
             {
                 return new PointerKind(-1);
             }
