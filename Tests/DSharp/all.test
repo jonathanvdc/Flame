@@ -11,6 +11,7 @@ tests
     Flow/Flow.test;
     Fractal/Fractal.test;
     Monads/Monads.test;
+    MultipleFolders/MultipleFolders.test;
     Overloading/Overloading.test;
     Point/Point.test;
     PrintChar/PrintChar.test;

@@ -1,0 +1,9 @@
+using System;
+
+public module Program
+{
+    public static void Main()
+    {
+        Console.WriteLine(Constants.X);
+    }
+}

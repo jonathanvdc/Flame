@@ -1,0 +1,25 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(FirstFile).ds $(SecondFile).ds -platform clr -o bin/$(FirstFile).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(FirstFile).exe);
+}
+
+configs
+{
+    Og { Flags = -Og; }
+    O2 { Flags = -O2; }
+    O3 { Flags = -O3; }
+}
+
+init
+{
+    FirstFile = Program;
+    SecondFile = Nested/Constants;
+    return = @(echo 3);
+}
