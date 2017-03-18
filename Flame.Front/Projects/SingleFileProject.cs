@@ -46,7 +46,7 @@ namespace Flame.Front.Projects
                 }));
                 items.Add(new ProjectNode(new IProjectItem[]
                 {
-                    new ProjectSource(FilePath.Name)
+                    new ProjectSource(FilePath.Path)
                 }));
                 projChildren = items.ToArray();
             }

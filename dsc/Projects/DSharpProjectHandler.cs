@@ -33,15 +33,19 @@ namespace dsc.Projects
             get { return new string[] { "dsproj", "ds" }; }
         }
 
-        public IProject Parse(ProjectPath Path, ICompilerLog Log)
+        public ParsedProject Parse(ProjectPath Path, ICompilerLog Log)
         {
             if (Path.HasExtension("ds"))
             {
-                return new SingleFileProject(Path, Log.Options.GetTargetPlatform());
+                return new ParsedProject(
+                    new PathIdentifier("<file>"),
+                    new SingleFileProject(Path, Log.Options.GetTargetPlatform()));
             }
             else
             {
-                return DSProject.ReadProject(Path.Path.Path);
+                return new ParsedProject(
+                    Path.Path,
+                    DSProject.ReadProject(Path.Path.Path));
             }
         }
 

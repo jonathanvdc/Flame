@@ -68,7 +68,14 @@ namespace Flame.Front.Projects
     public interface IProjectHandler
     {
         IEnumerable<string> Extensions { get; }
-        IProject Parse(ProjectPath Path, ICompilerLog Log);
+
+        /// <summary>
+        /// Parses the project at the given path.
+        /// </summary>
+        /// <param name="Path">The path where the project resides.</param>
+        /// <param name="Log">The log.</param>
+        /// <returns></returns>
+        ParsedProject Parse(ProjectPath Path, ICompilerLog Log);
 
         /// <summary>
         /// "Partitions" the given projects, unifying zero or more of them.

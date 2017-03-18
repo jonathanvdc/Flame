@@ -273,14 +273,14 @@ namespace Flame.Front.Cli
             return dict.OrderBy(item => item.Key).SelectMany(item => item.Value).Concat(GetExtraProjects(Args, Log)).ToArray();
         }
 
-        public static IProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
+        public static ParsedProject LoadProject(ProjectPath Path, IProjectHandler Handler, ICompilerLog Log)
         {
             if (!Path.FileExists)
             {
                 throw new AbortCompilationException(new LogEntry("file not found", "the file at '" + Path + "' could not be found."));
             }
             Log.LogEvent(new LogEntry("Status", "parsing project at '" + Path + "'"));
-            IProject proj;
+            ParsedProject proj;
             try
             {
                 proj = Handler.Parse(Path, Log);
@@ -290,7 +290,7 @@ namespace Flame.Front.Cli
                 Log.LogError(new LogEntry("error parsing project", "an error occured when parsing the project at '" + Path + "'"));
                 throw;
             }
-            Log.LogEvent(new LogEntry("Status", "parsed project at '" + Path + "' (" + proj.Name + ")"));
+            Log.LogEvent(new LogEntry("Status", "parsed project at '" + Path + "' (" + proj.Project.Name + ")"));
             return proj;
         }
 
@@ -303,8 +303,8 @@ namespace Flame.Front.Cli
             var projPath = new ProjectPath(Identifier, Args);
             var handler = ProjectHandlers.GetProjectHandler(projPath, Log);
             var project = LoadProject(projPath, handler, Log);
-            var currentPath = GetAbsolutePath(Identifier);
-            return Tuple.Create(new ParsedProject(currentPath, project), handler);
+            var currentPath = GetAbsolutePath(project.CurrentPath);
+            return Tuple.Create(new ParsedProject(currentPath, project.Project), handler);
         }
 
         #endregion

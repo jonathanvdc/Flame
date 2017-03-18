@@ -33,11 +33,13 @@ namespace Flame.Front.Projects
             get { return new string[] { "flo", "fir" }; }
         }
 
-        public IProject Parse(ProjectPath Path, ICompilerLog Log)
+        public ParsedProject Parse(ProjectPath Path, ICompilerLog Log)
         {
             var nodes = ParseFile(Path.Path);
 
-            return new FlameIRProject(Path, nodes, Log);
+            return new ParsedProject(
+                new PathIdentifier("<file>"),
+                new FlameIRProject(Path, nodes, Log));
         }
 
         public static IEnumerable<LNode> ParseFile(PathIdentifier Path)
