@@ -47,6 +47,24 @@ namespace Flame.Compiler.Expressions
                     return evalExpr.ToExpression();
             }
 
+            // An integer cast of an integer cast can be reduced to a simple integer cast
+            // if the result types have the same signedness.
+            var essentialVal = Value.GetEssentialExpression();
+            if (essentialVal is StaticCastExpression)
+            {
+                var valSpec = valTy.GetIntegerSpec();
+                var tgtSpec = TargetType.GetIntegerSpec();
+                if (valSpec != null && tgtSpec != null)
+                {
+                    if (valSpec.IsSigned == tgtSpec.IsSigned)
+                    {
+                        return new StaticCastExpression(
+                            ((StaticCastExpression)essentialVal).Value,
+                            TargetType).Simplify();
+                    }
+                }
+            }
+
             return this;
         }
 
