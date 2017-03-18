@@ -199,6 +199,7 @@
     <Compile Include="Emit\VirtualPopBlock.cs" />
     <Compile Include="Emit\SimpleConversionBlock.cs" />
     <Compile Include="Emit\BoxBlock.cs" />
+    <Compile Include="FixShiftRhsPass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlameRT\FlameRT.csproj">

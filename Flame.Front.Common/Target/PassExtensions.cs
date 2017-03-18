@@ -180,6 +180,9 @@ namespace Flame.Front.Target
             // this pass when targeting the CLR platform indirectly.
 			GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
 
+            // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
+            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
+
             // -fwrap-extension-properties is actually a set of two passes which are
             // always on or off at the same time.
 			GlobalPassManager.RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));

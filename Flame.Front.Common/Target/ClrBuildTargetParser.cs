@@ -81,6 +81,9 @@ namespace Flame.Front.Target
                 // can be pretty restrictive about these naming schemes.
                 new PassCondition(NormalizeNamesPass.NormalizeNamesPassName, optInfo => true),
 
+                // Run -ffix-shift-rhs no matter what, as it's required for correctness.
+                new PassCondition(FixShiftRhsPass.FixShiftRhsPassName, optInfo => true),
+
                 // Use -fdeconstruct-cfg-eh to deconstruct exception control-flow graphs,
                 // if -O3 or more has been specified (we won't construct
                 // a flow graph otherwise, anyway)
