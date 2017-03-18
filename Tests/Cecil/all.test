@@ -15,6 +15,7 @@ tests
     Initialization/Initialization.test;
     LogicalOps/LogicalOps.test;
     LongLiterals/LongLiterals.test;
+    ShiftOperators/ShiftOperators.test;
     StringEquality/StringEquality.test;
     TryParse/TryParse.test;
     WhileNext/WhileNext.test;

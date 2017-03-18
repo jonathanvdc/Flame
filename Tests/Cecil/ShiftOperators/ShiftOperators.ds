@@ -1,0 +1,13 @@
+using System;
+
+public module Program
+{
+    public long x;
+
+    public static void Main()
+    {
+        x = 20;
+        Console.WriteLine(x << 2);
+        Console.WriteLine(x >> 2);
+    }
+}
