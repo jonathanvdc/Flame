@@ -38,7 +38,7 @@ namespace dsc.Projects
             if (Path.HasExtension("ds"))
             {
                 return new ParsedProject(
-                    new PathIdentifier("<file>"),
+                    new PathIdentifier(Path.Path.Name),
                     new SingleFileProject(Path, Log.Options.GetTargetPlatform()));
             }
             else

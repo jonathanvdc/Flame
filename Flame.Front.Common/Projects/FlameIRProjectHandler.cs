@@ -38,7 +38,7 @@ namespace Flame.Front.Projects
             var nodes = ParseFile(Path.Path);
 
             return new ParsedProject(
-                new PathIdentifier("<file>"),
+                new PathIdentifier(Path.Path.Name),
                 new FlameIRProject(Path, nodes, Log));
         }
 
