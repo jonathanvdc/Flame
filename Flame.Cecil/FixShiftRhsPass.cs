@@ -39,7 +39,7 @@ namespace Flame.Cecil
         {
             var binOp = (BinaryExpression)Expression;
             var rhsSpec = binOp.RightOperand.Type.GetIntegerSpec();
-            if (rhsSpec.Size > 32)
+            if (rhsSpec != null && rhsSpec.Size > 32)
             {
                 var newRhs = new StaticCastExpression(
                     binOp.RightOperand,
