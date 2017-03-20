@@ -18,8 +18,10 @@ namespace Flame.Optimization
     {
         alias DevirtualizationRecord = Tuple<SourceLocation, IMethod, IMethod>;
 
-        public const this()
+        public const this(bool RespectAccess, IType ThisType)
         {
+            this.RespectAccess = RespectAccess;
+            this.ThisType = ThisType;
             this.devirtRecords = new List<DevirtualizationRecord>();
         }
 
@@ -30,6 +32,18 @@ namespace Flame.Optimization
         /// individual devirtualizations.
         /// </summary>
         public IReadOnlyList<DevirtualizationRecord> Records { get { return devirtRecords; } }
+
+        /// <summary>
+        /// Gets a Boolean value that tells if this devirtualizing visitor should respect
+        /// access modifiers while devirtualizing.
+        /// </summary>
+        public bool RespectAccess { get; private set; }
+
+        /// <summary>
+        /// Gets the 'this' type of the method body that is being devirtualized.
+        /// </summary>
+        /// <returns></returns>
+        public IType ThisType { get; private set; }
 
         protected override bool MatchesCore(IExpression Value)
         {
@@ -67,6 +81,9 @@ namespace Flame.Optimization
 
                 var impl = expr.Target.GetImplementation(callerTy);
                 if (impl == null)
+                    return expr;
+
+                if (RespectAccess && !ThisType.CanAccess(impl))
                     return expr;
 
                 // Victory! We can (partially) devirtualize this thing!
@@ -160,7 +177,11 @@ namespace Flame.Optimization
 
         public IStatement Apply(BodyPassArgument Arg)
         {
-            var visitor = new DevirtualizingVisitor();
+            var thisType = Arg.DeclaringType;
+            if (thisType != null && thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
+                thisType = thisType.MakeGenericType(thisType.GenericParameters);
+
+            var visitor = new DevirtualizingVisitor(true, thisType);
             var result = visitor.Visit(Arg.Body);
             var log = Arg.PassEnvironment.Log;
             if (log.Options.ShouldRemark(DevirtualizationRemarksName))
