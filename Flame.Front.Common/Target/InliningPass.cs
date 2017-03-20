@@ -208,14 +208,17 @@ namespace Flame.Front.Target
             }
 
             var body = Args.PassEnvironment.GetMethodBody(Call.Method);
-            var thisType = Args.DeclaringType;
-            if (thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
-            {
-                thisType = thisType.MakeGenericType(thisType.GenericParameters);
-            }
-            if (body == null || (RespectAccess && !AccessChecker.CanAccess(thisType, body)))
-            {
+            if (body == null)
                 return false;
+
+            if (RespectAccess)
+            {
+                var thisType = Args.DeclaringType;
+                if (thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
+                    thisType = thisType.MakeGenericType(thisType.GenericParameters);
+
+                if (!AccessChecker.CanAccess(thisType, body))
+                    return false;
             }
 
             int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
