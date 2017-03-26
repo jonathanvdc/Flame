@@ -142,15 +142,7 @@ namespace Flame.Cecil
 
         private static IMethod CreateAutoGenericMethod(IMethod Method)
         {
-            if (Method.DeclaringType.GetIsGeneric() && Method.DeclaringType.GetIsGenericInstance())
-            {
-                var genDeclType = new GenericType(Method.DeclaringType, Method.DeclaringType.GenericParameters);
-                return new GenericInstanceMethod(Method, genDeclType);
-            }
-            else
-            {
-                return Method;
-            }
+            return Method.MakeRecursiveGenericMethod(Method.GetRecursiveGenericParameters());
         }
 
         private static void ForwardParameterlessCall(DescribedBodyMethod Source, IMethod TargetMethod)
