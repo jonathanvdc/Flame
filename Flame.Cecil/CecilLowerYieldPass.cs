@@ -151,7 +151,11 @@ namespace Flame.Cecil
             var thisVar = ThisReferenceVariable.Instance.Create(Source.DeclaringType);
 
             IExpression callExpr = new InvocationExpression(genericTgt, thisVar.CreateGetExpression(), new IExpression[] { });
-            if (ConversionExpression.Instance.UseReinterpretCast(callExpr.Type, Source.ReturnType))
+            if (ConversionExpression.Instance.UseBox(callExpr.Type, Source.ReturnType))
+            {
+                callExpr = new ReinterpretCastExpression(new BoxExpression(callExpr), Source.ReturnType);
+            }
+            else if (ConversionExpression.Instance.UseReinterpretCast(callExpr.Type, Source.ReturnType))
             {
                 callExpr = new ReinterpretCastExpression(callExpr, Source.ReturnType);
             }
