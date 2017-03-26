@@ -10,8 +10,13 @@ namespace Flame.Compiler
 	public interface IBranchingCodeGenerator : ICodeGenerator
 	{
 		/// <summary>
-		/// Creates a new label.
+		/// Creates a code block that marks the given label.
 		/// </summary>
-		ILabel CreateLabel();
+		ICodeBlock EmitMarkLabel(UniqueTag Label);
+
+		/// <summary>
+		/// Creates a code block that jumps to the given label.
+		/// </summary>
+		ICodeBlock EmitGotoLabel(UniqueTag Label, ICodeBlock Condition);
 	}
 }

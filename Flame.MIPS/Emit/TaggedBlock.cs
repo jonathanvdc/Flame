@@ -22,7 +22,7 @@ namespace Flame.MIPS.Emit
 
         public IEnumerable<IStorageLocation> Emit(IAssemblerEmitContext Context)
         {
-            var brCg = (IBranchingCodeGenerator)CodeGenerator;
+            var brCg = (AssemblerCodeGenerator)CodeGenerator;
             var start = brCg.CreateLabel();
             var end = brCg.CreateLabel();
 

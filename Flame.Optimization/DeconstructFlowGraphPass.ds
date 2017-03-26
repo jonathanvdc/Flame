@@ -20,16 +20,14 @@ namespace Flame.Optimization
         public const this()
         {
             this.results = new List<IStatement>();
-            this.labels = new Dictionary<UniqueTag, LateBoundLabel>();
             this.placedBlocks = new HashSet<UniqueTag>();
-            this.exitLabel = new LateBoundLabel();
+            this.exitLabel = new UniqueTag();
             this.pendingExit = false;
         }
 
         private List<IStatement> results;
-        private Dictionary<UniqueTag, LateBoundLabel> labels;
         private HashSet<UniqueTag> placedBlocks;
-        private LateBoundLabel exitLabel;
+        private UniqueTag exitLabel;
         private bool pendingExit;
 
         /// <summary>
@@ -49,20 +47,6 @@ namespace Flame.Optimization
             return placedBlocks.Contains(Tag);
         }
 
-        /// <summary>
-        /// Gets the label that belongs to the given tag.
-        /// </summary>
-        private LateBoundLabel GetLabel(UniqueTag Tag)
-        {
-            LateBoundLabel result;
-            if (!labels.TryGetValue(Tag, &result))
-            {
-                result = new LateBoundLabel();
-                labels[Tag] = result;
-            }
-            return result;
-        }
-
         private void EmitRawStatement(IStatement Statement)
         {
             results.Add(Statement);
@@ -72,7 +56,7 @@ namespace Flame.Optimization
         {
             if (pendingExit)
             {
-                EmitRawStatement(exitLabel.CreateBranchStatement());
+                EmitRawStatement(new GotoLabelStatement(exitLabel));
                 pendingExit = false;
             }
         }
@@ -91,8 +75,7 @@ namespace Flame.Optimization
         /// </summary>
         public void EmitBranch(UniqueTag Target, IExpression Condition)
         {
-            var label = GetLabel(Target);
-            EmitStatement(label.CreateBranchStatement(Condition));
+            EmitStatement(new GotoLabelStatement(Target, Condition));
         }
 
         /// <summary>
@@ -120,8 +103,7 @@ namespace Flame.Optimization
         public void PlaceBlock(BasicBlock Block)
             in { !HasPlaced(Block.Tag) }
         {
-            var label = GetLabel(Block.Tag);
-            EmitStatement(label.CreateMarkStatement());
+            EmitStatement(new MarkLabelStatement(Block.Tag));
             EmitStatement(Block.Contents);
             placedBlocks.Add(Block.Tag);
         }
@@ -131,7 +113,7 @@ namespace Flame.Optimization
         /// </summary>
         public void MarkExit()
         {
-            EmitRawStatement(exitLabel.CreateMarkStatement());
+            EmitRawStatement(new MarkLabelStatement(exitLabel));
         }
     }
 

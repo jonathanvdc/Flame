@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// A statement that jumps to a label if a condition evaluates to true.
+    /// </summary>
+    public class GotoLabelStatement : IStatement
+    {
+        /// <summary>
+        /// Creates a goto statement that jumps unconditionally to the given label.
+        /// </summary>
+        /// <param name="Label">The label to jump to.</param>
+        public this(set UniqueTag Label)
+        {
+            this.Condition = new BooleanExpression(true);
+        }
+
+        /// <summary>
+        /// Creates a goto statement that jumps to the given label if the specified
+        /// expression evaluates to true.
+        /// </summary>
+        /// <param name="Label">The label to jump to.</param>
+        /// <param name="Condition">The condition for this goto.</param>
+        public this(set UniqueTag Label, set IExpression Condition);
+
+        /// <summary>
+        /// Gets the label to which this goto statement jumps.
+        /// </summary>
+        /// <returns>The label to which this goto statement jumps.</returns>
+        public UniqueTag Label { get; private set; }
+
+        /// <summary>
+        /// Gets the condition this goto statement depends on. If the condition
+        /// evaluates to true, then the goto statement performs a jump; otherwise,
+        /// it does nothing.
+        /// </summary>
+        /// <returns>The goto statement's condition. </returns>
+        public IExpression Condition { get; private set; }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            var visitedCond = Visitor.Visit(Condition);
+            if (visitedCond == Condition)
+                return this;
+            else
+                return new GotoLabelStatement(Label, visitedCond);
+        }
+
+        public bool IsConstantNode { get { return false; } }
+
+        public IStatement Optimize()
+        {
+            var optCond = Condition.Optimize();
+            if (optCond.EvaluatesTo<bool>(false))
+                return EmptyStatement;
+            else
+                return new GotoLabelStatement(Label, optCond);
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var cg = (IBranchingCodeGenerator)Generator;
+            var cond = Condition.Emit(cg);
+            return cg.EmitGotoLabel(Label, cond);
+        }
+    }
+
+    /// <summary>
+    /// A statement that marks a label: it defines where goto statements jump to.
+    /// </summary>
+    public class MarkLabelStatement : IStatement
+    {
+        /// <summary>
+        /// Creates a statement that marks the given statement.
+        /// </summary>
+        /// <param name="Label">The label to mark.</param>
+        public this(set UniqueTag Label);
+
+        /// <summary>
+        /// Gets the label that is marked by this statement.
+        /// </summary>
+        /// <returns>The mark statement's label.</returns>
+        public UniqueTag Label { get; private set; }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public bool IsConstantNode { get { return false; } }
+
+        public IStatement Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            var cg = (IBranchingCodeGenerator)Generator;
+            return cg.EmitMarkLabel(Label);
+        }
+    }
+}

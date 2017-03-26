@@ -22,7 +22,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            var brCg = (IBranchingCodeGenerator)CodeGenerator;
+            var brCg = (ILCodeGenerator)CodeGenerator;
             var start = brCg.CreateLabel();
             var end = brCg.CreateLabel();
 

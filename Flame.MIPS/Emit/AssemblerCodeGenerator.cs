@@ -14,20 +14,44 @@ namespace Flame.MIPS.Emit
         public AssemblerCodeGenerator(IMethod Method)
         {
             this.Method = Method;
+            this.labelMap = new Dictionary<UniqueTag, AssemblerLateBoundLabel>();
         }
 
         public IMethod Method { get; private set; }
 
+        private Dictionary<UniqueTag, AssemblerLateBoundLabel> labelMap;
+
         #region Branching
 
-        public ILabel CreateLabel()
+        public AssemblerLateBoundLabel GetLabel(UniqueTag Tag)
+        {
+            AssemblerLateBoundLabel result;
+            if (!labelMap.TryGetValue(Tag, out result))
+            {
+                result = CreateLabel(Tag.Name);
+                labelMap[Tag] = result;
+            }
+            return result;
+        }
+
+        public AssemblerLateBoundLabel CreateLabel()
         {
             return new AssemblerLateBoundLabel(this);
         }
 
-        public ILabel CreateLabel(string Name)
+        public AssemblerLateBoundLabel CreateLabel(string Name)
         {
             return new AssemblerLateBoundLabel(this, Name);
+        }
+
+        public ICodeBlock EmitGotoLabel(UniqueTag Tag, ICodeBlock Condition)
+        {
+            return GetLabel(Tag).EmitBranch(Condition);
+        }
+
+        public ICodeBlock EmitMarkLabel(UniqueTag Tag)
+        {
+            return GetLabel(Tag).EmitMark();
         }
 
         #endregion

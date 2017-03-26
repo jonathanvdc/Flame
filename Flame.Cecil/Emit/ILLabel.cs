@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
-    public class ILLabel : ILabel
+    public class ILLabel
     {
         public ILLabel(ICodeGenerator CodeGenerator)
         {

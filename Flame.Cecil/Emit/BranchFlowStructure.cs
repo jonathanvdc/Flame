@@ -9,7 +9,7 @@ namespace Flame.Cecil.Emit
 {
     public class BranchFlowStructure : IFlowControlStructure
     {
-        public BranchFlowStructure(ICodeGenerator CodeGenerator, UniqueTag Tag, ILabel Start, ILabel End)
+        public BranchFlowStructure(ICodeGenerator CodeGenerator, UniqueTag Tag, ILLabel Start, ILLabel End)
         {
             this.CodeGenerator = CodeGenerator;
             this.Start = Start;
@@ -20,8 +20,8 @@ namespace Flame.Cecil.Emit
         public ICodeGenerator CodeGenerator { get; private set; }
 
         public UniqueTag Tag { get; private set; }
-        public ILabel Start { get; private set; }
-        public ILabel End { get; private set; }
+        public ILLabel Start { get; private set; }
+        public ILLabel End { get; private set; }
 
         public ICecilBlock CreateBreak()
         {

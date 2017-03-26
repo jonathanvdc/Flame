@@ -16,11 +16,11 @@ namespace Flame.Bytecode
         public InstructionPack()
         {
             this.instructions = new List<IInstruction>();
-            this.startLabel = new LateBoundLabel();
+            this.startLabel = new UniqueTag();
         }
 
         private List<IInstruction> instructions;
-        private LateBoundLabel startLabel;
+        private UniqueTag startLabel;
 
         protected IReadOnlyList<IInstruction> Instructions
         {
@@ -259,7 +259,7 @@ namespace Flame.Bytecode
         /// <returns></returns>
         public IStatement CreateBranchStatement(IExpression Condition)
         {
-            return this.startLabel.CreateBranchStatement(Condition);
+            return new GotoLabelStatement(this.startLabel, Condition);
         }
         /// <summary>
         /// Creates an unconditional branch to the first instruction of this instruction pack.
@@ -267,7 +267,7 @@ namespace Flame.Bytecode
         /// <returns></returns>
         public IStatement CreateBranchStatement()
         {
-            return this.startLabel.CreateBranchStatement();
+            return new GotoLabelStatement(this.startLabel);
         }
 
         #endregion
@@ -286,7 +286,7 @@ namespace Flame.Bytecode
                 new ArtificialStatementInstruction(this.EndOffset, Successor.CreateBranchStatement(), Successor.FirstInstruction) :
                 null;
 
-            results.Add(new ArtificialStatementInstruction(this.StartOffset, startLabel.CreateMarkStatement(), IsEmpty ? branchInstr : FirstInstruction));
+            results.Add(new ArtificialStatementInstruction(this.StartOffset, new MarkLabelStatement(startLabel), IsEmpty ? branchInstr : FirstInstruction));
             results.AddRange(Instructions);
             results.Add(branchInstr);
 

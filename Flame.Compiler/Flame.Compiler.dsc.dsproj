@@ -64,7 +64,6 @@
             <Compile Include="Emit/IUnmanagedMethodStructureGenerator.ds" />
             <Compile Include="Emit/IBranchingCodeGenerator.ds" />
             <Compile Include="Emit/IEmitVariable.ds" />
-            <Compile Include="Emit/ILabel.ds" />
             <Compile Include="Emit/ILambdaCodeGenerator.ds" />
             <Compile Include="Emit/CodeGeneratorExtensions.ds" />
             <Compile Include="Emit/IVariableMember.ds" />
@@ -206,7 +205,7 @@
             <Compile Include="Statements/ForeachStatement.ds" />
             <Compile Include="Statements/ForStatement.ds" />
             <Compile Include="Statements/IfElseStatement.ds" />
-            <Compile Include="Statements/LateBoundLabel.ds" />
+            <Compile Include="Statements/GotoLabelStatement.ds" />
             <Compile Include="Statements/LateBoundVariableSetStatement.ds" />
             <Compile Include="Statements/PushStackStatement.ds" />
             <Compile Include="Statements/RawExpressionStatement.ds" />

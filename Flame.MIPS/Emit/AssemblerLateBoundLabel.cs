@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Flame.MIPS.Emit
 {
-    public class AssemblerLateBoundLabel : ILabel
+    public class AssemblerLateBoundLabel
     {
         public AssemblerLateBoundLabel(ICodeGenerator CodeGenerator)
         {

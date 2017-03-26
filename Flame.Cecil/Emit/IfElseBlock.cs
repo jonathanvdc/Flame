@@ -26,7 +26,7 @@ namespace Flame.Cecil.Emit
 
         public void Emit(IEmitContext Context)
         {
-            var brCg = (IBranchingCodeGenerator)CodeGenerator;
+            var brCg = (ILCodeGenerator)CodeGenerator;
 
             if (ElseBlock.IsEmpty()) // Optimize for this case, as it is quite common.
             {

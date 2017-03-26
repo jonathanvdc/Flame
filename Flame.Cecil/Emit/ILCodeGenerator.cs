@@ -15,6 +15,7 @@ namespace Flame.Cecil.Emit
         public ILCodeGenerator(IMethod Method)
         {
             this.Method = Method;
+            this.labelMap = new Dictionary<UniqueTag, ILLabel>();
         }
 
         public IMethod Method { get; private set; }
@@ -119,7 +120,30 @@ namespace Flame.Cecil.Emit
 
         #region Branching
 
-        public ILabel CreateLabel()
+        private Dictionary<UniqueTag, ILLabel> labelMap;
+
+        public ICodeBlock EmitGotoLabel(UniqueTag Tag, ICodeBlock Condition)
+        {
+            return GetLabel(Tag).EmitBranch(Condition);
+        }
+
+        public ICodeBlock EmitMarkLabel(UniqueTag Tag)
+        {
+            return GetLabel(Tag).EmitMark();
+        }
+
+        public ILLabel GetLabel(UniqueTag Tag)
+        {
+            ILLabel result;
+            if (!labelMap.TryGetValue(Tag, out result))
+            {
+                result = CreateLabel();
+                labelMap[Tag] = result;
+            }
+            return result;
+        }
+
+        public ILLabel CreateLabel()
         {
             return new ILLabel(this);
         }
