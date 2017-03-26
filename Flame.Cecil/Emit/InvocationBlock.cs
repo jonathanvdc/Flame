@@ -61,10 +61,6 @@ namespace Flame.Cecil.Emit
                 IType callerType = null;
                 if (!method.IsStatic)
                 {
-                    if (mBlock.Caller == null)
-                    {
-                        System.Diagnostics.Debugger.Break();
-                    }
                     MethodBlock.EmitCaller(mBlock.Caller, method, Context);
                     callerType = Context.Stack.Pop();
                     if (!ILCodeGenerator.IsExpectedCallingType(method, callerType))
@@ -72,10 +68,10 @@ namespace Flame.Cecil.Emit
                         var srcLoc = CodeGenerator.Method.GetSourceLocation();
                         log.LogError(new LogEntry(
                             "IL emit error", 
-                            "invalid calling type on stack" + 
+                            "invalid calling type for call to '" + method.FullName + "' on stack" + 
                             (srcLoc != null && srcLoc.Document != null 
                                 ? "" 
-                                : " of method '" + method.FullName + "'") + 
+                                : " of method '" + CodeGenerator.Method.FullName + "'") + 
                             ". Expected '" + 
                             ILCodeGenerator.GetExpectedCallingType(method).FullName + 
                             "', got '" + callerType.FullName + "'.",
