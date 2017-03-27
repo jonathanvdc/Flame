@@ -1,0 +1,30 @@
+using Flame.Compiler.Statements;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A type of visitor that looks for goto statements.
+    /// </summary>
+    public class GotoFindingVisitor : AnyPredicateVisitorBase
+    {
+        public this();
+
+        /// <summary>
+        /// Finds out whether the given statement uses goto statements.
+        /// </summary>
+        public static bool UsesGoto(IStatement Statement)
+        {
+            var visitor = new GotoFindingVisitor();
+            visitor.Visit(Statement);
+            return visitor.IsSatisfied;
+        }
+
+        /// <summary>
+        /// Finds out whether the given node satisfies the predicate.
+        /// </summary>
+        protected override bool Satisfies(INode Node)
+        {
+            return Node is GotoLabelStatement;
+        }
+    }
+}

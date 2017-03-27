@@ -33,9 +33,12 @@ namespace Flame.Verification
         public IStatement Apply(Tuple<IStatement, IMethod, ICompilerLog> Value)
         {
             var stmt = Value.Item1;
+
+            if (GotoFindingVisitor.UsesGoto(stmt))
+                return stmt;
+
             var method = Value.Item2;
             var log = Value.Item3;
-
             var visitor = new DeadCodeVisitor();
             var optStmt = visitor.Visit(stmt);
             if (LogMissingReturn && visitor.CurrentFlow &&
