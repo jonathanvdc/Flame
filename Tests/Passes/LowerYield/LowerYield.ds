@@ -50,23 +50,21 @@ public static class LowerYieldTest
         where T : object
     {
         var result = new StringBuilder();
-        result.Append("{");
         bool isFirst = true;
         foreach (var item in Values)
         {
-            if (isFirst) { result.Append(" "); isFirst = false; }
-            else result.Append(", ");
+            if (isFirst) isFirst = false;
+            else result.Append(" ");
 
             result.Append(item);
         }
-        result.Append(" }");
         return (string)result;
     }
 
     public void Main(string[] Args)
     {
         var results = Multiply(Fibonacci(), Enumerable.Take<double>(Linear(), 5));
-        Console.WriteLine("Results:  " + PrintSequence<double>(results));
+        Console.WriteLine("Results: " + PrintSequence<double>(results));
         Console.WriteLine("Expected: " + PrintSequence<double>(new double[] { 0, 1, 2, 6, 12 }));
     }
 }
