@@ -1,0 +1,211 @@
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Compiler.Statements
+{
+    /// <summary>
+    /// Describes a single case in a switch statement.
+    /// </summary>
+    public struct SwitchCase
+    {
+        /// <summary>
+        /// Creates a switch case for the given values, with the given body.
+        /// </summary>
+        /// <param name="Values">The values for the switch case.</param>
+        /// <param name="Body">The switch case's body.</param>
+        public this(IReadOnlyList<IBoundObject> Values, IStatement Body)
+        {
+            this.Values = Values;
+            this.Body = Body;
+        }
+
+        /// <summary>
+        /// Gets the list of all values for this switch case.
+        /// </summary>
+        /// <returns>The list of all values for this switch case.</returns>
+        public IReadOnlyList<IBoundObject> Values { get; private set; }
+
+        /// <summary>
+        /// Gets the statement that is run if one of this switch case's values match.
+        /// </summary>
+        /// <returns>The switch statement's body.</returns>
+        public IStatement Body { get; private set; }
+
+        /// <summary>
+        /// Creates an expression that tests if this switch case matches the value
+        /// to which the specified expression evaluates.
+        /// </summary>
+        /// <param name="MatchValue">The value that is matched to this switch case.</param>
+        /// <returns>An expression that tests if this switch case is a match for the given expression.</returns>
+        public IExpression CreateCheckMatchExpression(IExpression MatchValue)
+        {
+            if (Values.Count == 0)
+                return new BooleanExpression(false);
+
+            IExpression result = new EqualityExpression(Values[0].ToExpression(), MatchValue);
+            for (int i = 1; i < Values.Count; i++)
+            {
+                result = new LazyOrExpression(
+                    result,
+                    new EqualityExpression(Values[i].ToExpression(), MatchValue));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Applies the given node visitor to this switch case.
+        /// </summary>
+        /// <param name="Visitor">The node visitor to apply.</param>
+        /// <returns>The switch case, after being processed by the visitor.</returns>
+        public SwitchCase Accept(INodeVisitor Visitor)
+        {
+            return new SwitchCase(Values, Visitor.Visit(Body));
+        }
+    }
+
+    /// <summary>
+    /// Represents a switch/case statement.
+    /// </summary>
+    public class SwitchStatement : IFlowStatement
+    {
+        /// <summary>
+        /// Creates a switch/case statement that switches on the given expression, has
+        /// the given list of cases and the given default case body.
+        /// </summary>
+        /// <param name="SwitchExpression">The expression to switch on.</param>
+        /// <param name="DefaultCaseBody">The default case's body.</param>
+        /// <param name="ConditionalCases">The list of all cases in the switch statement.</param>
+        public this(
+            IExpression SwitchExpression,
+            IStatement DefaultCaseBody,
+            IReadOnlyList<SwitchCase> ConditionalCases)
+        {
+            this.SwitchExpression = SwitchExpression;
+            this.DefaultCaseBody = DefaultCaseBody;
+            this.ConditionalCases = ConditionalCases;
+        }
+
+        /// <summary>
+        /// Gets the expression to which this switch statement tries to match some values.
+        /// </summary>
+        /// <returns>The expression that is switched on.</returns>
+        public IExpression SwitchExpression { get; private set; }
+
+        /// <summary>
+        /// Gets the default case's body, which is executed if no case matches.
+        /// </summary>
+        /// <returns>The default case's body.</returns>
+        public IStatement DefaultCaseBody { get; private set; }
+
+        /// <summary>
+        /// Gets the list of all switch cases that are protected by value conditions.
+        /// </summary>
+        /// <returns>The list of all switch cases.</returns>
+        public IReadOnlyList<SwitchCase> ConditionalCases { get; private set; }
+
+        public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+            : IFlowStatement.AcceptFlow<TState, TFlow>
+        {
+            // Visit the expression on which this switch statement operates.
+            var transCond = Visitor.Visit(SwitchExpression);
+            var startState = Visitor.CurrentFlow;
+
+            // Visit the default case.
+            var transDefault = Visitor.Visit(DefaultCaseBody);
+            var selectFlow = Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow);
+
+            // Visit the conditional cases.
+            var transCases = new List<SwitchCase>();
+            foreach (var item in ConditionalCases)
+            {
+                // Reset flow.
+                Visitor.CurrentFlow = startState;
+
+                transCases.Add(item.Accept(Visitor));
+                selectFlow = Visitor.CreateSelectFlow(
+                    selectFlow, Visitor.CreateDeltaFlow(startState, Visitor.CurrentFlow));
+            }
+
+            // Update the current flow.
+            Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startState, selectFlow);
+
+            return new SwitchStatement(transCond, transDefault, transCases);
+        }
+
+        public IStatement Accept(INodeVisitor Visitor)
+        {
+            // Visit the expression on which this switch statement operates.
+            var transCond = Visitor.Visit(SwitchExpression);
+
+            // Visit the default case.
+            var transDefault = Visitor.Visit(DefaultCaseBody);
+
+            // Visit the conditional cases.
+            var transCases = new List<SwitchCase>();
+            foreach (var item in ConditionalCases)
+            {
+                transCases.Add(item.Accept(Visitor));
+            }
+
+            return new SwitchStatement(transCond, transDefault, transCases);
+        }
+
+        /// <summary>
+        /// Converts this switch statement to a chain of if-else statements, and returns it.
+        /// </summary>
+        /// <returns>A statement that is composed of a chain of if-else statements.</returns>
+        public IStatement ToIfElseChain()
+        {
+            var switchExprVar = new RegisterVariable("switch_var", SwitchExpression.Type);
+            var chain = DefaultCaseBody;
+            for (int i = ConditionalCases.Count - 1; i >= 0; i--)
+            {
+                var condCase = ConditionalCases[i];
+                chain = new IfElseStatement(
+                    condCase.CreateCheckMatchExpression(
+                        switchExprVar.CreateGetExpression()),
+                    condCase.Body,
+                    chain);
+            }
+            return new BlockStatement(new IStatement[]
+            {
+                switchExprVar.CreateSetStatement(SwitchExpression),
+                chain
+            });
+        }
+
+        /// <summary>
+        /// Creates a number of basic blocks that are semantically equivalent
+        /// to this flow statement.
+        /// </summary>
+        public void ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            var ifElseChain = ToIfElseChain();
+            if (ifElseChain is IFlowStatement)
+            {
+                ((IFlowStatement)ifElseChain).ToBlocks(Visitor);
+            }
+            else
+            {
+                Visitor.CreateCurrentBlock(ifElseChain);
+            }
+        }
+
+        public bool IsConstantNode
+        {
+            get { return true; }
+        }
+
+        public IStatement Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return ToIfElseChain().Emit(Generator);
+        }
+    }
+}

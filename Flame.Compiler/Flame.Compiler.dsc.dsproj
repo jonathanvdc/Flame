@@ -212,6 +212,7 @@
             <Compile Include="Statements/ReturnStatement.ds" />
             <Compile Include="Statements/SourceStatement.ds" />
             <Compile Include="Statements/StoreAtAddressStatement.ds" />
+            <Compile Include="Statements/SwitchStatement.ds" />
             <Compile Include="Statements/TaggedStatement.ds" />
             <Compile Include="Statements/ThisSetStatement.ds" />
             <Compile Include="Statements/ThrowStatement.ds" />
