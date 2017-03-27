@@ -55,6 +55,15 @@ namespace Flame.Compiler.Statements
         }
 
         /// <summary>
+        /// Optimizes this swich case's body.
+        /// </summary>
+        /// <returns>An optimized switch case.</returns>
+        public SwitchCase Optimize()
+        {
+            return new SwitchCase(Values, Body.Optimize());
+        }
+
+        /// <summary>
         /// Applies the given node visitor to this switch case.
         /// </summary>
         /// <param name="Visitor">The node visitor to apply.</param>
@@ -200,7 +209,20 @@ namespace Flame.Compiler.Statements
 
         public IStatement Optimize()
         {
-            return this;
+            // Optimize the expression on which this switch statement operates.
+            var optCond = SwitchExpression.Optimize();
+
+            // Optimize the default case.
+            var optDefault = DefaultCaseBody.Optimize();
+
+            // Optimize the conditional cases.
+            var optCases = new List<SwitchCase>();
+            foreach (var item in ConditionalCases)
+            {
+                optCases.Add(item.Optimize());
+            }
+
+            return new SwitchStatement(optCond, optDefault, optCases);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
