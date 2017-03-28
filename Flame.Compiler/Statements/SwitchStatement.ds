@@ -208,6 +208,72 @@ namespace Flame.Compiler.Statements
             get { return true; }
         }
 
+        /// <summary>
+        /// Tries to simplify this switch statement. If possible, the switch is statically
+        /// reduced to a single case. Otherwise, the switch statement is "compacted:" cases
+        /// with bodies that are trivially equivalent are merged.
+        /// </summary>
+        /// <returns>A simplified statement.</returns>
+        public IStatement Simplify()
+        {
+            var evalExpr = SwitchExpression.Evaluate();
+            if (evalExpr != null)
+            {
+                var objVal = evalExpr.GetObjectValue();
+                foreach (var switchCase in ConditionalCases)
+                {
+                    foreach (var caseVal in switchCase.Values)
+                    {
+                        if (objVal.Equals(caseVal.GetObjectValue()))
+                            return switchCase.Body;
+                    }
+                }
+                return DefaultCaseBody;
+            }
+
+            var emptyVals = new List<IBoundObject>();
+            var gotoVals = new Dictionary<UniqueTag, List<IBoundObject>>();
+            var newCases = new List<SwitchCase>();
+
+            foreach (var switchCase in ConditionalCases)
+            {
+                if (switchCase.Body.IsEmpty)
+                {
+                    emptyVals.AddRange(switchCase.Values);
+                }
+                else if (switchCase.Body is GotoLabelStatement)
+                {
+                    var label = ((GotoLabelStatement)switchCase.Body).Label;
+                    List<IBoundObject> labelVals;
+                    if (!gotoVals.TryGetValue(label, &labelVals))
+                    {
+                        labelVals = new List<IBoundObject>();
+                        gotoVals[label] = labelVals;
+                    }
+                    labelVals.AddRange(switchCase.Values);
+                }
+                else
+                {
+                    newCases.Add(switchCase);
+                }
+            }
+
+            if (emptyVals.Count == 0 && gotoVals.Count == 0)
+                return this;
+
+            if (emptyVals.Count > 0)
+                newCases.Add(new SwitchCase(emptyVals, EmptyStatement));
+
+            foreach (var labelAndVals in gotoVals)
+            {
+                newCases.Add(
+                    new SwitchCase(
+                        labelAndVals.Value, new GotoLabelStatement(labelAndVals.Key)));
+            }
+
+            return new SwitchStatement(SwitchExpression, DefaultCaseBody, newCases);
+        }
+
         public IStatement Optimize()
         {
             // Optimize the expression on which this switch statement operates.
@@ -223,7 +289,7 @@ namespace Flame.Compiler.Statements
                 optCases.Add(item.Optimize());
             }
 
-            return new SwitchStatement(optCond, optDefault, optCases);
+            return new SwitchStatement(optCond, optDefault, optCases).Simplify();
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
