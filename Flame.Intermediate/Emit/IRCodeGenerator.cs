@@ -18,8 +18,8 @@ namespace Flame.Intermediate.Emit
                                    IForeachCodeGenerator, ICommentedCodeGenerator,
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
                                    IInitializingCodeGenerator, IContractCodeGenerator,
-								   ISSACodeGenerator, IBlockCodeGenerator,
-								   IStackCodeGenerator
+                                   ISSACodeGenerator, IBlockCodeGenerator,
+                                   IStackCodeGenerator, ISwitchCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -42,7 +42,7 @@ namespace Flame.Intermediate.Emit
 
         /// <summary>
         /// "Postprocesses" the given node: nodes
-		/// may be inserted by this pass
+        /// may be inserted by this pass
         /// for a number of purposes, such as variable declaration.
         /// </summary>
         /// <param name="Node"></param>
@@ -337,6 +337,27 @@ namespace Flame.Intermediate.Emit
             }));
         }
 
+        public ICodeBlock EmitSwitch(
+            ICodeBlock SwitchExpression,
+            ICodeBlock DefaultCaseBody,
+            IReadOnlyList<SwitchCaseBlock> ConditionalCases)
+        {
+            return new NodeBlock(this, NodeFactory.Call(ExpressionParsers.SwitchNodeName, new[]
+            {
+                NodeBlock.ToNode(SwitchExpression),
+                NodeBlock.ToNode(DefaultCaseBody)
+            }.Concat(ConditionalCases.Select(
+                block => NodeFactory.Call(
+                    "#case",
+                    block.Values.Select(
+                        val => NodeBlock.ToNode(val.ToExpression().Emit(this))).Concat(new[]
+                    {
+                        NodeBlock.ToNode(block.Body)
+                    }).ToArray()
+                )).ToArray()
+            )));
+        }
+
         public ICodeBlock EmitSequence(ICodeBlock First, ICodeBlock Second)
         {
             return new NodeBlock(this, NodeFactory.MergedBlock(NodeBlock.ToNode(First), NodeBlock.ToNode(Second)));
@@ -545,29 +566,29 @@ namespace Flame.Intermediate.Emit
             return DeclareUnmanagedLocal(Tag, VariableMember);
         }
 
-		public IEmitVariable GetSSALocal(UniqueTag Tag)
-		{
-			return GetUnmanagedLocal(Tag);
-		}
+        public IEmitVariable GetSSALocal(UniqueTag Tag)
+        {
+            return GetUnmanagedLocal(Tag);
+        }
 
-		public IEmitVariable DeclareSSALocal(UniqueTag Tag, IVariableMember VariableMember)
-		{
-			string name = variableNames.GenerateName(VariableMember);
-			var sig = EmitSignature(VariableMember);
-			var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
+        public IEmitVariable DeclareSSALocal(UniqueTag Tag, IVariableMember VariableMember)
+        {
+            string name = variableNames.GenerateName(VariableMember);
+            var sig = EmitSignature(VariableMember);
+            var type = Assembly.TypeTable.GetReference(VariableMember.VariableType);
 
-			var oldPostprocessor = this.postprocessNode;
-			this.postprocessNode = body => oldPostprocessor(NodeFactory.Call(ExpressionParsers.DefineSSALocalNodeName, new LNode[]
-			{
-				NodeFactory.IdOrLiteral(name),
-				sig.Node,
-				type,
-				body
-			}));
-			var result = new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
-			locals.Add(Tag, result);
-			return result;
-		}
+            var oldPostprocessor = this.postprocessNode;
+            this.postprocessNode = body => oldPostprocessor(NodeFactory.Call(ExpressionParsers.DefineSSALocalNodeName, new LNode[]
+            {
+                NodeFactory.IdOrLiteral(name),
+                sig.Node,
+                type,
+                body
+            }));
+            var result = new NodeEmitVariable(this, ExpressionParsers.LocalVariableKindName, NodeFactory.IdOrLiteral(name));
+            locals.Add(Tag, result);
+            return result;
+        }
 
         public IUnmanagedEmitVariable GetUnmanagedArgument(int Index)
         {
@@ -708,55 +729,55 @@ namespace Flame.Intermediate.Emit
 
         #endregion
 
-		#region IContractCodeGenerator implementation
+        #region IContractCodeGenerator implementation
 
-		/// <summary>
-		/// Gets the contract method's return value variable.
-		/// </summary>
-		/// <value>The return variable.</value>
-		public IEmitVariable ReturnVariable
-		{
-			get
-			{
-				return new NodeEmitVariable(this, ExpressionParsers.ReturnValueVariableKindName, Enumerable.Empty<LNode>());
-			}
-		}
+        /// <summary>
+        /// Gets the contract method's return value variable.
+        /// </summary>
+        /// <value>The return variable.</value>
+        public IEmitVariable ReturnVariable
+        {
+            get
+            {
+                return new NodeEmitVariable(this, ExpressionParsers.ReturnValueVariableKindName, Enumerable.Empty<LNode>());
+            }
+        }
 
-		/// <summary>
-		/// Emits a contract block.
-		/// </summary>
-		/// <returns>The contract block.</returns>
-		/// <param name="Preconditions">Preconditions.</param>
-		/// <param name="Postconditions">Postconditions.</param>
-		/// <param name="Body">Body.</param>
-		public ICodeBlock EmitContractBlock(
-			ICodeBlock Precondition, ICodeBlock Postcondition,
-			ICodeBlock Body)
-		{
-			return NodeBlock.Call(this, ExpressionParsers.ContractNodeName,
-				Body, Precondition, Postcondition);
-		}
+        /// <summary>
+        /// Emits a contract block.
+        /// </summary>
+        /// <returns>The contract block.</returns>
+        /// <param name="Preconditions">Preconditions.</param>
+        /// <param name="Postconditions">Postconditions.</param>
+        /// <param name="Body">Body.</param>
+        public ICodeBlock EmitContractBlock(
+            ICodeBlock Precondition, ICodeBlock Postcondition,
+            ICodeBlock Body)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.ContractNodeName,
+                Body, Precondition, Postcondition);
+        }
 
-		#endregion
+        #endregion
 
-		#region IBlockCodeGenerator implementation
+        #region IBlockCodeGenerator implementation
 
-		public LNode EmitSSALocalTagNode(SSAVariable Local)
-		{
-			return ((NodeEmitVariable)Local.GetEmitVariable(this)).VariableArguments.Single();
-		}
+        public LNode EmitSSALocalTagNode(SSAVariable Local)
+        {
+            return ((NodeEmitVariable)Local.GetEmitVariable(this)).VariableArguments.Single();
+        }
 
-		public NodeBlock EmitBasicBlockBranch(BlockBranch Branch)
-		{
-			// Create a "#branch(target_tag, args...)" node
+        public NodeBlock EmitBasicBlockBranch(BlockBranch Branch)
+        {
+            // Create a "#branch(target_tag, args...)" node
 
-			return NodeBlock.Call(this, ExpressionParsers.BranchNodeName,
-				new LNode[] { EmitTagNode(Branch.TargetTag) }.Concat(
-					Branch.Arguments.Select(EmitSSALocalTagNode)).ToArray());
-		}
+            return NodeBlock.Call(this, ExpressionParsers.BranchNodeName,
+                new LNode[] { EmitTagNode(Branch.TargetTag) }.Concat(
+                    Branch.Arguments.Select(EmitSSALocalTagNode)).ToArray());
+        }
 
-		public NodeBlock EmitBasicBlockFlow(BlockFlow Flow)
-		{
+        public NodeBlock EmitBasicBlockFlow(BlockFlow Flow)
+        {
             if (Flow is UnreachableFlow)
             {
                 // Create an "#unreachable" node
@@ -826,61 +847,61 @@ namespace Flame.Intermediate.Emit
                     EmitBasicBlockBranch(ehFlow.FinallyBranch).Node,
                     NodeFactory.Block(handlerList));
             }
-			else
-			{
-				throw new InvalidOperationException("Could not encode '" + Flow.ToString() + "' flow.");
-			}
-		}
+            else
+            {
+                throw new InvalidOperationException("Could not encode '" + Flow.ToString() + "' flow.");
+            }
+        }
 
-		public IEmitBasicBlock EmitBasicBlock(
-			UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
-			ICodeBlock Contents, BlockFlow Flow)
-		{
-			// Create a "#basic_block(tag, { parameters... }, body, flow)"
-			// node
+        public IEmitBasicBlock EmitBasicBlock(
+            UniqueTag Tag, IReadOnlyList<SSAVariable> Parameters,
+            ICodeBlock Contents, BlockFlow Flow)
+        {
+            // Create a "#basic_block(tag, { parameters... }, body, flow)"
+            // node
 
-			return new EmitBasicBlock(Tag, NodeBlock.Call(
-				this, ExpressionParsers.BasicBlockNodeName,
-				EmitTagNode(Tag), NodeFactory.Block(Parameters.Select(EmitSSALocalTagNode)),
-				NodeBlock.ToNode(Contents), EmitBasicBlockFlow(Flow).Node).Node);
-		}
+            return new EmitBasicBlock(Tag, NodeBlock.Call(
+                this, ExpressionParsers.BasicBlockNodeName,
+                EmitTagNode(Tag), NodeFactory.Block(Parameters.Select(EmitSSALocalTagNode)),
+                NodeBlock.ToNode(Contents), EmitBasicBlockFlow(Flow).Node).Node);
+        }
 
-		public ICodeBlock EmitFlowGraph(
-			UniqueTag EntryPointTag, IEnumerable<IEmitBasicBlock> Blocks)
-		{
-			// Create a "#flow_graph(entry_point_tag, { blocks... })" node
+        public ICodeBlock EmitFlowGraph(
+            UniqueTag EntryPointTag, IEnumerable<IEmitBasicBlock> Blocks)
+        {
+            // Create a "#flow_graph(entry_point_tag, { blocks... })" node
 
-			return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName, new LNode[]
+            return NodeBlock.Call(this, ExpressionParsers.FlowGraphNodeName, new LNode[]
             {
                 EmitTagNode(EntryPointTag),
                 NodeFactory.Block(Blocks.Select(item => ((EmitBasicBlock)item).Node))
             });
-		}
+        }
 
         public ICodeBlock EmitCaughtException(IType Type)
         {
             return NodeBlock.Call(this, ExpressionParsers.CaughtExceptionNodeName, Assembly.TypeTable.GetReference(Type));
         }
 
-		#endregion
+        #endregion
 
-		#region Stack intrinsics
+        #region Stack intrinsics
 
-		public ICodeBlock EmitPush(ICodeBlock Value)
-		{
-			return NodeBlock.Call(this, ExpressionParsers.PushStackName, Value);
-		}
+        public ICodeBlock EmitPush(ICodeBlock Value)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.PushStackName, Value);
+        }
 
-		public ICodeBlock EmitPeek(IType Type)
-		{
-			return NodeBlock.Call(this, ExpressionParsers.PeekStackName, Assembly.TypeTable.GetReference(Type));
-		}
+        public ICodeBlock EmitPeek(IType Type)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.PeekStackName, Assembly.TypeTable.GetReference(Type));
+        }
 
-		public ICodeBlock EmitPop(IType Type)
-		{
-			return NodeBlock.Call(this, ExpressionParsers.PopStackName, Assembly.TypeTable.GetReference(Type));
-		}
+        public ICodeBlock EmitPop(IType Type)
+        {
+            return NodeBlock.Call(this, ExpressionParsers.PopStackName, Assembly.TypeTable.GetReference(Type));
+        }
 
-		#endregion
+        #endregion
     }
 }

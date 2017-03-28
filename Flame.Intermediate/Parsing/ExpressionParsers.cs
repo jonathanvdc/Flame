@@ -134,6 +134,16 @@ namespace Flame.Intermediate.Parsing
         public const string ForNodeName = "#for";
 
         /// <summary>
+        /// Defines a node type for switch statements.
+        /// </summary>
+        /// <remarks>
+        /// Format:
+        ///
+        /// #switch(switch_expr, default_body, #case(exprs..., body)...)
+        /// </remarks>
+        public const string SwitchNodeName = "#switch";
+
+        /// <summary>
         /// Defines a node type for foreach loops.
         /// </summary>
         /// <remarks>
@@ -816,6 +826,44 @@ namespace Flame.Intermediate.Parsing
             return new SelectExpression(ParseExpression(State, Node.Args[0]),
                                         ParseExpression(State, Node.Args[1]),
                                         ParseExpression(State, Node.Args[2]));
+        }
+
+        /// <summary>
+        /// Parses a switch control flow node.
+        /// </summary>
+        /// <param name="State"></param>
+        /// <param name="Node"></param>
+        /// <returns></returns>
+        public static IExpression ParseSwitch(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount < 2)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + SwitchNodeName + "' node",
+                    "'" + SwitchNodeName + "' nodes must have at least two arguments."));
+            }
+
+            var switchExpr = ParseExpression(State, Node.Args[0]);
+            var defaultBody = ToStatement(ParseExpression(State, Node.Args[1]));
+            var switchCases = new List<SwitchCase>();
+            foreach (var caseNode in Node.Args.Slice(2))
+            {
+                if (caseNode.ArgCount < 1)
+                {
+                    return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                        "Invalid '#case' node",
+                        "'#case' nodes must have at least one argument."));
+                }
+
+                var caseConds = new List<IBoundObject>();
+                foreach (var cond in caseNode.Args.Slice(caseNode.ArgCount - 1))
+                {
+                    caseConds.Add(ParseExpression(State, cond).Evaluate());
+                }
+                var caseBody = ToStatement(ParseExpression(State, caseNode.Args.Last));
+                switchCases.Add(new SwitchCase(caseConds, caseBody));
+            }
+            return ToExpression(new SwitchStatement(switchExpr, defaultBody, switchCases));
         }
 
         /// <summary>
@@ -2108,6 +2156,7 @@ namespace Flame.Intermediate.Parsing
                     // Intraprocedural control flow
                     { BlockNodeName, CreateParser(ParseBlock) },
                     { SelectNodeName, CreateParser(ParseSelect) },
+                    { SwitchNodeName, CreateParser(ParseSwitch) },
                     { TaggedNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseTagged) },
                     { WhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseWhile) },
                     { DoWhileNodeName, CreateTaggedNodeParser(GetTaggedNodeTag, ParseDoWhile) },
