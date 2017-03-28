@@ -4,19 +4,66 @@ using System.Text;
 
 namespace Flame.Compiler
 {
-	/// <summary>
-	/// Defines common functionality for code generators that use branches.
-	/// </summary>
-	public interface IBranchingCodeGenerator : ICodeGenerator
-	{
-		/// <summary>
-		/// Creates a code block that marks the given label.
-		/// </summary>
-		ICodeBlock EmitMarkLabel(UniqueTag Label);
+    /// <summary>
+    /// Defines common functionality for code generators that use branches.
+    /// </summary>
+    public interface IBranchingCodeGenerator : ICodeGenerator
+    {
+        /// <summary>
+        /// Creates a code block that marks the given label.
+        /// </summary>
+        ICodeBlock EmitMarkLabel(UniqueTag Label);
 
-		/// <summary>
-		/// Creates a code block that jumps to the given label.
-		/// </summary>
-		ICodeBlock EmitGotoLabel(UniqueTag Label, ICodeBlock Condition);
-	}
+        /// <summary>
+        /// Creates a code block that jumps to the given label.
+        /// </summary>
+        ICodeBlock EmitGotoLabel(UniqueTag Label, ICodeBlock Condition);
+    }
+
+    /// <summary>
+    /// Describes a single case in a switch statement.
+    /// </summary>
+    public struct SwitchCaseBlock
+    {
+        /// <summary>
+        /// Creates a switch case for the given values, with the given body.
+        /// </summary>
+        /// <param name="Values">The values for the switch case.</param>
+        /// <param name="Body">The switch case's body.</param>
+        public this(IReadOnlyList<IBoundObject> Values, ICodeBlock Body)
+        {
+            this.Values = Values;
+            this.Body = Body;
+        }
+
+        /// <summary>
+        /// Gets the list of all values for this switch case.
+        /// </summary>
+        /// <returns>The list of all values for this switch case.</returns>
+        public IReadOnlyList<IBoundObject> Values { get; private set; }
+
+        /// <summary>
+        /// Gets the block that is run if one of this switch case's values match.
+        /// </summary>
+        /// <returns>The switch block's body block.</returns>
+        public ICodeBlock Body { get; private set; }
+    }
+
+    /// <summary>
+    /// Defines common functionality for code generators that support switch statements.
+    /// </summary>
+    public interface ISwitchCodeGenerator : ICodeGenerator
+    {
+        /// <summary>
+        /// Creates a code block that performs a switch statement.
+        /// </summary>
+        /// <param name="SwitchExpression">The expression to switch on.</param>
+        /// <param name="DefaultCaseBody">The default case's body.</param>
+        /// <param name="ConditionalCases">The list of all cases in the switch block.</param>
+        /// <returns>A code block that performs a switch statement.</returns>
+        ICodeBlock EmitSwitch(
+            ICodeBlock SwitchExpression,
+            ICodeBlock DefaultCaseBody,
+            IReadOnlyList<SwitchCaseBlock> ConditionalCases);
+    }
 }
