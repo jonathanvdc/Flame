@@ -11,6 +11,278 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
+    /// Describes a proto-switch: a switch statement this is in the process of being synthesized
+    /// from a control-flow graph.
+    /// </summary>
+    public class ProtoSwitch
+    {
+        public this(
+            IVariable SwitchVariable,
+            UniqueTag DefaultBodyTag,
+            IReadOnlyDictionary<UniqueTag, IReadOnlyList<IBoundObject>> Cases)
+        {
+            this.SwitchVariable = SwitchVariable;
+            this.DefaultBodyTag = DefaultBodyTag;
+            this.Cases = Cases;
+            this.allValues = new HashSet<object>();
+            foreach (var item in Cases)
+            {
+                this.allValues.UnionWith(item.Value);
+            }
+        }
+        private this(
+            IVariable SwitchVariable,
+            UniqueTag DefaultBodyTag,
+            IReadOnlyDictionary<UniqueTag, IReadOnlyList<IBoundObject>> Cases,
+            HashSet<object> allValues)
+        {
+            this.SwitchVariable = SwitchVariable;
+            this.DefaultBodyTag = DefaultBodyTag;
+            this.Cases = Cases;
+            this.allValues = allValues;
+        }
+
+        /// <summary>
+        /// Gets the variable that is being switched on.
+        /// </summary>
+        /// <returns>The variable that is being switched on.</returns>
+        public IVariable SwitchVariable { get; private set; }
+
+        /// <summary>
+        /// Gets the default unique tag of the basic block that contains the default body for
+        /// this proto-switch.
+        /// </summary>
+        /// <returns>The unique tag of this proto-switch's default body basic block.</returns>
+        public UniqueTag DefaultBodyTag { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps basic block tags to the values that have them as cases.
+        /// </summary>
+        /// <returns>A dictionary that maps basic block tags to the values that have them as cases.</returns>
+        public IReadOnlyDictionary<UniqueTag, IReadOnlyList<IBoundObject>> Cases { get; private set; }
+        private HashSet<object> allValues;
+
+        /// <summary>
+        /// Checks if the given proto-switch can be merged with this proto-switch.
+        /// </summary>
+        /// <param name="Other">The proto-switch to test for compatibility.</param>
+        /// <returns>true if the proto-switch is compatible; otherwise, false.</returns>
+        public bool IsCompatible(ProtoSwitch Other)
+        {
+            return SwitchVariable.Equals(Other.SwitchVariable);
+        }
+
+        /// <summary>
+        /// Merges the given proto-switch into this proto-switch as a child.
+        /// </summary>
+        /// <param name="Child">The proto-switch to merge as a child.</param>
+        /// <returns>
+        /// The proto-switch that is the result of merging this proto-switch with the child proto-switch.
+        /// </returns>
+        public ProtoSwitch MergeChild(ProtoSwitch Child)
+        {
+            assert(IsCompatible(Child));
+            var newValues = new HashSet<object>(allValues);
+            var newCases = new Dictionary<UniqueTag, IReadOnlyList<IBoundObject>>();
+            foreach (var item in Cases)
+            {
+                newCases[item.Key] = item.Value;
+            }
+
+            foreach (var item in Child.Cases)
+            {
+                var valueList = new List<IBoundObject>();
+                if (newCases.ContainsKey(item.Key))
+                    valueList.AddRange(newCases[item.Key]);
+
+                foreach (var val in item.Value)
+                {
+                    if (newValues.Add(val.GetObjectValue()))
+                    {
+                        valueList.Add(val);
+                    }
+                }
+
+                newCases[item.Key] = valueList;
+            }
+
+            return new ProtoSwitch(SwitchVariable, Child.DefaultBodyTag, newCases, newValues);
+        }
+    }
+
+    /// <summary>
+    /// A node visitor that finds basic blocks which perform control flow that can best
+    /// be lowered as a switch statement.
+    /// </summary>
+    public class ProtoSwitchMatchingVisitor : FlowGraphVisitorBase
+    {
+        public this()
+        {
+            this.protoSwitchMap = new Dictionary<UniqueTag, ProtoSwitch>();
+        }
+
+        private Dictionary<UniqueTag, ProtoSwitch> protoSwitchMap;
+
+        /// <summary>
+        /// Gets a dictionary that maps basic blocks to the proto-switches they represent.
+        /// </summary>
+        /// <returns></returns>
+        public IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches
+        { 
+            get { return protoSwitchMap; }
+        }
+
+        private IVariable GetVariable(IExpression Expression)
+        {
+            if (Expression is IVariableNode)
+            {
+                var varNode = (IVariableNode)Expression;
+                if (varNode.Action == VariableNodeAction.Get)
+                {
+                    var variable = varNode.GetVariable();
+                    if (variable is LocalVariableBase || variable is ArgumentVariable)
+                    {
+                        return variable;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private ProtoSwitch CreateSelectProtoSwitch(
+            IVariable SwitchVariable, IBoundObject Value,
+            UniqueTag TrueTag, UniqueTag FalseTag)
+        {
+            var caseValList = new List<IBoundObject>();
+            caseValList.Add(Value);
+            var caseDict = new Dictionary<UniqueTag, IReadOnlyList<IBoundObject>>();
+            caseDict[TrueTag] = caseValList;
+            return new ProtoSwitch(SwitchVariable, FalseTag, caseDict);
+        }
+
+        private ProtoSwitch CheckAndBranchesToProtoSwitch(
+            BinaryExpression Expression, BlockBranch TrueBranch, BlockBranch FalseBranch)
+        {
+            if (TrueBranch.Arguments.Count > 0 || FalseBranch.Arguments.Count > 0)
+                return null;
+
+            var lhs = Expression.LeftOperand.GetEssentialExpression();
+            var rhs = Expression.RightOperand.GetEssentialExpression();
+
+            var lhsVar = GetVariable(lhs);
+            if (lhsVar == null)
+            {
+                var rhsVar = GetVariable(rhs);
+                if (rhsVar == null)
+                    return null;
+
+                var lhsVal = lhs.Evaluate();
+                if (lhsVal == null)
+                    return null;
+
+                return CreateSelectProtoSwitch(
+                    rhsVar, lhsVal, TrueBranch.TargetTag, FalseBranch.TargetTag);
+            }
+            
+            var rhsVal = rhs.Evaluate();
+            if (rhsVal == null)
+                return null;
+
+            return CreateSelectProtoSwitch(
+                lhsVar, rhsVal, TrueBranch.TargetTag, FalseBranch.TargetTag);
+        }
+
+        private ProtoSwitch BlockToProtoSwitch(BasicBlock Block)
+        {
+            if (Block.Flow is SelectFlow)
+            {
+                var selFlow = (SelectFlow)Block.Flow;
+                var condExpr = selFlow.Condition.GetEssentialExpression();
+                if (condExpr is EqualityExpression)
+                {
+                    CheckAndBranchesToProtoSwitch(
+                        (EqualityExpression)condExpr, selFlow.ThenBranch, selFlow.ElseBranch);
+                }
+                else if (condExpr is InequalityExpression)
+                {
+                    CheckAndBranchesToProtoSwitch(
+                        (InequalityExpression)condExpr, selFlow.ElseBranch, selFlow.ThenBranch);
+                }
+            }
+            return null;
+        }
+
+        private bool AggregateProtoSwitch(
+            UniqueTag Tag,
+            FlowGraph Graph,
+            Dictionary<UniqueTag, ProtoSwitch> ProtoProtoSwitchMap,
+            Dictionary<UniqueTag, ProtoSwitch> ProtoSwitchResultMap,
+            HashSet<UniqueTag> IneligibleProtoSwitches)
+        {
+            if (ProtoSwitchResultMap.ContainsKey(Tag))
+                return true;
+            else if (IneligibleProtoSwitches.Contains(Tag))
+                return false;
+
+            var protoSwitch = ProtoProtoSwitchMap[Tag];
+            var childTag = protoSwitch.DefaultBodyTag;
+            if (ProtoProtoSwitchMap.ContainsKey(childTag)
+                && childTag != Tag)
+            {
+                var block = Graph.GetBlock(childTag);
+                if (block.Parameters.Count == 0 && block.Contents.IsEmpty)
+                {
+                    ProtoSwitch childSwitch;
+                    if (AggregateProtoSwitch(
+                        childTag, Graph, ProtoProtoSwitchMap,
+                        ProtoSwitchResultMap, IneligibleProtoSwitches))
+                    {
+                        childSwitch = ProtoSwitchResultMap[childTag];
+                    }
+                    else
+                    {
+                        childSwitch = ProtoProtoSwitchMap[childTag];
+                    }
+                    ProtoSwitchResultMap[Tag] = protoSwitch.MergeChild(childSwitch);
+                    return true;
+                }
+            }
+
+            IneligibleProtoSwitches.Add(Tag);
+            return false;
+        }
+
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        protected override FlowGraph Visit(FlowGraph Graph)
+        {
+            VisitFlowGraph(Graph);
+            return Graph;
+        }
+
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        public void VisitFlowGraph(FlowGraph Graph)
+        {
+            var protoProtoSwitchMap = new Dictionary<UniqueTag, ProtoSwitch>();
+            foreach (var block in Graph.Blocks)
+            {
+                var protoSwitch = BlockToProtoSwitch(block);
+                if (protoSwitch != null)
+                    protoProtoSwitchMap[block.Tag] = protoSwitch;
+            }
+
+            var ineligibleSwitches = new HashSet<UniqueTag>();
+            foreach (var item in protoProtoSwitchMap)
+            {
+                AggregateProtoSwitch(item.Key, Graph, protoProtoSwitchMap, protoSwitchMap, ineligibleSwitches);
+            }
+        }
+    }
+
+    /// <summary>
     /// A class that constructs a fairly linear tree of instructions
     /// that use branches to model basic block flow. This is used in
     /// conjunction with DeconstructFlowGraphPass.
@@ -148,12 +420,13 @@ namespace Flame.Optimization
         /// </summary>
         private void EmitJumpToBlock(
             UniqueTag TargetTag, FlowGraph Graph,
-            LinearLabelFlowBuilder FlowBuilder)
+            LinearLabelFlowBuilder FlowBuilder,
+            IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches)
         {
             if (!FlowBuilder.HasPlaced(TargetTag))
             {
                 // Just fall through.
-                EmitBlock(TargetTag, Graph, FlowBuilder);
+                EmitBlock(TargetTag, Graph, FlowBuilder, ProtoSwitches);
             }
             else
             {
@@ -164,7 +437,8 @@ namespace Flame.Optimization
 
         private void EmitBlock(
             UniqueTag BlockTag, FlowGraph Graph,
-            LinearLabelFlowBuilder FlowBuilder)
+            LinearLabelFlowBuilder FlowBuilder,
+            IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches)
         {
             if (FlowBuilder.HasPlaced(BlockTag))
             {
@@ -178,7 +452,7 @@ namespace Flame.Optimization
             if (flow is JumpFlow)
             {
                 var targetTag = ((JumpFlow)flow).Branch.TargetTag;
-                EmitJumpToBlock(targetTag, Graph, FlowBuilder);
+                EmitJumpToBlock(targetTag, Graph, FlowBuilder, ProtoSwitches);
             }
             else if (flow is SelectFlow)
             {
@@ -189,14 +463,14 @@ namespace Flame.Optimization
                     !FlowBuilder.HasPlaced(thenTag))
                 {
                     FlowBuilder.EmitBranch(elseTag, new NotExpression(selFlow.Condition).Simplify());
-                    EmitJumpToBlock(thenTag, Graph, FlowBuilder);
-                    EmitBlock(elseTag, Graph, FlowBuilder);
+                    EmitJumpToBlock(thenTag, Graph, FlowBuilder, ProtoSwitches);
+                    EmitBlock(elseTag, Graph, FlowBuilder, ProtoSwitches);
                 }
                 else
                 {
                     FlowBuilder.EmitBranch(thenTag, selFlow.Condition);
-                    EmitJumpToBlock(elseTag, Graph, FlowBuilder);
-                    EmitBlock(thenTag, Graph, FlowBuilder);
+                    EmitJumpToBlock(elseTag, Graph, FlowBuilder, ProtoSwitches);
+                    EmitBlock(thenTag, Graph, FlowBuilder, ProtoSwitches);
                 }
             }
             else if (flow is ExitFlow)
@@ -214,8 +488,10 @@ namespace Flame.Optimization
 
         private IStatement VisitFlowGraph(FlowGraph Graph)
         {
+            var switchMatchingVisitor = new ProtoSwitchMatchingVisitor();
+            switchMatchingVisitor.VisitFlowGraph(Graph);
             var flowBuilder = new LinearLabelFlowBuilder();
-            EmitBlock(Graph.EntryPointTag, Graph, flowBuilder);
+            EmitBlock(Graph.EntryPointTag, Graph, flowBuilder, switchMatchingVisitor.ProtoSwitches);
             flowBuilder.MarkExit();
             return flowBuilder.Result;
         }
