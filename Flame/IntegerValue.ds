@@ -85,6 +85,38 @@ namespace Flame
         public BigInteger AllOnes { get; private set; }
 
         /// <summary>
+        /// Gets the signed variant of this integer spec, that is, a signed integer spec
+        /// of the same size as this integer spec.
+        /// </summary>
+        /// <returns>A signed integer spec of the same size as this integer spec.</returns>
+        public IntegerSpec SignedVariant
+        {
+            get
+            {
+                if (IsSigned)
+                    return this;
+                else
+                    return new IntegerSpec(Size, true);
+            }
+        }
+
+        /// <summary>
+        /// Gets the unsigned variant of this integer spec, that is, an unsigned integer spec
+        /// of the same size as this integer spec.
+        /// </summary>
+        /// <returns>An unsigned integer spec of the same size as this integer spec.</returns>
+        public IntegerSpec UnsignedVariant
+        {
+            get
+            {
+                if (IsSigned)
+                    return new IntegerSpec(Size, false);
+                else
+                    return this;
+            }
+        }
+
+        /// <summary>
         /// Checks if the given integer is representible by an integer
         /// value that adheres to this spec.
         /// </summary>
