@@ -580,22 +580,24 @@ namespace Flame.Compiler.Statements
             var zero = new IntegerValue(BigInteger.Zero, bitTestIntType.GetIntegerSpec());
             var one = new IntegerValue(BigInteger.One, bitTestIntType.GetIntegerSpec());
 
-            // uint relativeSwitchVal = (uint)switchExpr - (uint)Span.MinValue;
+            var unsignedSwitchVarType = PrimitiveTypes.GetUIntType(
+                SwitchVariable.Type.GetIntegerSpec().Size);
+            // uint relativeSwitchVal = (uint_x)switchExpr - (uint_x)Span.MinValue;
             IExpression relativeSwitchVal = new StaticCastExpression(
-                SwitchVariable.CreateGetExpression(), PrimitiveTypes.UInt32).Simplify();
+                SwitchVariable.CreateGetExpression(), unsignedSwitchVarType).Simplify();
             if (!Span.MinValue.Value.Equals(BigInteger.Zero))
             {
-                var relativeSwitchVar = new RegisterVariable(PrimitiveTypes.UInt32);
+                var relativeSwitchVar = new RegisterVariable(unsignedSwitchVarType);
                 statements.Add(
                     relativeSwitchVar.CreateSetStatement(
                         new SubtractExpression(
                             relativeSwitchVal,
                             new StaticCastExpression(
-                                new IntegerExpression(Span.MinValue), PrimitiveTypes.UInt32).Simplify())));
+                                new IntegerExpression(Span.MinValue), unsignedSwitchVarType).Simplify())));
                 relativeSwitchVal = relativeSwitchVar.CreateGetExpression();
             }
 
-            // if (relativeSwitchVal > Span.ValueRange) goto default;
+            // if (relativeSwitchVal > (uint_x)Span.ValueRange) goto default;
             statements.Add(
                 new GotoLabelStatement(
                     DefaultCaseLabel,
@@ -603,10 +605,12 @@ namespace Flame.Compiler.Statements
                         relativeSwitchVal,
                         new StaticCastExpression(
                             new IntegerExpression(Span.ValueRange),
-                            PrimitiveTypes.UInt32).Simplify())));
+                            unsignedSwitchVarType).Simplify())));
 
-            // var shiftedVal = (bitTestIntType)1 << relativeSwitchVal;
-            IExpression shiftedVal = new LeftShiftExpression(new IntegerExpression(one), relativeSwitchVal);
+            // var shiftedVal = (bitTestIntType)1 << (uint)relativeSwitchVal;
+            IExpression shiftedVal = new LeftShiftExpression(
+                new IntegerExpression(one),
+                new StaticCastExpression(relativeSwitchVal, PrimitiveTypes.UInt32).Simplify());
             if (Span.Cases.Count > 1)
             {
                 var shiftVar = new RegisterVariable("shiftedVal", bitTestIntType);
