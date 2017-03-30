@@ -1,0 +1,25 @@
+using System;
+
+public module Program
+{
+    private void LinearSwitch(int y)
+    {
+        if (y == 1 || y == 2)
+            Console.WriteLine("LinearSwitch");
+    }
+
+    private void BitSwitch(int y)
+    {
+        if (y == 1 || y == 2 || y == 3 || y == 64)
+            Console.WriteLine("BitSwitch");
+    }
+
+    public void Main()
+    {
+        LinearSwitch(2);
+        LinearSwitch(90);
+        BitSwitch(64);
+        BitSwitch(8);
+        BitSwitch(90);
+    }
+}
