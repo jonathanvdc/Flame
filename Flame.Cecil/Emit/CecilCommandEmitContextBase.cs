@@ -380,6 +380,14 @@ namespace Flame.Cecil.Emit
             QueueInsert(branch);
         }
 
+        public void Emit(OpCode OpCode, IReadOnlyList<IEmitLabel> Labels)
+        {
+            var instr = Processor.Create(Mono.Cecil.Cil.OpCodes.Nop);
+            Processor.Append(instr);
+            var switchInsert = new SwitchInsert(instr, Labels.Cast<CecilLabel>().ToArray());
+            QueueInsert(switchInsert);
+        }
+
         public IEmitLabel CreateLabel()
         {
             var lbl = new CecilLabel();
@@ -487,6 +495,48 @@ namespace Flame.Cecil.Emit
                 var nextInstr = Label.NextInstruction;
                 Target.Operand = nextInstr;
                 EmitContext.MarkBranchTarget(nextInstr);
+            }
+        }
+
+        private struct SwitchInsert : IInsertable
+        {
+            public SwitchInsert(Mono.Cecil.Cil.Instruction Target, CecilLabel[] Labels)
+            {
+                this.Target = Target;
+                this.Labels = Labels;
+            }
+
+            public Mono.Cecil.Cil.Instruction Target;
+            public CecilLabel[] Labels;
+
+            public bool CanInsert => Labels.All(item => item.IsMarked);
+
+            public void Delete(CecilCommandEmitContextBase Context)
+            {
+                Target.OpCode = OpCodes.Pop;
+            }
+
+            public void Insert(CecilCommandEmitContextBase Context)
+            {
+                Target.OpCode = OpCodes.Switch;
+                var targets = Labels.Select(item => item.NextInstruction).ToArray();
+                Target.Operand = targets;
+                foreach (var item in targets)
+                {
+                    Context.MarkBranchTarget(item);
+                }
+            }
+
+            public bool IsProtected(Instruction Instr)
+            {
+                foreach (var lbl in Labels)
+                {
+                    if (lbl.NextInstruction == Instr || lbl.NextInstruction != null && lbl.NextInstruction.Previous == Instr)
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 

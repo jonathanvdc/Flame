@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 namespace Flame.Cecil.Emit
 {
     public class ILCodeGenerator : IBranchingCodeGenerator, IUnmanagedCodeGenerator,
-                                   IExceptionCodeGenerator, IStackCodeGenerator
+                                   IExceptionCodeGenerator, IStackCodeGenerator,
+                                   IJumpTableCodeGenerator
     {
         public ILCodeGenerator(IMethod Method)
         {
@@ -130,6 +131,18 @@ namespace Flame.Cecil.Emit
         public ICodeBlock EmitMarkLabel(UniqueTag Tag)
         {
             return GetLabel(Tag).EmitMark();
+        }
+
+        /// <summary>
+        /// Creates a code block that jumps to an index in the given list of labels. If the
+        /// index is out of range, then control proceeds to the next block.
+        /// </summary>
+        /// <param name="TableIndex">The index in the table of the label to jump to.</param>
+        /// <param name="TableLabels">The table's contents, as a list of labels.</param>
+        /// <returns></returns>
+        public ICodeBlock EmitJumpTable(ICodeBlock TableIndex, IReadOnlyList<UniqueTag> TableLabels)
+        {
+            return new JumpTableBlock((ICecilBlock)TableIndex, TableLabels.Select(GetLabel).ToArray());
         }
 
         public ILLabel GetLabel(UniqueTag Tag)

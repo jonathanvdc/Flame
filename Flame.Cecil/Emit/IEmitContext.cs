@@ -35,6 +35,9 @@ namespace Flame.Cecil.Emit
         void Emit(OpCode Opcode, CallSite Arg);
 
         void Emit(OpCode OpCode, IEmitLabel Label);
+
+        void Emit(OpCode OpCode, IReadOnlyList<IEmitLabel> Labels);
+
         void Emit(OpCode OpCode, IEmitLocal Local);
 
         void Emit(OpCode OpCode, IMethod Method);

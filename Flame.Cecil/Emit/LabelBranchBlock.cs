@@ -61,4 +61,33 @@ namespace Flame.Cecil.Emit
             get { return Label.CodeGenerator; }
         }
     }
+
+    public class JumpTableBlock : ICecilBlock
+    {
+        public JumpTableBlock(ICecilBlock Index, IReadOnlyList<ILLabel> Labels)
+        {
+            this.Index = Index;
+            this.Labels = Labels;
+        }
+
+        public ICecilBlock Index { get; private set; }
+        public IReadOnlyList<ILLabel> Labels { get; private set; }
+
+        public void Emit(IEmitContext Context)
+        {
+            Index.Emit(Context);
+            Context.Stack.Pop();
+            Context.Emit(OpCodes.Switch, Labels.Select(item => item.GetEmitLabel(Context)).ToArray());
+        }
+
+        public IType BlockType
+        {
+            get { return PrimitiveTypes.Void; }
+        }
+
+        public ICodeGenerator CodeGenerator
+        {
+            get { return Index.CodeGenerator; }
+        }
+    }
 }
