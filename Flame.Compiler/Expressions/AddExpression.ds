@@ -41,7 +41,7 @@ namespace Flame.Compiler.Expressions
             return null;
         }
 
-        public override const IExpression Optimize()
+        public override IExpression Optimize()
         {
             var optA = LeftOperand.Optimize();
             var optB = RightOperand.Optimize();

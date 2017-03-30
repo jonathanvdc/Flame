@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Flame.Compiler.Emit;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
@@ -73,6 +75,50 @@ namespace Flame.Compiler.Statements
         {
             return new SwitchCase(Values, Visitor.Visit(Body));
         }
+    }
+
+    /// <summary>
+    /// Describes a case span: a list of integer switch cases with values in a specific range.
+    /// </summary>
+    public struct IntegerCaseSpan
+    {
+        public this(IntegerValue MinValue, IntegerValue MaxValue, int ValueCount, IReadOnlyList<SwitchCase> Cases)
+        {
+            this.MinValue = MinValue;
+            this.MaxValue = MaxValue;
+            this.ValueCount = ValueCount;
+            this.Cases = Cases;
+        }
+
+        /// <summary>
+        /// Gets the lowest value in this case span.
+        /// </summary>
+        /// <returns>The lowest value in this case span.</returns>
+        public IntegerValue MinValue { get; private set; }
+
+        /// <summary>
+        /// Gets the highest value in this case span.
+        /// </summary>
+        /// <returns>The highest value in this case span.</returns>
+        public IntegerValue MaxValue { get; private set; }
+
+        /// <summary>
+        /// Gets the length of this span's [min, max] range.
+        /// </summary>
+        /// <returns>The length of the [min, max] range.</returns>
+        public IntegerValue ValueRange { get { return MaxValue.Subtract(MinValue); } }
+
+        /// <summary>
+        /// Gets the total number of values in this case span.
+        /// </summary>
+        /// <returns>The total number of values in this case span.</returns>
+        public int ValueCount { get; private set; }
+
+        /// <summary>
+        /// Gets the list of cases in this case span.
+        /// </summary>
+        /// <returns>The list of cases in this case span.</returns>
+        public IReadOnlyList<SwitchCase> Cases { get; private set; }
     }
 
     /// <summary>
@@ -168,20 +214,20 @@ namespace Flame.Compiler.Statements
         /// <returns>A statement that is composed of a chain of if-else statements.</returns>
         public IStatement ToIfElseChain()
         {
-            var switchExprVar = new RegisterVariable("switch_var", SwitchExpression.Type);
+            var switchVarPair = GetOrCreateSwitchVar();
             var chain = DefaultCaseBody;
             for (int i = ConditionalCases.Count - 1; i >= 0; i--)
             {
                 var condCase = ConditionalCases[i];
                 chain = new IfElseStatement(
                     condCase.CreateCheckMatchExpression(
-                        switchExprVar.CreateGetExpression()),
+                        switchVarPair.Key.CreateGetExpression()),
                     condCase.Body,
                     chain);
             }
             return new BlockStatement(new IStatement[]
             {
-                switchExprVar.CreateSetStatement(SwitchExpression),
+                switchVarPair.Value,
                 chain
             });
         }
@@ -237,28 +283,32 @@ namespace Flame.Compiler.Statements
 
             foreach (var switchCase in ConditionalCases)
             {
-                if (switchCase.Body.IsEmpty)
+                if (switchCase.Values.Count > 0)
                 {
-                    emptyVals.AddRange(switchCase.Values);
-                }
-                else if (switchCase.Body is GotoLabelStatement)
-                {
-                    var label = ((GotoLabelStatement)switchCase.Body).Label;
-                    List<IBoundObject> labelVals;
-                    if (!gotoVals.TryGetValue(label, &labelVals))
+                    if (switchCase.Body.IsEmpty)
                     {
-                        labelVals = new List<IBoundObject>();
-                        gotoVals[label] = labelVals;
+                        emptyVals.AddRange(switchCase.Values);
                     }
-                    labelVals.AddRange(switchCase.Values);
-                }
-                else
-                {
-                    newCases.Add(switchCase);
+                    else if (switchCase.Body is GotoLabelStatement
+                        && ((GotoLabelStatement)switchCase.Body).Condition.EvaluatesTo<bool>(true))
+                    {
+                        var label = ((GotoLabelStatement)switchCase.Body).Label;
+                        List<IBoundObject> labelVals;
+                        if (!gotoVals.TryGetValue(label, &labelVals))
+                        {
+                            labelVals = new List<IBoundObject>();
+                            gotoVals[label] = labelVals;
+                        }
+                        labelVals.AddRange(switchCase.Values);
+                    }
+                    else
+                    {
+                        newCases.Add(switchCase);
+                    }
                 }
             }
 
-            if (emptyVals.Count == 0 && gotoVals.Count == 0)
+            if (newCases.Count == ConditionalCases.Count)
                 return this;
 
             if (emptyVals.Count > 0)
@@ -302,10 +352,302 @@ namespace Flame.Compiler.Statements
                 foreach (var switchCase in ConditionalCases)
                     caseBlocks.Add(switchCase);
 
-                ((ISwitchCodeGenerator)Generator).EmitSwitch(cond, defaultBody, caseBlocks);
+                return ((ISwitchCodeGenerator)Generator).EmitSwitch(cond, defaultBody, caseBlocks);
+            }
+
+            if (Generator is IBranchingCodeGenerator && SwitchExpression.Type.IsInteger)
+            {
+                return EmitIntegerSwitch((IBranchingCodeGenerator)Generator);
             }
 
             return ToIfElseChain().Emit(Generator);
+        }
+
+        private KeyValuePair<IVariable, IStatement> GetOrCreateSwitchVar()
+        {
+            if (SwitchExpression is IVariableNode)
+            {
+                var varNode = (IVariableNode)SwitchExpression;
+                if (varNode.Action == VariableNodeAction.Get)
+                {
+                    var variable = varNode.GetVariable();
+                    if (variable is ArgumentVariable
+                        || variable is LocalVariableBase)
+                    {
+                        return new KeyValuePair<IVariable, IStatement>(variable, EmptyStatement);
+                    }
+                }
+            }
+            var switchExprVar = new RegisterVariable("switch_var", SwitchExpression.Type);
+            return new KeyValuePair<IVariable, IStatement>(
+                switchExprVar, switchExprVar.CreateSetStatement(SwitchExpression));
+        }
+
+        private KeyValuePair<UniqueTag, IStatement> GetOrCreateDefaultLabel()
+        {
+            var essentialDefaultStmt = DefaultCaseBody.GetEssentialStatement();
+            if (essentialDefaultStmt is GotoLabelStatement)
+            {
+                var gotoStmt = (GotoLabelStatement)essentialDefaultStmt;
+                if (gotoStmt.Condition.EvaluatesTo<bool>(true))
+                {
+                    return new KeyValuePair<UniqueTag, IStatement>(gotoStmt.Label, EmptyStatement);
+                }
+            }
+            var defaultCaseLabel = new UniqueTag("default");
+            return new KeyValuePair<UniqueTag, IStatement>(
+                defaultCaseLabel, new MarkLabelStatement(defaultCaseLabel));
+        }
+
+        private ICodeBlock EmitIntegerSwitch(IBranchingCodeGenerator Generator)
+        {
+            var defaultCaseLabelPair = GetOrCreateDefaultLabel();
+            var endSwitchLabel = new UniqueTag("switch_end");
+
+            var switchVarPair = GetOrCreateSwitchVar();
+
+            // Evaluate the switch expression and stuff it in a variable.
+            var result = switchVarPair.Value.Emit(Generator);
+            // Emit the cases.
+            result = Generator.EmitSequence(
+                result, EmitIntegerCases(
+                    Generator, switchVarPair.Key, ConditionalCases,
+                    defaultCaseLabelPair.Key, endSwitchLabel));
+            // Mark the default statement.
+            result = Generator.EmitSequence(
+                result, defaultCaseLabelPair.Value.Emit(Generator));
+            // Emit the default statement.
+            result = Generator.EmitSequence(
+                result, DefaultCaseBody.Emit(Generator));
+            // Fall through to the exit, and mark the exit.
+            result = Generator.EmitSequence(
+                result, new MarkLabelStatement(endSwitchLabel).Emit(Generator));
+            return result;
+        }
+
+        private IntegerCaseSpan ToIntegerCaseSpan(IReadOnlyList<SwitchCase> Cases)
+        {
+            IntegerValue min = Cases[0].Values[0].GetValue<IntegerValue>();
+            IntegerValue max = min;
+            int valueCount = 0;
+            foreach (var item in Cases)
+            {
+                foreach (var val in item.Values)
+                {
+                    var intVal = val.GetValue<IntegerValue>();
+                    if (intVal.CompareTo(min) < 0)
+                        min = intVal;
+                    else if (intVal.CompareTo(max) > 0)
+                        max = intVal;
+
+                    valueCount++;
+                }
+            }
+            return new IntegerCaseSpan(min, max, valueCount, Cases);
+        }
+
+        private ICodeBlock EmitIntegerCases(
+            IBranchingCodeGenerator Generator,
+            IVariable SwitchVariable,
+            IReadOnlyList<SwitchCase> Cases,
+            UniqueTag DefaultCaseLabel,
+            UniqueTag EndSwitchLabel)
+        {
+            // This algorithm is based on the switch-lowering algorithm described in
+            // "Improving Switch Lowering for The LLVM Compiler System" by Anton Korobeynikov
+            // (http://llvm.org/pubs/2007-05-31-Switch-Lowering.pdf)
+
+            var result = Generator.EmitVoid();
+            var worklist = new Stack<IReadOnlyList<SwitchCase>>();
+            worklist.Push(Cases);
+            while (worklist.Count > 0)
+            {
+                var caseSpan = ToIntegerCaseSpan(worklist.Pop());
+                if (ShouldBitTestSwitch(caseSpan))
+                {
+                    result = Generator.EmitSequence(
+                        result,
+                        CreateBitTestSwitch(
+                            SwitchVariable, caseSpan,
+                            DefaultCaseLabel, EndSwitchLabel).Emit(Generator));
+                }
+                else
+                {
+                    result = Generator.EmitSequence(
+                        result,
+                        CreateIfElseSwitch(
+                            SwitchVariable, caseSpan,
+                            DefaultCaseLabel, EndSwitchLabel).Emit(Generator));
+                }
+            }
+            return result;
+        }
+
+        private bool ShouldBitTestSwitch(IntegerCaseSpan Span)
+        {
+            // If the span's range is at least 64 then we can't use a bit mask.
+            if (Span.ValueRange.CompareTo(new IntegerValue(64)) >= 0)
+                return false;
+
+            // We know that we can use bit tests for this range and we can now
+            // decide if it's actually a good idea to do so.
+            var caseCount = Span.Cases.Count;
+            return (caseCount == 1 && Span.ValueCount >= 3)
+                || (caseCount == 2 && Span.ValueCount >= 5)
+                || (caseCount == 3 && Span.ValueCount >= 6);
+        }
+
+        private IType GetBitTestIntegerType(IntegerCaseSpan Span, IType SuggestedType)
+        {
+            var bitCount = SuggestedType.GetIntegerSpec().Size;
+            if (Span.ValueRange.CompareTo(new IntegerValue(bitCount)) < 0)
+                return SuggestedType;
+            else if (Span.ValueRange.CompareTo(new IntegerValue(32)) < 0)
+                return PrimitiveTypes.Int32;
+            else
+                return PrimitiveTypes.Int64;
+        }
+
+        private KeyValuePair<UniqueTag, IStatement> MarkAndPlaceCase(
+            IExpression Condition,
+            IStatement CaseBody,
+            UniqueTag EndSwitchLabel)
+        {
+            var essentialBody = CaseBody.GetEssentialStatement();
+            if (essentialBody is GotoLabelStatement)
+            {
+                var bodyJump = (GotoLabelStatement)essentialBody;
+                if (bodyJump.Condition.EvaluatesTo<bool>(true))
+                {
+                    return new KeyValuePair<UniqueTag, IStatement>(
+                        bodyJump.Label,
+                        new GotoLabelStatement(bodyJump.Label, Condition));
+                }
+            }
+
+            var caseLabel = new UniqueTag();
+            var elseLabel = new UniqueTag();
+            return new KeyValuePair<UniqueTag, IStatement>(
+                caseLabel,
+                new BlockStatement(new IStatement[]
+                {
+                    new GotoLabelStatement(elseLabel, new NotExpression(Condition).Simplify()),
+                    new MarkLabelStatement(caseLabel),
+                    CaseBody,
+                    CreateExitSwitchJump(EndSwitchLabel),
+                    new MarkLabelStatement(elseLabel)
+                }));
+        }
+
+        private IStatement PlaceCase(
+            IExpression Condition,
+            IStatement CaseBody,
+            UniqueTag EndSwitchLabel)
+        {
+            return MarkAndPlaceCase(Condition, CaseBody, EndSwitchLabel).Value;
+        }
+
+        /// <summary>
+        /// Creates a statement that lowers the given span of integer cases as a
+        /// sequence of integer bit tests.
+        /// </summary>
+        /// <param name="SwitchVariable">The variable that contains the switch value.</param>
+        /// <param name="Span">The span of integer cases.</param>
+        /// <param name="DefaultCaseLabel">The label of the default case.</param>
+        /// <param name="EndSwitchLabel">A label that is placed just after the switch statement.</param>
+        /// <returns></returns>
+        private IStatement CreateBitTestSwitch(
+            IVariable SwitchVariable,
+            IntegerCaseSpan Span,
+            UniqueTag DefaultCaseLabel,
+            UniqueTag EndSwitchLabel)
+        {
+            var bitTestIntType = GetBitTestIntegerType(Span, SwitchVariable.Type);
+            var statements = new List<IStatement>();
+            var zero = new IntegerValue(BigInteger.Zero, bitTestIntType.GetIntegerSpec());
+            var one = new IntegerValue(BigInteger.One, bitTestIntType.GetIntegerSpec());
+
+            IExpression relativeSwitchVal = SwitchVariable.CreateGetExpression();
+            if (Span.MinValue.Value.Equals(BigInteger.Zero))
+            {
+                relativeSwitchVal = new SubtractExpression(
+                    SwitchVariable.CreateGetExpression(),
+                    new IntegerExpression(Span.MinValue));
+            }
+
+            IExpression shiftedVal = new LeftShiftExpression(
+                new IntegerExpression(one),
+                new StaticCastExpression(relativeSwitchVal, PrimitiveTypes.Int32).Simplify());
+            if (Span.Cases.Count > 1)
+            {
+                var shiftVar = new RegisterVariable("shiftedVal", bitTestIntType);
+                statements.Add(shiftVar.CreateSetStatement(shiftedVal));
+                shiftedVal = shiftVar.CreateGetExpression();
+            }
+
+            foreach (var item in Span.Cases)
+            {
+                var mask = zero;
+                foreach (var val in item.Values)
+                {
+                    var intVal = val.GetValue<IntegerValue>();
+                    mask = mask.BitwiseOr(one.ShiftLeft(intVal.Subtract(Span.MinValue)));
+                }
+
+                statements.Add(PlaceCase(
+                    new InequalityExpression(
+                        new AndExpression(shiftedVal, new IntegerExpression(mask)),
+                        new IntegerExpression(zero)),
+                    item.Body, EndSwitchLabel));
+            }
+            statements.Add(new GotoLabelStatement(DefaultCaseLabel));
+            return new BlockStatement(statements);
+        }
+
+        /// <summary>
+        /// Creates a statement that lowers the given span of integer cases as a
+        /// sequence of equality tests.
+        /// </summary>
+        /// <param name="SwitchVariable">The variable that contains the switch value.</param>
+        /// <param name="Span">The span of integer cases.</param>
+        /// <param name="DefaultCaseLabel">The label of the default case.</param>
+        /// <param name="EndSwitchLabel">A label that is placed just after the switch statement.</param>
+        /// <returns></returns>
+        private IStatement CreateIfElseSwitch(
+            IVariable SwitchVariable,
+            IntegerCaseSpan Span,
+            UniqueTag DefaultCaseLabel,
+            UniqueTag EndSwitchLabel)
+        {
+            var statements = new List<IStatement>();
+            foreach (var item in Span.Cases)
+            {
+                var firstVal = item.Values[0];
+                var casePair = MarkAndPlaceCase(
+                    new EqualityExpression(SwitchVariable.CreateGetExpression(), firstVal.ToExpression()),
+                    item.Body, EndSwitchLabel);
+                var caseLabel = casePair.Key;
+                statements.Add(casePair.Value);
+                foreach (var val in item.Values)
+                {
+                    statements.Add(new GotoLabelStatement(
+                        caseLabel,
+                        new EqualityExpression(
+                            SwitchVariable.CreateGetExpression(), val.ToExpression())));
+                }
+            }
+            statements.Add(new GotoLabelStatement(DefaultCaseLabel));
+            return new BlockStatement(statements);
+        }
+
+        /// <summary>
+        /// Creates a jump to the given label, which is placed just after the switch statement.
+        /// </summary>
+        /// <param name="EndSwitchLabel"></param>
+        /// <returns></returns>
+        protected virtual IStatement CreateExitSwitchJump(UniqueTag EndSwitchLabel)
+        {
+            return new GotoLabelStatement(EndSwitchLabel);
         }
     }
 }
