@@ -82,6 +82,25 @@ namespace Flame.Compiler.Statements
     /// </summary>
     public struct IntegerCaseSpan
     {
+        public this(IReadOnlyList<SwitchCase> Cases)
+        {
+            this.Cases = Cases;
+            MinValue = Cases[0].Values[0].GetValue<IntegerValue>();
+            MaxValue = MinValue;
+            foreach (var item in Cases)
+            {
+                foreach (var val in item.Values)
+                {
+                    var intVal = val.GetValue<IntegerValue>();
+                    if (intVal.CompareTo(MinValue) < 0)
+                        MinValue = intVal;
+                    else if (intVal.CompareTo(MaxValue) > 0)
+                        MaxValue = intVal;
+
+                    ValueCount++;
+                }
+            }
+        }
         public this(IntegerValue MinValue, IntegerValue MaxValue, int ValueCount, IReadOnlyList<SwitchCase> Cases)
         {
             this.MinValue = MinValue;
@@ -119,6 +138,104 @@ namespace Flame.Compiler.Statements
         /// </summary>
         /// <returns>The list of cases in this case span.</returns>
         public IReadOnlyList<SwitchCase> Cases { get; private set; }
+
+        private void AppendCaseToTree(
+            IntegerValue Value, IStatement Body,
+            Dictionary<IStatement, List<IBoundObject>> Tree)
+        {
+            List<IBoundObject> valList;
+            if (!Tree.TryGetValue(Body, &valList))
+            {
+                valList = new List<IBoundObject>();
+                Tree[Body] = valList;
+            }
+
+            valList.Add(new IntegerExpression(Value));
+        }
+
+        /// <summary>
+        /// Splits this span of integer switch cases into two.
+        /// </summary>
+        /// <returns>A (left span, pivot, right span) tuple.</returns>
+        public Tuple<IntegerCaseSpan, IntegerValue, IntegerCaseSpan> Split()
+        {
+            // Uncluster this span's cases and sort the individual cases.
+            var valMap = new SortedDictionary<IntegerValue, IStatement>();
+            foreach (var item in Cases)
+            {
+                foreach (var val in item.Values)
+                {
+                    valMap[val.GetValue<IntegerValue>()] = item.Body;
+                }
+            }
+
+            // Split this span into two (clustered) subtrees.
+            int pivotIndex = valMap.Count / 2;
+            var leftTree = new Dictionary<IStatement, List<IBoundObject>>();
+            var rightTree = new Dictionary<IStatement, List<IBoundObject>>();
+            var pivot = default(IntegerValue);
+            int i = 0;
+            foreach (var pair in valMap)
+            {
+                if (i <= pivotIndex)
+                    AppendCaseToTree(pair.Key, pair.Value, leftTree);
+                else
+                    AppendCaseToTree(pair.Key, pair.Value, rightTree);
+
+                if (pivotIndex == i)
+                    pivot = pair.Key;
+
+                i++;
+            }
+
+            var leftCases = new List<SwitchCase>();
+            var rightCases = new List<SwitchCase>();
+            foreach (var pair in leftTree)
+            {
+                List<IBoundObject> rightList;
+                if (rightTree.TryGetValue(pair.Key, &rightList))
+                {
+                    // We've split a case cluster across the two trees.
+                    if (pair.Key is GotoLabelStatement
+                        && ((GotoLabelStatement)pair.Key).Condition.EvaluatesTo<bool>(true))
+                    {
+                        // The case body is an unconditional jump, which we might as well duplicate.
+                        leftCases.Add(new SwitchCase(pair.Value, pair.Key));
+                        rightCases.Add(new SwitchCase(rightList, pair.Key));
+                    }
+                    else
+                    {
+                        // Replace the part of the cluster spread across the right tree
+                        // with a jump to the part of the cluster cluster in the left tree.
+                        var caseLabel = new UniqueTag();
+                        leftCases.Add(
+                            new SwitchCase(
+                                pair.Value,
+                                new BlockStatement(
+                                    new IStatement[] { new MarkLabelStatement(caseLabel), pair.Key })));
+                        rightCases.Add(
+                            new SwitchCase(
+                                rightList,
+                                new GotoLabelStatement(caseLabel)));
+                    }
+                    rightTree.Remove(pair.Key);
+                }
+                else
+                {
+                    leftCases.Add(new SwitchCase(pair.Value, pair.Key));
+                }
+            }
+
+            foreach (var pair in rightTree)
+            {
+                rightCases.Add(new SwitchCase(pair.Value, pair.Key));
+            }
+
+            return new Tuple<IntegerCaseSpan, IntegerValue, IntegerCaseSpan>(
+                new IntegerCaseSpan(leftCases),
+                pivot,
+                new IntegerCaseSpan(rightCases));
+        }
     }
 
     /// <summary>
@@ -410,9 +527,9 @@ namespace Flame.Compiler.Statements
             var result = switchVarPair.Value.Emit(Generator);
             // Emit the cases.
             result = Generator.EmitSequence(
-                result, EmitIntegerCases(
-                    Generator, switchVarPair.Key, ConditionalCases,
-                    defaultCaseLabelPair.Key, endSwitchLabel));
+                result, PlaceIntegerCases(
+                    switchVarPair.Key, new IntegerCaseSpan(ConditionalCases),
+                    defaultCaseLabelPair.Key, endSwitchLabel).Emit(Generator));
             // Mark the default statement.
             result = Generator.EmitSequence(
                 result, defaultCaseLabelPair.Value.Emit(Generator));
@@ -425,31 +542,9 @@ namespace Flame.Compiler.Statements
             return result;
         }
 
-        private IntegerCaseSpan ToIntegerCaseSpan(IReadOnlyList<SwitchCase> Cases)
-        {
-            IntegerValue min = Cases[0].Values[0].GetValue<IntegerValue>();
-            IntegerValue max = min;
-            int valueCount = 0;
-            foreach (var item in Cases)
-            {
-                foreach (var val in item.Values)
-                {
-                    var intVal = val.GetValue<IntegerValue>();
-                    if (intVal.CompareTo(min) < 0)
-                        min = intVal;
-                    else if (intVal.CompareTo(max) > 0)
-                        max = intVal;
-
-                    valueCount++;
-                }
-            }
-            return new IntegerCaseSpan(min, max, valueCount, Cases);
-        }
-
-        private ICodeBlock EmitIntegerCases(
-            IBranchingCodeGenerator Generator,
+        private IStatement PlaceIntegerCases(
             IVariable SwitchVariable,
-            IReadOnlyList<SwitchCase> Cases,
+            IntegerCaseSpan Span,
             UniqueTag DefaultCaseLabel,
             UniqueTag EndSwitchLabel)
         {
@@ -457,30 +552,39 @@ namespace Flame.Compiler.Statements
             // "Improving Switch Lowering for The LLVM Compiler System" by Anton Korobeynikov
             // (http://llvm.org/pubs/2007-05-31-Switch-Lowering.pdf)
 
-            var result = Generator.EmitVoid();
-            var worklist = new Stack<IReadOnlyList<SwitchCase>>();
-            worklist.Push(Cases);
-            while (worklist.Count > 0)
+            if (ShouldBitTestSwitch(Span))
             {
-                var caseSpan = ToIntegerCaseSpan(worklist.Pop());
-                if (ShouldBitTestSwitch(caseSpan))
-                {
-                    result = Generator.EmitSequence(
-                        result,
-                        CreateBitTestSwitch(
-                            SwitchVariable, caseSpan,
-                            DefaultCaseLabel, EndSwitchLabel).Emit(Generator));
-                }
-                else
-                {
-                    result = Generator.EmitSequence(
-                        result,
-                        CreateIfElseSwitch(
-                            SwitchVariable, caseSpan,
-                            DefaultCaseLabel, EndSwitchLabel).Emit(Generator));
-                }
+                // Use bit-tests to lower the span.
+                return CreateBitTestSwitch(
+                    SwitchVariable, Span,
+                    DefaultCaseLabel, EndSwitchLabel);
             }
-            return result;
+            else if (Span.ValueCount <= 3)
+            {
+                // Build a simple if-else chain.
+                return CreateIfElseSwitch(
+                    SwitchVariable, Span,
+                    DefaultCaseLabel, EndSwitchLabel);
+            }
+            else
+            {
+                // Split the span into two.
+                var rightTreeLabel = new UniqueTag();
+                var splitSpan = Span.Split();
+                var leftSpan = splitSpan.Item1;
+                var pivot = splitSpan.Item2;
+                var rightSpan = splitSpan.Item3;
+                return new BlockStatement(new IStatement[]
+                {
+                    new GotoLabelStatement(
+                        rightTreeLabel,
+                        new GreaterThanExpression(
+                            SwitchVariable.CreateGetExpression(), new IntegerExpression(pivot))),
+                    PlaceIntegerCases(SwitchVariable, leftSpan, DefaultCaseLabel, EndSwitchLabel),
+                    new MarkLabelStatement(rightTreeLabel),
+                    PlaceIntegerCases(SwitchVariable, rightSpan, DefaultCaseLabel, EndSwitchLabel)
+                });
+            }
         }
 
         /// <summary>
@@ -664,12 +768,13 @@ namespace Flame.Compiler.Statements
                     item.Body, EndSwitchLabel);
                 var caseLabel = casePair.Key;
                 statements.Add(casePair.Value);
-                foreach (var val in item.Values)
+                for (int i = 1; i < item.Values.Count; i++)
                 {
                     statements.Add(new GotoLabelStatement(
                         caseLabel,
                         new EqualityExpression(
-                            SwitchVariable.CreateGetExpression(), val.ToExpression())));
+                            SwitchVariable.CreateGetExpression(),
+                            item.Values[i].ToExpression())));
                 }
             }
             statements.Add(new GotoLabelStatement(DefaultCaseLabel));
