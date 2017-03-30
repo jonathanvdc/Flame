@@ -21,5 +21,5 @@ configs
 init
 {
     Filename = LowerSwitch;
-    return = @(echo LinearSwitch)@(echo BitSwitch);
+    return = @(echo LinearSwitch)@(echo BitSwitch)@(echo TreeSwitch)@(echo TreeSwitch)@(echo TreeSwitch);
 }
