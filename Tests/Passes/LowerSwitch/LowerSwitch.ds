@@ -20,6 +20,18 @@ public module Program
             Console.WriteLine("TreeSwitch");
     }
 
+    private void JumpSwitch(int y)
+    {
+        if (y == 0 || y == 1 || y == 2)
+            Console.WriteLine("JumpSwitch 1");
+        else if (y == 3 || y == 4)
+            Console.WriteLine("JumpSwitch 2");
+        else if (y == 5 || y == 6 || y == 7 || y == 8)
+            Console.WriteLine("JumpSwitch 3");
+        else if (y == 9)
+            Console.WriteLine("JumpSwitch 4");
+    }
+
     public void Main()
     {
         LinearSwitch(2);
@@ -34,5 +46,11 @@ public module Program
         TreeSwitch(4);
         TreeSwitch(70);
         TreeSwitch(90);
+        JumpSwitch(1);
+        JumpSwitch(4);
+        JumpSwitch(6);
+        JumpSwitch(9);
+        JumpSwitch(10);
+        JumpSwitch(-1);
     }
 }
