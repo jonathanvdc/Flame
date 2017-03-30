@@ -494,7 +494,8 @@ namespace Flame.Optimization
             else if (flow is SelectFlow)
             {
                 ProtoSwitch protoSwitch;
-                if (ProtoSwitches.TryGetValue(BlockTag, &protoSwitch))
+                if (ProtoSwitches.TryGetValue(BlockTag, &protoSwitch)
+                    && protoSwitch.SwitchVariable.Type.IsInteger)
                 {
                     EmitSwitchFlow(protoSwitch, Graph, FlowBuilder, ProtoSwitches);
                     return;
