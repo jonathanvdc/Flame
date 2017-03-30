@@ -87,6 +87,7 @@ namespace Flame.Compiler.Statements
             this.Cases = Cases;
             MinValue = Cases[0].Values[0].GetValue<IntegerValue>();
             MaxValue = MinValue;
+            ValueCount = 0;
             foreach (var item in Cases)
             {
                 foreach (var val in item.Values)
@@ -132,6 +133,12 @@ namespace Flame.Compiler.Statements
         /// </summary>
         /// <returns>The total number of values in this case span.</returns>
         public int ValueCount { get; private set; }
+
+        /// <summary>
+        /// Gets the density of this integer case span.
+        /// </summary>
+        /// <returns>The integer case span's density.</returns>
+        public double Density { get { return (double)ValueCount / MaxValue.Subtract(MinValue).ToFloat64(); } }
 
         /// <summary>
         /// Gets the list of cases in this case span.
