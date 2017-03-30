@@ -200,12 +200,12 @@ namespace Flame.Optimization
                 var condExpr = selFlow.Condition.GetEssentialExpression();
                 if (condExpr is EqualityExpression)
                 {
-                    CheckAndBranchesToProtoSwitch(
+                    return CheckAndBranchesToProtoSwitch(
                         (EqualityExpression)condExpr, selFlow.ThenBranch, selFlow.ElseBranch);
                 }
                 else if (condExpr is InequalityExpression)
                 {
-                    CheckAndBranchesToProtoSwitch(
+                    return CheckAndBranchesToProtoSwitch(
                         (InequalityExpression)condExpr, selFlow.ElseBranch, selFlow.ThenBranch);
                 }
             }
@@ -243,8 +243,12 @@ namespace Flame.Optimization
                     {
                         childSwitch = ProtoProtoSwitchMap[childTag];
                     }
-                    ProtoSwitchResultMap[Tag] = protoSwitch.MergeChild(childSwitch);
-                    return true;
+
+                    if (protoSwitch.IsCompatible(childSwitch))
+                    {
+                        ProtoSwitchResultMap[Tag] = protoSwitch.MergeChild(childSwitch);
+                        return true;
+                    }
                 }
             }
 
@@ -308,6 +312,22 @@ namespace Flame.Optimization
         public IStatement Result
         {
             get { return new BlockStatement(results).Simplify(); }
+        }
+
+        /// <summary>
+        /// Swaps the contents of this linear flow builder's list of result statements
+        /// with the given list's contents.
+        /// </summary>
+        /// <param name="Statements">
+        /// The list of statements whose contents are swapped for this linear flow builder's
+        /// list of statements.
+        /// </param>
+        /// <returns>The contents of the linear flow builder's previous list of results.</returns>
+        public IReadOnlyList<IStatement> SwapResults(IReadOnlyList<IStatement> Statements)
+        {
+            var returnValue = results;
+            results = new List<IStatement>(Statements);
+            return returnValue;
         }
 
         /// <summary>
@@ -435,6 +455,23 @@ namespace Flame.Optimization
             }
         }
 
+        /// <summary>
+        /// Emits a "jump" to the given block. This method will try to
+        /// simulate jumps with fallthrough whenever possible.
+        /// This method does not place the jump/block in the flow builder's
+        /// list of statements, but returns it instead.
+        /// </summary>
+        private IStatement EmitJumpToBlockAsStatement(
+            UniqueTag TargetTag, FlowGraph Graph,
+            LinearLabelFlowBuilder FlowBuilder,
+            IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches)
+        {
+            var allResults = FlowBuilder.SwapResults(new List<IStatement>());
+            EmitJumpToBlock(TargetTag, Graph, FlowBuilder, ProtoSwitches);
+            var body = FlowBuilder.SwapResults(allResults);
+            return new BlockStatement(body).Simplify();
+        }
+
         private void EmitBlock(
             UniqueTag BlockTag, FlowGraph Graph,
             LinearLabelFlowBuilder FlowBuilder,
@@ -456,6 +493,13 @@ namespace Flame.Optimization
             }
             else if (flow is SelectFlow)
             {
+                ProtoSwitch protoSwitch;
+                if (ProtoSwitches.TryGetValue(BlockTag, &protoSwitch))
+                {
+                    EmitSwitchFlow(protoSwitch, Graph, FlowBuilder, ProtoSwitches);
+                    return;
+                }
+
                 var selFlow = (SelectFlow)flow;
                 var thenTag = selFlow.ThenBranch.TargetTag;
                 var elseTag = selFlow.ElseBranch.TargetTag;
@@ -484,6 +528,27 @@ namespace Flame.Optimization
                     "' is not supported by the flow graph deconstruction pass.");
             }
             // Unreachable flow means no branches out.
+        }
+
+        private void EmitSwitchFlow(
+            ProtoSwitch Flow, FlowGraph Graph,
+            LinearLabelFlowBuilder FlowBuilder,
+            IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches)
+        {
+            var conditionalCases = new List<SwitchCase>();
+            foreach (var item in Flow.Cases)
+            {
+                conditionalCases.Add(
+                    new SwitchCase(
+                        item.Value,
+                        EmitJumpToBlockAsStatement(
+                            item.Key, Graph, FlowBuilder, ProtoSwitches)));
+            }
+            var defaultCase = EmitJumpToBlockAsStatement(
+                Flow.DefaultBodyTag, Graph, FlowBuilder, ProtoSwitches);
+            FlowBuilder.EmitStatement(
+                new SwitchStatement(
+                    Flow.SwitchVariable.CreateGetExpression(), defaultCase, conditionalCases).Simplify());
         }
 
         private IStatement VisitFlowGraph(FlowGraph Graph)
