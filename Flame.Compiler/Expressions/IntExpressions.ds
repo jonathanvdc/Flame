@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Flame.Compiler.Expressions
 {
-	/// <summary>
+    /// <summary>
     /// An expression that contains a constant integer value.
     /// </summary>
     public class IntegerExpression : ConstantExpression<IntegerValue>
     {
         public this(IntegerValue Value)
-			: base(Value)
+            : base(Value)
         { }
 
         public this(byte Value)
@@ -28,29 +28,29 @@ namespace Flame.Compiler.Expressions
             : base(new IntegerValue(Value))
         { }
 
-		public this(sbyte Value)
-			: base(new IntegerValue(Value))
-		{ }
+        public this(sbyte Value)
+            : base(new IntegerValue(Value))
+        { }
 
-		public this(short Value)
-			: base(new IntegerValue(Value))
-		{ }
+        public this(short Value)
+            : base(new IntegerValue(Value))
+        { }
 
-		public this(int Value)
-			: base(new IntegerValue(Value))
-		{ }
+        public this(int Value)
+            : base(new IntegerValue(Value))
+        { }
 
-		public this(long Value)
-			: base(new IntegerValue(Value))
-		{ }
+        public this(long Value)
+            : base(new IntegerValue(Value))
+        { }
 
         public IType Type
         {
             get
-			{
-				return PrimitiveTypes.GetIntegerType(
-					Value.Spec.Size, Value.Spec.IsSigned);
-			}
+            {
+                return PrimitiveTypes.GetIntegerType(
+                    Value.Spec.Size, Value.Spec.IsSigned);
+            }
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
