@@ -54,6 +54,14 @@ namespace Flame.Compiler.Statements
 
         public bool IsConstantNode { get { return false; } }
 
+        public IStatement Simplify()
+        {
+            if (Condition.EvaluatesTo<bool>(false))
+                return EmptyStatement;
+            else
+                return this;
+        }
+
         public IStatement Optimize()
         {
             var optCond = Condition.Optimize();

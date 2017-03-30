@@ -26,9 +26,10 @@ namespace Flame.Compiler
     public interface IJumpTableCodeGenerator : IBranchingCodeGenerator
     {
         /// <summary>
-        /// Creates a code block that jumps to an index in the given list of labels.
+        /// Creates a code block that jumps to an index in the given list of labels. If the
+        /// index is out of range, then control proceeds to the next block.
         /// </summary>
-        /// <param name="TableIndex">The index to </param>
+        /// <param name="TableIndex">The index in the table of the label to jump to.</param>
         /// <param name="TableLabels">The table's contents, as a list of labels.</param>
         /// <returns></returns>
         ICodeBlock EmitJumpTable(ICodeBlock TableIndex, IReadOnlyList<UniqueTag> TableLabels);

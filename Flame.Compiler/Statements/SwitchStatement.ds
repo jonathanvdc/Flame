@@ -551,7 +551,8 @@ namespace Flame.Compiler.Statements
             result = Generator.EmitSequence(
                 result, PlaceIntegerCases(
                     switchVarPair.Key, new IntegerCaseSpan(ConditionalCases),
-                    defaultCaseLabelPair.Key, endSwitchLabel).Emit(Generator));
+                    defaultCaseLabelPair.Key, endSwitchLabel,
+                    Generator is IJumpTableCodeGenerator).Emit(Generator));
             // Mark the default statement.
             result = Generator.EmitSequence(
                 result, defaultCaseLabelPair.Value.Emit(Generator));
@@ -568,7 +569,8 @@ namespace Flame.Compiler.Statements
             IVariable SwitchVariable,
             IntegerCaseSpan Span,
             UniqueTag DefaultCaseLabel,
-            UniqueTag EndSwitchLabel)
+            UniqueTag EndSwitchLabel,
+            bool UseJumpTables)
         {
             // This algorithm is based on the switch-lowering algorithm described in
             // "Improving Switch Lowering for The LLVM Compiler System" by Anton Korobeynikov
@@ -588,6 +590,13 @@ namespace Flame.Compiler.Statements
                     SwitchVariable, Span,
                     DefaultCaseLabel, EndSwitchLabel);
             }
+            else if (UseJumpTables && Span.Density >= 0.4)
+            {
+                // Create a jump table to perform the switch.
+                return CreateJumpTableSwitch(
+                    SwitchVariable, Span,
+                    DefaultCaseLabel, EndSwitchLabel);
+            }
             else
             {
                 // Split the span into two.
@@ -602,9 +611,9 @@ namespace Flame.Compiler.Statements
                         rightTreeLabel,
                         new GreaterThanExpression(
                             SwitchVariable.CreateGetExpression(), new IntegerExpression(pivot))),
-                    PlaceIntegerCases(SwitchVariable, leftSpan, DefaultCaseLabel, EndSwitchLabel),
+                    PlaceIntegerCases(SwitchVariable, leftSpan, DefaultCaseLabel, EndSwitchLabel, UseJumpTables),
                     new MarkLabelStatement(rightTreeLabel),
-                    PlaceIntegerCases(SwitchVariable, rightSpan, DefaultCaseLabel, EndSwitchLabel)
+                    PlaceIntegerCases(SwitchVariable, rightSpan, DefaultCaseLabel, EndSwitchLabel, UseJumpTables)
                 });
             }
         }
@@ -670,7 +679,7 @@ namespace Flame.Compiler.Statements
                 caseLabel,
                 new BlockStatement(new IStatement[]
                 {
-                    new GotoLabelStatement(elseLabel, new NotExpression(Condition).Simplify()),
+                    new GotoLabelStatement(elseLabel, new NotExpression(Condition).Simplify()).Simplify(),
                     new MarkLabelStatement(caseLabel),
                     CaseBody,
                     CreateExitSwitchJump(EndSwitchLabel),
@@ -800,6 +809,59 @@ namespace Flame.Compiler.Statements
                 }
             }
             statements.Add(new GotoLabelStatement(DefaultCaseLabel));
+            return new BlockStatement(statements);
+        }
+
+        /// <summary>
+        /// Creates a statement that lowers the given span of integer cases as a
+        /// dense jump table.
+        /// </summary>
+        /// <param name="SwitchVariable">The variable that contains the switch value.</param>
+        /// <param name="Span">The span of integer cases.</param>
+        /// <param name="DefaultCaseLabel">The label of the default case.</param>
+        /// <param name="EndSwitchLabel">A label that is placed just after the switch statement.</param>
+        /// <returns></returns>
+        private IStatement CreateJumpTableSwitch(
+            IVariable SwitchVariable,
+            IntegerCaseSpan Span,
+            UniqueTag DefaultCaseLabel,
+            UniqueTag EndSwitchLabel)
+        {
+            var statements = new List<IStatement>();
+            var range = Span.ValueRange.ToInt32() + 1;
+            var table = new List<UniqueTag>(range);
+            for (int i = 0; i < range; i++)
+            {
+                table.Add(DefaultCaseLabel);
+            }
+
+            // Insert a placeholder for the jump table.
+            statements.Add(null);
+            statements.Add(new GotoLabelStatement(DefaultCaseLabel));
+
+            foreach (var item in Span.Cases)
+            {
+                var markedCase = MarkAndPlaceCase(new BooleanExpression(true), item.Body, EndSwitchLabel);
+                statements.Add(markedCase.Value);
+                foreach (var val in item.Values)
+                {
+                    var index = val.GetValue<IntegerValue>().Subtract(Span.MinValue).ToInt32();
+                    table[index] = markedCase.Key;
+                }
+            }
+            IExpression indexExpr = new StaticCastExpression(
+                SwitchVariable.CreateGetExpression(), PrimitiveTypes.Int32).Simplify();
+            if (!Span.MinValue.Value.Equals(BigInteger.Zero))
+            {
+                indexExpr = new SubtractExpression(
+                    indexExpr,
+                    new StaticCastExpression(
+                        new IntegerExpression(Span.MinValue),
+                        PrimitiveTypes.Int32).Simplify());
+            }
+
+            // Fix up the jump table.
+            statements[0] = new JumpTableStatement(indexExpr, table);
             return new BlockStatement(statements);
         }
 
