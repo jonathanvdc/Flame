@@ -548,7 +548,7 @@ namespace Flame.Optimization
             var defaultCase = EmitJumpToBlockAsStatement(
                 Flow.DefaultBodyTag, Graph, FlowBuilder, ProtoSwitches);
             FlowBuilder.EmitStatement(
-                new SwitchStatement(
+                new UnsafeSwitchStatement(
                     Flow.SwitchVariable.CreateGetExpression(), defaultCase, conditionalCases).Simplify());
         }
 

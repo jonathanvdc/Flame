@@ -241,7 +241,7 @@ namespace Flame.Compiler.Statements
     /// <summary>
     /// Represents a switch/case statement.
     /// </summary>
-    public class SwitchStatement : IFlowStatement
+    public virtual class SwitchStatement : IFlowStatement
     {
         /// <summary>
         /// Creates a switch/case statement that switches on the given expression, has
@@ -278,6 +278,21 @@ namespace Flame.Compiler.Statements
         /// <returns>The list of all switch cases.</returns>
         public IReadOnlyList<SwitchCase> ConditionalCases { get; private set; }
 
+        /// <summary>
+        /// Creates a switch/case statement that switches on the given expression, has
+        /// the given list of cases and the given default case body.
+        /// </summary>
+        /// <param name="SwitchExpression">The expression to switch on.</param>
+        /// <param name="DefaultCaseBody">The default case's body.</param>
+        /// <param name="ConditionalCases">The list of all cases in the switch statement.</param>
+        protected virtual SwitchStatement Create(
+            IExpression SwitchExpression,
+            IStatement DefaultCaseBody,
+            IReadOnlyList<SwitchCase> ConditionalCases)
+        {
+            return new SwitchStatement(SwitchExpression, DefaultCaseBody, ConditionalCases);
+        }
+
         public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
             : IFlowStatement.AcceptFlow<TState, TFlow>
         {
@@ -304,7 +319,7 @@ namespace Flame.Compiler.Statements
             // Update the current flow.
             Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(startState, selectFlow);
 
-            return new SwitchStatement(transCond, transDefault, transCases);
+            return Create(transCond, transDefault, transCases);
         }
 
         public IStatement Accept(INodeVisitor Visitor)
@@ -322,7 +337,7 @@ namespace Flame.Compiler.Statements
                 transCases.Add(item.Accept(Visitor));
             }
 
-            return new SwitchStatement(transCond, transDefault, transCases);
+            return Create(transCond, transDefault, transCases);
         }
 
         /// <summary>
@@ -438,7 +453,7 @@ namespace Flame.Compiler.Statements
                         labelAndVals.Value, new GotoLabelStatement(labelAndVals.Key)));
             }
 
-            return new SwitchStatement(SwitchExpression, DefaultCaseBody, newCases);
+            return Create(SwitchExpression, DefaultCaseBody, newCases);
         }
 
         public IStatement Optimize()
@@ -456,7 +471,7 @@ namespace Flame.Compiler.Statements
                 optCases.Add(item.Optimize());
             }
 
-            return new SwitchStatement(optCond, optDefault, optCases).Simplify();
+            return Create(optCond, optDefault, optCases).Simplify();
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
@@ -789,6 +804,43 @@ namespace Flame.Compiler.Statements
         protected virtual IStatement CreateExitSwitchJump(UniqueTag EndSwitchLabel)
         {
             return new GotoLabelStatement(EndSwitchLabel);
+        }
+    }
+
+    /// <summary>
+    /// Represents a switch/case statement in which every conditional case and the default case
+    /// jumps to some destination. Reaching the end of a conditional or default case body is
+    /// undefined behavior.
+    /// </summary>
+    public class UnsafeSwitchStatement : SwitchStatement
+    {
+        /// <summary>
+        /// Creates a switch/case statement that switches on the given expression, has
+        /// the given list of cases and the given default case body.
+        /// </summary>
+        /// <param name="SwitchExpression">The expression to switch on.</param>
+        /// <param name="DefaultCaseBody">The default case's body.</param>
+        /// <param name="ConditionalCases">The list of all cases in the switch statement.</param>
+        public this(
+            IExpression SwitchExpression,
+            IStatement DefaultCaseBody,
+            IReadOnlyList<SwitchCase> ConditionalCases)
+            : base(SwitchExpression, DefaultCaseBody, ConditionalCases)
+        { }
+
+        /// <inheritdoc/>
+        protected override SwitchStatement Create(
+            IExpression SwitchExpression,
+            IStatement DefaultCaseBody,
+            IReadOnlyList<SwitchCase> ConditionalCases)
+        {
+            return new UnsafeSwitchStatement(SwitchExpression, DefaultCaseBody, ConditionalCases);
+        }
+
+        /// <inheritdoc/>
+        protected override IStatement CreateExitSwitchJump(UniqueTag EndSwitchLabel)
+        {
+            return EmptyStatement;
         }
     }
 }
