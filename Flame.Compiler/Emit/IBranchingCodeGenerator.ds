@@ -21,6 +21,20 @@ namespace Flame.Compiler
     }
 
     /// <summary>
+    /// Defines common functionality for code generators that can produce jump tables.
+    /// </summary>
+    public interface IJumpTableCodeGenerator : IBranchingCodeGenerator
+    {
+        /// <summary>
+        /// Creates a code block that jumps to an index in the given list of labels.
+        /// </summary>
+        /// <param name="TableIndex">The index to </param>
+        /// <param name="TableLabels">The table's contents, as a list of labels.</param>
+        /// <returns></returns>
+        ICodeBlock EmitJumpTable(ICodeBlock TableIndex, IReadOnlyList<UniqueTag> TableLabels);
+    }
+
+    /// <summary>
     /// Describes a single case in a switch statement.
     /// </summary>
     public struct SwitchCaseBlock
