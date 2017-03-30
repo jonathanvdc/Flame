@@ -483,6 +483,12 @@ namespace Flame.Compiler.Statements
             return result;
         }
 
+        /// <summary>
+        /// Tells if it is both possible and sensible to use bit tests to switch
+        /// on the given span of cases.
+        /// </summary>
+        /// <param name="Span">The span of cases to switch on.</param>
+        /// <returns></returns>
         private bool ShouldBitTestSwitch(IntegerCaseSpan Span)
         {
             // If the span's range is at least 64 then we can't use a bit mask.
@@ -497,6 +503,13 @@ namespace Flame.Compiler.Statements
                 || (caseCount == 3 && Span.ValueCount >= 6);
         }
 
+        /// <summary>
+        /// Gets the type of integer that is to be used for a bit test--based switch
+        /// on the given span of cases.
+        /// </summary>
+        /// <param name="Span">The span of cases to switch on.</param>
+        /// <param name="SuggestedType">A suggested integer type.</param>
+        /// <returns>The type of integer to use for a bit test--based switch.</returns>
         private IType GetBitTestIntegerType(IntegerCaseSpan Span, IType SuggestedType)
         {
             var bitCount = SuggestedType.GetIntegerSpec().Size;
@@ -567,17 +580,33 @@ namespace Flame.Compiler.Statements
             var zero = new IntegerValue(BigInteger.Zero, bitTestIntType.GetIntegerSpec());
             var one = new IntegerValue(BigInteger.One, bitTestIntType.GetIntegerSpec());
 
-            IExpression relativeSwitchVal = SwitchVariable.CreateGetExpression();
-            if (Span.MinValue.Value.Equals(BigInteger.Zero))
+            // uint relativeSwitchVal = (uint)switchExpr - (uint)Span.MinValue;
+            IExpression relativeSwitchVal = new StaticCastExpression(
+                SwitchVariable.CreateGetExpression(), PrimitiveTypes.UInt32).Simplify();
+            if (!Span.MinValue.Value.Equals(BigInteger.Zero))
             {
-                relativeSwitchVal = new SubtractExpression(
-                    SwitchVariable.CreateGetExpression(),
-                    new IntegerExpression(Span.MinValue));
+                var relativeSwitchVar = new RegisterVariable(PrimitiveTypes.UInt32);
+                statements.Add(
+                    relativeSwitchVar.CreateSetStatement(
+                        new SubtractExpression(
+                            relativeSwitchVal,
+                            new StaticCastExpression(
+                                new IntegerExpression(Span.MinValue), PrimitiveTypes.UInt32).Simplify())));
+                relativeSwitchVal = relativeSwitchVar.CreateGetExpression();
             }
 
-            IExpression shiftedVal = new LeftShiftExpression(
-                new IntegerExpression(one),
-                new StaticCastExpression(relativeSwitchVal, PrimitiveTypes.Int32).Simplify());
+            // if (relativeSwitchVal > Span.ValueRange) goto default;
+            statements.Add(
+                new GotoLabelStatement(
+                    DefaultCaseLabel,
+                    new GreaterThanExpression(
+                        relativeSwitchVal,
+                        new StaticCastExpression(
+                            new IntegerExpression(Span.ValueRange),
+                            PrimitiveTypes.UInt32).Simplify())));
+
+            // var shiftedVal = (bitTestIntType)1 << relativeSwitchVal;
+            IExpression shiftedVal = new LeftShiftExpression(new IntegerExpression(one), relativeSwitchVal);
             if (Span.Cases.Count > 1)
             {
                 var shiftVar = new RegisterVariable("shiftedVal", bitTestIntType);
@@ -587,6 +616,7 @@ namespace Flame.Compiler.Statements
 
             foreach (var item in Span.Cases)
             {
+                // Create a mask: 1 << value_0 | 1 << value_1 | ... | 1 << value_n
                 var mask = zero;
                 foreach (var val in item.Values)
                 {
@@ -594,12 +624,14 @@ namespace Flame.Compiler.Statements
                     mask = mask.BitwiseOr(one.ShiftLeft(intVal.Subtract(Span.MinValue)));
                 }
 
+                // if (shiftedVal & mask != 0) goto case x;
                 statements.Add(PlaceCase(
                     new InequalityExpression(
                         new AndExpression(shiftedVal, new IntegerExpression(mask)),
                         new IntegerExpression(zero)),
                     item.Body, EndSwitchLabel));
             }
+            // goto default;
             statements.Add(new GotoLabelStatement(DefaultCaseLabel));
             return new BlockStatement(statements);
         }
