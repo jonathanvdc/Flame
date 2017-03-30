@@ -19,6 +19,7 @@ public module Program
         LinearSwitch(2);
         LinearSwitch(90);
         BitSwitch(64);
+        BitSwitch(0);
         BitSwitch(8);
         BitSwitch(90);
     }
