@@ -13,33 +13,41 @@ namespace Flame.Compiler.Visitors
         where T : IMember
     {
         /// <summary>
-        /// Creates a new member signature pass argument
-        /// from the given member and pass environment.
+        /// Creates a new member signature pass argument from the given member, pass environment
+        /// and pass metadata.
         /// </summary>
         /// <param name="Member"></param>
         /// <param name="PassEnvironment"></param>
-        public const this(set T Member, set IBodyPassEnvironment PassEnvironment);
+        /// <param name="Metadata"></param>
+        public this(set T Member, set IBodyPassEnvironment PassEnvironment, set IRandomAccessOptions GlobalMetadata)
+        { }
 
         /// <summary>
         /// Gets the member signature this pass is
         /// being applied to.
         /// </summary>
-        public T Member { const get; private set; }
+        public T Member { get; private set; }
 
         /// <summary>
         /// Gets the pass environment for this pass.
         /// </summary>
-        public IBodyPassEnvironment PassEnvironment { const get; private set; }
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets the global pass metadata.
+        /// </summary>
+        /// <returns>The global pass metadata.</returns>
+        public IRandomAccessOptions GlobalMetadata { get; private set; }
 
         /// <summary>
         /// Gets the compiler log.
         /// </summary>
-        public ICompilerLog Log { const get { return PassEnvironment.Log; } }
+        public ICompilerLog Log { get { return PassEnvironment.Log; } }
 
         /// <summary>
         /// Gets the environment.
         /// </summary>
-        public IEnvironment Environment { const get { return PassEnvironment.Environment; } }
+        public IEnvironment Environment { get { return PassEnvironment.Environment; } }
     }
 
     /// <summary>
@@ -51,38 +59,84 @@ namespace Flame.Compiler.Visitors
         /// Creates a member signature pass result with a null name
         /// and no additional attributes.
         /// </summary>
-        public const this()
+        public this()
         {
             this.Name = null;
             this.AdditionalAttributes = Enumerable.Empty<IAttribute>();
+            this.attributeTweakFuncs = null;
         }
 
         /// <summary>
         /// Creates a member signature pass result from the given
         /// name.
         /// </summary>
-        public const this(set string Name)
+        public this(set string Name)
         {
             this.AdditionalAttributes = Enumerable.Empty<IAttribute>();
+            this.attributeTweakFuncs = null;
         }
 
         /// <summary>
         /// Creates a member signature pass result from the given
         /// name and additional attributes.
         /// </summary>
-        public const this(set string Name, set [IAttribute] AdditionalAttributes);
+        public this(set string Name, set IEnumerable<IAttribute> AdditionalAttributes)
+        {
+            this.attributeTweakFuncs = null;
+        }
+
+        /// <summary>
+        /// Creates a member signature pass result from the given
+        /// name, additional attributes and an attribute-tweaking function.
+        /// </summary>
+        public this(
+            set string Name, set IEnumerable<IAttribute> AdditionalAttributes,
+            Action<AttributeMapBuilder> TweakAttributes)
+        {
+            this.attributeTweakFuncs = new List<Action<AttributeMapBuilder>>();
+            this.attributeTweakFuncs.Add(TweakAttributes);
+        }
+
+        /// <summary>
+        /// Creates a member signature pass result from the given
+        /// name, additional attributes and a list of attribute-tweaking functions.
+        /// </summary>
+        private this(
+            set string Name, set IEnumerable<IAttribute> AdditionalAttributes,
+            List<Action<AttributeMapBuilder>> AttributeTweakFunctions)
+        {
+            this.attributeTweakFuncs = AttributeTweakFunctions;
+        }
 
         /// <summary>
         /// Gets the member's (new) name, if any.
         /// Otherwise, null.
         /// </summary>
-        public string Name { const get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets a sequence of additional attributes that have
         /// been inferred.
         /// </summary>
-        public [IAttribute] AdditionalAttributes { const get; private set; }
+        public IEnumerable<IAttribute> AdditionalAttributes { get; private set; }
+
+        /// <summary>
+        /// A list of functions that modify the attribute map builder. Null if
+        /// the list is empty.
+        /// </summary>
+        private List<Action<AttributeMapBuilder>> attributeTweakFuncs;
+
+        /// <summary>
+        /// Modifies the attribute map builder.
+        /// </summary>
+        public void TweakAttributes(AttributeMapBuilder Builder)
+        {
+            if (attributeTweakFuncs == null)
+                return;
+
+            foreach (var func in attributeTweakFuncs)
+                func(Builder);
+        }
 
         /// <summary>
         /// Combines the given member signature pass result with this one.
@@ -105,7 +159,20 @@ namespace Flame.Compiler.Visitors
             var attrs = Enumerable.Union<IAttribute>(
                 this.AdditionalAttributes, Other.AdditionalAttributes);
 
-            return new MemberSignaturePassResult(newName, attrs);
+            var attrTweaks = attributeTweakFuncs;
+            if (attrTweaks == null)
+            {
+                attrTweaks = Other.attributeTweakFuncs;
+            }
+            else if (Other.attributeTweakFuncs != null)
+            {
+                attrTweaks = new List<Action<AttributeMapBuilder>>(
+                    attributeTweakFuncs.Count + Other.attributeTweakFuncs.Count);
+                attrTweaks.AddRange(attributeTweakFuncs);
+                attrTweaks.AddRange(Other.attributeTweakFuncs);
+            }
+
+            return new MemberSignaturePassResult(newName, attrs, attrTweaks);
         }
     }
 }

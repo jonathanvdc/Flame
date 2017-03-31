@@ -40,9 +40,11 @@ namespace Flame.Recompilation
 
         public AttributeMap CreateAttributes(T Type)
         {
-            var results = new AttributeMapBuilder(GetSourceMember().Attributes.Select(Recompiler.GetAttribute));
-            results.AddRange(SignaturePassResult.AdditionalAttributes);
-            return new AttributeMap(results);
+            var builder = new AttributeMapBuilder(GetSourceMember().Attributes);
+            builder.AddRange(SignaturePassResult.AdditionalAttributes);
+            SignaturePassResult.TweakAttributes(builder);
+            builder = new AttributeMapBuilder(builder.Select(Recompiler.GetAttribute));
+            return new AttributeMap(builder);
         }
     }
 }

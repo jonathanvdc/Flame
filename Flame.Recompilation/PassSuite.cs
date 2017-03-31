@@ -170,7 +170,9 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public MemberSignaturePassResult ProcessSignature(AssemblyRecompiler Recompiler, IMember Member)
         {
-            return MemberSignaturePass.Apply(new MemberSignaturePassArgument<IMember>(Member, Recompiler));
+            return MemberSignaturePass.Apply(
+                new MemberSignaturePassArgument<IMember>(
+                    Member, Recompiler, Recompiler.MetadataManager.GlobalMetadata));
         }
 
         /// <summary>

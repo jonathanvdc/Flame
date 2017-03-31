@@ -6,7 +6,7 @@ using Flame.Collections;
 namespace Flame
 {
     /// <summary>
-    /// Defines a mutable, append-only attribute map.
+    /// Defines a mutable attribute map.
     /// </summary>
     public class AttributeMapBuilder : [IAttribute]
     {
@@ -111,7 +111,7 @@ namespace Flame
         }
 
         /// <summary>
-        /// Gets an attribute with the given type. If no such attribute exists,
+        /// Gets the first attribute with the given type. If no such attribute exists,
         /// then null is returned.
         /// </summary>
         public IAttribute Get(IType Type)
