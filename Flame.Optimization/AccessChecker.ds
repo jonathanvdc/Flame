@@ -9,7 +9,7 @@ namespace Flame.Optimization
     /// </summary>
     public class AccessChecker
     {
-        private const this(set IType currentType);
+        private this(set IType currentType, set IBodyPassEnvironment passEnvironment);
 
         /// <summary>
         /// The current type, which is used to access other types, fields and methods.
@@ -21,22 +21,40 @@ namespace Flame.Optimization
         /// </summary>
         private bool invalidAccess;
 
+        /// <summary>
+        /// The pass environment. If non-null, then any extensible member is assumed to be
+        /// accessible.
+        /// </summary>
+        private IBodyPassEnvironment passEnvironment;
+
         private IType CheckTypeAccess(IType Target)
         {
-            if (!invalidAccess && !currentType.CanAccess(Target))
-            {
+            if (invalidAccess)
+                return Target;
+
+            if (passEnvironment != null
+                && passEnvironment.CanExtend(Target.GetRecursiveGenericDeclaration()))
+                return Target;
+
+            if (!currentType.CanAccess(Target))
                 invalidAccess = true;
-            }
+
             return Target;
         }
 
         private T CheckMemberAccess<T>(T Target)
             where T : ITypeMember
         {
-            if (!invalidAccess && !currentType.CanAccess(Target))
-            {
+            if (invalidAccess)
+                return Target;
+
+            if (passEnvironment != null && Target.DeclaringType != null
+                && passEnvironment.CanExtend(Target.DeclaringType.GetRecursiveGenericDeclaration()))
+                return Target;
+
+            if (!currentType.CanAccess(Target))
                 invalidAccess = true;
-            }
+
             return Target;
         }
 
@@ -54,9 +72,15 @@ namespace Flame.Optimization
         /// Determines whether the given type can access all types and members
         /// that are referenced by the given statement.
         /// </summary>
-        public static bool CanAccess(IType CurrentType, IStatement Statement)
+        public static bool CanAccess(IType CurrentType, IStatement Statement, BodyPassArgument Arg)
         {
-            var checker = new AccessChecker(CurrentType);
+            IBodyPassEnvironment passEnv;
+            if (AccessRelaxingPass.IsEnabled(Arg.Metadata.GlobalMetadata))
+                passEnv = Arg.PassEnvironment;
+            else
+                passEnv = null;
+
+            var checker = new AccessChecker(CurrentType, passEnv);
             var visitor = checker.CreateCheckingVisitor();
 
             visitor.Visit(Statement);
@@ -68,14 +92,54 @@ namespace Flame.Optimization
         /// Determines whether the given type can access all types and members
         /// that are referenced by the given expression.
         /// </summary>
-        public static bool CanAccess(IType CurrentType, IExpression Expression)
+        public static bool CanAccess(IType CurrentType, IExpression Expression, BodyPassArgument Arg)
         {
-            var checker = new AccessChecker(CurrentType);
+            IBodyPassEnvironment passEnv;
+            if (AccessRelaxingPass.IsEnabled(Arg.Metadata.GlobalMetadata))
+                passEnv = Arg.PassEnvironment;
+            else
+                passEnv = null;
+
+            var checker = new AccessChecker(CurrentType, passEnv);
             var visitor = checker.CreateCheckingVisitor();
 
             visitor.Visit(Expression);
 
             return !checker.invalidAccess;
+        }
+
+        /// <summary>
+        /// Determines whether the given type can access the given type.
+        /// </summary>
+        public static bool CanAccess(IType CurrentType, IType AccessedType, BodyPassArgument Arg)
+        {
+            if (AccessRelaxingPass.IsEnabled(Arg.Metadata.GlobalMetadata)
+                && Arg.PassEnvironment.CanExtend(AccessedType.GetRecursiveGenericDeclaration()))
+            {
+                return true;
+            }
+            else
+            {
+                return CurrentType.CanAccess(AccessedType);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the given type can access the given type member.
+        /// </summary>
+        public static bool CanAccess(IType CurrentType, ITypeMember AccessedMember, BodyPassArgument Arg)
+        {
+            var declType = AccessedMember.DeclaringType;
+            if (declType != null
+                && AccessRelaxingPass.IsEnabled(Arg.Metadata.GlobalMetadata)
+                && Arg.PassEnvironment.CanExtend(declType.GetRecursiveGenericDeclaration()))
+            {
+                return true;
+            }
+            else
+            {
+                return CurrentType.CanAccess(AccessedMember);
+            }
         }
     }
 }

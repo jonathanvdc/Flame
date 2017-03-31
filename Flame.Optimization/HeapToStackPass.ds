@@ -435,7 +435,7 @@ namespace Flame.Optimization
 
             // We need to check the body's access: it can't be allowed to
             // access anything that the new declaring type can't access.
-            if (!AccessChecker.CanAccess(DeclaringType, methodBody))
+            if (!AccessChecker.CanAccess(DeclaringType, methodBody, Arg))
                 return null;
 
             methodDef.Body = methodBody;

@@ -217,7 +217,7 @@ namespace Flame.Front.Target
                 if (thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
                     thisType = thisType.MakeGenericType(thisType.GenericParameters);
 
-                if (!AccessChecker.CanAccess(thisType, body))
+                if (!AccessChecker.CanAccess(thisType, body, Args))
                     return false;
             }
 

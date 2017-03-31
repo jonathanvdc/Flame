@@ -361,7 +361,7 @@ namespace Flame.Optimization
         private void CheckAccessibility(
             LocalVariableBase Target, ITypeMember Member)
         {
-            if (inlineTarget != null && !DeclaringType.CanAccess(Member))
+            if (inlineTarget != null && !AccessChecker.CanAccess(DeclaringType, Member, PassArgument))
             {
                 if (IsBlacklisted(Target))
                 {
@@ -724,7 +724,7 @@ namespace Flame.Optimization
             inlineTarget = oldInlineTarget;
             inlineMethods.Remove(genMethodDecl);
 
-            if (!AccessChecker.CanAccess(DeclaringType, result))
+            if (!AccessChecker.CanAccess(DeclaringType, result, PassArgument))
             {
                 // Sometimes, we just can't inline everything, due to
                 // access modifiers. In that case, we have to cancel
