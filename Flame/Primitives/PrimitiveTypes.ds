@@ -183,7 +183,7 @@ namespace Flame
         /// <summary>
         /// Checks if the given type is a signed integer type.
         /// </summary>
-           public static bool IsSignedInteger[this IType Type]
+        public static bool IsSignedInteger[this IType Type]
         {
             get
             {
@@ -218,6 +218,18 @@ namespace Flame
             get
             {
                 return Type.IsInteger || Type.IsBit || primTypes.Contains(Type);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given type is an integral type: an integer type, bit type, enum type,
+        /// Char or Boolean.
+        /// </summary>
+        public static bool IsIntegral[this IType Type]
+        {
+            get
+            {
+                return Type.IsInteger || Type.IsBit || Type.IsEnum || Char.Equals(Type) || Boolean.Equals(Char);
             }
         }
 
