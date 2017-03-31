@@ -103,7 +103,7 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         private this(
             set string Name, set IEnumerable<IAttribute> AdditionalAttributes,
-            List<Action<AttributeMapBuilder>> AttributeTweakFunctions)
+            List<void(AttributeMapBuilder)> AttributeTweakFunctions)
         {
             this.attributeTweakFuncs = AttributeTweakFunctions;
         }
@@ -124,7 +124,7 @@ namespace Flame.Compiler.Visitors
         /// A list of functions that modify the attribute map builder. Null if
         /// the list is empty.
         /// </summary>
-        private List<Action<AttributeMapBuilder>> attributeTweakFuncs;
+        private List<void(AttributeMapBuilder)> attributeTweakFuncs;
 
         /// <summary>
         /// Modifies the attribute map builder.
@@ -166,7 +166,7 @@ namespace Flame.Compiler.Visitors
             }
             else if (Other.attributeTweakFuncs != null)
             {
-                attrTweaks = new List<Action<AttributeMapBuilder>>(
+                attrTweaks = new List<void(AttributeMapBuilder)>(
                     attributeTweakFuncs.Count + Other.attributeTweakFuncs.Count);
                 attrTweaks.AddRange(attributeTweakFuncs);
                 attrTweaks.AddRange(Other.attributeTweakFuncs);
