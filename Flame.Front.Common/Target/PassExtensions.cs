@@ -25,9 +25,9 @@ namespace Flame.Front.Target
     {
         static PassExtensions()
         {
-			GlobalPassManager = new PassManager();
+            GlobalPassManager = new PassManager();
 
-			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotTreePassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotTreePassName));
 
             GlobalPassManager.RegisterMethodPass(new StatementPassInfo(NodeOptimizationPass.Instance, NodeOptimizationPass.NodeOptimizationPassName));
             GlobalPassManager.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName, optInfo => optInfo.OptimizeMinimal));
@@ -135,9 +135,9 @@ namespace Flame.Front.Target
             inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName)));
             GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
 
-			// -finline uses CFG/SSA form, so it's -O3, too.
+            // -finline uses CFG/SSA form, so it's -O3, too.
             inliningLoopPasses.Add(new LoopPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
-			GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
 
             inliningLoopPasses.Add(new LoopPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName));
             inliningLoopPasses.Add(new LoopPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName));
@@ -151,7 +151,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, inliningLoopSsa.MethodPasses, 3));
             GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => true);
 
-			GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
 
             // Activate -fstrip-assert whenever -g is turned off, and the
             // optimization level is at least -O1.
@@ -162,7 +162,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
             GlobalPassManager.RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeVolatile);
 
-			GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
+            GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "2"));
             GlobalPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "2", optInfo => optInfo.OptimizeNormal);
@@ -174,26 +174,26 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(ElideSelfAssignmentPass.Instance, ElideSelfAssignmentPass.ElideSelfAssignmentPassName));
             GlobalPassManager.RegisterPassCondition(ElideSelfAssignmentPass.ElideSelfAssignmentPassName, optInfo => optInfo.OptimizeMinimal);
 
-			GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
+            GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
             // Register -fnormalize-names-clr here, because the IR back-end could also use
             // this pass when targeting the CLR platform indirectly.
-			GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
+            GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
 
             // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
 
             // -fwrap-extension-properties is actually a set of two passes which are
             // always on or off at the same time.
-			GlobalPassManager.RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
-			GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(WrapExtensionPropertiesPass.SignaturePassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
+            GlobalPassManager.RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
+            GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(WrapExtensionPropertiesPass.SignaturePassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
         }
 
-		/// <summary>
-		/// Gets the global pass manager.
-		/// </summary>
-		/// <value>The global pass manager.</value>
-		public static PassManager GlobalPassManager { get; private set; }
+        /// <summary>
+        /// Gets the global pass manager.
+        /// </summary>
+        /// <value>The global pass manager.</value>
+        public static PassManager GlobalPassManager { get; private set; }
 
         public const string EliminateDeadCodePassName = "dead-code-elimination";
         public const string InitializationPassName = "initialization";
@@ -220,12 +220,12 @@ namespace Flame.Front.Target
                 item.RegisterMethodPass(Pass);
         }
 
-		private static PassManager WithPreferences(PassPreferences Preferences)
-		{
-			var newPassManager = new PassManager(GlobalPassManager);
-			newPassManager.Prepend(Preferences);
-			return newPassManager;
-		}
+        private static PassManager WithPreferences(PassPreferences Preferences)
+        {
+            var newPassManager = new PassManager(GlobalPassManager);
+            newPassManager.Prepend(Preferences);
+            return newPassManager;
+        }
 
         /// <summary>
         /// Gets the names of all passes that are selected by the
@@ -238,7 +238,7 @@ namespace Flame.Front.Target
         /// <returns></returns>
         public static IReadOnlyDictionary<string, IEnumerable<NameTree>> GetSelectedPassNames(ICompilerLog Log, PassPreferences Preferences)
         {
-			return WithPreferences(Preferences).GetSelectedPassNames(Log);
+            return WithPreferences(Preferences).GetSelectedPassNames(Log);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace Flame.Front.Target
         /// <returns></returns>
         public static PassSuite CreateSuite(ICompilerLog Log, PassPreferences Preferences)
         {
-			return WithPreferences(Preferences).CreateSuite(Log);
+            return WithPreferences(Preferences).CreateSuite(Log);
         }
 
         public static PassInfo<LoopPassArgument, LoopPassResult> ToLoopPass(PassInfo<BodyPassArgument, IStatement> Pass)
