@@ -106,12 +106,16 @@ namespace Flame.Verification
                     success = false;
                 }
 
-                if (item.GetAccess() != Member.GetAccess())
+                var itemAccess = item.GetAccess();
+                var memberAccess = Member.GetAccess();
+                if (itemAccess != memberAccess
+                    && !(itemAccess == AccessModifier.ProtectedOrAssembly
+                        && memberAccess == AccessModifier.Protected))
                 {
                     Log.LogError(new LogEntry(
                         "access modifier mismatch",
-                        GetDescription(Member) + " was marked '" + Member.GetAccess().GetAccessModifierName() +
-                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + item.GetAccess().GetAccessModifierName() + "'. " +
+                        GetDescription(Member) + " was marked '" + memberAccess.GetAccessModifierName() +
+                        "' but its base method in '" + item.DeclaringType.FullName + "' was declared '" + itemAccess.GetAccessModifierName() + "'. " +
                         "Access modifiers should remain the same within a method inheritance tree.",
                         Member.GetSourceLocation()));
                     success = false;
