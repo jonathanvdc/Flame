@@ -1,0 +1,55 @@
+using System;
+
+public enum NumEnum : int
+{
+    Zero = 0,
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4
+}
+
+public module Program
+{
+    private string EnumSwitch(NumEnum value)
+    {
+        if (value == NumEnum.Zero)
+            return "zero";
+        else if (value == NumEnum.One)
+            return "one";
+        else if (value == NumEnum.Two)
+            return "two";
+        else if (value == NumEnum.Three)
+            return "three";
+        else if (value == NumEnum.Four)
+            return "four";
+        else
+            return "unknown";
+    }
+
+    private string CharSwitch(char value)
+    {
+        if (value == '0')  
+            return "zero";
+        else if (value == '1')
+            return "one";
+        else if (value == '2')
+            return "two";
+        else if (value == '3')
+            return "three";
+        else if (value == '4')
+            return "four";
+        else
+            return "unknown";
+    }
+
+    public void Main()
+    {
+        Console.WriteLine(EnumSwitch(NumEnum.Zero));
+        Console.WriteLine(EnumSwitch(NumEnum.Four));
+        Console.WriteLine(EnumSwitch((NumEnum)10));
+        Console.WriteLine(CharSwitch('0'));
+        Console.WriteLine(CharSwitch('4'));
+        Console.WriteLine(CharSwitch('9'));
+    }
+}
