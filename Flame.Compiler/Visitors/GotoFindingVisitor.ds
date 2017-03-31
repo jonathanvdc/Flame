@@ -24,7 +24,7 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         protected override bool Satisfies(INode Node)
         {
-            return Node is GotoLabelStatement;
+            return Node is GotoLabelStatement || Node is JumpTableStatement;
         }
     }
 }
