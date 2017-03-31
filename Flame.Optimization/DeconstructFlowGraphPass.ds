@@ -111,6 +111,44 @@ namespace Flame.Optimization
     }
 
     /// <summary>
+    /// A collection of helper functions that aid in proto-switch lowering.
+    /// </summary>
+    public module ProtoSwitchHelpers
+    {
+        /// <summary>
+        /// Gets an equivalent but preferred type for the given case value type.
+        /// </summary>
+        /// <param name="Type">The original case value type.</param>
+        /// <returns>An equivalent but preferred type.</returns>
+        public IType GetPreferredCaseType(IType Type)
+        {
+            if (PrimitiveTypes.Char.Equals(Type))
+                return PrimitiveTypes.GetIntType(Type.GetPrimitiveBitSize());
+            else if (Type.IsBit)
+                return PrimitiveTypes.GetUIntType(Type.GetPrimitiveBitSize());
+            else if (Type.IsEnum)
+                return GetPreferredCaseType(Type.GetParent());
+            else
+                return Type;
+        }
+
+        /// <summary>
+        /// Evaluates the given expression as a case value.
+        /// </summary>
+        /// <param name="Expression">The expression to evaluate.</param>
+        /// <returns>The evaluated expression. Null if that doesn't work out.</returns>
+        public IBoundObject EvaluateAsCaseValue(IExpression Expression)
+        {
+            var exprType = Expression.Type;
+            var prefCaseType = GetPreferredCaseType(exprType);
+            if (prefCaseType.Equals(exprType))
+                return Expression.Evaluate();
+            else
+                return new StaticCastExpression(Expression, prefCaseType).Simplify().Evaluate();
+        }
+    }
+
+    /// <summary>
     /// A node visitor that finds basic blocks which perform control flow that can best
     /// be lowered as a switch statement.
     /// </summary>
@@ -176,7 +214,7 @@ namespace Flame.Optimization
                 if (rhsVar == null)
                     return null;
 
-                var lhsVal = lhs.Evaluate();
+                var lhsVal = ProtoSwitchHelpers.EvaluateAsCaseValue(lhs);
                 if (lhsVal == null)
                     return null;
 
@@ -184,7 +222,7 @@ namespace Flame.Optimization
                     rhsVar, lhsVal, TrueBranch.TargetTag, FalseBranch.TargetTag);
             }
             
-            var rhsVal = rhs.Evaluate();
+            var rhsVal = ProtoSwitchHelpers.EvaluateAsCaseValue(rhs);
             if (rhsVal == null)
                 return null;
 
@@ -495,7 +533,7 @@ namespace Flame.Optimization
             {
                 ProtoSwitch protoSwitch;
                 if (ProtoSwitches.TryGetValue(BlockTag, &protoSwitch)
-                    && protoSwitch.SwitchVariable.Type.IsInteger)
+                    && protoSwitch.SwitchVariable.Type.IsIntegral)
                 {
                     EmitSwitchFlow(protoSwitch, Graph, FlowBuilder, ProtoSwitches);
                     return;
@@ -547,9 +585,18 @@ namespace Flame.Optimization
             }
             var defaultCase = EmitJumpToBlockAsStatement(
                 Flow.DefaultBodyTag, Graph, FlowBuilder, ProtoSwitches);
+
+            var switchVarType = Flow.SwitchVariable.Type;
+            var prefType = ProtoSwitchHelpers.GetPreferredCaseType(switchVarType);
+            var switchExpr = Flow.SwitchVariable.CreateGetExpression();
+            if (!prefType.Equals(switchVarType))
+            {
+                switchExpr = new StaticCastExpression(switchExpr, prefType);
+            }
+
             FlowBuilder.EmitStatement(
                 new UnsafeSwitchStatement(
-                    Flow.SwitchVariable.CreateGetExpression(), defaultCase, conditionalCases).Simplify());
+                    switchExpr, defaultCase, conditionalCases).Simplify());
         }
 
         private IStatement VisitFlowGraph(FlowGraph Graph)
