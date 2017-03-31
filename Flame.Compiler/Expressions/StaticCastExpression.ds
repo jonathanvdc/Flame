@@ -47,11 +47,11 @@ namespace Flame.Compiler.Expressions
                     return evalExpr.ToExpression();
             }
 
-            // An integer cast of an integer cast can be reduced to a simple integer cast
-            // if the result types have the same signedness.
             var essentialVal = Value.GetEssentialExpression();
             if (essentialVal is StaticCastExpression)
             {
+                // An integer cast of an integer cast can be reduced to a simple integer cast
+                // if the result types have the same signedness.
                 var valSpec = valTy.GetIntegerSpec();
                 var tgtSpec = TargetType.GetIntegerSpec();
                 if (valSpec != null && tgtSpec != null)
@@ -62,6 +62,18 @@ namespace Flame.Compiler.Expressions
                             ((StaticCastExpression)essentialVal).Value,
                             TargetType).Simplify();
                     }
+                }
+
+                // Casting an integer type to an enum type and then to another integral type is
+                // equivalent to first converting it to the enum type's backing type and then to
+                // the other integral type.
+                if (valTy.IsEnum && TargetType.IsIntegral)
+                {
+                    return new StaticCastExpression(
+                        new StaticCastExpression(
+                            ((StaticCastExpression)essentialVal).Value,
+                            valTy.GetParent()).Simplify(),
+                        TargetType).Simplify();
                 }
             }
 
