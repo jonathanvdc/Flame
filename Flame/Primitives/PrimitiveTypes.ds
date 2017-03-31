@@ -6,14 +6,14 @@ using Flame.Primitives;
 
 namespace Flame
 {
-	using System.Collections.Generic;
+    using System.Collections.Generic;
 
-	namespace Primitives
-	{
-		#region PrimitivesNamespace
+    namespace Primitives
+    {
+        #region PrimitivesNamespace
 
-		public static class PrimitivesNamespace : INamespace
-		{
+        public static class PrimitivesNamespace : INamespace
+        {
             public [IType] Types
             {
                 get { return PrimitiveTypes.GetPrimitives(); }
@@ -39,299 +39,299 @@ namespace Flame
                 const get { return AttributeMap.Empty; }
             }
 
-	    	public override const bool Equals(object Other)
-	    	{
-	    		return Other is PrimitivesNamespace;
-	    	}
-		}
+            public override const bool Equals(object Other)
+            {
+                return Other is PrimitivesNamespace;
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 
     public static class PrimitiveTypes
     {
-    	static this()
-    	{
-			bitTypes = new ConcurrentDictionary<int, IType>();
-			intTypes = new ConcurrentDictionary<int, IType>();
-			uintTypes = new ConcurrentDictionary<int, IType>();
-
-    		booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool), true);
-    		//stringType = new PrimitiveType<string>("String", 0 , null);
-    		stringType = StringPrimitiveType;
-    		PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>(
-				"Float32", 32, default(float32), float32.MinValue,
-				float32.MaxValue,
-				(float32)1.0 / (float32)0.0, (float32)(-1.0) / (float32)0.0);
-    		PrimitiveTypes.Float64 = new PrimitiveFloatType<float64>(
-				"Float64", 64, default(float64), float64.MinValue,
-				float64.MaxValue, 1.0 / 0.0, -1.0 / 0.0);
-    		//PrimitiveTypes.Char = new PrimitiveType<char>("Char", 2, default(char));
-    		PrimitiveTypes.Char = new CharPrimitiveType("Char", 16);
-    		//PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);
-    		PrimitiveTypes.Null = NullPrimitiveType;
-    		PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null, true);
-    		PrimitiveTypes.IHashable = HashableType;
-    		PrimitiveTypes.IEquatable = EquatableType;
-
-			PrimitiveTypes.primTypes = new HashSet<IType>(new IType[]
-			{
-				PrimitiveTypes.Float32,
-				PrimitiveTypes.Float64,
-				PrimitiveTypes.Boolean,
-				PrimitiveTypes.String,
-				PrimitiveTypes.Char,
-				PrimitiveTypes.Void
-			});
-    	}
-
-    	public static IType Int8 { get { return GetIntType(8); } }
-    	public static IType Int16 { get { return GetIntType(16); } }
-		public static IType Int32 { get { return GetIntType(32); } }
-    	public static IType Int64 { get { return GetIntType(64); } }
-
-    	public static IType UInt8 { get { return GetUIntType(8); } }
-    	public static IType UInt16 { get { return GetUIntType(16); } }
-    	public static IType UInt32 { get { return GetUIntType(32); } }
-    	public static IType UInt64 { get { return GetUIntType(64); } }
-
-		public static IType Bit8 { get { return GetBitType(8); } }
-    	public static IType Bit16 { get { return GetBitType(16); } }
-    	public static IType Bit32 { get { return GetBitType(32); } }
-    	public static IType Bit64 { get { return GetBitType(64); } }
-
-    	public static IType Float32 { const get; private set; }
-    	public static IType Float64 { const get; private set; }
-    	public static IType Char { const get; private set; }
-
-    	private static IType booleanType;
-		/// <summary>
-		/// Gets the 'Boolean' primitive type.
-		/// </summary>
-    	public static IType Boolean { const get return booleanType; }
-
-    	private static IType stringType;
-		/// <summary>
-		/// Gets the 'string' primitive type.
-		/// </summary>
-    	public static IType String { const get return stringType; }
-
-		/// <summary>
-		/// Gets the 'null' primitive type.
-		/// </summary>
-    	public static IType Null { const get; private set; }
-
-		/// <summary>
-		/// Gets the 'void' primitive type.
-		/// </summary>
-    	public static IType Void { const get; private set; }
-
-    	public static IType IHashable { const get; private set; }
-    	public static IType IEquatable { const get; private set; }
-
-		private static ConcurrentDictionary<int, IType> intTypes;
-		private static ConcurrentDictionary<int, IType> uintTypes;
-		private static ConcurrentDictionary<int, IType> bitTypes;
-
-		private static HashSet<IType> primTypes;
-		public static [IType] GetPrimitives()
-		{
-			return primTypes;
-		}
-
-		/// <summary>
-		/// Checks if the given type is a bit type.
-		/// </summary>
-		public static bool IsBit[this IType Type]
+        static this()
         {
-        	const get
-        	{
-				return Type is PrimitiveType<BitValue>;
+            bitTypes = new ConcurrentDictionary<int, IType>();
+            intTypes = new ConcurrentDictionary<int, IType>();
+            uintTypes = new ConcurrentDictionary<int, IType>();
+
+            booleanType = new PrimitiveType<bool>("Boolean", 1, default(bool), true);
+            //stringType = new PrimitiveType<string>("String", 0 , null);
+            stringType = StringPrimitiveType;
+            PrimitiveTypes.Float32 = new PrimitiveFloatType<float32>(
+                "Float32", 32, default(float32), float32.MinValue,
+                float32.MaxValue,
+                (float32)1.0 / (float32)0.0, (float32)(-1.0) / (float32)0.0);
+            PrimitiveTypes.Float64 = new PrimitiveFloatType<float64>(
+                "Float64", 64, default(float64), float64.MinValue,
+                float64.MaxValue, 1.0 / 0.0, -1.0 / 0.0);
+            //PrimitiveTypes.Char = new PrimitiveType<char>("Char", 2, default(char));
+            PrimitiveTypes.Char = new CharPrimitiveType("Char", 16);
+            //PrimitiveTypes.Null = new PrimitiveType<object>("Null", 0, null);
+            PrimitiveTypes.Null = NullPrimitiveType;
+            PrimitiveTypes.Void = new PrimitiveType<object>("Void", 0, null, true);
+            PrimitiveTypes.IHashable = HashableType;
+            PrimitiveTypes.IEquatable = EquatableType;
+
+            PrimitiveTypes.primTypes = new HashSet<IType>(new IType[]
+            {
+                PrimitiveTypes.Float32,
+                PrimitiveTypes.Float64,
+                PrimitiveTypes.Boolean,
+                PrimitiveTypes.String,
+                PrimitiveTypes.Char,
+                PrimitiveTypes.Void
+            });
+        }
+
+        public static IType Int8 { get { return GetIntType(8); } }
+        public static IType Int16 { get { return GetIntType(16); } }
+        public static IType Int32 { get { return GetIntType(32); } }
+        public static IType Int64 { get { return GetIntType(64); } }
+
+        public static IType UInt8 { get { return GetUIntType(8); } }
+        public static IType UInt16 { get { return GetUIntType(16); } }
+        public static IType UInt32 { get { return GetUIntType(32); } }
+        public static IType UInt64 { get { return GetUIntType(64); } }
+
+        public static IType Bit8 { get { return GetBitType(8); } }
+        public static IType Bit16 { get { return GetBitType(16); } }
+        public static IType Bit32 { get { return GetBitType(32); } }
+        public static IType Bit64 { get { return GetBitType(64); } }
+
+        public static IType Float32 { const get; private set; }
+        public static IType Float64 { const get; private set; }
+        public static IType Char { const get; private set; }
+
+        private static IType booleanType;
+        /// <summary>
+        /// Gets the 'Boolean' primitive type.
+        /// </summary>
+        public static IType Boolean { const get return booleanType; }
+
+        private static IType stringType;
+        /// <summary>
+        /// Gets the 'string' primitive type.
+        /// </summary>
+        public static IType String { const get return stringType; }
+
+        /// <summary>
+        /// Gets the 'null' primitive type.
+        /// </summary>
+        public static IType Null { const get; private set; }
+
+        /// <summary>
+        /// Gets the 'void' primitive type.
+        /// </summary>
+        public static IType Void { const get; private set; }
+
+        public static IType IHashable { const get; private set; }
+        public static IType IEquatable { const get; private set; }
+
+        private static ConcurrentDictionary<int, IType> intTypes;
+        private static ConcurrentDictionary<int, IType> uintTypes;
+        private static ConcurrentDictionary<int, IType> bitTypes;
+
+        private static HashSet<IType> primTypes;
+        public static [IType] GetPrimitives()
+        {
+            return primTypes;
+        }
+
+        /// <summary>
+        /// Checks if the given type is a bit type.
+        /// </summary>
+        public static bool IsBit[this IType Type]
+        {
+            const get
+            {
+                return Type is PrimitiveType<BitValue>;
             }
         }
 
-		/// <summary>
-		/// Checks if the given type is a floating-point type.
-		/// </summary>
+        /// <summary>
+        /// Checks if the given type is a floating-point type.
+        /// </summary>
         public static bool IsFloatingPoint[this IType Type]
         {
-        	const get
-        	{
-				return Float32.Equals(Type) || Float64.Equals(Type);
+            const get
+            {
+                return Float32.Equals(Type) || Float64.Equals(Type);
             }
         }
 
-		/// <summary>
-		/// Checks if the given type is an unsigned integer type.
-		/// </summary>
+        /// <summary>
+        /// Checks if the given type is an unsigned integer type.
+        /// </summary>
         public static bool IsUnsignedInteger[this IType Type]
         {
-        	get
-        	{
-				if (Type is PrimitiveNumberType<IntegerValue>)
-				{
-					var numTy = (PrimitiveNumberType<IntegerValue>)Type;
-					return !numTy.DefaultValue.Spec.IsSigned;
-				}
-				else
-				{
-					return false;
-				}
+            get
+            {
+                if (Type is PrimitiveNumberType<IntegerValue>)
+                {
+                    var numTy = (PrimitiveNumberType<IntegerValue>)Type;
+                    return !numTy.DefaultValue.Spec.IsSigned;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
-		/// <summary>
-		/// Checks if the given type is a signed integer type.
-		/// </summary>
-       	public static bool IsSignedInteger[this IType Type]
+        /// <summary>
+        /// Checks if the given type is a signed integer type.
+        /// </summary>
+           public static bool IsSignedInteger[this IType Type]
         {
-        	get
-        	{
-				if (Type is PrimitiveNumberType<IntegerValue>)
-				{
-					var numTy = (PrimitiveNumberType<IntegerValue>)Type;
-					return numTy.DefaultValue.Spec.IsSigned;
-				}
-				else
-				{
-					return false;
-				}
+            get
+            {
+                if (Type is PrimitiveNumberType<IntegerValue>)
+                {
+                    var numTy = (PrimitiveNumberType<IntegerValue>)Type;
+                    return numTy.DefaultValue.Spec.IsSigned;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
-		/// <summary>
-		/// Checks if the given type is a signed or unsigned integer type.
-		/// </summary>
+        /// <summary>
+        /// Checks if the given type is a signed or unsigned integer type.
+        /// </summary>
         public static bool IsInteger[this IType Type]
         {
-        	get
-        	{
-        		return Type is PrimitiveNumberType<IntegerValue>;
-        	}
+            get
+            {
+                return Type is PrimitiveNumberType<IntegerValue>;
+            }
         }
 
-		/// <summary>
-		/// Checks if the given type is a non-interface primitive type.
-		/// </summary>
-		public static bool IsPrimitive[this IType Type]
-		{
-			get
-			{
-				return Type.IsInteger || Type.IsBit || primTypes.Contains(Type);
-			}
-		}
+        /// <summary>
+        /// Checks if the given type is a non-interface primitive type.
+        /// </summary>
+        public static bool IsPrimitive[this IType Type]
+        {
+            get
+            {
+                return Type.IsInteger || Type.IsBit || primTypes.Contains(Type);
+            }
+        }
 
-		private static IType CreateIntType(int BitSize)
-		{
-			var spec = new IntegerSpec(BitSize, true);
-			return new PrimitiveNumberType<IntegerValue>(
-				"Int" + BitSize, BitSize,
-				new IntegerValue(BigInteger.Zero, spec),
-				new IntegerValue(spec.MinValue, spec),
-				new IntegerValue(spec.MaxValue, spec));
-		}
+        private static IType CreateIntType(int BitSize)
+        {
+            var spec = new IntegerSpec(BitSize, true);
+            return new PrimitiveNumberType<IntegerValue>(
+                "Int" + BitSize, BitSize,
+                new IntegerValue(BigInteger.Zero, spec),
+                new IntegerValue(spec.MinValue, spec),
+                new IntegerValue(spec.MaxValue, spec));
+        }
 
-		/// <summary>
-		/// Gets the signed integer type of the given size.
-		/// </summary>
-		public static IType GetIntType(int BitSize)
-			in { BitSize > 0 }
-		{
-			return intTypes.GetOrAdd(BitSize, CreateIntType);
-		}
+        /// <summary>
+        /// Gets the signed integer type of the given size.
+        /// </summary>
+        public static IType GetIntType(int BitSize)
+            in { BitSize > 0 }
+        {
+            return intTypes.GetOrAdd(BitSize, CreateIntType);
+        }
 
-		private static IType CreateUIntType(int BitSize)
-		{
-			var spec = new IntegerSpec(BitSize, false);
-			return new PrimitiveNumberType<IntegerValue>(
-				"UInt" + BitSize, BitSize,
-				new IntegerValue(BigInteger.Zero, spec),
-				new IntegerValue(spec.MinValue, spec),
-				new IntegerValue(spec.MaxValue, spec));
-		}
+        private static IType CreateUIntType(int BitSize)
+        {
+            var spec = new IntegerSpec(BitSize, false);
+            return new PrimitiveNumberType<IntegerValue>(
+                "UInt" + BitSize, BitSize,
+                new IntegerValue(BigInteger.Zero, spec),
+                new IntegerValue(spec.MinValue, spec),
+                new IntegerValue(spec.MaxValue, spec));
+        }
 
-		/// <summary>
-		/// Gets the unsigned integer type of the given size.
-		/// </summary>
-		public static IType GetUIntType(int BitSize)
-			in { BitSize > 0 }
-		{
-			return uintTypes.GetOrAdd(BitSize, CreateUIntType);
-		}
+        /// <summary>
+        /// Gets the unsigned integer type of the given size.
+        /// </summary>
+        public static IType GetUIntType(int BitSize)
+            in { BitSize > 0 }
+        {
+            return uintTypes.GetOrAdd(BitSize, CreateUIntType);
+        }
 
-		/// <summary>
-		/// Gets the integer type of the given size and signedness.
-		/// </summary>
-		public static IType GetIntegerType(int BitSize, bool IsSigned)
-			in { BitSize > 0 }
-		{
-			if (IsSigned)
-				return GetIntType(BitSize);
-			else
-				return GetUIntType(BitSize);
-		}
+        /// <summary>
+        /// Gets the integer type of the given size and signedness.
+        /// </summary>
+        public static IType GetIntegerType(int BitSize, bool IsSigned)
+            in { BitSize > 0 }
+        {
+            if (IsSigned)
+                return GetIntType(BitSize);
+            else
+                return GetUIntType(BitSize);
+        }
 
-		private static IType CreateBitType(int BitSize)
-		{
-			return new PrimitiveType<BitValue>(
-				"Bit" + BitSize, BitSize,
-				new BitValue(new IntegerValue(
-					BigInteger.Zero,
-					new IntegerSpec(BitSize, false))));
-		}
+        private static IType CreateBitType(int BitSize)
+        {
+            return new PrimitiveType<BitValue>(
+                "Bit" + BitSize, BitSize,
+                new BitValue(new IntegerValue(
+                    BigInteger.Zero,
+                    new IntegerSpec(BitSize, false))));
+        }
 
-		/// <summary>
-		/// Gets the bit type of the given size.
-		/// </summary>
-		public static IType GetBitType(int BitSize)
-			in { BitSize > 0 }
-		{
-			return bitTypes.GetOrAdd(BitSize, CreateBitType);
-		}
+        /// <summary>
+        /// Gets the bit type of the given size.
+        /// </summary>
+        public static IType GetBitType(int BitSize)
+            in { BitSize > 0 }
+        {
+            return bitTypes.GetOrAdd(BitSize, CreateBitType);
+        }
 
-		/// <summary>
-		/// Gets the given type's primitive size, in bytes.
-		/// A primitive type with a bit-size that is not a multiple
-		/// of eight will have its size in bytes rounded up.
-		/// </summary>
-		/// <returns>The byte-size of the given type, if it is a primitive type; otherwise, zero.</returns>
+        /// <summary>
+        /// Gets the given type's primitive size, in bytes.
+        /// A primitive type with a bit-size that is not a multiple
+        /// of eight will have its size in bytes rounded up.
+        /// </summary>
+        /// <returns>The byte-size of the given type, if it is a primitive type; otherwise, zero.</returns>
         public static int GetPrimitiveSize(this IType Type)
         {
-			int bitSize = Type.GetPrimitiveBitSize();
-			int rem;
-			int result = Math.DivRem(bitSize, 8, &rem);
-			if (rem > 0)
-				result++;
-			return result;
+            int bitSize = Type.GetPrimitiveBitSize();
+            int rem;
+            int result = Math.DivRem(bitSize, 8, &rem);
+            if (rem > 0)
+                result++;
+            return result;
         }
 
-		/// <summary>
-		/// Gets the given type's primitive size, in bits.
-		/// </summary>
-		/// <returns>The bit-size of the given type, if it is a primitive type; otherwise, zero.</returns>
-		public static int GetPrimitiveBitSize(this IType Type)
-		{
-			if (Type is IBitSizedType)
-				return ((IBitSizedType)Type).BitSize;
-			else
-				return 0;
-		}
+        /// <summary>
+        /// Gets the given type's primitive size, in bits.
+        /// </summary>
+        /// <returns>The bit-size of the given type, if it is a primitive type; otherwise, zero.</returns>
+        public static int GetPrimitiveBitSize(this IType Type)
+        {
+            if (Type is IBitSizedType)
+                return ((IBitSizedType)Type).BitSize;
+            else
+                return 0;
+        }
 
-		/// <summary>
-		/// Gets the given integer type's integer spec, or null, if the given
-		/// type is not an integer type.
-		/// </summary>
-		public static IntegerSpec GetIntegerSpec(this IType Type)
-		{
-			if (Type is PrimitiveNumberType<IntegerValue>)
-			{
-				var numTy = (PrimitiveNumberType<IntegerValue>)Type;
-				return numTy.DefaultValue.Spec;
-			}
-			else
-			{
-				return null;
-			}
-		}
-	}
+        /// <summary>
+        /// Gets the given integer type's integer spec, or null, if the given
+        /// type is not an integer type.
+        /// </summary>
+        public static IntegerSpec GetIntegerSpec(this IType Type)
+        {
+            if (Type is PrimitiveNumberType<IntegerValue>)
+            {
+                var numTy = (PrimitiveNumberType<IntegerValue>)Type;
+                return numTy.DefaultValue.Spec;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
 }
