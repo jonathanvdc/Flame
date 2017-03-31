@@ -1,0 +1,64 @@
+using System;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that updates access modifiers such that members from the same assembly can
+    /// always access each other. This helps drive inter-procedural optimizations such as
+    /// inlining.
+    /// </summary>
+    public static class AccessRelaxingPass : IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>
+    {
+        /// <summary>
+        /// The name of the access relaxing pass.
+        /// </summary>
+        public const string AccessRelaxingPassName = "relax-access";
+
+        private void InternalizeAccess(AttributeMapBuilder Map)
+        {
+            var accessAttribute = Map.Get(AccessAttribute.AccessAttributeType);
+            if (accessAttribute == null)
+                return;
+
+            var access = ((AccessAttribute)accessAttribute).Access;
+            var newAccess = access;
+            if (access == AccessModifier.Protected || access == AccessModifier.ProtectedAndAssembly)
+                newAccess = AccessModifier.ProtectedOrAssembly;
+            else if (access == AccessModifier.Private)
+                newAccess = AccessModifier.Assembly;
+
+            if (access != newAccess)
+            {
+                Map.RemoveAll(AccessAttribute.AccessAttributeType);
+                Map.Add(new AccessAttribute(newAccess));
+            }
+        }
+
+        private const string AccessRelaxingEnabledKey = "relax-access-enabled";
+
+        private void UpdatePassMetadata(IRandomAccessOptions GlobalMetadata)
+        {
+            if (!GlobalMetadata.HasOption(AccessRelaxingEnabledKey))
+                GlobalMetadata.SetOption<bool>(AccessRelaxingEnabledKey, true);
+        }
+
+        public MemberSignaturePassResult Apply(MemberSignaturePassArgument<IMember> Value)
+        {
+            UpdatePassMetadata(Value.GlobalMetadata);
+            return new MemberSignaturePassResult(null, Enumerable.Empty<IAttribute>(), InternalizeAccess);
+        }
+
+        /// <summary>
+        /// Checks if this pass is enabled by looking at the given global metadata dictionary.
+        /// </summary>
+        /// <param name="GlobalMetadata">The global metadata dictionary for an assembly.</param>
+        /// <returns>A Boolean value that tells if this pass is enabled for the current assembly.</returns>
+        public bool IsEnabled(IRandomAccessOptions GlobalMetadata)
+        {
+            return GlobalMetadata.GetOption<bool>(AccessRelaxingEnabledKey, false);
+        }
+    }
+}
