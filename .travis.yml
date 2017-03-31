@@ -7,11 +7,15 @@ install:
   - nuget restore Flame.Cecil/Flame.Cecil.sln
 script:
   # Perform one build to check that Flame is buildable
-  - ./BuildCI.sh bin_dsc/dsc.exe
+  - ./BuildCI.sh bin_dsc/dsc.exe -O2
   # Perform a second build to make sure that Flame can bootstrap
-  - ./BuildCI.sh dsc/bin/Release/dsc.exe
+  # and turn on -O3 optimizations.
+  - ./BuildCI.sh dsc/bin/Release/dsc.exe -O3
+  # Perform a third build to make sure that Flame can bootstrap with
+  # aggressive optimizations turned on.
+  - ./BuildCI.sh dsc/bin/Release/dsc.exe -O3
   # Build compare-test, with -O3, to ensure that aggressive optimizations
-  # work for a real-life application. Use --debug to catch some incorrect
+  # work for a real-life application. Use --debug to catch incorrect
   # optimizations at compile-time.
   - mono dsc/bin/Release/dsc.exe compare-test/src/compare-test.dsproj -O3 --debug
   # Run the tests

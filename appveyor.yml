@@ -17,10 +17,14 @@ build_script:
   - echo %ASM_VERSION%
   # Perform one build to check that Flame is buildable
   - BuildCI.bat bin_dsc\dsc.exe
-  # Perform a second build to make sure that Flame can bootstrap
-  - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION%
+  # Perform a second build to make sure that Flame can bootstrap, and
+  # turn on -O3 optimizations.
+  - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION% -O3
+  # Perform a third build to make sure that Flame can bootstrap with
+  # aggressive optimizations turned on.
+  - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION% -O3
   # Build compare-test, with -O3, to ensure that aggressive optimizations
-  # work for a real-life application. Use --debug to catch some incorrect
+  # work for a real-life application. Use --debug to catch incorrect
   # optimizations at compile-time.
   - dsc\bin\Release\dsc.exe compare-test\src\compare-test.dsproj -O3 --debug -v
 
