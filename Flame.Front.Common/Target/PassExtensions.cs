@@ -176,12 +176,18 @@ namespace Flame.Front.Target
 
             GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
+            // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
+            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
+
+            // -frelax-access turns private into internal, and protected into protected-or-internal.
+            // That's surprisingly useful for passes like inlining and scalar replacement of aggregates.
+            // Enable it from -O3 onward.
+            GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(AccessRelaxingPass.Instance, AccessRelaxingPass.AccessRelaxingPassName));
+            GlobalPassManager.RegisterPassCondition(AccessRelaxingPass.AccessRelaxingPassName, optInfo => optInfo.OptimizeAggressive);
+
             // Register -fnormalize-names-clr here, because the IR back-end could also use
             // this pass when targeting the CLR platform indirectly.
             GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
-
-            // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
-            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
 
             // -fwrap-extension-properties is actually a set of two passes which are
             // always on or off at the same time.
