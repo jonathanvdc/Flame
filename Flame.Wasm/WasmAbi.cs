@@ -483,6 +483,11 @@ namespace Flame.Wasm
 			throw new InvalidOperationException();
 		}
 
+		protected override DataLayout MakeGenericInstanceType(DataLayout GenericDeclaration, DataLayout GenericDeclaringTypeInstance)
+        {
+            throw new InvalidOperationException();
+        }
+
 		protected override DataLayout MakePointerType(DataLayout ElementType, PointerKind Kind)
 		{
 			return Convert(PointerIntegerType);

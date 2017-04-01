@@ -4,62 +4,67 @@ using System.Text;
 
 namespace Flame.Build
 {
-	public virtual class TypeNamerBase : TypeConverterBase<string>
-	{
-		public this();
+    public virtual class TypeNamerBase : TypeConverterBase<string>
+    {
+        public this();
 
-		protected override virtual string MakePointerType(string ElementType, PointerKind Kind)
-		{
-			return ElementType + Kind.Extension;
-		}
+        protected override virtual string MakePointerType(string ElementType, PointerKind Kind)
+        {
+            return ElementType + Kind.Extension;
+        }
 
-		protected override virtual string MakeArrayType(string ElementType, int ArrayRank)
-		{
-			return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
-		}
+        protected override virtual string MakeArrayType(string ElementType, int ArrayRank)
+        {
+            return GenericNameExtensions.AppendArraySuffix(ElementType, ArrayRank);
+        }
 
-		protected override virtual string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
-		{
-			return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
-		}
+        protected override virtual string MakeVectorType(string ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return GenericNameExtensions.AppendVectorSuffix(ElementType, Dimensions);
+        }
 
-		protected override virtual string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
-		{
-			return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
-		}
+        protected override virtual string MakeGenericType(string GenericDeclaration, [string] TypeArguments)
+        {
+            return GenericNameExtensions.ChangeTypeArguments(GenericDeclaration, TypeArguments);
+        }
 
-		protected override virtual string ConvertGenericParameter(IGenericParameter Type)
-		{
-			return Type.Name.ToString();
-		}
+        protected override string MakeGenericInstanceType(string GenericDeclaration, string GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaringTypeInstance + "." + GenericDeclaration;
+        }
 
-		protected override virtual string ConvertMethodType(MethodType Type)
-		{
-			var deleg = Type.DelegateSignature;
-			var sb = new StringBuilder();
-			sb.Append(Convert(deleg.ReturnType));
-			sb.Append('(');
-			var params = deleg.GetParameters();
-			for (int i = 0; i < params.Length; i++)
-			{
-				if (i > 0) sb.Append(", ");
-				sb.Append(Convert(params[i].ParameterType));
-			}
-			sb.Append(')');
-			return (string)sb;
-		}
+        protected override virtual string ConvertGenericParameter(IGenericParameter Type)
+        {
+            return Type.Name.ToString();
+        }
 
-		protected override virtual string ConvertIntersectionType(IntersectionType Type)
-		{
-			return Convert(Type.First) + "&" + Convert(Type.Second);
-		}
+        protected override virtual string ConvertMethodType(MethodType Type)
+        {
+            var deleg = Type.DelegateSignature;
+            var sb = new StringBuilder();
+            sb.Append(Convert(deleg.ReturnType));
+            sb.Append('(');
+            var params = deleg.GetParameters();
+            for (int i = 0; i < params.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                sb.Append(Convert(params[i].ParameterType));
+            }
+            sb.Append(')');
+            return (string)sb;
+        }
 
-		protected override virtual string ConvertTypeDefault(IType Type)
-		{
-			if (Type == null)
-				return "<unresolved type>";
-			else
-				return Type.FullName.ToString();
-		}
-	}
+        protected override virtual string ConvertIntersectionType(IntersectionType Type)
+        {
+            return Convert(Type.First) + "&" + Convert(Type.Second);
+        }
+
+        protected override virtual string ConvertTypeDefault(IType Type)
+        {
+            if (Type == null)
+                return "<unresolved type>";
+            else
+                return Type.FullName.ToString();
+        }
+    }
 }

@@ -25,10 +25,6 @@ namespace Flame.Intermediate.Emit
 
         protected override LNode ConvertTypeDefault(IType Type)
         {
-            if (Type is GenericInstanceType)
-            {
-                return ConvertGenericNestedType((GenericInstanceType)Type);
-            }
             if (Type.GetIsRootType())
             {
                 if (Type.Equals(PrimitiveTypes.IHashable))
@@ -61,6 +57,15 @@ namespace Flame.Intermediate.Emit
         protected override LNode MakeGenericType(LNode GenericDeclaration, IEnumerable<LNode> TypeArguments)
         {
             return NodeFactory.Call(IRParser.GenericInstanceName, new LNode[] { GenericDeclaration }.Concat(TypeArguments));
+        }
+
+        protected override LNode MakeGenericInstanceType(LNode GenericDeclaration, LNode GenericDeclaringTypeInstance)
+        {
+            return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
+            {
+                GenericDeclaringTypeInstance,
+                GenericDeclaration
+            });
         }
 
         protected override LNode MakePointerType(LNode ElementType, PointerKind Kind)
@@ -135,15 +140,6 @@ namespace Flame.Intermediate.Emit
                     NodeFactory.VarLiteral(index)
                 });
             }
-        }
-
-        protected virtual LNode ConvertGenericNestedType(GenericInstanceType Type)
-        {
-            return NodeFactory.Call(IRParser.GenericInstanceMemberName, new LNode[]
-            {
-                GetTypeReference(Type.DeclaringType),
-                GetTypeReference(Type.Declaration)
-            });
         }
 
         protected override LNode ConvertNestedType(IType Type, IType DeclaringType)

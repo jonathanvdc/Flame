@@ -44,6 +44,12 @@ namespace Flame.Build
             return GenericDeclaration.MakeGenericType(TypeArguments);
         }
 
+        protected override virtual IType MakeGenericInstanceType(IType GenericDeclaration, IType GenericDeclaringTypeInstance)
+        {
+            var declType = (GenericTypeBase)GenericDeclaringTypeInstance;
+            return new GenericInstanceType(GenericDeclaration, declType.Resolver, declType);
+        }
+
         protected override virtual IType ConvertMethodType(MethodType Type)
         {
             var method = Type.DelegateSignature;

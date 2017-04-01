@@ -43,6 +43,11 @@ namespace Flame.Cpp
             return GenericDeclaration;
         }
 
+        protected override bool MakeGenericInstanceType(bool GenericDeclaration, bool GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaration;
+        }
+
         protected override bool MakePointerType(bool ElementType, PointerKind Kind)
         {
             return ElementType;

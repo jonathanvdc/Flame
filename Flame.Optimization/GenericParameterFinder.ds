@@ -35,6 +35,11 @@ namespace Flame.Optimization
             return GenericDeclaration || Enumerable.Any<bool>(TypeArguments, Id);
         }
 
+        protected override bool MakeGenericInstanceType(bool GenericDeclaration, bool GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaration || GenericDeclaringTypeInstance;
+        }
+
         protected override bool MakePointerType(bool ElementType, PointerKind Kind)
         {
             return ElementType;

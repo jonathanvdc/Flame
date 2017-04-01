@@ -41,6 +41,11 @@ namespace Flame.Cpp
             return GenericDeclaration.Concat(TypeArguments.SelectMany(item => item));
         }
 
+        protected override IEnumerable<IType> MakeGenericInstanceType(IEnumerable<IType> GenericDeclaration, IEnumerable<IType> GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaration.Concat(GenericDeclaringTypeInstance);
+        }
+
         protected override IEnumerable<IType> MakePointerType(IEnumerable<IType> ElementType, PointerKind Kind)
         {
             return ElementType;

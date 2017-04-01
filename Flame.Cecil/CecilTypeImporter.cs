@@ -176,6 +176,13 @@ namespace Flame.Cecil
             return instance;
         }
 
+        protected override TypeReference MakeGenericInstanceType(TypeReference GenericDeclaration, TypeReference GenericDeclaringTypeInstance)
+        {
+            return MakeGenericType(
+                GenericDeclaration,
+                ((Mono.Cecil.GenericInstanceType)GenericDeclaringTypeInstance).GenericArguments);
+        }
+
         protected override TypeReference MakePointerType(TypeReference ElementType, PointerKind Kind)
         {
             if (Kind.Equals(PointerKind.ReferencePointer))

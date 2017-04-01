@@ -99,6 +99,11 @@ namespace Flame.ExpressionTrees
             return GenericDeclaration.MakeGenericType(TypeArguments.ToArray());
         }
 
+        protected override Type MakeGenericInstanceType(Type GenericDeclaration, Type GenericDeclaringTypeInstance)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Type MakePointerType(Type ElementType, PointerKind Kind)
         {
             if (Kind.Equals(PointerKind.ReferencePointer))

@@ -26,6 +26,11 @@ namespace Flame.Cpp
             return GenericDeclaration.MergeDependencies(TypeArguments.SelectMany(item => item));
         }
 
+        protected override IEnumerable<IHeaderDependency> MakeGenericInstanceType(IEnumerable<IHeaderDependency> GenericDeclaration, IEnumerable<IHeaderDependency> GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaration.MergeDependencies(GenericDeclaringTypeInstance);
+        }
+
         protected override IEnumerable<IHeaderDependency> MakePointerType(IEnumerable<IHeaderDependency> ElementType, PointerKind Kind)
         {
             if (Kind.Equals(PointerKind.ReferencePointer))

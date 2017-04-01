@@ -17,6 +17,7 @@ namespace Flame.Build
         protected abstract TTarget MakeArrayType(TTarget ElementType, int ArrayRank);
         protected abstract TTarget MakeVectorType(TTarget ElementType, IReadOnlyList<int> Dimensions);
         protected abstract TTarget MakeGenericType(TTarget GenericDeclaration, [TTarget] TypeArguments);
+        protected abstract TTarget MakeGenericInstanceType(TTarget GenericDeclaration, TTarget GenericDeclaringTypeInstance);
         protected abstract TTarget ConvertTypeDefault(IType Type);
 
         protected virtual TTarget ConvertPointerType(PointerType Type)
@@ -70,7 +71,15 @@ namespace Flame.Build
 
         protected virtual TTarget ConvertNestedType(IType Type, IType DeclaringType)
         {
-            return ConvertUserType(Type);
+            if (DeclaringType is GenericInstanceType)
+            {
+                var genericInstType = (GenericInstanceType)DeclaringType;
+                return MakeGenericInstanceType(Convert(genericInstType.Declaration), Convert(DeclaringType));
+            }
+            else
+            {
+                return ConvertUserType(Type);
+            }
         }
 
         protected virtual TTarget ConvertMethodType(MethodType Type)

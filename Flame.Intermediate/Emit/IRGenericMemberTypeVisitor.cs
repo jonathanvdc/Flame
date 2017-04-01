@@ -84,6 +84,11 @@ namespace Flame.Intermediate.Emit
             return GenericDeclaration || TypeArguments.Any();
         }
 
+        protected override bool MakeGenericInstanceType(bool GenericDeclaration, bool GenericDeclaringTypeInstance)
+        {
+            return GenericDeclaration || GenericDeclaringTypeInstance;
+        }
+
         protected override bool MakePointerType(bool ElementType, PointerKind Kind)
         {
             return ElementType;
