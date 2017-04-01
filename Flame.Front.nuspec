@@ -24,7 +24,7 @@
         <dependency id="Loyc.Essentials" version="24.3.0" />
         <dependency id="Loyc.Syntax" version="24.3.0" />
         <dependency id="Mono.Cecil" version="0.9.6.4" />
-        <dependency id="Newtonsoft.Json" version="9.0.1" />
+        <dependency id="Newtonsoft.Json" version="10.0.1" />
         <dependency id="Loyc.Binary" version="0.1.8" />
     </dependencies>
   </metadata>
