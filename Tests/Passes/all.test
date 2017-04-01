@@ -24,6 +24,7 @@ tests
     LowerNewValueType/LowerNewValueType8.test;
     LowerSwitch/LowerSwitch.test;
     LowerSwitch/LowerSwitch2.test;
+    LowerSwitch/LowerSwitch3.test;
     LowerYield/LowerYield.test;
     ScalarReplacement/ScalarReplacement.test;
     ScalarReplacement/ScalarReplacement2.test;

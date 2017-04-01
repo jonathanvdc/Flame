@@ -1,0 +1,41 @@
+using System;
+
+public enum TokenType : int
+{
+    Whitespace = 0,
+    Comma = 1,
+    Dot = 2
+}
+
+public class Token
+{
+    public this(TokenType Type)
+    {
+        this.Type = Type;
+    }
+
+    public TokenType Type { get; private set; }
+}
+
+public module Program
+{
+    private string NameTokenType(Token value)
+    {
+        if (value.Type == TokenType.Whitespace)
+            return "whitespace";
+        else if (value.Type == TokenType.Comma)
+            return "comma";
+        else if (value.Type == TokenType.Dot)
+            return "dot";
+        else
+            return "unknown";
+    }
+
+    public void Main()
+    {
+        Console.WriteLine(NameTokenType(new Token(TokenType.Whitespace)));
+        Console.WriteLine(NameTokenType(new Token(TokenType.Comma)));
+        Console.WriteLine(NameTokenType(new Token(TokenType.Dot)));
+        Console.WriteLine(NameTokenType(new Token((TokenType)10)));
+    }
+}
