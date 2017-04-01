@@ -12,5 +12,5 @@ dsc Flame.Syntax/Flame.Syntax.dsc.dsproj -Wall -Wextra -pedantic $2 -repeat-comm
 dsc Flame.Markdown/Flame.Markdown.dsproj -Wall -Wextra -pedantic $2 -repeat-command -time -g --debug
 dsc Flame.DSharp/Flame.DSharp.dsc.dsproj -Wall -Wextra -pedantic $2 -repeat-command -time -g --debug
 cd ./Flame.Cecil/
-xbuild /p:Configuration=Release Flame.Cecil.sln
+xbuild /p:Configuration=Release /verbosity:minimal Flame.Cecil.sln
 cd ..

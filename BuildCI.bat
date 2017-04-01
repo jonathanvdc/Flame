@@ -21,5 +21,5 @@ shift
 %dsc% Flame.Markdown/Flame.Markdown.dsproj -Wall -Wextra -pedantic -O2 -time -g --debug -repeat-command %args%
 %dsc% Flame.DSharp/Flame.DSharp.dsc.dsproj -Wall -Wextra -pedantic -O2 -time -g --debug -repeat-command %args%
 cd ./Flame.Cecil/
-msbuild /p:Configuration=Release Flame.Cecil.sln
+msbuild /p:Configuration=Release /verbosity:minimal Flame.Cecil.sln
 cd ..

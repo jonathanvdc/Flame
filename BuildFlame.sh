@@ -3,5 +3,5 @@
 
 bash ./BuildFlameCore.sh $@
 cd ./Flame.Cecil/
-xbuild /p:Configuration=Release Flame.Cecil.sln
+xbuild /p:Configuration=Release /verbosity:minimal Flame.Cecil.sln
 cd ..
