@@ -2,6 +2,7 @@
 SET dsc=%1
 shift
 
+set args=
 :loop
       ::-------------------------- has argument ?
       if ["%~1"]==[""] (
