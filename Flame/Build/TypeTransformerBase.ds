@@ -44,7 +44,7 @@ namespace Flame.Build
             return GenericDeclaration.MakeGenericType(TypeArguments);
         }
 
-        protected override virtual IType MakeGenericInstanceType(IType GenericDeclaration, IType GenericDeclaringTypeInstance)
+        protected override IType MakeGenericInstanceType(IType GenericDeclaration, IType GenericDeclaringTypeInstance)
         {
             var declType = (GenericTypeBase)GenericDeclaringTypeInstance;
             return new GenericInstanceType(GenericDeclaration, declType.Resolver, declType);
@@ -108,6 +108,19 @@ namespace Flame.Build
             }
 
             return MakeGenericType(convDecl, convArgs);
+        }
+
+        protected virtual override IType ConvertNestedType(IType Type, IType DeclaringType)
+        {
+            if (Type.IsRecursiveGenericInstance)
+            {
+                return Type.GetRecursiveGenericDeclaration().MakeRecursiveGenericType(
+                    Convert(Type.GetRecursiveGenericArguments()));
+            }
+            else
+            {
+                return ConvertUserType(Type);
+            }
         }
 
         protected override virtual IType ConvertPointerType(PointerType Type)
