@@ -243,13 +243,13 @@ namespace Flame
                     Method.GetGenericArguments());
         }
 
-        public static [IType] GetRecursiveGenericParameters(this IMethod Method)
+        public static [IGenericParameter] GetRecursiveGenericParameters(this IMethod Method)
         {
             var declTy = Method.DeclaringType;
             if (declTy == null)
                 return Method.GenericParameters;
             else
-                return Enumerable.Concat<IType>(
+                return Enumerable.Concat<IGenericParameter>(
                     declTy.GetRecursiveGenericParameters(),
                     Method.GenericParameters);
         }
