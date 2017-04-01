@@ -69,7 +69,8 @@ namespace Flame.Optimization
         /// <returns>true if the proto-switch is compatible; otherwise, false.</returns>
         public bool IsCompatible(ProtoSwitch Other)
         {
-            return SwitchVariable.Equals(Other.SwitchVariable);
+            return ProtoSwitchHelpers.AreEquivalentSwitchVariables(
+                SwitchVariable, Other.SwitchVariable);
         }
 
         /// <summary>
@@ -146,6 +147,101 @@ namespace Flame.Optimization
             else
                 return new StaticCastExpression(Expression, prefCaseType).Simplify().Evaluate();
         }
+
+        private IVariable GetSwitchVariable(IExpression Expression, bool IsNested)
+        {
+            if (Expression is IVariableNode)
+            {
+                var varNode = (IVariableNode)Expression;
+                if (varNode.Action == VariableNodeAction.Get
+                    || (IsNested && varNode.Action == VariableNodeAction.AddressOf))
+                {
+                    var variable = varNode.GetVariable();
+                    if (variable is LocalVariableBase || variable is ArgumentVariable)
+                    {
+                        return variable;
+                    }
+                    else if (variable is FieldVariable)
+                    {
+                        var fieldVar = (FieldVariable)variable;
+                        if (fieldVar.Target == null)
+                            return fieldVar;
+
+                        var innerVar = GetSwitchVariable(fieldVar.Target.GetEssentialExpression(), true);
+                        if (innerVar != null)
+                            return fieldVar;
+                    }
+                    else if (variable is AtAddressVariable)
+                    {
+                        var atAddressVar = (AtAddressVariable)variable;
+                        var innerVar = GetSwitchVariable(atAddressVar.Pointer.GetEssentialExpression(), true);
+                        if (innerVar != null)
+                            return atAddressVar;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns a variable that evaluates to the given expression if it can
+        /// appear in a switch statement.
+        /// </summary>
+        /// <param name="Expression">An expression.</param>
+        /// <returns>
+        /// A variable that evaluates to the given expression if it can
+        /// appear in a switch statement; otherwise, null.
+        /// </returns>
+        public IVariable GetSwitchVariable(IExpression Expression)
+        {
+            return GetSwitchVariable(Expression.GetEssentialExpression(), false);
+        }
+
+        /// <summary>
+        /// Tests if the given switch variables are equivalent.
+        /// </summary>
+        /// <param name="Left">The left switch variable.</param>
+        /// <param name="Right">The right switch variable.</param>
+        /// <returns>A Boolean value that tells if the given switch variables are equivalent.</returns>
+        public bool AreEquivalentSwitchVariables(IVariable Left, IVariable Right)
+        {
+            if (Left == null)
+            {
+                return Right == null;
+            }
+            else if (Right == null)
+            {
+                return false;
+            }
+
+            assert(GetSwitchVariable(Left.CreateGetExpression()) != null);
+            assert(GetSwitchVariable(Right.CreateGetExpression()) != null);
+            if (Left.Equals(Right))
+            {
+                return true;
+            }
+            else if (Left is FieldVariable && Right is FieldVariable)
+            {
+                var leftFieldVar = (FieldVariable)Left;
+                var rightFieldVar = (FieldVariable)Right;
+                return leftFieldVar.Field.Equals(rightFieldVar.Field)
+                    && AreEquivalentSwitchVariables(
+                        GetSwitchVariable(leftFieldVar.Target),
+                        GetSwitchVariable(rightFieldVar.Target));
+            }
+            else if (Left is AtAddressVariable && Right is AtAddressVariable)
+            {
+                var leftAtAddressVar = (AtAddressVariable)Left;
+                var rightAtAddressVar = (AtAddressVariable)Right;
+                return AreEquivalentSwitchVariables(
+                    GetSwitchVariable(leftAtAddressVar.Pointer),
+                    GetSwitchVariable(rightAtAddressVar.Pointer));
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
     /// <summary>
@@ -170,23 +266,6 @@ namespace Flame.Optimization
             get { return protoSwitchMap; }
         }
 
-        private IVariable GetVariable(IExpression Expression)
-        {
-            if (Expression is IVariableNode)
-            {
-                var varNode = (IVariableNode)Expression;
-                if (varNode.Action == VariableNodeAction.Get)
-                {
-                    var variable = varNode.GetVariable();
-                    if (variable is LocalVariableBase || variable is ArgumentVariable)
-                    {
-                        return variable;
-                    }
-                }
-            }
-            return null;
-        }
-
         private ProtoSwitch CreateSelectProtoSwitch(
             IVariable SwitchVariable, IBoundObject Value,
             UniqueTag TrueTag, UniqueTag FalseTag)
@@ -207,10 +286,10 @@ namespace Flame.Optimization
             var lhs = Expression.LeftOperand.GetEssentialExpression();
             var rhs = Expression.RightOperand.GetEssentialExpression();
 
-            var lhsVar = GetVariable(lhs);
+            var lhsVar = ProtoSwitchHelpers.GetSwitchVariable(lhs);
             if (lhsVar == null)
             {
-                var rhsVar = GetVariable(rhs);
+                var rhsVar = ProtoSwitchHelpers.GetSwitchVariable(rhs);
                 if (rhsVar == null)
                     return null;
 
