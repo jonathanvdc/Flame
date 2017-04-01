@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 
@@ -70,11 +71,8 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public static IType GetThisType(IType CurrentType)
         {
-            var finalType = CurrentType;
-            if (finalType.IsGeneric && finalType.IsGenericDeclaration)
-            {
-                finalType = finalType.MakeGenericType((IEnumerable<IType>)finalType.GenericParameters);
-            }
+            var finalType = CurrentType.GetRecursiveGenericDeclaration().MakeRecursiveGenericType(
+                CurrentType.GetRecursiveGenericParameters());
             if (finalType.IsValueType && !finalType.IsPointer)
             {
                 finalType = finalType.MakePointerType(PointerKind.ReferencePointer);
