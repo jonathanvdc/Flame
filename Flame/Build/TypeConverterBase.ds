@@ -73,8 +73,9 @@ namespace Flame.Build
         {
             if (DeclaringType is GenericInstanceType)
             {
-                var genericInstType = (GenericInstanceType)DeclaringType;
-                return MakeGenericInstanceType(Convert(genericInstType.Declaration), Convert(DeclaringType));
+                return MakeGenericInstanceType(
+                    Convert(Type.GetRecursiveGenericDeclaration()),
+                    Convert(DeclaringType));
             }
             else
             {

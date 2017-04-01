@@ -61,13 +61,6 @@ namespace Flame.Cecil
                 var typeRef = ((ICecilType)Type).GetTypeReference();
                 return Module.Module.Import(typeRef, Context);
             }
-            else if (Type is GenericInstanceType)
-            {
-                var genInst = (GenericInstanceType)Type;
-                var decl = Convert(genInst.GetRecursiveGenericDeclaration());
-                var tArgs = genInst.GetRecursiveGenericArguments().Select(Convert).ToArray();
-                return MakeGenericType(decl, tArgs);
-            }
             else if (Type.GetIsDelegate())
             {
                 return Convert(Module.TypeSystem.GetCanonicalDelegate(MethodType.GetMethod(Type)));
@@ -174,6 +167,21 @@ namespace Flame.Cecil
                 instance.GenericArguments.Add(item);
             }
             return instance;
+        }
+
+        protected override TypeReference ConvertNestedType(IType Type, IType DeclaringType)
+        {
+            if (Type is GenericInstanceType)
+            {
+                var genInst = (GenericInstanceType)Type;
+                var decl = Convert(genInst.GetRecursiveGenericDeclaration());
+                var tArgs = genInst.GetRecursiveGenericArguments().Select(Convert).ToArray();
+                return MakeGenericType(decl, tArgs);
+            }
+            else
+            {
+                return base.ConvertNestedType(Type, DeclaringType);
+            }
         }
 
         protected override TypeReference MakeGenericInstanceType(TypeReference GenericDeclaration, TypeReference GenericDeclaringTypeInstance)
