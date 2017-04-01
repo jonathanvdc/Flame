@@ -213,9 +213,8 @@ namespace Flame.Front.Target
 
             if (RespectAccess)
             {
-                var thisType = Args.DeclaringType;
-                if (thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
-                    thisType = thisType.MakeGenericType(thisType.GenericParameters);
+                var thisType = Args.DeclaringType.MakeRecursiveGenericType(
+                    Args.DeclaringType.GetRecursiveGenericParameters());
 
                 if (!AccessChecker.CanAccess(thisType, body, Args))
                     return false;

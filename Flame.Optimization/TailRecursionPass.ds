@@ -273,10 +273,8 @@ namespace Flame.Optimization
         public IStatement Apply(
             IStatement Body, IMethod DeclaringMethod, ICompilerLog Log)
         {
-            if (DeclaringMethod.IsGeneric && DeclaringMethod.IsGenericDeclaration)
-            {
-                DeclaringMethod = DeclaringMethod.MakeGenericMethod(DeclaringMethod.GenericParameters);
-            }
+            DeclaringMethod = DeclaringMethod.GetRecursiveGenericDeclaration().MakeRecursiveGenericMethod(
+                DeclaringMethod.GetRecursiveGenericParameters());
             var visitor = new TailRecursionVisitor(DeclaringMethod);
             var result = visitor.Visit(Body);
             if (visitor.HasReplaced)

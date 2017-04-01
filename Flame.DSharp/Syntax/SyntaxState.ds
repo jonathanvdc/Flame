@@ -57,13 +57,10 @@ namespace Flame.Syntax.DSharp
                 {
                     return null;
                 }
-                else if (declType.IsGeneric && declType.IsGenericDeclaration)
-                {
-                	return declType.MakeGenericType(declType.GenericParameters);
-                }
                 else
                 {
-                	return declType;
+                    return declType.GetRecursiveGenericDeclaration().MakeRecursiveGenericType(
+                        declType.GetRecursiveGenericParameters());
                 }
             }
         }
