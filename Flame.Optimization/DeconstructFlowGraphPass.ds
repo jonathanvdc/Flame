@@ -157,7 +157,9 @@ namespace Flame.Optimization
                     || (IsNested && varNode.Action == VariableNodeAction.AddressOf))
                 {
                     var variable = varNode.GetVariable();
-                    if (variable is LocalVariableBase || variable is ArgumentVariable)
+                    if (variable is LocalVariableBase
+                        || variable is ArgumentVariable
+                        || variable is ThisVariable)
                     {
                         return variable;
                     }
