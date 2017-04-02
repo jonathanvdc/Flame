@@ -254,6 +254,26 @@ namespace Flame
                     Method.GenericParameters);
         }
 
+        /// <summary>
+        /// Gets the recursive generic arguments of the given field's declaring type.
+        /// </summary>
+        /// <param name="Field">A field.</param>
+        /// <returns>A sequence of types.</returns>
+        public static [IType] GetRecursiveGenericArguments(this IField Field)
+        {
+            return Field.DeclaringType.GetRecursiveGenericArguments();
+        }
+
+        /// <summary>
+        /// Gets the recursive generic parameters of the given field's declaring type.
+        /// </summary>
+        /// <param name="Field">A field.</param>
+        /// <returns>A sequence of generic parameters.</returns>
+        public static [IGenericParameter] GetRecursiveGenericParameters(this IField Field)
+        {
+            return Field.DeclaringType.GetRecursiveGenericParameters();
+        }
+
         public static IType GetRecursiveGenericDeclaration(this IType Type)
         {
             if (Type is GenericTypeBase)
@@ -353,6 +373,22 @@ namespace Flame
                 }
             }
             return Method.MakeGenericMethod(TypeArguments);
+        }
+
+        /// <summary>
+        /// Creates a version of the given field whose declaring type has been instantiated with
+        /// the given sequence of type arguments.
+        /// </summary>
+        /// <param name="Field">The field to instantiate.</param>
+        /// <param name="TypeArguments">The sequence of type arguments for the field's declaring type.</param>
+        /// <returns>A version of the given field whose declaring type has been instantiated.</returns>
+        public static IField MakeRecursiveGenericField(this IField Field, [IType] TypeArguments)
+        {
+            if (!Enumerable.Any<IType>(TypeArguments))
+                return Field;
+
+            var declTy = (GenericTypeBase)Field.DeclaringType.MakeRecursiveGenericType(TypeArguments);
+            return new GenericInstanceField(Field, declTy.Resolver, declTy);
         }
 
         #region Generic Parameter Cloning
