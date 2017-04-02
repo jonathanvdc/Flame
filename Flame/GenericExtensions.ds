@@ -217,7 +217,7 @@ namespace Flame
             }
         }
 
-        public static const [IType] GetRecursiveGenericArguments(this IType Type)
+        public static [IType] GetRecursiveGenericArguments(this IType Type)
         {
             var genArgs = Type.GetGenericArguments();
             if (Type.DeclaringNamespace is IType)
@@ -232,7 +232,7 @@ namespace Flame
             }
         }
 
-        public static const [IType] GetRecursiveGenericArguments(this IMethod Method)
+        public static [IType] GetRecursiveGenericArguments(this IMethod Method)
         {
             var declTy = Method.DeclaringType;
             if (declTy == null)
@@ -254,7 +254,7 @@ namespace Flame
                     Method.GenericParameters);
         }
 
-        public static const IType GetRecursiveGenericDeclaration(this IType Type)
+        public static IType GetRecursiveGenericDeclaration(this IType Type)
         {
             if (Type is GenericTypeBase)
             {
@@ -266,7 +266,7 @@ namespace Flame
             }
         }
 
-        public static const IMethod GetRecursiveGenericDeclaration(this IMethod Method)
+        public static IMethod GetRecursiveGenericDeclaration(this IMethod Method)
         {
             if (Method is GenericMethodBase)
             {
@@ -278,7 +278,7 @@ namespace Flame
             }
         }
 
-        public static const IField GetRecursiveGenericDeclaration(this IField Field)
+        public static IField GetRecursiveGenericDeclaration(this IField Field)
         {
             if (Field is GenericInstanceField)
             {
@@ -290,7 +290,7 @@ namespace Flame
             }
         }
 
-        public static const IProperty GetRecursiveGenericDeclaration(this IProperty Property)
+        public static IProperty GetRecursiveGenericDeclaration(this IProperty Property)
         {
             if (Property is GenericInstanceProperty)
             {
