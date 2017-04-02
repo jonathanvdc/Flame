@@ -636,6 +636,14 @@ namespace Flame.Optimization
             return result;
         }
 
+        private IExpression MakeGlobal(IExpression Expression)
+        {
+            var result = Visit(Expression);
+            // Escape analysis result becomes global.
+            PopGlobalExpressionTag();
+            return result;
+        }
+
         protected override IStatement VisitExpressionStatement(ExpressionStatement Statement)
         {
             var result = Statement.Accept(this);
@@ -681,7 +689,7 @@ namespace Flame.Optimization
                 var tgt = Visit(fieldVar.Target);
                 PopExpressionTag();
                 return new FieldVariable(fieldVar.Field, tgt)
-                    .CreateSetStatement(VisitUnknown(StoreValue));
+                    .CreateSetStatement(MakeGlobal(StoreValue));
             }
 
             var varTag = TryGetAndRegisterTag(Variable);
