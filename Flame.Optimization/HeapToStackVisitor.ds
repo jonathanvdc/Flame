@@ -965,7 +965,7 @@ namespace Flame.Optimization
                     if (*Result == null)
                         return false;
 
-                    *Result = Result->MakeGenericType(Type.GetRecursiveGenericArguments());
+                    *Result = Result->MakeRecursiveGenericType(Type.GetRecursiveGenericArguments());
                     return true;
                 }
                 else
@@ -990,8 +990,9 @@ namespace Flame.Optimization
                     visitedTarget = Visit(fieldVar.Target);
                 if (hasReplaced)
                 {
-                    *Result = new FieldVariable(
-                        FieldMap[fieldVar.Field], visitedTarget);
+                    var newField = FieldMap[fieldVar.Field.GetRecursiveGenericDeclaration()].MakeRecursiveGenericField(
+                        fieldVar.Field.GetRecursiveGenericArguments());
+                    *Result = new FieldVariable(newField, visitedTarget);
                     hasReplaced = false;
                     return true;
                 }

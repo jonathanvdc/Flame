@@ -285,7 +285,7 @@ namespace Flame.Optimization
             {
                 if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
                 {
-                    var ty = analysis.GetType(tag);
+                    var ty = analysis.GetType(tag).GetRecursiveGenericDeclaration();
                     if (!replTypes.ContainsKey(ty))
                     {
                         var valTy = TryRewrite(ty, Argument);
@@ -293,27 +293,9 @@ namespace Flame.Optimization
                         if (valTy != null)
                         {
                             hasReplacedAny = true;
-                            bool isGenInst = ty.IsRecursiveGenericInstance;
-                            if (isGenInst)
-                                assert(valTy.IsRecursiveGenericInstance);
-
-                            var genDeclTy = ty.GetRecursiveGenericDeclaration();
-                            foreach (var field in genDeclTy.GetAllFields())
+                            foreach (var field in ty.GetAllFields())
                             {
-                                var valField = fieldCache[field];
-                                if (isGenInst)
-                                {
-                                    var oldGenInst = (GenericTypeBase)ty;
-                                    var newGenInst = (GenericTypeBase)valTy;
-                                    var originalField = new GenericInstanceField(
-                                        field, oldGenInst.Resolver, oldGenInst);
-                                    replFields[originalField] = new GenericInstanceField(
-                                        valField, newGenInst.Resolver, newGenInst);
-                                }
-                                else
-                                {
-                                    replFields[field] = valField;
-                                }
+                                replFields[field] = fieldCache[field];
                             }
                         }
                     }
