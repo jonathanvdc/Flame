@@ -484,13 +484,11 @@ namespace Flame.Optimization
         /// Updates the given value's type. A boolean explains whether any
         /// constraints were changed.
         /// </summary>
-        public bool UpdateType(UniqueTag Value, IType Type)
+        private bool UpdateType(UniqueTag Value, IType Type)
         {
             var oldType = TryGetType(Value);
-            if (oldType == null || !Type.Is(oldType))
+            if (oldType == null || !Type.Equals(oldType))
             {
-                // TODO: re-enable this
-                // assert(oldType == null || oldType.Is(Type));
                 nodeTypes[Value] = Type;
                 foreach (var item in dependencyGraph[Value])
                 {
@@ -515,8 +513,12 @@ namespace Flame.Optimization
             dependencyGraph.AddUndirectedEdge(Value, Dependency);
             UpdateResult(Value, GetResult(Dependency));
             UpdateResult(Dependency, GetResult(Value));
-            UpdateType(Value, GetType(Dependency));
-            UpdateType(Dependency, GetType(Value));
+            var valType = GetType(Value);
+            var depType = GetType(Dependency);
+            if (valType.Is(depType))
+                UpdateType(Value, depType);
+            else
+                UpdateType(Dependency, valType);
         }
 
         /// <summary>
