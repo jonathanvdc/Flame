@@ -8,58 +8,58 @@ using Flame.Compiler.Statements;
 
 namespace Flame.Compiler.Expressions
 {
-	/// <summary>
-	/// A type of expression that invokes a delegate expression by passing
-	/// it a list of arguments.
-	/// </summary>
-	public class InvocationExpression : IExpression, IPredicateNode, IFlowExpression
-	{
-		/// <summary>
-		/// Creates an invocation expression that invokes the given delegate
-		/// expression with the given argument list.
-		/// </summary>
-		public const this(set IExpression Target, set [IExpression] Arguments);
+    /// <summary>
+    /// A type of expression that invokes a delegate expression by passing
+    /// it a list of arguments.
+    /// </summary>
+    public class InvocationExpression : IExpression, IPredicateNode, IFlowExpression
+    {
+        /// <summary>
+        /// Creates an invocation expression that invokes the given delegate
+        /// expression with the given argument list.
+        /// </summary>
+        public const this(set IExpression Target, set [IExpression] Arguments);
 
-		/// <summary>
-		/// Creates an invocation expression that calls the given method
-		/// with the given argument list. Virtual methods will be called
-		/// through dynamic invocation, nonvirtual methods will result in a
-		/// direct call.
-		/// </summary>
-		public const this(IMethod Target, IExpression Caller, set [IExpression] Arguments)
-		{
-			this.Target = new GetMethodExpression(Target, Caller);
-		}
+        /// <summary>
+        /// Creates an invocation expression that calls the given method
+        /// with the given argument list. Virtual methods will be called
+        /// through dynamic invocation, nonvirtual methods will result in a
+        /// direct call.
+        /// </summary>
+        public const this(IMethod Target, IExpression Caller, set [IExpression] Arguments)
+        {
+            this.Target = new GetMethodExpression(Target, Caller);
+        }
 
-		/// <summary>
-		/// Gets the delegate expression that is invoked by passing it
-		/// an argument list.
-		/// </summary>
-		public IExpression Target { const get; private set; }
+        /// <summary>
+        /// Gets the delegate expression that is invoked by passing it
+        /// an argument list.
+        /// </summary>
+        public IExpression Target { const get; private set; }
 
-		/// <summary>
-		/// Gets the argument list to invoke the delegate with.
-		/// </summary>
-		public [IExpression] Arguments { const get; private set; }
+        /// <summary>
+        /// Gets the argument list to invoke the delegate with.
+        /// </summary>
+        public [IExpression] Arguments { const get; private set; }
 
-		/// <summary>
-		/// Gets the method signature of the delegate expression to invoke.
-		/// </summary>
-		public IMethod Method
-		{
-			get { return MethodType.GetMethod(Target.Type); }
-		}
+        /// <summary>
+        /// Gets the method signature of the delegate expression to invoke.
+        /// </summary>
+        public IMethod Method
+        {
+            get { return MethodType.GetMethod(Target.Type); }
+        }
 
-		public void AcceptPredicate(INodeVisitor Visitor)
-		{
-			Visitor.Visit(Target);
-			Visitor.VisitAll(Arguments);
-		}
+        public void AcceptPredicate(INodeVisitor Visitor)
+        {
+            Visitor.Visit(Target);
+            Visitor.VisitAll(Arguments);
+        }
 
-		public IExpression Accept(INodeVisitor Visitor)
-		{
-			var transTarget = Visitor.Visit(Target);
-			var transArgs = new List<IExpression>();
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            var transTarget = Visitor.Visit(Target);
+            var transArgs = new List<IExpression>();
             bool same = transTarget == Target;
             foreach (var arg in Arguments)
             {
@@ -75,126 +75,126 @@ namespace Flame.Compiler.Expressions
                 return this;
             else
                 return new InvocationExpression(transTarget, transArgs);
-		}
+        }
 
-		public IType Type
-		{
-			const get
-			{
-				return Method.ReturnType;
-			}
-		}
+        public IType Type
+        {
+            const get
+            {
+                return Method.ReturnType;
+            }
+        }
 
-		public bool IsConstantNode
-		{
-			get
-			{
-				// Invocations of constant methods are always constant.
-				// Invocations of constant constructors are constant only if
-				// they initialize a new object, which is not the case here.
-				return Method.IsConstant && !Method.IsConstructor;
-			}
-		}
+        public bool IsConstantNode
+        {
+            get
+            {
+                // Invocations of constant methods are always constant.
+                // Invocations of constant constructors are constant only if
+                // they initialize a new object, which is not the case here.
+                return Method.IsConstant && !Method.IsConstructor;
+            }
+        }
 
-		public IBoundObject Evaluate()
-		{
-			var targetObj = Target.Evaluate();
-			if (!(targetObj is IBoundMethod)) return null;
+        public IBoundObject Evaluate()
+        {
+            var targetObj = Target.Evaluate();
+            if (!(targetObj is IBoundMethod)) return null;
 
-			var allArgs = Arguments.EvaluateAll();
-			foreach (var item in allArgs)
-				if (item == null)
-			{
-				return null;
-			}
-			return ((IBoundMethod)targetObj).Invoke(allArgs);
-		}
+            var allArgs = Arguments.EvaluateAll();
+            foreach (var item in allArgs)
+                if (item == null)
+            {
+                return null;
+            }
+            return ((IBoundMethod)targetObj).Invoke(allArgs);
+        }
 
-		private IExpression RemoveRedundantConversions(IExpression Expression)
-		{
-			var innerExpr = ConversionExpression.GetRawValueExpression(
-				Expression);
+        private IExpression RemoveRedundantConversions(IExpression Expression)
+        {
+            var innerExpr = ConversionExpression.GetRawValueExpression(
+                Expression);
 
-			if (innerExpr is IDelegateExpression)
-				return innerExpr;
-			else
-				return Expression;
-		}
+            if (innerExpr is IDelegateExpression)
+                return innerExpr;
+            else
+                return Expression;
+        }
 
-		public InvocationExpression Simplify()
-		{
-			return new InvocationExpression(
-				RemoveRedundantConversions(Target), Arguments);
-		}
+        public InvocationExpression Simplify()
+        {
+            return new InvocationExpression(
+                RemoveRedundantConversions(Target), Arguments);
+        }
 
-		public IExpression Optimize()
-		{
-			var targetExpr = RemoveRedundantConversions(Target.Optimize());
-			var argExprs = Arguments.OptimizeAll();
+        public IExpression Optimize()
+        {
+            var targetExpr = RemoveRedundantConversions(Target.Optimize());
+            var argExprs = Arguments.OptimizeAll();
 
-			return new InvocationExpression(targetExpr, argExprs);
-		}
+            return new InvocationExpression(targetExpr, argExprs);
+        }
 
-		public ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			return Generator.EmitInvocation(Target.Emit(Generator), Arguments.EmitAll(Generator));
-		}
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            return Generator.EmitInvocation(Target.Emit(Generator), Arguments.EmitAll(Generator));
+        }
 
-		/// <summary>
-		/// Accepts and interacts with a flow visitor.
-		/// </summary>
-		public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-		{
-			// HACK: Just lie to the visitor and pretend this is linear flow.
-			//       This is evil, but the visitor would have assumed this
-			//       to be the case anyway had we not implemented IFlowStatement.
-			return Accept(Visitor);
-		}
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        public IExpression AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+        {
+            // HACK: Just lie to the visitor and pretend this is linear flow.
+            //       This is evil, but the visitor would have assumed this
+            //       to be the case anyway had we not implemented IFlowStatement.
+            return Accept(Visitor);
+        }
 
-		/// <summary>
-		/// Converts this invocation-expression to a series of blocks.
-		/// </summary>
-		public SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
-		{
-			// Create an SSA local to hold the result.
-			var resultVar = new SSAVariable("invocation_result", Type);
-			var setStmt = resultVar.CreateSetStatement(this.Accept(Visitor));
-			// Create the following blocks:
-			//
-			//     @enter:
-			//         guarded: @guarded
-			//         finally: @finally
-			//         handlers:
-			//             @catch_1
-			//             ...
-			//             @catch_n
-			//
-			//     @guarded:
-			//         invocation_result = <call>;
-			//         jump @next
-			//
-			Visitor.Builder.CreateCurrentBlock(
-				EmptyStatement,
-				Visitor.CreateGuardedFlow(Visitor.Builder.NextBlockTag));
-			Visitor.Builder.Next();
-			Visitor.Builder.CreateCurrentBlock(
-				setStmt,
-				new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
-			return resultVar;
-		}
+        /// <summary>
+        /// Converts this invocation-expression to a series of blocks.
+        /// </summary>
+        public SSAVariable ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            // Create an SSA local to hold the result.
+            var resultVar = new SSAVariable("invocation_result", Type);
+            var setStmt = resultVar.CreateSetStatement(this.Accept(Visitor));
+            // Create the following blocks:
+            //
+            //     @enter:
+            //         guarded: @guarded
+            //         finally: @finally
+            //         handlers:
+            //             @catch_1
+            //             ...
+            //             @catch_n
+            //
+            //     @guarded:
+            //         invocation_result = <call>;
+            //         jump @next
+            //
+            Visitor.Builder.CreateCurrentBlock(
+                EmptyStatement,
+                Visitor.CreateGuardedFlow(Visitor.Builder.NextBlockTag));
+            Visitor.Builder.Next();
+            Visitor.Builder.CreateCurrentBlock(
+                setStmt,
+                new JumpFlow(new BlockBranch(Visitor.Builder.NextBlockTag)));
+            return resultVar;
+        }
 
-		public override string ToString()
-		{
-			var result = new StringBuilder();
-			result.Append("invoke(");
-			result.Append(Target.ToString());
-			foreach (var item in Arguments)
-			{
-				result.Append(", ");
-				result.Append(item.ToString());
-			}
-			result.Append(")");
-			return result.ToString();
-		}
-	}
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.Append("invoke(");
+            result.Append(Target.ToString());
+            foreach (var item in Arguments)
+            {
+                result.Append(", ");
+                result.Append(item.ToString());
+            }
+            result.Append(")");
+            return result.ToString();
+        }
+    }
 }
