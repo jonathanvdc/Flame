@@ -131,9 +131,10 @@ namespace Flame.Front.Target
             inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotPassName)));
 
             // -fspecialize tries to specialize methods.
-            // -O4, because it doesn't always play nice with CLR libraries.
+            // It's -O3 because it more or less gambles with performance. -fspecialize is disabled
+            // for -Os and -Oz, because it increases code size.
             inliningLoopPasses.Add(ToLoopPass(new MethodPassInfo(SpecializationPass.Instance, SpecializationPass.SpecializationPassName)));
-            GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeExperimental);
+            GlobalPassManager.RegisterPassCondition(SpecializationPass.SpecializationPassName, optInfo => optInfo.OptimizeAggressive && !optInfo.OptimizeSize);
 
             // -finline uses CFG/SSA form, so it's -O3, too.
             inliningLoopPasses.Add(new LoopPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
