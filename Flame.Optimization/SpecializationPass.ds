@@ -393,7 +393,7 @@ namespace Flame.Optimization
             // In addition, don't apply this optimization
             // to methods that are declared in generic types, to avoid
             // type parameter transitivity issues.
-            if (declTy.IsGeneric || declTy.IsGenericInstance)
+            if (declTy.IsGeneric || declTy.IsRecursiveGenericInstance)
             {
                 PrintSpecializationFailedMessage(
                     callTarget,
@@ -460,15 +460,19 @@ namespace Flame.Optimization
             //   * Parameter types
             // After that, we'll let the other optimizations
             // (including devirtualization) do their thing.
-            // The compilation pipeline actually does that for us.
+            // The optimization pipeline actually does that for us.
 
             var specMethod = new DescribedBodyMethod(
                 GenerateName(callTarget.Name), declTy,
                 callTarget.ReturnType, callTarget.IsStatic);
 
-            // Copy all attributes.
+            // Copy all attributes, but make the specialized method internal.
             foreach (var attr in callTarget.Attributes)
-                specMethod.AddAttribute(attr);
+            {
+                if (!(attr is AccessAttribute))
+                    specMethod.AddAttribute(attr);
+            }
+            specMethod.AddAttribute(new AccessAttribute(AccessModifier.Assembly));
 
             // Create a parameter list.
             var bodyStmts = new List<IStatement>();
