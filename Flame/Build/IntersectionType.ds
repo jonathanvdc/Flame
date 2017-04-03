@@ -16,15 +16,15 @@ namespace Flame
         private static void AddIntersectionToSet(IType Type, ISet<IType> Results)
         {
             if (Type is IntersectionType)
-        	{
+            {
                 var interType = (IntersectionType)Type;
                 AddIntersectionToSet(interType.First, Results);
                 AddIntersectionToSet(interType.Second, Results);
-        	}
-        	else
-        	{
-        		Results.Add(Type);
-        	}
+            }
+            else
+            {
+                Results.Add(Type);
+            }
         }
 
         public static const HashSet<IType> GetIntersectedTypeSet(IType Type, IEqualityComparer<IType> Comparer)
@@ -43,14 +43,14 @@ namespace Flame
 
         public static const [IType] GetIntersectedTypes(IType Type)
         {
-        	if (Type is IntersectionType)
-        	{
+            if (Type is IntersectionType)
+            {
                 return GetIntersectedTypeSet(Type);
-        	}
-        	else
-        	{
-        		return new IType[] { Type };
-        	}
+            }
+            else
+            {
+                return new IType[] { Type };
+            }
         }
 
         public QualifiedName FullName
