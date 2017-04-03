@@ -156,6 +156,7 @@ namespace Flame.Optimization
                     Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
                     InliningPassName + " (input)")
             }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Argument.Body) }
             out (result) { VerifyCFGPass.Apply(result.Body) }
             out (result)
             {
@@ -164,6 +165,7 @@ namespace Flame.Optimization
                     Argument.DeclaringMethod,
                     InliningPassName + " (output)")
             }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result.Body) }
         {
             var shouldInline = GetInliningCriteria(Argument);
             var log = Argument.PassEnvironment.Log;
@@ -355,11 +357,40 @@ namespace Flame.Optimization
             // Copy the method body.
             var body = CloningVisitor.Visit(oldMethodBody);
 
+            IExpression thisExpr = null;
+            if (Call.ThisValue != null)
+            {
+                var thisType = Call.ThisValue.Type;
+                if (thisType.IsReferenceType && !thisType.IsPointer)
+                {
+                    thisExpr = new ReinterpretCastExpression(
+                        Call.ThisValue, Call.Method.DeclaringType).Simplify();
+                }
+                else
+                {
+                    thisExpr = Call.ThisValue;
+                }
+            }
+            var argExprs = new List<IExpression>();
+            foreach (var arg in Call.Arguments, var param in Call.Method.Parameters)
+            {
+                var argType = arg.Type;
+                if (argType.IsReferenceType && !argType.IsPointer)
+                {
+                    argExprs.Add(new ReinterpretCastExpression(arg, param.ParameterType).Simplify());
+                }
+                else
+                {
+                    argExprs.Add(arg);
+                }
+            }
+
             // Transform the copied body to match use local variables.
             return InliningReturnVisitor.InlineReturns(
-                InliningVariableVisitor.InlineVariables(body,
-                    Call.ThisValue,
-                    Enumerable.ToArray<IExpression>(Call.Arguments)),
+                InliningVariableVisitor.InlineVariables(
+                    body,
+                    thisExpr,
+                    argExprs.ToArray()),
                 ReturnVariable);
         }
 
