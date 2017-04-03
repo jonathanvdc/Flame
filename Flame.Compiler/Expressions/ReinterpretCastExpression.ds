@@ -63,6 +63,7 @@ namespace Flame.Compiler.Expressions
         /// reinterpret_casts by a single reinterpret_cast.
         /// </summary>
         public IExpression Simplify()
+            out (result) { result.Type.Equals(Type) }
         {
             var innerVal = Value.GetEssentialExpression();
             if (innerVal is ReinterpretCastExpression)
