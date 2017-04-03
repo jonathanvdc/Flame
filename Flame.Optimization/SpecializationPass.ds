@@ -264,8 +264,10 @@ namespace Flame.Optimization
         public IStatement Apply(BodyPassArgument Argument)
             in { VerifyCFGPass.Apply(Argument.Body) }
             in { VerifySSAPass.Apply(Argument.Body) }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Argument.Body) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             var shouldSpecialize = GetSpecializationCriteria(Argument);
             var log = Argument.PassEnvironment.Log;

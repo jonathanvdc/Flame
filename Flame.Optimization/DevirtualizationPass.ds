@@ -91,13 +91,13 @@ namespace Flame.Optimization
                 devirtRecords.Add(new DevirtualizationRecord(
                     CurrentLocation, expr.Target, impl));
 
+                var implDeclTy = impl.DeclaringType;
+                if (!ptrCaller && !callerTy.Equals(implDeclTy))
+                    // Insert a reinterpret cast if necessary
+                    caller = new ReinterpretCastExpression(caller, implDeclTy);
+
                 if (impl.IsVirtual)
                 {
-                    var implDeclTy = impl.DeclaringType;
-                    if (!ptrCaller && !callerTy.Equals(implDeclTy))
-                        // Insert a reinterpret cast if necessary
-                        caller = new ReinterpretCastExpression(caller, implDeclTy);
-
                     return new GetMethodExpression(
                         impl, caller, Operator.GetVirtualDelegate);
                 }
@@ -176,10 +176,12 @@ namespace Flame.Optimization
         }
 
         public IStatement Apply(BodyPassArgument Arg)
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Arg.Body) }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             var thisType = Arg.DeclaringType;
-            if (thisType != null && thisType.GetIsGeneric() && thisType.GetIsGenericDeclaration())
-                thisType = thisType.MakeGenericType(thisType.GenericParameters);
+            if (thisType != null)
+                thisType = thisType.MakeRecursiveGenericType(thisType.GetRecursiveGenericParameters());
 
             var visitor = new DevirtualizingVisitor(true, thisType);
             var result = visitor.Visit(Arg.Body);
