@@ -26,9 +26,9 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Finds out whether the given node satisfies the predicate.
         /// </summary>
-        protected abstract const bool Satisfies(INode Node);
+        protected abstract bool Satisfies(INode Node);
 
-        private const bool MatchesNode(INode Node)
+        private bool MatchesNode(INode Node)
         {
             return IsSatisfied || Node is IPredicateNode || Satisfies(Node);
             // We were either done already or we are now.
@@ -58,11 +58,11 @@ namespace Flame.Compiler.Visitors
             return Node;
         }
 
-        public override const bool Matches(IExpression Value)
+        public override bool Matches(IExpression Value)
         {
             return MatchesNode(Value);
         }
-        public override const bool Matches(IStatement Value)
+        public override bool Matches(IStatement Value)
         {
             return MatchesNode(Value);
         }
@@ -85,7 +85,7 @@ namespace Flame.Compiler.Visitors
 
         public bool(INode) SatisfiesFunction { const get; private set; }
 
-        protected override const bool Satisfies(INode Value)
+        protected override bool Satisfies(INode Value)
         {
             return SatisfiesFunction(Value);
         }
