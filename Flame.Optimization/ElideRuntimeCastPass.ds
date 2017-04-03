@@ -482,6 +482,7 @@ namespace Flame.Optimization
                     Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     ElideRuntimeCastPassName + " (input)")
             }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Arg.Body) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result)
             {
@@ -489,6 +490,7 @@ namespace Flame.Optimization
                     result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     ElideRuntimeCastPassName + " (output)")
             }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             var body = Arg.Body;
             var analyzer = new RuntimeCastAnalyzer();
