@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// A visitor that tries to find invalid calls.
+    /// </summary>
+    public class InvalidCallFindingVisitor : AnyPredicateVisitorBase
+    {
+        public this()
+        { }
+
+        /// <summary>
+        /// Finds out whether the given node satisfies the predicate.
+        /// </summary>
+        protected override bool Satisfies(INode Node)
+        {
+            if (Node is GetMethodExpression)
+                return IsInvalidGetMethodExpression((GetMethodExpression)Node);
+            else if (Node is InvocationExpression)
+                return IsInvalidInvocationExpression((InvocationExpression)Node);
+            else
+                return false;
+        }
+
+        private bool IsInvalidGetMethodExpression(GetMethodExpression Expression)
+        {
+            if (Expression.Caller == null)
+                return false;
+
+            var callerType = Expression.Caller.Type;
+            if (callerType.IsPointer)
+                callerType = callerType.AsPointerType().ElementType;
+            return !callerType.Is(Expression.Target.DeclaringType);
+        }
+
+        private bool IsInvalidInvocationExpression(InvocationExpression Expression)
+        {
+            return false;
+
+            // var method = Expression.Method;
+            // if (method == null)
+            //     return true;
+
+            // foreach (var arg in Expression.Arguments, var param in method.Parameters)
+            // {
+            //     if (!arg.Type.Is(param.ParameterType))
+            //         return true;
+            // }
+            // return false;
+        }
+
+        /// <summary>
+        /// Checks if the given expression contains any invalid calls.
+        /// </summary>
+        public static bool ContainsInvalidCalls(IExpression Expression)
+        {
+            var visitor = new InvalidCallFindingVisitor();
+            visitor.Visit(Expression);
+            return visitor.IsSatisfied;
+        }
+
+        /// <summary>
+        /// Checks if the given statement contains any invalid calls.
+        /// </summary>
+        public static bool ContainsInvalidCalls(IStatement Statement)
+        {
+            var visitor = new InvalidCallFindingVisitor();
+            visitor.Visit(Statement);
+            return visitor.IsSatisfied;
+        }
+    }
+}

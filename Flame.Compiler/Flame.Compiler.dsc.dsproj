@@ -262,6 +262,7 @@
             <Compile Include="Visitors/EmptyPass.ds" />
             <Compile Include="Visitors/ExpressionRewriter.ds" />
             <Compile Include="Visitors/GotoFindingVisitor.ds" />
+            <Compile Include="Visitors/InvalidCallFindingVisitor.ds" />
             <Compile Include="Visitors/IPass.ds" />
             <Compile Include="Visitors/LocationVisitorBase.ds" />
             <Compile Include="Visitors/LoggingVisitor.ds" />
