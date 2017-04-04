@@ -114,8 +114,15 @@ namespace Flame.Compiler.Expressions
                         new ReinterpretCastExpression(
                             NullExpression, targetType));
                 }
-
-                // TODO: box generic parameters, and compare those to `null`.
+                else if (targetType.IsGenericParameter)
+                {
+                    // We can box generic parameters and compare them to `null`.
+                    var boxedTarget = new BoxExpression(Target);
+                    return new InequalityExpression(
+                        boxedTarget,
+                        new ReinterpretCastExpression(
+                            NullExpression, boxedTarget.Type));
+                }
             }
             else if (targetType.IsClosed)
             {
