@@ -336,11 +336,21 @@ namespace Flame.Optimization
             }
         }
 
+        private string GenerateName(QualifiedName Name)
+        {
+            while (Name.IsQualified)
+                Name = Name.Name;
+
+            return GenerateName(Name.Qualifier);
+        }
+
         private string GenerateName(UnqualifiedName Name)
         {
             string nameStr;
             if (Name is SimpleName)
                 nameStr = ((SimpleName)Name).Name.ToString();
+            else if (Name is GenericName)
+                return GenerateName(((GenericName)Name).DeclarationName);
             else
                 nameStr = Name.ToString();
             return nameStr + "__specialization$" + SpecializationCache.Count;
