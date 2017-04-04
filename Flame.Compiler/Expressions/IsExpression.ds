@@ -79,16 +79,20 @@ namespace Flame.Compiler.Expressions
                 return new BooleanExpression(evalType.Is(TestType));
         }
 
-        public IExpression Optimize()
+        /// <summary>
+        /// Tries to simplify this is-instance expression.
+        /// </summary>
+        /// <returns>The is-instance expression or an equivalent expression.</returns>
+        public IExpression Simplify()
         {
-            var optTarget = Target.Optimize();
-            if (optTarget.IsConstant)
+            if (Target.IsConstant)
             {
-                var evalTarget = optTarget.Evaluate();
+                var evalTarget = Target.Evaluate();
                 if (evalTarget != null)
                     return new BooleanExpression(evalTarget.Type.Is(TestType));
             }
-            var targetType = optTarget.Type;
+
+            var targetType = Target.Type;
             if (targetType.Is(TestType))
             {
                 if ((targetType.IsPointer
@@ -99,14 +103,14 @@ namespace Flame.Compiler.Expressions
                     // `x is T` is equivalent to `true` if `typeof(x) : T`
                     // and `typeof(x)` is a `struct` or a reference pointer.
                     return new InitializedExpression(
-                        new ExpressionStatement(optTarget),
+                        new ExpressionStatement(Target),
                         new BooleanExpression(true)).Simplify();
                 }
                 else if (targetType.IsReferenceType)
                 {
                     // `x is T` is equivalent to `x != null` if `typeof(x) : T`
                     return new InequalityExpression(
-                        optTarget,
+                        Target,
                         new ReinterpretCastExpression(
                             NullExpression, targetType));
                 }
@@ -118,11 +122,20 @@ namespace Flame.Compiler.Expressions
                 // `x is T` is equivalent to `false` if `typeof(x)` does not
                 // inherit from `T`, and `typeof(x)` does not have any subtypes.
                 return new InitializedExpression(
-                    new ExpressionStatement(optTarget),
+                    new ExpressionStatement(Target),
                     new BooleanExpression(false)).Simplify();
             }
 
-            return new IsExpression(optTarget, TestType);
+            return this;
+        }
+
+        public IExpression Optimize()
+        {
+            var optTarget = Target.Optimize();
+            if (optTarget == Target)
+                return Simplify();
+            else
+                return new IsExpression(optTarget, TestType).Simplify();
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
