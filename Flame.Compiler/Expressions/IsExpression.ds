@@ -125,6 +125,14 @@ namespace Flame.Compiler.Expressions
                     new ExpressionStatement(Target),
                     new BooleanExpression(false)).Simplify();
             }
+            else if (Target is ReinterpretCastExpression)
+            {
+                // We can elide the reinterpret cast and we might even have better
+                // luck simplifying an is-instance expression that does not contain
+                // a reinterpret cast.
+                return new IsExpression(
+                    ((ReinterpretCastExpression)Target).Value, TestType).Simplify();
+            }
 
             return this;
         }
