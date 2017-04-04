@@ -8,6 +8,7 @@ tests
     ElideRuntimeCasts/ElideRuntimeCasts.test;
     Heap2Stack/Heap2Stack.test;
     Heap2Stack/Heap2Stack2.test;
+    Heap2Stack/Heap2Stack3.test;
     ImperativeCode/ImperativeCode2.test;
     Inlining/InlineArrayLength.test;
     Inlining/Inlining.test;

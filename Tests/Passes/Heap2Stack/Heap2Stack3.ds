@@ -1,0 +1,55 @@
+using System;
+
+public interface IPopEnumerator<T>
+{
+    bool Pop(out T^ Result);
+}
+
+public class ArrayPopEnumerator<T> : IPopEnumerator<T>
+{
+    public this(T[] values)
+    {
+        this.values = values;
+        this.index = 0;
+    }
+
+    private T[] values;
+    private int index;
+
+    public override bool Pop(out T^ Result)
+    {
+        if (index >= values.Length)
+            return false;
+
+        *Result = values[index];
+        index++;
+        return true;
+    }
+}
+
+public static class Program
+{
+    public void PrintAll<T>(IPopEnumerator<T> Values)
+        where T : object
+    {
+        int i = 0;
+        T val;
+        Console.Write("{");
+        while (Values.Pop(&val))
+        {
+            if (i > 0)
+                Console.Write(", ");
+            else
+                Console.Write(" ");
+            Console.Write(val.ToString());
+            i++;
+        }
+        Console.Write(" }");
+        Console.WriteLine();
+    }
+
+    public void Main()
+    {
+        PrintAll<int>(new ArrayPopEnumerator<int>(new int[] { 1, 2, 3 }));
+    }
+}

@@ -1,0 +1,24 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    Og { Flags = -Og -fheap2stack; }
+    O3 { Flags = -O3 -fheap2stack; }
+    Og-ip { Flags = -Og -fip-heap2stack; }
+    O3-ip { Flags = -O3 -fip-heap2stack; }
+}
+
+init
+{
+    Filename = Heap2Stack3;
+}
