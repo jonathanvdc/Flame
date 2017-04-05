@@ -40,6 +40,9 @@ namespace Flame.Front.Target
                 return false;
 
             var varExpr = Expr.GetEssentialExpression() as IVariableNode;
+            if (varExpr == null)
+                return false;
+
             var srcVar = varExpr.GetVariable();
             return srcVar is ThisVariable
                 || srcVar is ArgumentVariable
