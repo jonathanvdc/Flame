@@ -960,26 +960,18 @@ namespace Flame.Optimization
         /// is stored in the given type reference.
         /// </summary>
         public bool TryGetRewrittenType(IType Type, out IType^ Result)
+            out (success) { !success || *Result != null }
         {
-            if (TypeMap.TryGetValue(Type, Result))
+            var recGenDecl = Type.GetRecursiveGenericDeclaration();
+            if (TypeMap.TryGetValue(recGenDecl, Result))
             {
+                assert(*Result != null);
+                *Result = Result->MakeRecursiveGenericType(Type.GetRecursiveGenericArguments());
                 return true;
             }
             else
             {
-                var recGenDecl = Type.GetRecursiveGenericDeclaration();
-                if (TypeMap.TryGetValue(recGenDecl, Result))
-                {
-                    if (*Result == null)
-                        return false;
-
-                    *Result = Result->MakeRecursiveGenericType(Type.GetRecursiveGenericArguments());
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -987,15 +979,18 @@ namespace Flame.Optimization
         /// Tries to replace the given variable by another variable.
         /// </summary>
         private bool TryReplaceVariable(IVariable Variable, out IVariable^ Result)
+            out (result) { !result || *Result != null }
         {
             if (Variable is FieldVariable)
             {
                 var fieldVar = (FieldVariable)Variable;
-                IExpression visitedTarget;
                 if (fieldVar.Target == null)
-                    visitedTarget = null;
-                else
-                    visitedTarget = Visit(fieldVar.Target);
+                {
+                    *Result = null;
+                    return false;
+                }
+
+                var visitedTarget = Visit(fieldVar.Target);
                 if (hasReplaced)
                 {
                     var newField = FieldMap[fieldVar.Field.GetRecursiveGenericDeclaration()].MakeRecursiveGenericField(
@@ -1006,7 +1001,7 @@ namespace Flame.Optimization
                 }
                 else
                 {
-                    *Result = new FieldVariable(fieldVar.Field, visitedTarget);
+                    *Result = null;
                     return false;
                 }
             }

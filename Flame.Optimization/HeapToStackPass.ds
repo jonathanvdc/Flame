@@ -278,25 +278,25 @@ namespace Flame.Optimization
 
             // Next, we can try to replace all types.
             var replTypes = new Dictionary<IType, IType>();
-            var replFields = new Dictionary<IField, IField>();
-            var fieldCache = GetFieldCache(Argument);
+            var failedReplTypes = new HashSet<IType>();
+            var replFields = GetFieldCache(Argument);
             bool hasReplacedAny = replMethods.Count > 0;
             foreach (var tag in analysis.Tags)
             {
                 if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
                 {
                     var ty = analysis.GetType(tag).GetRecursiveGenericDeclaration();
-                    if (!replTypes.ContainsKey(ty))
+                    if (!replTypes.ContainsKey(ty) && !failedReplTypes.Contains(ty))
                     {
                         var valTy = TryRewrite(ty, Argument);
-                        replTypes[ty] = valTy;
                         if (valTy != null)
                         {
+                            replTypes[ty] = valTy;
                             hasReplacedAny = true;
-                            foreach (var field in ty.GetAllFields())
-                            {
-                                replFields[field] = fieldCache[field];
-                            }
+                        }
+                        else
+                        {
+                            failedReplTypes.Add(ty);
                         }
                     }
                 }
@@ -318,8 +318,9 @@ namespace Flame.Optimization
             IType Type, BodyPassArgument Arg,
             TypeParameterConverter Converter)
         {
-            return Converter.Convert(TryRewrite(Type, Arg))
-                .MakePointerType(PointerKind.ReferencePointer);
+            var rewrittenType = Converter.Convert(TryRewrite(Type, Arg));
+            assert(rewrittenType != null);
+            return rewrittenType.MakePointerType(PointerKind.ReferencePointer);
         }
 
         /// <summary>
