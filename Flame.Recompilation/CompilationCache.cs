@@ -39,12 +39,12 @@ namespace Flame.Recompilation
         public CompilationCache(Func<T, MemberCreationResult<T>> GetNew, IAsyncTaskManager TaskManager)
         {
             this.getNew = GetNew;
-            this.cache = new ConcurrentDictionary<T, T>();
+            this.cache = new Dictionary<T, T>();
             this.TaskManager = TaskManager;
         }
 
         private Func<T, MemberCreationResult<T>> getNew;
-        private ConcurrentDictionary<T, T> cache;
+        private Dictionary<T, T> cache;
         public IAsyncTaskManager TaskManager { get; private set; }
 
         private T GetCore(T Source)
@@ -82,7 +82,15 @@ namespace Flame.Recompilation
 
         public T Get(T Source)
         {
-            return cache.GetOrAdd(Source, GetCore);
+            lock (cache)
+            {
+                T result;
+                if (!cache.TryGetValue(Source, out result))
+                {
+                    result = GetCore(Source);
+                }
+                return result;
+            }
         }
         public T[] GetMany(params T[] Source)
         {
