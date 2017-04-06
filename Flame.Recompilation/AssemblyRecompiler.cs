@@ -919,7 +919,7 @@ namespace Flame.Recompilation
                 var typeBuilder = (ITypeBuilder)tgt;
                 typeBuilder.Initialize();
                 RecompileInvariants(typeBuilder, src);
-                bool anyInitFields = RecompileInitializedFields(src);
+                bool anyInitFields = RequestRecompileInitializedFields(src);
                 bool anyStaticCtors = RegisterStaticConstructors(src);
                 if (anyInitFields && !anyStaticCtors)
                     SynthetizeStaticConstructor(src);
@@ -973,20 +973,31 @@ namespace Flame.Recompilation
         }
 
         /// <summary>
-        /// Recompiles all initialized fields defined by the given type.
+        /// Requests recompilation of all initialized fields defined by the given type.
         /// A boolean is returned that tells if any static, non-constant
         /// initialized fields were found.
         /// </summary>
-        private bool RecompileInitializedFields(IType Type)
+        private bool RequestRecompileInitializedFields(IType Type)
         {
             bool success = false;
             foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
             {
-                GetField(field);
+                RequestRecompilation(field);
                 if (field.IsStatic && !field.GetIsConstant())
                     success = true;
             }
             return success;
+        }
+
+        /// <summary>
+        /// Recompiles all initialized fields defined by the given type.
+        /// </summary>
+        private void RecompileInitializedFields(IType Type)
+        {
+            foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
+            {
+                GetField(field);
+            }
         }
 
         private void RecompileFieldBody(IFieldBuilder TargetField, IField SourceField)
@@ -1138,7 +1149,7 @@ namespace Flame.Recompilation
 
                     // Constructors should also handle field initialization.
                     // If any fields have to be initialized explicitly, then
-                    // we will compile them now, and add them to the
+                    // we will compile them now and add them to the
                     // constructor's method body.
                     RecompileInitializedFields(declTy);
 
