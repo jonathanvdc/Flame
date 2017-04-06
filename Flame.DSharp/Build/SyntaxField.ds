@@ -9,12 +9,12 @@ using Flame.Syntax.DSharp;
 
 namespace Flame.DSharp.Build
 {
-	public class SyntaxField : CodeMember, IDSharpField, ISyntaxNode
+    public class SyntaxField : CodeMember, IDSharpField, ISyntaxNode
     {
         public const this(set FieldSyntax Syntax, set ISyntaxState State)
-		{
-			this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
-		}
+        {
+            this.attrCache = new Lazy<AttributeMap>(CreateAttributes);
+        }
 
         public FieldSyntax Syntax { const get; private set; }
         public ISyntaxState State { const get; private set; }
@@ -43,54 +43,54 @@ namespace Flame.DSharp.Build
 
         #endregion
 
-		#region ISourceMember Implementation
+        #region ISourceMember Implementation
 
-		public SourceLocation Location
-		{
-			const get return Syntax.NameLocation;
-		}
+        public SourceLocation Location
+        {
+            const get return Syntax.NameLocation;
+        }
 
-		#endregion
+        #endregion
 
-		private IExpression cachedFieldValue;
-		public IExpression InitialValue
-		{
-			get
-			{
-				if (cachedFieldValue == null)
-				{
-					if (Syntax.FieldValueSyntax == null)
-					{
-						return null;
-					}
-					else
-					{
-						cachedFieldValue = CastSyntax.CreateImplicitCast(
-							State,
-							Syntax.FieldValueSyntax,
-							FieldType);
-					}
-				}
-				return cachedFieldValue;
-			}
-		}
+        private IExpression cachedFieldValue;
+        public IExpression InitialValue
+        {
+            get
+            {
+                if (cachedFieldValue == null)
+                {
+                    if (Syntax.FieldValueSyntax == null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        cachedFieldValue = CastSyntax.CreateImplicitCast(
+                            State,
+                            Syntax.FieldValueSyntax,
+                            FieldType);
+                    }
+                }
+                return cachedFieldValue;
+            }
+        }
 
-		private IType cachedFieldType;
+        private IType cachedFieldType;
         public IType FieldType
         {
             const get
             {
-            	if (cachedFieldType == null)
-            	{
-	                var type = Syntax.Signature.TypeSyntax;
-	                if (type.IsVariable)
-	                {
-	                    cachedFieldType = InitialValue.TypeOrNull;
-	                }
-	                else
-	                {
-	                    cachedFieldType = type.CreateVerifiedType(State);
-	                }
+                if (cachedFieldType == null)
+                {
+                    var type = Syntax.Signature.TypeSyntax;
+                    if (type.IsVariable)
+                    {
+                        cachedFieldType = InitialValue.TypeOrNull;
+                    }
+                    else
+                    {
+                        cachedFieldType = type.CreateVerifiedType(State);
+                    }
                 }
                 return cachedFieldType;
             }
@@ -107,60 +107,38 @@ namespace Flame.DSharp.Build
         public bool IsStatic
         {
             get
-			{
-				return DeclaringType.IsStaticType
-					|| (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton)
-					|| this.IsConstant;
-			}
+            {
+                return DeclaringType.IsStaticType
+                    || (Syntax.Signature.ModifierTokens.IsStatic && !DeclaringType.IsSingleton)
+                    || this.IsConstant;
+            }
         }
 
-		public AttributeMap Attributes { get { return attrCache.Value; } }
+        public AttributeMap Attributes { get { return attrCache.Value; } }
 
-		private Lazy<AttributeMap> attrCache;
+        private Lazy<AttributeMap> attrCache;
 
-		private AttributeMap CreateAttributes()
-		{
-			var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
-			var results = new AttributeMapBuilder();
+        private AttributeMap CreateAttributes()
+        {
+            var modifierAttrs = Syntax.Signature.ModifierTokens.GetModifiers();
+            var results = new AttributeMapBuilder();
 
-			if (!modifierAttrs.HasAccessAttribute)
-				results.Add(DeclaringType.GetAccessAttribute());
+            if (!modifierAttrs.HasAccessAttribute)
+                results.Add(DeclaringType.GetAccessAttribute());
 
-			results.AddRange(modifierAttrs);
+            results.AddRange(modifierAttrs);
 
-			foreach (var item in Syntax.Signature.Attributes)
-				results.Add(item.CreateAttribute(State, this));
+            foreach (var item in Syntax.Signature.Attributes)
+                results.Add(item.CreateAttribute(State, this));
 
-			results.AddRange(Syntax.GetDescriptionAttributes(State));
+            results.AddRange(Syntax.GetDescriptionAttributes(State));
 
-			return new AttributeMap(results);
-		}
+            return new AttributeMap(results);
+        }
 
         public CodeBuilder GetCode()
         {
             return Syntax.GetCode();
         }
-
-        #region Equality
-
-        public override int GetHashCode()
-        {
-            return Syntax.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SyntaxField)
-            {
-            	var syntaxField = (SyntaxField)obj;
-                return DeclaringType.Equals(syntaxField.DeclaringType) && Syntax.Equals(syntaxField.Syntax);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        #endregion
     }
 }
