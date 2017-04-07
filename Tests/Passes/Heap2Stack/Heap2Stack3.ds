@@ -16,13 +16,18 @@ public class ArrayPopEnumerator<T> : IPopEnumerator<T>
     private T[] values;
     private int index;
 
+    private void Advance()
+    {
+        index++;
+    }
+
     public override bool Pop(out T^ Result)
     {
         if (index >= values.Length)
             return false;
 
         *Result = values[index];
-        index++;
+        Advance();
         return true;
     }
 }
