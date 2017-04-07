@@ -86,9 +86,11 @@ namespace Flame.Optimization
             }
         {
             var method = Argument.DeclaringMethod;
-            var result = TryRewriteBody(
+            var bodyAnalysis = AnalyzeBody(
                 method, HeapToStackAnalyzer.CreateConservativeAnalysis(method).SignatureResult,
                 Argument.Body, Argument, GetAnalysisCache(Argument));
+            var result = TryRewriteBody(
+                method, bodyAnalysis.Item3, Argument, bodyAnalysis.Item1, bodyAnalysis.Item2);
             if (result == null)
                 return new LoopPassResult(Argument.Body, false);
             else
@@ -99,6 +101,24 @@ namespace Flame.Optimization
         private bool CanReplace(EscapeAnalysisResult Result, IType Type)
         {
             return Result != EscapeAnalysisResult.Global && CanRewrite(Type);
+        }
+
+        private bool CanReplaceAnything(SignatureEscapeAnalysis Analysis)
+        {
+            var method = Analysis.Method;
+            if (!method.IsStatic && CanReplace(Analysis.ThisValue, method.DeclaringType))
+                return true;
+
+            if (CanReplace(Analysis.ReturnValue, method.ReturnType))
+                return true;
+
+            foreach (var paramValue in Analysis.Parameters, var param in method.Parameters)
+            {
+                if (CanReplace(paramValue, param.ParameterType))
+                    return true;
+            }
+
+            return false;
         }
 
         private RewrittenMethodSignature TryRewrite(
@@ -115,18 +135,7 @@ namespace Flame.Optimization
 
             // Try to do a cache lookup.
             RewrittenMethodSignature result;
-            if (Cache.TryGetValue(genSig, &result))
-            {
-                // Cache hit. Instantiate and return.
-                if (result == null)
-                    return null;
-
-                return new RewrittenMethodSignature(
-                    result.Method.MakeRecursiveGenericMethod(
-                        Call.Method.GetRecursiveGenericArguments()),
-                    result.HasReplacedThis, result.HasReplacedReturn);
-            }
-            else
+            if (!Cache.TryGetValue(genSig, &result))
             {
                 // Cache miss.
                 //
@@ -142,30 +151,7 @@ namespace Flame.Optimization
                 // Before proceeding, we should make sure that what we're doing
                 // actually makes sense. We don't want to end up generating the
                 // exact same signature.
-                bool hasReplaced = false;
-                bool hasReplacedThis = false;
-                bool hasReplacedResult = false;
-                if (!genDecl.IsStatic && CanReplace(genSig.ThisValue, genDecl.DeclaringType))
-                {
-                    hasReplaced = true;
-                    hasReplacedThis = true;
-                }
-
-                if (CanReplace(genSig.ReturnValue, genDecl.ReturnType))
-                {
-                    hasReplaced = true;
-                    hasReplacedResult = true;
-                }
-
-                foreach (var paramValue in genSig.Parameters, var param in genDecl.Parameters)
-                {
-                    if (hasReplaced)
-                        break;
-                    else
-                        hasReplaced = CanReplace(paramValue, param.ParameterType);
-                }
-
-                if (!hasReplaced)
+                if (!CanReplaceAnything(genSig))
                 {
                     // Leave a 'null' value in the dictionary, so we won't
                     // have to do this analysis again.
@@ -174,68 +160,28 @@ namespace Flame.Optimization
                 }
 
                 // We'll have to create a new method.
-                //
-                // The declaring type is either
-                //
-                //     - a value type that replaces a declaring reference type,
-                //     - an extensible declaring type, or
-                //     - a static class that contains rewritten methods.
-                //
-                // TODO: implement option #3. This is not very useful for static
-                // linking scenarios, but it can be useful for dynamic linking.
-
-                IType declType = null;
-                var oldDeclType = genDecl.DeclaringType;
-                if (hasReplacedThis)
-                {
-                    declType = TryRewrite(oldDeclType, PassArgument);
-                }
-                else if (PassArgument.PassEnvironment.CanExtend(oldDeclType))
-                {
-                    declType = oldDeclType;
-                }
-
-                if (declType == null)
-                {
-                    // Leave a 'null' value in the dictionary, so we won't
-                    // have to do this analysis again.
-                    Cache[genSig] = null;
-                    return null;
-                }
-
-                var methodResult = TryRewriteImpl(
+                result = TryRewriteImpl(
                     genSig,
                     new SimpleName(
                         "__heap2stack$" + genDecl.Name.ToString() +
-                        "$" + Cache.Count),
-                    declType, genDecl.IsStatic, PassArgument);
-
-                if (methodResult == null)
-                {
-                    Cache[genSig] = result;
-                    return null;
-                }
-                else
-                {
-                    Cache[genSig] = new RewrittenMethodSignature(
-                        methodResult, hasReplacedThis, hasReplacedResult);
-                    return new RewrittenMethodSignature(
-                        methodResult.MakeRecursiveGenericMethod(
-                            Call.Method.GetRecursiveGenericArguments()),
-                        hasReplacedThis, hasReplacedResult);
-                }
+                        "$" + Cache.Count), PassArgument);
+                Cache[genSig] = result;
             }
+
+            if (result == null)
+                return null;
+
+            return new RewrittenMethodSignature(
+                result.Method.MakeRecursiveGenericMethod(
+                    Call.Method.GetRecursiveGenericArguments()),
+                result.HasReplacedThis, result.HasReplacedReturn);
         }
 
-        /// <summary>
-        /// Tries to re-write the given call's body.
-        /// </summary>
-        private IStatement TryRewriteBody(
+        private Tuple<EscapeAnalysisData, Dictionary<CallEscapeDependencies, RewrittenMethodSignature>, IStatement> AnalyzeBody(
             IMethod Method, SignatureEscapeAnalysis Call, IStatement Body,
             BodyPassArgument Argument, Dictionary<IMethod, EscapeAnalysisData> AnalyzedFunctions)
         {
-            // First, analyze the body again. This time, we're only interested
-            // in the analysis nodes that are inserted.
+            // Analyze the method body.
             var analysis = new EscapeAnalysisData(Method);
 
             var analyzer = new HeapToStackAnalyzer(
@@ -263,29 +209,56 @@ namespace Flame.Optimization
                 analysis.UpdateResult(analysis.GetParameterTag(i), Call.Parameters[i]);
             }
 
-            // We'll first attempt to replace all called methods.
+            // We'll attempt to replace all called methods.
             var methodCache = GetMethodCache(Argument);
-            var replMethods = new Dictionary<CallEscapeDependencies, RewrittenMethodSignature>();
-            foreach (var call in analyzer.Calls)
+            bool changed = true;
+            var blacklistedCalls = new HashSet<CallEscapeDependencies>();
+            Dictionary<CallEscapeDependencies, RewrittenMethodSignature> replMethods = null;
+            while (changed)
             {
-                var rewrittenCall = TryRewrite(
-                    call, analysis, Argument, methodCache);
-                if (rewrittenCall == null)
-                    call.MakeGlobal(analysis);
+                changed = false;
+                replMethods = new Dictionary<CallEscapeDependencies, RewrittenMethodSignature>();
+                foreach (var call in analyzer.Calls)
+                {
+                    if (!blacklistedCalls.Contains(call))
+                    {
+                        var rewrittenCall = TryRewrite(
+                            call, analysis, Argument, methodCache);
 
-                replMethods[call] = rewrittenCall;
+                        if (rewrittenCall == null)
+                        {
+                            call.MakeGlobal(analysis);
+                            blacklistedCalls.Add(call);
+                            changed = true;
+                        }
+
+                        replMethods[call] = rewrittenCall;
+                    }
+                }
             }
 
-            // Next, we can try to replace all types.
+
+            return new Tuple<EscapeAnalysisData, Dictionary<CallEscapeDependencies, RewrittenMethodSignature>, IStatement>(
+                analysis, replMethods, analyzedBody);
+        }
+
+        /// <summary>
+        /// Tries to re-write the given call's body.
+        /// </summary>
+        private IStatement TryRewriteBody(
+            IMethod Method, IStatement Body, BodyPassArgument Argument, EscapeAnalysisData Analysis,
+            IReadOnlyDictionary<CallEscapeDependencies, RewrittenMethodSignature> ReplacedMethods)
+        {
+            // Try to replace all types.
             var replTypes = new Dictionary<IType, IType>();
             var failedReplTypes = new HashSet<IType>();
             var replFields = GetFieldCache(Argument);
-            bool hasReplacedAny = replMethods.Count > 0;
-            foreach (var tag in analysis.Tags)
+            bool hasReplacedAny = ReplacedMethods.Count > 0;
+            foreach (var tag in Analysis.Tags)
             {
-                if (analysis.GetResult(tag) != EscapeAnalysisResult.Global)
+                if (Analysis.GetResult(tag) != EscapeAnalysisResult.Global)
                 {
-                    var ty = analysis.GetType(tag).GetRecursiveGenericDeclaration();
+                    var ty = Analysis.GetType(tag).GetRecursiveGenericDeclaration();
                     if (!replTypes.ContainsKey(ty) && !failedReplTypes.Contains(ty))
                     {
                         var valTy = TryRewrite(ty, Argument);
@@ -309,9 +282,9 @@ namespace Flame.Optimization
             // Finally, we can rewrite the method body itself.
             // Create a rewriter, and have it visit the analyzed method body.
             var rewriter = new HeapToStackRewriter(
-                analysis, Method, Argument,
-                replTypes, replFields, replMethods);
-            return rewriter.Visit(analyzedBody);
+                Analysis, Method, Argument,
+                replTypes, replFields, ReplacedMethods);
+            return rewriter.Visit(Body);
         }
 
         private IType ReplaceParameterType(
@@ -328,17 +301,15 @@ namespace Flame.Optimization
         /// A boolean tells whether the resulting method should be a static
         /// or an instance method.
         /// </summary>
-        private IMethod TryRewriteImpl(
-            SignatureEscapeAnalysis Call, UnqualifiedName Name,
-            IType DeclaringType, bool IsStatic, BodyPassArgument Arg)
+        private RewrittenMethodSignature TryRewriteImpl(
+            SignatureEscapeAnalysis Call, UnqualifiedName Name, BodyPassArgument Arg)
         {
             var oldMethod = Call.Method;
 
             bool isCtor = oldMethod.IsConstructor;
 
-            // We can't rewrite constructors as static methods, so we should
-            // definitely check for that.
-            if (isCtor && IsStatic)
+            // Don't rewrite static constructors.
+            if (isCtor && oldMethod.IsStatic)
                 return null;
 
             // We're going to need the method body.
@@ -346,13 +317,9 @@ namespace Flame.Optimization
             if (body == null)
                 return null;
 
-            // Figure out whether the method we're creating is a static method
-            // based on an instance method.
-            bool wasInstance = IsStatic && !oldMethod.IsStatic;
-
             // It seems that we can safely proceed by creating a new method.
-            var methodDef = new DescribedBodyMethod(Name, DeclaringType);
-            methodDef.IsStatic = IsStatic;
+            var methodDef = new DescribedBodyMethod(Name, oldMethod.DeclaringType);
+            methodDef.IsStatic = oldMethod.IsStatic;
 
             // Copy the generic parameters from the old method.
             foreach (var item in GenericExtensions.CloneGenericParameters(
@@ -365,27 +332,42 @@ namespace Flame.Optimization
             foreach (var attr in oldMethod.Attributes)
                 methodDef.AddAttribute(attr);
 
+            // Analyze the method body.
+            var bodyAnalysis = AnalyzeBody(oldMethod, Call, body, Arg, GetAnalysisCache(Arg));
+            var analysis = bodyAnalysis.Item1;
+            var replMethods = bodyAnalysis.Item2;
+            var analyzedBody = bodyAnalysis.Item3;
+            var newCall = analysis.SignatureResult;
+
+            if (!CanReplaceAnything(newCall))
+            {
+                return null;
+            }
+
+            // The declaring type is either
+            //
+            //     - a value type that replaces a declaring reference type,
+            //     - an extensible declaring type, or
+            //     - a static class that contains rewritten methods.
+            //
+            // TODO: implement option #3. This is not very useful for static
+            // linking scenarios, but it can be useful for dynamic linking.
+
+            bool hasReplacedThis = false;
+            if (CanReplace(newCall.ThisValue, methodDef.DeclaringType))
+            {
+                methodDef.DeclaringType = TryRewrite(methodDef.DeclaringType, Arg);
+                hasReplacedThis = true;
+            }
+            else if (!Arg.PassEnvironment.CanExtend(methodDef.DeclaringType))
+            {
+                return null;
+            }
+
             // Create a type parameter converter for the parameters/return value.
             var typeConv = new TypeParameterConverter(methodDef);
 
-            // We may have to throw in a special 'this pointer' argument.
-            if (wasInstance)
-            {
-                if (CanReplace(Call.ThisValue, oldMethod.DeclaringType))
-                {
-                    methodDef.AddParameter(new DescribedParameter(
-                        "__this_ptr",
-                        ReplaceParameterType(oldMethod.DeclaringType, Arg, typeConv)));
-                }
-                else
-                {
-                    methodDef.AddParameter(new DescribedParameter(
-                        "__this_ptr",
-                        ThisVariable.GetThisType(methodDef.DeclaringType)));
-                }
-            }
-
-            foreach (var paramValue in Call.Parameters, var param in oldMethod.Parameters)
+            foreach (var paramValue in newCall.Parameters, var param in oldMethod.Parameters)
             {
                 var paramType = param.ParameterType;
                 if (CanReplace(paramValue, paramType))
@@ -400,31 +382,37 @@ namespace Flame.Optimization
                 }
             }
 
-            if (CanReplace(Call.ReturnValue, oldMethod.ReturnType))
+            bool hasReplacedResult = false;
+            if (CanReplace(newCall.ReturnValue, oldMethod.ReturnType))
+            {
                 methodDef.ReturnType = ReplaceParameterType(oldMethod.ReturnType, Arg, typeConv);
+                hasReplacedResult = true;
+            }
             else
+            {
                 methodDef.ReturnType = typeConv.Convert(oldMethod.ReturnType);
-
-            // Convert any and all type parameters in the method body.
-            var convBody = MemberNodeVisitor.ConvertTypes(typeConv, body);
+            }
 
             // Rewrite the method body.
             var methodBody = TryRewriteBody(
-                methodDef, Call, convBody, Arg, GetAnalysisCache(Arg));
+                methodDef, analyzedBody, Arg, analysis, replMethods);
 
             if (methodBody == null)
                 // Well, that sure went spectacularly wrong at the last minute.
                 return null;
 
+            // Convert any and all type parameters in the method body.
+            methodBody = MemberNodeVisitor.ConvertTypes(typeConv, methodBody);
+
             // We need to check the body's access: it can't be allowed to
             // access anything that the new declaring type can't access.
-            if (!AccessChecker.CanAccess(DeclaringType, methodBody, Arg))
+            if (!AccessChecker.CanAccess(methodDef.DeclaringType, methodBody, Arg))
                 return null;
 
             methodDef.Body = methodBody;
 
             // I guess we're done here.
-            return methodDef;
+            return new RewrittenMethodSignature(methodDef, hasReplacedThis, hasReplacedResult);
         }
 
         /// <summary>
