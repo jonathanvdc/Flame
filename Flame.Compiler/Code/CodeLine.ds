@@ -15,20 +15,20 @@ namespace Flame.Compiler
         /// </summary>
         public bool IsWhiteline
         {
-        	const get return Text.Equals("\0");
+            const get return Text.Equals("\0");
         }
 
-		/// <summary>
-		/// Gets a boolean value that indicates if this code line corresponds to the empty line pattern.
-		/// </summary>
-		public bool IsEmpty
-		{
-			const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;
-		}
+        /// <summary>
+        /// Gets a boolean value that indicates if this code line corresponds to the empty line pattern.
+        /// </summary>
+        public bool IsEmpty
+        {
+            const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;
+        }
 
-		/// <summary>
-		/// Gets a boolean value that indicates if this code line is whitespace.
-		/// </summary>
+        /// <summary>
+        /// Gets a boolean value that indicates if this code line is whitespace.
+        /// </summary>
         public bool IsWhitespace
         {
             const get
@@ -54,9 +54,9 @@ namespace Flame.Compiler
             return Length + Indentation * IndentationLength;
         }
 
-		/// <summary>
-		/// Gets or sets the code line's text.
-		/// </summary>
+        /// <summary>
+        /// Gets or sets the code line's text.
+        /// </summary>
         public string Text { const get; set; }
         /// <summary>
         /// Gets or sets this code line's indentation.
@@ -76,7 +76,7 @@ namespace Flame.Compiler
             }
             if (!IsEmpty)
             {
-            	sb.Append(Text);
+                sb.Append(Text);
             }
             return sb.ToString();
         }
