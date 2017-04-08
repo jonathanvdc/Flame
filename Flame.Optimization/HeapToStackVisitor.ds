@@ -81,6 +81,7 @@ namespace Flame.Optimization
         protected abstract IExpression VisitDynamicCast(DynamicCastExpression Expression);
         protected abstract IExpression VisitReinterpretCast(ReinterpretCastExpression Expression);
         protected abstract IExpression VisitLoad(IExpression LoadExpression, IVariable Variable);
+        protected abstract IExpression VisitUnknownVariableAction(IExpression Expression, IVariable Variable);
         protected abstract IExpression VisitCall(InvocationExpression Expression, DissectedCall Call);
         protected abstract IExpression VisitAnalyzedCall(EscapeAnalysisCallExpression Expression);
         protected abstract IExpression VisitUnknown(IExpression Expression);
@@ -88,6 +89,7 @@ namespace Flame.Optimization
         protected abstract IStatement VisitReturn(ReturnStatement Statement);
         protected abstract IStatement VisitStore(IStatement StoreStatement, IVariable Variable, IExpression StoreValue);
         protected abstract IStatement VisitRelease(IStatement ReleaseStatement, IVariable Variable);
+        protected abstract IStatement VisitUnknownVariableAction(IStatement Statement, IVariable Variable);
         protected abstract IStatement VisitExpressionStatement(ExpressionStatement Statement);
         protected abstract IStatement VisitUnknown(IStatement Statement);
 
@@ -158,6 +160,10 @@ namespace Flame.Optimization
                 {
                     return VisitLoad(Value, varNode.GetVariable());
                 }
+                else
+                {
+                    return VisitUnknownVariableAction(Value, varNode.GetVariable());
+                }
             }
             return VisitUnknown(Value);
         }
@@ -199,6 +205,10 @@ namespace Flame.Optimization
                     return VisitStore(
                         Value, varNode.GetVariable(),
                         ((ISetVariableNode)varNode).Value);
+                }
+                else
+                {
+                    return VisitUnknownVariableAction(Value, varNode.GetVariable());
                 }
             }
             return VisitUnknown(Value);
@@ -596,6 +606,13 @@ namespace Flame.Optimization
             }
         }
 
+        protected override IExpression VisitUnknownVariableAction(IExpression Expression, IVariable Variable)
+        {
+            ReplaceExpressionTag(TryGetAndRegisterTag(Variable));
+            PopGlobalExpressionTag();
+            return Expression.Accept(this);
+        }
+
         protected override IExpression VisitCall(InvocationExpression Expression, DissectedCall Call)
         {
             var thisVal = AnalyzeExpression(Call.ThisValue);
@@ -709,6 +726,14 @@ namespace Flame.Optimization
         protected override IStatement VisitRelease(
             IStatement ReleaseStatement, IVariable Variable)
         {
+            return ReleaseStatement.Accept(this);
+        }
+
+        protected override IStatement VisitUnknownVariableAction(
+            IStatement ReleaseStatement, IVariable Variable)
+        {
+            ReplaceExpressionTag(TryGetAndRegisterTag(Variable));
+            PopGlobalExpressionTag();
             return ReleaseStatement.Accept(this);
         }
 
@@ -1107,6 +1132,11 @@ namespace Flame.Optimization
             }
         }
 
+        protected override IExpression VisitUnknownVariableAction(IExpression Expression, IVariable Variable)
+        {
+            return VisitUnknown(Expression);
+        }
+
         protected override IExpression VisitAnalyzedCall(
             EscapeAnalysisCallExpression Expression)
         {
@@ -1203,6 +1233,12 @@ namespace Flame.Optimization
             {
                 return VisitUnknown(ReleaseStatement);
             }
+        }
+
+        protected override IStatement VisitUnknownVariableAction(
+            IStatement Statement, IVariable Variable)
+        {
+            return VisitUnknown(Statement);
         }
 
         protected override IStatement VisitUnknown(IStatement Statement)
