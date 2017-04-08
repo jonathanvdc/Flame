@@ -705,18 +705,7 @@ namespace Flame.Cecil.Emit
 
         public static IType GetThisParameterType(IMethod Method)
         {
-            var declType = Method.DeclaringType;
-            var genInst = declType.GetIsGeneric() 
-                ? declType.MakeGenericType(declType.GenericParameters) 
-                : declType;
-            if (declType.GetIsValueType())
-            {
-                return genInst.MakePointerType(PointerKind.ReferencePointer);
-            }
-            else
-            {
-                return genInst;
-            }
+            return Flame.Compiler.Variables.ThisVariable.GetThisType(Method.DeclaringType);
         }
 
         public static IType[] GetExtendedParameterTypes(IMethod Method)

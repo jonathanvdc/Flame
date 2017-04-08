@@ -169,6 +169,13 @@ namespace Flame.Cecil
             return instance;
         }
 
+        protected override TypeReference ConvertGenericInstance(IType Type)
+        {
+            var decl = Convert(Type.GetRecursiveGenericDeclaration());
+            var tArgs = Type.GetRecursiveGenericArguments().Select(Convert).ToArray();
+            return MakeGenericType(decl, tArgs);
+        }
+
         protected override TypeReference ConvertNestedType(IType Type, IType DeclaringType)
         {
             if (Type is GenericInstanceType)
