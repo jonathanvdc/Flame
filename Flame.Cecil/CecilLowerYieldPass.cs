@@ -148,7 +148,7 @@ namespace Flame.Cecil
         private static void ForwardParameterlessCall(DescribedBodyMethod Source, IMethod TargetMethod)
         {
             var genericTgt = CreateAutoGenericMethod(TargetMethod);
-            var thisVar = ThisReferenceVariable.Instance.Create(Source.DeclaringType);
+            var thisVar = new ThisVariable(Source.DeclaringType);
 
             IExpression callExpr = new InvocationExpression(genericTgt, thisVar.CreateGetExpression(), new IExpression[] { });
             if (ConversionExpression.Instance.UseBox(callExpr.Type, Source.ReturnType))

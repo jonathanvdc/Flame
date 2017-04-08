@@ -15,14 +15,14 @@ namespace Flame.Compiler.Visitors
         {
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
-            this.thisVariable = ThisReferenceVariable.Create(Type);
+            this.thisVariable = new ThisVariable(Type);
         }
         public const this(set DescribedType Type, set MemberConverter Converter)
         {
             this.FieldPrefix = "captured";
             this.captArgs = new Dictionary<IVariable, IVariable>();
             this.capturedVariables = new Dictionary<IVariable, IVariable>();
-            this.thisVariable = ThisReferenceVariable.Create(Type);
+            this.thisVariable = new ThisVariable(Type);
         }
 
         public string FieldPrefix { const get; private set; }
@@ -56,30 +56,17 @@ namespace Flame.Compiler.Visitors
             return result;
         }
 
-        private IField GetGenericField(IField Field)
-        {
-            if (Type.IsGeneric)
-            {
-                var genThis = new GenericType(Type, Type.GenericParameters);
-                return new GenericInstanceField(Field, genThis);
-            }
-            else
-            {
-                return Field;
-            }
-        }
-
         private IVariable CaptureVariable(IVariable Variable, string Name, bool IsArgument)
         {
-            var captField = new DescribedField(CreateFieldName(Name), Type,
-                                               Converter.Convert(Variable.Type),
-                                               false);
+            var captField = new DescribedField(
+                CreateFieldName(Name), Type, Converter.Convert(Variable.Type), false);
             captField.AddAttribute(new AccessAttribute(AccessModifier.Private));
             captField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
 
             Type.AddField(captField);
-            var captFieldVar = new FieldVariable(GetGenericField(captField),
-                                                 thisVariable.CreateGetExpression());
+            var captFieldVar = new FieldVariable(
+                captField.MakeRecursiveGenericField(captField.GetRecursiveGenericParameters()),
+                thisVariable.CreateGetExpression());
 
             if (IsArgument)
             {

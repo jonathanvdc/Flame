@@ -101,20 +101,23 @@ namespace Flame.Compiler.Visitors
             valueField.AddAttribute(PrimitiveAttributes.HiddenAttribute);
             nestedType.AddField(valueField);
 
-            var enumeratorThisVariable = ThisReferenceVariable.Create(nestedType);
-            var stateVar = new FieldVariable(enumeratorThisVariable.Type.GetField(stateField.Name, stateField.IsStatic),
-                                             enumeratorThisVariable.CreateGetExpression());
-            var valueVar = new FieldVariable(enumeratorThisVariable.Type.GetField(valueField.Name, valueField.IsStatic),
-                                             enumeratorThisVariable.CreateGetExpression());
+            var enumeratorThisVariable = new ThisVariable(nestedType);
+            var stateVar = new FieldVariable(
+                stateField.MakeRecursiveGenericField(stateField.GetRecursiveGenericParameters()),
+                enumeratorThisVariable.CreateGetExpression());
+            var valueVar = new FieldVariable(
+                valueField.MakeRecursiveGenericField(valueField.GetRecursiveGenericParameters()),
+                enumeratorThisVariable.CreateGetExpression());
 
             var currentBody = new ReturnStatement(valueVar.CreateGetExpression());
 
-            var visitor = new LowerYieldNodeVisitor(nestedType, enumeratorThisVariable,
-                                                    stateVar, valueVar, typeConv);
+            var visitor = new LowerYieldNodeVisitor(
+                nestedType, enumeratorThisVariable, stateVar, valueVar, typeConv);
             var moveBody = visitor.CreateBody(visitor.Visit(oldMoveBody));
 
             ImplementEnumerator(Environment, nestedType, elemType, moveBody, currentBody);
-            ImplementEnumerable(Environment, nestedType, elemType,
+            ImplementEnumerable(
+                Environment, nestedType, elemType,
                 new ReturnStatement(enumeratorThisVariable.CreateGetExpression()));
 
             var enumCtor = new DescribedBodyMethod("this", nestedType, PrimitiveTypes.Void, false);
@@ -146,16 +149,11 @@ namespace Flame.Compiler.Visitors
             enumCtor.Body = new BlockStatement(initStatements);
             nestedType.AddMethod(enumCtor);
 
-            if (nestedType.IsGeneric)
-            {
-                var inst = new GenericType(nestedType, Method.GenericParameters);
-                var genCtor = new GenericInstanceMethod(enumCtor, inst);
-                return new ReturnStatement(new NewObjectExpression(genCtor, initExprs));
-            }
-            else
-            {
-                return new ReturnStatement(new NewObjectExpression(enumCtor, initExprs));
-            }
+            return new ReturnStatement(
+                new NewObjectExpression(
+                    enumCtor.MakeRecursiveGenericMethod(
+                        Method.GetRecursiveGenericParameters()),
+                initExprs));
         }
     }
 
