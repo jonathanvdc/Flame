@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-public static class LowerYieldTest
+public module MergeModule<T1, T2>
 {
-    public static [T3] Merge<T1, T2, T3>([T1] First, [T2] Second, T3(T1, T2) Function)
+    public static [T3] Merge<T3>([T1] First, [T2] Second, T3(T1, T2) Function)
     {
         foreach (var left in First, var right in Second)
             yield return Function(left, right);
     }
+}
 
+public static class LowerYieldTest
+{
     public const [double] Fibonacci()
     {
         double val1 = 0.0;
@@ -43,7 +46,7 @@ public static class LowerYieldTest
 
     public const [double] Multiply([double] First, [double] Second)
     {
-        return Merge<double, double, double>(First, Second, Multiply);
+        return MergeModule<double, double>.Merge<double>(First, Second, Multiply);
     }
 
     private string PrintSequence<T>([T] Values)
