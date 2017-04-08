@@ -140,8 +140,11 @@ namespace Flame.Front.Target
             inliningLoopPasses.Add(new LoopPassInfo(InliningPass.Instance, InliningPass.InliningPassName));
             GlobalPassManager.RegisterPassCondition(InliningPass.InliningPassName, optInfo => optInfo.OptimizeAggressive);
 
+            // -fheap2stack and -fip-heap2stack promote heap-allocated objects to stack-allocated objects.
+            // -fip-heap2stack does everything that -fheap2stack does and more, and it's -O3.
             inliningLoopPasses.Add(new LoopPassInfo(LocalHeapToStackPass.Instance, LocalHeapToStackPass.LocalHeapToStackPassName));
             inliningLoopPasses.Add(new LoopPassInfo(GlobalHeapToStackPass.Instance, GlobalHeapToStackPass.GlobalHeapToStackPassName));
+            GlobalPassManager.RegisterPassCondition(GlobalHeapToStackPass.GlobalHeapToStackPassName, optInfo => optInfo.OptimizeAggressive);
 
             // -fscalarrepl performs scalar replacement of aggregates.
             // It's -O3
