@@ -320,6 +320,7 @@ namespace Flame.Optimization
             // It seems that we can safely proceed by creating a new method.
             var methodDef = new DescribedBodyMethod(Name, oldMethod.DeclaringType);
             methodDef.IsStatic = oldMethod.IsStatic;
+            methodDef.IsConstructor = isCtor;
 
             // Copy the generic parameters from the old method.
             foreach (var item in GenericExtensions.CloneGenericParameters(
