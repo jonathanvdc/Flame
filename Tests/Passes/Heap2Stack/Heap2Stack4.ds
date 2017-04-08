@@ -1,0 +1,262 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+public struct CodeLine
+{
+    public const this(set string Text);
+    public const this(set string Text, set int Indentation);
+
+    /// <summary>
+    /// Gets a boolean flag that indicates if this code line is a line of whitespace, i.e. contains only a single null character ('\0').
+    /// A truly empty code line (text "") will not be output by a CodeBuilder. A whiteline, however, will be.
+    /// </summary>
+    public bool IsWhiteline
+    {
+        const get return Text.Equals("\0");
+    }
+
+    /// <summary>
+    /// Gets a boolean value that indicates if this code line corresponds to the empty line pattern.
+    /// </summary>
+    public bool IsEmpty
+    {
+        const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;
+    }
+
+    /// <summary>
+    /// Gets a boolean value that indicates if this code line is whitespace.
+    /// </summary>
+    public bool IsWhitespace
+    {
+        const get
+        {
+            return IsEmpty || string.IsNullOrWhiteSpace(Text);
+        }
+    }
+
+    /// <summary>
+    /// Gets the code line's text length.
+    /// </summary>
+    public int Length
+    {
+        const get if (IsEmpty) return 0; else return Text.Length;
+    }
+
+    /// <summary>
+    /// Gets the code line's total length. This includes the line's
+    /// indentation.
+    /// </summary>
+    public const int GetTotalLength(int IndentationLength)
+    {
+        return Length + Indentation * IndentationLength;
+    }
+
+    /// <summary>
+    /// Gets or sets the code line's text.
+    /// </summary>
+    public string Text { const get; set; }
+    /// <summary>
+    /// Gets or sets this code line's indentation.
+    /// </summary>
+    public int Indentation { const get; set; }
+
+    public override const string ToString()
+    {
+        return this.ToString("\t");
+    }
+    public const string ToString(string IndentationString)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Indentation; i++)
+        {
+            sb.Append(IndentationString);
+        }
+        if (!IsEmpty)
+        {
+            sb.Append(Text);
+        }
+        return sb.ToString();
+    }
+}
+
+public class CodeBuilder
+{
+    public const this()
+    {
+        Init();
+    }
+    public const this(string Code)
+    {
+        Init();
+        string[] codeLines = Code.Replace("\r", "").Split(new char[] { '\n' });
+        this.IndentationString = "    ";
+        foreach (var item in codeLines)
+        {
+            AddLine(item);
+        }
+    }
+    public const this(CodeBuilder Other)
+    {
+        this.indentation = Other.indentation;
+        this.lines = new List<CodeLine>(Other.lines);
+        this.IndentationString = Other.IndentationString;
+    }
+    public const this([CodeLine] Lines)
+    {
+        this.indentation = 0;
+        this.lines = new List<CodeLine>(Lines);
+        this.IndentationString = "\t";
+    }
+    public const this(set int indentation, [CodeLine] Lines, set string IndentationString)
+    {
+        this.lines = new List<CodeLine>(Lines);
+    }
+
+    private void Init()
+    {
+        indentation = 0;
+        lines = new List<CodeLine>();
+        IndentationString = "\t";
+    }
+
+    private List<CodeLine> lines;
+    private int indentation;
+    public string IndentationString { const get; set; }
+    public int CurrentIndentation { const get return indentation; }
+
+    public [CodeLine] GetLines()
+    {
+        return lines;
+    }
+
+    #region Increase/Decrease Indentation
+
+    public CodeBuilder IncreaseIndentation()
+    {
+        indentation++;
+        return this;
+    }
+    public CodeBuilder DecreaseIndentation()
+    {
+        if (indentation > 0)
+        {
+            indentation--;
+        }
+        return this;
+    }
+
+    #endregion
+
+    #region Append
+
+    public CodeBuilder Append(char Character)
+    {
+        return Append(Character.ToString());
+    }
+    public CodeBuilder Append(string Text)
+    {
+        if (lines.Count == 0)
+        {
+            AddLine();
+        }
+        string[] splitText = Text.Replace("\r", "").Split(new char[] { '\n' });
+        var oldLine = lines[lines.Count - 1];
+        lines[lines.Count - 1] = new CodeLine(oldLine.Text + splitText[0], oldLine.Indentation);
+        for (int i = 1; i < splitText.Length; i++)
+        {
+            AddLine(splitText[i]);
+        }
+        return this;
+    }
+    public CodeBuilder Append(CodeBuilder Builder)
+    {
+        var builderLines = Builder.lines;
+        if (builderLines.Count > 0)
+        {
+            if (lines.Count == 0)
+            {
+                AddLine();
+            }
+            var oldLine = lines[lines.Count - 1];
+            string firstLineText = builderLines[0].Text;
+            lines[lines.Count - 1] = new CodeLine(oldLine.Text + firstLineText, oldLine.Indentation);
+            for (int i = 1; i < builderLines.Count; i++)
+            {
+                CodeLine item = builderLines[i];
+                AddLine(new CodeLine(item.Text, item.Indentation + indentation));
+            }
+        }
+        return this;
+    }
+    public CodeBuilder AppendLine(string Text)
+    {
+        Append(Text);
+        return AddLine();
+    }
+    public CodeBuilder AppendLine()
+    {
+        return AddLine();
+    }
+
+    public CodeBuilder AddLine()
+    {
+        return AddLine("");
+    }
+    public CodeBuilder AddEmptyLine()
+    {
+        return AddLine("\0");
+    }
+    public CodeBuilder AddLine(string Text)
+    {
+        lines.Add(new CodeLine(Text, indentation));
+        return this;
+    }
+    public CodeBuilder AddLine(CodeLine Line)
+    {
+        lines.Add(Line);
+        return this;
+    }
+    public CodeBuilder AddCodeBuilder(CodeBuilder Builder)
+    {
+        foreach (var item in Builder.lines)
+        {
+            AddLine(new CodeLine(item.Text, item.Indentation + indentation));
+        }
+        return this;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < lines.Count; i++)
+        {
+            var line = lines[i];
+            if (line.IsWhiteline)
+            {
+                for (int32 j = 0; i < line.Indentation; j++)
+                {
+                    sb.Append(IndentationString);
+                }
+                sb.AppendLine();
+            }
+            else if (!line.IsWhitespace)
+            {
+                sb.AppendLine(lines[i].ToString(IndentationString));
+            }
+        }
+        return sb.ToString().TrimEnd(new char[] { '\r', '\n', '\t', ' ' });
+    }
+}
+
+public module Program
+{
+    public static void Main()
+    {
+        var cb = new CodeBuilder();
+        cb.Append("hello");
+        cb.Append(new CodeBuilder(" world"));
+        Console.WriteLine(cb.ToString());
+    }
+}
