@@ -71,8 +71,9 @@ namespace Flame.Compiler.Variables
         /// </summary>
         public static IType GetThisType(IType CurrentType)
         {
-            var finalType = CurrentType.GetRecursiveGenericDeclaration().MakeRecursiveGenericType(
-                CurrentType.GetRecursiveGenericParameters());
+            var recGenDecl = CurrentType.GetRecursiveGenericDeclaration();
+            var finalType = recGenDecl.MakeRecursiveGenericType(
+                recGenDecl.GetRecursiveGenericParameters());
             if (finalType.IsValueType && !finalType.IsPointer)
             {
                 finalType = finalType.MakePointerType(PointerKind.ReferencePointer);
