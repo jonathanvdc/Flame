@@ -1,0 +1,38 @@
+using System;
+
+public abstract class Base
+{
+    public int x;
+    public void SetX(int NewX)
+    {
+        // Padded with meaningless I/O to make SetX unpalatable for the inliner.
+        x = NewX;
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+        Console.WriteLine("Setting X");
+    }
+}
+
+public class Derived : Base
+{
+    public void DoSomething()
+    {
+        SetX(10);
+    }
+}
+
+public module Program
+{
+    public static void Main()
+    {
+        var inst = new Derived();
+        inst.DoSomething();
+    }
+}
