@@ -18,9 +18,9 @@ namespace Flame.Optimization
     {
         alias DevirtualizationRecord = Tuple<SourceLocation, IMethod, IMethod>;
 
-        public const this(bool RespectAccess, IType ThisType)
+        public const this(BodyPassArgument Arg, IType ThisType)
         {
-            this.RespectAccess = RespectAccess;
+            this.Arg = Arg;
             this.ThisType = ThisType;
             this.devirtRecords = new List<DevirtualizationRecord>();
         }
@@ -28,16 +28,14 @@ namespace Flame.Optimization
         private List<DevirtualizationRecord> devirtRecords;
 
         /// <summary>
-        /// A read-only list of records that describe
-        /// individual devirtualizations.
+        /// A read-only list of records that describe individual devirtualizations.
         /// </summary>
         public IReadOnlyList<DevirtualizationRecord> Records { get { return devirtRecords; } }
 
         /// <summary>
-        /// Gets a Boolean value that tells if this devirtualizing visitor should respect
-        /// access modifiers while devirtualizing.
+        /// Gets the body pass argument for this visitor.
         /// </summary>
-        public bool RespectAccess { get; private set; }
+        public BodyPassArgument Arg { get; private set; }
 
         /// <summary>
         /// Gets the 'this' type of the method body that is being devirtualized.
@@ -83,7 +81,7 @@ namespace Flame.Optimization
                 if (impl == null)
                     return expr;
 
-                if (RespectAccess && !ThisType.CanAccess(impl))
+                if (!AccessChecker.CanAccess(ThisType, impl, Arg))
                     return expr;
 
                 // Victory! We can (partially) devirtualize this thing!
@@ -183,7 +181,7 @@ namespace Flame.Optimization
             if (thisType != null)
                 thisType = thisType.MakeRecursiveGenericType(thisType.GetRecursiveGenericParameters());
 
-            var visitor = new DevirtualizingVisitor(true, thisType);
+            var visitor = new DevirtualizingVisitor(Arg, thisType);
             var result = visitor.Visit(Arg.Body);
             var log = Arg.PassEnvironment.Log;
             if (log.Options.ShouldRemark(DevirtualizationRemarksName))
