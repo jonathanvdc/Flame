@@ -124,14 +124,17 @@ namespace Flame.Front.Target
 
         public static readonly ScalarReplacementPass Instance = new ScalarReplacementPass();
 
-        public const string ScalarReplacementInlineToleranceOption = "scalarrepl-" + InliningPass.InlineToleranceOption;
-        public const int DefaultScalarReplacementInlineTolerance = InliningPass.DefaultInlineTolerance + DefaultScalarReplacementTolerance;
+        public const string ScalarReplacementInlineToleranceOption =
+            "scalarrepl-" + InliningPass.InlineToleranceOption;
 
-        public const string ScalarReplacementToleranceOption = "scalarrepl-tolerance";
-        // By default, don't replace aggregates that are more than sixteen words
-        // (i.e. sixteen ints or eight longs) wide. On most architectures, this
-        // boils down to 64 bytes.
-        public const int DefaultScalarReplacementTolerance = 16 * InliningPass.WordSize;
+        public const int DefaultInlineBoost = 16 * InliningPass.WordSize;
+
+        public const int DefaultScalarReplacementInlineTolerance =
+            InliningPass.DefaultInlineTolerance + DefaultInlineBoost;
+
+        public const string ScalarReplacementMaxFieldsOption = "scalarrepl-max-fields";
+
+        public const int DefaultScalarReplacementMaxFields = 0;
 
         private IStatement GetMethodBody(BodyPassArgument Value, IMethod Method)
         {
@@ -152,7 +155,7 @@ namespace Flame.Front.Target
                     ScalarReplacementInlineToleranceOption,
                     DefaultScalarReplacementInlineTolerance);
             else if (Options.HasOption(InliningPass.InlineToleranceOption))
-                return DefaultScalarReplacementTolerance + Options.GetOption<int>(
+                return DefaultInlineBoost + Options.GetOption<int>(
                     InliningPass.InlineToleranceOption,
                     InliningPass.DefaultInlineTolerance);
             else
@@ -163,9 +166,9 @@ namespace Flame.Front.Target
         {
             var log = Argument.PassEnvironment.Log;
 
-            int tolerance = log.Options.GetOption<int>(
-                ScalarReplacementToleranceOption, DefaultScalarReplacementTolerance);
-            return ty => InliningPass.ApproximateSize(ty) <= tolerance;
+            int maxFields = log.Options.GetOption<int>(
+                ScalarReplacementMaxFieldsOption, DefaultScalarReplacementMaxFields);
+            return ty => maxFields <= 0 || ty.GetAllFields().Count() <= maxFields;
         }
 
         public override Func<DissectedCall, bool> GetInliningCriteria(BodyPassArgument Argument)
@@ -181,7 +184,9 @@ namespace Flame.Front.Target
                 {
                     var visitor = new ScalarReplacementSizeVisitor(canRepl);
                     visitor.Visit(body);
-                    return visitor.Size - inlineTolerance;
+                    return visitor.Size - inlineTolerance -
+                        call.Method.DeclaringType.GetAllFields().Sum(
+                            field => InliningPass.ApproximateSize(field.FieldType));
                 },
                 false);
         }
