@@ -32,24 +32,24 @@ namespace Flame
             PrimitiveAttributes.VarArgsAttribute = new FlagAttribute("VarArgsAttribute");
         }
 
-        public static IAttribute InterfaceAttribute { const get; private set; }
-        public static IAttribute ValueTypeAttribute { const get; private set; }
-        public static IAttribute ReferenceTypeAttribute { const get; private set; }
-        public static IAttribute EnumAttribute { const get; private set; }
-        public static IAttribute ExtensionAttribute { const get; private set; }
-        public static IAttribute ConstantAttribute { const get; private set; }
-        public static IAttribute AbstractAttribute { const get; private set; }
-        public static IAttribute VirtualAttribute { const get; private set; }
-        public static IAttribute RootTypeAttribute { const get; private set; }
-        public static IAttribute HiddenAttribute { const get; private set; }
-        public static IAttribute RecompileAttribute { const get; private set; }
-        public static IAttribute IndexerAttribute { const get; private set; }
-        public static IAttribute InlineAttribute { const get; private set; }
-        public static IAttribute OutAttribute { const get; private set; }
-        public static IAttribute InAttribute { const get; private set; }
-        public static IAttribute StaticTypeAttribute { const get; private set; }
-        public static IAttribute CastAttribute { const get; private set; }
-        public static IAttribute ImportAttribute { const get; private set; }
+        public static IAttribute InterfaceAttribute { get; private set; }
+        public static IAttribute ValueTypeAttribute { get; private set; }
+        public static IAttribute ReferenceTypeAttribute { get; private set; }
+        public static IAttribute EnumAttribute { get; private set; }
+        public static IAttribute ExtensionAttribute { get; private set; }
+        public static IAttribute ConstantAttribute { get; private set; }
+        public static IAttribute AbstractAttribute { get; private set; }
+        public static IAttribute VirtualAttribute { get; private set; }
+        public static IAttribute RootTypeAttribute { get; private set; }
+        public static IAttribute HiddenAttribute { get; private set; }
+        public static IAttribute RecompileAttribute { get; private set; }
+        public static IAttribute IndexerAttribute { get; private set; }
+        public static IAttribute InlineAttribute { get; private set; }
+        public static IAttribute OutAttribute { get; private set; }
+        public static IAttribute InAttribute { get; private set; }
+        public static IAttribute StaticTypeAttribute { get; private set; }
+        public static IAttribute CastAttribute { get; private set; }
+        public static IAttribute ImportAttribute { get; private set; }
 
         /// <summary>
         /// Specifies that some field can only be initialized by an
