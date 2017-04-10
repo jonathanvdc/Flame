@@ -141,15 +141,9 @@ namespace Flame.Front.Passes
             IReadOnlyList<PassInfo<BodyPassArgument, IStatement>> FinalizationPasses,
             int DefaultMaxIterations)
             : this(
-                Name, LoopPasses, FinalizationPasses, 
+                Name, LoopPasses, FinalizationPasses,
                 GetMaxIterationsOption(Name), DefaultMaxIterations)
-        {
-            this.passName = Name;
-            this.MaxIterationsOption = MaxIterationsOption;
-            this.DefaultMaxIterations = DefaultMaxIterations;
-            this.LoopPasses = LoopPasses;
-            this.FinalizationPasses = FinalizationPasses;
-        }
+        { }
 
         private string passName;
 
@@ -183,18 +177,18 @@ namespace Flame.Front.Passes
         /// <summary>
         /// Gets the pass name tree for this pass info.
         /// </summary>
-        public override NameTree NameTree 
-        { 
-            get 
-            { 
+        public override NameTree NameTree
+        {
+            get
+            {
                 return new NameTree(
-                    Name, 
+                    Name,
                     LoopPasses
                     .Select(p => p.NameTree)
                     .Concat(FinalizationPasses
                         .Select(p => p.NameTree))
-                    .ToArray()); 
-            } 
+                    .ToArray());
+            }
         }
 
         /// <summary>
@@ -210,8 +204,8 @@ namespace Flame.Front.Passes
         {
             int maxIters = Selector.Options.GetOption<int>(MaxIterationsOption, DefaultMaxIterations);
             return new PassLoop(
-                Selector.InstantiateActive(LoopPasses), 
-                Selector.InstantiateActive(FinalizationPasses), 
+                Selector.InstantiateActive(LoopPasses),
+                Selector.InstantiateActive(FinalizationPasses),
                 maxIters);
         }
     }
