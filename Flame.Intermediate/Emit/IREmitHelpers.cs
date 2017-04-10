@@ -41,6 +41,7 @@ namespace Flame.Intermediate.Emit
             { PrimitiveAttributes.Instance.ImportAttribute, AttributeParsers.ImportNodeName },
             { PrimitiveAttributes.Instance.InitOnlyAttribute, AttributeParsers.InitOnlyNodeName },
             { PrimitiveAttributes.Instance.TotalInitializationAttribute, AttributeParsers.TotalInitializationNodeName },
+            { PrimitiveAttributes.Instance.InlineAttribute, AttributeParsers.InlineNodeName },
 
             // Inheritance attributes
             { PrimitiveAttributes.Instance.AbstractAttribute, AttributeParsers.AbstractNodeName },
