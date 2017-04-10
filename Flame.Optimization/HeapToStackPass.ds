@@ -92,10 +92,28 @@ namespace Flame.Optimization
             var result = TryRewriteBody(
                 method, bodyAnalysis.Item3, Argument, bodyAnalysis.Item1, bodyAnalysis.Item2);
             if (result == null)
+            {
                 return new LoopPassResult(Argument.Body, false);
+            }
             else
-                // We have replaced something.
-                return new LoopPassResult(result, true);
+            {
+                // We have replaced something. Rewrite the result as imperative code. This
+                // typically aids optimization, because
+                //
+                //     var tmp = new T();
+                //     var ptr = &tmp;
+                //
+                // is easier to analyze than
+                //
+                //     var ptr = {
+                //         var tmp = new T();
+                //         &tmp
+                //     };
+                //
+                // The latter form will confuse fewer optimizations.
+
+                return new LoopPassResult(ImperativeCodePass.Apply(result), true);
+            }
         }
 
         private bool CanReplace(EscapeAnalysisResult Result, IType Type)

@@ -1201,20 +1201,7 @@ namespace Flame.Optimization
             {
                 // Visit the value, and create a 'store' statement.
                 var storeStmt = replVar.CreateSetStatement(Visit(StoreValue));
-                // Rewrite the 'store' statement as imperative code. This
-                // typically aids optimization, because
-                //
-                //     var tmp = new T();
-                //     var ptr = &tmp;
-                //
-                // is much easier to analyze than
-                //
-                //     var ptr = {
-                //         var tmp = new T();
-                //         &tmp
-                //     };
-                //
-                return ImperativeCodePass.Apply(storeStmt);
+                return storeStmt;
             }
             else
             {
