@@ -4,172 +4,172 @@ using System.Text;
 
 namespace Flame.DSharp.Lexer
 {
-	public static class ModifierExtensions
-	{
-		public static bool ContainsTokenOfType(this IEnumerable<Token> Modifiers, TokenType Type)
-		{
-			foreach (var item in Modifiers)
-				if (item.Type == Type)
-					return true;
-			return false;
-		}
+    public static class ModifierExtensions
+    {
+        public static bool ContainsTokenOfType(this IEnumerable<Token> Modifiers, TokenType Type)
+        {
+            foreach (var item in Modifiers)
+                if (item.Type == Type)
+                    return true;
+            return false;
+        }
 
-		public static bool IsStatic[this IEnumerable<Token> Modifiers]
-		{
-			const get
-			{
-				return Modifiers.ContainsTokenOfType(TokenType.StaticKeyword);
-			}
-		}
-
-		public static bool IsModule[this IEnumerable<Token> Modifiers]
-		{
-			const get
-			{
-				return Modifiers.ContainsTokenOfType(TokenType.ModuleKeyword);
-			}
-		}
-
-		public static bool IsAbstract[this IEnumerable<Token> Modifiers]
-		{
-			const get
-			{
-				return Modifiers.ContainsTokenOfType(TokenType.AbstractKeyword);
-			}
-		}
-
-		public static bool IsOverride[this IEnumerable<Token> Modifiers]
-		{
-			const get
-			{
-				return Modifiers.ContainsTokenOfType(TokenType.OverrideKeyword);
-			}
-		}
-
-		public static bool SetsMember[this IEnumerable<Token> Modifiers]
-		{
-			const get
-			{
-				return Modifiers.ContainsTokenOfType(TokenType.SetKeyword);
-			}
-		}
-
-		public static bool HasAccessAttribute[this IAttribute[] Modifiers]
-		{
-			const get
-			{
-				foreach (var item in Modifiers)
-					if (item.AttributeType.Equals(AccessAttribute.AccessAttributeType))
-						return true;
-				return false;
-			}
-		}
-
-		public static AccessModifier GetAccess(this IEnumerable<Token> Modifiers)
-		{
-			foreach (var item in Modifiers)
+        public static bool IsStatic[this IEnumerable<Token> Modifiers]
+        {
+            const get
             {
-            	if (item.Type == TokenType.ProtectedKeyword)
-            	{
-            		return AccessModifier.Protected;
-            	}
-            	else if (item.Type == TokenType.AssemblyKeyword)
-            	{
-            		return AccessModifier.Assembly;
-            	}
-            	else if (item.Type == TokenType.PrivateKeyword)
-            	{
-            		return AccessModifier.Private;
-            	}
+                return Modifiers.ContainsTokenOfType(TokenType.StaticKeyword);
+            }
+        }
+
+        public static bool IsModule[this IEnumerable<Token> Modifiers]
+        {
+            const get
+            {
+                return Modifiers.ContainsTokenOfType(TokenType.ModuleKeyword);
+            }
+        }
+
+        public static bool IsAbstract[this IEnumerable<Token> Modifiers]
+        {
+            const get
+            {
+                return Modifiers.ContainsTokenOfType(TokenType.AbstractKeyword);
+            }
+        }
+
+        public static bool IsOverride[this IEnumerable<Token> Modifiers]
+        {
+            const get
+            {
+                return Modifiers.ContainsTokenOfType(TokenType.OverrideKeyword);
+            }
+        }
+
+        public static bool SetsMember[this IEnumerable<Token> Modifiers]
+        {
+            const get
+            {
+                return Modifiers.ContainsTokenOfType(TokenType.SetKeyword);
+            }
+        }
+
+        public static bool HasAccessAttribute[this IAttribute[] Modifiers]
+        {
+            const get
+            {
+                foreach (var item in Modifiers)
+                    if (item.AttributeType.Equals(AccessAttribute.AccessAttributeType))
+                        return true;
+                return false;
+            }
+        }
+
+        public static AccessModifier GetAccess(this IEnumerable<Token> Modifiers)
+        {
+            foreach (var item in Modifiers)
+            {
+                if (item.Type == TokenType.ProtectedKeyword)
+                {
+                    return AccessModifier.Protected;
+                }
+                else if (item.Type == TokenType.AssemblyKeyword)
+                {
+                    return AccessModifier.Assembly;
+                }
+                else if (item.Type == TokenType.PrivateKeyword)
+                {
+                    return AccessModifier.Private;
+                }
             }
             return AccessModifier.Public;
-		}
+        }
 
 
-		public static IAttribute[] GetModifiers(this IEnumerable<Token> Modifiers)
+        public static IAttribute[] GetModifiers(this IEnumerable<Token> Modifiers)
         {
             List<IAttribute> attrs = new List<IAttribute>();
             foreach (var item in Modifiers)
             {
-            	if (item.Type == TokenType.PublicKeyword)
-            	{
-            		attrs.Add(new AccessAttribute(AccessModifier.Public));
-            	}
-            	else if (item.Type == TokenType.ProtectedKeyword)
-            	{
-            		attrs.Add(new AccessAttribute(AccessModifier.Protected));
-            	}
-            	else if (item.Type == TokenType.AssemblyKeyword)
-            	{
-            		attrs.Add(new AccessAttribute(AccessModifier.Assembly));
-            	}
-            	else if (item.Type == TokenType.PrivateKeyword)
-            	{
-            		attrs.Add(new AccessAttribute(AccessModifier.Private));
-            	}
-            	else if (item.Type == TokenType.StructKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.ValueTypeAttribute);
-            	}
-            	else if (item.Type == TokenType.InterfaceKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.InterfaceAttribute);
-            	}
-            	else if (item.Type == TokenType.ClassKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.ReferenceTypeAttribute);
-            	}
-            	else if (item.Type == TokenType.EnumKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.EnumAttribute);
-					attrs.Add(PrimitiveAttributes.ValueTypeAttribute);
-            	}
-				else if (item.Type == TokenType.ModuleKeyword)
-				{
-					attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
-				}
-            	else if (item.Type == TokenType.AbstractKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.VirtualAttribute);
-            		attrs.Add(PrimitiveAttributes.AbstractAttribute);
-            	}
-            	else if (item.Type == TokenType.VirtualKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.VirtualAttribute);
-            	}
-            	else if (item.Type == TokenType.ConstKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.ConstantAttribute);
-            	}
-            	else if (item.Type == TokenType.InlineKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.InlineAttribute);
-            	}
-            	else if (item.Type == TokenType.OutKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.OutAttribute);
-            	}
-            	else if (item.Type == TokenType.SealedKeyword || item.Type == TokenType.StaticKeyword)
-            	{
-            		int32 i = 0;
-            		while (i < attrs.Count)
-            		{
-            			if (attrs[i].AttributeType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrs[i].AttributeType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType))
-            			{
-            				attrs.RemoveAt(i);
-            			}
-            			else
-            			{
-            				i++;
-            			}
-            		}
-            	}
-            	else if (item.Type == TokenType.ThisKeyword)
-            	{
-            		attrs.Add(PrimitiveAttributes.ExtensionAttribute);
-            	}
+                if (item.Type == TokenType.PublicKeyword)
+                {
+                    attrs.Add(new AccessAttribute(AccessModifier.Public));
+                }
+                else if (item.Type == TokenType.ProtectedKeyword)
+                {
+                    attrs.Add(new AccessAttribute(AccessModifier.Protected));
+                }
+                else if (item.Type == TokenType.AssemblyKeyword)
+                {
+                    attrs.Add(new AccessAttribute(AccessModifier.Assembly));
+                }
+                else if (item.Type == TokenType.PrivateKeyword)
+                {
+                    attrs.Add(new AccessAttribute(AccessModifier.Private));
+                }
+                else if (item.Type == TokenType.StructKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.ValueTypeAttribute);
+                }
+                else if (item.Type == TokenType.InterfaceKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.InterfaceAttribute);
+                }
+                else if (item.Type == TokenType.ClassKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.ReferenceTypeAttribute);
+                }
+                else if (item.Type == TokenType.EnumKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.EnumAttribute);
+                    attrs.Add(PrimitiveAttributes.ValueTypeAttribute);
+                }
+                else if (item.Type == TokenType.ModuleKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.StaticTypeAttribute);
+                }
+                else if (item.Type == TokenType.AbstractKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.VirtualAttribute);
+                    attrs.Add(PrimitiveAttributes.AbstractAttribute);
+                }
+                else if (item.Type == TokenType.VirtualKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.VirtualAttribute);
+                }
+                else if (item.Type == TokenType.ConstKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.ConstantAttribute);
+                }
+                else if (item.Type == TokenType.InlineKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.InlineAttribute);
+                }
+                else if (item.Type == TokenType.OutKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.OutAttribute);
+                }
+                else if (item.Type == TokenType.SealedKeyword || item.Type == TokenType.StaticKeyword)
+                {
+                    int32 i = 0;
+                    while (i < attrs.Count)
+                    {
+                        if (attrs[i].AttributeType.Equals(PrimitiveAttributes.VirtualAttribute.AttributeType) || attrs[i].AttributeType.Equals(PrimitiveAttributes.AbstractAttribute.AttributeType))
+                        {
+                            attrs.RemoveAt(i);
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
+                }
+                else if (item.Type == TokenType.ThisKeyword)
+                {
+                    attrs.Add(PrimitiveAttributes.ExtensionAttribute);
+                }
             }
             return attrs.ToArray();
         }
-	}
+    }
 }
