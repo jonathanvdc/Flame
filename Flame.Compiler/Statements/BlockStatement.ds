@@ -123,7 +123,7 @@ namespace Flame.Compiler.Statements
                 if (first)
                     first = false;
                 else
-                    result.Append(", ");
+                    result.Append("; ");
 
                 result.Append((string)item);
             }
