@@ -44,7 +44,14 @@ namespace Flame
         public static IAttribute HiddenAttribute { get; private set; }
         public static IAttribute RecompileAttribute { get; private set; }
         public static IAttribute IndexerAttribute { get; private set; }
+
+        /// <summary>
+        /// Hints that it is profitable to inline a method. The compiler does not have to
+        /// inline methods with this attribute, but it does tell the optimizer that method
+        /// inlining might be profitable beyond the inlining heuristic's assessment.
+        /// </summary>
         public static IAttribute InlineAttribute { get; private set; }
+
         public static IAttribute OutAttribute { get; private set; }
         public static IAttribute InAttribute { get; private set; }
         public static IAttribute StaticTypeAttribute { get; private set; }
