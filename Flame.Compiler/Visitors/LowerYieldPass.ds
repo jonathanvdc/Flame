@@ -122,6 +122,7 @@ namespace Flame.Compiler.Visitors
 
             var enumCtor = new DescribedBodyMethod("this", nestedType, PrimitiveTypes.Void, false);
             enumCtor.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            enumCtor.AddAttribute(PrimitiveAttributes.InlineAttribute);
             enumCtor.IsConstructor = true;
 
             var initExprs = new List<IExpression>();
