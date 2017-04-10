@@ -88,7 +88,7 @@ namespace Flame.Optimization
     /// A node visitor that replaces value type variables by scalar variables,
     /// provided that such a substitution is possible.
     /// </summary>
-    public class ScalarReplacementVisitor : NodeVisitorBase
+    public class ScalarReplacementVisitor : INodeVisitor
     {
         public const this(
             set BodyPassArgument PassArgument,
@@ -220,6 +220,8 @@ namespace Flame.Optimization
 
         // A set of local variables that are ineligible for scalar replacement.
         private HashSet<LocalVariableBase> blacklist;
+
+        private INode contextNode;
 
         private List<T> GetOrCreateList<T>(
             Dictionary<LocalVariableBase, List<T>> Cache,
@@ -772,7 +774,7 @@ namespace Flame.Optimization
             return new FlowGraphStatement(new FlowGraph(graph.EntryPointTag, results));
         }
 
-        protected override IExpression Transform(IExpression Expression)
+        protected IExpression Transform(IExpression Expression)
         {
             if (Expression is FieldGetExpression)
             {
@@ -801,14 +803,20 @@ namespace Flame.Optimization
                 else
                     valOrAddress = "value";
 
+                string contextString;
+                if (contextNode == null)
+                    contextString = "";
+                else
+                    contextString = " (context node: " + contextNode.ToString() + ")";
+
                 MarkIrreplaceable(
                     (LocalVariableBase)srcVar,
-                    "its " + valOrAddress + " was taken outside of some special context.");
+                    "its " + valOrAddress + " was taken outside of some special context." + contextString);
             }
             return Expression.Accept(this);
         }
 
-        protected override IStatement Transform(IStatement Statement)
+        protected IStatement Transform(IStatement Statement)
         {
             if (Statement is FlowGraphStatement)
                 return TransformFlowGraph((FlowGraphStatement)Statement);
@@ -854,6 +862,38 @@ namespace Flame.Optimization
                     MarkIrreplaceable(dest);
                     return Statement.Accept(this);
                 }
+            }
+        }
+
+        public IExpression Visit(IExpression Value)
+        {
+            if (Matches(Value))
+            {
+                return Transform(Value);
+            }
+            else
+            {
+                var oldContextNode = contextNode;
+                contextNode = Value;
+                var result = Value.Accept(this);
+                contextNode = oldContextNode;
+                return result;
+            }
+        }
+
+        public IStatement Visit(IStatement Value)
+        {
+            if (Matches(Value))
+            {
+                return Transform(Value);
+            }
+            else
+            {
+                var oldContextNode = contextNode;
+                contextNode = Value;
+                var result = Value.Accept(this);
+                contextNode = oldContextNode;
+                return result;
             }
         }
     }
