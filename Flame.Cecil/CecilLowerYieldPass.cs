@@ -44,6 +44,7 @@ namespace Flame.Cecil
 
             var descGenericGetEnumeratorMethod = new DescribedBodyMethod("GetEnumerator", TargetType, genericEnumerator, false);
             descGenericGetEnumeratorMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            descGenericGetEnumeratorMethod.AddAttribute(PrimitiveAttributes.Instance.InlineAttribute);
             descGenericGetEnumeratorMethod.AddBaseMethod(
                 genericEnumerable.Methods.GetMethod(new SimpleName("GetEnumerator"), false, descGenericGetEnumeratorMethod.ReturnType, new IType[] { }));
             descGenericGetEnumeratorMethod.Body = GetEnumeratorBody;
@@ -56,6 +57,7 @@ namespace Flame.Cecil
 
             var descGetEnumeratorMethod = new DescribedBodyMethod(typeof(System.Collections.IEnumerable).FullName + ".GetEnumerator", TargetType, oldEnumerator, false);
             descGetEnumeratorMethod.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descGetEnumeratorMethod.AddAttribute(PrimitiveAttributes.Instance.InlineAttribute);
             descGetEnumeratorMethod.AddBaseMethod(
                 oldEnumerable.Methods.GetMethod(new SimpleName("GetEnumerator"), false, oldEnumerator, new IType[] { }));
             ForwardParameterlessCall(descGetEnumeratorMethod, descGenericGetEnumeratorMethod);
@@ -89,6 +91,7 @@ namespace Flame.Cecil
 
             var descMoveNextMethod = new DescribedBodyMethod("MoveNext", TargetType, PrimitiveTypes.Boolean, false);
             descMoveNextMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            descMoveNextMethod.AddAttribute(PrimitiveAttributes.Instance.InlineAttribute);
             descMoveNextMethod.AddBaseMethod(
                 oldEnumerator.GetMethod(new SimpleName("MoveNext"), false, descMoveNextMethod.ReturnType, new IType[] { }));
             descMoveNextMethod.Body = MoveNextBody;
@@ -100,6 +103,7 @@ namespace Flame.Cecil
             descGenericCurrentGetProp.AddAttribute(new AccessAttribute(AccessModifier.Public));
             var descGenericCurrentGetAcc = new DescribedBodyAccessor(AccessorType.GetAccessor, descGenericCurrentGetProp, ElementType);
             descGenericCurrentGetAcc.AddAttribute(new AccessAttribute(AccessModifier.Public));
+            descGenericCurrentGetAcc.AddAttribute(PrimitiveAttributes.Instance.InlineAttribute);
             descGenericCurrentGetAcc.AddBaseMethod(
                 genericEnumerator.Properties.GetProperty(new SimpleName("Current"), false).GetGetAccessor());
             descGenericCurrentGetAcc.Body = GetCurrentBody;
@@ -113,6 +117,7 @@ namespace Flame.Cecil
             var descOldCurrentGetter = new DescribedBodyAccessor(AccessorType.GetAccessor, descOldCurrentProperty, cecilEnv.RootType);
             descOldCurrentGetter.IsStatic = false;
             descOldCurrentGetter.AddAttribute(new AccessAttribute(AccessModifier.Private));
+            descOldCurrentGetter.AddAttribute(PrimitiveAttributes.Instance.InlineAttribute);
             descOldCurrentGetter.AddBaseMethod(
                 oldEnumerator.Properties.GetProperty(new SimpleName("Current"), false).GetGetAccessor());
             ForwardParameterlessCall(descOldCurrentGetter, descGenericCurrentGetAcc);
