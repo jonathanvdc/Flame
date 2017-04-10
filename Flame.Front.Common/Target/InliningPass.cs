@@ -202,15 +202,16 @@ namespace Flame.Front.Target
 
         public static bool ShouldInline(BodyPassArgument Args, DissectedCall Call, Func<IStatement, int> ComputeCost, bool RespectAccess)
         {
+            // The first thing we should do is figure out if the method can be inlined safely.
             if (Call.IsVirtual || (Call.Method.IsConstructor && !Call.Method.DeclaringType.GetIsValueType()))
-            {
                 return false;
-            }
 
+            // Next, try to retrieve the method body.
             var body = Args.PassEnvironment.GetMethodBody(Call.Method);
             if (body == null)
                 return false;
 
+            // If we have to respect member access modifiers, then we ought to check those.
             if (RespectAccess)
             {
                 var thisType = Args.DeclaringType.MakeRecursiveGenericType(
@@ -220,6 +221,13 @@ namespace Flame.Front.Target
                     return false;
             }
 
+            // If the method is marked 'inline', then that's a hint to the optimizer that it should
+            // be inlined, bypassing inlining heuristics.
+            if (Call.Method.HasAttribute(PrimitiveAttributes.Instance.InlineAttribute.AttributeType))
+                return true;
+
+            // Compute the cost of calling the function (measured as the sum of passing each argument)
+            // and weigh that against the cost of inlining the method (measured in instruction count).
             int pro = Call.ThisValue != null ? RateArgument(Call.Method.DeclaringType, Call.ThisValue) : 0;
             pro += ApproximateSize(Call.Method.ReturnType);
             foreach (var item in Call.Method.Parameters.Zip(Call.Arguments, Tuple.Create))
