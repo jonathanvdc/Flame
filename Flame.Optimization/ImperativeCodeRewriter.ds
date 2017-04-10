@@ -1,5 +1,6 @@
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
@@ -236,6 +237,27 @@ namespace Flame.Optimization
             return MergeExpressions(result, preds);
         }
 
+        /// <summary>
+        /// Visits the given flow graph.
+        /// </summary>
+        protected FlowGraph VisitFlowGraph(FlowGraph Graph)
+        {
+            var results = new Dictionary<UniqueTag, BasicBlock>();
+            foreach (var block in Graph.Blocks)
+            {
+                // TODO: this function currently doesn't visit the block flow,
+                // which means that we might leave standing a select flow with a
+                // statement in its condition. One way to handle this would be to
+                // shove the condition in a variable if it contains a statement, but
+                // maybe a more general approach would be better.
+                results[block.Tag] = new BasicBlock(
+                    block.Tag, block.Parameters,
+                    Visit(block.Contents),
+                    block.Flow);
+            }
+            return new FlowGraph(Graph.EntryPointTag, results);
+        }
+
         protected override IStatement Transform(IStatement Statement)
         {
             if (Statement.IsEmpty)
@@ -283,6 +305,11 @@ namespace Flame.Optimization
 
                     return EmptyStatement;
                 }
+            }
+            else if (Statement is FlowGraphStatement)
+            {
+                // Flow graph statements contain only statements, so we can just visit them.
+                return new FlowGraphStatement(VisitFlowGraph(((FlowGraphStatement)Statement).Graph));
             }
             else if (Statement is IFlowStatement && Statement is ComplexStatement)
             {
