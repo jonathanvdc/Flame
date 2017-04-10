@@ -66,5 +66,10 @@ namespace Flame.Compiler.Statements
         	var cg = (IUnmanagedCodeGenerator)Generator;
             return cg.EmitStoreAtAddress(Pointer.Emit(cg), Value.Emit(cg));
         }
+
+        public override string ToString()
+        {
+            return "*(" + Pointer.ToString() + ") = " + Value.ToString();
+        }
     }
 }
