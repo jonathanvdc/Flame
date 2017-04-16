@@ -11,11 +11,11 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
-    /// A visitor that verifies a control-flow graph's SSA
+    /// A visitor that verifies a control-flow graph's SSA variables.
     /// </summary>
     public class VerifySSAVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
-        public const this()
+        public this()
         {
             this.Worklist = new HashSet<UniqueTag>();
             this.definedVars = new HashSet<SSAVariable>();
@@ -23,7 +23,7 @@ namespace Flame.Optimization
             this.redefs = new HashSet<SSAVariable>();
         }
 
-        public const this(set HashSet<UniqueTag> Worklist, [SSAVariable] DefinedVariables)
+        private this(set HashSet<UniqueTag> Worklist, [SSAVariable] DefinedVariables)
         {
             this.definedVars = new HashSet<SSAVariable>(DefinedVariables);
             this.forwardRefs = new HashSet<SSAVariable>();
@@ -69,6 +69,29 @@ namespace Flame.Optimization
             {
                 return Enumerable.Union<SSAVariable>(definedVars, forwardRefs);
             }
+        }
+
+        /// <summary>
+        /// Gets the set of SSA variables that are defined exactly once as far as this
+        /// visitor can tell.
+        /// </summary>
+        public [SSAVariable] SingleDefinitions
+        {
+            get
+            {
+                return Enumerable.Except<SSAVariable>(definedVars, redefs);
+            }
+        }
+
+        /// <summary>
+        /// Tells if the visitor has discovered that the given SSA variable is defined
+        /// more than once.
+        /// </summary>
+        /// <param name="Variable">The SSA variable.</param>
+        /// <returns><c>true</c> if the variable is defined more than once; otherwise, <c>false</c>.</returns>
+        public bool IsRedefined(SSAVariable Variable)
+        {
+            return redefs.Contains(Variable);
         }
 
         private void RegisterUse(SSAVariable Variable)

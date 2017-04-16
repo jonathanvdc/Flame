@@ -91,7 +91,20 @@ namespace Flame.Optimization
         {
             this.BlockTag = Block.Tag;
             this.localVars = new Dictionary<IVariable, SSAVariable>();
-            this.parameterVars = new List<SSAVariable>(Block.Parameters);
+            this.parameterVars = new List<SSAVariable>();
+            foreach (var param in Block.Parameters)
+            {
+                if (CanPromote(param))
+                {
+                    var newParam = ConstructSSAPass.CreateSSAVariable(param);
+                    MapVariable(param, newParam);
+                    this.parameterVars.Add(newParam);
+                }
+                else
+                {
+                    this.parameterVars.Add(param);
+                }
+            }
         }
 
         /// <summary>
@@ -260,7 +273,7 @@ namespace Flame.Optimization
         /// promoted to an SSA variable - assuming said variable has not been
         /// blacklisted.
         /// </summary>
-        public bool(IVariable) IsEligible { const get; private set; }
+        public bool(IVariable) IsEligible { get; private set; }
 
         /// <summary>
         /// Tests if the given variable can be promoted to an SSA variable.
@@ -277,9 +290,8 @@ namespace Flame.Optimization
         private Dictionary<UniqueTag, LocalSSAConstructionVisitor> localVisitors;
         private PredecessorDict preds;
 
-        // A dictionary that maps block tags that belong to
-        // unsealed blocks, to SSA variables whose origins
-        // are unknown at this point.
+        // A dictionary that maps block tags that belong to unsealed blocks to SSA 
+        // variables whose origins are unknown at the moment.
         private Dictionary<UniqueTag, List<Tuple<IVariable, SSAVariable>>> incompletePhis;
 
         // A `source block tag * target block tag -> argument list` map.
@@ -571,6 +583,79 @@ namespace Flame.Optimization
         }
     }
 
+    /// <summary>
+    /// A pass that fixes "broken SSA" form: flow graphs in SSA form that have more than one
+    /// definition for a given variable.
+    /// </summary>
+    public static class FixBrokenSSAPass : IPass<IStatement, IStatement>,
+                                           IPass<BodyPassArgument, IStatement>
+    {
+        public const string FixBrokenSSAPassName = "fix-broken-ssa";
+
+        /// <summary>
+        /// Tells if the given variable can be replaced by an SSA variable.
+        /// </summary>
+        public bool IsEligible(IVariable Variable)
+        {
+            return Variable is SSAVariable;
+        }
+
+        /// <summary>
+        /// Creates a new SSA variable from the given variable's signature.
+        /// </summary>
+        public SSAVariable CreateSSAVariable(IVariable Variable)
+        {
+            assert(Variable is SSAVariable);
+            return new SSAVariable(((SSAVariable)Variable).Tag.Name, Variable.Type);
+        }
+
+        private IStatement ApplyImpl(IStatement Statement)
+        {
+            // Get rid of any late-bound variables here. They'll just get in
+            // our way, and SSA (re)construction is a delicate procedure.
+            var normalStatement = UnwrapBoundVariablesPass.Apply(Statement);
+
+            // Find out which SSA variables are defined more than once.
+            var redefVisitor = new VerifySSAVisitor();
+            redefVisitor.Visit(normalStatement);
+
+            // Perform the SSA (re)construction itself.
+            var visitor = new GlobalSSAConstructionVisitor(IsEligible, redefVisitor.SingleDefinitions);
+            return visitor.Visit(normalStatement);
+        }
+
+        public IStatement Apply(IStatement Statement)
+            in { VerifyCFGPass.Apply(Statement) }
+            in { VerifySSAPass.Apply(Statement) }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result) { VerifySSAPass.Apply(result) }
+        {
+            return ApplyImpl(Statement);
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log,
+                    Arg.DeclaringMethod, FixBrokenSSAPassName + "-input")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log,
+                    Arg.DeclaringMethod, FixBrokenSSAPassName)
+            }
+        {
+            return ApplyImpl(Arg.Body);
+        }
+    }
+
+    /// <summary>
+    /// A pass that promotes eligible local variables to SSA variables.
+    /// </summary>
     public static class ConstructSSAPass : IPass<IStatement, IStatement>,
                                            IPass<BodyPassArgument, IStatement>
     {
