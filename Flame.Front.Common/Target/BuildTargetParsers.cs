@@ -26,12 +26,12 @@ namespace Flame.Front.Target
             Parser.RegisterParser(new MipsBuildTargetParser());
             Parser.RegisterParser(new ContractBuildTargetParser());
             Parser.RegisterParser(new FlameIRBuildTargetParser());
-			Parser.RegisterParser(new WasmBuildTargetParser());
+            Parser.RegisterParser(new WasmBuildTargetParser());
 
             rts = new Dictionary<string, PlatformRuntime>(StringComparer.OrdinalIgnoreCase);
             RegisterRuntime(new PlatformRuntime(ClrBuildTargetParser.ClrIdentifier, CecilRuntimeLibraries.Resolver));
             RegisterRuntime(new PlatformRuntime(MipsBuildTargetParser.MarsIdentifier, MarsRuntimeLibraries.Resolver));
-			RegisterRuntime(new PlatformRuntime(CppBuildTargetParser.CppIdentifier, EmptyAssemblyResolver.Instance));
+            RegisterRuntime(new PlatformRuntime(CppBuildTargetParser.CppIdentifier, EmptyAssemblyResolver.Instance));
 
             Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>(StringComparer.OrdinalIgnoreCase);
             RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, ClrBuildTargetParser.CreateEnvironment);
@@ -77,18 +77,18 @@ namespace Flame.Front.Target
             Environments[Name] = EnvironmentBuilder;
         }
 
-		/// <summary>
-		/// Logs a warning that explains that some component
-		/// is unknown/unresolved.
-		/// </summary>
-		/// <param name="Warning">Warning.</param>
-		/// <param name="Option">Option.</param>
-		/// <param name="Identifier">Identifier.</param>
-		/// <param name="Name">Name.</param>
-		/// <param name="Log">Log.</param>
+        /// <summary>
+        /// Logs a warning that explains that some component
+        /// is unknown/unresolved.
+        /// </summary>
+        /// <param name="Warning">Warning.</param>
+        /// <param name="Option">Option.</param>
+        /// <param name="Identifier">Identifier.</param>
+        /// <param name="Name">Name.</param>
+        /// <param name="Log">Log.</param>
         private static void LogUnknownWarning(
             WarningDescription Warning, string Option, string Identifier,
-			string Name, ICompilerLog Log)
+            string Name, ICompilerLog Log)
         {
             if (!string.IsNullOrWhiteSpace(Identifier) &&
                 Warning.UseWarning(Log.Options))
@@ -98,7 +98,7 @@ namespace Flame.Front.Target
                 {
                     Log.LogWarning(new LogEntry(
                         "unknown " + Name,
-						Warning.CreateMessage(
+                        Warning.CreateMessage(
                             new MarkupNode(NodeConstants.TextNodeType,
                                 "'-" + Option +
                                 " " + Identifier +
@@ -108,7 +108,7 @@ namespace Flame.Front.Target
                 {
                     Log.LogWarning(new LogEntry(
                         "unknown " + Name,
-						Warning.CreateMessage(
+                        Warning.CreateMessage(
                             new MarkupNode(NodeConstants.TextNodeType,
                                 "no " + Name + " was associated with '" + Identifier +
                                 "'. You can specify one explicitly by passing '-" + Option +
@@ -123,9 +123,9 @@ namespace Flame.Front.Target
         /// with an empty runtime assembly resolver.
         /// </summary>
         /// <param name="RuntimeIdentifier"></param>
-		/// <param name="Log"></param>
+        /// <param name="Log"></param>
         /// <returns></returns>
-		public static PlatformRuntime GetRuntime(string RuntimeIdentifier, ICompilerLog Log)
+        public static PlatformRuntime GetRuntime(string RuntimeIdentifier, ICompilerLog Log)
         {
             PlatformRuntime result;
             if (rts.TryGetValue(RuntimeIdentifier ?? "", out result))
@@ -136,7 +136,7 @@ namespace Flame.Front.Target
             {
                 LogUnknownWarning(
                     Warnings.Instance.UnknownRuntime, OptionExtensions.RuntimeOption,
-					RuntimeIdentifier, "runtime", Log);
+                    RuntimeIdentifier, "runtime", Log);
                 return new PlatformRuntime(RuntimeIdentifier, EmptyAssemblyResolver.Instance);
             }
         }
@@ -161,7 +161,7 @@ namespace Flame.Front.Target
             {
                 LogUnknownWarning(
                     Warnings.Instance.UnknownEnvironment, OptionExtensions.EnvironmentOption,
-					EnvironmentIdentifier, "environment", Log);
+                    EnvironmentIdentifier, "environment", Log);
                 return EmptyEnvironment.Instance;
             }
         }
