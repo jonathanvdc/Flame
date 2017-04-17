@@ -291,10 +291,10 @@ namespace Flame.Optimization
             // If the initialization statement does nothing, then we can simply
             // return the rewritten branch.
             var init = initAndBranch.Item1;
-            var branch = initAndBranch.Item2;
+            var newBranch = initAndBranch.Item2;
             if (init.IsEmpty)
             {
-                return branch;
+                return newBranch;
             }
 
             // If the initialization statement actually does something, then we need to
@@ -302,7 +302,7 @@ namespace Flame.Optimization
             // and the branch.
             var thunkBlock = new BasicBlock(
                 new UniqueTag("thunk_block"), new List<SSAVariable>(),
-                init, new JumpFlow(branch));
+                init, new JumpFlow(newBranch));
             newBlocks[thunkBlock.Tag] = thunkBlock;
 
             // Return a branch to the thunk.
