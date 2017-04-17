@@ -1052,9 +1052,19 @@ namespace Flame.Optimization
                     // We found a non-escaping local variable whose type
                     // can be replaced by a reference type.
                     // Replace it by a reference pointer to a value type.
-                    *Result = new LocalVariable(new RetypedVariableMember(
+                    var varMember = new RetypedVariableMember(
                         otherVar.Member,
-                        newType.MakePointerType(PointerKind.ReferencePointer)));
+                        newType.MakePointerType(PointerKind.ReferencePointer));
+
+                    if (Variable is SSAVariable)
+                    {
+                        *Result = new SSAVariable(varMember);
+                    }
+                    else
+                    {
+                        *Result = new LocalVariable(varMember);
+                    }
+                    
                     replacedVariables[tag] = *Result;
                     return true;
                 }
