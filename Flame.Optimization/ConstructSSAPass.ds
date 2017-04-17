@@ -83,7 +83,7 @@ namespace Flame.Optimization
     /// This particular visitor is intended to be used for a single
     /// basic block.
     /// </summary>
-    public class LocalSSAConstructionVisitor : NodeVisitorBase
+    public class LocalSSAConstructionVisitor : NodeVisitorBase, IBasicBlockVisitor
     {
         public const this(
             BasicBlock Block, set bool(IVariable) CanPromote,
@@ -225,6 +225,43 @@ namespace Flame.Optimization
             {
                 return Statement.Accept(this);
             }
+        }
+
+        /// <summary>
+        /// Visits the given SSA local variable, which will always be
+        /// a parameter definition.
+        /// </summary>
+        public SSAVariable VisitParameter(SSAVariable Variable)
+        {
+            SSAVariable result;
+            if (localVars.TryGetValue(Variable, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return Variable;
+            }
+        }
+
+        /// <summary>
+        /// Visits the given block branch instruction.
+        /// </summary>
+        public BlockBranch Visit(BlockBranch Branch)
+        {
+            var newArgs = new List<SSAVariable>();
+            foreach (var arg in Branch.Arguments)
+            {
+                if (CanPromote(arg))
+                {
+                    newArgs.Add(GetSSAVariable(arg));
+                }
+                else
+                {
+                    newArgs.Add(arg);
+                }
+            }
+            return new BlockBranch(Branch.TargetTag, newArgs);
         }
     }
 
