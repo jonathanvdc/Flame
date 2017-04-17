@@ -24,43 +24,43 @@ using Flame.Front.Passes;
 
 namespace Flame.Front.Cli
 {
-	public class LogTraceListener : System.Diagnostics.TraceListener
-	{
-		public LogTraceListener(ICompilerLog Log)
-		{
-			this.Log = Log;
-		}
+    public class LogTraceListener : System.Diagnostics.TraceListener
+    {
+        public LogTraceListener(ICompilerLog Log)
+        {
+            this.Log = Log;
+        }
 
-		public ICompilerLog Log { get; private set; }
+        public ICompilerLog Log { get; private set; }
 
-		public override void Fail(string message)
-		{
-			Fail(message, string.Empty);
-		}
+        public override void Fail(string message)
+        {
+            Fail(message, string.Empty);
+        }
 
-		public override void Fail(string message, string detailMessage)
-		{
-			var node = new MarkupNode("entry", new MarkupNode[]
-			{
-				new MarkupNode(NodeConstants.TextNodeType, message ?? ""),
-				new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage ?? ""),
-				new MarkupNode(NodeConstants.BrightNodeType, "stack trace: "),
-				new MarkupNode(NodeConstants.ParagraphNodeType, Environment.StackTrace),
-			});
+        public override void Fail(string message, string detailMessage)
+        {
+            var node = new MarkupNode("entry", new MarkupNode[]
+            {
+                new MarkupNode(NodeConstants.TextNodeType, message ?? ""),
+                new MarkupNode(NodeConstants.ParagraphNodeType, detailMessage ?? ""),
+                new MarkupNode(NodeConstants.BrightNodeType, "stack trace: "),
+                new MarkupNode(NodeConstants.ParagraphNodeType, Environment.StackTrace),
+            });
 
-			Log.LogError(new LogEntry("internal error", node));
-		}
+            Log.LogError(new LogEntry("internal error", node));
+        }
 
-		public override void Write(string message)
-		{
-			Console.Write(message);
-		}
+        public override void Write(string message)
+        {
+            Console.Write(message);
+        }
 
-		public override void WriteLine(string message)
-		{
-			Console.WriteLine(message);
-		}
-	}
+        public override void WriteLine(string message)
+        {
+            Console.WriteLine(message);
+        }
+    }
 
     public class ConsoleCompiler
     {
@@ -93,21 +93,21 @@ namespace Flame.Front.Cli
             return new StringCompilerOptions(dict, OptionParser);
         }
 
-		/// <summary>
-		/// Runs the compilation process, based on the given command-line
-		/// arguments. An exit code is returned.
-		/// </summary>
+        /// <summary>
+        /// Runs the compilation process, based on the given command-line
+        /// arguments. An exit code is returned.
+        /// </summary>
         public int Compile(string[] args)
         {
-			var recLog = new SilentLog(DefaultOptions);
+            var recLog = new SilentLog(DefaultOptions);
 
-			var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser, recLog), DefaultOptions);
+            var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser, recLog), DefaultOptions);
             var buildArgs = BuildArguments.Parse(OptionParser, args);
             var mergedArgs = new MergedOptions(buildArgs, prefs);
 
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
 
-			recLog.PipeTo(log);
+            recLog.PipeTo(log);
 
             if (mergedArgs.GetOption<bool>("repeat-command", false))
             {
@@ -127,19 +127,19 @@ namespace Flame.Front.Cli
                 Name.PrintInfo(log);
             }
 
-			if (mergedArgs.GetOption<bool>("print-palette", false))
-			{
-				CompilerName.PrintColorScheme(log);
-			}
+            if (mergedArgs.GetOption<bool>("print-palette", false))
+            {
+                CompilerName.PrintColorScheme(log);
+            }
 
             var filteredLog = new FilteredLog(mergedArgs.GetLogFilter(), log);
 
-			LogTraceListener traceListener = null;
-			if (filteredLog.Options.GetOption<bool>("debug", false))
-			{
-				traceListener = new LogTraceListener(filteredLog);
-				System.Diagnostics.Debug.Listeners.Add(traceListener);
-			}
+            LogTraceListener traceListener = null;
+            if (filteredLog.Options.GetOption<bool>("debug", false))
+            {
+                traceListener = new LogTraceListener(filteredLog);
+                System.Diagnostics.Debug.Listeners.Add(traceListener);
+            }
 
             if (!buildArgs.CanCompile)
             {
@@ -158,7 +158,7 @@ namespace Flame.Front.Cli
 
                 ReportUnusedOptions(buildArgs, filteredLog, "option not relevant");
 
-				log.Console.Write(Name.Name + ": ", log.ContrastForegroundColor);
+                log.Console.Write(Name.Name + ": ", log.ContrastForegroundColor);
                 log.WriteEntry("nothing to compile", log.WarningStyle, "no input files");
                 log.Dispose();
                 return 0;
@@ -182,11 +182,11 @@ namespace Flame.Front.Cli
                 }).ToArray();
 
                 var mainProj = fixedProjs.Last();
-				var mainState = new CompilerEnvironment(mainProj.Project.CurrentPath, buildArgs, mainProj.Handler, mainProj.Project.Project, filteredLog);
+                var mainState = new CompilerEnvironment(mainProj.Project.CurrentPath, buildArgs, mainProj.Handler, mainProj.Project.Project, filteredLog);
 
                 var resolvedDependencies = ResolveDependencies(fixedProjs.Select(item => item.Project), mainState);
 
-				var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, filteredLog));
+                var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, filteredLog));
 
                 var allAsms = CompileAsync(allStates, resolvedDependencies.Item1).Result;
 
@@ -209,17 +209,17 @@ namespace Flame.Front.Cli
                     Save(mainState, buildTarget, docs);
                 }
 
-				ReportUnusedOptions(buildArgs, mainState.Log);
+                ReportUnusedOptions(buildArgs, mainState.Log);
 
-				// Looks like everything went according to plan. Be sure to
-				// check for errors first, though.
-				return filteredLog.ErrorCount == 0 ? 0 : 1;
+                // Looks like everything went according to plan. Be sure to
+                // check for errors first, though.
+                return filteredLog.ErrorCount == 0 ? 0 : 1;
             }
             catch (Exception ex)
             {
-				LogUnhandledException(ex, log, mergedArgs);
-				// Dreaded unhandled exception.
-				return 2;
+                LogUnhandledException(ex, log, mergedArgs);
+                // Dreaded unhandled exception.
+                return 2;
             }
             finally
             {
@@ -233,10 +233,10 @@ namespace Flame.Front.Cli
                     var listNode = ListExtensions.Instance.CreateList(listItems);
                     log.WriteBlockEntry(new LogEntry("Timing report", listNode));
                 }
-				if (traceListener != null)
-				{
-					System.Diagnostics.Debug.Listeners.Remove(traceListener);
-				}
+                if (traceListener != null)
+                {
+                    System.Diagnostics.Debug.Listeners.Remove(traceListener);
+                }
                 log.Console.WriteSeparator(1);
                 log.Dispose();
             }
@@ -453,9 +453,9 @@ namespace Flame.Front.Cli
 
             if (State.Options.MustVerifyAssembly())
             {
-				State.Log.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
+                State.Log.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
                 VerificationExtensions.VerifyAssembly(projAsm, State.Log);
-				State.Log.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
+                State.Log.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
             }
 
             return projAsm;
@@ -713,9 +713,9 @@ namespace Flame.Front.Cli
                     var optName = new MarkupNode(NodeConstants.BrightNodeType, "-" + item);
                     var msg = new MarkupNode("#group", new MarkupNode[]
                     {
-						new MarkupNode(NodeConstants.TextNodeType, Doc + ": '"),
+                        new MarkupNode(NodeConstants.TextNodeType, Doc + ": '"),
                         optName,
-						new MarkupNode(NodeConstants.TextNodeType, "'. "),
+                        new MarkupNode(NodeConstants.TextNodeType, "'. "),
                         Warnings.Instance.UnusedOption.CauseNode
                     });
 
