@@ -15,6 +15,7 @@ tests
     Inlining/InlineArrayLength.test;
     Inlining/Inlining.test;
     Inlining/Inlining2.test;
+    JumpThreading/JumpThreading.test;
     Linking/Linking.test;
     LowerLambda/LowerLambda.test;
     LowerNewValueType/LowerNewValueType.test;

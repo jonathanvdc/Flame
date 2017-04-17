@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+
+public class InvocationExpression
+{
+    public this(set object Target, set [object] Arguments);
+
+    public object Target { get; private set; }
+
+    public [object] Arguments { get; private set; }
+
+    public InvocationExpression Map(Func<object, object> Function)
+    {
+        var transTarget = Function(Target);
+        var transArgs = new List<object>();
+        bool same = transTarget == Target;
+        foreach (var arg in Arguments)
+        {
+            var visitedArg = Function(arg);
+            transArgs.Add(visitedArg);
+            if (visitedArg != arg)
+            {
+                same = false;
+            }
+        }
+
+        if (same)
+            return this;
+        else
+            return new InvocationExpression(transTarget, transArgs);
+    }
+}
+
+public module Program
+{
+    private static object ToString(object Value)
+    {
+        return Value.ToString();
+    }
+
+    public static void Main()
+    {
+        var expr = new InvocationExpression(14, new object[] { "hi", 65.5 });
+        expr = expr.Map(ToString);
+        Console.WriteLine(expr.Target);
+    }
+}
