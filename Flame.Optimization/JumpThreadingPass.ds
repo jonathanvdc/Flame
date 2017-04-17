@@ -18,9 +18,11 @@ namespace Flame.Optimization
         /// <summary>
         /// Creates an empty jump thread.
         /// </summary>
-        public this()
+        public this(IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
         {
+            this.Definitions = Definitions;
             this.argAssignment = new Dictionary<SSAVariable, SSAVariable>();
+            this.argValues = new Dictionary<SSAVariable, IExpression>();
             this.threadBlocks = new HashSet<UniqueTag>();
         }
 
@@ -28,6 +30,12 @@ namespace Flame.Optimization
         /// A dictionary that maps basic block parameters to arguments.
         /// </summary>
         private Dictionary<SSAVariable, SSAVariable> argAssignment;
+
+        /// <summary>
+        /// A dictionary that maps basic block parameters to the values they have been
+        /// defined as.
+        /// </summary>
+        private Dictionary<SSAVariable, IExpression> argValues;
 
         /// <summary>
         /// The set of all blocks in this thread of jumps.
@@ -44,10 +52,24 @@ namespace Flame.Optimization
         }
 
         /// <summary>
+        /// Gets a read-only view of a dictionary that maps basic block parameters the values
+        /// they have been defined as.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> ArgumentValues
+        {
+            get { return argValues; }
+        }
+
+        /// <summary>
         /// Gets the final block in this jump thread.
         /// </summary>
         /// <returns>The final block in this jump thread.</returns>
         public BasicBlock FinalBlock { get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of variables to definitions.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get; private set; }
 
         /// <summary>
         /// Gets the length of this jump thread: the number of branches it is comprised of.
@@ -63,6 +85,27 @@ namespace Flame.Optimization
         public bool Contains(UniqueTag BlockTag)
         {
             return threadBlocks.Contains(BlockTag);
+        }
+
+        /// <summary>
+        /// Tries to simplify the given expression.
+        /// </summary>
+        /// <param name="Expression">The expression to simplify.</param>
+        /// <returns>Either the original expression or the simplified expression.</returns>
+        private IExpression Simplify(IExpression Expression)
+        {
+            var visitor = new GlobalValuePropagationUseVisitor(ArgumentValues, false);
+            return visitor.Visit(Expression);
+        }
+
+        /// <summary>
+        /// Tries to evaluate the given expression within the context of this jump thread.
+        /// </summary>
+        /// <param name="Expression">The expression to evaluate.</param>
+        /// <returns>A value if the expression could be evaluated; otherwise, <c>null</c>.</returns>
+        public IBoundObject EvaluateOrNull(IExpression Expression)
+        {
+            return Simplify(Expression).EvaluateConstant();
         }
 
         /// <summary>
@@ -90,6 +133,13 @@ namespace Flame.Optimization
                     actualArg = arg;
                 }
                 argAssignment[param] = actualArg;
+
+                IExpression argVal;
+                if (argValues.TryGetValue(actualArg, &argVal)
+                    || Definitions.TryGetValue(actualArg, &argVal))
+                {
+                    argValues[param] = Simplify(argVal);
+                }
             }
 
             FinalBlock = Target;
@@ -143,9 +193,10 @@ namespace Flame.Optimization
         /// <summary>
         /// Creates a jump-threading visitor from the given control-flow graph.
         /// </summary>
-        public this(FlowGraph Graph)
+        public this(FlowGraph Graph, IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
         {
             this.Graph = Graph;
+            this.Definitions = Definitions;
             this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
         }
 
@@ -156,6 +207,11 @@ namespace Flame.Optimization
         /// </summary>
         /// <returns>The control-flow graph for this visitor.</returns>
         public FlowGraph Graph { get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of variables to definitions.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps visited basic block tags to basic blocks in
@@ -172,7 +228,7 @@ namespace Flame.Optimization
         /// <returns>A jump thread for the given branch.</returns>
         private JumpThread DiscoverJumpThread(BlockBranch Branch)
         {
-            var thread = new JumpThread();
+            var thread = new JumpThread(Definitions);
             while (true)
             {
                 // Append the branch to the thread.
@@ -194,6 +250,26 @@ namespace Flame.Optimization
                     // Make this jump's branch the next branch in the thread.
                     var jump = (JumpFlow)block.Flow;
                     Branch = jump.Branch;
+                }
+                else if (block.Flow is SelectFlow)
+                {
+                    // The selection flow instruction's condition might evaluate to a constant
+                    // value within the context of this jump thread. If so, then we can pick
+                    // a branch and append that to the thread.
+                    var selection = (SelectFlow)block.Flow;
+                    var condVal = thread.EvaluateOrNull(selection.Condition);
+                    if (condVal == null)
+                    {
+                        break;
+                    }
+                    else if (condVal.GetValue<bool>())
+                    {
+                        Branch = selection.ThenBranch;
+                    }
+                    else
+                    {
+                        Branch = selection.ElseBranch;
+                    }
                 }
                 else
                 {
@@ -309,8 +385,15 @@ namespace Flame.Optimization
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            var visitor = new JumpThreadingVisitor(Graph);
+            // Look up all definitions.
+            var defFinder = new SSAVariableDefFinder();
+            foreach (var block in Graph.Blocks)
+            {
+                defFinder.Visit(block.Contents);
+            }
 
+            // Perform jump threading.
+            var visitor = new JumpThreadingVisitor(Graph, defFinder.Definitions);
             foreach (var block in Graph.Blocks)
             {
                 visitor.Visit(block);

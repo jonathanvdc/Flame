@@ -107,14 +107,26 @@ namespace Flame.Optimization
     /// </summary>
     public class GlobalValuePropagationUseVisitor : NodeVisitorBase
     {
-        public const this(
-            set IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions);
+        public this(
+            IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions,
+            bool PerformRecursiveExpansion)
+        {
+            this.VariableDefinitions = VariableDefinitions;
+            this.PerformRecursiveExpansion = PerformRecursiveExpansion;
+        }
 
         /// <summary>
         /// Gets a read-only dictionary that maps variables to the value
         /// they can safely be replaced by.
         /// </summary>
         public IReadOnlyDictionary<SSAVariable, IExpression> VariableDefinitions { get; private set; }
+
+        /// <summary>
+        /// Gets a Boolean value that tells if this visitor will try to expand
+        /// variable uses in expanded variable uses.
+        /// </summary>
+        /// <returns>A Boolean flag.</returns>
+        public bool PerformRecursiveExpansion { get; private set; }
 
         public override bool Matches(IExpression Value)
         {
@@ -133,8 +145,16 @@ namespace Flame.Optimization
 
             if (VariableDefinitions.TryGetValue(getExpr.Variable, &IExpression val))
             {
-                // Propagate that variable's definition.
-                return Visit(val);
+                // Propagate the variable's definition.
+                if (PerformRecursiveExpansion)
+                {
+                    // Expand definitions recursively.
+                    return Visit(val);
+                }
+                else
+                {
+                    return val;
+                }
             }
             else
             {
@@ -191,8 +211,8 @@ namespace Flame.Optimization
             // Then analyze/rewrite variable definition.
             var defVisitor = new GlobalValuePropagationDefVisitor(useOnceVars);
             var result = defVisitor.Visit(Value);
-            // Finally, rewrite variable uses.
-            var useVisitor = new GlobalValuePropagationUseVisitor(defVisitor.VariableDefinitions);
+            // Finally, recursively rewrite variable uses.
+            var useVisitor = new GlobalValuePropagationUseVisitor(defVisitor.VariableDefinitions, true);
             return useVisitor.Visit(result);
         }
 
