@@ -399,7 +399,10 @@ namespace Flame.Optimization
                 visitor.Visit(block);
             }
 
-            return new FlowGraph(Graph.EntryPointTag, visitor.Blocks);
+            // We may have created dead blocks and we should really clean them up.
+            // Dead block elimination is a relatively cheap operation that eases the
+            // burden of the SSA construction algorithm.
+            return new FlowGraph(Graph.EntryPointTag, visitor.Blocks).EliminateUnreachable();
         }
 
         public IStatement Apply(IStatement Statement)
@@ -408,10 +411,8 @@ namespace Flame.Optimization
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
         {
-            // First jump threads, then delete dead blocks and finally fix broken SSA form.
-            // Note that dead block elimination is a relatively cheap operation that eases the
-            // burden of the SSA construction algorithm.
-            return FixBrokenSSAPass.Apply(SilentDeadBlockEliminationPass.Apply(Visit(Statement)));
+            // First jump threads and fix broken SSA form.
+            return FixBrokenSSAPass.Apply(Visit(Statement));
         }
     }
 }
