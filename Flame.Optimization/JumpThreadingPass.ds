@@ -11,37 +11,277 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
-    /// A branch visitor that tries to replace argumentless indirect branches
-    /// with more direct branches.
+    /// Represents a thread of jumps: a list of branches that are taken unconditionally.
+    /// </summary>
+    public class JumpThread
+    {
+        /// <summary>
+        /// Creates an empty jump thread.
+        /// </summary>
+        public this()
+        {
+            this.argAssignment = new Dictionary<SSAVariable, SSAVariable>();
+            this.threadBlocks = new HashSet<UniqueTag>();
+        }
+
+        /// <summary>
+        /// A dictionary that maps basic block parameters to arguments.
+        /// </summary>
+        private Dictionary<SSAVariable, SSAVariable> argAssignment;
+
+        /// <summary>
+        /// The set of all blocks in this thread of jumps.
+        /// </summary>
+        private HashSet<UniqueTag> threadBlocks;
+
+        /// <summary>
+        /// Gets a read-only view of a dictionary that maps basic block parameters to arguments
+        /// for this jump thread.
+        /// </summary>
+        public IReadOnlyDictionary<SSAVariable, SSAVariable> ArgumentAssignment
+        {
+            get { return argAssignment; }
+        }
+
+        /// <summary>
+        /// Gets the final block in this jump thread.
+        /// </summary>
+        /// <returns>The final block in this jump thread.</returns>
+        public BasicBlock FinalBlock { get; private set; }
+
+        /// <summary>
+        /// Gets the length of this jump thread: the number of branches it is comprised of.
+        /// </summary>
+        /// <returns>The length of this jump thread.</returns>
+        public int Length { get { return threadBlocks.Count; } }
+
+        /// <summary>
+        /// Checks if this jump thread includes the block with the given tag.
+        /// </summary>
+        /// <param name="BlockTag">The block with the given tag.</param>
+        /// <returns><c>true</c> if this jump thread includes the block with the given tag; otherwise, <c>false</c>.</returns>
+        public bool Contains(UniqueTag BlockTag)
+        {
+            return threadBlocks.Contains(BlockTag);
+        }
+
+        /// <summary>
+        /// Tries to append the given branch to this thread.
+        /// </summary>
+        /// <param name="Branch">The branch to append to this thread.</param>
+        /// <param name="Target">The branch's target block.</param>
+        /// <returns><c>true</c> if the given branch was appended to this thread; otherwise, <c>false</c>.</returns>
+        public bool TryAddBranch(BlockBranch Branch, BasicBlock Target)
+        {
+            assert(Branch.TargetTag == Target.Tag);
+
+            // A jump thread cannot include a cycle. If we allowed this, then
+            // we'd slip into an infinite loop.
+            if (!threadBlocks.Add(Target.Tag))
+            {
+                return false;
+            }
+
+            foreach (var param in Target.Parameters, var arg in Branch.Arguments)
+            {
+                SSAVariable actualArg;
+                if (!argAssignment.TryGetValue(arg, &actualArg))
+                {
+                    actualArg = arg;
+                }
+                argAssignment[param] = actualArg;
+            }
+
+            FinalBlock = Target;
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to create an (initialization statement, branch) pair that performs a direct
+        /// jump to this jump thread's final block. The initialization statement needs to be
+        /// placed on a path that always leads to the branch.
+        /// </summary>
+        /// <returns>
+        /// An (initialization statement, branch) pair if the jump thread can be improved upon.
+        /// Otherwise, <c>null</c>.
+        /// </returns>
+        public Tuple<IStatement, BlockBranch> TryCreateInitStatementAndBranch()
+        {
+            if (Length <= 1)
+            {
+                // There's no point in trying to rewrite this jump thread as a single jump,
+                // because the jump thread *is* a single jump.
+                return null;
+            }
+
+            var intermediateArgs = new Dictionary<IVariable, IVariable>();
+            var finalParamSet = new HashSet<SSAVariable>(FinalBlock.Parameters);
+            foreach (var pair in argAssignment)
+            {
+                if (!finalParamSet.Contains(pair.Key))
+                {
+                    intermediateArgs[pair.Key] = pair.Value;
+                }
+            }
+            var finalArgs = new List<SSAVariable>();
+            foreach (var param in FinalBlock.Parameters)
+            {
+                finalArgs.Add(argAssignment[param]);
+            }
+            return new Tuple<IStatement, BlockBranch>(
+                VariableHelpers.CreateParallelSetStatement(
+                    intermediateArgs, new Dictionary<IType, IVariable>()),
+                new BlockBranch(FinalBlock.Tag, finalArgs));
+        }
+    }
+
+    /// <summary>
+    /// A branch visitor that tries to replace threads of branches by direct branches.
     /// </summary>
     public class JumpThreadingVisitor : BranchVisitorBase
     {
         /// <summary>
-        /// Creates a jump-threading visitor from the given threaded jumps dictionary.
+        /// Creates a jump-threading visitor from the given control-flow graph.
         /// </summary>
-        public const this(set IReadOnlyDictionary<UniqueTag, BlockBranch> ThreadedJumps);
+        public this(FlowGraph Graph)
+        {
+            this.Graph = Graph;
+            this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
+        }
+
+        private Dictionary<UniqueTag, BasicBlock> newBlocks;
 
         /// <summary>
-        /// A dictionary that maps block tags to the branch they eventually
-        /// and unambiguously execute.
+        /// Gets the control-flow graph that this jump-threading visitor operates on.
         /// </summary>
-        public IReadOnlyDictionary<UniqueTag, BlockBranch> ThreadedJumps { const get; private set; }
+        /// <returns>The control-flow graph for this visitor.</returns>
+        public FlowGraph Graph { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps visited basic block tags to basic blocks in
+        /// the transformed graph.
+        /// </summary>
+        /// <returns>A dictionary that maps basic block tags to basic blocks.</returns>
+        public IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks { get { return newBlocks; } }
+
+        /// <summary>
+        /// Tries to discover a jump thread for the given branch in the given graph.
+        /// </summary>
+        /// <param name="Graph">The flow graph that contains the block.</param>
+        /// <param name="Branch">The first branch in the thread.</param>
+        /// <returns>A jump thread for the given branch.</returns>
+        private JumpThread DiscoverJumpThread(BlockBranch Branch)
+        {
+            var thread = new JumpThread();
+            while (true)
+            {
+                // Append the branch to the thread.
+                var block = Graph.GetBlock(Branch.TargetTag);
+                if (!thread.TryAddBranch(Branch, block))
+                {
+                    break;
+                }
+
+                // If the branch target's block is non-empty then we can't append it
+                // to the thread (doing so anyway would duplicate code).
+                if (!block.Contents.IsEmpty)
+                {
+                    break;
+                }
+
+                if (block.Flow is JumpFlow)
+                {
+                    // Make this jump's branch the next branch in the thread.
+                    var jump = (JumpFlow)block.Flow;
+                    Branch = jump.Branch;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return thread;
+        }
 
         public override BlockBranch Visit(BlockBranch Branch)
         {
-            // Early-out here.
-            if (Branch.Arguments.Count > 0)
-                return Branch;
-
-            if (ThreadedJumps.TryGetValue(Branch.TargetTag, &BlockBranch newBranch))
+            var thread = DiscoverJumpThread(Branch);
+            var initAndBranch = thread.TryCreateInitStatementAndBranch();
+            if (initAndBranch == null)
             {
-                // Replace this branch by the direct branch.
-                return newBranch;
+                return Branch;
+            }
+
+            // If the initialization statement does nothing, then we can simply
+            // return the rewritten branch.
+            var init = initAndBranch.Item1;
+            var branch = initAndBranch.Item2;
+            if (init.IsEmpty)
+            {
+                return branch;
+            }
+
+            // If the initialization statement actually does something, then we need to
+            // create a temporary ('thunk') block and have that perform both the initialization
+            // and the branch.
+            var thunkBlock = new BasicBlock(
+                new UniqueTag("thunk_block"), new List<SSAVariable>(),
+                init, new JumpFlow(branch));
+            newBlocks[thunkBlock.Tag] = thunkBlock;
+
+            // Return a branch to the thunk.
+            return new BlockBranch(thunkBlock.Tag);
+        }
+
+        private BasicBlock VisitImpl(BasicBlock Block)
+        {
+            if (Block.Flow is JumpFlow)
+            {
+                var jump = (JumpFlow)Block.Flow;
+                var thread = DiscoverJumpThread(jump.Branch);
+                var initAndBranch = thread.TryCreateInitStatementAndBranch();
+                if (initAndBranch == null)
+                {
+                    return Block;
+                }
+
+                return new BasicBlock(
+                    Block.Tag, Block.Parameters,
+                    new BlockStatement(new IStatement[]
+                    {
+                        Block.Contents,
+                        initAndBranch.Item1
+                    }).Simplify(),
+                    new JumpFlow(initAndBranch.Item2));
+            }
+            else if (Block.Flow is SelectFlow)
+            {
+                return new BasicBlock(
+                    Block.Tag, Block.Parameters, Block.Contents,
+                    Block.Flow.Accept(this));
             }
             else
             {
-                return Branch;
+                return Block;
             }
+        }
+
+        /// <summary>
+        /// Visits the given basic block.
+        /// </summary>
+        /// <param name="Block">The basic block to visit.</param>
+        /// <returns>The transformed basic block.</returns>
+        public BasicBlock Visit(BasicBlock Block)
+        {
+            BasicBlock result;
+            if (newBlocks.TryGetValue(Block.Tag, &result))
+            {
+                return result;
+            }
+
+            result = VisitImpl(Block);
+            newBlocks[result.Tag] = result;
+            return result;
         }
     }
 
@@ -50,90 +290,33 @@ namespace Flame.Optimization
     /// </summary>
     public static class JumpThreadingPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
     {
+        // The jump threading algorithm as implemented by this pass works like so:
+        //
+        //     For each jump:
+        //
+        //         1. Construct a thread of jumps: a list of branches
+        //            that are taken unconditionally.
+        //
+        //         2. If the thread contains only one branch, then proceed to the next thread, if any.
+        //
+        //         3. Otherwise, try to convert the thread into a single jump or at worst a jump to a thunk
+        //            block.
+
         /// <summary>
         /// This pass' name.
         /// </summary>
         public const string JumpThreadingPassName = "jump-threading";
 
-        private HashSet<V> GetOrCreate<K, V>(
-            K Key, Dictionary<K, HashSet<V>> Map)
-        {
-            HashSet<V> result;
-            if (!Map.TryGetValue(Key, &result))
-            {
-                result = new HashSet<V>();
-                Map[Key] = result;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Populates a dictionary with block tags that are really just
-        /// direct jumps, and maps them to their eventual target block.
-        /// </summary>
-        private Dictionary<UniqueTag, BlockBranch> FlattenIndirectJumps(FlowGraph Graph)
-        {
-            var results = new Dictionary<UniqueTag, BlockBranch>();
-
-            // An inverted version of the 'results' dictionary.
-            var preds = new Dictionary<UniqueTag, HashSet<UniqueTag>>();
-
-            foreach (var block in Graph.Blocks)
-            {
-                if (block.Flow is JumpFlow && block.Parameters.Count == 0 &&
-                    block.Contents.IsEmpty)
-                {
-                    var jump = (JumpFlow)block.Flow;
-                    var branch = jump.Branch;
-
-                    BlockBranch flattenedBr;
-
-                    if (results.ContainsKey(branch.TargetTag))
-                    {
-                        assert(branch.Arguments.Count == 0);
-
-                        // Skip this block and as many successors as possible
-                        // when jumping.
-                        flattenedBr = results[branch.TargetTag];
-                    }
-                    else
-                    {
-                        // Skip this block when jumping.
-                        flattenedBr = branch;
-                    }
-
-                    // Redirect this block and any block that jumps to it.
-                    results[block.Tag] = flattenedBr;
-
-                    var targetSet = GetOrCreate<UniqueTag, UniqueTag>(flattenedBr.TargetTag, preds);
-
-                    // Register this block as a user of the target block.
-                    targetSet.Add(block.Tag);
-
-                    // Redirect any blocks that jump to this block.
-                    foreach (var tag in GetOrCreate<UniqueTag, UniqueTag>(block.Tag, preds))
-                    {
-                        results[tag] = flattenedBr;
-                        targetSet.Add(tag);
-                    }
-                }
-            }
-
-            return results;
-        }
-
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            var results = new Dictionary<UniqueTag, BasicBlock>();
-            var indirectJumps = FlattenIndirectJumps(Graph);
-            var visitor = new JumpThreadingVisitor(indirectJumps);
+            var visitor = new JumpThreadingVisitor(Graph);
+
             foreach (var block in Graph.Blocks)
             {
-                results[block.Tag] = new BasicBlock(
-                    block.Tag, block.Parameters, block.Contents,
-                    block.Flow.Accept(visitor));
+                visitor.Visit(block);
             }
-            return new FlowGraph(Graph.EntryPointTag, results);
+
+            return new FlowGraph(Graph.EntryPointTag, visitor.Blocks);
         }
 
         public IStatement Apply(IStatement Statement)
@@ -142,7 +325,10 @@ namespace Flame.Optimization
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
         {
-            return Visit(Statement);
+            // First jump threads, then delete dead blocks and finally fix broken SSA form.
+            // Note that dead block elimination is actually a prerequisite for SSA form
+            // construction.
+            return FixBrokenSSAPass.Apply(SilentDeadBlockEliminationPass.Apply(Visit(Statement)));
         }
     }
 }
