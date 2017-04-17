@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Front.Passes;
+using Flame.Build;
 
 namespace Flame.Front.Target
 {
@@ -245,6 +247,68 @@ namespace Flame.Front.Target
                 log.GetAssemblyVersion(new Version(1, 0, 0, 0)),
                 new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
             return Parser.CreateBuildTarget(PlatformIdentifier, info, DependencyBuilder);
+        }
+
+        private static void CopyPasses<TSource, TTarget>(
+            IEnumerable<PassInfo<TSource, TTarget>> From,
+            List<PassInfo<TSource, TTarget>> To,
+            HashSet<string> AllPassNames)
+        {
+            foreach (var pass in From)
+            {
+                if (AllPassNames.Add(pass.Name))
+                {
+                    To.Add(pass);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Imports passes from the platforms with the given names.
+        /// </summary>
+        /// <param name="Preferences">The target platform's pass preferences, which will not be overwritten.</param>
+        /// <param name="PlatformNames">The names of the platforms from which passes should be imported.</param>
+        /// <param name="Log">A log to which missing-platform messages are logged.</param>
+        /// <returns>A tweaked set of pass preferences.</returns>
+        public static PassPreferences ImportPasses(
+            PassPreferences Preferences,
+            IEnumerable<string> PlatformNames, ICompilerLog Log)
+        {
+            var allPlatformNames = PlatformNames.ToArray();
+            if (allPlatformNames.Length == 0)
+            {
+                return Preferences;
+            }
+
+            var manager = Preferences.ToManager();
+            var allPassNames = new HashSet<string>();
+            allPassNames.UnionWith(manager.LoweringPasses.Select(item => item.Name));
+            allPassNames.UnionWith(manager.MethodPasses.Select(item => item.Name));
+            allPassNames.UnionWith(manager.RootPasses.Select(item => item.Name));
+            allPassNames.UnionWith(manager.SignaturePasses.Select(item => item.Name));
+            foreach (var name in allPlatformNames)
+            {
+                var parser = Parser.GetParser(name);
+                if (parser == null)
+                {
+                    Log.LogError(new LogEntry(
+                        "unrecognized target platform",
+                        "target platform '" + name +
+                        "' was not recognized as a known target platform."));
+                    continue;
+                }
+
+                var fakeDependencyBuilder = CreateDependencyBuilder(
+                    name, name, Log, new PathIdentifier("null"), new PathIdentifier("null"));
+                var fakeSrcAsm = new DescribedAssembly(new SimpleName("null"));
+                var buildTarget = CreateBuildTarget(parser, name, fakeDependencyBuilder, fakeSrcAsm);
+                // Copy all passes, but don't copy the conditions that accompany them.
+                CopyPasses(buildTarget.Passes.LoweringPasses, manager.LoweringPasses, allPassNames);
+                CopyPasses(buildTarget.Passes.MethodPasses, manager.MethodPasses, allPassNames);
+                CopyPasses(buildTarget.Passes.RootPasses, manager.RootPasses, allPassNames);
+                CopyPasses(buildTarget.Passes.SignaturePasses, manager.SignaturePasses, allPassNames);
+            }
+            return manager.ToPreferences();
         }
     }
 }

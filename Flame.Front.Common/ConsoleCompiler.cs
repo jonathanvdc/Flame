@@ -495,6 +495,14 @@ namespace Flame.Front.Cli
         public static async Task<BuildTarget> LinkAsync(IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies, CompilerEnvironment State, Func<IAssembly, BuildTarget> CreateBuildTarget)
         {
             var target = CreateBuildTarget(MainAssembly);
+            target = new BuildTarget(
+                target.TargetAssembly, target.DependencyBuilder,
+                target.Extension, target.PreferPreserve,
+                BuildTargetParsers.ImportPasses(
+                    target.Passes,
+                    State.Log.Options.GetOption<string[]>(
+                        "import-passes", new string[] { }),
+                    State.Log));
 
             State.Log.LogEvent(new LogEntry("Status", "compiling..."));
 
