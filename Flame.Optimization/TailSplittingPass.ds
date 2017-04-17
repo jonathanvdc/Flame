@@ -230,18 +230,18 @@ namespace Flame.Optimization
 
                 // Try to retrieve the 'should-split' decision from the
                 // cache.
-                bool shouldSplit;
-                if (!SplitDecisions.TryGetValue(targetTag, &shouldSplit))
+                bool shouldSplitDecision;
+                if (!SplitDecisions.TryGetValue(targetTag, &shouldSplitDecision))
                 {
                     // Cache didn't contain an entry for the target tag.
                     // Find out if we can and should split, then update
                     // the cache.
-                    shouldSplit = SplittableBlocks.Contains(targetTag)
-                                && ShouldSplit(Graph.GetBlock(targetTag));
-                    SplitDecisions[targetTag] = shouldSplit;
+                    shouldSplitDecision = SplittableBlocks.Contains(targetTag)
+                        && ShouldSplit(Graph.GetBlock(targetTag));
+                    SplitDecisions[targetTag] = shouldSplitDecision;
                 }
 
-                if (shouldSplit)
+                if (shouldSplitDecision)
                 {
                     // Split this block's tail, and try to split again.
                     return ProcessBlock(
@@ -272,7 +272,7 @@ namespace Flame.Optimization
             }
 
             // Create a new flow graph, and remove all unreachable blocks from
-            // that block.
+            // that graph.
             return new FlowGraph(Graph.EntryPointTag, results).EliminateUnreachable();
         }
     }
