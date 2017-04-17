@@ -453,10 +453,16 @@ namespace Flame.Optimization
             var unionElements = new List<IAnalysisType>();
             foreach (var defExpr in Definitions[Variable])
             {
-                // Refine the variable's type as much as possible
-                unionElements.Add(RefineType(
-                    Variable, defExpr, hypothesis,
-                    Definitions, AnalysisResults));
+                var innerExpr = defExpr.GetEssentialExpression();
+                if (!(innerExpr is SSAGetExpression && ((SSAGetExpression)innerExpr).Variable.Equals(Variable)))
+                {
+                    // Refine the variable's type by looking at its values, but don't base variable types
+                    // on trivial phis. A trivial phi occurs when one of the variable's values is a
+                    // get-value expression for the variable whose type we're refining.
+                    unionElements.Add(RefineType(
+                        Variable, innerExpr, hypothesis,
+                        Definitions, AnalysisResults));
+                }
             }
 
             // Early-out if we discover a parameter variable with no arguments.
