@@ -123,7 +123,10 @@ namespace Flame.Optimization
     /// </summary>
     public class TailSplittingVisitor : FlowGraphVisitorBase
     {
-        public const this(set int Tolerance, set int ParameterWeight);
+        public this(set int Tolerance, set int ParameterWeight)
+        {
+            HasSplitAnyBlocks = false;
+        }
 
         /// <summary>
         /// Gets the 'tolerance' value, which is used as a constant factor
@@ -136,6 +139,12 @@ namespace Flame.Optimization
         /// having a parameter in terms of IR node sizes.
         /// </summary>
         public int ParameterWeight { get; private set; }
+
+        /// <summary>
+        /// Gets a Boolean flag that tells if this visitor has split any blocks.
+        /// </summary>
+        /// <returns><c>true</c> if the visitor has split at least one block; otherwise, <c>false</c>.</returns>
+        public bool HasSplitAnyBlocks { get; private set; }
 
         /// <summary>
         /// Decides whether it is feasible to split the given block. Splitting
@@ -171,27 +180,21 @@ namespace Flame.Optimization
         private Tuple<IStatement, BlockFlow> VisitTailBody(
             BasicBlock Tail, IReadOnlyList<SSAVariable> Arguments)
         {
-            var substVisitor = new LocalSSASubstitutingVisitor();
             var stmts = new List<IStatement>();
             foreach (var parameter in Tail.Parameters, var arg in Arguments)
             {
                 // Substitute the parameter list by a sequence of SSA variable
                 // definitions.
-                stmts.Add(substVisitor.Substitute(parameter).CreateSetStatement(
-                    arg.CreateGetExpression()));
+                stmts.Add(parameter.CreateSetStatement(arg.CreateGetExpression()));
             }
 
-            var composedVisitor = CloningVisitor.Aggregate(substVisitor);
+            // Then append the tail block's body, after cloning it.
+            stmts.Add(CloningVisitor.Visit(Tail.Contents));
 
-            // Then append the tail block's body, after cloning it and
-            // replacing any and all locally-defined SSA variables.
-            stmts.Add(composedVisitor.Visit(Tail.Contents));
-
-            // Be sure to visit the tail block's outgoing flow node
-            // as well.
+            // Be sure to visit the tail block's outgoing flow node as well.
             return new Tuple<IStatement, BlockFlow>(
                 new BlockStatement(stmts).Simplify(),
-                Tail.Flow.Accept(new EmulatedBasicBlockVisitor(CloningVisitor)).Accept(substVisitor));
+                Tail.Flow.Accept(new EmulatedBasicBlockVisitor(CloningVisitor)));
         }
 
         /// <summary>
@@ -201,6 +204,7 @@ namespace Flame.Optimization
             BasicBlock Head, BasicBlock Tail,
             IReadOnlyList<SSAVariable> Arguments)
         {
+            HasSplitAnyBlocks = true;
             var tailBodyPair = VisitTailBody(Tail, Arguments);
 
             var bodyStmts = new List<IStatement>();
@@ -219,14 +223,18 @@ namespace Flame.Optimization
         /// </summary>
         private BasicBlock ProcessBlock(
             BasicBlock Block, FlowGraph Graph,
-            Dictionary<UniqueTag, bool> SplitDecisions,
-            HashSet<UniqueTag> SplittableBlocks)
+            Dictionary<UniqueTag, bool> SplitDecisions)
         {
             var outFlow = Block.Flow;
             if (outFlow is JumpFlow)
             {
                 var jump = (JumpFlow)outFlow;
                 var targetTag = jump.Branch.TargetTag;
+                if (targetTag == Block.Tag)
+                {
+                    // We can't split a block that branches back to itself.
+                    return Block;
+                }
 
                 // Try to retrieve the 'should-split' decision from the
                 // cache.
@@ -236,8 +244,7 @@ namespace Flame.Optimization
                     // Cache didn't contain an entry for the target tag.
                     // Find out if we can and should split, then update
                     // the cache.
-                    shouldSplitDecision = SplittableBlocks.Contains(targetTag)
-                        && ShouldSplit(Graph.GetBlock(targetTag));
+                    shouldSplitDecision = ShouldSplit(Graph.GetBlock(targetTag));
                     SplitDecisions[targetTag] = shouldSplitDecision;
                 }
 
@@ -248,7 +255,7 @@ namespace Flame.Optimization
                         SplitTail(
                             Block, Graph.GetBlock(targetTag),
                             jump.Branch.Arguments),
-                        Graph, SplitDecisions, SplittableBlocks);
+                        Graph, SplitDecisions);
                 }
             }
 
@@ -258,7 +265,6 @@ namespace Flame.Optimization
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            var eligibleBlocks = new HashSet<UniqueTag>(TailSplittingPass.FindNoExportBlocks(Graph));
             var splitDecisions = new Dictionary<UniqueTag, bool>();
 
             var results = new Dictionary<UniqueTag, BasicBlock>();
@@ -268,7 +274,7 @@ namespace Flame.Optimization
             {
                 results[tag] = ProcessBlock(
                     Graph.GetBlock(tag), Graph,
-                    splitDecisions, eligibleBlocks);
+                    splitDecisions);
             }
 
             // Create a new flow graph, and remove all unreachable blocks from
@@ -301,51 +307,6 @@ namespace Flame.Optimization
         /// </summary>
         public const string ParameterWeightOption = "split-tails-param-weight";
 
-        /// <summary>
-        /// Finds the set of all basic block tags in the given flow graph
-        /// that do not export any values.
-        /// </summary>
-        public [UniqueTag] FindNoExportBlocks(FlowGraph Graph)
-        {
-            var exported = new HashSet<SSAVariable>();
-            var defVars = new Dictionary<UniqueTag, HashSet<SSAVariable>>();
-
-            foreach (var block in Graph.Blocks)
-            {
-                // Find all variables this block uses.
-                var defFinder = new SSAVariableDefFinder();
-                var useFinder = new SSAVariableUseFinder();
-                block.Accept(defFinder);
-                block.Accept(useFinder);
-
-                // Create a set that contains this block's parameters and
-                // locally defined variables.
-                var localDefs = new HashSet<SSAVariable>(block.Parameters);
-                localDefs.UnionWith(defFinder.Definitions.Keys);
-                defVars[block.Tag] = localDefs;
-
-                // Mark all used variables that are not parameters
-                // or locally defined variables of
-                // this block as 'exported'.
-                var usedVars = new HashSet<SSAVariable>(useFinder.UsedVariables);
-                usedVars.ExceptWith(localDefs);
-                exported.UnionWith(usedVars);
-            }
-
-            var results = new HashSet<UniqueTag>();
-            foreach (var pair in defVars)
-            {
-                // Add all blocks that do not export any variables to the
-                // results list.
-                var localExports = pair.Value;
-                localExports.IntersectWith(exported);
-                if (localExports.Count == 0)
-                    results.Add(pair.Key);
-            }
-
-            return results;
-        }
-
         public IStatement Apply(BodyPassArgument Arg)
             in { VerifyCFGPass.Apply(Arg.Body) }
             in
@@ -367,7 +328,18 @@ namespace Flame.Optimization
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
             var visitor = new TailSplittingVisitor(tolerance, paramWeight);
             // Apply the visitor.
-            return visitor.Visit(Arg.Body);
+            var visitedBody = visitor.Visit(Arg.Body);
+            if (visitor.HasSplitAnyBlocks)
+            {
+                // Fix broken SSA form in the visited body. After that, propagate copies
+                // that might have been created by the SSA reconstruction.
+                return CopyPropagationPass.Apply(FixBrokenSSAPass.Apply(visitedBody));
+            }
+            else
+            {
+                // No broken SSA form to fix: no blocks were split.
+                return visitedBody;
+            }
         }
     }
 }
