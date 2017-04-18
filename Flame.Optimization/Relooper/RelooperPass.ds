@@ -16,14 +16,12 @@ namespace Flame.Optimization.Relooper
             set HashSet<UniqueTag> ContinueTags,
             set HashSet<UniqueTag> BreakTags,
             set UniqueTag Label,
-            set Dictionary<UniqueTag, BasicBlock> BlockMap,
-            set Dictionary<UniqueTag, HashSet<UniqueTag>> ReachableBlocks);
+            set Dictionary<UniqueTag, BasicBlock> BlockMap);
 
         public HashSet<UniqueTag> ContinueTags { get; private set; }
         public HashSet<UniqueTag> BreakTags { get; private set; }
         public UniqueTag Label { get; private set; }
         public Dictionary<UniqueTag, BasicBlock> BlockMap { get; private set; }
-        public Dictionary<UniqueTag, HashSet<UniqueTag>> ReachableBlocks { get; private set; }
 
         public UniqueTag CurrentBlock { get; set; }
 
@@ -33,9 +31,6 @@ namespace Flame.Optimization.Relooper
                 new UniqueTag(Name), Body, TerminatedFlow);
 
             BlockMap[extraBlock.Tag] = extraBlock;
-            ReachableBlocks[extraBlock.Tag] = new HashSet<UniqueTag>();
-            ReachableBlocks[CurrentBlock].Add(extraBlock.Tag);
-            ReachableBlocks[CurrentBlock].Remove(OldTag);
 
             return new BlockBranch(extraBlock.Tag);
         }
@@ -81,8 +76,6 @@ namespace Flame.Optimization.Relooper
     /// </remarks>
     public static class RelooperPass : StatementVisitorBase, IPass<BodyPassArgument, IStatement>
     {
-        alias ReachableBlockDict = Dictionary<UniqueTag, HashSet<UniqueTag>>;
-
         /// <summary>
         /// This name of the relooper pass.
         /// </summary>
@@ -104,8 +97,7 @@ namespace Flame.Optimization.Relooper
         {
             // First, create a subgraph that contains the entire graph.
             var component = new FlowGraphComponent(
-                Graph, new List<UniqueTag>(new UniqueTag[] { Graph.EntryPointTag }),
-                ComputeReachability(Graph));
+                Graph, new List<UniqueTag>(new UniqueTag[] { Graph.EntryPointTag }), Graph.BlockTags);
 
             // Then, visit that subgraph, and apply the relooper algorithm.
             return LowerShape(VisitComponent(component), Graph);
@@ -161,8 +153,7 @@ namespace Flame.Optimization.Relooper
                 return new SimpleShape(
                     epBlock,
                     VisitComponent(
-                        new FlowGraphComponent(
-                            Component,
+                        Component.GetSubcomponentFromEntryPoints(
                             new List<UniqueTag>(epBlock.Flow.SuccessorTags))));
             }
             // If we can return to all of the entries, create a Loop
@@ -206,7 +197,7 @@ namespace Flame.Optimization.Relooper
             foreach (var epTag in Component.EntryPoints)
             {
                 var exclusiveSet = new HashSet<UniqueTag>(
-                    Component.ReachableBlocks[epTag]);
+                    Component.GetStrictlyReachableBlocks(epTag));
                 exclusiveSet.Add(epTag);
 
                 foreach (var otherEp in Component.EntryPoints)
@@ -214,7 +205,7 @@ namespace Flame.Optimization.Relooper
                     if (otherEp != epTag)
                     {
                         exclusiveSet.Remove(otherEp);
-                        exclusiveSet.ExceptWith(Component.ReachableBlocks[otherEp]);
+                        exclusiveSet.ExceptWith(Component.GetStrictlyReachableBlocks(otherEp));
                     }
                 }
 
@@ -242,25 +233,17 @@ namespace Flame.Optimization.Relooper
             {
                 var otherBlocks = new HashSet<UniqueTag>(Component.Graph.BlockTags);
                 otherBlocks.ExceptWith(pair.Value);
+                var newEntryPoints = new List<UniqueTag>();
+                newEntryPoints.Add(pair.Key);
                 handledShapes[pair.Key] = VisitComponent(Solipsize(
-                    Component, loopTag,
-                    new UniqueTag[] { pair.Key }, otherBlocks));
+                    new FlowGraphComponent(Component.Graph, newEntryPoints, pair.Value),
+                    loopTag, newEntryPoints, otherBlocks));
             }
 
             return new MultipleShape(
                 loopTag, handledShapes,
                 VisitComponent(GetSubcomponent(
                     Component, nextEntries)));
-        }
-
-        private HashSet<UniqueTag> GetSolipsizedReach(
-            FlowGraphComponent Component, UniqueTag BlockTag,
-            [UniqueTag] ContinueTags, [UniqueTag] BreakTags)
-        {
-            var reachSet = new HashSet<UniqueTag>(Component.ReachableBlocks[BlockTag]);
-            reachSet.ExceptWith(ContinueTags);
-            reachSet.ExceptWith(BreakTags);
-            return reachSet;
         }
 
         /// <summary>
@@ -277,26 +260,20 @@ namespace Flame.Optimization.Relooper
             var bTags = new HashSet<UniqueTag>(BreakTags);
 
             var results = new Dictionary<UniqueTag, BasicBlock>();
-            var reachDict = new ReachableBlockDict();
             var visitor = new SolipsizingVisitor(
-                cTags, bTags, Label, results, reachDict);
+                cTags, bTags, Label, results);
 
-            foreach (var tag in cTags)
-            {
-                reachDict[tag] = GetSolipsizedReach(Component, tag, cTags, bTags);
-            }
-            foreach (var tag in Component.ComponentBlocks)
+            foreach (var tag in Component.ComponentBlockTags)
             {
                 if (!bTags.Contains(tag))
                 {
-                    reachDict[tag] = GetSolipsizedReach(Component, tag, cTags, bTags);
                     results[tag] = visitor.Visit(Component.Graph.GetBlock(tag));
                 }
             }
 
             return new FlowGraphComponent(
                 new FlowGraph(Enumerable.First<UniqueTag>(cTags), results),
-                new List<UniqueTag>(cTags), reachDict);
+                new List<UniqueTag>(cTags), Component.ComponentBlockTags);
         }
 
         /// <summary>
@@ -309,14 +286,14 @@ namespace Flame.Optimization.Relooper
             var nextEntries = new HashSet<UniqueTag>();
             foreach (var tag in Roots)
             {
-                // Mark all blocks that can be reached directly blocks
+                // Mark all blocks that can be reached directly from blocks
                 // in the root set.
                 nextEntries.UnionWith(Component.Graph.GetBlock(tag).Flow.SuccessorTags);
             }
             // Unmark all blocks that are in the root set.
             nextEntries.ExceptWith(Roots);
             // Make sure that the resulting blocks are in the current component.
-            nextEntries.IntersectWith(Component.ComponentBlocks);
+            nextEntries.IntersectWith(Component.ComponentBlockTags);
             return nextEntries;
         }
 
@@ -324,21 +301,22 @@ namespace Flame.Optimization.Relooper
             FlowGraphComponent Component, [UniqueTag] ComponentBlocks)
         {
             // Compute a new reachability dictionary for the subcomponent.
-            var reachDict = new ReachableBlockDict();
-            var compBlocks = new HashSet<UniqueTag>(ComponentBlocks);
-            foreach (var pair in Component.ReachableBlocks)
-            {
-                if (compBlocks.Contains(pair.Key))
-                {
-                    var newSet = new HashSet<UniqueTag>(pair.Value);
-                    newSet.IntersectWith(compBlocks);
-                    reachDict[pair.Key] = newSet;
-                }
-            }
             var entries = new HashSet<UniqueTag>(Component.EntryPoints);
             entries.IntersectWith(ComponentBlocks);
             return new FlowGraphComponent(
-                Component.Graph, new List<UniqueTag>(entries), reachDict);
+                Component.Graph, new List<UniqueTag>(entries), ComponentBlocks);
+        }
+
+        private bool IsEntryPointStrictlyReachable(UniqueTag Source, FlowGraphComponent Component)
+        {
+            foreach (var ep in Component.EntryPoints)
+            {
+                if (Component.IsStrictlyReachable(Source, ep))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -393,46 +371,29 @@ namespace Flame.Optimization.Relooper
 
             // Find all blocks that can reach the entry point.
             var innerBlocks = new HashSet<UniqueTag>();
-            foreach (var tag in Component.ComponentBlocks)
+            var outerBlocks = new HashSet<UniqueTag>();
+            foreach (var tag in Component.ComponentBlockTags)
             {
-                if (Enumerable.Any<UniqueTag>(
-                    Component.EntryPoints,
-                    Component.ReachableBlocks[tag].Contains))
+                if (Component.IsEntryPoint(tag) || IsEntryPointStrictlyReachable(tag, Component))
                 {
                     innerBlocks.Add(tag);
                 }
-            }
-
-            // Compute a new reachability dictionary for the loop's Inner block,
-            // as well as for the Next blocks.
-            var innerReachDict = new ReachableBlockDict();
-            var outerReachDict = new ReachableBlockDict();
-            foreach (var pair in Component.ReachableBlocks)
-            {
-                var newSet = new HashSet<UniqueTag>(pair.Value);
-                if (innerBlocks.Contains(pair.Key))
-                {
-                    newSet.IntersectWith(innerBlocks);
-                    newSet.ExceptWith(Component.EntryPoints);
-                    innerReachDict[pair.Key] = newSet;
-                }
                 else
                 {
-                    newSet.ExceptWith(innerBlocks);
-                    outerReachDict[pair.Key] = newSet;
+                    outerBlocks.Add(tag);
                 }
             }
 
-            // Create the loop Inner block component.
+            // Create the inner loop component.
             var loopComponent = new FlowGraphComponent(
-                Component.Graph, Component.EntryPoints, innerReachDict);
+                Component.Graph, Component.EntryPoints, innerBlocks);
 
             // Find entry points for the Next blocks.
             var nextEntries = ComputeDirectlyReachable(innerBlocks, Component);
 
             // Create the Next block component.
             var nextComponent = new FlowGraphComponent(
-                Component.Graph, new List<UniqueTag>(nextEntries), outerReachDict);
+                Component.Graph, new List<UniqueTag>(nextEntries), outerBlocks);
 
             // Create a loop tag that `break` and `continue` statements can
             // target.
@@ -442,23 +403,6 @@ namespace Flame.Optimization.Relooper
                 loopTag,
                 VisitComponent(Solipsize(loopComponent, loopTag, Component.EntryPoints, nextEntries)),
                 VisitComponent(nextComponent));
-        }
-
-        /// <summary>
-        /// Computes the set of all strictly reachable blocks, for every block in the
-        /// control-flow graph.
-        /// </summary>
-        private ReachableBlockDict ComputeReachability(FlowGraph Graph)
-        {
-            var reachableBlocks = new ReachableBlockDict();
-
-            foreach (var item in Graph.BlockTags)
-            {
-                reachableBlocks[item] = new HashSet<UniqueTag>(
-                    Graph.FindStrictlyReachableBlocks(item));
-            }
-
-            return reachableBlocks;
         }
 
         public IStatement Apply(BodyPassArgument Arg)

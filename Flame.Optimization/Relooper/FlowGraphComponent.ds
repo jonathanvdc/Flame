@@ -12,18 +12,12 @@ namespace Flame.Optimization.Relooper
     /// </summary>
     public class FlowGraphComponent
     {
-        alias ReachableBlockDict = IReadOnlyDictionary<UniqueTag, HashSet<UniqueTag>>;
-
-        public const this(
+        public this(
             set FlowGraph Graph, set IReadOnlyList<UniqueTag> EntryPoints,
-            set ReachableBlockDict ReachableBlocks);
-
-        public const this(
-            FlowGraphComponent Component,
-            set IReadOnlyList<UniqueTag> EntryPoints)
+            IEnumerable<UniqueTag> ComponentBlockTags)
         {
-            this.Graph = Component.Graph;
-            this.ReachableBlocks = Component.ReachableBlocks;
+            this.cBlockTags = new HashSet<UniqueTag>(ComponentBlockTags);
+            this.strictlyReachableBlocks = new Dictionary<UniqueTag, HashSet<UniqueTag>>();
         }
 
         /// <summary>
@@ -36,27 +30,32 @@ namespace Flame.Optimization.Relooper
         /// </summary>
         public IReadOnlyList<UniqueTag> EntryPoints { get; private set; }
 
-        /// <summary>
-        /// Gets the set of all strictly reachable blocks, for every block in the
-        /// control-flow graph.
-        /// </summary>
-        public ReachableBlockDict ReachableBlocks { get; private set; }
+        // The set of all block tags in this component.
+        private HashSet<UniqueTag> cBlockTags;
+
+        // A dictionary that maps block tags to sets of block tags that are strictly
+        // reachable from the former tags.
+        private Dictionary<UniqueTag, HashSet<UniqueTag>> strictlyReachableBlocks;
 
         /// <summary>
-        /// Computes the set of all blocks that belong to this component.
+        /// Computes the set of tags for blocks that belong to this component.
         /// </summary>
-        public [UniqueTag] ComponentBlocks
+        public IEnumerable<UniqueTag> ComponentBlockTags
         {
             get
             {
-                var results = new HashSet<UniqueTag>();
-                foreach (var ep in EntryPoints)
-                {
-                    results.Add(ep);
-                    results.UnionWith(ReachableBlocks[ep]);
-                }
-                return results;
+                return cBlockTags;
             }
+        }
+
+        /// <summary>
+        /// Tells if this component contains the block with the given tag.
+        /// </summary>
+        /// <param name="Tag">A block tag.</param>
+        /// <returns><c>true</c> if this component contains the block with the given tag; otherwise, <c>false</c>.</returns>
+        public bool Contains(UniqueTag Tag)
+        {
+            return cBlockTags.Contains(Tag);
         }
 
         /// <summary>
@@ -65,9 +64,113 @@ namespace Flame.Optimization.Relooper
         public bool IsStrictlyReachable(UniqueTag Tag)
         {
             foreach (var item in EntryPoints)
-                if (ReachableBlocks[item].Contains(Tag))
+            {
+                if (IsStrictlyReachable(item, Tag))
+                {
                     return true;
+                }
+            }
             return false;
+        }
+
+        /// <summary>
+        /// Marks all blocks that are reachable from this block as
+        /// reachable by adding them to the given set.
+        /// </summary>
+        private void MarkStrictlyReachable(UniqueTag Tag, HashSet<UniqueTag> Results)
+        {
+            // Mark all blocks that are reachable from this block
+            // as reachable.
+            foreach (var item in Graph.GetBlock(Tag).Flow.Branches)
+            {
+                MarkReachable(item.TargetTag, Results);
+            }
+        }
+
+        /// <summary>
+        /// Marks the block identified by the given tag - and all blocks that
+        /// are reachable from this block - as reachable by adding them to
+        /// the given set.
+        /// </summary>
+        private void MarkReachable(UniqueTag Tag, HashSet<UniqueTag> Results)
+        {
+            // Mark this block as reachable.
+            if (Contains(Tag) && Results.Add(Tag))
+            {
+                // Mark all blocks that are reachable strictly from this block
+                // as reachable.
+                MarkStrictlyReachable(Tag, Results);
+            }
+        }
+
+        /// <summary>
+        /// Gets the set of all blocks in this flow graph that are strictly reachable
+        /// from the given block tag: this does not include the given block if
+        /// there is no (cyclic) path that reaches it.
+        /// </summary>
+        private HashSet<UniqueTag> GetStrictlyReachableBlocksImpl(UniqueTag Tag)
+        {
+            HashSet<UniqueTag> results;
+            if (!strictlyReachableBlocks.TryGetValue(Tag, &results))
+            {
+                results = new HashSet<UniqueTag>();
+                MarkStrictlyReachable(Tag, results);
+                strictlyReachableBlocks[Tag] = results;
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of all blocks in this flow graph that are strictly reachable
+        /// from the given block tag: this does not include the given block if
+        /// there is no (cyclic) path that reaches it.
+        /// </summary>
+        public IEnumerable<UniqueTag> GetStrictlyReachableBlocks(UniqueTag Tag)
+        {
+            return GetStrictlyReachableBlocksImpl(Tag);
+        }
+
+        /// <summary>
+        /// Tells if the 'to' tag is strictly reachable from the 'from' tag.
+        /// </summary>
+        /// <param name="From">The tag from which is path to the 'to' tag is to be found.</param>
+        /// <param name="To">The tag to which a path from the 'from' tag is to be found.</param>
+        /// <returns><c>true</c> if the 'to' tag is strictly reachable from the 'from' tag; otherwise, <c>false</c>.</returns>
+        public bool IsStrictlyReachable(UniqueTag From, UniqueTag To)
+        {
+            return GetStrictlyReachableBlocksImpl(From).Contains(To);
+        }
+
+        /// <summary>
+        /// Tests if the given tag is an entry point.
+        /// </summary>
+        /// <param name="Tag">The tag to test for entry-pointness.</param>
+        /// <returns><c>true</c> if the given tag is one of this component's entry points; otherwise, <c>false</c>.</returns>
+        public bool IsEntryPoint(UniqueTag Tag)
+        {
+            foreach (var item in EntryPoints)
+            {
+                if (item == Tag)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Creates a sub-component from this flow-graph component from the given entry points.
+        /// </summary>
+        /// <param name="SubEntryPoints">The sub-component's entry points.</param>
+        /// <returns></returns>
+        public FlowGraphComponent GetSubcomponentFromEntryPoints(IReadOnlyList<UniqueTag> SubEntryPoints)
+        {
+            var subBlocks = new HashSet<UniqueTag>();
+            foreach (var item in SubEntryPoints)
+            {
+                subBlocks.UnionWith(GetStrictlyReachableBlocksImpl(item));
+            }
+            return new FlowGraphComponent(Graph, SubEntryPoints, subBlocks);
         }
     }
 }
