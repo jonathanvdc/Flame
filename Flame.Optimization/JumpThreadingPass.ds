@@ -11,71 +11,66 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
-    /// Represents a thread of jumps: a list of branches that are taken unconditionally.
+    /// Represents a thread of jumps: a collection of blocks to which control is transferred
+    /// once a single initial block is reached.
     /// </summary>
     public class JumpThread
     {
         /// <summary>
-        /// Creates an empty jump thread.
+        /// Creates a jump thread from the given block and branch.
         /// </summary>
-        public this(IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
+        public this(BasicBlock Block, BlockBranch Branch)
         {
-            this.Definitions = Definitions;
-            this.argAssignment = new Dictionary<SSAVariable, SSAVariable>();
-            this.argValues = new Dictionary<SSAVariable, IExpression>();
+            this.threadBody = new List<IStatement>();
+            this.varValues = new Dictionary<SSAVariable, IExpression>();
             this.threadBlocks = new HashSet<UniqueTag>();
+            this.threadBlocks.Add(Block.Tag);
+            AnalyzeBlockBody(Block.Contents);
+            this.FinalFlow = new JumpFlow(Branch);
         }
 
         /// <summary>
-        /// A dictionary that maps basic block parameters to arguments.
+        /// A list of body statements for this jump thread.
         /// </summary>
-        private Dictionary<SSAVariable, SSAVariable> argAssignment;
+        private List<IStatement> threadBody;
 
         /// <summary>
-        /// A dictionary that maps basic block parameters to the values they have been
+        /// A dictionary that maps variables to the values they have been
         /// defined as.
         /// </summary>
-        private Dictionary<SSAVariable, IExpression> argValues;
+        private Dictionary<SSAVariable, IExpression> varValues;
 
         /// <summary>
-        /// The set of all blocks in this thread of jumps.
+        /// The set of all blocks in this thread.
         /// </summary>
         private HashSet<UniqueTag> threadBlocks;
 
         /// <summary>
-        /// Gets a read-only view of a dictionary that maps basic block parameters to arguments
-        /// for this jump thread.
-        /// </summary>
-        public IReadOnlyDictionary<SSAVariable, SSAVariable> ArgumentAssignment
-        {
-            get { return argAssignment; }
-        }
-
-        /// <summary>
-        /// Gets a read-only view of a dictionary that maps basic block parameters the values
+        /// Gets a read-only view of a dictionary that maps SSA variables to the values
         /// they have been defined as.
         /// </summary>
-        public IReadOnlyDictionary<SSAVariable, IExpression> ArgumentValues
+        public IReadOnlyDictionary<SSAVariable, IExpression> VariableValues
         {
-            get { return argValues; }
+            get { return varValues; }
         }
 
         /// <summary>
-        /// Gets the final block in this jump thread.
+        /// Gets the final flow instruction in this jump thread.
         /// </summary>
-        /// <returns>The final block in this jump thread.</returns>
-        public BasicBlock FinalBlock { get; private set; }
+        /// <returns>The final flow instruction in this jump thread.</returns>
+        public BlockFlow FinalFlow { get; private set; }
 
         /// <summary>
-        /// Gets a mapping of variables to definitions.
-        /// </summary>
-        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get; private set; }
-
-        /// <summary>
-        /// Gets the length of this jump thread: the number of branches it is comprised of.
+        /// Gets the length of this jump thread: the number of blocks it is comprised of.
         /// </summary>
         /// <returns>The length of this jump thread.</returns>
-        public int Length { get { return threadBlocks.Count; } }
+        public int Length { get { return threadBlocks.Count - 1; } }
+
+        /// <summary>
+        /// Gets this jump thread's body statement.
+        /// </summary>
+        /// <returns>The jump thread's body statement.</returns>
+        public IStatement Body { get { return new BlockStatement(threadBody); } }
 
         /// <summary>
         /// Checks if this jump thread includes the block with the given tag.
@@ -94,7 +89,7 @@ namespace Flame.Optimization
         /// <returns>Either the original expression or the simplified expression.</returns>
         private IExpression Simplify(IExpression Expression)
         {
-            var visitor = new GlobalValuePropagationUseVisitor(ArgumentValues, false);
+            var visitor = new GlobalValuePropagationUseVisitor(VariableValues, false);
             return visitor.Visit(Expression);
         }
 
@@ -109,109 +104,154 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Tries to append the given branch to this thread.
+        /// Tries to add the given block to this jump thread.
         /// </summary>
-        /// <param name="Branch">The branch to append to this thread.</param>
-        /// <param name="Target">The branch's target block.</param>
-        /// <returns><c>true</c> if the given branch was appended to this thread; otherwise, <c>false</c>.</returns>
-        public bool TryAddBranch(BlockBranch Branch, BasicBlock Target)
+        /// <param name="Block">The block to add to this jump thread.</param>
+        /// <param name="Arguments">The list of arguments for the block's parameters.</param>
+        /// <returns><c>true</c> if the given block was appended to this thread; otherwise, <c>false</c>.</returns>
+        public bool TryAddBlock(BasicBlock Block, IReadOnlyList<SSAVariable> Arguments)
         {
-            assert(Branch.TargetTag == Target.Tag);
-
             // A jump thread cannot include a cycle. If we allowed this, then
-            // we'd slip into an infinite loop.
-            if (!threadBlocks.Add(Target.Tag))
+            // we could slip into an infinite loop.
+            if (!threadBlocks.Add(Block.Tag))
             {
                 return false;
             }
 
-            foreach (var param in Target.Parameters, var arg in Branch.Arguments)
+            // Try to find definitions for argument variables.
+            var paramValues = new Dictionary<SSAVariable, IExpression>();
+            var paramAssignments = new Dictionary<IVariable, IVariable>();
+            foreach (var param in Block.Parameters, var arg in Arguments)
             {
-                SSAVariable actualArg;
-                if (!argAssignment.TryGetValue(arg, &actualArg))
-                {
-                    actualArg = arg;
-                }
-                argAssignment[param] = actualArg;
-
                 IExpression argVal;
-                if (argValues.TryGetValue(actualArg, &argVal)
-                    || Definitions.TryGetValue(actualArg, &argVal))
+                if (varValues.TryGetValue(arg, &argVal))
                 {
-                    argValues[param] = Simplify(argVal);
+                    paramValues[param] = argVal;
                 }
+
+                paramAssignments[param] = arg;
             }
 
-            FinalBlock = Target;
+            // Add them all to the defined values.
+            foreach (var varDef in paramValues)
+            {
+                varValues[varDef.Key] = varDef.Value;
+            }
+
+            // Replace parameter substitution with a parallel assignment statement.
+            threadBody.Add(VariableHelpers.CreateParallelSetStatement(
+                paramAssignments, new Dictionary<IType, IVariable>()));
+
+            // Append the block's contents to the thread.
+            AddBlockBody(Block.Contents);
+
+            if (Block.Flow is SelectFlow)
+            {
+                // The selection flow instruction's condition might evaluate to a constant
+                // value within the context of this jump thread. If so, then we can pick
+                // a branch and jump to that.
+                var selection = (SelectFlow)Block.Flow;
+                var condVal = EvaluateOrNull(selection.Condition);
+                if (condVal == null)
+                {
+                    FinalFlow = selection;
+                }
+                else if (condVal.GetValue<bool>())
+                {
+                    FinalFlow = new JumpFlow(selection.ThenBranch);
+                }
+                else
+                {
+                    FinalFlow = new JumpFlow(selection.ElseBranch);
+                }
+            }
+            else
+            {
+                // Set the final flow instruction.
+                FinalFlow = Block.Flow;
+            }
+
             return true;
         }
 
         /// <summary>
-        /// Tries to create an (initialization statement, branch) pair that performs a direct
-        /// jump to this jump thread's final block. The initialization statement needs to be
-        /// placed on a path that always leads to the branch.
+        /// Adds the given basic block body to this thread.
         /// </summary>
-        /// <returns>
-        /// An (initialization statement, branch) pair if the jump thread can be improved upon.
-        /// Otherwise, <c>null</c>.
-        /// </returns>
-        public Tuple<IStatement, BlockBranch> TryCreateInitStatementAndBranch()
+        private void AddBlockBody(IStatement Body)
         {
-            if (Length <= 1)
-            {
-                // There's no point in trying to rewrite this jump thread as a single jump,
-                // because the jump thread *is* a single jump.
-                return null;
-            }
+            // Append the body to the thread.
+            threadBody.Add(CloningVisitor.Visit(Body));
 
-            var intermediateArgs = new Dictionary<IVariable, IVariable>();
-            var finalParamSet = new HashSet<SSAVariable>(FinalBlock.Parameters);
-            foreach (var pair in argAssignment)
+            // Analyze the body.
+            AnalyzeBlockBody(Body);
+        }
+
+        /// <summary>
+        /// Mines the given basic block body statement for variable definitions,
+        /// which are then included in the thread.
+        /// </summary>
+        /// <param name="Body">The statement to mine for variable definitions.</param>
+        private void AnalyzeBlockBody(IStatement Body)
+        {
+            // TODO: the definition-evaluation technique used here
+            // is suboptimal because it does not respect the ordering of
+            // the definitions. For instance, variable `j` from the example
+            // below could slip through unevaluated if it is simplified
+            // before `i` is.
+            //
+            //     i = 4
+            //     j = i + 4
+            //
+
+            // Mine it for definitions.
+            var defFinder = new SSAVariableDefFinder();
+            defFinder.Visit(Body);
+
+            // Simplify the definitions and update the variable value dictionary.
+            foreach (var varDef in defFinder.Definitions)
             {
-                if (!finalParamSet.Contains(pair.Key))
-                {
-                    intermediateArgs[pair.Key] = pair.Value;
-                }
+                varValues[varDef.Key] = Simplify(varDef.Value);
             }
-            var finalArgs = new List<SSAVariable>();
-            foreach (var param in FinalBlock.Parameters)
-            {
-                finalArgs.Add(argAssignment[param]);
-            }
-            return new Tuple<IStatement, BlockBranch>(
-                VariableHelpers.CreateParallelSetStatement(
-                    intermediateArgs, new Dictionary<IType, IVariable>()),
-                new BlockBranch(FinalBlock.Tag, finalArgs));
         }
     }
 
     /// <summary>
     /// A branch visitor that tries to replace threads of branches by direct branches.
+    /// This visitor works within the context for a control-flow graph.
     /// </summary>
     public class JumpThreadingVisitor : BranchVisitorBase
     {
         /// <summary>
-        /// Creates a jump-threading visitor from the given control-flow graph.
+        /// Creates a jump-threading visitor from a control-flow graph and a predicate
+        /// that decides whether a block should be duplicated or not.
         /// </summary>
-        public this(FlowGraph Graph, IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
+        public this(FlowGraph Graph, Func<BasicBlock, bool> ShouldDuplicate)
         {
             this.Graph = Graph;
-            this.Definitions = Definitions;
+            this.shouldDuplicatePredicate = ShouldDuplicate;
+            this.shouldDuplicateCache = new Dictionary<BasicBlock, bool>();
             this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
+            this.currentBlock = null;
         }
 
         private Dictionary<UniqueTag, BasicBlock> newBlocks;
+        private BasicBlock currentBlock;
+
+        /// <summary>
+        /// A predicate that tells if a given basic block should be duplicated.
+        /// </summary>
+        private Func<BasicBlock, bool> shouldDuplicatePredicate;
+
+        /// <summary>
+        /// A cache that remembers which blocks are worth duplicating and which are not.
+        /// </summary>
+        private Dictionary<BasicBlock, bool> shouldDuplicateCache;
 
         /// <summary>
         /// Gets the control-flow graph that this jump-threading visitor operates on.
         /// </summary>
         /// <returns>The control-flow graph for this visitor.</returns>
         public FlowGraph Graph { get; private set; }
-
-        /// <summary>
-        /// Gets a mapping of variables to definitions.
-        /// </summary>
-        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get; private set; }
 
         /// <summary>
         /// Gets a dictionary that maps visited basic block tags to basic blocks in
@@ -221,55 +261,45 @@ namespace Flame.Optimization
         public IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks { get { return newBlocks; } }
 
         /// <summary>
+        /// Tells if the given basic block is worth duplicating.
+        /// </summary>
+        /// <param name="Block">A basic block which is considered for duplication.</param>
+        /// <returns><c>true</c> if the basic block is worth duplicating; otherwise, <c>false</c>.</returns>
+        public bool ShouldDuplicate(BasicBlock Block)
+        {
+            bool result;
+            if (!shouldDuplicateCache.TryGetValue(Block, &result))
+            {
+                result = shouldDuplicatePredicate(Block);
+                shouldDuplicateCache[Block] = result;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Tries to discover a jump thread for the given branch in the given graph.
         /// </summary>
-        /// <param name="Graph">The flow graph that contains the block.</param>
+        /// <param name="Block">The block that defines the branch.</param>
         /// <param name="Branch">The first branch in the thread.</param>
         /// <returns>A jump thread for the given branch.</returns>
-        private JumpThread DiscoverJumpThread(BlockBranch Branch)
+        private JumpThread DiscoverJumpThread(BasicBlock Block, BlockBranch Branch)
         {
-            var thread = new JumpThread(Definitions);
+            var thread = new JumpThread(Block, Branch);
             while (true)
             {
-                // Append the branch to the thread.
+                // Append the branch to the thread if we think that it might be
+                // worth it.
                 var block = Graph.GetBlock(Branch.TargetTag);
-                if (!thread.TryAddBranch(Branch, block))
+                if (!ShouldDuplicate(block) || !thread.TryAddBlock(block, Branch.Arguments))
                 {
                     break;
                 }
 
-                // If the branch target's block is non-empty then we can't append it
-                // to the thread (doing so anyway would duplicate code).
-                if (!block.Contents.IsEmpty)
-                {
-                    break;
-                }
-
-                if (block.Flow is JumpFlow)
+                if (thread.FinalFlow is JumpFlow)
                 {
                     // Make this jump's branch the next branch in the thread.
-                    var jump = (JumpFlow)block.Flow;
+                    var jump = (JumpFlow)thread.FinalFlow;
                     Branch = jump.Branch;
-                }
-                else if (block.Flow is SelectFlow)
-                {
-                    // The selection flow instruction's condition might evaluate to a constant
-                    // value within the context of this jump thread. If so, then we can pick
-                    // a branch and append that to the thread.
-                    var selection = (SelectFlow)block.Flow;
-                    var condVal = thread.EvaluateOrNull(selection.Condition);
-                    if (condVal == null)
-                    {
-                        break;
-                    }
-                    else if (condVal.GetValue<bool>())
-                    {
-                        Branch = selection.ThenBranch;
-                    }
-                    else
-                    {
-                        Branch = selection.ElseBranch;
-                    }
                 }
                 else
                 {
@@ -281,20 +311,26 @@ namespace Flame.Optimization
 
         public override BlockBranch Visit(BlockBranch Branch)
         {
-            var thread = DiscoverJumpThread(Branch);
-            var initAndBranch = thread.TryCreateInitStatementAndBranch();
-            if (initAndBranch == null)
+            var thread = DiscoverJumpThread(currentBlock, Branch);
+            if (thread.Length == 0)
             {
                 return Branch;
             }
 
             // If the initialization statement does nothing, then we can simply
             // return the rewritten branch.
-            var init = initAndBranch.Item1;
-            var newBranch = initAndBranch.Item2;
+            var init = thread.Body;
+            var newFlow = thread.FinalFlow;
             if (init.IsEmpty)
             {
-                return newBranch;
+                if (newFlow is JumpFlow)
+                {
+                    return ((JumpFlow)newFlow).Branch;
+                }
+                else
+                {
+                    return Branch;
+                }
             }
 
             // If the initialization statement actually does something, then we need to
@@ -302,7 +338,7 @@ namespace Flame.Optimization
             // and the branch.
             var thunkBlock = new BasicBlock(
                 new UniqueTag("thunk_block"), new List<SSAVariable>(),
-                init, new JumpFlow(newBranch));
+                init, newFlow);
             newBlocks[thunkBlock.Tag] = thunkBlock;
 
             // Return a branch to the thunk.
@@ -314,9 +350,8 @@ namespace Flame.Optimization
             if (Block.Flow is JumpFlow)
             {
                 var jump = (JumpFlow)Block.Flow;
-                var thread = DiscoverJumpThread(jump.Branch);
-                var initAndBranch = thread.TryCreateInitStatementAndBranch();
-                if (initAndBranch == null)
+                var thread = DiscoverJumpThread(Block, jump.Branch);
+                if (thread.Length == 0)
                 {
                     return Block;
                 }
@@ -326,15 +361,19 @@ namespace Flame.Optimization
                     new BlockStatement(new IStatement[]
                     {
                         Block.Contents,
-                        initAndBranch.Item1
+                        thread.Body
                     }).Simplify(),
-                    new JumpFlow(initAndBranch.Item2));
+                    thread.FinalFlow);
             }
             else if (Block.Flow is SelectFlow)
             {
-                return new BasicBlock(
+                var oldBlock = currentBlock;
+                currentBlock = Block;
+                var result = new BasicBlock(
                     Block.Tag, Block.Parameters, Block.Contents,
                     Block.Flow.Accept(this));
+                currentBlock = oldBlock;
+                return result;
             }
             else
             {
@@ -362,38 +401,24 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A pass that applies simple jump threading to flow graphs.
+    /// A jump threading visitor that applies jump threading to entire function bodies.
     /// </summary>
-    public static class JumpThreadingPass : FlowGraphVisitorBase, IPass<IStatement, IStatement>
+    public class GlobalJumpThreadingVisitor : FlowGraphVisitorBase
     {
-        // The jump threading algorithm as implemented by this pass works like so:
-        //
-        //     For each jump:
-        //
-        //         1. Construct a thread of jumps: a list of branches
-        //            that are taken unconditionally.
-        //
-        //         2. If the thread contains only one branch, then proceed to the next thread, if any.
-        //
-        //         3. Otherwise, try to convert the thread into a single jump or at worst a jump to a thunk
-        //            block.
+        public this(Func<BasicBlock, bool> ShouldDuplicate)
+        {
+            this.ShouldDuplicate = ShouldDuplicate;
+        }
 
         /// <summary>
-        /// This pass' name.
+        /// Gets a predicate that tells if a given basic block should be duplicated.
         /// </summary>
-        public const string JumpThreadingPassName = "jump-threading";
+        public Func<BasicBlock, bool> ShouldDuplicate { get; private set; }
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            // Look up all definitions.
-            var defFinder = new SSAVariableDefFinder();
-            foreach (var block in Graph.Blocks)
-            {
-                defFinder.Visit(block.Contents);
-            }
-
             // Perform jump threading.
-            var visitor = new JumpThreadingVisitor(Graph, defFinder.Definitions);
+            var visitor = new JumpThreadingVisitor(Graph, ShouldDuplicate);
             foreach (var block in Graph.Blocks)
             {
                 visitor.Visit(block);
@@ -404,15 +429,97 @@ namespace Flame.Optimization
             // burden of the SSA construction algorithm.
             return new FlowGraph(Graph.EntryPointTag, visitor.Blocks).EliminateUnreachable();
         }
+    }
 
-        public IStatement Apply(IStatement Statement)
-            in { VerifyCFGPass.Apply(Statement) }
-            in { VerifySSAPass.Apply(Statement) }
-            out (result) { VerifyCFGPass.Apply(result) }
-            out (result) { VerifySSAPass.Apply(result) }
+    /// <summary>
+    /// A heuristic that decides if blocks are worth duplicating based on block
+    /// sizes and parameter counts.
+    /// </summary>
+    public class SizeBasedBlockDuplicationHeuristic
+    {
+        public this(int Tolerance, int ParameterWeight)
         {
-            // First jump threads and fix broken SSA form.
-            return FixBrokenSSAPass.Apply(Visit(Statement));
+            this.Tolerance = Tolerance;
+            this.ParameterWeight = ParameterWeight;
+        }
+
+        /// <summary>
+        /// Gets the 'tolerance' value, which is used as a constant factor
+        /// when deciding whether a block should be split or not.
+        /// </summary>
+        public int Tolerance { get; private set; }
+
+        /// <summary>
+        /// Gets the 'parameter weight' value, which describes the 'cost' of
+        /// having a parameter in terms of IR node sizes.
+        /// </summary>
+        public int ParameterWeight { get; private set; }
+
+        /// <summary>
+        /// Decides whether it is feasible to duplicate the given block.
+        /// </summary>
+        public bool ShouldDuplicate(BasicBlock Block)
+        {
+            // Replacing parameters by locals will typically allow us to optimize more
+            // aggressively, and it also reduces the size of live ranges for variables.
+            int pro = Tolerance + Block.Parameters.Count * ParameterWeight;
+
+            // Don't duplicate large blocks. That'd just increase code
+            // size, which is probably a bad idea for cache and JIT reasons.
+            var sizeVisitor = new SizeVisitor(true);
+            Block.Accept(sizeVisitor);
+
+            return pro - sizeVisitor.Size > 0;
+        }
+    }
+
+    /// <summary>
+    /// A pass that applies simple jump threading to flow graphs.
+    /// </summary>
+    public static class JumpThreadingPass : IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This pass' name.
+        /// </summary>
+        public const string JumpThreadingPassName = "jump-threading";
+
+        /// <summary>
+        /// The option that specifies the block duplication 'tolerance' value.
+        /// </summary>
+        public const string ToleranceOption = "duplicate-block-tolerance";
+
+        /// <summary>
+        /// The option that specifies the block duplication 'parameter weight'
+        /// value.
+        /// </summary>
+        public const string ParameterWeightOption = "duplicate-block-param-weight";
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+            in
+            {
+                VerifySSAPass.Apply(
+                    Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    JumpThreadingPassName + " (input)")
+            }
+            out (result) { VerifyCFGPass.Apply(result) }
+            out (result)
+            {
+                VerifySSAPass.Apply(
+                    result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
+                    JumpThreadingPassName + " (output)")
+            }
+        {
+            var log = Arg.PassEnvironment.Log;
+            int tolerance = log.Options.GetOption<int>(ToleranceOption, 8);
+            int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
+            var heuristic = new SizeBasedBlockDuplicationHeuristic(tolerance, paramWeight);
+            var visitor = new GlobalJumpThreadingVisitor(heuristic.ShouldDuplicate);
+            // Apply the visitor.
+            var visitedBody = visitor.Visit(Arg.Body);
+
+            // Fix broken SSA form in the visited body.
+            return FixBrokenSSAPass.Apply(visitedBody);
         }
     }
 }

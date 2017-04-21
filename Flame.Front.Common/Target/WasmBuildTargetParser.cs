@@ -107,7 +107,7 @@ namespace Flame.Front.Target
             // run these passes to get a decent CFG
             extraPasses.RegisterLoweringPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "-lowered"));
             extraPasses.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
-            extraPasses.RegisterLoweringPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "-lowered"));
+            extraPasses.RegisterLoweringPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "-lowered"));
             extraPasses.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "-lowered", optInfo => optInfo.OptimizeNormal);
             extraPasses.RegisterLoweringPass(new MethodPassInfo(DeadBlockEliminationPass.Instance, DeadBlockEliminationPass.DeadBlockEliminationPassName + "-lowered"));
             extraPasses.RegisterPassCondition(DeadBlockEliminationPass.DeadBlockEliminationPassName + "-lowered", optInfo => optInfo.OptimizeNormal);

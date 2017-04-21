@@ -87,7 +87,7 @@ namespace Flame.Front.Target
             ssaPassManager.RegisterPassCondition(ConstructFlowGraphPass.ConstructFlowGraphPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName, optInfo => optInfo.OptimizeNormal);
-            RegisterMethodPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName), ssaPassManager, inliningLoopSsa);
+            RegisterMethodPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName, optInfo => optInfo.OptimizeNormal);
             // The inlining loop gets a different dead block elimination pass than the SSA pass manager.
             // After the inlining loop has begun, dead code diagnostics just aren't representative
@@ -109,8 +109,10 @@ namespace Flame.Front.Target
             ssaPassManager.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new StatementPassInfo(ConcatBlocksPass.Instance, ConcatBlocksPass.ConcatBlocksPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ConcatBlocksPass.ConcatBlocksPassName, optInfo => optInfo.OptimizeNormal);
+
             RegisterMethodPass(new MethodPassInfo(TailSplittingPass.Instance, TailSplittingPass.TailSplittingPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(TailSplittingPass.TailSplittingPassName, optInfo => optInfo.OptimizeNormal);
+
             RegisterMethodPass(new StatementPassInfo(ValuePropagationPass.Instance, ValuePropagationPass.ValuePropagationPassName), ssaPassManager, inliningLoopSsa);
             ssaPassManager.RegisterPassCondition(ValuePropagationPass.ValuePropagationPassName, optInfo => optInfo.OptimizeNormal);
             RegisterMethodPass(new MethodPassInfo(MemoryToRegisterPass.Instance, MemoryToRegisterPass.MemoryToRegisterPassName), ssaPassManager, inliningLoopSsa);
@@ -152,7 +154,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(ScalarReplacementPass.ScalarReplacementPassName, optInfo => optInfo.OptimizeAggressive);
 
             // Insert the inlining loop here.
-            GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, inliningLoopSsa.MethodPasses, 3));
+            GlobalPassManager.RegisterMethodPass(new PassLoopInfo(InliningLoopName, inliningLoopPasses, inliningLoopSsa.MethodPasses, 6));
             GlobalPassManager.RegisterPassCondition(InliningLoopName, optInfo => true);
 
             GlobalPassManager.RegisterMethodPass(new MethodPassInfo(PrintDotPass.Instance, PrintDotPass.PrintDotOptimizedPassName));
@@ -170,7 +172,7 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "2"));
             GlobalPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "2", optInfo => optInfo.OptimizeNormal);
-            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "2"));
+            GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "2"));
             GlobalPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "2", optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructExceptionFlowPass.Instance, DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName));
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
