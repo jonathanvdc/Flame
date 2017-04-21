@@ -11,6 +11,80 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
+    /// Describes a single basic block in a jump thread.
+    /// </summary>
+    public struct JumpThreadNode
+    {
+        public this(
+            BasicBlock Block,
+            IReadOnlyList<SSAVariable> Arguments,
+            BlockFlow Flow,
+            int TotalScore)
+        {
+            this.Block = Block;
+            this.Arguments = Arguments;
+            this.Flow = Flow;
+            this.TotalScore = TotalScore;
+        }
+
+        /// <summary>
+        /// Gets the basic block for this jump thread node.
+        /// </summary>
+        /// <returns>The basic block.</returns>
+        public BasicBlock Block { get; private set; }
+
+        /// <summary>
+        /// Gets the basic block's list of arguments.
+        /// </summary>
+        /// <returns>The basic block's list of arguments.</returns>
+        public IReadOnlyList<SSAVariable> Arguments { get; private set; }
+
+        /// <summary>
+        /// Gets the jump thread's final flow if it is cut off at this
+        /// node.
+        /// </summary>
+        /// <returns>The final flow for this node.</returns>
+        public BlockFlow Flow { get; private set; }
+
+        /// <summary>
+        /// Gets the jump thread's total score at this block.
+        /// A positive value means that the jump thread can be
+        /// converted to a linear list of statements.
+        /// </summary>
+        /// <returns>The jump thread's score at this point.</returns>
+        public int TotalScore { get; private set; }
+
+        /// <summary>
+        /// Creates a statement that assigns values to the parameters of this
+        /// jump thread node's block and then runs a copy of said block's body.
+        /// </summary>
+        /// <returns>A statement for this jump thread node.</returns>
+        public IStatement ToStatement()
+        {
+            if (Block == null)
+            {
+                return EmptyStatement;
+            }
+
+            var paramAssignments = new Dictionary<IVariable, IVariable>();
+            foreach (var param in Block.Parameters, var arg in Arguments)
+            {
+                paramAssignments[param] = arg;
+            }
+
+            // Replace parameter substitution with a parallel assignment statement and clone
+            // the method body.
+            return new BlockStatement(new IStatement[]
+            {
+                VariableHelpers.CreateParallelSetStatement(
+                    paramAssignments,
+                    new Dictionary<IType, IVariable>()),
+                CloningVisitor.Visit(Block.Contents)
+            }).Simplify();
+        }
+    }
+
+    /// <summary>
     /// Represents a thread of jumps: a collection of blocks to which control is transferred
     /// once a single initial block is reached.
     /// </summary>
@@ -21,18 +95,13 @@ namespace Flame.Optimization
         /// </summary>
         public this(BasicBlock Block, BlockBranch Branch)
         {
-            this.threadBody = new List<IStatement>();
             this.varValues = new Dictionary<SSAVariable, IExpression>();
             this.threadBlocks = new HashSet<UniqueTag>();
             this.threadBlocks.Add(Block.Tag);
             AnalyzeBlockBody(Block.Contents);
-            this.FinalFlow = new JumpFlow(Branch);
+            this.threadNodes = new List<JumpThreadNode>();
+            this.threadNodes.Add(new JumpThreadNode(null, null, new JumpFlow(Branch), 0));
         }
-
-        /// <summary>
-        /// A list of body statements for this jump thread.
-        /// </summary>
-        private List<IStatement> threadBody;
 
         /// <summary>
         /// A dictionary that maps variables to the values they have been
@@ -46,19 +115,21 @@ namespace Flame.Optimization
         private HashSet<UniqueTag> threadBlocks;
 
         /// <summary>
-        /// Gets a read-only view of a dictionary that maps SSA variables to the values
-        /// they have been defined as.
+        /// Gets the list of nodes in this thread.
         /// </summary>
-        public IReadOnlyDictionary<SSAVariable, IExpression> VariableValues
-        {
-            get { return varValues; }
-        }
+        private List<JumpThreadNode> threadNodes;
+
+        /// <summary>
+        /// Gets the last node in this jump thread.
+        /// </summary>
+        /// <returns>The last node in this jump thread.</returns>
+        private JumpThreadNode LastNode { get { return threadNodes[threadNodes.Count - 1]; } }
 
         /// <summary>
         /// Gets the final flow instruction in this jump thread.
         /// </summary>
         /// <returns>The final flow instruction in this jump thread.</returns>
-        public BlockFlow FinalFlow { get; private set; }
+        public BlockFlow FinalFlow { get { return LastNode.Flow; } }
 
         /// <summary>
         /// Gets the length of this jump thread: the number of blocks it is comprised of.
@@ -67,29 +138,13 @@ namespace Flame.Optimization
         public int Length { get { return threadBlocks.Count - 1; } }
 
         /// <summary>
-        /// Gets this jump thread's body statement.
-        /// </summary>
-        /// <returns>The jump thread's body statement.</returns>
-        public IStatement Body { get { return new BlockStatement(threadBody); } }
-
-        /// <summary>
-        /// Checks if this jump thread includes the block with the given tag.
-        /// </summary>
-        /// <param name="BlockTag">The block with the given tag.</param>
-        /// <returns><c>true</c> if this jump thread includes the block with the given tag; otherwise, <c>false</c>.</returns>
-        public bool Contains(UniqueTag BlockTag)
-        {
-            return threadBlocks.Contains(BlockTag);
-        }
-
-        /// <summary>
         /// Tries to simplify the given expression.
         /// </summary>
         /// <param name="Expression">The expression to simplify.</param>
         /// <returns>Either the original expression or the simplified expression.</returns>
         private IExpression Simplify(IExpression Expression)
         {
-            var visitor = new GlobalValuePropagationUseVisitor(VariableValues, false);
+            var visitor = new GlobalValuePropagationUseVisitor(varValues, false);
             return visitor.Visit(Expression);
         }
 
@@ -108,8 +163,11 @@ namespace Flame.Optimization
         /// </summary>
         /// <param name="Block">The block to add to this jump thread.</param>
         /// <param name="Arguments">The list of arguments for the block's parameters.</param>
+        /// <param name="BlockScore">
+        /// The block's score. Positive scores encourage linearization, negative scores discourage it.
+        /// </param>
         /// <returns><c>true</c> if the given block was appended to this thread; otherwise, <c>false</c>.</returns>
-        public bool TryAddBlock(BasicBlock Block, IReadOnlyList<SSAVariable> Arguments)
+        public bool TryAddBlock(BasicBlock Block, IReadOnlyList<SSAVariable> Arguments, int BlockScore)
         {
             // A jump thread cannot include a cycle. If we allowed this, then
             // we could slip into an infinite loop.
@@ -120,7 +178,6 @@ namespace Flame.Optimization
 
             // Try to find definitions for argument variables.
             var paramValues = new Dictionary<SSAVariable, IExpression>();
-            var paramAssignments = new Dictionary<IVariable, IVariable>();
             foreach (var param in Block.Parameters, var arg in Arguments)
             {
                 IExpression argVal;
@@ -128,8 +185,6 @@ namespace Flame.Optimization
                 {
                     paramValues[param] = argVal;
                 }
-
-                paramAssignments[param] = arg;
             }
 
             // Add them all to the defined values.
@@ -138,13 +193,10 @@ namespace Flame.Optimization
                 varValues[varDef.Key] = varDef.Value;
             }
 
-            // Replace parameter substitution with a parallel assignment statement.
-            threadBody.Add(VariableHelpers.CreateParallelSetStatement(
-                paramAssignments, new Dictionary<IType, IVariable>()));
+            // Analyze the block's contents.
+            AnalyzeBlockBody(Block.Contents);
 
-            // Append the block's contents to the thread.
-            AddBlockBody(Block.Contents);
-
+            BlockFlow finalFlow;
             if (Block.Flow is SelectFlow)
             {
                 // The selection flow instruction's condition might evaluate to a constant
@@ -154,36 +206,26 @@ namespace Flame.Optimization
                 var condVal = EvaluateOrNull(selection.Condition);
                 if (condVal == null)
                 {
-                    FinalFlow = selection;
+                    finalFlow = selection;
                 }
                 else if (condVal.GetValue<bool>())
                 {
-                    FinalFlow = new JumpFlow(selection.ThenBranch);
+                    finalFlow = new JumpFlow(selection.ThenBranch);
                 }
                 else
                 {
-                    FinalFlow = new JumpFlow(selection.ElseBranch);
+                    finalFlow = new JumpFlow(selection.ElseBranch);
                 }
             }
             else
             {
                 // Set the final flow instruction.
-                FinalFlow = Block.Flow;
+                finalFlow = Block.Flow;
             }
 
+            threadNodes.Add(new JumpThreadNode(Block, Arguments, finalFlow, LastNode.TotalScore + BlockScore));
+
             return true;
-        }
-
-        /// <summary>
-        /// Adds the given basic block body to this thread.
-        /// </summary>
-        private void AddBlockBody(IStatement Body)
-        {
-            // Append the body to the thread.
-            threadBody.Add(CloningVisitor.Visit(Body));
-
-            // Analyze the body.
-            AnalyzeBlockBody(Body);
         }
 
         /// <summary>
@@ -213,6 +255,80 @@ namespace Flame.Optimization
                 varValues[varDef.Key] = Simplify(varDef.Value);
             }
         }
+
+        /// <summary>
+        /// Linearizes this jump thread by concatenating the bodies of and branches
+        /// to all basic blocks up to and including the last block with a nonnegative
+        /// score.
+        /// </summary>
+        /// <returns>A linearized jump thread.</returns>
+        public LinearizedJumpThread Linearize()
+        {
+            // Loop over the nodes in this thread backwards, and pick the first
+            // (last?) node with a nonnegative total score.
+            int i = threadNodes.Count - 1;
+            while (i >= 0)
+            {
+                if (threadNodes[i].TotalScore >= 0)
+                {
+                    break;
+                }
+                i--;
+            }
+
+            if (i <= 0)
+            {
+                return new LinearizedJumpThread(EmptyStatement, threadNodes[0].Flow, 0);
+            }
+
+            // Create the linearized jump thread's body.
+            var bodyStatements = new List<IStatement>();
+            for (int j = 0; j <= i; j++)
+            {
+                bodyStatements.Add(threadNodes[j].ToStatement());
+            }
+
+            // Create the linearized jump thread. Note that i is also the length of the
+            // linearized jump thread, because the first node in threadNodes is a dummy
+            // node.
+            return new LinearizedJumpThread(
+                new BlockStatement(bodyStatements).Simplify(),
+                threadNodes[i].Flow,
+                i);
+        }
+    }
+
+    /// <summary>
+    /// Represents a jump thread that has been reduced to a linear-flow statement
+    /// followed by a final flow instruction.
+    /// </summary>
+    public struct LinearizedJumpThread
+    {
+        public this(IStatement Body, BlockFlow FinalFlow, int Length)
+        {
+            this.Body = Body;
+            this.FinalFlow = FinalFlow;
+            this.Length = Length;
+        }
+
+        /// <summary>
+        /// Gets this linearized jump thread's body.
+        /// </summary>
+        /// <returns>The linearized jump thread's body.</returns>
+        public IStatement Body { get; private set; }
+
+        /// <summary>
+        /// Gets this linearized jump thread's final flow instruction.
+        /// </summary>
+        /// <returns>The final flow instruction.</returns>
+        public BlockFlow FinalFlow { get; private set; }
+
+        /// <summary>
+        /// Gets the number of blocks that were used to construct this
+        /// linearized jump thread.
+        /// </summary>
+        /// <returns>The number of blocks in this linearized jump thread.</returns>
+        public int Length { get; private set; }
     }
 
     /// <summary>
@@ -222,14 +338,15 @@ namespace Flame.Optimization
     public class JumpThreadingVisitor : BranchVisitorBase
     {
         /// <summary>
-        /// Creates a jump-threading visitor from a control-flow graph and a predicate
-        /// that decides whether a block should be duplicated or not.
+        /// Creates a jump-threading visitor from a control-flow graph and a function
+        /// that rates basic blocks. Positive ratings encourage jump thread
+        /// linearization, negative scores discourage it.
         /// </summary>
-        public this(FlowGraph Graph, Func<BasicBlock, bool> ShouldDuplicate)
+        public this(FlowGraph Graph, Func<BasicBlock, int> RateBlock)
         {
             this.Graph = Graph;
-            this.shouldDuplicatePredicate = ShouldDuplicate;
-            this.shouldDuplicateCache = new Dictionary<BasicBlock, bool>();
+            this.ratingFunction = RateBlock;
+            this.ratingCache = new Dictionary<BasicBlock, int>();
             this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
             this.currentBlock = null;
         }
@@ -238,14 +355,15 @@ namespace Flame.Optimization
         private BasicBlock currentBlock;
 
         /// <summary>
-        /// A predicate that tells if a given basic block should be duplicated.
+        /// A function that rates a basic block: positive scores encourage jump thread
+        /// linearization, negative scores discourage it.
         /// </summary>
-        private Func<BasicBlock, bool> shouldDuplicatePredicate;
+        private Func<BasicBlock, int> ratingFunction;
 
         /// <summary>
         /// A cache that remembers which blocks are worth duplicating and which are not.
         /// </summary>
-        private Dictionary<BasicBlock, bool> shouldDuplicateCache;
+        private Dictionary<BasicBlock, int> ratingCache;
 
         /// <summary>
         /// Gets the control-flow graph that this jump-threading visitor operates on.
@@ -261,17 +379,18 @@ namespace Flame.Optimization
         public IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks { get { return newBlocks; } }
 
         /// <summary>
-        /// Tells if the given basic block is worth duplicating.
+        /// Rates the given basic block. Positive scores encourage jump thread
+        /// linearization, negative scores discourage it.
         /// </summary>
-        /// <param name="Block">A basic block which is considered for duplication.</param>
-        /// <returns><c>true</c> if the basic block is worth duplicating; otherwise, <c>false</c>.</returns>
-        public bool ShouldDuplicate(BasicBlock Block)
+        /// <param name="Block">A basic block which is to be rated.</param>
+        /// <returns>A positive score if jump thread linearization should be encouraged, non-positive scores otherwise.</returns>
+        public int RateBlock(BasicBlock Block)
         {
-            bool result;
-            if (!shouldDuplicateCache.TryGetValue(Block, &result))
+            int result;
+            if (!ratingCache.TryGetValue(Block, &result))
             {
-                result = shouldDuplicatePredicate(Block);
-                shouldDuplicateCache[Block] = result;
+                result = ratingFunction(Block);
+                ratingCache[Block] = result;
             }
             return result;
         }
@@ -290,7 +409,8 @@ namespace Flame.Optimization
                 // Append the branch to the thread if we think that it might be
                 // worth it.
                 var block = Graph.GetBlock(Branch.TargetTag);
-                if (!ShouldDuplicate(block) || !thread.TryAddBlock(block, Branch.Arguments))
+                int rating = RateBlock(block);
+                if (!thread.TryAddBlock(block, Branch.Arguments, rating))
                 {
                     break;
                 }
@@ -311,7 +431,7 @@ namespace Flame.Optimization
 
         public override BlockBranch Visit(BlockBranch Branch)
         {
-            var thread = DiscoverJumpThread(currentBlock, Branch);
+            var thread = DiscoverJumpThread(currentBlock, Branch).Linearize();
             if (thread.Length == 0)
             {
                 return Branch;
@@ -350,7 +470,7 @@ namespace Flame.Optimization
             if (Block.Flow is JumpFlow)
             {
                 var jump = (JumpFlow)Block.Flow;
-                var thread = DiscoverJumpThread(Block, jump.Branch);
+                var thread = DiscoverJumpThread(Block, jump.Branch).Linearize();
                 if (thread.Length == 0)
                 {
                     return Block;
@@ -405,20 +525,20 @@ namespace Flame.Optimization
     /// </summary>
     public class GlobalJumpThreadingVisitor : FlowGraphVisitorBase
     {
-        public this(Func<BasicBlock, bool> ShouldDuplicate)
+        public this(Func<BasicBlock, int> RateBlock)
         {
-            this.ShouldDuplicate = ShouldDuplicate;
+            this.RateBlock = RateBlock;
         }
 
         /// <summary>
-        /// Gets a predicate that tells if a given basic block should be duplicated.
+        /// Gets a function that rates basic blocks.
         /// </summary>
-        public Func<BasicBlock, bool> ShouldDuplicate { get; private set; }
+        public Func<BasicBlock, int> RateBlock { get; private set; }
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
             // Perform jump threading.
-            var visitor = new JumpThreadingVisitor(Graph, ShouldDuplicate);
+            var visitor = new JumpThreadingVisitor(Graph, RateBlock);
             foreach (var block in Graph.Blocks)
             {
                 visitor.Visit(block);
@@ -432,10 +552,9 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A heuristic that decides if blocks are worth duplicating based on block
-    /// sizes and parameter counts.
+    /// A heuristic that rates blocks based on their size.
     /// </summary>
-    public class SizeBasedBlockDuplicationHeuristic
+    public class SizeBasedBlockRater
     {
         public this(int Tolerance, int ParameterWeight)
         {
@@ -445,7 +564,7 @@ namespace Flame.Optimization
 
         /// <summary>
         /// Gets the 'tolerance' value, which is used as a constant factor
-        /// when deciding whether a block should be split or not.
+        /// when determining a block's rating.
         /// </summary>
         public int Tolerance { get; private set; }
 
@@ -456,9 +575,9 @@ namespace Flame.Optimization
         public int ParameterWeight { get; private set; }
 
         /// <summary>
-        /// Decides whether it is feasible to duplicate the given block.
+        /// Computes the given block's rating.
         /// </summary>
-        public bool ShouldDuplicate(BasicBlock Block)
+        public int RateBlock(BasicBlock Block)
         {
             // Replacing parameters by locals will typically allow us to optimize more
             // aggressively, and it also reduces the size of live ranges for variables.
@@ -469,7 +588,7 @@ namespace Flame.Optimization
             var sizeVisitor = new SizeVisitor(true);
             Block.Accept(sizeVisitor);
 
-            return pro - sizeVisitor.Size > 0;
+            return pro - sizeVisitor.Size;
         }
     }
 
@@ -511,10 +630,10 @@ namespace Flame.Optimization
             }
         {
             var log = Arg.PassEnvironment.Log;
-            int tolerance = log.Options.GetOption<int>(ToleranceOption, 8);
+            int tolerance = log.Options.GetOption<int>(ToleranceOption, 4);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
-            var heuristic = new SizeBasedBlockDuplicationHeuristic(tolerance, paramWeight);
-            var visitor = new GlobalJumpThreadingVisitor(heuristic.ShouldDuplicate);
+            var heuristic = new SizeBasedBlockRater(tolerance, paramWeight);
+            var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock);
             // Apply the visitor.
             var visitedBody = visitor.Visit(Arg.Body);
 
