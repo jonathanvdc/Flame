@@ -276,16 +276,6 @@ namespace Flame.Optimization
         /// <param name="Body">The statement to mine for variable definitions.</param>
         private void AnalyzeBlockBody(IStatement Body)
         {
-            // TODO: the definition-evaluation technique used here
-            // is suboptimal because it does not respect the ordering of
-            // the definitions. For instance, variable `j` from the example
-            // below could slip through unevaluated if it is simplified
-            // before `i` is.
-            //
-            //     i = 4
-            //     j = i + 4
-            //
-
             // Mine it for definitions.
             var defFinder = new LinearSSAVariableDefFinder();
             defFinder.Visit(Body);
@@ -317,9 +307,10 @@ namespace Flame.Optimization
                 i--;
             }
 
+            var blocks = new List<BasicBlock>();
             if (i <= 0)
             {
-                return new LinearizedJumpThread(EmptyStatement, threadNodes[0].Flow, 0);
+                return new LinearizedJumpThread(EmptyStatement, threadNodes[0].Flow, blocks);
             }
 
             // Create the linearized jump thread's body.
@@ -327,6 +318,10 @@ namespace Flame.Optimization
             for (int j = 0; j <= i; j++)
             {
                 bodyStatements.Add(threadNodes[j].ToStatement());
+                if (threadNodes[j].Block != null)
+                {
+                    blocks.Add(threadNodes[j].Block);
+                }
             }
 
             // Create the linearized jump thread. Note that i is also the length of the
@@ -335,7 +330,7 @@ namespace Flame.Optimization
             return new LinearizedJumpThread(
                 new BlockStatement(bodyStatements).Simplify(),
                 threadNodes[i].Flow,
-                i);
+                blocks);
         }
     }
 
@@ -345,11 +340,13 @@ namespace Flame.Optimization
     /// </summary>
     public struct LinearizedJumpThread
     {
-        public this(IStatement Body, BlockFlow FinalFlow, int Length)
+        public this(
+            IStatement Body, BlockFlow FinalFlow,
+            IReadOnlyList<BasicBlock> LinearizedBlocks)
         {
             this.Body = Body;
             this.FinalFlow = FinalFlow;
-            this.Length = Length;
+            this.LinearizedBlocks = LinearizedBlocks;
         }
 
         /// <summary>
@@ -365,11 +362,18 @@ namespace Flame.Optimization
         public BlockFlow FinalFlow { get; private set; }
 
         /// <summary>
+        /// Gets the list of all blocks that have been linearized by this
+        /// jump thread.
+        /// </summary>
+        /// <returns>The list of all linearized blocks in this jump thread.</returns>
+        public IReadOnlyList<BasicBlock> LinearizedBlocks { get; private set; }
+
+        /// <summary>
         /// Gets the number of blocks that were used to construct this
         /// linearized jump thread.
         /// </summary>
         /// <returns>The number of blocks in this linearized jump thread.</returns>
-        public int Length { get; private set; }
+        public int Length { get { return LinearizedBlocks.Count; } }
     }
 
     /// <summary>
