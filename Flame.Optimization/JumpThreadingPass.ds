@@ -548,7 +548,7 @@ namespace Flame.Optimization
                     // include this block by adding the block's size to the block's rating.
                     var sizeVisitor = new SizeVisitor(true);
                     nextBlock.Accept(sizeVisitor);
-                    rating += sizeVisitor.Size;
+                    rating += sizeVisitor.Size + 10;
                 }
                 if (!thread.TryAddBlock(nextBlock, Branch.Arguments, rating))
                 {
@@ -773,7 +773,7 @@ namespace Flame.Optimization
             }
         {
             var log = Arg.PassEnvironment.Log;
-            int tolerance = log.Options.GetOption<int>(ToleranceOption, 8);
+            int tolerance = log.Options.GetOption<int>(ToleranceOption, 4);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
             var heuristic = new SizeBasedBlockRater(tolerance, paramWeight);
             var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock);
