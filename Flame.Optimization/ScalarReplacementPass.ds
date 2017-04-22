@@ -1033,7 +1033,7 @@ namespace Flame.Optimization
                 LogScalarReplacements(
                     Argument, visitor, Iteration, shouldRemarkDetails);
             }
-            return new LoopPassResult(result, replCount > 0);
+            return new LoopPassResult(result, replCount > 0, true);
         }
     }
 }

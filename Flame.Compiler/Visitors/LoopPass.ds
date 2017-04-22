@@ -32,7 +32,18 @@ namespace Flame.Compiler.Visitors
         /// <summary>
         /// Creates a loop pass result from the given components.
         /// </summary>
-        public this(set IStatement Body, set bool RepeatLoop);
+        public this(set IStatement Body, set bool RepeatLoop)
+        {
+            this.IsFreeloading = false;
+        }
+
+        /// <summary>
+        /// Creates a loop pass result from the given components.
+        /// </summary>
+        public this(set IStatement Body, set bool RepeatLoop, bool IsFreeloading)
+        {
+            this.IsFreeloading = IsFreeloading;
+        }
 
         /// <summary>
         /// Gets the resulting method body.
@@ -40,10 +51,18 @@ namespace Flame.Compiler.Visitors
         public IStatement Body { get; private set; }
 
         /// <summary>
-        /// Gets a boolean value that determines whether it is considered
+        /// Gets a Boolean value that determines whether it is considered
         /// useful to run the loop for at least one more iteration.
         /// </summary>
         public bool RepeatLoop { get; private set; }
+
+        /// <summary>
+        /// Gets a Boolean value that specifies if this loop pass result should
+        /// not consume an iteration in the pass loop. This property is only
+        /// relevant if this result requests a loop repetition.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFreeloading { get; private set; }
     }
 
     /// <summary>
@@ -120,16 +139,25 @@ namespace Flame.Compiler.Visitors
         {
             var stmt = Argument.Body;
 
-            for (int i = 0; i < MaxIterations; i++)
+            int maxIters = MaxIterations;
+            int maxFreeloaderIters = maxIters * 3;
+            for (int i = 0; i < maxIters; i++)
             {
                 bool repeatLoop = false;
+                bool isFreeloading = false;
                 foreach (var pass in LoopPasses)
                 {
                     var passResult = pass.Apply(new LoopPassArgument(
                         new BodyPassArgument(Argument, stmt), i));
                     stmt = passResult.Body;
                     if (passResult.RepeatLoop)
+                    {
                         repeatLoop = true;
+                        if (passResult.IsFreeloading)
+                        {
+                            isFreeloading = true;
+                        }
+                    }
                 }
                 
                 if (!repeatLoop)
@@ -138,6 +166,11 @@ namespace Flame.Compiler.Visitors
                 foreach (var pass in FinalizingPasses)
                 {
                     stmt = pass.Apply(new BodyPassArgument(Argument, stmt));
+                }
+
+                if (isFreeloading && maxIters < maxFreeloaderIters)
+                {
+                    maxIters++;
                 }
             }
             return stmt;

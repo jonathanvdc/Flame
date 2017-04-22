@@ -112,7 +112,7 @@ namespace Flame.Optimization
                 //
                 // The latter form will confuse fewer optimizations.
 
-                return new LoopPassResult(ImperativeCodePass.Apply(result).Optimize(), true);
+                return new LoopPassResult(ImperativeCodePass.Apply(result).Optimize(), true, true);
             }
         }
 
