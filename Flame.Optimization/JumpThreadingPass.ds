@@ -11,6 +11,47 @@ using Flame.Compiler.Visitors;
 namespace Flame.Optimization
 {
     /// <summary>
+    /// A visitor that finds SSA variable definitions and stores them in a list,
+    /// in the order they are found.
+    /// </summary>
+    public class LinearSSAVariableDefFinder : NodeVisitorBase
+    {
+        public this()
+        {
+            this.defs = new List<SSADefineStatement>();
+        }
+
+        private List<SSADefineStatement> defs;
+
+        /// <summary>
+        /// Gets a list of SSA definition statements, in this order they were found.
+        /// </summary>
+        public IReadOnlyList<SSADefineStatement> Definitions { get { return defs; } }
+
+        public override const bool Matches(IExpression Value)
+        {
+            return false;
+        }
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is SSADefineStatement;
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            return Expression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is SSADefineStatement);
+            var defStatement = (SSADefineStatement)Statement;
+            defs.Add(defStatement);
+            return defStatement;
+        }
+    }
+
+    /// <summary>
     /// Describes a single basic block in a jump thread.
     /// </summary>
     public struct JumpThreadNode
@@ -246,13 +287,13 @@ namespace Flame.Optimization
             //
 
             // Mine it for definitions.
-            var defFinder = new SSAVariableDefFinder();
+            var defFinder = new LinearSSAVariableDefFinder();
             defFinder.Visit(Body);
 
             // Simplify the definitions and update the variable value dictionary.
             foreach (var varDef in defFinder.Definitions)
             {
-                varValues[varDef.Key] = Simplify(varDef.Value);
+                varValues[varDef.Variable] = Simplify(varDef.Value);
             }
         }
 
@@ -407,10 +448,22 @@ namespace Flame.Optimization
             while (true)
             {
                 // Append the branch to the thread if we think that it might be
-                // worth it.
-                var block = Graph.GetBlock(Branch.TargetTag);
-                int rating = RateBlock(block);
-                if (!thread.TryAddBlock(block, Branch.Arguments, rating))
+                // worth it. Try to re-use existing re-written blocks.
+                BasicBlock nextBlock;
+                if (newBlocks.TryGetValue(Branch.TargetTag, &nextBlock))
+                {
+                    if (nextBlock == null)
+                    {
+                        nextBlock = Graph.GetBlock(Branch.TargetTag);
+                    }
+                }
+                else
+                {
+                    nextBlock = Visit(Graph.GetBlock(Branch.TargetTag));
+                }
+
+                int rating = RateBlock(nextBlock);
+                if (!thread.TryAddBlock(nextBlock, Branch.Arguments, rating))
                 {
                     break;
                 }
@@ -514,8 +567,9 @@ namespace Flame.Optimization
                 return result;
             }
 
+            newBlocks[Block.Tag] = null;
             result = VisitImpl(Block);
-            newBlocks[result.Tag] = result;
+            newBlocks[Block.Tag] = result;
             return result;
         }
     }
@@ -537,7 +591,7 @@ namespace Flame.Optimization
 
         protected override FlowGraph Visit(FlowGraph Graph)
         {
-            // Perform jump threading.
+            // Perform jump threading by rewriting blocks one at a time.
             var visitor = new JumpThreadingVisitor(Graph, RateBlock);
             foreach (var block in Graph.Blocks)
             {

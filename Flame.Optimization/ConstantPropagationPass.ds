@@ -128,7 +128,7 @@ namespace Flame.Optimization
         /// Gets a mapping of variables to definitions, procured by this node
         /// visitor.
         /// </summary>
-        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { const get { return defs; } }
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get { return defs; } }
 
         public override const bool Matches(IExpression Value)
         {
