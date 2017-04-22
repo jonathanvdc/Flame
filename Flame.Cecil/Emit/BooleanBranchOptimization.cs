@@ -36,7 +36,10 @@ namespace Flame.Cecil.Emit
             }
             else
             {
-                return Instructions[1].OpCode == OpCodes.Ceq && (Instructions[0].OpCode == OpCodes.Ldc_I4_1 || Instructions[0].OpCode == OpCodes.Ldc_I4_0);
+                return Instructions[1].OpCode == OpCodes.Ceq &&
+                    (Instructions[0].OpCode == OpCodes.Ldc_I4_1
+                    || Instructions[0].OpCode == OpCodes.Ldc_I4_0
+                    || Instructions[0].OpCode == OpCodes.Ldnull);
             }
         }
 

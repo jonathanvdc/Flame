@@ -40,6 +40,7 @@ namespace Flame.Cecil.Emit
                     new ConstantBranchOptimization(label),
                     new IsOfTypeBranchOptimization(label),
                     new IsNotOfTypeBranchOptimization(label),
+                    new NonNullBranchOptimization(label),
                     new NotComparisonBranchOptimization(label),
                     new BooleanBranchOptimization(label),
                     new ComparisonBranchOptimization(label)

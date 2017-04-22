@@ -7,6 +7,34 @@ using System.Threading.Tasks;
 
 namespace Flame.Cecil.Emit
 {
+    public class NonNullBranchOptimization : IPeepholeOptimization
+    {
+        public NonNullBranchOptimization(IEmitLabel Label)
+        {
+            this.Label = Label;
+        }
+
+        public IEmitLabel Label { get; private set; }
+
+        public int InstructionCount
+        {
+            get { return 4; }
+        }
+
+        public bool IsApplicable(IReadOnlyList<Instruction> Instructions)
+        {
+            return Instructions[0].OpCode == OpCodes.Ldnull
+                && Instructions[1].OpCode == OpCodes.Ceq
+                && Instructions[2].OpCode == OpCodes.Ldc_I4_0
+                && Instructions[3].OpCode == OpCodes.Ceq;
+        }
+
+        public void Rewrite(IReadOnlyList<Instruction> Instructions, IEmitContext Context)
+        {
+            Context.Emit(OpCodes.Brtrue, Label);
+        }
+    }
+
     public class NotComparisonBranchOptimization : IPeepholeOptimization
     {
         public NotComparisonBranchOptimization(IEmitLabel Label)
@@ -25,12 +53,16 @@ namespace Flame.Cecil.Emit
         {
             if (Instructions[1].OpCode == OpCodes.Ldc_I4_0 && Instructions[2].OpCode == OpCodes.Ceq)
             {
-                return Instructions[0].OpCode == OpCodes.Ceq || Instructions[0].OpCode == OpCodes.Clt || Instructions[0].OpCode == OpCodes.Clt_Un || Instructions[0].OpCode == OpCodes.Cgt || Instructions[0].OpCode == OpCodes.Cgt_Un;
+                return Instructions[0].OpCode == OpCodes.Ceq
+                    || Instructions[0].OpCode == OpCodes.Clt
+                    || Instructions[0].OpCode == OpCodes.Clt_Un
+                    || Instructions[0].OpCode == OpCodes.Cgt
+                    || Instructions[0].OpCode == OpCodes.Cgt_Un;
             }
             else
-	        {
+            {
                 return false;
-	        }
+            }
         }
 
         public void Rewrite(IReadOnlyList<Instruction> Instructions, IEmitContext Context)
