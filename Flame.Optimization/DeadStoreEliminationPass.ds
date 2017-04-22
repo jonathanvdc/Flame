@@ -11,7 +11,7 @@ using Pixie;
 namespace Flame.Optimization
 {
     /// <summary>
-    /// A visitor that removed (but does not recognize) dead stores from
+    /// A visitor that removes (but does not recognize) dead stores from
     /// a flow graph.
     /// </summary>
     public class DeadStoreEliminatingVisitor : NodeVisitorBase, IBasicBlockVisitor
@@ -25,13 +25,13 @@ namespace Flame.Optimization
         /// <summary>
         /// Gets the flow graph this visitor is removing dead stores from.
         /// </summary>
-        public FlowGraph Graph { const get; private set; }
+        public FlowGraph Graph { get; private set; }
 
         /// <summary>
         /// Gets the set of live variables in this dead store eliminating
         /// visitor's flow graph.
         /// </summary>
-        public HashSet<SSAVariable> LiveVariables { const get; private set; }
+        public HashSet<SSAVariable> LiveVariables { get; private set; }
 
         public override const bool Matches(IExpression Value)
         {
