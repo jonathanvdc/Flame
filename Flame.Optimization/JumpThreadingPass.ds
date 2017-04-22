@@ -217,6 +217,13 @@ namespace Flame.Optimization
                 return false;
             }
 
+            // If the new score is lower than or equal to -40, then we probably
+            // don't want to duplicate this block.
+            if (LastNode.TotalScore + BlockScore <= -40)
+            {
+                return false;
+            }
+
             // Try to find definitions for argument variables.
             var paramValues = new Dictionary<SSAVariable, IExpression>();
             foreach (var param in Block.Parameters, var arg in Arguments)
