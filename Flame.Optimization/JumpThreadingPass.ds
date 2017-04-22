@@ -394,6 +394,20 @@ namespace Flame.Optimization
             this.ratingCache = new Dictionary<BasicBlock, int>();
             this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
             this.currentBlock = null;
+
+            // Compute ref-counts for the control-flow graph.
+            this.refCounts = new Dictionary<UniqueTag, int>();
+            foreach (var tag in Graph.BlockTags)
+            {
+                this.refCounts[tag] = 0;
+            }
+            foreach (var block in Graph.Blocks)
+            {
+                foreach (var successorTag in block.Flow.SuccessorTags)
+                {
+                    this.refCounts[successorTag] += 1;
+                }
+            }
         }
 
         private Dictionary<UniqueTag, BasicBlock> newBlocks;
@@ -411,6 +425,11 @@ namespace Flame.Optimization
         private Dictionary<BasicBlock, int> ratingCache;
 
         /// <summary>
+        /// A dictionary that remembers the in-degree of basic blocks.
+        /// </summary>
+        private Dictionary<UniqueTag, int> refCounts;
+
+        /// <summary>
         /// Gets the control-flow graph that this jump-threading visitor operates on.
         /// </summary>
         /// <returns>The control-flow graph for this visitor.</returns>
@@ -422,6 +441,71 @@ namespace Flame.Optimization
         /// </summary>
         /// <returns>A dictionary that maps basic block tags to basic blocks.</returns>
         public IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks { get { return newBlocks; } }
+
+        /// <summary>
+        /// Gets the block with the given tag. An attempt is made to return the block with
+        /// the given tag from the new block dictionary. If that fails, then the block with
+        /// the specified tag is retrieved from the graph.
+        /// </summary>
+        /// <param name="Tag">The tag to find a block for.</param>
+        /// <returns>A basic block.</returns>
+        private BasicBlock GetBlock(UniqueTag Tag)
+        {
+            BasicBlock block;
+            if (newBlocks.TryGetValue(Tag, &block))
+            {
+                if (block == null)
+                {
+                    block = Graph.GetBlock(Tag);
+                }
+            }
+            else
+            {
+                block = Visit(Graph.GetBlock(Tag));
+            }
+            return block;
+        }
+
+        private void IncrementRefCount(UniqueTag Tag)
+        {
+            refCounts[Tag] += 1;
+        }
+
+        private void IncrementRefCount(BlockFlow Flow)
+        {
+            foreach (var tag in Flow.SuccessorTags)
+            {
+                IncrementRefCount(tag);
+            }
+        }
+
+        private void DecrementRefCount(UniqueTag Tag)
+        {
+            int rc = refCounts[Tag];
+            rc--;
+            refCounts[Tag] = rc;
+            if (rc == 0)
+            {
+                foreach (var successorTag in GetBlock(Tag).Flow.SuccessorTags)
+                {
+                    DecrementRefCount(successorTag);
+                }
+            }
+        }
+
+        private BlockBranch UpdateRefCount(BlockBranch OriginalBranch, BlockBranch NewBranch)
+        {
+            DecrementRefCount(OriginalBranch.TargetTag);
+            IncrementRefCount(NewBranch.TargetTag);
+            return NewBranch;
+        }
+
+        private BlockFlow UpdateRefCount(BlockBranch OriginalBranch, BlockFlow NewFlow)
+        {
+            DecrementRefCount(OriginalBranch.TargetTag);
+            IncrementRefCount(NewFlow);
+            return NewFlow;
+        }
 
         /// <summary>
         /// Rates the given basic block. Positive scores encourage jump thread
@@ -448,25 +532,24 @@ namespace Flame.Optimization
         /// <returns>A jump thread for the given branch.</returns>
         private JumpThread DiscoverJumpThread(BasicBlock Block, BlockBranch Branch)
         {
+            bool isConcatenating = true;
             var thread = new JumpThread(Block, Branch);
             while (true)
             {
                 // Append the branch to the thread if we think that it might be
-                // worth it. Try to re-use existing re-written blocks.
-                BasicBlock nextBlock;
-                if (newBlocks.TryGetValue(Branch.TargetTag, &nextBlock))
-                {
-                    if (nextBlock == null)
-                    {
-                        nextBlock = Graph.GetBlock(Branch.TargetTag);
-                    }
-                }
-                else
-                {
-                    nextBlock = Visit(Graph.GetBlock(Branch.TargetTag));
-                }
-
+                // worth it.
+                var nextBlock = GetBlock(Branch.TargetTag);
                 int rating = RateBlock(nextBlock);
+                isConcatenating = isConcatenating && refCounts[Branch.TargetTag] == 1;
+                if (isConcatenating)
+                {
+                    // This is just block concatentation (as opposed to block duplication)
+                    // and we really want to encourage that. We can coax the jump threader to
+                    // include this block by adding the block's size to the block's rating.
+                    var sizeVisitor = new SizeVisitor(true);
+                    nextBlock.Accept(sizeVisitor);
+                    rating += sizeVisitor.Size;
+                }
                 if (!thread.TryAddBlock(nextBlock, Branch.Arguments, rating))
                 {
                     break;
@@ -502,7 +585,7 @@ namespace Flame.Optimization
             {
                 if (newFlow is JumpFlow)
                 {
-                    return ((JumpFlow)newFlow).Branch;
+                    return UpdateRefCount(Branch, ((JumpFlow)newFlow).Branch);
                 }
                 else
                 {
@@ -517,9 +600,11 @@ namespace Flame.Optimization
                 new UniqueTag("thunk_block"), new List<SSAVariable>(),
                 init, newFlow);
             newBlocks[thunkBlock.Tag] = thunkBlock;
+            refCounts[thunkBlock.Tag] = 0;
+            IncrementRefCount(newFlow);
 
             // Return a branch to the thunk.
-            return new BlockBranch(thunkBlock.Tag);
+            return UpdateRefCount(Branch, new BlockBranch(thunkBlock.Tag));
         }
 
         private BasicBlock VisitImpl(BasicBlock Block)
@@ -540,7 +625,7 @@ namespace Flame.Optimization
                         Block.Contents,
                         thread.Body
                     }).Simplify(),
-                    thread.FinalFlow);
+                    UpdateRefCount(jump.Branch, thread.FinalFlow));
             }
             else if (Block.Flow is SelectFlow)
             {
@@ -688,7 +773,7 @@ namespace Flame.Optimization
             }
         {
             var log = Arg.PassEnvironment.Log;
-            int tolerance = log.Options.GetOption<int>(ToleranceOption, 4);
+            int tolerance = log.Options.GetOption<int>(ToleranceOption, 8);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
             var heuristic = new SizeBasedBlockRater(tolerance, paramWeight);
             var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock);
