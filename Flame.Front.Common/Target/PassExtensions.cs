@@ -168,12 +168,23 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(StackIntrinsicsPass.Instance, StackIntrinsicsPass.StackIntrinsicsPassName));
             GlobalPassManager.RegisterPassCondition(StackIntrinsicsPass.StackIntrinsicsPassName, optInfo => optInfo.OptimizeVolatile);
 
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "2", optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "2", optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(ConstantPropagationPass.Instance, ConstantPropagationPass.ConstantPropagationPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(ConstantPropagationPass.ConstantPropagationPassName + "2", optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(CopyPropagationPass.Instance, CopyPropagationPass.CopyPropagationPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(CopyPropagationPass.CopyPropagationPassName + "2", optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterMethodPass(new MethodPassInfo(GlobalValuePropagationPass.Instance, GlobalValuePropagationPass.GlobalValuePropagationPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(GlobalValuePropagationPass.GlobalValuePropagationPassName + "2", optInfo => optInfo.OptimizeAggressive);
+            GlobalPassManager.RegisterMethodPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName + "2"));
+            GlobalPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName + "2", optInfo => optInfo.OptimizeAggressive);
+
             GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(DeconstructSSAPass.Instance, DeconstructSSAPass.DeconstructSSAPassName));
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeNormal);
-            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(SimplifySelectFlowPass.Instance, SimplifySelectFlowPass.SimplifySelectFlowPassName + "2"));
-            GlobalPassManager.RegisterPassCondition(SimplifySelectFlowPass.SimplifySelectFlowPassName + "2", optInfo => optInfo.OptimizeNormal);
-            GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "2"));
-            GlobalPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "2", optInfo => optInfo.OptimizeNormal);
+            GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "3"));
+            GlobalPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "3", optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructExceptionFlowPass.Instance, DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName));
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
             GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(RelooperPass.Instance, RelooperPass.RelooperPassName));
