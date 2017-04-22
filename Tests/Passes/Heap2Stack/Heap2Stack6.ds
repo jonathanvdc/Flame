@@ -1,0 +1,40 @@
+using System;
+using System.Collections.Generic;
+
+public static class Program
+{
+    public static IEnumerable<long> Take(IEnumerable<long> Values, int Count)
+    {
+        int i = 0;
+        foreach (var item in Values)
+        {
+            yield return item;
+            i++;
+            if (i == Count)
+                yield break;
+        }
+    }
+
+    public static IEnumerable<long> Fib()
+    {
+        long val1 = 0;
+        long val2 = 1;
+        yield return val1;
+        yield return val2;
+        while (true)
+        {
+            long nextValue = val1 + val2;
+            val1 = val2;
+            val2 = nextValue;
+            yield return nextValue;
+        }
+    }
+
+    public static void Main()
+    {
+        foreach (var item in Take(Fib(), 6))
+        {
+            Console.WriteLine(item);
+        }
+    }
+}
