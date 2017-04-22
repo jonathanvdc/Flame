@@ -524,9 +524,22 @@ namespace Flame.Compiler.Flow
 			while (finger1 != finger2)
 			{
 				while (PostorderNums[finger1] < PostorderNums[finger2])
+				{
 					finger1 = idoms[finger1];
+					if (finger1 == null)
+					{
+						return finger2;
+					}
+				}
+					
 				while (PostorderNums[finger2] < PostorderNums[finger1])
+				{
 					finger2 = idoms[finger2];
+					if (finger2 == null)
+					{
+						return finger1;
+					}
+				}
 			}
 			return finger1;
 		}
