@@ -56,7 +56,7 @@ namespace Flame.Compiler.Statements
 
         public const IVariable GetVariable() : IVariableNode.GetVariable
         {
-        	return new FieldVariable(Field, Target);
+            return new FieldVariable(Field, Target);
         }
 
         public VariableNodeAction Action
@@ -66,30 +66,30 @@ namespace Flame.Compiler.Statements
 
         public const IStatement Optimize() : IStatement.Optimize
         {
-        	IExpression optTarget;
-        	if (Target == null)
-        	{
-        		optTarget = null;
-        	}
-        	else
-        	{
-        		optTarget = Target.Optimize();
-        	}
+            IExpression optTarget;
+            if (Target == null)
+            {
+                optTarget = null;
+            }
+            else
+            {
+                optTarget = Target.Optimize();
+            }
             var optVal = Value.Optimize();
             return new FieldSetStatement(Field, optTarget, optVal);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
         {
-        	ICodeBlock targetBlock;
-        	if (Target == null)
-        	{
-        		targetBlock = null;
-        	}
-        	else
-        	{
-        		targetBlock = Target.Emit(Generator);
-        	}
+            ICodeBlock targetBlock;
+            if (Target == null)
+            {
+                targetBlock = null;
+            }
+            else
+            {
+                targetBlock = Target.Emit(Generator);
+            }
 
             return Generator.EmitSetField(Field, targetBlock, Value.Emit(Generator));
         }
