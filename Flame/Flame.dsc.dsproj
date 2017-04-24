@@ -173,6 +173,7 @@
             <Compile Include="Build/TypeConverterBase.ds" />
             <Compile Include="Build/TypeTransformerBase.ds" />
             <Compile Include="Build/TypeNamerBase.ds" />
+            <Compile Include="Build/TypeRenderer.ds" />
             <Compile Include="Build/TypeComparerBase.ds" />
             <Compile Include="Build/TypeEqualityComparer.ds" />
             <Compile Include="Build/TypeFieldConverter.ds" />

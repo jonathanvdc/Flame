@@ -1,0 +1,347 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Pixie;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// A type converter that renders types as markup nodes.
+    /// </summary>
+    public virtual class TypeRenderer : TypeConverterBase<MarkupNode>
+    {
+        public this();
+
+        /// <summary>
+        /// Gets the preferred default style for rendered types.
+        /// </summary>
+        /// <returns>The preferred default style for rendered types.</returns>
+        public virtual IAttributes DefaultStyle
+        {
+            get
+            {
+                return new PredefinedAttributes(new Dictionary<string, object>());
+            }
+        }
+
+        /// <summary>
+        /// Creates a node with the given style that wraps the given node.
+        /// </summary>
+        /// <param name="Style">The style to apply.</param>
+        /// <param name="Contents">The child node.</param>
+        /// <returns>A node with the given style that wraps the given node.</returns>
+        protected virtual MarkupNode CreateStyledNode(MarkupNode Contents, IAttributes Style)
+        {
+            return new MarkupNode("styled_node", Style, new MarkupNode[] { Contents });
+        }
+
+        /// <summary>
+        /// Creates a text node with the given text and style.
+        /// </summary>
+        /// <param name="Style">The text node's style.</param>
+        /// <param name="Text">The text node's text.</param>
+        /// <returns>A text node.</returns>
+        protected virtual MarkupNode CreateTextNode(string Text, IAttributes Style)
+        {
+            return CreateStyledNode(new MarkupNode(NodeConstants.TextNodeType, Text), Style);
+        }
+
+        /// <summary>
+        /// Renders a pointer type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The pointer type's element.</param>
+        /// <param name="Kind">The pointer kind.</param>
+        /// <param name="PointerStyle">The style to render the pointer kind in.</param>
+        /// <returns>A markup node that visualizes the pointer type.</returns>
+        public virtual MarkupNode MakePointerType(
+            MarkupNode ElementType, PointerKind Kind, IAttributes PointerStyle)
+        {
+            return new MarkupNode(
+                "rendered_pointer_type",
+                new MarkupNode[]
+                {
+                    ElementType,
+                    CreateTextNode(Kind.Extension, PointerStyle)
+                });
+        }
+
+        /// <summary>
+        /// Renders an array type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The array type's element.</param>
+        /// <param name="ArrayRank">The array's rank.</param>
+        /// <param name="ArrayStyle">The style to render the array rank in.</param>
+        /// <returns>A markup node that visualizes the array type.</returns>
+        public virtual MarkupNode MakeArrayType(
+            MarkupNode ElementType, int ArrayRank, IAttributes ArrayStyle)
+        {
+            return new MarkupNode(
+                "rendered_array_type",
+                new MarkupNode[]
+                {
+                    ElementType,
+                    CreateTextNode(
+                        GenericNameExtensions.AppendArraySuffix("", ArrayRank),
+                        ArrayStyle)
+                });
+        }
+
+        /// <summary>
+        /// Renders a vector type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The vector type's element.</param>
+        /// <param name="Dimensions">The vector's dimensions.</param>
+        /// <param name="VectorStyle">The style to render the vector dimensions in.</param>
+        /// <returns>A markup node that visualizes the vector type.</returns>
+        public virtual MarkupNode MakeVectorType(
+            MarkupNode ElementType, IReadOnlyList<int> Dimensions, IAttributes VectorStyle)
+        {
+            return new MarkupNode(
+                "rendered_vector_type",
+                new MarkupNode[]
+                {
+                    ElementType,
+                    CreateTextNode(
+                        GenericNameExtensions.AppendVectorSuffix("", Dimensions),
+                        VectorStyle)
+                });
+        }
+
+        /// <summary>
+        /// Renders a generic type as a markup node.
+        /// </summary>
+        /// <param name="GenericDeclaration">The generic type's declaration.</param>
+        /// <param name="TypeArguments">The generic type's arguments.</param>
+        /// <param name="TypeArgumentHeaderStyle">The style to render the generic argument list's header in.</param>
+        /// <param name="TypeArgumentDelimiterStyle">The style to render the generic argument list's delimiter in.</param>
+        /// <param name="TypeArgumentTerminatorStyle">The style to render the generic argument list's terminator in.</param>
+        /// <returns>A markup node that visualizes the generic type.</returns>
+        public virtual MarkupNode MakeGenericType(
+            MarkupNode GenericDeclaration,
+            IEnumerable<MarkupNode> TypeArguments,
+            IAttributes TypeArgumentHeaderStyle,
+            IAttributes TypeArgumentDelimiterStyle,
+            IAttributes TypeArgumentTerminatorStyle)
+        {
+            var childNodes = new List<MarkupNode>();
+            childNodes.Add(GenericDeclaration);
+            childNodes.Add(CreateTextNode("<", TypeArgumentHeaderStyle));
+            int i = 0;
+            foreach (var typeArg in TypeArguments)
+            {
+                if (i > 0)
+                {
+                    childNodes.Add(CreateTextNode(", ", TypeArgumentDelimiterStyle));
+                }
+                childNodes.Add(typeArg);
+                i++;
+            }
+            childNodes.Add(CreateTextNode(">", TypeArgumentTerminatorStyle));
+
+            return new MarkupNode("rendered_generic_type", childNodes);
+        }
+
+        /// <summary>
+        /// Renders an intersection type as a markup node.
+        /// </summary>
+        /// <param name="FirstElementType">The first element of the intersection type.</param>
+        /// <param name="SecondElementType">The second element of the intersection type.</param>
+        /// <param name="IntersectionStyle">The style to render the intersection syntax in.</param>
+        /// <returns>A markup node that visualizes the intersection type.</returns>
+        public virtual MarkupNode MakeIntersectionType(
+            MarkupNode FirstElementType,
+            MarkupNode SecondElementType,
+            IAttributes IntersectionStyle)
+        {
+            return new MarkupNode(
+                "rendered_intersection_type",
+                new MarkupNode[]
+                {
+                    FirstElementType,
+                    CreateTextNode("&", IntersectionStyle),
+                    SecondElementType
+                });
+        }
+
+        /// <summary>
+        /// Renders a method type as a markup node.
+        /// </summary>
+        /// <param name="ReturnType">The method type's return type.</param>
+        /// <param name="ParameterTypes">The method type's list of parameter types.</param>
+        /// <param name="ParameterListHeaderStyle">The style to render the parameter list's header in.</param>
+        /// <param name="ParameterListDelimiterStyle">The style to render the parameter list's delimiter in.</param>
+        /// <param name="ParameterListTerminatorStyle">The style to render the parameter list's terminator in.</param>
+        /// <returns>A markup node that visualizes the method type.</returns>
+        public virtual MarkupNode MakeMethodType(
+            MarkupNode ReturnType,
+            IEnumerable<MarkupNode> ParameterTypes,
+            IAttributes ParameterListHeaderStyle,
+            IAttributes ParameterListDelimiterStyle,
+            IAttributes ParameterListTerminatorStyle)
+        {
+            var childNodes = new List<MarkupNode>();
+            childNodes.Add(ReturnType);
+            childNodes.Add(CreateTextNode("(", ParameterListHeaderStyle));
+            int i = 0;
+            foreach (var paramType in ParameterTypes)
+            {
+                if (i > 0)
+                {
+                    childNodes.Add(CreateTextNode(", ", ParameterListDelimiterStyle));
+                }
+                childNodes.Add(paramType);
+                i++;
+            }
+            childNodes.Add(CreateTextNode(")", ParameterListTerminatorStyle));
+
+            return new MarkupNode("rendered_method_type", childNodes);
+        }
+
+        /// <summary>
+        /// Renders a nested type as a markup node.
+        /// </summary>
+        /// <param name="DeclaringType">The declaring type.</param>
+        /// <param name="NestedTypeName">The name of the nested type.</param>
+        /// <param name="NestingStyle">The style of the nesting delimiter.</param>
+        /// <returns>A markup node that visualizes the nested type.</returns>
+        public virtual MarkupNode MakeNestedType(
+            MarkupNode DeclaringType,
+            MarkupNode NestedTypeName,
+            IAttributes NestingStyle)
+        {
+            return new MarkupNode(
+                "rendered_nested_type",
+                new MarkupNode[]
+                {
+                    DeclaringType,
+                    CreateTextNode(".", NestingStyle),
+                    NestedTypeName
+                });
+        }
+
+        /// <summary>
+        /// Renders a simple type as a markup node.
+        /// </summary>
+        /// <param name="Type">The type to render.</param>
+        /// <param name="Style">The style to render the type with.</param>
+        /// <returns>A markup node that visualizes the type.</returns>
+        protected virtual MarkupNode ConvertTypeDefault(IType Type, IAttributes Style)
+        {
+            if (Type == null)
+                return CreateTextNode("<unresolved type>", Style);
+            else if (Type is IGenericParameter)
+                return CreateTextNode(UnqualifiedNameToString(Type.Name), Style);
+            else
+                return CreateTextNode(QualifiedNameToString(Type.FullName), Style);
+        }
+
+        /// <summary>
+        /// Gets a string representation of the given unqualified name.
+        /// </summary>
+        /// <param name="Name">The name to represent.</param>
+        /// <returns>A string representation of an unqualified name.</returns>
+        protected virtual string UnqualifiedNameToString(UnqualifiedName Name)
+        {
+            if (Name is SimpleName)
+            {
+                return ((SimpleName)Name).Name;
+            }
+            else
+            {
+                return Name.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Gets a string representation of the given qualified name.
+        /// </summary>
+        /// <param name="Name">The name to represent.</param>
+        /// <returns>A string representation of an qualified name.</returns>
+        protected virtual string QualifiedNameToString(QualifiedName Name)
+        {
+            var sb = new StringBuilder();
+            int i = 0;
+            foreach (var item in Name.Path)
+            {
+                if (i > 0)
+                {
+                    sb.Append('.');
+                }
+
+                sb.Append(UnqualifiedNameToString(item));
+                i++;
+            }
+            return sb.ToString();
+        }
+
+        protected virtual override MarkupNode ConvertMethodType(MethodType Type)
+        {
+            var deleg = Type.DelegateSignature;
+            var parameterTypes = new List<MarkupNode>();
+            foreach (var param in deleg.Parameters)
+            {
+                parameterTypes.Add(Convert(param.ParameterType));
+            }
+            return MakeMethodType(
+                Convert(deleg.ReturnType),
+                parameterTypes,
+                DefaultStyle,
+                DefaultStyle,
+                DefaultStyle);
+        }
+
+        protected virtual override MarkupNode ConvertIntersectionType(IntersectionType Type)
+        {
+            return MakeIntersectionType(Convert(Type.First), Convert(Type.Second), DefaultStyle);
+        }
+
+        protected override MarkupNode ConvertTypeDefault(IType Type)
+        {
+            return ConvertTypeDefault(Type, DefaultStyle);
+        }
+
+        protected override MarkupNode MakePointerType(MarkupNode ElementType, PointerKind Kind)
+        {
+            return MakePointerType(ElementType, Kind, DefaultStyle);
+        }
+
+        protected override MarkupNode MakeArrayType(MarkupNode ElementType, int ArrayRank)
+        {
+            return MakeArrayType(ElementType, ArrayRank, DefaultStyle);
+        }
+
+        protected override MarkupNode MakeVectorType(MarkupNode ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return MakeVectorType(ElementType, Dimensions, DefaultStyle);
+        }
+
+        protected override MarkupNode MakeGenericType(MarkupNode GenericDeclaration, IEnumerable<MarkupNode> TypeArguments)
+        {
+            return MakeGenericType(GenericDeclaration, TypeArguments, DefaultStyle, DefaultStyle, DefaultStyle);
+        }
+
+        protected override MarkupNode MakeGenericInstanceType(MarkupNode GenericDeclaration, MarkupNode GenericDeclaringTypeInstance)
+        {
+            return MakeNestedType(GenericDeclaration, GenericDeclaringTypeInstance, DefaultStyle);
+        }
+
+        protected override virtual MarkupNode ConvertNestedType(IType Type, IType DeclaringType)
+        {
+            return MakeNestedType(
+                Convert(DeclaringType),
+                CreateTextNode(UnqualifiedNameToString(Type.Name), DefaultStyle),
+                DefaultStyle);
+        }
+
+        /// <summary>
+        /// Renders the given type as a markup node and applies the given style the result.
+        /// </summary>
+        /// <param name="Type">The type to render.</param>
+        /// <param name="Style">The style to render the type with.</param>
+        /// <returns>A markup node that visualizes the type.</returns>
+        public MarkupNode Convert(IType Type, IAttributes Style)
+        {
+            return CreateStyledNode(Convert(Type), Style);
+        }
+    }
+}
