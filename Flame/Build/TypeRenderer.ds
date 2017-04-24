@@ -344,4 +344,26 @@ namespace Flame.Build
             return CreateStyledNode(Convert(Type), Style);
         }
     }
+
+    /// <summary>
+    /// A type namer that uses a type converter under the hood.
+    /// </summary>
+    public class TypeRenderingNamer : IConverter<IType, string>
+    {
+        public this(TypeRenderer Renderer)
+        {
+            this.Renderer = Renderer;
+        }
+
+        /// <summary>
+        /// Gets the type renderer that this type namer uses.
+        /// </summary>
+        /// <returns>The type renderer for this type namer.</returns>
+        public TypeRenderer Renderer { get; private set; }
+
+        public string Convert(IType Value)
+        {
+            return Renderer.Convert(Value).GetAllText();
+        }
+    }
 }
