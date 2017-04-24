@@ -7,46 +7,48 @@ namespace Flame.Compiler
 {
     public virtual class TypeDiffComparer : TypeComparerBase<MarkupNode>
     {
-        public const this(set IConverter<IType, string> TypeNamer);
-        public const this()
+        public this(set IConverter<IType, string> TypeNamer);
+        public this()
         {
             this.TypeNamer = new TypeNamerBase();
         }
 
-        public IConverter<IType, string> TypeNamer { const get; private set; }
+        public IConverter<IType, string> TypeNamer { get; private set; }
 
-        public static const MarkupNode HighlightNode(MarkupNode Node)
+        public static MarkupNode HighlightNode(MarkupNode Node)
         {
             return new MarkupNode(NodeConstants.HighlightNodeType, new MarkupNode[] { Node });
         }
-        public static const MarkupNode HighlightExtraNode(MarkupNode Node)
+
+        public static MarkupNode HighlightExtraNode(MarkupNode Node)
         {
             var dict = new Dictionary<string, object>();
             dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.ExtraHighlightingType;
             var attrs = new PredefinedAttributes(dict);
             return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new MarkupNode[] { Node });
         }
-        public static const MarkupNode HighlightMissingNode(MarkupNode Node)
+
+        public static MarkupNode HighlightMissingNode(MarkupNode Node)
         {
             var dict = new Dictionary<string, object>();
             dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.MissingHighlightingType;
             var attrs = new PredefinedAttributes(dict);
             return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new MarkupNode[] { Node });
         }
-        public static const MarkupNode HighlightNode(string Text)
+        public static MarkupNode HighlightNode(string Text)
         {
             return HighlightNode(ToTextNode(Text));
         }
-        public static const MarkupNode HighlightExtraNode(string Text)
+        public static MarkupNode HighlightExtraNode(string Text)
         {
             return HighlightExtraNode(ToTextNode(Text));
         }
-        public static const MarkupNode HighlightMissingNode(string Text)
+        public static MarkupNode HighlightMissingNode(string Text)
         {
             return HighlightMissingNode(ToTextNode(Text));
         }
 
-        public static const MarkupNode ToTextNode(string Text)
+        public static MarkupNode ToTextNode(string Text)
         {
             return new MarkupNode(NodeConstants.TextNodeType, Text);
         }
@@ -67,14 +69,14 @@ namespace Flame.Compiler
             Target.Add(ToTextNode(RightDelimiter));
         }
 
-        protected const MarkupNode CreateDelimitedComparisonList([MarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
+        protected MarkupNode CreateDelimitedComparisonList([MarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
         {
             var nodes = new List<MarkupNode>();
             AddDelimitedComparisonList(nodes, Comparisons, LeftDelimiter, Separator, RightDelimiter);
             return new MarkupNode("node", nodes);
         }
 
-        protected override const MarkupNode CompareDefault(IType First, IType Second)
+        protected override MarkupNode CompareDefault(IType First, IType Second)
         {
             string secondName = TypeNamer.Convert(Second);
             if (First.Is(Second))
@@ -83,14 +85,14 @@ namespace Flame.Compiler
             }
             else return HighlightNode(secondName);
         }
-        protected override const MarkupNode MakeGenericInstanceComparison(MarkupNode DeclarationComparison, [MarkupNode] TypeArgumentComparisons)
+        protected override MarkupNode MakeGenericInstanceComparison(MarkupNode DeclarationComparison, [MarkupNode] TypeArgumentComparisons)
         {
             var nodes = new List<MarkupNode>();
             nodes.Add(DeclarationComparison);
             AddDelimitedComparisonList(nodes, TypeArgumentComparisons, "<", ", ", ">");
             return new MarkupNode("node", nodes);
         }
-        protected override const MarkupNode MakePointerComparison(MarkupNode ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
+        protected override MarkupNode MakePointerComparison(MarkupNode ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
         {
             if (FirstKind == SecondKind)
             {
@@ -98,7 +100,7 @@ namespace Flame.Compiler
             }
             else return new MarkupNode("node", new MarkupNode[] { ElementComparison, HighlightNode(SecondKind.ToString()) });
         }
-        protected override const MarkupNode MakeArrayComparison(MarkupNode ElementComparison, int FirstRank, int SecondRank)
+        protected override MarkupNode MakeArrayComparison(MarkupNode ElementComparison, int FirstRank, int SecondRank)
         {
             var nodes = new List<MarkupNode>();
             nodes.Add(ElementComparison);
@@ -116,7 +118,7 @@ namespace Flame.Compiler
                 nodes.Add(ToTextNode("]"));
             return new MarkupNode("node", nodes);
         }
-        protected override const MarkupNode MakeVectorComparison(MarkupNode ElementComparison,
+        protected override MarkupNode MakeVectorComparison(MarkupNode ElementComparison,
             IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions)
         {
             var nodes = new List<MarkupNode>();
@@ -152,7 +154,7 @@ namespace Flame.Compiler
             return new MarkupNode("node", nodes);
         }
 
-        protected override const MarkupNode MakeDelegateComparison(MarkupNode ReturnTypeComparison, [MarkupNode] ParameterTypesComparison)
+        protected override MarkupNode MakeDelegateComparison(MarkupNode ReturnTypeComparison, [MarkupNode] ParameterTypesComparison)
         {
             var nodes = new List<MarkupNode>();
             nodes.Add(ReturnTypeComparison);
