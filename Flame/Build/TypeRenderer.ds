@@ -343,6 +343,16 @@ namespace Flame.Build
         {
             return CreateStyledNode(Convert(Type), Style);
         }
+
+        /// <summary>
+        /// Produces a name for the given type.
+        /// </summary>
+        /// <param name="Type">The type to name.</param>
+        /// <returns>A type name.</returns>
+        public string Name(IType Type)
+        {
+            return Convert(Type).GetAllText();
+        }
     }
 
     /// <summary>
@@ -363,7 +373,7 @@ namespace Flame.Build
 
         public string Convert(IType Value)
         {
-            return Renderer.Convert(Value).GetAllText();
+            return Renderer.Name(Value);
         }
     }
 }
