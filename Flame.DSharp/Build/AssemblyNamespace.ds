@@ -12,6 +12,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -19,7 +20,7 @@ namespace Flame.DSharp.Build
 	{
 		public const this(set SyntaxAssembly Assembly);
 
-		public override IConverter<IType, string> TypeNamer { const get return Assembly.TypeNamer; }
+		public override TypeRenderer Renderer { const get return Assembly.Renderer; }
 
 		public SyntaxAssembly Assembly { const get; private set; }
 		public override IAssembly DeclaringAssembly { const get return Assembly; }

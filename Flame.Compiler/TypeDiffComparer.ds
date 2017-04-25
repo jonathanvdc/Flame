@@ -1,19 +1,115 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Build;
 using Pixie;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// A type comparer that visualizes the difference between pairs of types.
+    /// </summary>
     public virtual class TypeDiffComparer : TypeComparerBase<MarkupNode>
     {
-        public this(set IConverter<IType, string> TypeNamer);
-        public this()
+        public this(
+            TypeRenderer Renderer,
+            IAttributes DifferentElementStyle,
+            IAttributes ExtraElementStyle,
+            IAttributes MissingElementStyle)
         {
-            this.TypeNamer = new TypeNamerBase();
+            this.Renderer = Renderer;
+            this.DifferentElementStyle = DifferentElementStyle;
+            this.ExtraElementStyle = ExtraElementStyle;
+            this.MissingElementStyle = MissingElementStyle;
         }
 
-        public IConverter<IType, string> TypeNamer { get; private set; }
+        public this(
+            TypeRenderer Renderer)
+        {
+            this.Renderer = Renderer;
+            this.DifferentElementStyle = DefaultDifferentElementStyle;
+            this.ExtraElementStyle = DefaultExtraElementStyle;
+            this.MissingElementStyle = DefaultMissingElementStyle;
+        }
+
+        public this()
+        {
+            this.Renderer = new TypeRenderer();
+            this.DifferentElementStyle = DefaultDifferentElementStyle;
+            this.ExtraElementStyle = DefaultExtraElementStyle;
+            this.MissingElementStyle = DefaultMissingElementStyle;
+        }
+
+        /// <summary>
+        /// Gets the type renderer that is used to render diffs.
+        /// </summary>
+        /// <returns>The type renderer.</returns>
+        public TypeRenderer Renderer { get; private set; }
+
+        /// <summary>
+        /// Gets the style that is applied to elements that differ.
+        /// </summary>
+        /// <returns>The style for elements that differ.</returns>
+        public IAttributes DifferentElementStyle { get; private set; }
+
+        /// <summary>
+        /// Gets the style that is applied to elements that have been added relative
+        /// to the reference material.
+        /// </summary>
+        /// <returns>The style for elements that have been added.</returns>
+        public IAttributes ExtraElementStyle { get; private set; }
+
+        /// <summary>
+        /// Gets the style that is applied to elements that have been removed relative
+        /// to the reference material.
+        /// </summary>
+        /// <returns>The style for elements that have been removed.</returns>
+        public IAttributes MissingElementStyle { get; private set; }
+
+        /// <summary>
+        /// Gets the default style that is applied to elements that differ.
+        /// </summary>
+        /// <returns>The default style for elements that differ.</returns>
+        public static IAttributes DefaultDifferentElementStyle
+        {
+            get
+            {
+                return CreateStyleFromColor(new Color(0.0, 1.0, 1.0));
+            }
+        }
+
+        /// <summary>
+        /// Gets the default style that is applied to elements that have been added relative
+        /// to the reference material.
+        /// </summary>
+        /// <returns>The style for elements that have been added.</returns>
+        public static IAttributes DefaultExtraElementStyle
+        {
+            get
+            {
+                return CreateStyleFromColor(new Color(1.0, 0.0, 1.0));
+            }
+        }
+
+        /// <summary>
+        /// Gets the default style that is applied to elements that have been removed relative
+        /// to the reference material.
+        /// </summary>
+        /// <returns>The default style for elements that have been removed.</returns>
+        public static IAttributes DefaultMissingElementStyle
+        {
+            get
+            {
+                return CreateStyleFromColor(new Color(1.0, 1.0, 0.0));
+            }
+        }
+
+        private static IAttributes CreateStyleFromColor(Color Value)
+        {
+            var dict = new Dictionary<string, object>();
+            dict[NodeConstants.ColorAttribute] = Value;
+            return new PredefinedAttributes(dict);
+        }
 
         public static MarkupNode HighlightNode(MarkupNode Node)
         {
@@ -53,113 +149,71 @@ namespace Flame.Compiler
             return new MarkupNode(NodeConstants.TextNodeType, Text);
         }
 
-        protected void AddDelimitedComparisonList(List<MarkupNode> Target, [MarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
-        {
-            Target.Add(ToTextNode(LeftDelimiter));
-            bool isFirst = true;
-            foreach (var item in Comparisons)
-            {
-                if (isFirst)
-                {
-                    isFirst = false;
-                }
-                else Target.Add(ToTextNode(Separator));
-                Target.Add(item);
-            }
-            Target.Add(ToTextNode(RightDelimiter));
-        }
-
-        protected MarkupNode CreateDelimitedComparisonList([MarkupNode] Comparisons, string LeftDelimiter, string Separator, string RightDelimiter)
-        {
-            var nodes = new List<MarkupNode>();
-            AddDelimitedComparisonList(nodes, Comparisons, LeftDelimiter, Separator, RightDelimiter);
-            return new MarkupNode("node", nodes);
-        }
-
         protected override MarkupNode CompareDefault(IType First, IType Second)
         {
-            string secondName = TypeNamer.Convert(Second);
             if (First.Is(Second))
             {
-                return ToTextNode(GenericNameExtensions.TrimGenerics(secondName));
+                return Renderer.Convert(Second);
             }
-            else return HighlightNode(secondName);
+            else
+            {
+                return Renderer.Convert(Second, DifferentElementStyle);
+            }
         }
+
         protected override MarkupNode MakeGenericInstanceComparison(MarkupNode DeclarationComparison, [MarkupNode] TypeArgumentComparisons)
         {
-            var nodes = new List<MarkupNode>();
-            nodes.Add(DeclarationComparison);
-            AddDelimitedComparisonList(nodes, TypeArgumentComparisons, "<", ", ", ">");
-            return new MarkupNode("node", nodes);
+            return Renderer.MakeGenericType(
+                DeclarationComparison,
+                TypeArgumentComparisons,
+                Renderer.DefaultStyle,
+                Renderer.DefaultStyle,
+                Renderer.DefaultStyle);
         }
         protected override MarkupNode MakePointerComparison(MarkupNode ElementComparison, PointerKind FirstKind, PointerKind SecondKind)
         {
             if (FirstKind == SecondKind)
             {
-                return new MarkupNode("node", new MarkupNode[] { ElementComparison, ToTextNode(SecondKind.ToString()) });
+                return Renderer.MakePointerType(ElementComparison, SecondKind, DifferentElementStyle);
             }
-            else return new MarkupNode("node", new MarkupNode[] { ElementComparison, HighlightNode(SecondKind.ToString()) });
+            else
+            {
+                return Renderer.MakePointerType(ElementComparison, SecondKind, Renderer.DefaultStyle);
+            }
         }
         protected override MarkupNode MakeArrayComparison(MarkupNode ElementComparison, int FirstRank, int SecondRank)
         {
-            var nodes = new List<MarkupNode>();
-            nodes.Add(ElementComparison);
-            nodes.Add(ToTextNode("["));
-            for (int i = 1; i < SecondRank; i++)
+            if (FirstRank == SecondRank)
             {
-                if (i < FirstRank)
-                    nodes.Add(ToTextNode(","));
-                else
-                    nodes.Add(HighlightMissingNode(","));
+                return Renderer.MakeArrayType(ElementComparison, SecondRank, DifferentElementStyle);
             }
-            if (SecondRank < FirstRank)
-                nodes.Add(HighlightExtraNode("]"));
             else
-                nodes.Add(ToTextNode("]"));
-            return new MarkupNode("node", nodes);
+            {
+                return Renderer.MakeArrayType(ElementComparison, SecondRank, Renderer.DefaultStyle);
+            }
         }
+
         protected override MarkupNode MakeVectorComparison(MarkupNode ElementComparison,
             IReadOnlyList<int> FirstDimensions, IReadOnlyList<int> SecondDimensions)
         {
-            var nodes = new List<MarkupNode>();
-            nodes.Add(ElementComparison);
-            nodes.Add(ToTextNode("["));
-            for (int i = 0; i < SecondDimensions.Count; i++)
+            if (Enumerable.SequenceEqual<int>(FirstDimensions, SecondDimensions))
             {
-                if (i > 0)
-                {
-                    nodes.Add(ToTextNode(", "));
-                }
-                if (i < FirstDimensions.Count)
-                {
-                    if (FirstDimensions[i] == SecondDimensions[i])
-                    {
-                        nodes.Add(ToTextNode(SecondDimensions[i].ToString()));
-                    }
-                    else nodes.Add(HighlightNode(SecondDimensions[i].ToString()));
-                }
-                else
-                {
-                    nodes.Add(HighlightMissingNode(SecondDimensions[i].ToString()));
-                }
-            }
-            if (SecondDimensions.Count < FirstDimensions.Count)
-            {
-                nodes.Add(HighlightExtraNode("]"));
+                return Renderer.MakeVectorType(ElementComparison, SecondDimensions, DifferentElementStyle);
             }
             else
             {
-                nodes.Add(ToTextNode("]"));
+                return Renderer.MakeVectorType(ElementComparison, SecondDimensions, Renderer.DefaultStyle);
             }
-            return new MarkupNode("node", nodes);
         }
 
         protected override MarkupNode MakeDelegateComparison(MarkupNode ReturnTypeComparison, [MarkupNode] ParameterTypesComparison)
         {
-            var nodes = new List<MarkupNode>();
-            nodes.Add(ReturnTypeComparison);
-            AddDelimitedComparisonList(nodes, ParameterTypesComparison, "(", ", ", ")");
-            return new MarkupNode("node", nodes);
+            return Renderer.MakeMethodType(
+                ReturnTypeComparison,
+                ParameterTypesComparison,
+                Renderer.DefaultStyle,
+                Renderer.DefaultStyle,
+                Renderer.DefaultStyle);
         }
     }
 }

@@ -12,25 +12,26 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
     public class SyntaxType : SyntaxTypeBase
     {
         public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace, set IBinder Binder,
-            set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+            set ICompilerLog Log, set TypeRenderer Renderer)
             : base(DeclaringNamespace)
         {
         	this.MemberProvider = new MemberProvider(Binder);
         }
         public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace,
-            set IBinder Binder, set ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, set IConverter<IType, string> TypeNamer)
+            set IBinder Binder, set ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, set TypeRenderer Renderer)
             : base(DeclaringNamespace)
         {
             this.MemberProvider = new MemberProvider(ExtensionTypeProvider, Binder);
         }
         public const this(set TypeDeclarationSyntax syntax, INamespace DeclaringNamespace, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set TypeRenderer Renderer)
             : base(DeclaringNamespace);
 
         protected TypeDeclarationSyntax syntax;
@@ -42,7 +43,7 @@ namespace Flame.DSharp.Build
         public IBinder Binder { const get; protected set; }
         public ICompilerLog Log { const get; protected set; }
         public IMemberProvider MemberProvider { const get; protected set; }
-        public IConverter<IType, string> TypeNamer { const get; protected set; }
+        public TypeRenderer Renderer { const get; protected set; }
 
         public override UnqualifiedName Name
         {
@@ -69,7 +70,7 @@ namespace Flame.DSharp.Build
 
     			var descMethod = new DescribedMethod("", this, PrimitiveTypes.Void, false);
 
-                currentState = new SyntaxState(descMethod, genericBinder, Log, MemberProvider, TypeNamer);
+                currentState = new SyntaxState(descMethod, genericBinder, Log, MemberProvider, Renderer);
 
                 foreach (var item in Syntax.BinderDeclarations)
                 {
@@ -83,7 +84,7 @@ namespace Flame.DSharp.Build
         protected override ISyntaxState GetNamespaceSyntaxState()
         {
         	var descMethod = new DescribedMethod("", this, PrimitiveTypes.Void, false);
-            return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
+            return new SyntaxState(descMethod, Binder, Log, MemberProvider, Renderer);
         }
 
         #region Equality

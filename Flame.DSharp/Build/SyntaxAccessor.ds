@@ -12,6 +12,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 alias FlameAccessorType = Flame.AccessorType;
 
 namespace Flame.DSharp.Build
@@ -79,7 +80,7 @@ namespace Flame.DSharp.Build
         public virtual ISyntaxState GetSyntaxState()
         {
             return new SyntaxState(this, Binder, ParentProperty.Log,
-                ParentProperty.MemberProvider, ParentProperty.TypeNamer);
+                ParentProperty.MemberProvider, ParentProperty.Renderer);
         }
 
         #endregion

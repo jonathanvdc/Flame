@@ -2,20 +2,41 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Flame.Build;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
-    public class DSharpTypeNamer : TypeNamerBase
-	{
-        public const this()
+    public class DSharpTypeRenderer : TypeRenderer
+    {
+        public this()
         {
             this.PreferTrivialNames = true;
         }
-        public const this(set bool PreferTrivialNames);
+        public this(bool PreferTrivialNames)
+        {
+            this.PreferTrivialNames = PreferTrivialNames;
+        }
 
-        public bool PreferTrivialNames { const get; private set; }
+        public bool PreferTrivialNames { get; private set; }
 
-        protected override const string ConvertPrimitiveType(IType Type)
+        protected override MarkupNode ConvertPrimitiveType(IType Type)
+        {
+            var typeName = NamePrimitiveType(Type);
+            if (!object.ReferenceEquals(typeName, null))
+            {
+                return CreateTextNode(typeName, DefaultStyle);
+            }
+            else if (Type.IsValueType)
+            {
+                return ConvertValueType(Type);
+            }
+            else
+            {
+                return ConvertReferenceType(Type);
+            }
+        }
+
+        private string NamePrimitiveType(IType Type)
         {
             if (Type.Equals(PrimitiveTypes.Int8))
             {
@@ -87,14 +108,10 @@ namespace Flame.DSharp.Build
             {
                 return "null";
             }
-            else if (Type.IsValueType)
-			{
-				return ConvertValueType(Type);
-			}
-			else
-			{
-				return ConvertReferenceType(Type);
-			}
+            else
+            {
+                return null;
+            }
         }
     }
 }

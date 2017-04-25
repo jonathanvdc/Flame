@@ -62,7 +62,7 @@ namespace Flame.Syntax.DSharp
             var newInstanceCode = new CodeBuilder();
             newInstanceCode.Append("new ");
             newInstanceCode.Append(TypeNode.GetCode().Trim());
-            var namer = State.TypeNamer;
+            var namer = State.Renderer;
             var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(newInstanceCode, ArgumentTypes, namer);
             var failedMatches = Enumerable.ToArray<IMethod>(Candidates);
             if (failedMatches.Length > 0)
@@ -110,7 +110,7 @@ namespace Flame.Syntax.DSharp
                 {
                     State.Log.LogError(new LogEntry(
                         "abstract class instantiation",
-                        "abstract class '" + State.TypeNamer.Convert(realType) +
+                        "abstract class '" + State.Renderer.Convert(realType).GetAllText() +
                         "' cannot be instantiated directly.",
                         Location));
                 }

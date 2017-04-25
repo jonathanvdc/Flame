@@ -5,6 +5,7 @@ using Flame.Compiler.Statements;
 using Flame.Compiler.Expressions;
 using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -43,7 +44,7 @@ namespace Flame.Syntax.DSharp
                         "value discarded",
                         Warnings.ConstantDiscarded.CreateMessage(
                             "expression statement discards a constant value (of type '" +
-                            State.TypeNamer.Convert(expr.Type) + "'). "),
+                            State.Renderer.Convert(expr.Type).GetAllText() + "'). "),
                         Location));
                 }
                 else

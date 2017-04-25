@@ -23,7 +23,7 @@ namespace UnitTests.DSharp
             var descMethod = new DescribedMethod("", null, PrimitiveTypes.Void, true);
             var emptyBinder = DSharpBuildHelpers.Instance.CreatePrimitiveBinder(Flame.Binding.EmptyBinder.Instance);
             var log = new TestLog(EmptyCompilerOptions.Instance);
-            return new SyntaxState(descMethod, emptyBinder, log, new DSharpTypeNamer());
+            return new SyntaxState(descMethod, emptyBinder, log, new DSharpTypeRenderer());
         }
 
         public static IStatement CreateStatement(string Code)

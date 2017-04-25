@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Build;
 using Flame.Compiler.Emit;
@@ -10,17 +11,18 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
     public virtual class SyntaxMethod : SyntaxMethodBase
     {
         public const this(set MethodSyntax syntax, IType DeclaringType, set IBinder Binder,
-            ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+            ICompilerLog Log, set IMemberProvider MemberProvider, set TypeRenderer Renderer)
             : base(DeclaringType, Log);
 
         public const this(set MethodSyntax syntax, IType DeclaringType, set IBinder Binder,
-            ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+            ICompilerLog Log, set TypeRenderer Renderer)
             : base(DeclaringType, Log)
         {
         	this.MemberProvider = new MemberProvider(Binder);
@@ -31,12 +33,12 @@ namespace Flame.DSharp.Build
         {
         	this.Binder = State.Binder;
         	this.MemberProvider = State.MemberProvider;
-            this.TypeNamer = State.TypeNamer;
+            this.Renderer = State.Renderer;
         }
 
         public IBinder Binder { const get; protected set; }
         public IMemberProvider MemberProvider { const get; protected set; }
-        public IConverter<IType, string> TypeNamer { const get; protected set; }
+        public TypeRenderer Renderer { const get; protected set; }
 
         protected MethodSyntax syntax;
         public override const MethodSyntax GetMethodSyntax()
@@ -46,7 +48,7 @@ namespace Flame.DSharp.Build
 
         public override ISyntaxState GetDeclaringSyntaxState()
         {
-            return new SyntaxState(this, Binder, Log, TypeNamer);
+            return new SyntaxState(this, Binder, Log, Renderer);
         }
 
         public override ISyntaxState GetSyntaxState()
@@ -58,7 +60,7 @@ namespace Flame.DSharp.Build
             	genericBinder.MapType(new QualifiedName(param.Name), param);
             }
 
-            return new SyntaxState(this, genericBinder, Log, MemberProvider, TypeNamer);
+            return new SyntaxState(this, genericBinder, Log, MemberProvider, Renderer);
         }
 
         #region Equality

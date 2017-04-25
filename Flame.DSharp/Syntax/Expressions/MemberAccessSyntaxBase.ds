@@ -7,6 +7,7 @@ using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.DSharp.Parser;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -440,7 +441,7 @@ namespace Flame.Syntax.DSharp
                             thisCode.ToString() +
                             "' could not be resolved as a variable, expression or type, though '" +
                             innerCode.ToString() + "' was resolved as an expression of type '" +
-                            State.TypeNamer.Convert(innerCallerExpr.Type) + "'.",
+                            State.Renderer.Convert(innerCallerExpr.Type).GetAllText() + "'.",
                             MemberAccessLocation));
             		}
             	}

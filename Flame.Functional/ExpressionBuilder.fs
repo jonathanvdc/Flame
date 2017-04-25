@@ -1,6 +1,7 @@
 ﻿namespace Flame.Functional
 
 open Flame
+open Flame.Build
 open Flame.Compiler
 open Flame.Compiler.Expressions
 open Flame.Compiler.Statements
@@ -384,7 +385,7 @@ module ExpressionBuilder =
         if target.Type.GetIsPointer() then
             new DereferencePointerExpression(target) :> IExpression
         else
-            Error (new LogEntry("non-pointer expression dereferenced", "a non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.TypeNamer target.Type) + "', which is no pointer type.")) target
+            Error (new LogEntry("non-pointer expression dereferenced", "a non-pointer expression cannot be dereferenced. The given expression was of type '" + (context.Global.Renderer.Name(target.Type)) + "', which is no pointer type.")) target
 
     /// Casts an expression to a type, based on the conversion rules given by the local scope.
     let Cast (context : LocalScope) (left : IExpression) (right : IType) : IExpression =
@@ -539,7 +540,7 @@ module ExpressionBuilder =
                                  |> Seq.fold (fun result (param, i) -> Map.add (string param.Name) (ArgumentVariable(param, i) :> IVariable) result) captLocals
 
         let globalScope = GlobalScope(scope.Global.Binder, scope.Global.ConversionRules, scope.Global.Log,
-                                      scope.Global.TypeNamer, scope.Global.GetAllMembers, getLambdaParameters)
+                                      scope.Global.Renderer, scope.Global.GetAllMembers, getLambdaParameters)
         let funcScope = FunctionScope(globalScope, signature)
         let localScope = LocalScope(funcScope)
         let localScope = match name with
@@ -563,15 +564,16 @@ module ExpressionBuilder =
     let RecursiveLambda (createBody : LocalScope -> IExpression) (signature : IMethod) (recName : string) (scope : LocalScope) =
         MaybeRecLambda createBody signature (Some recName) scope
 
-    let private createExpectedSignatureDescription (namer : IType -> string) (retType : IType) (argTypes : IType seq) =
+    let private createExpectedSignatureDescription (renderer : TypeRenderer) (retType : IType) (argTypes : IType seq) =
         let descMethod = new Flame.Build.DescribedMethod("", null, retType, true)
         argTypes |> Seq.iteri (fun i x -> descMethod.AddParameter(new Flame.Build.DescribedParameter("param" + string i, x)))
         let deleg      = MethodType.Create descMethod
-        namer deleg
+        renderer.Name(deleg)
 
-    let private createSignatureDiff (namer : IType -> string) (argTypes : IType[]) (target : IMethod) =
-        let methodDiffBuilder = new MethodDiffComparer(new FunctionConverter<IType, string>(namer))
+    let private createSignatureDiff (renderer : TypeRenderer) (argTypes : IType[]) (target : IMethod) =
+        let methodDiffBuilder = new MethodDiffComparer(renderer)
         let argDiff = methodDiffBuilder.CompareArguments(argTypes, target)
+        let namer = renderer.Name
         let nodes =
             match target.IsStatic, target.IsConstructor with
             | (true, true)   -> [TypeDiffComparer.ToTextNode("static new " + namer target.DeclaringType); argDiff]
@@ -592,7 +594,7 @@ module ExpressionBuilder =
                             |> Seq.toArray
 
         match delegates with
-        | [||] -> VoidError (new LogEntry("invalid generic instance", "generic instantiation could not be performed because the type of the target expression was '" + (scope.Global.TypeNamer target.Type) + "', which is not a delegate with " + string(tArgs.Length) + " type " + (if tArgs.Length = 1 then "parameter." else "parameters.")))
+        | [||] -> VoidError (new LogEntry("invalid generic instance", "generic instantiation could not be performed because the type of the target expression was '" + (scope.Global.Renderer.Name(target.Type)) + "', which is not a delegate with " + string(tArgs.Length) + " type " + (if tArgs.Length = 1 then "parameter." else "parameters.")))
         | _    -> Intersection delegates
 
     /// Creates an expression that represents the invocation of the given function on the
@@ -608,16 +610,16 @@ module ExpressionBuilder =
         | null ->
             let matches = innerTgt.GetMethodGroup()
 
-            let namer = scope.Global.TypeNamer
+            let renderer = scope.Global.Renderer
             let retType = if Seq.isEmpty matches then PrimitiveTypes.Void else (Seq.head matches).ReturnType
-            let expectedSignature = createExpectedSignatureDescription namer retType argTypes
+            let expectedSignature = createExpectedSignatureDescription renderer retType argTypes
 
             // Create an inner expression that consists of the invocation's target and arguments,
             // whose values are calculated and then popped.
             let innerExpr = Block (Seq.append (Seq.singleton target) args) (fun _ -> false)
 
             if not (Seq.isEmpty matches) then
-                let failedMatchesList = Seq.map (createSignatureDiff namer argTypes) matches
+                let failedMatchesList = Seq.map (createSignatureDiff renderer argTypes) matches
 
                 let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                                                      "method call could not be resolved. " +
@@ -630,7 +632,7 @@ module ExpressionBuilder =
                 Error (new LogEntry("method resolution error",
                                     "method call could not be resolved because the invocation's target was not recognized as a function. " +
                                     "Expected signature compatible with '" + expectedSignature.ToString() +
-                                    "', got an expression of type '" + (scope.Global.TypeNamer target.Type) + "'."))
+                                    "', got an expression of type '" + (renderer.Name(target.Type)) + "'."))
                       innerExpr
         | resolvedDelegate ->
             let delegateParams = resolvedDelegate.GetDelegateParameterTypes()
@@ -690,7 +692,7 @@ module ExpressionBuilder =
         | (Instance field, Reference target)       -> (new FieldVariable(field, target)).CreateGetExpression()
         | (_, _)                                   ->
             let message = "could not access " + accessedField.MemberPrefix + " field of " +
-                          (accessedExpr.Describe scope.Global.TypeNamer) + "."
+                          (accessedExpr.Describe scope.Global.Renderer) + "."
             Error (new LogEntry("invalid field access", message)) (new UnknownExpression(accessedField.Member.FieldType))
 
     /// Gets the address of the given expression, or creates a copy
@@ -720,7 +722,7 @@ module ExpressionBuilder =
         | (Extension tgt, Value expr)                 -> new GetExtensionMethodExpression(tgt, CastImplicit scope expr (tgt.GetParameters().[0].ParameterType)) :> IDelegateExpression
         | (Instance tgt, Global _)                    ->
             let message = "could not access instance method '" + string tgt.Name + "' of type '" +
-                          (scope.Global.TypeNamer tgt.DeclaringType) + " without an instance."
+                          (scope.Global.Renderer.Name(tgt.DeclaringType)) + " without an instance."
             new DelegateInstanceExpression (Error (new LogEntry("invalid method access", message)) (new UnknownExpression(MethodType.Create tgt))) :> IDelegateExpression
 
     /// Accesses a property on a target expression with the given index arguments, within the given local scope.
@@ -743,7 +745,7 @@ module ExpressionBuilder =
         | :? IProperty as prp -> AccessProperty scope (prp.GetGetAccessor()) (prp.GetSetAccessor()) accessedExpr
         | _                   ->
             let message = "could not access type member '" + string targetMember.Name + "' belonging to type '" +
-                          (scope.Global.TypeNamer targetMember.DeclaringType) + " because it could not be identified as a field, method or property."
+                          (scope.Global.Renderer.Name(targetMember.DeclaringType)) + " because it could not be identified as a field, method or property."
             Error (new LogEntry("unknown type member access", message)) Void
 
     /// Checks if all elements of the given sequence are of a
@@ -774,15 +776,15 @@ module ExpressionBuilder =
         let argTypes = args.GetTypes()
         match matches.GetBestMethod argTypes with
         | null ->
-            let namer = scope.Global.TypeNamer
-            let expectedSignature = createExpectedSignatureDescription namer PrimitiveTypes.Void argTypes
+            let renderer = scope.Global.Renderer
+            let expectedSignature = createExpectedSignatureDescription renderer PrimitiveTypes.Void argTypes
 
             // Create an inner expression that consists of the invocation's target and arguments,
             // whose values are calculated and then popped.
             let innerExpr = Block args (fun _ -> false)
 
             if not (Seq.isEmpty matches) then
-                let failedMatchesList = Seq.map (createSignatureDiff namer argTypes) matches
+                let failedMatchesList = Seq.map (createSignatureDiff renderer argTypes) matches
 
                 let explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                                                      "could not find an appropriate constructor. " +
@@ -794,7 +796,7 @@ module ExpressionBuilder =
             else
                 Error (new LogEntry("constructor resolution error",
                                     sprintf "type '%s' does not have any constructors. Expected a constructor with signature '%s'."
-                                            (scope.Global.TypeNamer instanceType) (expectedSignature.ToString())))
+                                            (renderer.Name(instanceType)) (expectedSignature.ToString())))
                       innerExpr
         | ctor ->
             let ctorParamTypes = ctor.Parameters |> Seq.map (fun p -> p.ParameterType)
@@ -870,7 +872,7 @@ module ExpressionBuilder =
             Error (new LogEntry("missing type members",
                                 "no instance, static or extension members named '" + memberName +
                                 "' could be found for type '" +
-                                (scope.Global.TypeNamer accessedExpr.Type) + "'."))
+                                (scope.Global.Renderer.Name(accessedExpr.Type)) + "'."))
                   innerExpr
         else
             AccessMembers scope allMembers accessedExpr

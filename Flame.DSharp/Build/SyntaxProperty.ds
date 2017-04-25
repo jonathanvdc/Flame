@@ -12,13 +12,14 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
     public class SyntaxProperty : CodeMember, IProperty, ISyntaxNode, ISourceMember
     {
         public const this(set PropertySyntax Syntax, set IType DeclaringType, set IBinder Binder,
-            set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+            set ICompilerLog Log, set IMemberProvider MemberProvider, set TypeRenderer Renderer)
         {
             this.indexerParams = new Lazy<IParameter[]>(CreateIndexerParameters);
             this.accessorVals = new Lazy<IAccessor[]>(CreateAccessors);
@@ -31,14 +32,14 @@ namespace Flame.DSharp.Build
         public ICompilerLog Log { const get; private set; }
         public IBinder Binder { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
-        public IConverter<IType, string> TypeNamer { const get; private set; }
+        public TypeRenderer Renderer { const get; private set; }
 
         #region GetSyntaxState
 
         public virtual const ISyntaxState GetSyntaxState()
         {
         	var descMethod = new DescribedMethod("", DeclaringType);
-            return new SyntaxState(descMethod, Binder, Log, MemberProvider, TypeNamer);
+            return new SyntaxState(descMethod, Binder, Log, MemberProvider, Renderer);
         }
 
         #endregion

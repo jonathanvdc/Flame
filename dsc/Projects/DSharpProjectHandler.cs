@@ -1,4 +1,5 @@
 ﻿using Flame;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Projects;
 using Flame.DSharp.Build;
@@ -65,7 +66,7 @@ namespace dsc.Projects
             var dsAsm = new SyntaxAssembly(
                 DSharpBuildHelpers.Instance.CreatePrimitiveBinder(binder),
                 new SimpleName(Parameters.Log.GetAssemblyName(Project)), 
-                GetTypeNamer(Parameters.Log.Options));
+                GetTypeRenderer(Parameters.Log.Options));
             foreach (var item in units)
             {
                 dsAsm.AddCompilationUnit(item, Parameters.Log);
@@ -74,20 +75,20 @@ namespace dsc.Projects
             return dsAsm;
         }
 
-        private static IConverter<IType, string> GetTypeNamer(ICompilerOptions Options)
+        private static TypeRenderer GetTypeRenderer(ICompilerOptions Options)
         {
             switch (Options.GetOption<string>("type-names", "default"))
             {
                 case "trivial":
                 case "prefer-trivial":
-                    return new DSharpTypeNamer(true);
+                    return new DSharpTypeRenderer(true);
 
                 case "precise":
-                    return new DSharpTypeNamer(false);
+                    return new DSharpTypeRenderer(false);
 
                 case "default":
                 default:
-                    return new DSharpTypeNamer();
+                    return new DSharpTypeRenderer();
             }
         }
 

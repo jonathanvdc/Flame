@@ -12,6 +12,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -36,7 +37,7 @@ namespace Flame.DSharp.Build
 
             return new SyntaxState(descMethod, InstanceState.Binder,
 				InstanceState.Log, InstanceState.MemberProvider,
-				InstanceState.TypeNamer);
+				InstanceState.Renderer);
         }
 
 		public UnqualifiedName Name { const get return new SimpleName("Static_Singleton"); }

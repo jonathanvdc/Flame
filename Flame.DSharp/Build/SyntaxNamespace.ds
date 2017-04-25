@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 using Flame.Binding;
 using Flame.Compiler;
 using Flame.Syntax;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -22,7 +24,7 @@ namespace Flame.DSharp.Build
 		public abstract UnqualifiedName Name { get; }
 		public abstract IAssembly DeclaringAssembly { get; }
 		public abstract IExtensionTypeProvider ExtensionTypeProvider { get; }
-		public abstract IConverter<IType, string> TypeNamer { get; }
+		public abstract TypeRenderer Renderer { get; }
 
 		private List<INamespace> namespaceList;
 		private List<IType> typeList;
@@ -87,7 +89,7 @@ namespace Flame.DSharp.Build
 		public override UnqualifiedName Name { const get return name; }
 		public override IAssembly DeclaringAssembly { const get return DeclaringNamespace.DeclaringAssembly; }
 		public override IExtensionTypeProvider ExtensionTypeProvider { const get return DeclaringNamespace.ExtensionTypeProvider; }
-		public override IConverter<IType, string> TypeNamer { const get return DeclaringNamespace.TypeNamer; }
+		public override TypeRenderer Renderer { const get return DeclaringNamespace.Renderer; }
 
 		public const CodeBuilder GetCode()
 		{

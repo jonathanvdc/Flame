@@ -72,7 +72,7 @@ namespace Flame.Syntax.DSharp
                     "bit type downcast",
                     Warnings.Bitcast.CreateMessage(
                         "'" + this.GetCode().Trim().ToString() + "' implies a downcast of bit types ('" +
-                        State.TypeNamer.Convert(exprType) + "' to '" + State.TypeNamer.Convert(type) +
+                        State.Renderer.Convert(exprType).GetAllText() + "' to '" + State.Renderer.Convert(type).GetAllText() +
                         "'). This could lead to an arbitrary loss of information. "),
                     CastLocation));
                 }
@@ -184,17 +184,17 @@ namespace Flame.Syntax.DSharp
             }
             else
             {
-                var diffBuilder = new TypeDiffComparer(State.TypeNamer);
+                var diffBuilder = new TypeDiffComparer(State.Renderer);
                 var leftDiff = diffBuilder.Compare(TargetType, valType);
                 var rightDiff = diffBuilder.Compare(valType, TargetType);
                 var nodes = new List<MarkupNode>();
-                nodes.Add(TypeDiffComparer.ToTextNode("expression '"));
-                nodes.Add(TypeDiffComparer.ToTextNode(Value.GetCode().Trim().ToString()));
-                nodes.Add(TypeDiffComparer.ToTextNode("' of type '"));
+                nodes.Add(diffBuilder.Renderer.CreateTextNode("expression '"));
+                nodes.Add(diffBuilder.Renderer.CreateTextNode(Value.GetCode().Trim().ToString()));
+                nodes.Add(diffBuilder.Renderer.CreateTextNode("' of type '"));
                 nodes.Add(leftDiff);
-                nodes.Add(TypeDiffComparer.ToTextNode("' could not be cast implicitly to '"));
+                nodes.Add(diffBuilder.Renderer.CreateTextNode("' could not be cast implicitly to '"));
                 nodes.Add(rightDiff);
-                nodes.Add(TypeDiffComparer.ToTextNode("'"));
+                nodes.Add(diffBuilder.Renderer.CreateTextNode("'"));
                 var message = new MarkupNode("entry", nodes);
 
                 State.Log.LogError(new LogEntry("cast error", message, Value.GetSourceLocation()));

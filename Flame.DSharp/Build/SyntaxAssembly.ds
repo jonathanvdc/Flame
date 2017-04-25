@@ -13,6 +13,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -24,7 +25,7 @@ namespace Flame.DSharp.Build
 			this.Name = new SimpleName("");
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
-			this.TypeNamer = new DSharpTypeNamer();
+			this.Renderer = new DSharpTypeRenderer();
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 		public const this(set IBinder ExternalBinder, set UnqualifiedName Name)
@@ -32,10 +33,10 @@ namespace Flame.DSharp.Build
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
 			this.MainNamespace = new AssemblyNamespace(this);
-			this.TypeNamer = new DSharpTypeNamer();
+			this.Renderer = new DSharpTypeRenderer();
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
-		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set IConverter<IType, string> TypeNamer)
+		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set TypeRenderer Renderer)
 		{
 			this.Graph = new AncestryGraph();
 			this.AssemblyVersion = default(Version);
@@ -43,7 +44,7 @@ namespace Flame.DSharp.Build
 			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
 		}
 		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set Version AssemblyVersion,
-						  set IConverter<IType, string> TypeNamer)
+						  set TypeRenderer Renderer)
 		{
 			this.Graph = new AncestryGraph();
 			this.MainNamespace = new AssemblyNamespace(this);
@@ -61,7 +62,7 @@ namespace Flame.DSharp.Build
         public Version AssemblyVersion { const get; set; }
 
         public AncestryGraph Graph { const get; private set; }
-		public IConverter<IType, string> TypeNamer { const get; private set; }
+		public TypeRenderer Renderer { const get; private set; }
 
 		private AttributeMap attrMap;
         public AttributeMap Attributes
@@ -81,7 +82,7 @@ namespace Flame.DSharp.Build
         {
         	MainNamespace.ClearExtensionTypeCache();
 			var descMethod = new DescribedMethod("global", null);
-			var state = new SyntaxState(descMethod, GetSyntaxBinder(), Log, TypeNamer);
+			var state = new SyntaxState(descMethod, GetSyntaxBinder(), Log, Renderer);
 			var binder = state.Binder;
         	Item.CompileToNamespace(MainNamespace, binder, Log);
         }

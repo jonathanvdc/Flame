@@ -6,6 +6,7 @@ using Flame.Build;
 using Flame.Compiler;
 using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -109,14 +110,14 @@ namespace Flame.Syntax.DSharp
 
         #endregion
 
-        public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer)
+        public IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log, IExtensionTypeProvider ExtensionTypeProvider, TypeRenderer Renderer)
         {
-            return new SyntaxType(this, Namespace, Binder, Log, ExtensionTypeProvider, TypeNamer);
+            return new SyntaxType(this, Namespace, Binder, Log, ExtensionTypeProvider, Renderer);
         }
 
         public IType CreateMember(ISyntaxState State)
         {
-            return new SyntaxType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
+            return new SyntaxType(this, (INamespace)State.DeclaringType, State.Binder, State.Log, State.MemberProvider, State.Renderer);
         }
 
         public override const string ToString()

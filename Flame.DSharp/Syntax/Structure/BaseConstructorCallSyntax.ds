@@ -48,7 +48,7 @@ namespace Flame.Syntax.DSharp
                 State.Log.LogError(new LogEntry(
                     "invalid 'base' constructor call",
                     "a 'base' constructor call could not be resolved because the enclosing type ('" +
-                    State.TypeNamer.Convert(State.CurrentType) + "') does not have a 'base' type.",
+                    State.Renderer.Convert(State.CurrentType).GetAllText() + "') does not have a 'base' type.",
                     BaseKeyword.Location));
                 return null;
             }

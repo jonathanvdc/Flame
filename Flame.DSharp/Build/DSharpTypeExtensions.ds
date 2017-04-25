@@ -12,6 +12,7 @@ using Flame.Compiler.Variables;
 using Flame.DSharp.Lexer;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -70,7 +71,7 @@ namespace Flame.DSharp.Build
 
 	    	var descMethod = new DescribedMethod("", (IType)Namespace, PrimitiveTypes.Void, false);
 
-            var state = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider, State.TypeNamer);
+            var state = new SyntaxState(descMethod, State.Binder, State.Log, State.MemberProvider, State.Renderer);
 
 	    	foreach (var item in Syntax.Methods)
 	    	{
@@ -102,8 +103,8 @@ namespace Flame.DSharp.Build
                     {
                     	State.Log.LogError(new LogEntry("Parameterless constructor missing",
 							"No appropriate parameterless constructor could be found for type '" +
-							State.TypeNamer.Convert(parent) + "'. One of '" +
-							State.TypeNamer.Convert(currentType) + "'s constructors requires one, though.",
+							State.Renderer.Convert(parent).GetAllText() + "'. One of '" +
+							State.Renderer.Convert(currentType).GetAllText() + "'s constructors requires one, though.",
 							Caller.GetSourceLocation()));
                     }
                     else

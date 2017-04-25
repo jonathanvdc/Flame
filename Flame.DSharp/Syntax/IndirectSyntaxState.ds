@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Variables;
 using Flame.DSharp;
 using Flame.DSharp.Build;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
@@ -26,7 +28,7 @@ namespace Flame.Syntax.DSharp
         public IMemberProvider MemberProvider { const get; private set; }
         public UniqueTag Tag { const get return State.Tag; }
 
-        public IConverter<IType, string> TypeNamer { const get return State.TypeNamer; }
+        public TypeRenderer Renderer { const get return State.Renderer; }
 
         public IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location) : ISyntaxState.DeclareVariable
         {

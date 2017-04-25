@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Build;
 using Flame.Compiler.Variables;
 using Flame.Compiler;
 using Pixie;
@@ -14,7 +15,7 @@ namespace Flame.Syntax
         IScopedBinder Binder { const get; }
         IMemberProvider MemberProvider { const get; }
         ICompilerLog Log { const get; }
-        IConverter<IType, string> TypeNamer { const get; }
+        TypeRenderer Renderer { const get; }
         UniqueTag Tag { const get; }
 
         IVariable DeclareVariable(string Name, IVariable Variable, SourceLocation Location);

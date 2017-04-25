@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 using Flame.Compiler;
+using Pixie;
 
 namespace Flame.Syntax
 {
     public interface ITypeDeclarationSyntax : ISyntaxNode
     {
         IType CreateType(INamespace Namespace, IBinder Binder, ICompilerLog Log,
-            IExtensionTypeProvider ExtensionTypeProvider, IConverter<IType, string> TypeNamer);
+            IExtensionTypeProvider ExtensionTypeProvider, TypeRenderer Renderer);
     }
 }

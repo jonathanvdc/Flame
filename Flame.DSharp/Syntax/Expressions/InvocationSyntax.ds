@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
@@ -21,34 +22,34 @@ namespace Flame.Syntax.DSharp
 
         public SourceLocation Location
         {
-        	const get return Method.GetSourceLocation().Concat(ArgumentList.Location);
+            const get return Method.GetSourceLocation().Concat(ArgumentList.Location);
         }
 
         public static const IExpression CastExtensionCallerExpression(ISyntaxState State, IVariable callerInst, ISyntaxNode MethodNode, IType TargetType)
         {
-        	var valType = callerInst.Type;
-	    	if (valType.Is(TargetType))
-	     	{
-	        	return callerInst.CreateGetExpression();
-	    	}
-	    	else if (TargetType.IsPointer && !valType.IsPointer)
-	      	{
-	         	if (TargetType.AsContainerType().ElementType.IsValueType)
-	       			return MemberAccessSyntaxBase.CreateAddressToValueExpression(callerInst);
-	     	}
-	       	if (CastSyntax.UseImplicitCast(State, valType, TargetType))
-	       	{
-	        	return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
-	      	}
+            var valType = callerInst.Type;
+            if (valType.Is(TargetType))
+             {
+                return callerInst.CreateGetExpression();
+            }
+            else if (TargetType.IsPointer && !valType.IsPointer)
+              {
+                 if (TargetType.AsContainerType().ElementType.IsValueType)
+                       return MemberAccessSyntaxBase.CreateAddressToValueExpression(callerInst);
+             }
+               if (CastSyntax.UseImplicitCast(State, valType, TargetType))
+               {
+                return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
+              }
 
-	        State.Log.LogError(new LogEntry("cast error",
+            State.Log.LogError(new LogEntry("cast error",
                 "the caller of '" + MethodNode.GetCode().ToString() +
-                "' (of type '" + State.TypeNamer.Convert(valType) +
+                "' (of type '" + State.Renderer.Convert(valType).GetAllText() +
                 "') could not be cast implicitly to '" +
-                State.TypeNamer.Convert(TargetType) + "'",
+                State.Renderer.Convert(TargetType).GetAllText() + "'",
                 MethodNode.GetSourceLocation()));
 
-	        return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
+            return ConversionExpression.Create(callerInst.CreateGetExpression(), TargetType);
         }
 
         public static IExpression CreateInvocationExpression(ISyntaxState State, IExpression Delegate, ISyntaxNode MethodNode, [IExpression] Arguments, [IExpressionSyntax] Nodes)
@@ -64,68 +65,68 @@ namespace Flame.Syntax.DSharp
             return Delegate.CreateDelegateInvocationExpression(callArgs);
         }
 
-        public static void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, IConverter<IType, string> TypeNamer)
+        public static void AppendCallSignature(CodeBuilder SignatureBuilder, IType[] argTypes, TypeRenderer Renderer)
         {
-    	    SignatureBuilder.Append('(');
-        	bool first = true;
-        	foreach (var item in argTypes)
-        	{
-        		if (first)
-        			first = false;
-        		else
-        			SignatureBuilder.Append(", ");
+            SignatureBuilder.Append('(');
+            bool first = true;
+            foreach (var item in argTypes)
+            {
+                if (first)
+                    first = false;
+                else
+                    SignatureBuilder.Append(", ");
 
-        		if (item == null) SignatureBuilder.Append("<unresolved type>");
-        		else SignatureBuilder.Append(TypeNamer.Convert(item));
-        	}
-        	SignatureBuilder.Append(')');
+                if (item == null) SignatureBuilder.Append("<unresolved type>");
+                else SignatureBuilder.Append(Renderer.Convert(item).GetAllText());
+            }
+            SignatureBuilder.Append(')');
         }
 
-        public static const MarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
+        public static const MarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, TypeRenderer Renderer)
         {
             var nodes = new List<MarkupNode>();
             if (Method.IsStatic)
             {
-                nodes.Add(TypeDiffComparer.ToTextNode("static "));
+                nodes.Add(Renderer.CreateTextNode("static "));
             }
             if (Method.IsConstructor)
             {
-                nodes.Add(TypeDiffComparer.ToTextNode("new "));
-                nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.DeclaringType)));
+                nodes.Add(Renderer.CreateTextNode("new "));
+                nodes.Add(Renderer.Convert(Method.DeclaringType));
             }
             else
             {
                 var retType = Method.ReturnType;
                 if (retType == null)
                 {
-                    nodes.Add(TypeDiffComparer.ToTextNode("void"));
+                    nodes.Add(Renderer.CreateTextNode("void"));
                 }
                 else
                 {
-                    nodes.Add(TypeDiffComparer.ToTextNode(TypeNamer.Convert(Method.ReturnType)));
+                    nodes.Add(Renderer.Convert(Method.ReturnType));
                 }
-                nodes.Add(TypeDiffComparer.ToTextNode(" "));
-                nodes.Add(TypeDiffComparer.ToTextNode(Method.FullName.ToString()));
+                nodes.Add(Renderer.CreateTextNode(" "));
+                nodes.Add(Renderer.CreateTextNode(Method.FullName.ToString()));
             }
-            var methodDiffBuilder = new MethodDiffComparer(TypeNamer);
+            var methodDiffBuilder = new MethodDiffComparer(Renderer);
             nodes.Add(methodDiffBuilder.CompareArguments(ArgumentTypes, Method));
             return new MarkupNode("node", nodes);
         }
 
-        public static const CodeBuilder CreateExpectedSignatureDescription(CodeBuilder CallerCode, IType[] ArgumentTypes, IConverter<IType, string> TypeNamer)
+        public static const CodeBuilder CreateExpectedSignatureDescription(CodeBuilder CallerCode, IType[] ArgumentTypes, TypeRenderer Renderer)
         {
             var expectedSignature = new CodeBuilder();
-        	expectedSignature.Append("'");
-			expectedSignature.Append(CallerCode);
-        	AppendCallSignature(expectedSignature, ArgumentTypes, TypeNamer);
-        	expectedSignature.Append("'");
-        	/*if (CallerType != null)
-        	{
-            	expectedSignature.Append(" (where the caller expression is of type '");
-            	expectedSignature.Append(TypeNamer.Convert(CallerType));
-            	expectedSignature.Append("')");
-        	}*/
-        	return expectedSignature;
+            expectedSignature.Append("'");
+            expectedSignature.Append(CallerCode);
+            AppendCallSignature(expectedSignature, ArgumentTypes, Renderer);
+            expectedSignature.Append("'");
+            /*if (CallerType != null)
+            {
+                expectedSignature.Append(" (where the caller expression is of type '");
+                expectedSignature.Append(Renderer.Convert(CallerType).GetAllText());
+                expectedSignature.Append("')");
+            }*/
+            return expectedSignature;
         }
 
         public const IExpression CreateExpression(ISyntaxState State)
@@ -145,32 +146,32 @@ namespace Flame.Syntax.DSharp
 
             var matches = delegatesExpr.GetMethodGroup();
 
-            var namer = State.TypeNamer;
-        	var expectedSignature = CreateExpectedSignatureDescription(Method.GetCode().Trim(), argTypes, namer).Trim();
+            var namer = State.Renderer;
+            var expectedSignature = CreateExpectedSignatureDescription(Method.GetCode().Trim(), argTypes, namer).Trim();
 
             var thisCode = this.GetCode().Trim();
 
-        	var failedMatches = Enumerable.ToArray<IMethod>(matches);
-        	if (failedMatches.Length > 0)
-        	{
-        		var failedMatchesList = new List<MarkupNode>();
-        		foreach (var item in failedMatches)
-        		{
+            var failedMatches = Enumerable.ToArray<IMethod>(matches);
+            if (failedMatches.Length > 0)
+            {
+                var failedMatchesList = new List<MarkupNode>();
+                foreach (var item in failedMatches)
+                {
                     failedMatchesList.Add(CreateSignatureDiff(item, argTypes, namer));
-        		}
+                }
                 var explanationNode = new MarkupNode(NodeConstants.TextNodeType,
                     "method call '" + thisCode.ToString() + "' could not be resolved. " +
                     "Expected signature compatible with " + expectedSignature.ToString() +
                     ". Incompatible or ambiguous matches:");
                 var failedMatchesNode = new MarkupNode("list", failedMatchesList);
                 var messageNode = new MarkupNode("entry", new MarkupNode[] { explanationNode, failedMatchesNode });
-        		State.Log.LogError(new LogEntry("method resolution error", messageNode, Location));
-        	}
-        	else
-        	{
+                State.Log.LogError(new LogEntry("method resolution error", messageNode, Location));
+            }
+            else
+            {
                 var thisMethodCode = this.Method.GetCode().Trim();
-        		State.Log.LogError(new LogEntry("method resolution error", "method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
-        	}
+                State.Log.LogError(new LogEntry("method resolution error", "method call '" + thisCode.ToString() + "' could not be resolved because '" + thisMethodCode.ToString() + "' was not recognized as function or type member. Expected signature compatible with " + expectedSignature.ToString() + ".", Location));
+            }
 
             return null;
         }

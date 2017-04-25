@@ -97,7 +97,7 @@ namespace Flame.Syntax.DSharp
         public IProperty CreateMember(ISyntaxState State)
         {
             return new SyntaxProperty(this, State.DeclaringType, State.Binder,
-                State.Log, State.MemberProvider, State.TypeNamer);
+                State.Log, State.MemberProvider, State.Renderer);
         }
 
         #endregion

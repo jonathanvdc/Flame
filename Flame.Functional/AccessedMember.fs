@@ -1,6 +1,7 @@
 ﻿namespace Flame.Functional
 
 open Flame
+open Flame.Build
 open Flame.Compiler
 
 /// Defines a way of classifying type members.
@@ -45,9 +46,9 @@ type AccessedExpression =
         | Global     x -> x
 
     /// Gets a user-friendly member prefix for this accessed member.
-    member this.Describe (namer : IType -> string) =
+    member this.Describe (renderer : TypeRenderer) =
         match this with
-        | Reference  x -> "a reference type ('" + (namer x.Type) + "')"
-        | Value      x -> "a value type ('" + (namer x.Type) + "')"
-        | Generic    x -> "a type parameter ('" + (namer x.Type) + "')"
-        | Global     x -> "a type name ('" + (namer x) + "')"
+        | Reference  x -> "a reference type ('" + (renderer.Name(x.Type)) + "')"
+        | Value      x -> "a value type ('" + (renderer.Name(x.Type)) + "')"
+        | Generic    x -> "a type parameter ('" + (renderer.Name(x.Type)) + "')"
+        | Global     x -> "a type name ('" + (renderer.Name(x)) + "')"

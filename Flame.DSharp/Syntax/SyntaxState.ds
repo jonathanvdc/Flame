@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
@@ -8,12 +9,13 @@ using Flame.Compiler.Variables;
 using Flame.DSharp;
 using Flame.DSharp.Build;
 using Flame.DSharp.Lexer;
+using Pixie;
 
 namespace Flame.Syntax.DSharp
 {
     public class SyntaxState : ISyntaxState
     {
-        public const this(set IMethod Method, set IScopedBinder Binder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+        public const this(set IMethod Method, set IScopedBinder Binder, set ICompilerLog Log, set TypeRenderer Renderer)
         {
             this.MemberProvider = new MemberProvider(Binder);
             this.ParameterProvider = new MethodParameterProvider(Method);
@@ -21,7 +23,7 @@ namespace Flame.Syntax.DSharp
             this.tags = new TagStack();
             PushScope();
         }
-        public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IConverter<IType, string> TypeNamer)
+        public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set TypeRenderer Renderer)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.ParameterProvider = new MethodParameterProvider(Method);
@@ -30,7 +32,7 @@ namespace Flame.Syntax.DSharp
             this.tags = new TagStack();
             PushScope();
         }
-        public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer)
+        public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log, set IMemberProvider MemberProvider, set TypeRenderer Renderer)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
             this.ParameterProvider = new MethodParameterProvider(Method);
@@ -39,7 +41,7 @@ namespace Flame.Syntax.DSharp
             PushScope();
         }
         public const this(set IMethod Method, IBinder OuterBinder, set ICompilerLog Log,
-            set IMemberProvider MemberProvider, set IConverter<IType, string> TypeNamer,
+            set IMemberProvider MemberProvider, set TypeRenderer Renderer,
             set IVariableProvider ParameterProvider)
         {
             this.Binder = new ScopedBinder(OuterBinder, this);
@@ -67,7 +69,7 @@ namespace Flame.Syntax.DSharp
 
         public ICompilerLog Log { const get; private set; }
         public IScopedBinder Binder { const get; private set; }
-        public IConverter<IType, string> TypeNamer { const get; private set; }
+        public TypeRenderer Renderer { const get; private set; }
         public IMemberProvider MemberProvider { const get; private set; }
 
         private LocalScopeStack locals;

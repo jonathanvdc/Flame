@@ -8,40 +8,50 @@ namespace Flame.Compiler
 {
     public virtual class MethodDiffComparer
     {
-        public const this(set IConverter<IType, string> TypeNamer,
-                          set TypeComparerBase<MarkupNode> Comparer);
-        public const this(set IConverter<IType, string> TypeNamer)
+        public this(TypeDiffComparer Comparer)
         {
-            this.Comparer = new TypeDiffComparer(TypeNamer);
+            this.Comparer = Comparer;
         }
-        public const this()
+        public this(TypeRenderer Renderer)
         {
-            var cmp = new TypeDiffComparer();
-            this.Comparer = cmp;
-            this.TypeNamer = cmp.TypeNamer;
+            this.Comparer = new TypeDiffComparer(Renderer);
+        }
+        public this()
+        {
+            this.Comparer = new TypeDiffComparer();
         }
 
-        public IConverter<IType, string> TypeNamer { const get; private set; }
-        public TypeComparerBase<MarkupNode> Comparer { const get; private set; }
+        /// <summary>
+        /// Gets the type diff comparer that this method diff comparer uses
+        /// to compare types.
+        /// </summary>
+        /// <returns>The type diff comparer.</returns>
+        public TypeDiffComparer Comparer { get; private set; }
 
-        public const MarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
+        /// <summary>
+        /// Gets the type renderer that this method diff comparer uses
+        /// to render types.
+        /// </summary>
+        /// <returns>The type renderer.</returns>
+        public TypeRenderer Renderer { get { return Comparer.Renderer; } }
+
+        public virtual MarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
         {
             var argArray = Enumerable.ToArray<IType>(ArgumentTypes);
             var paramArray = Method.GetParameters();
             var nodes = new List<MarkupNode>();
-            nodes.Add(TypeDiffComparer.ToTextNode("("));
+            nodes.Add(Renderer.CreateTextNode("("));
             for (int i = 0; i < paramArray.Length; i++)
             {
                 if (i > 0)
                 {
-                    nodes.Add(TypeDiffComparer.ToTextNode(", "));
+                    nodes.Add(Renderer.CreateTextNode(", "));
                 }
                 if (i < argArray.Length)
                 {
                     if (argArray[i] == null)
                     {
-                        string name = TypeNamer.Convert(paramArray[i].ParameterType);
-                        nodes.Add(TypeDiffComparer.HighlightNode(name));
+                        nodes.Add(Renderer.Convert(paramArray[i].ParameterType, Comparer.DifferentElementStyle));
                     }
                     else
                     {
@@ -50,14 +60,14 @@ namespace Flame.Compiler
                 }
                 else
                 {
-                    string name = TypeNamer.Convert(paramArray[i].ParameterType);
-                    nodes.Add(TypeDiffComparer.HighlightMissingNode(name));
+                    nodes.Add(Renderer.Convert(paramArray[i].ParameterType, Comparer.MissingElementStyle));
                 }
             }
+
             if (paramArray.Length < argArray.Length)
-                nodes.Add(TypeDiffComparer.HighlightExtraNode(")"));
+                nodes.Add(Renderer.CreateTextNode(")", Comparer.ExtraElementStyle));
             else
-                nodes.Add(TypeDiffComparer.ToTextNode(")"));
+                nodes.Add(Renderer.CreateTextNode(")"));
 
             return new MarkupNode("node", nodes);
         }

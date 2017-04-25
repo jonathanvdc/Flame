@@ -5,6 +5,7 @@ using Flame.Binding;
 using Flame.Compiler;
 using Flame.Syntax;
 using Flame.DSharp.Lexer;
+using Pixie;
 
 namespace Flame.DSharp.Build
 {
@@ -26,7 +27,7 @@ namespace Flame.DSharp.Build
 		public virtual void CompileType(ITypeDeclarationSyntax Node, INamespaceBranchBuilder DeclaringNamespace, IScopedBinder Binder, ICompilerLog Log)
 		{
 			var type = Node.CreateType(DeclaringNamespace, Binder, Log,
-				DeclaringNamespace.ExtensionTypeProvider, DeclaringNamespace.TypeNamer);
+				DeclaringNamespace.ExtensionTypeProvider, DeclaringNamespace.Renderer);
 			DeclaringNamespace.AddType(type);
 		}
 

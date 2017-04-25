@@ -30,7 +30,7 @@ namespace Flame.Build
         /// <param name="Style">The style to apply.</param>
         /// <param name="Contents">The child node.</param>
         /// <returns>A node with the given style that wraps the given node.</returns>
-        protected virtual MarkupNode CreateStyledNode(MarkupNode Contents, IAttributes Style)
+        public virtual MarkupNode CreateStyledNode(MarkupNode Contents, IAttributes Style)
         {
             return new MarkupNode("styled_node", Style, new MarkupNode[] { Contents });
         }
@@ -41,9 +41,19 @@ namespace Flame.Build
         /// <param name="Style">The text node's style.</param>
         /// <param name="Text">The text node's text.</param>
         /// <returns>A text node.</returns>
-        protected virtual MarkupNode CreateTextNode(string Text, IAttributes Style)
+        public MarkupNode CreateTextNode(string Text, IAttributes Style)
         {
-            return CreateStyledNode(new MarkupNode(NodeConstants.TextNodeType, Text), Style);
+            return CreateStyledNode(CreateTextNode(Text), Style);
+        }
+
+        /// <summary>
+        /// Creates a text node from the given text.
+        /// </summary>
+        /// <param name="Text">The text node's text.</param>
+        /// <returns>A text node.</returns>
+        public virtual MarkupNode CreateTextNode(string Text)
+        {
+            return new MarkupNode(NodeConstants.TextNodeType, Text);
         }
 
         /// <summary>
