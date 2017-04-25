@@ -14,18 +14,18 @@ namespace Flame.Syntax.DSharp
 {
     public class InvocationSyntax : IInvocationSyntax, ISourceSyntax
     {
-        public const this(set ITypeMemberAccessSyntax Method, set DelimitedList<IExpressionSyntax> ArgumentList);
+        public this(set ITypeMemberAccessSyntax Method, set DelimitedList<IExpressionSyntax> ArgumentList);
 
-        public ITypeMemberAccessSyntax Method { const get; private set; }
-        public DelimitedList<IExpressionSyntax> ArgumentList { const get; private set; }
-        public [IExpressionSyntax] Arguments { const get return ArgumentList; }
+        public ITypeMemberAccessSyntax Method { get; private set; }
+        public DelimitedList<IExpressionSyntax> ArgumentList { get; private set; }
+        public [IExpressionSyntax] Arguments { get { return ArgumentList; } }
 
         public SourceLocation Location
         {
-            const get return Method.GetSourceLocation().Concat(ArgumentList.Location);
+            get { return Method.GetSourceLocation().Concat(ArgumentList.Location); }
         }
 
-        public static const IExpression CastExtensionCallerExpression(ISyntaxState State, IVariable callerInst, ISyntaxNode MethodNode, IType TargetType)
+        public static IExpression CastExtensionCallerExpression(ISyntaxState State, IVariable callerInst, ISyntaxNode MethodNode, IType TargetType)
         {
             var valType = callerInst.Type;
             if (valType.Is(TargetType))
@@ -126,7 +126,7 @@ namespace Flame.Syntax.DSharp
             return new MarkupNode("node", nodes);
         }
 
-        public static const CodeBuilder CreateExpectedSignatureDescription(CodeBuilder CallerCode, IType[] ArgumentTypes, TypeRenderer Renderer)
+        public static CodeBuilder CreateExpectedSignatureDescription(CodeBuilder CallerCode, IType[] ArgumentTypes, TypeRenderer Renderer)
         {
             var expectedSignature = new CodeBuilder();
             expectedSignature.Append("'");
@@ -142,7 +142,7 @@ namespace Flame.Syntax.DSharp
             return expectedSignature;
         }
 
-        public const IExpression CreateExpression(ISyntaxState State)
+        public IExpression CreateExpression(ISyntaxState State)
         {
             var delegatesExpr = ((IExpressionSyntax)Method).CreateVerifiedExpression(State);
             var delegates = IntersectionExpression.GetIntersectedExpressions(delegatesExpr);
@@ -189,12 +189,12 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
             return GetCode().ToString();
         }
 
-        public const CodeBuilder GetCode()
+        public CodeBuilder GetCode()
         {
             var sb = new CodeBuilder();
             sb.Append(Method.GetCode());
