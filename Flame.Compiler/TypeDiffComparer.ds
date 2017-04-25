@@ -177,6 +177,21 @@ namespace Flame.Compiler
             {
                 return Renderer.Convert(Second);
             }
+            else if (Second.IsPointer && !First.IsPointer)
+            {
+                var ptrType = Second.AsPointerType();
+                return Renderer.MakePointerType(Compare(First, ptrType.ElementType), ptrType.PointerKind, MissingElementStyle);
+            }
+            else if (Second.IsArray && !First.IsArray)
+            {
+                var arrType = Second.AsArrayType();
+                return Renderer.MakeArrayType(Compare(First, arrType.ElementType), arrType.ArrayRank, MissingElementStyle);
+            }
+            else if (Second.IsVector && !First.IsVector)
+            {
+                var vecType = Second.AsVectorType();
+                return Renderer.MakeVectorType(Compare(First, vecType.ElementType), vecType.Dimensions, MissingElementStyle);
+            }
             else
             {
                 return Renderer.Convert(Second, DifferentElementStyle);
