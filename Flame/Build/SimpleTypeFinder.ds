@@ -79,5 +79,39 @@ namespace Flame.Build
             }
             return results;
         }
+
+        /// <summary>
+        /// Gets the set of all simple types in the given set of types. This is
+        /// equivalent to computing the set of all simple types for every element
+        /// in the given set and then computing the union of the resulting sets.
+        /// </summary>
+        /// <param name="Types">The set of types to examine.</param>
+        /// <returns>The set of all simple types in the given set of types.</returns>
+        public HashSet<IType> ConvertAndMerge(IEnumerable<IType> Types)
+        {
+            var results = new HashSet<IType>();
+            foreach (var item in Types)
+            {
+                results.UnionWith(Convert(item));
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of all simple types in the given set of methods. This is
+        /// equivalent to computing the set of all simple types for every element
+        /// in the given set and then computing the union of the resulting sets.
+        /// </summary>
+        /// <param name="Methods">The set of methods to examine.</param>
+        /// <returns>The set of all simple types in the given set of methods.</returns>
+        public HashSet<IType> ConvertAndMerge(IEnumerable<IMethod> Methods)
+        {
+            var results = new HashSet<IType>();
+            foreach (var item in Methods)
+            {
+                results.UnionWith(Convert(item));
+            }
+            return results;
+        }
     }
 }
