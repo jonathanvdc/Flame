@@ -6,19 +6,25 @@ using Pixie;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// A type that visually compares methods.
+    /// </summary>
     public virtual class MethodDiffComparer
     {
-        public this(TypeDiffComparer Comparer)
+        public this(TypeDiffComparer Comparer, Func<IType, IType, bool> IsConvertibleTo)
         {
             this.Comparer = Comparer;
+            this.IsConvertibleTo = IsConvertibleTo;
         }
         public this(TypeRenderer Renderer)
         {
             this.Comparer = new TypeDiffComparer(Renderer);
+            this.IsConvertibleTo = MemberExtensions.Is;
         }
         public this()
         {
             this.Comparer = new TypeDiffComparer();
+            this.IsConvertibleTo = MemberExtensions.Is;
         }
 
         /// <summary>
@@ -34,6 +40,14 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The type renderer.</returns>
         public TypeRenderer Renderer { get { return Comparer.Renderer; } }
+
+        /// <summary>
+        /// Gets a predicate that tells if its first argument is (implicitly) convertible
+        /// to its second argument.
+        /// </summary>
+        /// <returns>A predicate that tells if its first argument is (implicitly) convertible
+        /// to its second argument.</returns>
+        public Func<IType, IType, bool> IsConvertibleTo { get; private set; }
 
         public virtual MarkupNode CompareArguments([IType] ArgumentTypes, IMethod Method)
         {
@@ -52,6 +66,10 @@ namespace Flame.Compiler
                     if (argArray[i] == null)
                     {
                         nodes.Add(Renderer.Convert(paramArray[i].ParameterType, Comparer.DifferentElementStyle));
+                    }
+                    else if (IsConvertibleTo(argArray[i], paramArray[i].ParameterType))
+                    {
+                        nodes.Add(Renderer.Convert(paramArray[i].ParameterType));
                     }
                     else
                     {

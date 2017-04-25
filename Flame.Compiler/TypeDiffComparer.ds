@@ -13,20 +13,33 @@ namespace Flame.Compiler
     {
         public this(
             TypeRenderer Renderer,
+            Func<IType, IType, bool> IsReferenceConvertibleTo,
             IAttributes DifferentElementStyle,
             IAttributes ExtraElementStyle,
             IAttributes MissingElementStyle)
         {
             this.Renderer = Renderer;
+            this.IsReferenceConvertibleTo = IsReferenceConvertibleTo;
             this.DifferentElementStyle = DifferentElementStyle;
             this.ExtraElementStyle = ExtraElementStyle;
             this.MissingElementStyle = MissingElementStyle;
         }
 
         public this(
-            TypeRenderer Renderer)
+            TypeRenderer Renderer,
+            Func<IType, IType, bool> IsReferenceConvertibleTo)
         {
             this.Renderer = Renderer;
+            this.IsReferenceConvertibleTo = IsReferenceConvertibleTo;
+            this.DifferentElementStyle = DefaultDifferentElementStyle;
+            this.ExtraElementStyle = DefaultExtraElementStyle;
+            this.MissingElementStyle = DefaultMissingElementStyle;
+        }
+
+        public this(TypeRenderer Renderer)
+        {
+            this.Renderer = Renderer;
+            this.IsReferenceConvertibleTo = MemberExtensions.Is;
             this.DifferentElementStyle = DefaultDifferentElementStyle;
             this.ExtraElementStyle = DefaultExtraElementStyle;
             this.MissingElementStyle = DefaultMissingElementStyle;
@@ -35,6 +48,7 @@ namespace Flame.Compiler
         public this()
         {
             this.Renderer = new TypeRenderer();
+            this.IsReferenceConvertibleTo = MemberExtensions.Is;
             this.DifferentElementStyle = DefaultDifferentElementStyle;
             this.ExtraElementStyle = DefaultExtraElementStyle;
             this.MissingElementStyle = DefaultMissingElementStyle;
@@ -45,6 +59,14 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The type renderer.</returns>
         public TypeRenderer Renderer { get; private set; }
+
+        /// <summary>
+        /// Gets a predicate that tests if an instance of its first argument is reference-convertible
+        /// to an instance of its second argument.
+        /// </summary>
+        /// <returns>A predicate that tests if an instance of its first argument is reference-convertible
+        /// to an instance of its second argument.</returns>
+        public Func<IType, IType, bool> IsReferenceConvertibleTo { get; private set; }
 
         /// <summary>
         /// Gets the style that is applied to elements that differ.
@@ -151,7 +173,7 @@ namespace Flame.Compiler
 
         protected override MarkupNode CompareDefault(IType First, IType Second)
         {
-            if (First.Is(Second))
+            if (IsReferenceConvertibleTo(First, Second))
             {
                 return Renderer.Convert(Second);
             }
