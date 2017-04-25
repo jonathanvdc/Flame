@@ -82,7 +82,7 @@ namespace Flame.Syntax.DSharp
             SignatureBuilder.Append(')');
         }
 
-        public static const MarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, TypeRenderer Renderer)
+        public static MarkupNode CreateSignatureDiff(IMethod Method, IType[] ArgumentTypes, TypeRenderer Renderer)
         {
             var nodes = new List<MarkupNode>();
             if (Method.IsStatic)
