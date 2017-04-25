@@ -83,7 +83,7 @@ namespace Flame.Build
         /// <summary>
         /// Gets the set of all simple types in the given set of types. This is
         /// equivalent to computing the set of all simple types for every element
-        /// in the given set and then computing the union of the resulting sets.
+        /// in the given set and then taking the union of the resulting sets.
         /// </summary>
         /// <param name="Types">The set of types to examine.</param>
         /// <returns>The set of all simple types in the given set of types.</returns>
@@ -100,7 +100,7 @@ namespace Flame.Build
         /// <summary>
         /// Gets the set of all simple types in the given set of methods. This is
         /// equivalent to computing the set of all simple types for every element
-        /// in the given set and then computing the union of the resulting sets.
+        /// in the given set and then taking the union of the resulting sets.
         /// </summary>
         /// <param name="Methods">The set of methods to examine.</param>
         /// <returns>The set of all simple types in the given set of methods.</returns>
