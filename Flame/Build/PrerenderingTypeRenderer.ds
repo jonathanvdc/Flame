@@ -35,6 +35,11 @@ namespace Flame.Build
         /// <returns>A markup node that visualizes the type.</returns>
         public override MarkupNode Convert(IType Type)
         {
+            if (Type.IsPrimitive)
+            {
+                return Renderer.Convert(Type);
+            }
+
             MarkupNode newName;
             if (PrerenderedTypes.TryGetValue(Type, &newName))
             {
@@ -54,25 +59,7 @@ namespace Flame.Build
         /// <returns>A markup node that visualizes the type.</returns>
         protected override MarkupNode ConvertTypeDefault(IType Type, IAttributes Style)
         {
-            MarkupNode newName;
-            if (PrerenderedTypes.TryGetValue(Type, &newName))
-            {
-                return newName;
-            }
-            else
-            {
-                return Renderer.Convert(Type, Style);
-            }
-        }
-
-        /// <summary>
-        /// Renders a primitive type as a markup node.
-        /// </summary>
-        /// <param name="Type">The type to render.</param>
-        /// <returns>A markup node that visualizes the type.</returns>
-        protected override MarkupNode ConvertPrimitiveType(IType Type)
-        {
-            return Renderer.Convert(Type);
+            return Renderer.Convert(Type, Style);
         }
 
         /// <summary>
