@@ -154,7 +154,11 @@ namespace Flame.Build
             return Enumerable.Select<IType, TTarget>(Values, Convert);
         }
 
-        public virtual TTarget Convert(IType Value)
+        /// <summary>
+        /// Converts the given type to a value. This is the default implementation
+        /// of the 'Convert' method.
+        /// </summary>
+        protected TTarget DefaultConvertImpl(IType Value)
         {
             if (Value.IsPointer)
             {
@@ -180,6 +184,14 @@ namespace Flame.Build
             {
                 return ConvertTypeDeclaration(Value);
             }
+        }
+
+        /// <summary>
+        /// Converts the given type to a value.
+        /// </summary>
+        public virtual TTarget Convert(IType Value)
+        {
+            return DefaultConvertImpl(Value);
         }
     }
 }

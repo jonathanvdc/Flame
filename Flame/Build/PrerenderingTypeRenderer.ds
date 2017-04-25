@@ -1,0 +1,238 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Pixie;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// A type renderer that uses pre-canned renderings for some types.
+    /// </summary>
+    public class PrerenderingTypeRenderer : TypeRenderer
+    {
+        public this(TypeRenderer Renderer, IReadOnlyDictionary<IType, MarkupNode> PrerenderedTypes)
+        {
+            this.Renderer = Renderer;
+            this.PrerenderedTypes = PrerenderedTypes;
+        }
+
+        /// <summary>
+        /// Gets this renaming type renderer's inner type renderer.
+        /// </summary>
+        /// <returns>The inner type renderer.</returns>
+        public TypeRenderer Renderer { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary that maps types to the values they should be rendered as.
+        /// </summary>
+        /// <returns>The pre-rendered type dictionary.</returns>
+        public IReadOnlyDictionary<IType, MarkupNode> PrerenderedTypes { get; private set; }
+
+        /// <summary>
+        /// Renders a type as a markup node.
+        /// </summary>
+        /// <param name="Type">The type to render.</param>
+        /// <returns>A markup node that visualizes the type.</returns>
+        public override MarkupNode Convert(IType Type)
+        {
+            MarkupNode newName;
+            if (PrerenderedTypes.TryGetValue(Type, &newName))
+            {
+                return newName;
+            }
+            else
+            {
+                return DefaultConvertImpl(Type);
+            }
+        }
+
+        /// <summary>
+        /// Renders a simple type as a markup node.
+        /// </summary>
+        /// <param name="Type">The type to render.</param>
+        /// <param name="Style">The style to render the type with.</param>
+        /// <returns>A markup node that visualizes the type.</returns>
+        protected override MarkupNode ConvertTypeDefault(IType Type, IAttributes Style)
+        {
+            MarkupNode newName;
+            if (PrerenderedTypes.TryGetValue(Type, &newName))
+            {
+                return newName;
+            }
+            else
+            {
+                return Renderer.Convert(Type, Style);
+            }
+        }
+
+        /// <summary>
+        /// Gets the preferred default style for rendered types.
+        /// </summary>
+        /// <returns>The preferred default style for rendered types.</returns>
+        public override IAttributes DefaultStyle
+        {
+            get
+            {
+                return Renderer.DefaultStyle;
+            }
+        }
+
+        /// <summary>
+        /// Creates a node with the given style that wraps the given node.
+        /// </summary>
+        /// <param name="Style">The style to apply.</param>
+        /// <param name="Contents">The child node.</param>
+        /// <returns>A node with the given style that wraps the given node.</returns>
+        public override MarkupNode CreateStyledNode(MarkupNode Contents, IAttributes Style)
+        {
+            return Renderer.CreateStyledNode(Contents, Style);
+        }
+
+        /// <summary>
+        /// Creates a text node from the given text.
+        /// </summary>
+        /// <param name="Text">The text node's text.</param>
+        /// <returns>A text node.</returns>
+        public override MarkupNode CreateTextNode(string Text)
+        {
+            return Renderer.CreateTextNode(Text);
+        }
+
+        /// <summary>
+        /// Renders a pointer type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The pointer type's element.</param>
+        /// <param name="Kind">The pointer kind.</param>
+        /// <param name="PointerStyle">The style to render the pointer kind in.</param>
+        /// <returns>A markup node that visualizes the pointer type.</returns>
+        public override MarkupNode MakePointerType(
+            MarkupNode ElementType, PointerKind Kind, IAttributes PointerStyle)
+        {
+            return Renderer.MakePointerType(ElementType, Kind, PointerStyle);
+        }
+
+        /// <summary>
+        /// Renders an array type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The array type's element.</param>
+        /// <param name="ArrayRank">The array's rank.</param>
+        /// <param name="ArrayStyle">The style to render the array rank in.</param>
+        /// <returns>A markup node that visualizes the array type.</returns>
+        public override MarkupNode MakeArrayType(
+            MarkupNode ElementType, int ArrayRank, IAttributes ArrayStyle)
+        {
+            return Renderer.MakeArrayType(ElementType, ArrayRank, ArrayStyle);
+        }
+
+        /// <summary>
+        /// Renders a vector type as a markup node.
+        /// </summary>
+        /// <param name="ElementType">The vector type's element.</param>
+        /// <param name="Dimensions">The vector's dimensions.</param>
+        /// <param name="VectorStyle">The style to render the vector dimensions in.</param>
+        /// <returns>A markup node that visualizes the vector type.</returns>
+        public override MarkupNode MakeVectorType(
+            MarkupNode ElementType, IReadOnlyList<int> Dimensions, IAttributes VectorStyle)
+        {
+            return Renderer.MakeVectorType(ElementType, Dimensions, VectorStyle);
+        }
+
+        /// <summary>
+        /// Renders a generic type as a markup node.
+        /// </summary>
+        /// <param name="GenericDeclaration">The generic type's declaration.</param>
+        /// <param name="TypeArguments">The generic type's arguments.</param>
+        /// <param name="TypeArgumentHeaderStyle">The style to render the generic argument list's header in.</param>
+        /// <param name="TypeArgumentDelimiterStyle">The style to render the generic argument list's delimiter in.</param>
+        /// <param name="TypeArgumentTerminatorStyle">The style to render the generic argument list's terminator in.</param>
+        /// <returns>A markup node that visualizes the generic type.</returns>
+        public override MarkupNode MakeGenericType(
+            MarkupNode GenericDeclaration,
+            IEnumerable<MarkupNode> TypeArguments,
+            IAttributes TypeArgumentHeaderStyle,
+            IAttributes TypeArgumentDelimiterStyle,
+            IAttributes TypeArgumentTerminatorStyle)
+        {
+            return Renderer.MakeGenericType(
+                GenericDeclaration,
+                TypeArguments,
+                TypeArgumentHeaderStyle,
+                TypeArgumentDelimiterStyle,
+                TypeArgumentTerminatorStyle);
+        }
+
+        /// <summary>
+        /// Renders an intersection type as a markup node.
+        /// </summary>
+        /// <param name="FirstElementType">The first element of the intersection type.</param>
+        /// <param name="SecondElementType">The second element of the intersection type.</param>
+        /// <param name="IntersectionStyle">The style to render the intersection syntax in.</param>
+        /// <returns>A markup node that visualizes the intersection type.</returns>
+        public override MarkupNode MakeIntersectionType(
+            MarkupNode FirstElementType,
+            MarkupNode SecondElementType,
+            IAttributes IntersectionStyle)
+        {
+            return Renderer.MakeIntersectionType(FirstElementType, SecondElementType, IntersectionStyle);
+        }
+
+        /// <summary>
+        /// Renders a method type as a markup node.
+        /// </summary>
+        /// <param name="ReturnType">The method type's return type.</param>
+        /// <param name="ParameterTypes">The method type's list of parameter types.</param>
+        /// <param name="ParameterListHeaderStyle">The style to render the parameter list's header in.</param>
+        /// <param name="ParameterListDelimiterStyle">The style to render the parameter list's delimiter in.</param>
+        /// <param name="ParameterListTerminatorStyle">The style to render the parameter list's terminator in.</param>
+        /// <returns>A markup node that visualizes the method type.</returns>
+        public override MarkupNode MakeMethodType(
+            MarkupNode ReturnType,
+            IEnumerable<MarkupNode> ParameterTypes,
+            IAttributes ParameterListHeaderStyle,
+            IAttributes ParameterListDelimiterStyle,
+            IAttributes ParameterListTerminatorStyle)
+        {
+            return Renderer.MakeMethodType(
+                ReturnType,
+                ParameterTypes,
+                ParameterListHeaderStyle,
+                ParameterListDelimiterStyle,
+                ParameterListTerminatorStyle);
+        }
+
+        /// <summary>
+        /// Renders a nested type as a markup node.
+        /// </summary>
+        /// <param name="DeclaringType">The declaring type.</param>
+        /// <param name="NestedTypeName">The name of the nested type.</param>
+        /// <param name="NestingStyle">The style of the nesting delimiter.</param>
+        /// <returns>A markup node that visualizes the nested type.</returns>
+        public override MarkupNode MakeNestedType(
+            MarkupNode DeclaringType,
+            MarkupNode NestedTypeName,
+            IAttributes NestingStyle)
+        {
+            return Renderer.MakeNestedType(DeclaringType, NestedTypeName, NestingStyle);
+        }
+
+        /// <summary>
+        /// Gets a string representation of the given unqualified name.
+        /// </summary>
+        /// <param name="Name">The name to represent.</param>
+        /// <returns>A string representation of an unqualified name.</returns>
+        public override string UnqualifiedNameToString(UnqualifiedName Name)
+        {
+            return Renderer.UnqualifiedNameToString(Name);
+        }
+
+        /// <summary>
+        /// Gets a string representation of the given qualified name.
+        /// </summary>
+        /// <param name="Name">The name to represent.</param>
+        /// <returns>A string representation of an qualified name.</returns>
+        public override string QualifiedNameToString(QualifiedName Name)
+        {
+            return Renderer.QualifiedNameToString(Name);
+        }
+    }
+}
