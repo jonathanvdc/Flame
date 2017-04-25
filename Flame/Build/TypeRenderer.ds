@@ -28,9 +28,10 @@ namespace Flame.Build
         /// Creates a type renderer that prints short type names (i.e., Enumerable
         /// instead of System.Linq.Enumerable) when this does not cause ambiguity.
         /// Potential abiguities are detected by inspecting the given set, which should
-        /// contain all simple types which might be rendered by the abbreviating renderer.
+        /// contain all simple types which might be rendered as their short names
+        /// by the abbreviating renderer.
         /// </summary>
-        /// <param name="AllTypes">The set of all types which may be rendered by the abbreviated renderer.</param>
+        /// <param name="AllTypes">The set of all types which may be abbreviated by the abbreviating renderer.</param>
         /// <returns>A type renderer that prints short type names when this does not cause ambiguity.</returns>
         public PrerenderingTypeRenderer AbbreviateTypeNames(IEnumerable<IType> AllSimpleTypes)
         {
