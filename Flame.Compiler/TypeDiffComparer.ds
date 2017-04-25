@@ -133,44 +133,6 @@ namespace Flame.Compiler
             return new PredefinedAttributes(dict);
         }
 
-        public static MarkupNode HighlightNode(MarkupNode Node)
-        {
-            return new MarkupNode(NodeConstants.HighlightNodeType, new MarkupNode[] { Node });
-        }
-
-        public static MarkupNode HighlightExtraNode(MarkupNode Node)
-        {
-            var dict = new Dictionary<string, object>();
-            dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.ExtraHighlightingType;
-            var attrs = new PredefinedAttributes(dict);
-            return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new MarkupNode[] { Node });
-        }
-
-        public static MarkupNode HighlightMissingNode(MarkupNode Node)
-        {
-            var dict = new Dictionary<string, object>();
-            dict[NodeConstants.HighlightingTypeAttribute] = NodeConstants.MissingHighlightingType;
-            var attrs = new PredefinedAttributes(dict);
-            return new MarkupNode(NodeConstants.HighlightNodeType, attrs, new MarkupNode[] { Node });
-        }
-        public static MarkupNode HighlightNode(string Text)
-        {
-            return HighlightNode(ToTextNode(Text));
-        }
-        public static MarkupNode HighlightExtraNode(string Text)
-        {
-            return HighlightExtraNode(ToTextNode(Text));
-        }
-        public static MarkupNode HighlightMissingNode(string Text)
-        {
-            return HighlightMissingNode(ToTextNode(Text));
-        }
-
-        public static MarkupNode ToTextNode(string Text)
-        {
-            return new MarkupNode(NodeConstants.TextNodeType, Text);
-        }
-
         protected override MarkupNode CompareDefault(IType First, IType Second)
         {
             if (IsReferenceConvertibleTo(First, Second))
