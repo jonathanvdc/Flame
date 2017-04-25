@@ -106,7 +106,20 @@ namespace Flame.Syntax.DSharp
                     nodes.Add(Renderer.Convert(Method.ReturnType));
                 }
                 nodes.Add(Renderer.CreateTextNode(" "));
-                nodes.Add(Renderer.CreateTextNode(Method.FullName.ToString()));
+
+                var nameNode = Renderer.CreateTextNode(
+                    Renderer.UnqualifiedNameToString(Method.Name));
+                if (Method.DeclaringType == null)
+                {
+                    nodes.Add(nameNode);
+                }
+                else
+                {
+                    nodes.Add(Renderer.MakeNestedType(
+                        Renderer.Convert(Method.DeclaringType),
+                        nameNode,
+                        Renderer.DefaultStyle));
+                }
             }
             var methodDiffBuilder = new MethodDiffComparer(Renderer);
             nodes.Add(methodDiffBuilder.CompareArguments(ArgumentTypes, Method));
