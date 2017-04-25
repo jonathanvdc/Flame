@@ -1,0 +1,83 @@
+using System;
+using System.Collections.Generic;
+
+namespace Flame.Build
+{
+    /// <summary>
+    /// A converter that takes types as input and returns sets of simple types
+    /// they contain.
+    /// </summary>
+    public static class SimpleTypeFinder : TypeConverterBase<HashSet<IType>>
+    {
+        protected override HashSet<IType> MakePointerType(HashSet<IType> ElementType, PointerKind Kind)
+        {
+            return ElementType;
+        }
+
+        protected override HashSet<IType> MakeArrayType(HashSet<IType> ElementType, int ArrayRank)
+        {
+            return ElementType;
+        }
+
+        protected override HashSet<IType> MakeVectorType(HashSet<IType> ElementType, IReadOnlyList<int> Dimensions)
+        {
+            return ElementType;
+        }
+
+        protected override HashSet<IType> MakeGenericType(HashSet<IType> GenericDeclaration, IEnumerable<HashSet<IType>> TypeArguments)
+        {
+            foreach (var item in TypeArguments)
+            {
+                GenericDeclaration.UnionWith(item);
+            }
+            return GenericDeclaration;
+        }
+
+        protected override HashSet<IType> MakeGenericInstanceType(
+            HashSet<IType> GenericDeclaration, HashSet<IType> GenericDeclaringTypeInstance)
+        {
+            GenericDeclaration.UnionWith(GenericDeclaringTypeInstance);
+            return GenericDeclaration;
+        }
+
+        protected override HashSet<IType> ConvertTypeDefault(IType Type)
+        {
+            var results = new HashSet<IType>();
+            results.Add(Type);
+            return results;
+        }
+
+        protected override HashSet<IType> ConvertMethodType(MethodType Type)
+        {
+            return Convert(Type.DelegateSignature);
+        }
+
+        protected override HashSet<IType> ConvertIntersectionType(IntersectionType Type)
+        {
+            var results = Convert(Type.First);
+            results.UnionWith(Convert(Type.Second));
+            return results;
+        }
+
+        /// <summary>
+        /// Gets the set of all simple types in the given method's return type,
+        /// declaring type and parameter types.
+        /// </summary>
+        /// <param name="Method">The method to examine.</param>
+        /// <returns>A set of simple types.</returns>
+        public HashSet<IType> Convert(IMethod Method)
+        {
+            var results = new HashSet<IType>();
+            results.UnionWith(Convert(Method.ReturnType));
+            if (Method.DeclaringType != null)
+            {
+                results.UnionWith(Convert(Method.DeclaringType));
+            }
+            foreach (var param in Method.Parameters)
+            {
+                results.UnionWith(Convert(param.ParameterType));
+            }
+            return results;
+        }
+    }
+}

@@ -171,6 +171,7 @@
             <Compile Include="Build/PointerType.ds" />
             <Compile Include="Build/PrerenderingTypeRenderer.ds" />
             <Compile Include="Build/RetypedParameter.ds" />
+            <Compile Include="Build/SimpleTypeFinder.ds" />
             <Compile Include="Build/TypeConverterBase.ds" />
             <Compile Include="Build/TypeTransformerBase.ds" />
             <Compile Include="Build/TypeNamerBase.ds" />
