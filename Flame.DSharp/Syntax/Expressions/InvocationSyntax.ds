@@ -159,7 +159,12 @@ namespace Flame.Syntax.DSharp
 
             var matches = delegatesExpr.GetMethodGroup();
 
-            var namer = State.Renderer;
+            // Construct the set of all types that we might end up rendering.
+            var allTypes = SimpleTypeFinder.ConvertAndMerge(argTypes);
+            allTypes.UnionWith(SimpleTypeFinder.ConvertAndMerge(matches));
+
+            // Create an abbreviating type renderer.
+            var namer = State.Renderer.AbbreviateTypeNames(allTypes);
             var expectedSignature = CreateExpectedSignatureDescription(Method.GetCode().Trim(), argTypes, namer).Trim();
 
             var thisCode = this.GetCode().Trim();

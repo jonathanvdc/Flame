@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Variables;
@@ -62,7 +63,14 @@ namespace Flame.Syntax.DSharp
             var newInstanceCode = new CodeBuilder();
             newInstanceCode.Append("new ");
             newInstanceCode.Append(TypeNode.GetCode().Trim());
-            var namer = State.Renderer;
+
+            // Construct the set of all types that we might end up rendering.
+            var allTypes = SimpleTypeFinder.ConvertAndMerge(ArgumentTypes);
+            allTypes.UnionWith(SimpleTypeFinder.ConvertAndMerge(Candidates));
+
+            // Create an abbreviating type renderer.
+            var namer = State.Renderer.AbbreviateTypeNames(allTypes);
+
             var expectedSignature = InvocationSyntax.CreateExpectedSignatureDescription(newInstanceCode, ArgumentTypes, namer);
             var failedMatches = Enumerable.ToArray<IMethod>(Candidates);
             if (failedMatches.Length > 0)
