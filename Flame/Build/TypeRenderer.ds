@@ -64,7 +64,7 @@ namespace Flame.Build
             var prerenderedTypes = new Dictionary<IType, MarkupNode>();
             foreach (var simpleType in simpleTypeSet)
             {
-                if (!ambiguousTypes.Contains(simpleType))
+                if (!ambiguousTypes.Contains(simpleType) && simpleType.Name is SimpleName)
                 {
                     prerenderedTypes[simpleType] = CreateTextNode(
                         UnqualifiedNameToString(simpleType.Name));
