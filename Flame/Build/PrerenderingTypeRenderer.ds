@@ -66,6 +66,16 @@ namespace Flame.Build
         }
 
         /// <summary>
+        /// Renders a primitive type as a markup node.
+        /// </summary>
+        /// <param name="Type">The type to render.</param>
+        /// <returns>A markup node that visualizes the type.</returns>
+        protected override MarkupNode ConvertPrimitiveType(IType Type)
+        {
+            return Renderer.Convert(Type);
+        }
+
+        /// <summary>
         /// Gets the preferred default style for rendered types.
         /// </summary>
         /// <returns>The preferred default style for rendered types.</returns>

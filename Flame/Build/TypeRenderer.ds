@@ -25,6 +25,55 @@ namespace Flame.Build
         }
 
         /// <summary>
+        /// Creates a type renderer that prints short type names (i.e., Enumerable
+        /// instead of System.Linq.Enumerable) when this does not cause ambiguity.
+        /// Potential abiguities are detected by inspecting the given set, which should
+        /// contain all simple types which might be rendered by the abbreviating renderer.
+        /// </summary>
+        /// <param name="AllTypes">The set of all types which may be rendered by the abbreviated renderer.</param>
+        /// <returns>A type renderer that prints short type names when this does not cause ambiguity.</returns>
+        public PrerenderingTypeRenderer AbbreviateTypeNames(IEnumerable<IType> AllSimpleTypes)
+        {
+            var simpleTypeSet = new HashSet<IType>(AllSimpleTypes);
+
+            // First iterate over the set of all simple types in order to find
+            // the set of all types whose short names are ambiguous.
+            var simpleNameMap = new Dictionary<string, IType>();
+            var ambiguousTypes = new HashSet<IType>();
+            foreach (var simpleType in simpleTypeSet)
+            {
+                var typeName = simpleType.Name;
+                if (typeName is SimpleName)
+                {
+                    string simpleName = ((SimpleName)typeName).Name;
+                    IType ambiguousType;
+                    if (simpleNameMap.TryGetValue(simpleName, &ambiguousType))
+                    {
+                        ambiguousTypes.Add(ambiguousType);
+                        ambiguousTypes.Add(simpleType);
+                    }
+                    else
+                    {
+                        simpleNameMap[simpleName] = simpleType;
+                    }
+                }
+            }
+
+            // Iterate over the set of all simple types again and prerender types as their
+            // short names.
+            var prerenderedTypes = new Dictionary<IType, MarkupNode>();
+            foreach (var simpleType in simpleTypeSet)
+            {
+                if (!ambiguousTypes.Contains(simpleType))
+                {
+                    prerenderedTypes[simpleType] = CreateTextNode(
+                        UnqualifiedNameToString(simpleType.Name));
+                }
+            }
+            return new PrerenderingTypeRenderer(this, prerenderedTypes);
+        }
+
+        /// <summary>
         /// Creates a node with the given style that wraps the given node.
         /// </summary>
         /// <param name="Style">The style to apply.</param>
