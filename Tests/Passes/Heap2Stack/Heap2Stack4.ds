@@ -22,7 +22,7 @@ public struct CodeLine
     /// </summary>
     public bool IsEmpty
     {
-        const get return Text.Equals(null) || Text.Equals("") || IsWhiteline;
+        const get return Text == null || Text == "" || IsWhiteline;
     }
 
     /// <summary>
