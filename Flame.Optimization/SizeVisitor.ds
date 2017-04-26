@@ -44,9 +44,10 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// "Visits" an expression: an expression is taken as input and transformed another expression.
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
+        /// This is the default implementation of the 'Visit' method.
         /// </summary>
-        public virtual IExpression Visit(IExpression Value)
+        protected IExpression DefaultVisitImpl(IExpression Value)
         {
             if (!IgnoreMetadata || !(Value is IMetadataNode<IExpression>))
                 Size++;
@@ -64,9 +65,18 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// "Visits" a statement: an statement is taken as input and transformed another statement.
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
         /// </summary>
-        public virtual IStatement Visit(IStatement Value)
+        public virtual IExpression Visit(IExpression Value)
+        {
+            return DefaultVisitImpl(Value);
+        }
+
+        /// <summary>
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
+        /// This is the default implementation of the 'Visit' method.
+        /// </summary>
+        protected IStatement DefaultVisitImpl(IStatement Value)
         {
             if (Value.IsEmpty)
                 return Value;
@@ -83,6 +93,14 @@ namespace Flame.Optimization
                 Value.Accept(this);
                 return Value;
             }
+        }
+
+        /// <summary>
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
+        /// </summary>
+        public virtual IStatement Visit(IStatement Value)
+        {
+            return DefaultVisitImpl(Value);
         }
     }
 }

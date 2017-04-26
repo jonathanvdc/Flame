@@ -57,7 +57,7 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// "Visits" an expression: an expression is taken as input and transformed another expression.
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
         /// </summary>
         public override IExpression Visit(IExpression Value)
         {
@@ -93,7 +93,7 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// "Visits" a statement: an statement is taken as input and transformed another statement.
+        /// "Visits" a statement: an statement is taken as input and transformed into another statement.
         /// </summary>
         public override IStatement Visit(IStatement Value)
         {
