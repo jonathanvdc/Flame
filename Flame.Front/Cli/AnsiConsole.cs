@@ -12,7 +12,7 @@ namespace Flame.Front.Cli
         public AnsiConsole(string Name, int BufferWidth, Color ForegroundColor, Color BackgroundColor)
             : base(new AnsiConsoleStyle(ForegroundColor.Over(DefaultForegroundColor), BackgroundColor.Over(DefaultBackgroundColor), false, true))
         {
-            desc = new ConsoleDescription("default", BufferWidth, 
+            desc = new ConsoleDescription("default", BufferWidth,
                 InitialStyle.ForegroundColor, InitialStyle.BackgroundColor);
         }
         public AnsiConsole(string Name, int BufferWidth)
@@ -56,7 +56,25 @@ namespace Flame.Front.Cli
 
         protected override AnsiConsoleStyle MergeStyles(AnsiConsoleStyle Source, Style Delta)
         {
-            return new AnsiConsoleStyle(Delta.ForegroundColor.Over(Source.ForegroundColor), Delta.BackgroundColor.Over(Source.BackgroundColor), Delta.Preferences.Contains("underline", StringComparer.OrdinalIgnoreCase), Source == null);
+            var result = new AnsiConsoleStyle(
+                Delta.ForegroundColor.Over(Source.ForegroundColor),
+                Delta.BackgroundColor.Over(Source.BackgroundColor),
+                Delta.Preferences.Contains("underline", StringComparer.OrdinalIgnoreCase),
+                Source == null);
+
+            if (result.ForegroundConsoleColor == InitialStyle.ForegroundConsoleColor
+                && result.BackgroundConsoleColor == InitialStyle.BackgroundConsoleColor)
+            {
+                return new AnsiConsoleStyle(
+                    result.ForegroundColor,
+                    result.BackgroundColor,
+                    result.Underline,
+                    true);
+            }
+            else
+            {
+                return result;
+            }
         }
 
         protected override void ApplyStyle(AnsiConsoleStyle OldStyle, AnsiConsoleStyle Style)
