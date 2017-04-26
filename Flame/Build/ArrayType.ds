@@ -5,58 +5,58 @@ using Flame.Build;
 
 namespace Flame
 {
-	public class ArrayType : ContainerTypeBase, IGenericResolverType
-	{
+    public class ArrayType : ContainerTypeBase, IGenericResolverType
+    {
         public const this(IType ElementType, set int ArrayRank)
-			: base(ElementType);
+            : base(ElementType);
 
-		/// <summary>
+        /// <summary>
         /// Gets the number of dimensions in this array type.
         /// </summary>
         public int ArrayRank { const get; private set; }
 
-		#region Static
+        #region Static
 
-		static this()
-		{
-			var descProp = new DescribedProperty("Length", null, PrimitiveTypes.Int32, false);
-			var getter = new DescribedAccessor(AccessorType.GetAccessor, descProp, PrimitiveTypes.Int32);
-			descProp.AddAccessor(getter);
-			lengthProperty = descProp;
-		}
+        static this()
+        {
+            var descProp = new DescribedProperty("Length", null, PrimitiveTypes.Int32, false);
+            var getter = new DescribedAccessor(AccessorType.GetAccessor, descProp, PrimitiveTypes.Int32);
+            descProp.AddAccessor(getter);
+            lengthProperty = descProp;
+        }
 
-		private static IProperty lengthProperty;
+        private static IProperty lengthProperty;
 
-		#endregion
+        #endregion
 
-		public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
-		{
-			// Don't "resolve" anything. This behavior is useful when creating
-			// generic property instances.
-			return TypeParameter;
-		}
+        public const IType ResolveTypeParameter(IGenericParameter TypeParameter)
+        {
+            // Don't "resolve" anything. This behavior is useful when creating
+            // generic property instances.
+            return TypeParameter;
+        }
 
         public override [IType] BaseTypes
         {
             const get { return new IType[] { PrimitiveTypes.IHashable }; }
         }
 
-		public override [IProperty] Properties
-		{
-			const get
-			{
-				return new IProperty[] { new GenericInstanceProperty(lengthProperty, this) };
-			}
-		}
+        public override [IProperty] Properties
+        {
+            const get
+            {
+                return new IProperty[] { new GenericInstanceProperty(lengthProperty, this) };
+            }
+        }
 
-		public override IAncestryRules AncestryRules
-		{
-			const get { return ArrayAncestryRules; }
-		}
+        public override IAncestryRules AncestryRules
+        {
+            const get { return ArrayAncestryRules; }
+        }
 
         protected override UnqualifiedName GetName(QualifiedName ElementName)
         {
-			return new ArrayName(ElementName, ArrayRank);
+            return new ArrayName(ElementName, ArrayRank);
         }
 
         public override bool Equals(object obj)
@@ -65,12 +65,12 @@ namespace Flame
             {
                 var arrType = (ArrayType)obj;
                 return ArrayRank == arrType.ArrayRank &&
-					   ElementType.Equals(arrType.ElementType);
+                       ElementType.Equals(arrType.ElementType);
             }
             else
-			{
-				return false;
-			}
+            {
+                return false;
+            }
         }
 
         public override int GetHashCode()
@@ -79,28 +79,28 @@ namespace Flame
         }
     }
 
-	/// <summary>
-	/// A set of ancestry rules for non-covariant arrays:
-	/// only arrays with the same rank and element type are interchangeable.
-	/// </summary>
-	public static class ArrayAncestryRules : IAncestryRules
-	{
-		public int GetAncestryDegree(IType First, IType Second)
-		{
-			if (First.IsArray && Second.IsArray &&
-				First.AsArrayType().ArrayRank == Second.AsArrayType().ArrayRank &&
-				First.AsArrayType().ElementType.IsEquivalent(Second.AsArrayType().ElementType))
+    /// <summary>
+    /// A set of ancestry rules for non-covariant arrays:
+    /// only arrays with the same rank and element type are interchangeable.
+    /// </summary>
+    public static class ArrayAncestryRules : IAncestryRules
+    {
+        public int GetAncestryDegree(IType First, IType Second)
+        {
+            if (First.IsArray && Second.IsArray &&
+                First.AsArrayType().ArrayRank == Second.AsArrayType().ArrayRank &&
+                First.AsArrayType().ElementType.IsEquivalent(Second.AsArrayType().ElementType))
             {
-				return 0;
+                return 0;
             }
-			else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
-			{
-				int elemDegree = First.AsArrayType().ElementType.GetAncestryDegree(
-									Second.GetEnumerableElementType());
-				if (elemDegree >= 0)
-					return elemDegree + 1;
-			}
-			return -1;
-		}
-	}
+            else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
+            {
+                int elemDegree = First.AsArrayType().ElementType.GetAncestryDegree(
+                                    Second.GetEnumerableElementType());
+                if (elemDegree >= 0)
+                    return elemDegree + 1;
+            }
+            return -1;
+        }
+    }
 }
