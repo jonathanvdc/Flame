@@ -7,13 +7,16 @@ namespace Flame
 {
     public class ArrayType : ContainerTypeBase, IGenericResolverType
     {
-        public const this(IType ElementType, set int ArrayRank)
-            : base(ElementType);
+        public this(IType ElementType, int ArrayRank)
+            : base(ElementType)
+        {
+            this.ArrayRank = ArrayRank;
+        }
 
         /// <summary>
         /// Gets the number of dimensions in this array type.
         /// </summary>
-        public int ArrayRank { const get; private set; }
+        public int ArrayRank { get; private set; }
 
         #region Static
 
@@ -93,14 +96,16 @@ namespace Flame
             {
                 return 0;
             }
-            else if (First.IsArray && Second.IsEnumerableType) // Arrays are direct subtypes of enumerables.
+            else if (First.IsArray && Second.IsEnumerableType)
             {
+                // Arrays are direct subtypes of enumerables.
                 int elemDegree = First.AsArrayType().ElementType.GetAncestryDegree(
                                     Second.GetEnumerableElementType());
                 if (elemDegree >= 0)
                     return elemDegree + 1;
             }
-            return -1;
+            // Have the definition ancestry rules duke it out.
+            return DefinitionAncestryRules.GetAncestryDegree(First, Second);
         }
     }
 }
