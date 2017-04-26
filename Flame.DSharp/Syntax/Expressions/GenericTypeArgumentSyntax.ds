@@ -78,11 +78,6 @@ namespace Flame.Syntax.DSharp
             return cb;
         }
 
-        public const IExpression GetCallerExpression(ISyntaxState State)
-        {
-            return Target.GetCallerExpression(State);
-        }
-
         public const IVariable GetCallerVariable(ISyntaxState State)
         {
             return Target.GetCallerVariable(State);

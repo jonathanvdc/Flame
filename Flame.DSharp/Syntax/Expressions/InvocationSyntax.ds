@@ -208,11 +208,6 @@ namespace Flame.Syntax.DSharp
             return sb;
         }
 
-        public IExpression GetCallerExpression(ISyntaxState State)
-        {
-            return Method.GetCallerExpression(State);
-        }
-
         public IVariable GetCallerVariable(ISyntaxState State)
         {
             return Method.GetCallerVariable(State);
