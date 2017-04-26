@@ -17,6 +17,7 @@ tests
     LongLiterals/LongLiterals.test;
     ShiftOperators/ShiftOperators.test;
     StringEquality/StringEquality.test;
+    StringFormat/StringFormat.test;
     TryParse/TryParse.test;
     WhileNext/WhileNext.test;
 }
