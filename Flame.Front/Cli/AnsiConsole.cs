@@ -24,13 +24,13 @@ namespace Flame.Front.Cli
         {
             get
             {
-				// Mono seems to default to black as background color,
-				// no matter what the terminal color is actually set to.
-				// This makes asking the Console class just about 
-				// useless. Let's save us all some trouble, and assume
-				// that the background color is indeed black for ANSI
-				// escape code consoles.
-				return new Color(0, 0, 0, 1);
+                // Mono seems to default to black as background color,
+                // no matter what the terminal color is actually set to.
+                // This makes asking the Console class just about 
+                // useless. Let's save us all some trouble, and assume
+                // that the background color is indeed black for ANSI
+                // escape code consoles.
+                return new Color(0, 0, 0, 1);
             }
         }
 
@@ -38,12 +38,12 @@ namespace Flame.Front.Cli
         {
             get
             {
-				// Mono seems to default to white as background color,
-				// no matter the settings. Let's just assume that the
-				// foreground color is gray instead, because that
-				// color scheme lets us print far more interesting 
-				// diagnostics.
-				return new Color(0.75, 0.75, 0.75, 1);
+                // Mono seems to default to white as background color,
+                // no matter the settings. Let's just assume that the
+                // foreground color is gray instead, because that
+                // color scheme lets us print far more interesting 
+                // diagnostics.
+                return new Color(0.75, 0.75, 0.75, 1);
             }
         }
 
