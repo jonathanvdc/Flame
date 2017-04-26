@@ -550,7 +550,7 @@ namespace Flame.Optimization
         protected override IExpression VisitNewObject(NewObjectExpression Expression)
         {
             var ctorData = Analyze(Expression.Constructor);
-            // Creates a new tag to hold the result.
+            // Create a new tag to represent the constructed object.
             var newTag = AnalysisData.CreateTag(
                 "new-object", Expression.Type, EscapeAnalysisResult.Local);
             var args = AnalyzeArguments(Expression.Arguments);
@@ -565,13 +565,13 @@ namespace Flame.Optimization
 
         protected override IExpression VisitDynamicCast(DynamicCastExpression Expression)
         {
-            // Don't modify the expression result.
+            // Ignore the expression.
             return Expression.Accept(this);
         }
 
         protected override IExpression VisitReinterpretCast(ReinterpretCastExpression Expression)
         {
-            // Don't modify the expression result.
+            // Ignore the expression.
             return Expression.Accept(this);
         }
 
@@ -615,7 +615,9 @@ namespace Flame.Optimization
 
         protected override IExpression VisitCall(InvocationExpression Expression, DissectedCall Call)
         {
+            // Analyze the 'this' expression.
             var thisVal = AnalyzeExpression(Call.ThisValue);
+            // Analyze the arguments.
             var args = AnalyzeArguments(Call.Arguments);
             var newCall = new InvocationExpression(
                 Call.Method, thisVal.Item1, args.Item1);
@@ -785,10 +787,14 @@ namespace Flame.Optimization
         public IExpression Expression { get; private set; }
         public CallEscapeDependencies Dependencies { get; private set; }
 
+        /// <summary>
+        /// Gets a Boolean value that specifies if this expression creates a new object.
+        /// </summary>
+        /// <returns><c>true</c> if a new object is created; otherwise, <c>false</c>.</returns>
         public bool IsNewObject { get { return Expression is NewObjectExpression; } }
 
         /// <summary>
-        /// Replaces this escape-analyzed call expresison's method
+        /// Replaces this escape-analyzed call expression's method
         /// by the given method. The escape analysis information is
         /// discarded from the resulting expression.
         /// </summary>
@@ -934,7 +940,7 @@ namespace Flame.Optimization
         private Dictionary<UniqueTag, IVariable> replacedVariables;
         private HashSet<UniqueTag> blacklistedVariables;
 
-        // A boolean value that tracks whether the top-of-stack expression
+        // A Boolean value that tracks whether the top-of-stack expression
         // has been replaced by a stack-allocated variable.
         private bool hasReplaced;
 
@@ -1001,7 +1007,9 @@ namespace Flame.Optimization
         }
 
         /// <summary>
-        /// Tries to replace the given variable by another variable.
+        /// Tries to replace the given variable by another variable. The 'hasReplaced'
+        /// flag is set to <c>true</c> if a non-field variable was replaced and set to
+        /// <c>false</c> in any other case.
         /// </summary>
         private bool TryReplaceVariable(IVariable Variable, out IVariable^ Result)
             out (result) { !result || *Result != null }
@@ -1012,6 +1020,7 @@ namespace Flame.Optimization
                 if (fieldVar.Target == null)
                 {
                     *Result = null;
+                    hasReplaced = false;
                     return false;
                 }
 
@@ -1027,6 +1036,7 @@ namespace Flame.Optimization
                 else
                 {
                     *Result = null;
+                    hasReplaced = false;
                     return false;
                 }
             }
@@ -1037,10 +1047,12 @@ namespace Flame.Optimization
                 || AnalysisData.GetResult(tag) == EscapeAnalysisResult.Global)
             {
                 *Result = null;
+                hasReplaced = false;
                 return false;
             }
             else if (replacedVariables.TryGetValue(tag, Result))
             {
+                hasReplaced = true;
                 return true;
             }
             else
@@ -1066,12 +1078,14 @@ namespace Flame.Optimization
                     }
                     
                     replacedVariables[tag] = *Result;
+                    hasReplaced = true;
                     return true;
                 }
                 else
                 {
                     *Result = Variable;
                     blacklistedVariables.Add(tag);
+                    hasReplaced = false;
                     return false;
                 }
             }
@@ -1133,7 +1147,6 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
-                this.hasReplaced = true;
                 return replVar.CreateGetExpression();
             }
             else
@@ -1209,6 +1222,7 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
+                hasReplaced = false;
                 // Visit the value, and create a 'store' statement.
                 var storeStmt = replVar.CreateSetStatement(Visit(StoreValue));
                 return storeStmt;
@@ -1224,6 +1238,7 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Variable, &IVariable replVar))
             {
+                hasReplaced = false;
                 return replVar.CreateReleaseStatement();
             }
             else
@@ -1251,6 +1266,7 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Argument, &IVariable replVar))
             {
+                hasReplaced = false;
                 assert(replVar is SSAVariable);
                 return (SSAVariable)replVar;
             }
@@ -1267,6 +1283,7 @@ namespace Flame.Optimization
         {
             if (TryReplaceVariable(Parameter, &IVariable replVar))
             {
+                hasReplaced = false;
                 assert(replVar is SSAVariable);
                 return (SSAVariable)replVar;
             }

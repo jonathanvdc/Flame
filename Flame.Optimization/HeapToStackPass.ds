@@ -77,6 +77,7 @@ namespace Flame.Optimization
                     Argument.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
                     PassName + " (input)")
             }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Argument.Body) }
             out (result) { VerifyCFGPass.Apply(result.Body) }
             out (result)
             {
@@ -84,6 +85,7 @@ namespace Flame.Optimization
                     result.Body, Argument.PassEnvironment.Log, Argument.DeclaringMethod,
                     PassName + " (output)")
             }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result.Body) }
         {
             var method = Argument.DeclaringMethod;
             var bodyAnalysis = AnalyzeBody(
@@ -429,6 +431,7 @@ namespace Flame.Optimization
                 return null;
 
             methodDef.Body = methodBody;
+            assert(!InvalidCallFindingVisitor.ContainsInvalidCalls(methodBody));
 
             // I guess we're done here.
             return new RewrittenMethodSignature(methodDef, hasReplacedThis, hasReplacedResult);
