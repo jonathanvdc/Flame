@@ -245,6 +245,10 @@ namespace Flame.Syntax.DSharp
             var properties = ExceptShadowed(GroupTypeMembers<IProperty>(members, MemberName), CallerType);
 
             var propertyTargetType = GetNullableType(Caller);
+            if (propertyTargetType != null)
+            {
+                propertyTargetType = State.Binder.Environment.GetEquivalentType(propertyTargetType);
+            }
 
             var property = Enumerable.FirstOrDefault<IProperty>(properties.GetBestProperties(propertyTargetType, new IType[0]));
             if (property != null)
