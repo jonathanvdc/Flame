@@ -13,10 +13,10 @@ namespace Flame.Syntax.DSharp
 {
     public class CurriedClosure<T1, T2, T3, T4>
     {
-        public const this(set T4(T1, T2, T3) Delegate, set T1 Arg0);
+        public this(set T4(T1, T2, T3) Delegate, set T1 Arg0);
 
-        public T4(T1, T2, T3) Delegate { const get; private set; }
-        public T1 Arg0 { const get; private set; }
+        public T4(T1, T2, T3) Delegate { get; private set; }
+        public T1 Arg0 { get; private set; }
 
         public T4 Invoke(T2 Arg1, T3 Arg2)
         {
@@ -26,21 +26,21 @@ namespace Flame.Syntax.DSharp
 
     public abstract class MemberAccessSyntaxBase : VariableSyntaxBase, ITypeMemberAccessSyntax, ISourceSyntax
     {
-        public const this();
-        public const this(set IExpressionSyntax Target, set Token Operator, set Token Member);
+        public this();
+        public this(set IExpressionSyntax Target, set Token Operator, set Token Member);
 
-        public IExpressionSyntax Target { const get; protected set; }
-        public Token Operator { const get; protected set; }
-        public Token Member { const get; protected set; }
+        public IExpressionSyntax Target { get; protected set; }
+        public Token Operator { get; protected set; }
+        public Token Member { get; protected set; }
 
         public SourceLocation Location
         {
-            const get return Target.GetSourceLocation().Concat(MemberAccessLocation);
+            get return Target.GetSourceLocation().Concat(MemberAccessLocation);
         }
 
         public SourceLocation MemberAccessLocation
         {
-            const get return Operator.Location.Concat(Member.Location);
+            get return Operator.Location.Concat(Member.Location);
         }
 
         public abstract IVariable GetCallerVariable(ISyntaxState State);
@@ -135,7 +135,7 @@ namespace Flame.Syntax.DSharp
 
         #endregion
 
-        private static const IVariable CreateFieldVariable([ITypeMember] members,
+        private static IVariable CreateFieldVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
             UnqualifiedName MemberName, ISyntaxState State)
         {
@@ -153,7 +153,7 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
-        private static const [T] GroupTypeMembers<T>([ITypeMember] Members,
+        private static [T] GroupTypeMembers<T>([ITypeMember] Members,
                                     UnqualifiedName MemberName)
             where T : ITypeMember
         {
@@ -203,7 +203,7 @@ namespace Flame.Syntax.DSharp
                        new CurriedClosure<IType, IMethod, IMethod, bool>(IsShadowed, ThisType).Invoke);
         }
 
-        private static const IType GetNullableType(IVariable Target)
+        private static IType GetNullableType(IVariable Target)
         {
             if (Target == null)
                 return null;
@@ -211,7 +211,7 @@ namespace Flame.Syntax.DSharp
                 return Target.Type;
         }
 
-        private static const IVariable CreatePropertyVariable([ITypeMember] members,
+        private static IVariable CreatePropertyVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
             UnqualifiedName MemberName, ISyntaxState State)
         {
@@ -248,7 +248,7 @@ namespace Flame.Syntax.DSharp
             return null;
         }
 
-        private static const IDelegateExpression CreateGetMethodExpression(IMethod Method,
+        private static IDelegateExpression CreateGetMethodExpression(IMethod Method,
             IVariable Caller, IType CallerType, ISyntaxState State)
         {
             bool isExt = Method.IsExtension && !Method.DeclaringType.Equals(CallerType);
@@ -270,7 +270,7 @@ namespace Flame.Syntax.DSharp
             }
         }
 
-        private static const IVariable CreateMethodGroupVariable([ITypeMember] members,
+        private static IVariable CreateMethodGroupVariable([ITypeMember] members,
             IVariable Caller, IType CallerType,
             UnqualifiedName MemberName, ISyntaxState State)
         {
@@ -316,7 +316,7 @@ namespace Flame.Syntax.DSharp
             return CreateMethodGroupVariable(members, Caller, CallerType, MemberName, State);
         }
 
-        private static const ITypeSyntax CreateTypeSyntax(ISyntaxNode Node, ISyntaxState State)
+        private static ITypeSyntax CreateTypeSyntax(ISyntaxNode Node, ISyntaxState State)
         {
             // Tokenize and parse
             var tokenStream = new TokenizerStream(Node.GetCode().ToString(), null);
@@ -324,7 +324,7 @@ namespace Flame.Syntax.DSharp
             return parser.ToTypeSyntax(tokenStream);
         }
 
-        private static const IType BindType(ISyntaxNode Node, ISyntaxState State)
+        private static IType BindType(ISyntaxNode Node, ISyntaxState State)
         {
             var tSyntax = CreateTypeSyntax(Node, State);
             if (tSyntax == null)
@@ -333,12 +333,12 @@ namespace Flame.Syntax.DSharp
                 return tSyntax.CreateType(State);
         }
 
-        private const IType BindType(ISyntaxState State)
+        private IType BindType(ISyntaxState State)
         {
             return BindType(Target, State);
         }
 
-        public static const IVariable CreateSingletonVariable(ISyntaxState State, IType Type)
+        public static IVariable CreateSingletonVariable(ISyntaxState State, IType Type)
         {
             if (Type == null)
             {
