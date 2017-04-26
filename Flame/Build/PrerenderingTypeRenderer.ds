@@ -35,11 +35,6 @@ namespace Flame.Build
         /// <returns>A markup node that visualizes the type.</returns>
         public override MarkupNode Convert(IType Type)
         {
-            if (Type.IsPrimitive)
-            {
-                return Renderer.Convert(Type);
-            }
-
             MarkupNode newName;
             if (PrerenderedTypes.TryGetValue(Type, &newName))
             {

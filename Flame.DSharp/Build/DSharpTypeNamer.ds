@@ -38,80 +38,69 @@ namespace Flame.DSharp.Build
 
         private string NamePrimitiveType(IType Type)
         {
-            if (Type.Equals(PrimitiveTypes.Int8))
+            string result;
+            bool success;
+            if (PreferTrivialNames)
             {
-                if (PreferTrivialNames) return "sbyte";
-                else return "int8";
+                success = trivialPrimitiveTypeNames.TryGetValue(Type, &result);
             }
-            else if (Type.Equals(PrimitiveTypes.Int16))
+            else
             {
-                if (PreferTrivialNames) return "short";
-                else return "int16";
+                success = technicalPrimitiveTypeNames.TryGetValue(Type, &result);
             }
-            else if (Type.Equals(PrimitiveTypes.Int32))
+            if (success)
             {
-                if (PreferTrivialNames) return "int";
-                else return "int32";
-            }
-            else if (Type.Equals(PrimitiveTypes.Int64))
-            {
-                if (PreferTrivialNames) return "long";
-                else return "int64";
-            }
-            if (Type.Equals(PrimitiveTypes.UInt8))
-            {
-                if (PreferTrivialNames) return "byte";
-                else return "uint8";
-            }
-            else if (Type.Equals(PrimitiveTypes.UInt16))
-            {
-                if (PreferTrivialNames) return "ushort";
-                else return "uint16";
-            }
-            else if (Type.Equals(PrimitiveTypes.UInt32))
-            {
-                if (PreferTrivialNames) return "uint";
-                else return "uint32";
-            }
-            else if (Type.Equals(PrimitiveTypes.UInt64))
-            {
-                if (PreferTrivialNames) return "ulong";
-                else return "uint64";
-            }
-            else if (Type.Equals(PrimitiveTypes.Float32))
-            {
-                if (PreferTrivialNames) return "float";
-                else return "float32";
-            }
-            else if (Type.Equals(PrimitiveTypes.Float64))
-            {
-                if (PreferTrivialNames) return "double";
-                else return "float64";
-            }
-            else if (Type.Equals(PrimitiveTypes.Boolean))
-            {
-                return "bool";
-            }
-            else if (Type.Equals(PrimitiveTypes.Char))
-            {
-                return "char";
-            }
-            else if (Type.Equals(PrimitiveTypes.String))
-            {
-                return "string";
-            }
-            else if (Type.Equals(PrimitiveTypes.Void))
-            {
-                return "void";
-            }
-            else if (Type.Equals(PrimitiveTypes.Null))
-            {
-                return "null";
+                return result;
             }
             else
             {
                 return null;
             }
+        }
+
+        static this()
+        {
+            trivialPrimitiveTypeNames = new Dictionary<IType, string>();
+            technicalPrimitiveTypeNames = new Dictionary<IType, string>();
+
+            trivialPrimitiveTypeNames[PrimitiveTypes.Int8] = "sbyte";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Int8] = "int8";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Int16] = "short";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Int16] = "int16";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Int32] = "int";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Int32] = "int32";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Int64] = "long";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Int64] = "int64";
+            trivialPrimitiveTypeNames[PrimitiveTypes.UInt8] = "byte";
+            technicalPrimitiveTypeNames[PrimitiveTypes.UInt8] = "uint8";
+            trivialPrimitiveTypeNames[PrimitiveTypes.UInt16] = "ushort";
+            technicalPrimitiveTypeNames[PrimitiveTypes.UInt16] = "uint16";
+            trivialPrimitiveTypeNames[PrimitiveTypes.UInt32] = "uint";
+            technicalPrimitiveTypeNames[PrimitiveTypes.UInt32] = "uint32";
+            trivialPrimitiveTypeNames[PrimitiveTypes.UInt64] = "ulong";
+            technicalPrimitiveTypeNames[PrimitiveTypes.UInt64] = "uint64";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Float32] = "float";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Float32] = "float32";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Float64] = "double";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Float64] = "float64";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Boolean] = "bool";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Boolean] = "bool";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Char] = "char";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Char] = "char";
+            trivialPrimitiveTypeNames[PrimitiveTypes.String] = "string";
+            technicalPrimitiveTypeNames[PrimitiveTypes.String] = "string";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Void] = "void";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Void] = "void";
+            trivialPrimitiveTypeNames[PrimitiveTypes.Null] = "null";
+            technicalPrimitiveTypeNames[PrimitiveTypes.Null] = "null";
+        }
+
+        private static Dictionary<IType, string> trivialPrimitiveTypeNames;
+        private static Dictionary<IType, string> technicalPrimitiveTypeNames;
+
+        public static IEnumerable<IType> KeywordPrimitiveTypes
+        {
+            get { return trivialPrimitiveTypeNames.Keys; }
         }
     }
 }

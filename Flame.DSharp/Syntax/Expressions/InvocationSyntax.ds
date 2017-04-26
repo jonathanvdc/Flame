@@ -162,6 +162,7 @@ namespace Flame.Syntax.DSharp
             // Construct the set of all types that we might end up rendering.
             var allTypes = SimpleTypeFinder.ConvertAndMerge(argTypes);
             allTypes.UnionWith(SimpleTypeFinder.ConvertAndMerge(matches));
+            allTypes.ExceptWith(DSharpTypeRenderer.KeywordPrimitiveTypes);
 
             // Create an abbreviating type renderer.
             var namer = State.Renderer.AbbreviateTypeNames(allTypes);
