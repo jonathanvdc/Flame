@@ -1,5 +1,6 @@
 using System;
 using Flame.Compiler;
+using Flame.Compiler.Expressions;
 using Flame.Compiler.Visitors;
 
 namespace Flame.Optimization
@@ -101,6 +102,50 @@ namespace Flame.Optimization
         public virtual IStatement Visit(IStatement Value)
         {
             return DefaultVisitImpl(Value);
+        }
+    }
+
+    /// <summary>
+    /// A size visitor that is tailored for block duplication. It inflates the size of invocation expressions
+    /// to make blocks that contain them less attractive for duplication; invocation expressions may be inlined
+    /// duplicating blocks that contain them may needlessly increase code size.
+    /// </summary>
+    public class BlockDuplicationSizeVisitor : SizeVisitor
+    {
+        public this()
+            : base(true)
+        {
+            this.InvocationExpressionSize = 6;
+        }
+
+        public this(int InvocationExpressionSize)
+            : base(true)
+        {
+            this.InvocationExpressionSize = InvocationExpressionSize;
+        }
+
+        /// <summary>
+        /// Gets or sets the size that is assigned to invocation expressions.
+        /// </summary>
+        /// <returns>The size that is assigned to invocation expressions.</returns>
+        public int InvocationExpressionSize { get; private set; }
+
+        /// <summary>
+        /// "Visits" an expression: an expression is taken as input and transformed into another expression.
+        /// </summary>
+        public override IExpression Visit(IExpression Value)
+        {
+            if (Value is InvocationExpression)
+            {
+                var invExpr = (InvocationExpression)Value;
+                Size += InvocationExpressionSize;
+                invExpr.AcceptPredicate(this);
+                return invExpr;
+            }
+            else
+            {
+                return DefaultVisitImpl(Value);
+            }
         }
     }
 }

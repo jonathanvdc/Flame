@@ -553,7 +553,7 @@ namespace Flame.Optimization
                     // This is just block concatentation (as opposed to block duplication)
                     // and we really want to encourage that. We can coax the jump threader to
                     // include this block by adding the block's size to the block's rating.
-                    var sizeVisitor = new SizeVisitor(true);
+                    var sizeVisitor = new BlockDuplicationSizeVisitor();
                     nextBlock.Accept(sizeVisitor);
                     rating += sizeVisitor.Size + 10;
                 }
@@ -735,7 +735,7 @@ namespace Flame.Optimization
 
             // Don't duplicate large blocks. That'd just increase code
             // size, which is probably a bad idea for cache and JIT reasons.
-            var sizeVisitor = new SizeVisitor(true);
+            var sizeVisitor = new BlockDuplicationSizeVisitor();
             Block.Accept(sizeVisitor);
 
             return pro - sizeVisitor.Size;
