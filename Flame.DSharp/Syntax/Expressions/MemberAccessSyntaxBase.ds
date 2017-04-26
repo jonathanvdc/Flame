@@ -111,12 +111,37 @@ namespace Flame.Syntax.DSharp
 
         public static IExpression CreateInstanceCallerExpression(ISyntaxState State, IVariable Caller, IType CallerType)
         {
-            if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(Caller.Type)))
+            var callerVarType = Caller.Type;
+            if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(callerVarType)))
+            {
                 return (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
-            else if (Caller != null && IsPotentialValueType(Caller.Type))
-                return CreateAddressToValueExpression(Caller);
+            }
+            else if (Caller != null && IsPotentialValueType(callerVarType))
+            {
+                var addressExpr = CreateAddressToValueExpression(Caller);
+                if (!callerVarType.Equals(CallerType) && IsPotentialValueType(CallerType))
+                {
+                    return new ReinterpretCastExpression(
+                        addressExpr,
+                        CallerType.MakePointerType(addressExpr.Type.AsPointerType().PointerKind));
+                }
+                else
+                {
+                    return addressExpr;
+                }
+            }
             else
-                return Caller.CreateGetExpression();
+            {
+                var valueExpr = Caller.CreateGetExpression();
+                if (!callerVarType.Equals(CallerType))
+                {
+                    return new ReinterpretCastExpression(valueExpr, CallerType);
+                }
+                else
+                {
+                    return valueExpr;
+                }
+            }
         }
 
         #endregion
@@ -297,23 +322,24 @@ namespace Flame.Syntax.DSharp
 
         public static IVariable CreateVariable(IVariable Caller, IType CallerType, UnqualifiedName MemberName, ISyntaxState State)
         {
+            var envCallerType = State.Binder.Environment.GetEquivalentType(CallerType);
             var members = AccessExtensions.FilterAccessible<ITypeMember>(
                             State.CurrentType,
-                            State.MemberProvider.GetMembers(CallerType, MemberName.ToString()));
+                            State.MemberProvider.GetMembers(envCallerType, MemberName.ToString()));
 
-            var fieldVar = CreateFieldVariable(members, Caller, CallerType, MemberName, State);
+            var fieldVar = CreateFieldVariable(members, Caller, envCallerType, MemberName, State);
             if (fieldVar != null)
             {
                 return fieldVar;
             }
 
-            var propVar = CreatePropertyVariable(members, Caller, CallerType, MemberName, State);
+            var propVar = CreatePropertyVariable(members, Caller, envCallerType, MemberName, State);
             if (propVar != null)
             {
                 return propVar;
             }
 
-            return CreateMethodGroupVariable(members, Caller, CallerType, MemberName, State);
+            return CreateMethodGroupVariable(members, Caller, envCallerType, MemberName, State);
         }
 
         private static ITypeSyntax CreateTypeSyntax(ISyntaxNode Node, ISyntaxState State)
