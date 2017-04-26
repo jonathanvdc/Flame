@@ -106,29 +106,47 @@ namespace Flame.Optimization
     }
 
     /// <summary>
-    /// A size visitor that is tailored for block duplication. It inflates the size of invocation expressions
-    /// to make blocks that contain them less attractive for duplication; invocation expressions may be inlined
-    /// duplicating blocks that contain them may needlessly increase code size.
+    /// A size visitor that is tailored for block duplication.
     /// </summary>
     public class BlockDuplicationSizeVisitor : SizeVisitor
     {
-        public this()
+        public this(IBodyPassEnvironment PassEnvironment)
             : base(true)
         {
-            this.InvocationExpressionSize = 6;
+            this.CallSize = 6;
+            this.NonInlinableCallSize = 2;
+            this.PassEnvironment = PassEnvironment;
         }
 
-        public this(int InvocationExpressionSize)
+        public this(
+            int CallSize, int NonInlinableCallSize,
+            IBodyPassEnvironment PassEnvironment)
             : base(true)
         {
-            this.InvocationExpressionSize = InvocationExpressionSize;
+            this.CallSize = CallSize;
+            this.NonInlinableCallSize = NonInlinableCallSize;
+            this.PassEnvironment = PassEnvironment;
         }
 
         /// <summary>
         /// Gets or sets the size that is assigned to invocation expressions.
         /// </summary>
         /// <returns>The size that is assigned to invocation expressions.</returns>
-        public int InvocationExpressionSize { get; private set; }
+        public int CallSize { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the size that is assigned to direct calls which cannot be
+        /// inlined.
+        /// </summary>
+        /// <returns>The size that is assigned to direct calls which cannot be inlined.</returns>
+        public int NonInlinableCallSize { get; private set; }
+
+        /// <summary>
+        /// Gets this size visitor's pass environment, which is used to decide if direct
+        /// method calls might be inlined.
+        /// </summary>
+        /// <returns>The size visitor's pass environment.</returns>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
 
         /// <summary>
         /// "Visits" an expression: an expression is taken as input and transformed into another expression.
@@ -137,8 +155,33 @@ namespace Flame.Optimization
         {
             if (Value is InvocationExpression)
             {
+                // What we want to avoid here is a situation where we duplicate a basic block containing
+                // a method call and then inline the method calls. It's probably a whole lot more
+                // profitable to first inline the method calls and then duplicate the basic blocks.
+                // We discourage inlining here by inflating the 'size' of invocation expressions, especially
+                // if they are inlinable or might be inlinable in the future.
+
                 var invExpr = (InvocationExpression)Value;
-                Size += InvocationExpressionSize;
+                var dissected = DissectedCallHelpers.DissectCall(invExpr);
+
+                if (dissected == null || !InliningExtensions.CanInline(dissected.Method, dissected.ThisValue))
+                {
+                    // We can't inline this call *right now.* But that doesn't preclude that we may be able
+                    // to inline it in the future.
+                    Size += CallSize;
+                }
+                else if (PassEnvironment.GetMethodBody(dissected.Method) == null)
+                {
+                    // We will never be able to inline this call because we don't have the method body
+                    // to do so.
+                    Size += NonInlinableCallSize;
+                }
+                else
+                {
+                    // We can inline the call.
+                    Size += CallSize;
+                }
+
                 invExpr.AcceptPredicate(this);
                 return invExpr;
             }

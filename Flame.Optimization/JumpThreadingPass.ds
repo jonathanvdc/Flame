@@ -394,10 +394,11 @@ namespace Flame.Optimization
         /// that rates basic blocks. Positive ratings encourage jump thread
         /// linearization, negative scores discourage it.
         /// </summary>
-        public this(FlowGraph Graph, Func<BasicBlock, int> RateBlock)
+        public this(FlowGraph Graph, Func<BasicBlock, int> RateBlock, IBodyPassEnvironment PassEnvironment)
         {
             this.Graph = Graph;
             this.ratingFunction = RateBlock;
+            this.PassEnvironment = PassEnvironment;
             this.ratingCache = new Dictionary<BasicBlock, int>();
             this.newBlocks = new Dictionary<UniqueTag, BasicBlock>();
             this.currentBlock = null;
@@ -435,6 +436,13 @@ namespace Flame.Optimization
         /// A dictionary that remembers the in-degree of basic blocks.
         /// </summary>
         private Dictionary<UniqueTag, int> refCounts;
+
+        /// <summary>
+        /// Gets this visitor's pass environment, which is used to decide if
+        /// methods may be candidates for inlining.
+        /// </summary>
+        /// <returns>The pass environment.</returns>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
 
         /// <summary>
         /// Gets the control-flow graph that this jump-threading visitor operates on.
@@ -553,7 +561,7 @@ namespace Flame.Optimization
                     // This is just block concatentation (as opposed to block duplication)
                     // and we really want to encourage that. We can coax the jump threader to
                     // include this block by adding the block's size to the block's rating.
-                    var sizeVisitor = new BlockDuplicationSizeVisitor();
+                    var sizeVisitor = new BlockDuplicationSizeVisitor(PassEnvironment);
                     nextBlock.Accept(sizeVisitor);
                     rating += sizeVisitor.Size + 10;
                 }
@@ -675,9 +683,10 @@ namespace Flame.Optimization
     /// </summary>
     public class GlobalJumpThreadingVisitor : FlowGraphVisitorBase
     {
-        public this(Func<BasicBlock, int> RateBlock)
+        public this(Func<BasicBlock, int> RateBlock, IBodyPassEnvironment PassEnvironment)
         {
             this.RateBlock = RateBlock;
+            this.PassEnvironment = PassEnvironment;
         }
 
         /// <summary>
@@ -685,10 +694,17 @@ namespace Flame.Optimization
         /// </summary>
         public Func<BasicBlock, int> RateBlock { get; private set; }
 
+        /// <summary>
+        /// Gets this visitor's pass environment, which is used to decide if
+        /// methods may be candidates for inlining.
+        /// </summary>
+        /// <returns>The pass environment.</returns>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
         protected override FlowGraph Visit(FlowGraph Graph)
         {
             // Perform jump threading by rewriting blocks one at a time.
-            var visitor = new JumpThreadingVisitor(Graph, RateBlock);
+            var visitor = new JumpThreadingVisitor(Graph, RateBlock, PassEnvironment);
             foreach (var block in Graph.Blocks)
             {
                 visitor.Visit(block);
@@ -706,10 +722,11 @@ namespace Flame.Optimization
     /// </summary>
     public class SizeBasedBlockRater
     {
-        public this(int Tolerance, int ParameterWeight)
+        public this(int Tolerance, int ParameterWeight, IBodyPassEnvironment PassEnvironment)
         {
             this.Tolerance = Tolerance;
             this.ParameterWeight = ParameterWeight;
+            this.PassEnvironment = PassEnvironment;
         }
 
         /// <summary>
@@ -725,6 +742,13 @@ namespace Flame.Optimization
         public int ParameterWeight { get; private set; }
 
         /// <summary>
+        /// Gets this block rater's pass environment, which is used to decide if
+        /// methods may be candidates for inlining.
+        /// </summary>
+        /// <returns>The pass environment.</returns>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        /// <summary>
         /// Computes the given block's rating.
         /// </summary>
         public int RateBlock(BasicBlock Block)
@@ -735,7 +759,7 @@ namespace Flame.Optimization
 
             // Don't duplicate large blocks. That'd just increase code
             // size, which is probably a bad idea for cache and JIT reasons.
-            var sizeVisitor = new BlockDuplicationSizeVisitor();
+            var sizeVisitor = new BlockDuplicationSizeVisitor(PassEnvironment);
             Block.Accept(sizeVisitor);
 
             return pro - sizeVisitor.Size;
@@ -782,8 +806,8 @@ namespace Flame.Optimization
             var log = Arg.PassEnvironment.Log;
             int tolerance = log.Options.GetOption<int>(ToleranceOption, 4);
             int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
-            var heuristic = new SizeBasedBlockRater(tolerance, paramWeight);
-            var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock);
+            var heuristic = new SizeBasedBlockRater(tolerance, paramWeight, Arg.PassEnvironment);
+            var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock, Arg.PassEnvironment);
             // Apply the visitor.
             var visitedBody = visitor.Visit(Arg.Body);
 
