@@ -51,20 +51,35 @@ namespace Flame.Syntax
                 members.UnionWith(related.GetAllMembers());
             }
 
+            var environment = Binder.Environment;
             foreach (var item in ExtensionTypes)
             {
                 foreach (var method in item.GetMethods())
                 {
-                    if (method.IsExtension && Type.Is(method.GetParameters()[0].ParameterType))
+                    if (method.IsExtension)
                     {
-                        members.Add(method);
+                        // We need to take the equivalent type of the method's parameter type
+                        // because the first thing member lookup does is convert Flame type
+                        // to equivalent type, i.e., `Type` is always the environment's
+                        // equivalent type for some other type.
+                        var paramType = environment.GetEquivalentType(
+                            method.GetParameters()[0].ParameterType);
+                        if (Type.Is(paramType))
+                        {
+                            members.Add(method);
+                        }
                     }
                 }
                 foreach (var prop in item.Properties)
                 {
-                    if (prop.IsExtension && Type.Is(prop.GetIndexerParameters()[0].ParameterType))
+                    if (prop.IsExtension)
                     {
-                        members.Add(prop);
+                        var paramType = environment.GetEquivalentType(
+                            prop.GetIndexerParameters()[0].ParameterType);
+                        if (Type.Is(paramType))
+                        {
+                            members.Add(prop);
+                        }
                     }
                 }
             }
