@@ -6,73 +6,73 @@ using Pixie;
 
 namespace Flame.Syntax
 {
-	public static class SyntaxExtensions
-	{
-		/// <summary>
-		/// Tries to get the node's source location by checking its ancestry for an ISourceSyntax implementation.
-		/// If the given node does not implement ISourceSyntax, null is returned.
-		/// </summary>
-		public static SourceLocation GetSourceLocation(this ISyntaxNode Node)
-		{
-			if (Node is ISourceSyntax)
-			{
-				return ((ISourceSyntax)Node).Location;
-			}
-			else return null;
-		}
+    public static class SyntaxExtensions
+    {
+        /// <summary>
+        /// Tries to get the node's source location by checking its ancestry for an ISourceSyntax implementation.
+        /// If the given node does not implement ISourceSyntax, null is returned.
+        /// </summary>
+        public static SourceLocation GetSourceLocation(this ISyntaxNode Node)
+        {
+            if (Node is ISourceSyntax)
+            {
+                return ((ISourceSyntax)Node).Location;
+            }
+            else return null;
+        }
 
-		public static const MarkupNode CreateCodeQuote(this ISyntaxNode Node)
-		{
-			var src = new MarkupNode(NodeConstants.SourceQuoteNodeType, Node.GetCode().Trim().ToString());
-			var quoteNode = new MarkupNode(NodeConstants.TextNodeType, "'");
-			return new MarkupNode("node", new MarkupNode[] { quoteNode, src, quoteNode });
-		}
+        public static const MarkupNode CreateCodeQuote(this ISyntaxNode Node)
+        {
+            var src = new MarkupNode(NodeConstants.SourceQuoteNodeType, Node.GetCode().Trim().ToString());
+            var quoteNode = new MarkupNode(NodeConstants.TextNodeType, "'");
+            return new MarkupNode("node", new MarkupNode[] { quoteNode, src, quoteNode });
+        }
 
-		public static const MarkupNode CreateCodeQuote(string LeadingText, ISyntaxNode Node, string TrailingText)
-		{
-			var preTextNode = new MarkupNode(NodeConstants.TextNodeType, LeadingText);
-			var quoteNode = Node.CreateCodeQuote();
-			var postTextNode = new MarkupNode(NodeConstants.TextNodeType, TrailingText);
-			return new MarkupNode("node", new MarkupNode[] { preTextNode, quoteNode, postTextNode });
-		}
+        public static const MarkupNode CreateCodeQuote(string LeadingText, ISyntaxNode Node, string TrailingText)
+        {
+            var preTextNode = new MarkupNode(NodeConstants.TextNodeType, LeadingText);
+            var quoteNode = Node.CreateCodeQuote();
+            var postTextNode = new MarkupNode(NodeConstants.TextNodeType, TrailingText);
+            return new MarkupNode("node", new MarkupNode[] { preTextNode, quoteNode, postTextNode });
+        }
 
-		public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
-		{
-			var type = Syntax.CreateType(State);
-			if (type == null)
-			{
-				State.Log.LogError(new LogEntry(
-					"type resolution error",
-					CreateCodeQuote("could not resolve type ", Syntax, "."), Syntax.GetSourceLocation()));
-			}
-			return type;
-		}
+        public static IType CreateVerifiedType(this ITypeSyntax Syntax, ISyntaxState State)
+        {
+            var type = Syntax.CreateType(State);
+            if (type == null)
+            {
+                State.Log.LogError(new LogEntry(
+                    "type resolution error",
+                    CreateCodeQuote("could not resolve type ", Syntax, "."), Syntax.GetSourceLocation()));
+            }
+            return type;
+        }
 
-		public static IExpression CreateVerifiedExpression(this IExpressionSyntax Syntax, ISyntaxState State)
-		{
-			var type = Syntax.CreateExpression(State);
-			if (type == null)
-			{
-				State.Log.LogError(new LogEntry(
-					"expression resolution error",
-					CreateCodeQuote("could not resolve expression ", Syntax, "."), Syntax.GetSourceLocation()));
-			}
-			return type;
-		}
+        public static IExpression CreateVerifiedExpression(this IExpressionSyntax Syntax, ISyntaxState State)
+        {
+            var type = Syntax.CreateExpression(State);
+            if (type == null)
+            {
+                State.Log.LogError(new LogEntry(
+                    "expression resolution error",
+                    CreateCodeQuote("could not resolve expression ", Syntax, "."), Syntax.GetSourceLocation()));
+            }
+            return type;
+        }
 
-		public static IStatement CreateVerifiedStatement(this IStatementSyntax Syntax, ISyntaxState State)
-		{
-			var stmt = Syntax.CreateStatement(State);
-			if (stmt == null)
-			{
-				State.Log.LogError(
-					new LogEntry("statement resolution error",
-					CreateCodeQuote("could not resolve statement ", Syntax, "."), Syntax.GetSourceLocation()));
-			}
-			return stmt;
-		}
+        public static IStatement CreateVerifiedStatement(this IStatementSyntax Syntax, ISyntaxState State)
+        {
+            var stmt = Syntax.CreateStatement(State);
+            if (stmt == null)
+            {
+                State.Log.LogError(
+                    new LogEntry("statement resolution error",
+                    CreateCodeQuote("could not resolve statement ", Syntax, "."), Syntax.GetSourceLocation()));
+            }
+            return stmt;
+        }
 
-		/// <summary>
+        /// <summary>
         /// Gets an expression for the syntax that accesses the member. Returns null if the member is accessed statically.
         /// </summary>
         /// <param name="State"></param>
@@ -90,7 +90,7 @@ namespace Flame.Syntax
             }
         }
 
-		public static IVariable CreateVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
+        public static IVariable CreateVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
         {
             if (ExpressionSyntax is IVariableSyntax)
             {
@@ -112,47 +112,47 @@ namespace Flame.Syntax
 
         public static IVariable CreateVerifiedVariable(IExpressionSyntax ExpressionSyntax, ISyntaxState State)
         {
-        	var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
-			if (variable == null)
-			{
-				State.Log.LogError(
-					new LogEntry("variable resolution error",
-					CreateCodeQuote("could not resolve ", ExpressionSyntax, " as a variable or expression."),
-					ExpressionSyntax.GetSourceLocation()));
-			}
-			return variable;
+            var variable = SyntaxExtensions.CreateVariable(ExpressionSyntax, State);
+            if (variable == null)
+            {
+                State.Log.LogError(
+                    new LogEntry("variable resolution error",
+                    CreateCodeQuote("could not resolve ", ExpressionSyntax, " as a variable or expression."),
+                    ExpressionSyntax.GetSourceLocation()));
+            }
+            return variable;
         }
 
         public static IVariable CreateVerifiedVariable(this IVariableSyntax Syntax, ISyntaxState State)
         {
-        	var variable = Syntax.CreateVariable(State);
-			if (variable == null)
-			{
-				State.Log.LogError(
-					new LogEntry("variable resolution error",
-					CreateCodeQuote("variable ", Syntax, " could not be resolved."),
-					Syntax.GetSourceLocation()));
-			}
-			return variable;
+            var variable = Syntax.CreateVariable(State);
+            if (variable == null)
+            {
+                State.Log.LogError(
+                    new LogEntry("variable resolution error",
+                    CreateCodeQuote("variable ", Syntax, " could not be resolved."),
+                    Syntax.GetSourceLocation()));
+            }
+            return variable;
         }
 
-		public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
-		{
-			return MemberProvider.GetMembers(Type, new SimpleName(Name));
-		}
+        public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, string Name)
+        {
+            return MemberProvider.GetMembers(Type, new SimpleName(Name));
+        }
 
         public static const [ITypeMember] GetMembers(this IMemberProvider MemberProvider, IType Type, UnqualifiedName Name)
         {
-        	var candidates = MemberProvider.GetMembers(Type);
-        	List<ITypeMember> members = new List<ITypeMember>();
-        	foreach (var item in candidates)
-        	{
-        		if (item.Name.Equals(Name))
-				{
-					members.Add(item);
-				}
-        	}
-        	return members;
+            var candidates = MemberProvider.GetMembers(Type);
+            List<ITypeMember> members = new List<ITypeMember>();
+            foreach (var item in candidates)
+            {
+                if (item.Name.Equals(Name))
+                {
+                    members.Add(item);
+                }
+            }
+            return members;
         }
 
         public static IVariable DeclareVariable(this ISyntaxState State, string Name, IType Type, SourceLocation Location)
@@ -161,14 +161,14 @@ namespace Flame.Syntax
             return State.DeclareVariable(Name, lbVar, Location);
         }
 
-		public static const SourceLocation GetDeclarationLocation(this ISyntaxState State, string Name)
-		{
-			return State.GetDeclaredVariable(Name).Location;
-		}
+        public static const SourceLocation GetDeclarationLocation(this ISyntaxState State, string Name)
+        {
+            return State.GetDeclaredVariable(Name).Location;
+        }
 
         public static IEnvironment Environment[this ISyntaxState State]
         {
-        	const get return State.Binder.Environment;
+            const get return State.Binder.Environment;
         }
-	}
+    }
 }
