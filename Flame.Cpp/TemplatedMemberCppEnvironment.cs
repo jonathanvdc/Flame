@@ -64,6 +64,12 @@ namespace Flame.Cpp
             return DeclaringEnvironment.GetDefaultBaseTypes(Type, DefaultBaseTypes);
         }
 
+        /// <inheritdoc/>
+        public IType GetEquivalentType(IType Type)
+        {
+            return DeclaringEnvironment.GetEquivalentType(Type);
+        }
+
         public string Name
         {
             get { return DeclaringEnvironment.Name; }

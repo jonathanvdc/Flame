@@ -43,5 +43,11 @@ namespace Flame.MIPS
         {
             return Enumerable.Empty<IType>();
         }
+
+        /// <inheritdoc/>
+        public IType GetEquivalentType(IType Type)
+        {
+            return Type;
+        }
     }
 }

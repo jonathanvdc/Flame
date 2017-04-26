@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// Defines the environment for which a program is compiled. Such an environment consists
+    /// mostly of the type system.
+    /// </summary>
     public interface IEnvironment
     {
         /// <summary>
@@ -32,5 +36,15 @@ namespace Flame
         /// </summary>
         IEnumerable<IType> GetDefaultBaseTypes(
             IType Type, IEnumerable<IType> CurrentBaseTypes);
+
+        /// <summary>
+        /// Gets the environment's equivalent of the given built-in type.
+        /// </summary>
+        /// <param name="Type">The built-in type for which the environment's equivalent is requested.</param>
+        /// <returns>The environment's equivalent of the given type.
+        /// <c>Type</c> is returned if the environment's equivalent is the same as the given type.</returns>
+        /// <remarks>This allows a front-end to use environment-defined methods for primitive and
+        /// collection types.</remarks>
+        IType GetEquivalentType(IType Type);
     }
 }

@@ -50,5 +50,11 @@ namespace Flame.TextContract
             }
             return new IType[] { RootType };
         }
+
+        /// <inheritdoc/>
+        public IType GetEquivalentType(IType Type)
+        {
+            return Type;
+        }
     }
 }

@@ -55,5 +55,11 @@ namespace Flame.Cecil
             }
             return new IType[] { Type.GetIsValueType() ? Module.TypeSystem.ValueType : RootType };
         }
+
+        /// <inheritdoc/>
+        public IType GetEquivalentType(IType Type)
+        {
+            return Type;
+        }
     }
 }
