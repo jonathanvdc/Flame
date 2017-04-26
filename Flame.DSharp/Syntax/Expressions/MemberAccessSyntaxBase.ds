@@ -457,7 +457,9 @@ namespace Flame.Syntax.DSharp
 
             string name = Member.TokenValue;
 
-            return State.MemberProvider.GetMembers(parentType, name);
+            return State.MemberProvider.GetMembers(
+                State.Binder.Environment.GetEquivalentType(parentType),
+                name);
         }
     }
 }
