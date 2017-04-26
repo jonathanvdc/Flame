@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Build;
 
 namespace Flame.Cecil
 {
     /// <summary>
-    /// Represents a CLR array, i.e., CLR environment's equivalent type of a Flame array. 
+    /// Represents a CLR array, i.e., the CLR environment's equivalent of a Flame array.
     /// </summary>
-    public sealed class CecilArrayType : ContainerTypeBase
+    public sealed class CecilArrayType : IType
     {
-        public CecilArrayType(IType ElementType, int ArrayRank, CecilModule Module)
-            : base(ElementType)
+        public CecilArrayType(int ArrayRank, CecilModule Module)
         {
+            var elemType = new DescribedGenericParameter("T", this);
+            this.genericParams = new IGenericParameter[] { elemType };
             this.ArrayRank = ArrayRank;
             this.Module = Module;
             var typeSystem = Module.TypeSystem;
-            var listType = typeSystem.IListType.MakeGenericType(new IType[] { ElementType });
+            var listType = typeSystem.IListType.MakeGenericType(new IType[] { elemType });
             if (typeSystem.IReadOnlyListType == null)
             {
                 this.baseTypes = new IType[]
@@ -30,7 +32,7 @@ namespace Flame.Cecil
                 {
                     typeSystem.ArrayType,
                     listType,
-                    typeSystem.IReadOnlyListType.MakeGenericType(new IType[] { ElementType })
+                    typeSystem.IReadOnlyListType.MakeGenericType(new IType[] { elemType })
                 };
             }
         }
@@ -47,26 +49,40 @@ namespace Flame.Cecil
         public CecilModule Module { get; private set; }
 
         private IEnumerable<IType> baseTypes;
+        private IEnumerable<IGenericParameter> genericParams;
 
-        public override IAncestryRules AncestryRules => ArrayAncestryRules.Instance;
+        public IAncestryRules AncestryRules => ArrayAncestryRules.Instance;
 
-        protected override UnqualifiedName GetName(QualifiedName ElementName)
+        public UnqualifiedName Name
         {
-            return new ArrayName(ElementName, ArrayRank);
+            get { return new SimpleName("ClrArrayRank" + ArrayRank, 1); }
         }
 
-        public override IEnumerable<IType> BaseTypes
+        public IEnumerable<IType> BaseTypes
         {
             get { return baseTypes; }
         }
+
+        public INamespace DeclaringNamespace => null;
+
+        public IEnumerable<IMethod> Methods => Enumerable.Empty<IMethod>();
+
+        public IEnumerable<IProperty> Properties => Enumerable.Empty<IProperty>();
+
+        public IEnumerable<IField> Fields => Enumerable.Empty<IField>();
+
+        public IEnumerable<IGenericParameter> GenericParameters => genericParams;
+
+        public AttributeMap Attributes => AttributeMap.Empty;
+
+        public QualifiedName FullName => new QualifiedName(Name);
 
         public override bool Equals(object obj)
         {
             if (obj is CecilArrayType)
             {
                 var arrType = (CecilArrayType)obj;
-                return ArrayRank == arrType.ArrayRank
-                    && ElementType.Equals(arrType.ElementType);
+                return ArrayRank == arrType.ArrayRank;
             }
             else
             {
@@ -76,9 +92,12 @@ namespace Flame.Cecil
 
         public override int GetHashCode()
         {
-            // Compute the one's complement of the array hash code to keep us
-            // from clashing with ArrayType's hash code.
-            return ~(ElementType.GetHashCode() + ArrayRank);
+            return ArrayRank << 4;
+        }
+
+        public IBoundObject GetDefaultValue()
+        {
+            return null;
         }
     }
 }

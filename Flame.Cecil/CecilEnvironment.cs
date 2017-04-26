@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Flame.Cecil
 {
@@ -35,11 +36,13 @@ namespace Flame.Cecil
                 { PrimitiveTypes.Boolean, Module.ConvertStrict(typeSystem.Boolean) },
                 { PrimitiveTypes.String, Module.ConvertStrict(typeSystem.String) }
             };
+            this.arrayTypes = new ConcurrentDictionary<int, CecilArrayType>();
         }
 
         public CecilModule Module { get; private set; }
 
         private Dictionary<IType, IType> environmentEquivalents;
+        private ConcurrentDictionary<int, CecilArrayType> arrayTypes;
 
         public string Name
         {
@@ -82,6 +85,14 @@ namespace Flame.Cecil
             if (environmentEquivalents.TryGetValue(Type, out equivalentType))
             {
                 return equivalentType;
+            }
+            else if (Type.GetIsArray())
+            {
+                var arrayType = Type.AsArrayType();
+                var genericCecilArrayType = arrayTypes.GetOrAdd(
+                    arrayType.ArrayRank,
+                    rank => new CecilArrayType(rank, Module));
+                return genericCecilArrayType.MakeGenericType(new IType[] { arrayType.ElementType });
             }
             else
             {
