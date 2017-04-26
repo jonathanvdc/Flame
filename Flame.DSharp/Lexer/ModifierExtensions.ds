@@ -54,7 +54,7 @@ namespace Flame.DSharp.Lexer
             }
         }
 
-        public static bool HasAccessAttribute[this IAttribute[] Modifiers]
+        public static bool HasAccessAttribute[this IEnumerable<IAttribute> Modifiers]
         {
             const get
             {
