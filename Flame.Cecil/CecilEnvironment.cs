@@ -18,21 +18,22 @@ namespace Flame.Cecil
         public CecilEnvironment(CecilModule Module)
         {
             this.Module = Module;
+            var typeSystem = Module.Module.TypeSystem;
             this.environmentEquivalents = new Dictionary<IType, IType>()
             {
-                { PrimitiveTypes.Int8, Module.ConvertStrict(Module.Module.TypeSystem.SByte) },
-                { PrimitiveTypes.Int16, Module.ConvertStrict(Module.Module.TypeSystem.Int16) },
-                { PrimitiveTypes.Int32, Module.ConvertStrict(Module.Module.TypeSystem.Int32) },
-                { PrimitiveTypes.Int64, Module.ConvertStrict(Module.Module.TypeSystem.Int64) },
-                { PrimitiveTypes.UInt8, Module.ConvertStrict(Module.Module.TypeSystem.Byte) },
-                { PrimitiveTypes.UInt16, Module.ConvertStrict(Module.Module.TypeSystem.UInt16) },
-                { PrimitiveTypes.UInt32, Module.ConvertStrict(Module.Module.TypeSystem.UInt32) },
-                { PrimitiveTypes.UInt64, Module.ConvertStrict(Module.Module.TypeSystem.UInt64) },
-                { PrimitiveTypes.Float32, Module.ConvertStrict(Module.Module.TypeSystem.Single) },
-                { PrimitiveTypes.Float64, Module.ConvertStrict(Module.Module.TypeSystem.Double) },
-                { PrimitiveTypes.Char, Module.ConvertStrict(Module.Module.TypeSystem.Char) },
-                { PrimitiveTypes.Boolean, Module.ConvertStrict(Module.Module.TypeSystem.Boolean) },
-                { PrimitiveTypes.String, Module.ConvertStrict(Module.Module.TypeSystem.String) }
+                { PrimitiveTypes.Int8, Module.ConvertStrict(typeSystem.SByte) },
+                { PrimitiveTypes.Int16, Module.ConvertStrict(typeSystem.Int16) },
+                { PrimitiveTypes.Int32, Module.ConvertStrict(typeSystem.Int32) },
+                { PrimitiveTypes.Int64, Module.ConvertStrict(typeSystem.Int64) },
+                { PrimitiveTypes.UInt8, Module.ConvertStrict(typeSystem.Byte) },
+                { PrimitiveTypes.UInt16, Module.ConvertStrict(typeSystem.UInt16) },
+                { PrimitiveTypes.UInt32, Module.ConvertStrict(typeSystem.UInt32) },
+                { PrimitiveTypes.UInt64, Module.ConvertStrict(typeSystem.UInt64) },
+                { PrimitiveTypes.Float32, Module.ConvertStrict(typeSystem.Single) },
+                { PrimitiveTypes.Float64, Module.ConvertStrict(typeSystem.Double) },
+                { PrimitiveTypes.Char, Module.ConvertStrict(typeSystem.Char) },
+                { PrimitiveTypes.Boolean, Module.ConvertStrict(typeSystem.Boolean) },
+                { PrimitiveTypes.String, Module.ConvertStrict(typeSystem.String) }
             };
         }
 
