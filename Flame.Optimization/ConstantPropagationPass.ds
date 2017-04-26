@@ -550,8 +550,10 @@ namespace Flame.Optimization
         public IStatement Apply(IStatement Statement)
             in { VerifyCFGPass.Apply(Statement) }
             in { VerifySSAPass.Apply(Statement) }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Statement) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             return Visit(Statement);
         }

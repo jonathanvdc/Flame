@@ -233,6 +233,7 @@ namespace Flame.Optimization
                     Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     GlobalValuePropagationPassName + " (input)")
             }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Arg.Body) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result)
             {
@@ -240,6 +241,7 @@ namespace Flame.Optimization
                     result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     GlobalValuePropagationPassName + " (output)")
             }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             return ApplyImpl(Arg.Body);
         }

@@ -20,7 +20,7 @@ namespace Flame.Optimization
         public const this(set IReadOnlyDictionary<SSAVariable, SSAVariable> Mapping);
 
         /// <summary>
-        /// A dictionary that maps SSA variables to SSA the variables that they
+        /// A dictionary that maps SSA variables to the SSA variables that they
         /// should be substituted by.
         /// </summary>
         public IReadOnlyDictionary<SSAVariable, SSAVariable> Mapping { get; private set; }

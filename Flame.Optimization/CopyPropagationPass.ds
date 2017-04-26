@@ -393,8 +393,10 @@ namespace Flame.Optimization
         public IStatement Apply(IStatement Value)
             in { VerifyCFGPass.Apply(Value) }
             in { VerifySSAPass.Apply(Value) }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Value) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result) { VerifySSAPass.Apply(result) }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             return Visit(Value);
         }
@@ -407,6 +409,7 @@ namespace Flame.Optimization
                     Arg.Body, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     CopyPropagationPassName + " (input)")
             }
+            in { !InvalidCallFindingVisitor.ContainsInvalidCalls(Arg.Body) }
             out (result) { VerifyCFGPass.Apply(result) }
             out (result)
             {
@@ -414,6 +417,7 @@ namespace Flame.Optimization
                     result, Arg.PassEnvironment.Log, Arg.DeclaringMethod,
                     CopyPropagationPassName + " (output)")
             }
+            out (result) { !InvalidCallFindingVisitor.ContainsInvalidCalls(result) }
         {
             return Visit(Arg.Body);
         }

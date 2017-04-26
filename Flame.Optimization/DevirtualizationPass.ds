@@ -91,8 +91,10 @@ namespace Flame.Optimization
 
                 var implDeclTy = impl.DeclaringType;
                 if (!ptrCaller && !callerTy.Equals(implDeclTy))
-                    // Insert a reinterpret cast if necessary
+                {
+                    // Insert a reinterpret cast if necessary.
                     caller = new ReinterpretCastExpression(caller, implDeclTy);
+                }
 
                 if (impl.IsVirtual)
                 {
