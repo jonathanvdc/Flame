@@ -26,7 +26,7 @@ namespace Flame.Syntax.DSharp
 
     public abstract class MemberAccessSyntaxBase : VariableSyntaxBase, ITypeMemberAccessSyntax, ISourceSyntax
     {
-    	public const this();
+        public const this();
         public const this(set IExpressionSyntax Target, set Token Operator, set Token Member);
 
         public IExpressionSyntax Target { const get; protected set; }
@@ -35,12 +35,12 @@ namespace Flame.Syntax.DSharp
 
         public SourceLocation Location
         {
-        	const get return Target.GetSourceLocation().Concat(MemberAccessLocation);
+            const get return Target.GetSourceLocation().Concat(MemberAccessLocation);
         }
 
         public SourceLocation MemberAccessLocation
         {
-        	const get return Operator.Location.Concat(Member.Location);
+            const get return Operator.Location.Concat(Member.Location);
         }
 
         public abstract IVariable GetCallerVariable(ISyntaxState State);
@@ -112,7 +112,7 @@ namespace Flame.Syntax.DSharp
         public static IExpression CreateInstanceCallerExpression(ISyntaxState State, IVariable Caller, IType CallerType)
         {
             if (CallerType.IsSingleton && (Caller == null || CallerType.IsAssociatedSingletonOf(Caller.Type)))
-            	return (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
+                return (SingletonVariable.GetSingletonVariable(CallerType, State.CurrentType)).CreateGetExpression();
             else if (Caller != null && IsPotentialValueType(Caller.Type))
                 return CreateAddressToValueExpression(Caller);
             else
@@ -126,7 +126,7 @@ namespace Flame.Syntax.DSharp
         public static IExpression CreateExtensionCallerExpression(ISyntaxState State, IVariable Caller, IType CallerType)
         {
             if (CallerType.IsPointer && !Caller.Type.IsPointer)
-            	return CreateAddressToValueExpression(Caller);
+                return CreateAddressToValueExpression(Caller);
             else if (CastSyntax.UseImplicitCast(State, Caller.Type, CallerType))
                 return ConversionExpression.Create(Caller.CreateGetExpression(), CallerType);
             else
@@ -143,12 +143,12 @@ namespace Flame.Syntax.DSharp
             var field = possibleFields.GetField(MemberName);
             if (field != null)
             {
-            	if (field.IsStatic)
-                	return new FieldVariable(field, null);
+                if (field.IsStatic)
+                    return new FieldVariable(field, null);
                 else if (CallerType.IsValueType)
-                	return new ValueTypeFieldVariable(field, Caller);
+                    return new ValueTypeFieldVariable(field, Caller);
                 else
-                	return new FieldVariable(field, CreateCallerExpression(State, Caller, field));
+                    return new FieldVariable(field, CreateCallerExpression(State, Caller, field));
             }
             return null;
         }
@@ -238,11 +238,11 @@ namespace Flame.Syntax.DSharp
             }
             else if (singletonCaller)
             {
-            	property = Enumerable.FirstOrDefault<IProperty>(properties.GetBestProperties(null, new IType[0]));
-            	if (property != null)
-            	{
-            		return new PropertyVariable(property, null);
-            	}
+                property = Enumerable.FirstOrDefault<IProperty>(properties.GetBestProperties(null, new IType[0]));
+                if (property != null)
+                {
+                    return new PropertyVariable(property, null);
+                }
             }
 
             return null;
@@ -297,14 +297,14 @@ namespace Flame.Syntax.DSharp
 
         public static IVariable CreateVariable(IVariable Caller, IType CallerType, UnqualifiedName MemberName, ISyntaxState State)
         {
-        	var members = AccessExtensions.FilterAccessible<ITypeMember>(
+            var members = AccessExtensions.FilterAccessible<ITypeMember>(
                             State.CurrentType,
                             State.MemberProvider.GetMembers(CallerType, MemberName.ToString()));
 
             var fieldVar = CreateFieldVariable(members, Caller, CallerType, MemberName, State);
             if (fieldVar != null)
             {
-            	return fieldVar;
+                return fieldVar;
             }
 
             var propVar = CreatePropertyVariable(members, Caller, CallerType, MemberName, State);
@@ -326,34 +326,34 @@ namespace Flame.Syntax.DSharp
 
         private static const IType BindType(ISyntaxNode Node, ISyntaxState State)
         {
-        	var tSyntax = CreateTypeSyntax(Node, State);
-        	if (tSyntax == null)
-        		return null;
-        	else
-        		return tSyntax.CreateType(State);
+            var tSyntax = CreateTypeSyntax(Node, State);
+            if (tSyntax == null)
+                return null;
+            else
+                return tSyntax.CreateType(State);
         }
 
         private const IType BindType(ISyntaxState State)
         {
-        	return BindType(Target, State);
+            return BindType(Target, State);
         }
 
         public static const IVariable CreateSingletonVariable(ISyntaxState State, IType Type)
         {
-        	if (Type == null)
-        	{
-        		return null;
-        	}
-        	else if (Type.IsSingleton)
+            if (Type == null)
             {
-            	return SingletonVariable.GetSingletonVariable(Type, State.CurrentType);
+                return null;
+            }
+            else if (Type.IsSingleton)
+            {
+                return SingletonVariable.GetSingletonVariable(Type, State.CurrentType);
             }
             else
             {
-            	var associatedSingleton = Type.GetAssociatedSingleton();
-            	if (associatedSingleton != null)
-            		return SingletonVariable.GetSingletonVariable(associatedSingleton, State.CurrentType);
-            	else return null;
+                var associatedSingleton = Type.GetAssociatedSingleton();
+                if (associatedSingleton != null)
+                    return SingletonVariable.GetSingletonVariable(associatedSingleton, State.CurrentType);
+                else return null;
             }
         }
 
@@ -373,8 +373,8 @@ namespace Flame.Syntax.DSharp
             }
             if (exprType == null)
             {
-            	// Actually, don't log this. Other expressions may be counting on this returning null
-            	// State.Log.LogError("'" + Target.GetCode().ToString() + "' could not be resolved as a variable, expression or type.");
+                // Actually, don't log this. Other expressions may be counting on this returning null
+                // State.Log.LogError("'" + Target.GetCode().ToString() + "' could not be resolved as a variable, expression or type.");
                 return null;
             }
 
@@ -384,14 +384,14 @@ namespace Flame.Syntax.DSharp
 
             if (result == null) // Try singleton
             {
-            	var singletonType = BindType(this, State);
-            	if (singletonType != null)
-            		return CreateSingletonVariable(State, singletonType);
+                var singletonType = BindType(this, State);
+                if (singletonType != null)
+                    return CreateSingletonVariable(State, singletonType);
             }
 
             /*if (result == null) // Actually, don't log this. Other expressions may be counting on this returning null
             {
-            	State.Log.LogError(new LogEntry("Member not found error", "The member '" + Member.TokenValue + "' in expression '" + this.GetCode().ToString() + "' could not be resolved"));
+                State.Log.LogError(new LogEntry("Member not found error", "The member '" + Member.TokenValue + "' in expression '" + this.GetCode().ToString() + "' could not be resolved"));
             }*/
 
             return result;
@@ -415,44 +415,44 @@ namespace Flame.Syntax.DSharp
             {
                 var targetCode = Target.GetCode().Trim();
                 var thisCode = this.GetCode().Trim();
-            	if (Target is MemberAccessSyntaxBase) // Try to go the extra mile and find some type info.
-            	{
-            		var innerTarget = ((MemberAccessSyntaxBase)Target).Target;
-            		var innerCallerExpr = innerTarget.CreateExpression(State);
-            		while (innerTarget is MemberAccessSyntaxBase && innerCallerExpr == null)
-            		{
-            			innerTarget = ((MemberAccessSyntaxBase)innerTarget).Target;
-            			innerCallerExpr = innerTarget.CreateExpression(State);
-            		}
+                if (Target is MemberAccessSyntaxBase) // Try to go the extra mile and find some type info.
+                {
+                    var innerTarget = ((MemberAccessSyntaxBase)Target).Target;
+                    var innerCallerExpr = innerTarget.CreateExpression(State);
+                    while (innerTarget is MemberAccessSyntaxBase && innerCallerExpr == null)
+                    {
+                        innerTarget = ((MemberAccessSyntaxBase)innerTarget).Target;
+                        innerCallerExpr = innerTarget.CreateExpression(State);
+                    }
                     var innerCode = innerTarget.GetCode().Trim();
-            		if (innerCallerExpr == null)
-            		{
-            			State.Log.LogError(new LogEntry("member access error",
+                    if (innerCallerExpr == null)
+                    {
+                        State.Log.LogError(new LogEntry("member access error",
                             "'" + targetCode.ToString() + "' in member access syntax '" +
                             thisCode.ToString() +
                             "' could not be resolved as a variable, expression or type, and '" +
                             innerCode.ToString() + "' could not be resolved, either.",
                             Location));
-            		}
-            		else
-            		{
-            			State.Log.LogError(new LogEntry("member access error",
+                    }
+                    else
+                    {
+                        State.Log.LogError(new LogEntry("member access error",
                             "'" + targetCode.ToString() + "' in member access syntax '" +
                             thisCode.ToString() +
                             "' could not be resolved as a variable, expression or type, though '" +
                             innerCode.ToString() + "' was resolved as an expression of type '" +
                             State.Renderer.Convert(innerCallerExpr.Type).GetAllText() + "'.",
                             MemberAccessLocation));
-            		}
-            	}
-            	else
-            	{
-            		State.Log.LogError(new LogEntry("member access error",
+                    }
+                }
+                else
+                {
+                    State.Log.LogError(new LogEntry("member access error",
                         "'" + targetCode.ToString() + "' in member access syntax '" +
                         thisCode.ToString() + "' could not be resolved as a variable, expression or type.",
                         Target.GetSourceLocation()));
-            	}
-            	return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
+                }
+                return Enumerable.Empty<ITypeMember>(); // Keep it civilized by returning an empty enumerable instead of null
             }
 
             string name = Member.TokenValue;
