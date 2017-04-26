@@ -20,7 +20,7 @@ namespace Flame.Cecil
             this.enumType = new Lazy<IType>(() => Module.ConvertStrict(typeof(Enum)));
             this.funcDelegates = new Dictionary<int, IType>();
             this.actionDelegates = new Dictionary<int, IType>();
-            this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();            
+            this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();
         }
 
         public CecilModule Module { get; private set; }
@@ -182,7 +182,7 @@ namespace Flame.Cecil
                 return type;
             }
         }
-    
+
         private struct DelegateSignature : IEquatable<DelegateSignature>
         {
             public DelegateSignature(IType ReturnType, IType[] ParameterTypes)

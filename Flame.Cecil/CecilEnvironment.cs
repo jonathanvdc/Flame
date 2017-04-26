@@ -18,9 +18,27 @@ namespace Flame.Cecil
         public CecilEnvironment(CecilModule Module)
         {
             this.Module = Module;
+            this.environmentEquivalents = new Dictionary<IType, IType>()
+            {
+                { PrimitiveTypes.Int8, Module.ConvertStrict(Module.Module.TypeSystem.SByte) },
+                { PrimitiveTypes.Int16, Module.ConvertStrict(Module.Module.TypeSystem.Int16) },
+                { PrimitiveTypes.Int32, Module.ConvertStrict(Module.Module.TypeSystem.Int32) },
+                { PrimitiveTypes.Int64, Module.ConvertStrict(Module.Module.TypeSystem.Int64) },
+                { PrimitiveTypes.UInt8, Module.ConvertStrict(Module.Module.TypeSystem.Byte) },
+                { PrimitiveTypes.UInt16, Module.ConvertStrict(Module.Module.TypeSystem.UInt16) },
+                { PrimitiveTypes.UInt32, Module.ConvertStrict(Module.Module.TypeSystem.UInt32) },
+                { PrimitiveTypes.UInt64, Module.ConvertStrict(Module.Module.TypeSystem.UInt64) },
+                { PrimitiveTypes.Float32, Module.ConvertStrict(Module.Module.TypeSystem.Single) },
+                { PrimitiveTypes.Float64, Module.ConvertStrict(Module.Module.TypeSystem.Double) },
+                { PrimitiveTypes.Char, Module.ConvertStrict(Module.Module.TypeSystem.Char) },
+                { PrimitiveTypes.Boolean, Module.ConvertStrict(Module.Module.TypeSystem.Boolean) },
+                { PrimitiveTypes.String, Module.ConvertStrict(Module.Module.TypeSystem.String) }
+            };
         }
 
         public CecilModule Module { get; private set; }
+
+        private Dictionary<IType, IType> environmentEquivalents;
 
         public string Name
         {
@@ -59,7 +77,15 @@ namespace Flame.Cecil
         /// <inheritdoc/>
         public IType GetEquivalentType(IType Type)
         {
-            return Type;
+            IType equivalentType;
+            if (environmentEquivalents.TryGetValue(Type, out equivalentType))
+            {
+                return equivalentType;
+            }
+            else
+            {
+                return Type;
+            }
         }
     }
 }
