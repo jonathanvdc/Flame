@@ -18,6 +18,9 @@ namespace Flame.Cecil
             this.enumeratorType = new Lazy<IType>(() => Module.ConvertStrict(typeof(IEnumerator<>)));
             this.valueType = new Lazy<IType>(() => Module.ConvertStrict(typeof(ValueType)));
             this.enumType = new Lazy<IType>(() => Module.ConvertStrict(typeof(Enum)));
+            this.arrayType = new Lazy<IType>(() => Module.ConvertStrict(typeof(System.Array)));
+            this.listType = new Lazy<IType>(() => Module.ConvertStrict(typeof(System.Collections.Generic.IList<>)));
+            this.readOnlyListType = new Lazy<IType>(() => Module.ConvertStrict(typeof(System.Collections.Generic.IReadOnlyList<>)));
             this.funcDelegates = new Dictionary<int, IType>();
             this.actionDelegates = new Dictionary<int, IType>();
             this.canonicalDelegates = new ConcurrentDictionary<DelegateSignature, IType>();
@@ -31,6 +34,9 @@ namespace Flame.Cecil
         private Lazy<IType> enumeratorType;
         private Lazy<IType> valueType;
         private Lazy<IType> enumType;
+        private Lazy<IType> arrayType;
+        private Lazy<IType> listType;
+        private Lazy<IType> readOnlyListType;
 
         public IType MulticastDelegate { get { return multicastDelegate.Value; } }
         public IType Object { get { return objectType.Value; } }
@@ -38,6 +44,21 @@ namespace Flame.Cecil
         public IType Enumerator { get { return enumeratorType.Value; } }
         public IType ValueType { get { return valueType.Value; } }
         public IType EnumType { get { return enumType.Value; } }
+
+        /// <summary>
+        /// Gets the System.Array type.
+        /// </summary>
+        public IType ArrayType { get { return arrayType.Value; } }
+
+        /// <summary>
+        /// Gets the System.Collections.Generic.IList&lt;T&gt; type.
+        /// </summary>
+        public IType IListType { get { return listType.Value; } }
+
+        /// <summary>
+        /// Gets the System.Collections.Generic.IReadOnlyList&lt;T&gt; type.
+        /// </summary>
+        public IType IReadOnlyListType { get { return readOnlyListType.Value; } }
 
         private Dictionary<int, IType> funcDelegates;
         private Dictionary<int, IType> actionDelegates;
