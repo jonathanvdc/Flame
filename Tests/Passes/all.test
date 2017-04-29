@@ -30,6 +30,7 @@ tests
     LowerSwitch/LowerSwitch.test;
     LowerSwitch/LowerSwitch2.test;
     LowerSwitch/LowerSwitch3.test;
+    LowerSwitch/LowerSwitch4.test;
     LowerYield/LowerYield.test;
     ScalarReplacement/ScalarReplacement.test;
     ScalarReplacement/ScalarReplacement2.test;

@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+
+// At face value, this test doesn't contain any switch-like statements.
+// However, `-flower-yield` uses a switch to implement `MoveNext()` for
+// `Fibonacci(int n)`. The CFG deconstruction pass will reconstruct this
+// switch.
+//
+// But the interesting part of this regression part is far more subtle.
+// The CFG deconstruction passes turns a CFG into a linear sequence of
+// instructions *except* when lowering a switch statement. There was
+// a bug in the CFG deconstruction logic that sometimes delayed the
+// placement of an 'exit' jump (i.e., the jump to the end of the
+// exception handling region in `Main`) into the next switch case. This
+// caused the loop to terminate earlier than it should've.
+
+public module Program
+{
+    public IEnumerable<int> Fibonacci(int n)
+    {
+        int x = 1;
+        int y = 1;
+        yield return x;
+        for (int i = 0; i < n; i++)
+        {
+            yield return y;
+            int tmp = y;
+            y += x;
+            x = tmp;
+        }
+    }
+
+    public void Main()
+    {
+        var enumerator = Fibonacci(10).GetEnumerator();
+        try
+        {
+            while (enumerator.MoveNext())
+            {
+                Console.WriteLine(enumerator.Current);
+            }
+        }
+        finally
+        {
+            enumerator.Dispose();
+        }
+    }
+}

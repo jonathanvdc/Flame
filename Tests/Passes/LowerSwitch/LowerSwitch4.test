@@ -1,0 +1,25 @@
+// A compare-test test description.
+
+build
+{
+    $(dsc) $(Filename).ds -platform clr -o bin/$(Filename).exe $(Flags);
+}
+
+run
+{
+    return = @($(net-runtime) bin/$(Filename).exe);
+}
+
+configs
+{
+    O0 { Flags = -O0; }
+    Og { Flags = -Og; }
+    O2 { Flags = -O2; }
+    O3 { Flags = -O3; }
+}
+
+init
+{
+    Filename = LowerSwitch4;
+    return = @(echo 1)@(echo 1)@(echo 2)@(echo 3)@(echo 5)@(echo 8)@(echo 13)@(echo 21)@(echo 34)@(echo 55)@(echo 89);
+}
