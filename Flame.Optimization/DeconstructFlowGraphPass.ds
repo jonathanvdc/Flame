@@ -444,6 +444,7 @@ namespace Flame.Optimization
         /// <returns>The contents of the linear flow builder's previous list of results.</returns>
         public IReadOnlyList<IStatement> SwapResults(IReadOnlyList<IStatement> Statements)
         {
+            FlushPendingExit();
             var returnValue = results;
             results = new List<IStatement>(Statements);
             return returnValue;
