@@ -294,8 +294,25 @@ namespace Flame.Optimization
             IUnmanagedVariable ThisVariable, IMethod Constructor,
             [IExpression] Arguments)
         {
-            return new ExpressionStatement(new InvocationExpression(
+            var invStmt = new ExpressionStatement(new InvocationExpression(
                 Constructor, ThisVariable.CreateAddressOfExpression(), Arguments));
+
+            if (!IsTotalInitializer(Constructor))
+            {
+                // Zero-fill the value first if the constructor does not perform total
+                // initialization.
+                return new BlockStatement(new IStatement[]
+                {
+                    new StoreAtAddressStatement(
+                        ThisVariable.CreateAddressOfExpression(),
+                        new DefaultValueExpression(ThisVariable.Type)),
+                    invStmt
+                });
+            }
+            else
+            {
+                return invStmt;
+            }
         }
 
         /// <summary>
