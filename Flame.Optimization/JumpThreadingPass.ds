@@ -132,11 +132,18 @@ namespace Flame.Optimization
     public class JumpThread
     {
         /// <summary>
-        /// Creates a jump thread from the given block and branch.
+        /// Creates a jump thread from the given block and branch, plus a dictionary
+        /// that maps variables to their definitions.
         /// </summary>
-        public this(BasicBlock Block, BlockBranch Branch)
+        public this(
+            BasicBlock Block, BlockBranch Branch,
+            IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
         {
             this.varValues = new Dictionary<SSAVariable, IExpression>();
+            foreach (var pair in Definitions)
+            {
+                this.varValues[pair.Key] = pair.Value;
+            }
             this.threadBlocks = new HashSet<UniqueTag>();
             this.threadBlocks.Add(Block.Tag);
             AnalyzeBlockBody(Block.Contents);
@@ -305,19 +312,12 @@ namespace Flame.Optimization
             // Loop over the nodes in this thread backwards, and pick the last
             // node with a nonnegative total score.
             int i = threadNodes.Count - 1;
-            while (i >= 0)
+            while (i > 0)
             {
                 if (threadNodes[i].TotalScore >= 0)
                 {
                     break;
                 }
-                i--;
-            }
-
-            // Next, let's try to prune blocks which cost more than they contribute.
-            // Specifically, we'll remove tail blocks that reduce the total score.
-            while (i > 0 && threadNodes[i - 1].TotalScore > threadNodes[i].TotalScore)
-            {
                 i--;
             }
 
@@ -423,6 +423,10 @@ namespace Flame.Optimization
                     this.refCounts[successorTag] += 1;
                 }
             }
+
+            var defFinder = new SSAVariableDefFinder();
+            Graph.Accept(defFinder);
+            this.Definitions = defFinder.Definitions;
         }
 
         private Dictionary<UniqueTag, BasicBlock> newBlocks;
@@ -463,6 +467,13 @@ namespace Flame.Optimization
         /// </summary>
         /// <returns>A dictionary that maps basic block tags to basic blocks.</returns>
         public IReadOnlyDictionary<UniqueTag, BasicBlock> Blocks { get { return newBlocks; } }
+
+        /// <summary>
+        /// Gets a mapping of variables to their definitions for all SSA variables in
+        /// the control-flow graph.
+        /// </summary>
+        /// <returns>A mapping of variables to their definitions.</returns>
+        public IReadOnlyDictionary<SSAVariable, IExpression> Definitions { get; private set; }
 
         /// <summary>
         /// Gets the block with the given tag. An attempt is made to return the block with
@@ -555,7 +566,7 @@ namespace Flame.Optimization
         private JumpThread DiscoverJumpThread(BasicBlock Block, BlockBranch Branch)
         {
             bool isConcatenating = true;
-            var thread = new JumpThread(Block, Branch);
+            var thread = new JumpThread(Block, Branch, Definitions);
             while (true)
             {
                 // Append the branch to the thread if we think that it might be
