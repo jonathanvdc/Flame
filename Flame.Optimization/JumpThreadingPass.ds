@@ -302,8 +302,8 @@ namespace Flame.Optimization
         /// <returns>A linearized jump thread.</returns>
         public LinearizedJumpThread Linearize()
         {
-            // Loop over the nodes in this thread backwards, and pick the first
-            // (last?) node with a nonnegative total score.
+            // Loop over the nodes in this thread backwards, and pick the last
+            // node with a nonnegative total score.
             int i = threadNodes.Count - 1;
             while (i >= 0)
             {
@@ -311,6 +311,13 @@ namespace Flame.Optimization
                 {
                     break;
                 }
+                i--;
+            }
+
+            // Next, let's try to prune blocks which cost more than they contribute.
+            // Specifically, we'll remove tail blocks that reduce the total score.
+            while (i > 0 && threadNodes[i - 1].TotalScore > threadNodes[i].TotalScore)
+            {
                 i--;
             }
 
