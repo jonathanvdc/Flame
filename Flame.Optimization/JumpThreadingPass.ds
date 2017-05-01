@@ -670,6 +670,25 @@ namespace Flame.Optimization
                 currentBlock = oldBlock;
                 return result;
             }
+            else if (Block.Flow is GuardedFlow)
+            {
+                // We can try to jump-thread the no-exception branch of a guarded flow
+                // instruction.
+                var flow = (GuardedFlow)Block.Flow;
+                var oldBlock = currentBlock;
+                currentBlock = Block;
+                var guardedBranch = Visit(flow.GuardedBranch);
+                var result = new BasicBlock(
+                    Block.Tag,
+                    Block.Parameters,
+                    Block.Contents,
+                    new GuardedFlow(
+                        guardedBranch,
+                        flow.FinallyBranch,
+                        flow.ExceptionBranches));
+                currentBlock = oldBlock;
+                return result;
+            }
             else
             {
                 return Block;
