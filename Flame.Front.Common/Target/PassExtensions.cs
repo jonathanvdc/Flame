@@ -185,6 +185,8 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterPassCondition(DeconstructSSAPass.DeconstructSSAPassName, optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(JumpThreadingPass.Instance, JumpThreadingPass.JumpThreadingPassName + "3"));
             GlobalPassManager.RegisterPassCondition(JumpThreadingPass.JumpThreadingPassName + "3", optInfo => optInfo.OptimizeNormal);
+            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeadStoreEliminationPass.Instance, DeadStoreEliminationPass.DeadStoreEliminationPassName + "3"));
+            GlobalPassManager.RegisterPassCondition(DeadStoreEliminationPass.DeadStoreEliminationPassName + "3", optInfo => optInfo.OptimizeNormal);
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructExceptionFlowPass.Instance, DeconstructExceptionFlowPass.DeconstructExceptionFlowPassName));
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(DeconstructFlowGraphPass.Instance, DeconstructFlowGraphPass.DeconstructFlowGraphPassName));
             GlobalPassManager.RegisterLoweringPass(new MethodPassInfo(RelooperPass.Instance, RelooperPass.RelooperPassName));
