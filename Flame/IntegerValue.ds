@@ -427,6 +427,15 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets a Boolean flag that tells if this integer is a power of two.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is a power of two; otherwise, <c>false</c>.</returns>
+        public bool IsPowerOfTwo
+        {
+            get { return Value.IsPowerOfTwo; }
+        }
+
+        /// <summary>
         /// Extends or wraps this integer to match the given number of bits.
         /// </summary>
         public IntegerValue CastSize(int Size)
@@ -542,6 +551,36 @@ namespace Flame
         public IntegerValue ShiftRight(IntegerValue Other)
         {
             return new IntegerValue(Value >> Other.ToInt32(), Spec);
+        }
+
+        /// <summary>
+        /// Computes the logarithm of this integer value in the specified base.
+        /// </summary>
+        /// <param name="Base">The base of the logarithm.</param>
+        /// <returns>The logarithm of this integer value in the specified base.</returns>
+        public double Log(double Base)
+        {
+            return BigInteger.Log(Value, Base);
+        }
+
+        /// <summary>
+        /// Computes the floor of the logarithm of this integer value in the specified base.
+        /// </summary>
+        /// <param name="Base">The base of the logarithm.</param>
+        /// <returns>The floor of the logarithm of this integer value in the specified base.</returns>
+        public IntegerValue IntegerLog(IntegerValue Base)
+        {
+            // Compute Base^n until we find an integer m such that
+            // Base^(m-1) <= Value <= Base^m. Return that m.
+
+            var i = BigInteger.Zero;
+            var pow = BigInteger.One;
+            while (pow.CompareTo(Value) < 0)
+            {
+                pow = BigInteger.Multiply(pow, Base.Value);
+                i = BigInteger.Add(i, BigInteger.One);
+            }
+            return new IntegerValue(i, Spec);
         }
 
         /// <summary>
