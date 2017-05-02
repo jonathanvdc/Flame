@@ -563,15 +563,15 @@ namespace Flame.Optimization
             LinearLabelFlowBuilder FlowBuilder,
             IReadOnlyDictionary<UniqueTag, ProtoSwitch> ProtoSwitches)
         {
-            if (!FlowBuilder.HasPlaced(TargetTag))
-            {
-                // Just fall through.
-                EmitBlock(TargetTag, Graph, FlowBuilder, ProtoSwitches);
-            }
-            else
+            if (FlowBuilder.HasPlaced(TargetTag))
             {
                 // Create a branch, then.
                 FlowBuilder.EmitBranch(TargetTag);
+            }
+            else
+            {
+                // Just fall through.
+                EmitBlock(TargetTag, Graph, FlowBuilder, ProtoSwitches);
             }
         }
 
