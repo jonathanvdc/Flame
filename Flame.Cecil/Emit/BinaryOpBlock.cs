@@ -155,7 +155,14 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.RightShift))
             {
-                Result = OpCodes.Shr;
+                if (A.GetIsUnsignedInteger())
+                {
+                    Result = OpCodes.Shr_Un;
+                }
+                else
+                {
+                    Result = OpCodes.Shr;
+                }
             }
             else if (Op.Equals(Operator.LeftShift))
             {
