@@ -195,7 +195,7 @@ namespace Flame.Front.Target
 
             // -fbithacks uses bitwise operations to make division/remainder by constant faster.
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(BithacksPass.Instance, BithacksPass.BithacksPassName));
-            // GlobalPassManager.RegisterPassCondition(BithacksPass.BithacksPassName, optInfo => optInfo.OptimizeNormal);
+            GlobalPassManager.RegisterPassCondition(BithacksPass.BithacksPassName, optInfo => optInfo.OptimizeNormal);
 
             // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
