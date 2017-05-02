@@ -19,7 +19,6 @@ namespace Flame
             this.UnsignedModulus = BigInteger.Pow(new BigInteger((int)2), Size);
             this.Modulus = BigInteger.Pow(new BigInteger((int)2), DataSize);
             this.MaxValue = BigInteger.Subtract(Modulus, BigInteger.One);
-            this.AllOnes = BigInteger.Subtract(this.UnsignedModulus, BigInteger.One);
 
             if (IsSigned)
             {
@@ -77,12 +76,6 @@ namespace Flame
         /// of the number of total bits.
         /// </summary>
         public BigInteger UnsignedModulus { get; private set; }
-
-        /// <summary>
-        /// Gets the unsigned all-ones bitwise integer pattern for this
-        /// integer spec. This corresponds to the unsigned modulus minus one.
-        /// </summary>
-        public BigInteger AllOnes { get; private set; }
 
         /// <summary>
         /// Gets the signed variant of this integer spec, that is, a signed integer spec
