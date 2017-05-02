@@ -15,6 +15,7 @@ namespace Flame.Cecil.Emit
         {
             this.CodeGenerator = CodeGenerator;
             this.Processor = Processor;
+            this.labelIndexCounter = 0;
             this.inserts = new List<IInsertable>();
             this.flowControls = new Stack<IFlowControlStructure>();
             PushFlowControl(new GlobalFlowControlStructure(CodeGenerator));
@@ -99,6 +100,8 @@ namespace Flame.Cecil.Emit
         private List<IInsertable> inserts;
         private List<CecilLabel> labels;
 
+        private int labelIndexCounter;
+
         private void QueueInsert(IInsertable Insertable)
         {
             if (Insertable.CanInsert)
@@ -113,31 +116,38 @@ namespace Flame.Cecil.Emit
 
         private void ApplyInserts()
         {
-            int i = 0;
-            while (i < inserts.Count)
+            bool changed = true;
+            while (changed)
             {
-                var item = inserts[i];
-                if (item.CanInsert)
+                changed = false;
+                int i = 0;
+                while (i < inserts.Count)
                 {
-                    item.Insert(this);
-                    inserts.RemoveAt(i);
-                }
-                else
-                {
-                    i++;
+                    var item = inserts[i];
+                    if (item.CanInsert)
+                    {
+                        item.Insert(this);
+                        inserts.RemoveAt(i);
+                        changed = true;
+                    }
+                    else
+                    {
+                        i++;
+                    }
                 }
             }
         }
 
         public void Flush()
         {
+            // Apply pending inserts.
             ApplyInserts();
-            int i = 0;
-            while (i < inserts.Count)
+
+            foreach (var insertable in inserts)
             {
-                inserts[i].Delete(this);
-                inserts.RemoveAt(i);
+                insertable.Delete(this);
             }
+            inserts.Clear();
         }
 
         public void Emit(Instruction Instruction)
@@ -390,7 +400,8 @@ namespace Flame.Cecil.Emit
 
         public IEmitLabel CreateLabel()
         {
-            var lbl = new CecilLabel();
+            var lbl = new CecilLabel(labelIndexCounter);
+            labelIndexCounter++;
             labels.Add(lbl);
             return lbl;
         }
@@ -402,11 +413,25 @@ namespace Flame.Cecil.Emit
 
         private class CecilLabel : IEmitLabel
         {
+            public CecilLabel(int Index)
+            {
+                this.Index = Index;
+            }
+
+            public int Index { get; private set; }
+
             public Mono.Cecil.Cil.Instruction NextInstruction { get; set; }
 
             public bool IsMarked
             {
                 get { return NextInstruction != null; }
+            }
+
+            public override string ToString()
+            {
+                return "CecilLabel(" + Index.ToString() + ", " +
+                    (NextInstruction == null ? "not marked" : NextInstruction.ToString())
+                    + ")";
             }
         }
 
@@ -441,6 +466,11 @@ namespace Flame.Cecil.Emit
             public void Delete(CecilCommandEmitContextBase Context)
             {
 
+            }
+
+            public override string ToString()
+            {
+                return "MarkLabelInsert(" + Label.ToString() + ", " + Instruction.ToString() + ")";
             }
         }
 
@@ -496,6 +526,11 @@ namespace Flame.Cecil.Emit
                 Target.Operand = nextInstr;
                 EmitContext.MarkBranchTarget(nextInstr);
             }
+
+            public override string ToString()
+            {
+                return "BranchInsert(" + Target.ToString() + ", " + OpCode.ToString() + ", " + Label.ToString() + ")";
+            }
         }
 
         private struct SwitchInsert : IInsertable
@@ -537,6 +572,11 @@ namespace Flame.Cecil.Emit
                     }
                 }
                 return false;
+            }
+
+            public override string ToString()
+            {
+                return "SwitchInsert(" + string.Join<CecilLabel>(", ", Labels) + ")";
             }
         }
 
