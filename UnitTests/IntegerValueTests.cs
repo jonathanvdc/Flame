@@ -235,6 +235,20 @@ namespace UnitTests
             TestOp((x, y) => x.BitwiseXor(y.OnesComplement), (x, y) => x ^ ~y, GetGeneralOpTestValues(rand));
         }
 
+        [Test]
+        public void IntegerLog()
+        {
+            foreach (var num in GetTestValues())
+            {
+                if (num >= 1)
+                {
+                    Assert.AreEqual(
+                        new IntegerValue(num).IntegerLog(new IntegerValue(2)).ToInt64(),
+                        (long)new IntegerValue(num).Log(2));
+                }
+            }
+        }
+
         private IEnumerable<Tuple<int, int>> GetGeneralOpTestValues(Random Rand)
         {
             foreach (var i in GetRandomValues(Rand, 200))
