@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that optimizes division/remainder operations with a constant RHS by
+    /// using bitwise operations and modulo arithmetic.
+    /// </summary>
+    public static class BithacksPass : NodeVisitorBase, IPass<IStatement, IStatement>
+    {
+        /// <summary>
+        /// Gets the name of the bithacks pass name.
+        /// </summary>
+        public const string BithacksPassName = "bithacks";
+
+        public override bool Matches(IStatement Statement)
+        {
+            return false;
+        }
+
+        public override bool Matches(IExpression Expression)
+        {
+            return Expression is DivideExpression
+                || Expression is RemainderExpression;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            return Statement.Accept(this);
+        }
+
+        protected override IExpression Transform(IExpression Expression)
+        {
+            assert(Expression is BinaryExpression);
+            if (!Expression.Type.IsUnsignedInteger)
+            {
+                return Expression.Accept(this);
+            }
+
+            var binExpr = (BinaryExpression)Expression;
+            var rhs = binExpr.RightOperand.EvaluateConstant();
+            if (rhs == null)
+            {
+                return Expression.Accept(this);
+            }
+
+            var rhsVal = rhs.GetValue<IntegerValue>();
+            var one = new IntegerValue(1).Cast(rhsVal.Spec);
+
+            if (Expression is DivideExpression)
+            {
+                if (rhsVal.Equals(one))
+                {
+                    return binExpr.LeftOperand;
+                }
+                else if (rhsVal.IsPowerOfTwo)
+                {
+                    // If the RHS is a power of two, then we can replace the division by a
+                    // right shift.
+                    var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
+                    return new RightShiftExpression(binExpr.LeftOperand, new IntegerExpression(powOfTwo));
+                }
+                else
+                {
+                    return Expression.Accept(this);
+                }
+            }
+            else
+            {
+                assert(Expression is RemainderExpression);
+                if (rhsVal.Equals(one))
+                {
+                    return new IntegerExpression(one);
+                }
+                else if (rhsVal.IsPowerOfTwo)
+                {
+                    // We can replace `x % (2 ^ n)` with `x & mask`. Here's how `mask`
+                    // is derived:
+                    //
+                    // Remainder(x, y) = x - y * Divide(x, y)
+                    //                 = x - (2 ^ n) * Divide(x, 2 ^ n)
+                    //                 = x - ((x >> n) << n)
+                    //                 = x - (x & 0xFF...FF00...00)
+                    //                                     ^~~~~~~ n bits
+                    //                 = 0x00...00XX...XX
+                    //                            ^~~~~~~ n low bits of x
+                    //                 = x & 0x00...00FF...FF
+                    //                                ^~~~~~~ n bits
+                    //                 = x & (decltype(x))((1u << n) - 1)
+                    //                 = x & mask
+                    //
+                    var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
+                    var mask = one.ShiftLeft(powOfTwo).Subtract(one).Cast(rhsVal.Spec);
+                    return new AndExpression(binExpr.LeftOperand, new IntegerExpression(mask));
+                }
+                else
+                {
+                    return Expression.Accept(this);
+                }
+            }
+        }
+
+        public IStatement Apply(IStatement Statement)
+        {
+            return Visit(Statement);
+        }
+    }
+}

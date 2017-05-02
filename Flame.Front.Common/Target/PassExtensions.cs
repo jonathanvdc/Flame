@@ -193,7 +193,9 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(ElideSelfAssignmentPass.Instance, ElideSelfAssignmentPass.ElideSelfAssignmentPassName));
             GlobalPassManager.RegisterPassCondition(ElideSelfAssignmentPass.ElideSelfAssignmentPassName, optInfo => optInfo.OptimizeMinimal);
 
-            GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
+            // -fbithacks uses bitwise operations to make division/remainder by constant faster.
+            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(BithacksPass.Instance, BithacksPass.BithacksPassName));
+            // GlobalPassManager.RegisterPassCondition(BithacksPass.BithacksPassName, optInfo => optInfo.OptimizeNormal);
 
             // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
@@ -207,6 +209,8 @@ namespace Flame.Front.Target
             // Register -fnormalize-names-clr here, because the IR back-end could also use
             // this pass when targeting the CLR platform indirectly.
             GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(Flame.Cecil.NormalizeNamesPass.Instance, Flame.Cecil.NormalizeNamesPass.NormalizeNamesPassName));
+
+            GlobalPassManager.RegisterRootPass(new RootPassInfo(GenerateStaticPass.Instance, GenerateStaticPass.GenerateStaticPassName));
 
             // -fwrap-extension-properties is actually a set of two passes which are
             // always on or off at the same time.
