@@ -419,6 +419,7 @@ namespace Flame.Compiler.Statements
             var emptyVals = new List<IBoundObject>();
             var gotoVals = new Dictionary<UniqueTag, List<IBoundObject>>();
             var newCases = new List<SwitchCase>();
+            var valuelessBodies = new List<IStatement>();
 
             foreach (var switchCase in ConditionalCases)
             {
@@ -445,6 +446,10 @@ namespace Flame.Compiler.Statements
                         newCases.Add(switchCase);
                     }
                 }
+                else
+                {
+                    valuelessBodies.Add(switchCase.Body);
+                }
             }
 
             if (newCases.Count == ConditionalCases.Count)
@@ -460,7 +465,11 @@ namespace Flame.Compiler.Statements
                         labelAndVals.Value, new GotoLabelStatement(labelAndVals.Key)));
             }
 
-            return Create(SwitchExpression, DefaultCaseBody, newCases);
+            return new BlockStatement(new IStatement[]
+            {
+                Create(SwitchExpression, DefaultCaseBody, newCases),
+                new BlockStatement(valuelessBodies).Simplify()
+            }).Simplify();
         }
 
         public IStatement Optimize()
@@ -559,7 +568,7 @@ namespace Flame.Compiler.Statements
             // Emit the default statement.
             result = Generator.EmitSequence(
                 result, DefaultCaseBody.Emit(Generator));
-            // Fall through to the exit, and mark the exit.
+            // Fall through to the exit and mark the exit.
             result = Generator.EmitSequence(
                 result, new MarkLabelStatement(endSwitchLabel).Emit(Generator));
             return result;
@@ -599,7 +608,7 @@ namespace Flame.Compiler.Statements
             }
             else
             {
-                // Split the span into two.
+                // Split the span in two.
                 var rightTreeLabel = new UniqueTag();
                 var splitSpan = Span.Split();
                 var leftSpan = splitSpan.Item1;
