@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+
+public static class Program
+{
+    private static IEnumerable<uint> GenerateTestValues()
+    {
+        yield return (uint)0;
+        yield return (uint)1;
+        yield return (uint)2;
+        yield return (uint)4;
+        yield return (uint)8;
+        yield return uint.MaxValue;
+        yield return ushort.MaxValue;
+        yield return byte.MaxValue;
+
+        var rand = new Random(2015);
+        for (int i = 0; i < 500; i++)
+        {
+            yield return (uint)rand.Next();
+        }
+    }
+
+    public static void Main()
+    {
+        var testList = new List<uint>(GenerateTestValues());
+        uint divThreeSum = 0;
+        uint remThreeSum = 0;
+        uint divSixteenSum = 0;
+        uint remSixteenSum = 0;
+        uint divThirtyOneSum = 0;
+        uint remThirtyOneSum = 0;
+        foreach (var num in testList)
+        {
+            divThreeSum += num / (uint)3;
+            remThreeSum += num % (uint)3;
+            divSixteenSum += num / (uint)16;
+            remSixteenSum += num % (uint)16;
+            divThirtyOneSum += num / (uint)31;
+            remThirtyOneSum += num % (uint)31;
+        }
+        Console.WriteLine(divThreeSum);
+        Console.WriteLine(remThreeSum);
+        Console.WriteLine(divSixteenSum);
+        Console.WriteLine(remSixteenSum);
+        Console.WriteLine(divThirtyOneSum);
+        Console.WriteLine(remThirtyOneSum);
+    }
+}

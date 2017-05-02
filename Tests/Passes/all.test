@@ -1,6 +1,7 @@
 
 tests
 {
+    Bithacks/Bithacks.test;
     CFGConstruction/CFGConstruction.test;
     Devirtualization/Devirtualization.test;
     Devirtualization/Devirtualization2.test;
