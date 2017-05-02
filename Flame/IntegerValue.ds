@@ -557,21 +557,27 @@ namespace Flame
         }
 
         /// <summary>
-        /// Computes the floor of the logarithm of this integer value in the specified base.
+        /// Computes the integer logarithm of this integer value in the specified base. The integer
+        /// logarithm is equal to the number of times the base can be multiplied by itself without
+        /// exceeding this integer value.
         /// </summary>
         /// <param name="Base">The base of the logarithm.</param>
-        /// <returns>The floor of the logarithm of this integer value in the specified base.</returns>
+        /// <returns>The integer logarithm of this integer value in the specified base.</returns>
         public IntegerValue IntegerLog(IntegerValue Base)
         {
-            // Compute Base^n until we find an integer m such that
-            // Base^(m-1) <= Value <= Base^m. Return that m.
-
             var i = BigInteger.Zero;
             var pow = BigInteger.One;
-            while (pow.CompareTo(Value) < 0)
+            while (true)
             {
                 pow = BigInteger.Multiply(pow, Base.Value);
-                i = BigInteger.Add(i, BigInteger.One);
+                if (pow.CompareTo(Value) > 0)
+                {
+                    break;
+                }
+                else
+                {
+                    i = BigInteger.Add(i, BigInteger.One);
+                }
             }
             return new IntegerValue(i, Spec);
         }
