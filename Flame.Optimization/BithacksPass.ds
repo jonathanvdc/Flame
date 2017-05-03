@@ -50,10 +50,6 @@ namespace Flame.Optimization
         {
             assert(Expression is BinaryExpression);
             var exprType = Expression.Type;
-            if (!exprType.IsUnsignedInteger)
-            {
-                return Expression.Accept(this);
-            }
 
             var binExpr = (BinaryExpression)Expression;
             var rhs = binExpr.RightOperand.EvaluateConstant();
@@ -71,102 +67,23 @@ namespace Flame.Optimization
                 {
                     return Visit(binExpr.LeftOperand);
                 }
-                else if (rhsVal.IsPowerOfTwo)
+                else if (rhsVal.Normalized.Equals(one.Negated))
                 {
-                    // If the RHS is a power of two, then we can replace the division by a
-                    // right shift.
-                    var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
-                    return new RightShiftExpression(Visit(binExpr.LeftOperand), new IntegerExpression(powOfTwo));
+                    return Visit(new NegateExpression(binExpr.LeftOperand));
                 }
-                else if (rhsVal.Spec.Size * 2 <= LargestIntSize)
+                else if (exprType.IsUnsignedInteger)
                 {
-                    var magic = rhsVal.ComputeUnsignedDivisionMagic();
-
-                    var lhs = binExpr.LeftOperand;
-                    var init = new List<IStatement>();
-                    if (magic.UseAdd)
+                    if (rhsVal.IsPowerOfTwo)
                     {
-                        if (rhsVal.IsEven)
-                        {
-                            // If the RHS is even, then we should shift the LHS now. That'll
-                            // save us some instructions and a variable.
-                            int shiftAmount = rhsVal.TrailingZeroCount;
-                            var shiftAmountVal = new IntegerValue(shiftAmount).Cast(rhsVal.Spec);
-                            lhs = new RightShiftExpression(
-                                lhs,
-                                new IntegerExpression(shiftAmountVal));
-
-                            // We know that (RHS >> shiftAmount) has shiftAmount leading zeros and
-                            // we can use that information when recomputing the magic number.
-                            magic = rhsVal.ShiftRight(shiftAmountVal).ComputeUnsignedDivisionMagic(shiftAmount);
-                            assert(!magic.UseAdd);
-                        }
-                        else if (!IsLocalVariableGetExpr(lhs.GetEssentialExpression()))
-                        {
-                            // We're going to use the LHS twice in the computation, so we have to spill it
-                            // into a variable here.
-                            var lhsReg = new RegisterVariable(lhs.Type);
-                            init.Add(lhsReg.CreateSetStatement(lhs));
-                            lhs = lhsReg.CreateGetExpression();
-                        }
+                        // If the RHS is a power of two, then we can replace the division by a
+                        // right shift.
+                        var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
+                        return new RightShiftExpression(Visit(binExpr.LeftOperand), new IntegerExpression(powOfTwo));
                     }
-
-                    // We now want to multiply the LHS by a magic constant and get the high half of
-                    // the result. However, we don't have an instruction that does that. (And Flame's
-                    // target platforms typically don't have one, either.) So we'll improvise by
-                    // first casting the LHS to an integer that is twice as wide, multiplying it by
-                    // the magic constant and extracting the high half of the result.
-                    var longType = PrimitiveTypes.GetUIntType(rhsVal.Spec.Size * 2);
-                    var longSpec = longType.GetIntegerSpec();
-                    IExpression mul = new MultiplyExpression(
-                        new StaticCastExpression(lhs, longType).Simplify(),
-                        new IntegerExpression(magic.Multiplier.Cast(longSpec)));
-
-                    if (magic.UseAdd)
+                    else if (rhsVal.Spec.Size * 2 <= LargestIntSize)
                     {
-                        // Extract the high half of the multiplication's result and store that in
-                        // a register.
-                        var mulReg = new RegisterVariable(exprType);
-                        init.Add(mulReg.CreateSetStatement(
-                            new StaticCastExpression(
-                                new RightShiftExpression(
-                                    mul,
-                                    new IntegerExpression(
-                                        new IntegerValue(rhsVal.Spec.Size).Cast(longSpec))),
-                                exprType)));
-                        mul = mulReg.CreateGetExpression();
-
-                        // Compute the result.
-                        var result = new RightShiftExpression(
-                            new AddExpression(
-                                new RightShiftExpression(
-                                    new SubtractExpression(lhs, mul),
-                                    new IntegerExpression(one)),
-                                mul),
-                            new IntegerExpression(
-                                new IntegerValue(magic.ShiftAmount - 1).Cast(longSpec)));
-
-                        // Return an expression.
-                        return Visit(new InitializedExpression(
-                            new BlockStatement(init),
-                            result));
+                        return CreateUnsignedDivisionByConstant(binExpr.LeftOperand, rhsVal, exprType);
                     }
-                    else
-                    {
-                        // Shift the result `rhsVal.Spec.Size` bits to the right to extract the
-                        // high half of the multiplication's result and then shift it `magic.ShiftAmount`
-                        // bits to the right to satisfy the computation.
-                        return Visit(new StaticCastExpression(
-                            new RightShiftExpression(
-                                mul,
-                                new IntegerExpression(
-                                    new IntegerValue(rhsVal.Spec.Size + magic.ShiftAmount).Cast(longSpec))),
-                            Expression.Type));
-                    }
-                }
-                else
-                {
-                    return Expression.Accept(this);
                 }
             }
             else
@@ -176,7 +93,7 @@ namespace Flame.Optimization
                 {
                     return new IntegerExpression( new IntegerValue(0).Cast(rhsVal.Spec));
                 }
-                else if (rhsVal.IsPowerOfTwo)
+                else if (exprType.IsUnsignedInteger && rhsVal.IsPowerOfTwo)
                 {
                     // We can replace `x % (2 ^ n)` with `x & mask`. Here's how `mask`
                     // is derived:
@@ -197,10 +114,104 @@ namespace Flame.Optimization
                     var mask = one.ShiftLeft(powOfTwo).Subtract(one).Cast(rhsVal.Spec);
                     return new AndExpression(Visit(binExpr.LeftOperand), new IntegerExpression(mask));
                 }
-                else
+            }
+            return Expression.Accept(this);
+        }
+
+        /// <summary>
+        /// Creates an expression that performs unsigned integer division by a constant value.
+        /// </summary>
+        /// <param name="LeftOperand">The left-hand side of the division operation.</param>
+        /// <param name="RightOperand">The right-hand side of the division operation.</param>
+        /// <param name="Type">The division's result type.</param>
+        /// <returns>An expression that performs unsigned integer division by a constant value.</returns>
+        private IExpression CreateUnsignedDivisionByConstant(
+            IExpression LeftOperand, IntegerValue RightOperand, IType Type)
+        {
+            var lhs = LeftOperand;
+            var rhsVal = RightOperand;
+            var magic = rhsVal.ComputeUnsignedDivisionMagic();
+            var one = new IntegerValue(1).Cast(rhsVal.Spec);
+
+            var init = new List<IStatement>();
+            if (magic.UseAdd)
+            {
+                if (rhsVal.IsEven)
                 {
-                    return Expression.Accept(this);
+                    // If the RHS is even, then we should shift the LHS now. That'll
+                    // save us some instructions and a variable.
+                    int shiftAmount = rhsVal.TrailingZeroCount;
+                    var shiftAmountVal = new IntegerValue(shiftAmount).Cast(rhsVal.Spec);
+                    lhs = new RightShiftExpression(
+                        lhs,
+                        new IntegerExpression(shiftAmountVal));
+
+                    // We know that (RHS >> shiftAmount) has shiftAmount leading zeros and
+                    // we can use that information when recomputing the magic number.
+                    magic = rhsVal.ShiftRight(shiftAmountVal).ComputeUnsignedDivisionMagic(shiftAmount);
+                    assert(!magic.UseAdd);
                 }
+                else if (!IsLocalVariableGetExpr(lhs.GetEssentialExpression()))
+                {
+                    // We're going to use the LHS twice in the computation, so we have to spill it
+                    // into a variable here.
+                    var lhsReg = new RegisterVariable(lhs.Type);
+                    init.Add(lhsReg.CreateSetStatement(lhs));
+                    lhs = lhsReg.CreateGetExpression();
+                }
+            }
+
+            // We now want to multiply the LHS by a magic constant and get the high half of
+            // the result. However, we don't have an instruction that does that. (And Flame's
+            // target platforms typically don't have one, either.) So we'll improvise by
+            // first casting the LHS to an integer that is twice as wide, multiplying it by
+            // the magic constant and extracting the high half of the result.
+            var longType = PrimitiveTypes.GetUIntType(rhsVal.Spec.Size * 2);
+            var longSpec = longType.GetIntegerSpec();
+            IExpression mul = new MultiplyExpression(
+                new StaticCastExpression(lhs, longType).Simplify(),
+                new IntegerExpression(magic.Multiplier.Cast(longSpec)));
+
+            if (magic.UseAdd)
+            {
+                // Extract the high half of the multiplication's result and store that in
+                // a register.
+                var mulReg = new RegisterVariable(Type);
+                init.Add(mulReg.CreateSetStatement(
+                    new StaticCastExpression(
+                        new RightShiftExpression(
+                            mul,
+                            new IntegerExpression(
+                                new IntegerValue(rhsVal.Spec.Size).Cast(longSpec))),
+                        Type)));
+                mul = mulReg.CreateGetExpression();
+
+                // Compute the result.
+                var result = new RightShiftExpression(
+                    new AddExpression(
+                        new RightShiftExpression(
+                            new SubtractExpression(lhs, mul),
+                            new IntegerExpression(one)),
+                        mul),
+                    new IntegerExpression(
+                        new IntegerValue(magic.ShiftAmount - 1).Cast(longSpec)));
+
+                // Return an expression.
+                return Visit(new InitializedExpression(
+                    new BlockStatement(init),
+                    result));
+            }
+            else
+            {
+                // Shift the result `rhsVal.Spec.Size` bits to the right to extract the
+                // high half of the multiplication's result and then shift it `magic.ShiftAmount`
+                // bits to the right to satisfy the computation.
+                return Visit(new StaticCastExpression(
+                    new RightShiftExpression(
+                        mul,
+                        new IntegerExpression(
+                            new IntegerValue(rhsVal.Spec.Size + magic.ShiftAmount).Cast(longSpec))),
+                    Type));
             }
         }
 
