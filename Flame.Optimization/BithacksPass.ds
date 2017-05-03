@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
 using Flame.Compiler.Visitors;
 
 namespace Flame.Optimization
@@ -10,8 +12,19 @@ namespace Flame.Optimization
     /// A pass that optimizes division/remainder operations with a constant RHS by
     /// using bitwise operations and modulo arithmetic.
     /// </summary>
-    public static class BithacksPass : NodeVisitorBase, IPass<IStatement, IStatement>
+    public class BithacksPass : NodeVisitorBase, IPass<IStatement, IStatement>
     {
+        public this(int LargestIntSize)
+        {
+            this.LargestIntSize = LargestIntSize;
+        }
+
+        /// <summary>
+        /// Gets the size in bits of the largest integer type that supports multiplication.
+        /// </summary>
+        /// <returns>The size in bits of the largest integer type that supports multiplication.</returns>
+        public int LargestIntSize { get; private set; }
+
         /// <summary>
         /// Gets the name of the bithacks pass name.
         /// </summary>
@@ -36,7 +49,8 @@ namespace Flame.Optimization
         protected override IExpression Transform(IExpression Expression)
         {
             assert(Expression is BinaryExpression);
-            if (!Expression.Type.IsUnsignedInteger)
+            var exprType = Expression.Type;
+            if (!exprType.IsUnsignedInteger)
             {
                 return Expression.Accept(this);
             }
@@ -55,14 +69,100 @@ namespace Flame.Optimization
             {
                 if (rhsVal.Equals(one))
                 {
-                    return binExpr.LeftOperand;
+                    return Visit(binExpr.LeftOperand);
                 }
                 else if (rhsVal.IsPowerOfTwo)
                 {
                     // If the RHS is a power of two, then we can replace the division by a
                     // right shift.
                     var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
-                    return new RightShiftExpression(binExpr.LeftOperand, new IntegerExpression(powOfTwo));
+                    return new RightShiftExpression(Visit(binExpr.LeftOperand), new IntegerExpression(powOfTwo));
+                }
+                else if (rhsVal.Spec.Size * 2 <= LargestIntSize)
+                {
+                    var magic = rhsVal.ComputeUnsignedDivisionMagic();
+
+                    var lhs = binExpr.LeftOperand;
+                    var init = new List<IStatement>();
+                    if (magic.UseAdd)
+                    {
+                        if (rhsVal.IsEven)
+                        {
+                            // If the RHS is even, then we should shift the LHS now. That'll
+                            // save us some instructions and a variable.
+                            int shiftAmount = rhsVal.TrailingZeroCount;
+                            var shiftAmountVal = new IntegerValue(shiftAmount).Cast(rhsVal.Spec);
+                            lhs = new RightShiftExpression(
+                                lhs,
+                                new IntegerExpression(shiftAmountVal));
+
+                            // We know that (RHS >> shiftAmount) has shiftAmount leading zeros and
+                            // we can use that information when recomputing the magic number.
+                            magic = rhsVal.ShiftRight(shiftAmountVal).ComputeUnsignedDivisionMagic(shiftAmount);
+                            assert(!magic.UseAdd);
+                        }
+                        else
+                        {
+                            // We're going to use the LHS twice in the computation, so we have to spill it
+                            // into a variable here.
+                            var lhsReg = new RegisterVariable(lhs.Type);
+                            init.Add(lhsReg.CreateSetStatement(lhs));
+                            lhs = lhsReg.CreateGetExpression();
+                        }
+                    }
+
+                    // We now want to multiply the LHS by a magic constant and get the high half of
+                    // the result. However, we don't have an instruction that does that. (And Flame's
+                    // target platforms typically don't have one, either.) So we'll improvise by
+                    // first casting the LHS to an integer that is twice as wide, multiplying it by
+                    // the magic constant and extracting the high half of the result.
+                    var longType = PrimitiveTypes.GetUIntType(rhsVal.Spec.Size * 2);
+                    var longSpec = longType.GetIntegerSpec();
+                    IExpression mul = new MultiplyExpression(
+                        new StaticCastExpression(lhs, longType).Simplify(),
+                        new IntegerExpression(magic.Multiplier.Cast(longSpec)));
+
+                    if (magic.UseAdd)
+                    {
+                        // Extract the high half of the multiplication's result and store that in
+                        // a register.
+                        var mulReg = new RegisterVariable(exprType);
+                        init.Add(mulReg.CreateSetStatement(
+                            new StaticCastExpression(
+                                new RightShiftExpression(
+                                    mul,
+                                    new IntegerExpression(
+                                        new IntegerValue(rhsVal.Spec.Size).Cast(longSpec))),
+                                exprType)));
+                        mul = mulReg.CreateGetExpression();
+
+                        // Compute the result.
+                        var result = new RightShiftExpression(
+                            new AddExpression(
+                                new RightShiftExpression(
+                                    new SubtractExpression(lhs, mul),
+                                    new IntegerExpression(one)),
+                                mul),
+                            new IntegerExpression(
+                                new IntegerValue(magic.ShiftAmount - 1).Cast(longSpec)));
+
+                        // Return an expression.
+                        return Visit(new InitializedExpression(
+                            new BlockStatement(init),
+                            result));
+                    }
+                    else
+                    {
+                        // Shift the result `rhsVal.Spec.Size` bits to the right to extract the
+                        // high half of the multiplication's result and then shift it `magic.ShiftAmount`
+                        // bits to the right to satisfy the computation.
+                        return Visit(new StaticCastExpression(
+                            new RightShiftExpression(
+                                mul,
+                                new IntegerExpression(
+                                    new IntegerValue(rhsVal.Spec.Size + magic.ShiftAmount).Cast(longSpec))),
+                            Expression.Type));
+                    }
                 }
                 else
                 {
@@ -74,7 +174,7 @@ namespace Flame.Optimization
                 assert(Expression is RemainderExpression);
                 if (rhsVal.Equals(one))
                 {
-                    return new IntegerExpression(one);
+                    return new IntegerExpression( new IntegerValue(0).Cast(rhsVal.Spec));
                 }
                 else if (rhsVal.IsPowerOfTwo)
                 {
@@ -95,7 +195,7 @@ namespace Flame.Optimization
                     //
                     var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
                     var mask = one.ShiftLeft(powOfTwo).Subtract(one).Cast(rhsVal.Spec);
-                    return new AndExpression(binExpr.LeftOperand, new IntegerExpression(mask));
+                    return new AndExpression(Visit(binExpr.LeftOperand), new IntegerExpression(mask));
                 }
                 else
                 {
