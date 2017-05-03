@@ -162,8 +162,8 @@ namespace Flame
 
         /// <summary>
         /// "Normalizes" the given value, by casting it to this integer spec,
-        /// from this integer spec. The resulting of this operation will always be
-        /// representible, but this need not be the case for the input value.
+        /// from this integer spec. The result of this operation is always
+        /// representible, even if the input value is not.
         /// </summary>
         public BigInteger Normalize(BigInteger Value)
             out (result) { IsRepresentible(result) }
@@ -599,6 +599,60 @@ namespace Flame
                 return 1;
             else
                 return CompareTo((IntegerValue)Other);
+        }
+
+        /// <summary>
+        /// Tests if this integer value is greater than or equal to the
+        /// given value.
+        /// </summary>
+        /// <param name="Other">The right-hand side of the comparison.</param>
+        /// <returns>
+        /// <c>true</c> if this integer is greater than or equal to the given
+        /// integer; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsGreaterThanOrEqual(IntegerValue Other)
+        {
+            return CompareTo(Other) >= 0;
+        }
+
+        /// <summary>
+        /// Tests if this integer value is greater than the given value.
+        /// </summary>
+        /// <param name="Other">The right-hand side of the comparison.</param>
+        /// <returns>
+        /// <c>true</c> if this integer is greater than the given integer;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsGreaterThan(IntegerValue Other)
+        {
+            return CompareTo(Other) > 0;
+        }
+
+        /// <summary>
+        /// Tests if this integer value is less than or equal to the
+        /// given value.
+        /// </summary>
+        /// <param name="Other">The right-hand side of the comparison.</param>
+        /// <returns>
+        /// <c>true</c> if this integer is less than or equal to the given
+        /// integer; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsLessThanOrEqual(IntegerValue Other)
+        {
+            return CompareTo(Other) <= 0;
+        }
+
+        /// <summary>
+        /// Tests if this integer value is less than the given value.
+        /// </summary>
+        /// <param name="Other">The right-hand side of the comparison.</param>
+        /// <returns>
+        /// <c>true</c> if this integer is less than the given integer;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsLessThan(IntegerValue Other)
+        {
+            return CompareTo(Other) < 0;
         }
 
         /// <summary>
