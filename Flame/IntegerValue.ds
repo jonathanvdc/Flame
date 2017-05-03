@@ -447,6 +447,27 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the number of trailing zero bits in this integer value
+        /// </summary>
+        /// <returns>The number of trailing zero bits in this integer value.</returns>
+        public int TrailingZeroCount
+        {
+            get
+            {
+                var mask = BigInteger.One;
+                for (int i = 0; i < Spec.Size; i++)
+                {
+                    if ((Value & mask) != 0)
+                        return i;
+
+                    mask = mask << 1;
+                }
+
+                return Spec.Size;
+            }
+        }
+
+        /// <summary>
         /// Extends or wraps this integer to match the given number of bits.
         /// </summary>
         public IntegerValue CastSize(int Size)
