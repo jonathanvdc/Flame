@@ -754,5 +754,153 @@ namespace Flame
         {
             return "{ Value : " + Value + ", Size : " + Spec.Size + ", IsSigned : " + Spec.IsSigned + " }";
         }
+
+        /// <summary>
+        /// Calculate the magic numbers required to implement an unsigned integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// Requires that the divisor not be 0.
+        /// </summary>
+        /// <returns>
+        /// The magic numbers required to implement an unsigned integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// </returns>
+        public UnsignedDivisionMagic ComputeUnsignedDivisionMagic()
+        {
+            return ComputeUnsignedDivisionMagic(0);
+        }
+
+        /// <summary>
+        /// Calculate the magic numbers required to implement an unsigned integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// Requires that the divisor not be 0.
+        /// </summary>
+        /// <param name="LeadingZeros">
+        /// The number of upper bits in the divided value that are known to be zero.
+        /// </param>
+        /// <returns>
+        /// The magic numbers required to implement an unsigned integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// </returns>
+        public UnsignedDivisionMagic ComputeUnsignedDivisionMagic(int LeadingZeros)
+        {
+            // This algorithm is based on the equivalent LLVM algorithm from APInt.cpp
+            // which can be found at
+            // https://github.com/llvm-mirror/llvm/blob/master/lib/Support/APInt.cpp
+            // The algorithm implemented there was originally taken from
+            // "Hacker's Delight", Henry S. Warren, Jr., chapter 10.
+
+            assert(LeadingZeros >= 0);
+
+            var d = this.CastSignedness(false);
+            IntegerValue delta;
+            // Initialize the "add" indicator.
+            bool useAdd = false;
+
+            var zero = new IntegerValue(BigInteger.Zero, d.Spec);
+            var one = new IntegerValue(BigInteger.One, d.Spec);
+
+            // Create an all-ones value for `d`'s bit-width.
+            var allOnes = new IntegerValue(d.Spec.MaxValue >> LeadingZeros, d.Spec).Normalized;
+
+            // Get the signed min/max values for `d`'s bit-width and interpret
+            // them as unsigned integers.
+            var signedMin = new IntegerValue(d.Spec.SignedVariant.MinValue, d.Spec).Normalized;
+            var signedMax = new IntegerValue(d.Spec.SignedVariant.MaxValue, d.Spec).Normalized;
+
+            var nc = allOnes.Subtract(allOnes.Subtract(d).Remainder(d));
+            // Initialize p.
+            int p = d.Spec.Size - 1;
+            // Initialize q1 = 2p/nc.
+            var q1 = signedMin.Divide(nc);
+            // Initialize r1 = rem(2p,nc).
+            var r1 = signedMin.Subtract(q1.Multiply(nc)).Normalized;
+            // Initialize q2 = (2p-1)/d.
+            var q2 = signedMax.Divide(d);
+            // Initialize r2 = rem((2p-1),d).
+            var r2 = signedMax.Subtract(q2.Multiply(d)).Normalized;
+            do
+            {
+                p += 1;
+                if (r1.IsGreaterThanOrEqual(nc.Subtract(r1).Normalized))
+                {
+                    // Update q1.
+                    q1 = q1.Add(q1).Add(one).Normalized;
+                    // Update r1.
+                    r1 = r1.Add(r1).Subtract(nc).Normalized;
+                }
+                else
+                {
+                    // update q1.
+                    q1 = q1.Add(q1).Normalized;
+                    // Update r1.
+                    r1 = r1.Add(r1).Normalized;
+                }
+                if (r2.Add(one).Normalized.IsGreaterThanOrEqual(d.Subtract(r2).Normalized))
+                {
+                    if (q2.IsGreaterThanOrEqual(signedMax))
+                    {
+                        useAdd = true;
+                    }
+                    // Update q2.
+                    q2 = q2.Add(q2).Add(one).Normalized;
+                    // Update r2.
+                    r2 = r2.Add(r2).Add(one).Subtract(d).Normalized;
+                }
+                else
+                {
+                    if (q2.IsGreaterThanOrEqual(signedMin))
+                    {
+                        useAdd = true;
+                    }
+                    // Update q2.
+                    q2 = q2.Add(q2).Normalized;
+                    // Update r2.
+                    r2 = r2.Add(r2).Add(one).Normalized;
+                }
+                delta = d.Subtract(one).Subtract(r2).Normalized;
+            } while (p < d.Spec.Size * 2 &&
+                    (q1.IsLessThan(delta) || (q1.Equals(delta) && r1.Equals(zero))));
+
+            return new UnsignedDivisionMagic(
+                // Resulting magic number
+                q2.Add(one).Normalized,
+                // Resulting shift
+                p - d.Spec.Size,
+                // Boolean flag
+                useAdd);
+        }
+    }
+
+    /// <summary>
+    /// A collection of magic constants that can be used to perform unsigned integer
+    /// division by constant.
+    /// </summary>
+    public struct UnsignedDivisionMagic
+    {
+        public this(IntegerValue Multiplier, int ShiftAmount, bool UseAdd)
+        {
+            this.Multiplier = Multiplier;
+            this.ShiftAmount = ShiftAmount;
+            this.UseAdd = UseAdd;
+        }
+
+        /// <summary>
+        /// Gets the constant factor to multiply with.
+        /// </summary>
+        /// <returns>The constant factor to multiply with.</returns>
+        public IntegerValue Multiplier { get; private set; }
+
+        /// <summary>
+        /// Gets the number of bits to shift.
+        /// </summary>
+        /// <returns>The number of bits to shift.</returns>
+        public int ShiftAmount { get; private set; }
+
+        /// <summary>
+        /// Gets a Boolean flag that tells if an add-operation should be
+        /// used.
+        /// </summary>
+        /// <returns><c>true</c> if an addition should be performed; otherwise, <c>false</c>.</returns>
+        public bool UseAdd { get; private set; }
     }
 }
