@@ -101,7 +101,7 @@ namespace Flame.Optimization
                             magic = rhsVal.ShiftRight(shiftAmountVal).ComputeUnsignedDivisionMagic(shiftAmount);
                             assert(!magic.UseAdd);
                         }
-                        else
+                        else if (!IsLocalVariableGetExpr(lhs.GetEssentialExpression()))
                         {
                             // We're going to use the LHS twice in the computation, so we have to spill it
                             // into a variable here.
@@ -202,6 +202,24 @@ namespace Flame.Optimization
                     return Expression.Accept(this);
                 }
             }
+        }
+
+        private static bool IsLocalVariableGetExpr(IExpression Expression)
+        {
+            if (Expression is IVariableNode)
+            {
+                var varNode = (IVariableNode)Expression;
+                if (varNode.Action == VariableNodeAction.Get)
+                {
+                    var variable = varNode.GetVariable();
+                    if (variable is ArgumentVariable
+                        || variable is LocalVariableBase)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public IStatement Apply(IStatement Statement)
