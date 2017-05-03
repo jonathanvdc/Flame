@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Globalization;
 
 namespace UnitTests
 {
@@ -151,6 +152,10 @@ namespace UnitTests
                 new IntegerValue(uint.MaxValue).Cast(IntegerSpec.Int64), 
                 new IntegerValue(unchecked((long)uint.MaxValue)));
 
+            Assert.AreEqual(
+                new IntegerValue(-1431655765).Cast(IntegerSpec.UInt32),
+                new IntegerValue(unchecked((uint)-1431655765)));
+
             foreach (var i in GetTestValues())
             {
                 Assert.AreEqual(
@@ -247,6 +252,36 @@ namespace UnitTests
                         (long)new IntegerValue(num).Log(2));
                 }
             }
+        }
+
+        [Test]
+        public void UnsignedDivisionMagic()
+        {
+            // These tests are based on equivalent tests from LLVM's test suite, which can be found at
+            // https://github.com/llvm-mirror/llvm/blob/master/unittests/ADT/APIntTest.cpp
+            Assert.AreEqual(
+                new IntegerValue(3u).ComputeUnsignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("AAAAAAAB", NumberStyles.HexNumber), IntegerSpec.UInt32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(3u).ComputeUnsignedDivisionMagic().ShiftAmount, 1);
+
+            Assert.AreEqual(
+                new IntegerValue(5u).ComputeUnsignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("CCCCCCCD", NumberStyles.HexNumber), IntegerSpec.UInt32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(5u).ComputeUnsignedDivisionMagic().ShiftAmount, 2);
+
+            Assert.AreEqual(
+                new IntegerValue(7u).ComputeUnsignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("24924925", NumberStyles.HexNumber), IntegerSpec.UInt32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(7u).ComputeUnsignedDivisionMagic().ShiftAmount, 3);
+
+            Assert.AreEqual(
+                new IntegerValue(25ul).ComputeUnsignedDivisionMagic(1).Multiplier,
+                new IntegerValue(BigInteger.Parse("A3D70A3D70A3D70B", NumberStyles.HexNumber), IntegerSpec.UInt64).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(25ul).ComputeUnsignedDivisionMagic(1).ShiftAmount, 4);
         }
 
         private IEnumerable<Tuple<int, int>> GetGeneralOpTestValues(Random Rand)
