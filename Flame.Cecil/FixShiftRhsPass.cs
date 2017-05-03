@@ -42,19 +42,19 @@ namespace Flame.Cecil
             if (rhsSpec != null && rhsSpec.Size > 32)
             {
                 var newRhs = new StaticCastExpression(
-                    binOp.RightOperand,
+                    Visit(binOp.RightOperand),
                     rhsSpec.IsSigned
                     ? PrimitiveTypes.Int32
                     : PrimitiveTypes.UInt32).Simplify();
 
                 if (binOp is LeftShiftExpression)
-                    return new LeftShiftExpression(binOp.LeftOperand, newRhs);
+                    return new LeftShiftExpression(Visit(binOp.LeftOperand), newRhs);
                 else
-                    return new RightShiftExpression(binOp.LeftOperand, newRhs);
+                    return new RightShiftExpression(Visit(binOp.LeftOperand), newRhs);
             }
             else
             {
-                return Expression;
+                return Expression.Accept(this);
             }
         }
 
