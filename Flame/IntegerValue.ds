@@ -420,12 +420,30 @@ namespace Flame
         }
 
         /// <summary>
-        /// Gets a Boolean flag that tells if this integer is a power of two.
+        /// Gets a Boolean that tells if this integer is a power of two.
         /// </summary>
         /// <returns><c>true</c> if this integer value is a power of two; otherwise, <c>false</c>.</returns>
         public bool IsPowerOfTwo
         {
             get { return Value.IsPowerOfTwo; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is divisible by two.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is divisible by two; otherwise, <c>false</c>.</returns>
+        public bool IsEven
+        {
+            get { return Value.IsEven; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is not divisible by two.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is not divisible by two; otherwise, <c>false</c>.</returns>
+        public bool IsOdd
+        {
+            get { return !IsEven; }
         }
 
         /// <summary>
