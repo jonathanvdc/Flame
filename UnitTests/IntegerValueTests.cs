@@ -284,6 +284,30 @@ namespace UnitTests
                 new IntegerValue(25ul).ComputeUnsignedDivisionMagic(1).ShiftAmount, 4);
         }
 
+        [Test]
+        public void SignedDivisionMagic()
+        {
+            // These tests are based on equivalent tests from LLVM's test suite, which can be found at
+            // https://github.com/llvm-mirror/llvm/blob/master/unittests/ADT/APIntTest.cpp
+            Assert.AreEqual(
+                new IntegerValue(3).ComputeSignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("55555556", NumberStyles.HexNumber), IntegerSpec.Int32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(3).ComputeSignedDivisionMagic().ShiftAmount, 0);
+
+            Assert.AreEqual(
+                new IntegerValue(5).ComputeSignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("66666667", NumberStyles.HexNumber), IntegerSpec.Int32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(5).ComputeSignedDivisionMagic().ShiftAmount, 1);
+
+            Assert.AreEqual(
+                new IntegerValue(7).ComputeSignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("92492493", NumberStyles.HexNumber), IntegerSpec.Int32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(7).ComputeSignedDivisionMagic().ShiftAmount, 2);
+        }
+
         private IEnumerable<Tuple<int, int>> GetGeneralOpTestValues(Random Rand)
         {
             foreach (var i in GetRandomValues(Rand, 200))
