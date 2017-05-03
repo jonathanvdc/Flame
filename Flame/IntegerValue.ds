@@ -447,6 +447,70 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets a Boolean that tells if this integer is zero.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is zero; otherwise, <c>false</c>.</returns>
+        public bool IsZero
+        {
+            get { return Value.IsZero; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is less than zero.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is less than zero; otherwise, <c>false</c>.</returns>
+        public bool IsNegative
+        {
+            get { return Value.CompareTo(BigInteger.Zero) < 0; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is greater than zero.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is greater than zero; otherwise, <c>false</c>.</returns>
+        public bool IsPositive
+        {
+            get { return Value.CompareTo(BigInteger.Zero) > 0; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is greater than or equal to zero.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is greater than or equal to zero; otherwise, <c>false</c>.</returns>
+        public bool IsNonNegative
+        {
+            get { return Value.CompareTo(BigInteger.Zero) >= 0; }
+        }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this integer is less than or equal to zero.
+        /// </summary>
+        /// <returns><c>true</c> if this integer value is less than or equal to zero; otherwise, <c>false</c>.</returns>
+        public bool IsNonPositive
+        {
+            get { return Value.CompareTo(BigInteger.Zero) <= 0; }
+        }
+
+        /// <summary>
+        /// Gets this integer value's absolute value.
+        /// </summary>
+        /// <returns>This integer value's absolute value.</returns>
+        public IntegerValue AbsoluteValue
+        {
+            get
+            {
+                if (IsNegative)
+                {
+                    return Negated;
+                }
+                else
+                {
+                    return this;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the number of trailing zero bits in this integer value
         /// </summary>
         /// <returns>The number of trailing zero bits in this integer value.</returns>
@@ -454,6 +518,11 @@ namespace Flame
         {
             get
             {
+                if (Value.IsZero)
+                {
+                    return Spec.Size;
+                }
+
                 var mask = BigInteger.One;
                 for (int i = 0; i < Spec.Size; i++)
                 {
@@ -571,18 +640,36 @@ namespace Flame
         /// Applies the bitwise left shift operator to this integer and the given
         /// other integer. The result retains this integer's spec.
         /// </summary>
-        public IntegerValue ShiftLeft(IntegerValue Other)
+        public IntegerValue ShiftLeft(IntegerValue ShiftAmount)
         {
-            return new IntegerValue(Value << Other.ToInt32(), Spec);
+            return new IntegerValue(Value << ShiftAmount.ToInt32(), Spec);
         }
 
         /// <summary>
         /// Applies the bitwise right shift operator to this integer and the given
         /// other integer. The result retains this integer's spec.
         /// </summary>
-        public IntegerValue ShiftRight(IntegerValue Other)
+        public IntegerValue ShiftRight(IntegerValue ShiftAmount)
         {
-            return new IntegerValue(Value >> Other.ToInt32(), Spec);
+            return new IntegerValue(Value >> ShiftAmount.ToInt32(), Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise left shift operator to this integer and the given
+        /// other integer. The result retains this integer's spec.
+        /// </summary>
+        public IntegerValue ShiftLeft(int ShiftAmount)
+        {
+            return new IntegerValue(Value << ShiftAmount, Spec);
+        }
+
+        /// <summary>
+        /// Applies the bitwise right shift operator to this integer and the given
+        /// other integer. The result retains this integer's spec.
+        /// </summary>
+        public IntegerValue ShiftRight(int ShiftAmount)
+        {
+            return new IntegerValue(Value >> ShiftAmount, Spec);
         }
 
         /// <summary>
@@ -908,6 +995,83 @@ namespace Flame
                 // Boolean flag
                 useAdd);
         }
+
+        /// <summary>
+        /// Calculate the magic numbers required to implement a signed integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// Requires that the divisor not be 0, 1 or -1.
+        /// </summary>
+        /// <returns>
+        /// The magic numbers required to implement an unsigned integer
+        /// division by a constant as a sequence of multiplies, adds and shifts.
+        /// </returns>
+        public SignedDivisionMagic ComputeSignedDivisionMagic()
+        {
+            // This algorithm is based on the equivalent LLVM algorithm from APInt.cpp
+            // which can be found at
+            // https://github.com/llvm-mirror/llvm/blob/master/lib/Support/APInt.cpp
+            // The algorithm implemented there was originally taken from
+            // "Hacker's Delight", Henry S. Warren, Jr., chapter 10.
+
+            var d = this.CastSignedness(false);
+            var signed = Spec.SignedVariant;
+            var unsigned = d.Spec;
+
+            // Set up some constants.
+            var zero = new IntegerValue(BigInteger.Zero, unsigned);
+            var one = new IntegerValue(BigInteger.One, unsigned);
+            var signedMin = new IntegerValue(signed.MinValue, unsigned).Normalized;
+
+            IntegerValue delta;
+
+            var ad = d.AbsoluteValue.Normalized;
+            var t = signedMin.Add(d.ShiftRight(unsigned.Size - 1));
+            // Initialyze `anc`, the absolute value of `nc`.
+            var anc = t.Subtract(one).Subtract(t.Remainder(ad).Normalized).Normalized;
+            // Initialize `p`.
+            int p = unsigned.Size - 1;
+            // Initialize `q1 = 2p/abs(nc)`.
+            var q1 = signedMin.Divide(anc).Normalized;
+            // Initialize `r1 = rem(2p,abs(nc))`.
+            var r1 = signedMin.Subtract(q1.Multiply(anc)).Normalized;
+            // Initialize `q2 = 2p/abs(d)`.
+            var q2 = signedMin.Divide(ad);
+            // Initialize `r2 = rem(2p,abs(d))`.
+            var r2 = signedMin.Subtract(q2.Multiply(ad));
+            do 
+            {
+                p += 1;
+                // Update `q1 = 2p/abs(nc)`.
+                q1 = q1.ShiftLeft(1).Normalized;
+                // Update `r1 = rem(2p/abs(nc))`.
+                r1 = r1.ShiftLeft(1).Normalized;
+                if (r1.IsGreaterThanOrEqual(anc))
+                {
+                    q1 = q1.Add(one).Normalized;
+                    r1 = r1.Subtract(anc).Normalized;
+                }
+                // Update `q2 = 2p/abs(d)`.
+                q2 = q2.ShiftLeft(1).Normalized;
+                // Update `r2 = rem(2p/abs(d))`.
+                r2 = r2.ShiftLeft(1).Normalized;
+                if (r2.IsGreaterThanOrEqual(ad))
+                {
+                    q2 = q2.Add(one).Normalized;
+                    r2 = r2.Subtract(ad).Normalized;
+                }
+                delta = ad.Subtract(r2).Normalized;
+            } while (q1.IsLessThan(delta) || (q1.Equals(delta) && r1.Equals(zero)));
+
+            // Compute the resulting magic number.
+            var magicMultiplier = q2.Add(one).Cast(signed);
+            if (d.IsNegative)
+            {
+                magicMultiplier = magicMultiplier.Negated;
+            }
+            // Compute the shift amount.
+            var shiftAmount = p - unsigned.Size;
+            return new SignedDivisionMagic(magicMultiplier, shiftAmount);
+        }
     }
 
     /// <summary>
@@ -924,9 +1088,9 @@ namespace Flame
         }
 
         /// <summary>
-        /// Gets the constant factor to multiply with.
+        /// Gets the constant factor to multiply by.
         /// </summary>
-        /// <returns>The constant factor to multiply with.</returns>
+        /// <returns>The constant factor to multiply by.</returns>
         public IntegerValue Multiplier { get; private set; }
 
         /// <summary>
@@ -941,5 +1105,30 @@ namespace Flame
         /// </summary>
         /// <returns><c>true</c> if an addition should be performed; otherwise, <c>false</c>.</returns>
         public bool UseAdd { get; private set; }
+    }
+
+    /// <summary>
+    /// A collection of magic constants that can be used to perform signed integer
+    /// division by constant.
+    /// </summary>
+    public struct SignedDivisionMagic
+    {
+        public this(IntegerValue Multiplier, int ShiftAmount)
+        {
+            this.Multiplier = Multiplier;
+            this.ShiftAmount = ShiftAmount;
+        }
+
+        /// <summary>
+        /// Gets the constant factor to multiply by.
+        /// </summary>
+        /// <returns>The constant factor to multiply by.</returns>
+        public IntegerValue Multiplier { get; private set; }
+
+        /// <summary>
+        /// Gets the number of bits to shift.
+        /// </summary>
+        /// <returns>The number of bits to shift.</returns>
+        public int ShiftAmount { get; private set; }
     }
 }
