@@ -3,6 +3,7 @@ tests
 {
     Bithacks/Bithacks.test;
     Bithacks/Bithacks2.test;
+    Bithacks/Bithacks3.test;
     CFGConstruction/CFGConstruction.test;
     Devirtualization/Devirtualization.test;
     Devirtualization/Devirtualization2.test;
