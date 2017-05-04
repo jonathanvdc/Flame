@@ -17,8 +17,8 @@ build_script:
   - echo %ASM_VERSION%
   # Perform one build to check that Flame is buildable
   - BuildCI.bat bin_dsc\dsc.exe -O1
-  # Perform a second build to make sure that Flame can bootstrap, and
-  # turn on -O3 optimizations.
+  # Perform a second build to make sure that Flame can bootstrap
+  # (even with -O3 optimizations).
   - BuildCI.bat dsc\bin\Release\dsc.exe --asm-version=%ASM_VERSION% -O3
   # Perform a third build to make sure that Flame can bootstrap with
   # aggressive optimizations turned on.
