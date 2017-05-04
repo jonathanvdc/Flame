@@ -14,9 +14,10 @@ namespace Flame.Optimization
     /// </summary>
     public class BithacksPass : NodeVisitorBase, IPass<IStatement, IStatement>
     {
-        public this(int LargestIntSize)
+        public this(int LargestIntSize, bool UseStackIntrinsics)
         {
             this.LargestIntSize = LargestIntSize;
+            this.UseStackIntrinsics = UseStackIntrinsics;
         }
 
         /// <summary>
@@ -24,6 +25,13 @@ namespace Flame.Optimization
         /// </summary>
         /// <returns>The size in bits of the largest integer type that supports multiplication.</returns>
         public int LargestIntSize { get; private set; }
+
+        /// <summary>
+        /// Gets a Boolean that tells if this pass is allowed to use the `PushStackStatement`,
+        /// `PopStackExpression` and `PeekStackExpression` stack intrinsics.
+        /// </summary>
+        /// <returns><c>true</c> if this pass is allowed to use stack intrinsics; otherwise, <c>false</c>.</returns>
+        public bool UseStackIntrinsics { get; private set; }
 
         /// <summary>
         /// Gets the name of the bithacks pass name.
