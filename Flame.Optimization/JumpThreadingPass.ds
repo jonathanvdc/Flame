@@ -137,7 +137,8 @@ namespace Flame.Optimization
         /// </summary>
         public this(
             BasicBlock Block, BlockBranch Branch,
-            IReadOnlyDictionary<SSAVariable, IExpression> Definitions)
+            IReadOnlyDictionary<SSAVariable, IExpression> Definitions,
+            int InitialScore)
         {
             this.varValues = new Dictionary<SSAVariable, IExpression>();
             foreach (var pair in Definitions)
@@ -148,7 +149,7 @@ namespace Flame.Optimization
             this.threadBlocks.Add(Block.Tag);
             AnalyzeBlockBody(Block.Contents);
             this.threadNodes = new List<JumpThreadNode>();
-            this.threadNodes.Add(new JumpThreadNode(null, null, new JumpFlow(Branch), 0));
+            this.threadNodes.Add(new JumpThreadNode(null, null, new JumpFlow(Branch), InitialScore));
         }
 
         /// <summary>
@@ -562,11 +563,12 @@ namespace Flame.Optimization
         /// </summary>
         /// <param name="Block">The block that defines the branch.</param>
         /// <param name="Branch">The first branch in the thread.</param>
+        /// <param name="InitialScore">The jump thread's initial score.</param>
         /// <returns>A jump thread for the given branch.</returns>
-        private JumpThread DiscoverJumpThread(BasicBlock Block, BlockBranch Branch)
+        private JumpThread DiscoverJumpThread(BasicBlock Block, BlockBranch Branch, int InitialScore)
         {
             bool isConcatenating = true;
-            var thread = new JumpThread(Block, Branch, Definitions);
+            var thread = new JumpThread(Block, Branch, Definitions, InitialScore);
             while (true)
             {
                 // Append the branch to the thread if we think that it might be
@@ -604,7 +606,12 @@ namespace Flame.Optimization
 
         public override BlockBranch Visit(BlockBranch Branch)
         {
-            var thread = DiscoverJumpThread(currentBlock, Branch).Linearize();
+            // Set the initial score for a jump thread that originates from a non-jump
+            // branch to a negative constant. This should discourage unnecessary
+            // duplication of small blocks.
+            int initialScore = -8;
+
+            var thread = DiscoverJumpThread(currentBlock, Branch, initialScore).Linearize();
             if (thread.Length == 0)
             {
                 return Branch;
@@ -645,7 +652,7 @@ namespace Flame.Optimization
             if (Block.Flow is JumpFlow)
             {
                 var jump = (JumpFlow)Block.Flow;
-                var thread = DiscoverJumpThread(Block, jump.Branch).Linearize();
+                var thread = DiscoverJumpThread(Block, jump.Branch, 0).Linearize();
                 if (thread.Length == 0)
                 {
                     return Block;
@@ -842,7 +849,7 @@ namespace Flame.Optimization
         {
             var log = Arg.PassEnvironment.Log;
             int tolerance = log.Options.GetOption<int>(ToleranceOption, 4);
-            int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 2);
+            int paramWeight = log.Options.GetOption<int>(ParameterWeightOption, 0);
             var heuristic = new SizeBasedBlockRater(tolerance, paramWeight, Arg.PassEnvironment);
             var visitor = new GlobalJumpThreadingVisitor(heuristic.RateBlock, Arg.PassEnvironment);
             // Apply the visitor.
