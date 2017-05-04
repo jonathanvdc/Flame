@@ -22,23 +22,23 @@ namespace Flame.Compiler.Expressions
         protected abstract PopStackExpressionBase Create(IType Type);
         public abstract override ICodeBlock Emit(ICodeGenerator Generator);
 
-		public IMemberNode ConvertMembers(MemberConverter Converter)
-		{
-			var convType = Converter.Convert(Type);
-			if (object.ReferenceEquals(Type, convType))
-			{
-				return this;
-			}
-			else
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var convType = Converter.Convert(Type);
+            if (object.ReferenceEquals(Type, convType))
+            {
+                return this;
+            }
+            else
             {
                 return Create(convType);
             }
-		}
+        }
 
-		public IExpression Accept(INodeVisitor Visitor)
-		{
-			return this;
-		}
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
 
         public bool IsConstantNode
         {
@@ -60,7 +60,7 @@ namespace Flame.Compiler.Expressions
     /// An expression that pops the value that is currently on top
     /// of the stack.
     /// </summary>
-	public class PopStackExpression : PopStackExpressionBase
+    public class PopStackExpression : PopStackExpressionBase
     {
         public const this(IType Type)
             : base(Type);
