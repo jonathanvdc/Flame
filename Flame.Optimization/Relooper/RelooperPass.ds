@@ -154,7 +154,8 @@ namespace Flame.Optimization.Relooper
                     epBlock,
                     VisitComponent(
                         Component.GetSubcomponentFromEntryPoints(
-                            new List<UniqueTag>(epBlock.Flow.SuccessorTags))));
+                            new List<UniqueTag>(Enumerable.Where<UniqueTag>(
+                                epBlock.Flow.SuccessorTags, Component.Contains)))));
             }
             // If we can return to all of the entries, create a Loop
             // block, ...

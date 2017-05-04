@@ -81,9 +81,9 @@ namespace Flame.Optimization.Relooper
         {
             // Mark all blocks that are reachable from this block
             // as reachable.
-            foreach (var item in Graph.GetBlock(Tag).Flow.Branches)
+            foreach (var successorTag in Graph.GetBlock(Tag).Flow.SuccessorTags)
             {
-                MarkReachable(item.TargetTag, Results);
+                MarkReachable(successorTag, Results);
             }
         }
 
@@ -168,6 +168,7 @@ namespace Flame.Optimization.Relooper
             var subBlocks = new HashSet<UniqueTag>();
             foreach (var item in SubEntryPoints)
             {
+                assert(Contains(item));
                 subBlocks.UnionWith(GetStrictlyReachableBlocksImpl(item));
             }
             return new FlowGraphComponent(Graph, SubEntryPoints, subBlocks);
