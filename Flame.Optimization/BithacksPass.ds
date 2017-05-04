@@ -46,7 +46,8 @@ namespace Flame.Optimization
         public override bool Matches(IExpression Expression)
         {
             return Expression is DivideExpression
-                || Expression is RemainderExpression;
+                || Expression is RemainderExpression
+                || Expression is MultiplyExpression;
         }
 
         protected override IStatement Transform(IStatement Statement)
@@ -103,9 +104,8 @@ namespace Flame.Optimization
                     return CreateSignedDivisionByConstant(binExpr.LeftOperand, rhsVal, exprType);
                 }
             }
-            else
+            else if (Expression is RemainderExpression)
             {
-                assert(Expression is RemainderExpression);
                 if (rhsVal.Equals(one))
                 {
                     return new IntegerExpression( new IntegerValue(0).Cast(rhsVal.Spec));
@@ -130,6 +130,17 @@ namespace Flame.Optimization
                     var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
                     var mask = one.ShiftLeft(powOfTwo).Subtract(one).Cast(rhsVal.Spec);
                     return new AndExpression(Visit(binExpr.LeftOperand), new IntegerExpression(mask));
+                }
+            }
+            else
+            {
+                assert(Expression is MultiplyExpression);
+                if (rhsVal.IsPowerOfTwo)
+                {
+                    // If the RHS is a power of two, then we can replace the multiplication by a
+                    // left shift.
+                    var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
+                    return new LeftShiftExpression(Visit(binExpr.LeftOperand), new IntegerExpression(powOfTwo));
                 }
             }
             return Expression.Accept(this);
