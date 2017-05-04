@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Build;
 
 namespace Flame.Verification
 {
@@ -100,9 +101,16 @@ namespace Flame.Verification
             IMethod DefinitionMethod, IType ImplementationType,
             Func<IMethod, string> DescribeMethodSignature)
         {
+            var renderer = new TypeRenderer()
+                .AbbreviateTypeNames(SimpleTypeFinder.Instance.ConvertAndMerge(
+                    new IType[] { DefinitionMethod.DeclaringType, ImplementationType }));
             var message = new MarkupNode(
                 NodeConstants.TextNodeType,
-                "method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
+                "method '" + renderer.MakeNestedType(
+                    renderer.Convert(DefinitionMethod.DeclaringType),
+                    renderer.CreateTextNode(renderer.UnqualifiedNameToString(DefinitionMethod.Name)),
+                    renderer.DefaultStyle).GetAllText() +
+                "' was not implemented in '" + renderer.Name(ImplementationType) + "'.");
             var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType, DescribeMethodSignature);
             return new MarkupNode("entry", new[] { message, diagnostics });
         }
@@ -150,14 +158,6 @@ namespace Flame.Verification
         }
 
         /// <summary>
-        /// The default type description implemenation.
-        /// </summary>
-        public static string DescribeTypeDefault(IType Type)
-        {
-            return Type.FullName.ToString();
-        }
-
-        /// <summary>
         /// The default method attribute description implementation:
         /// the given method's relevant attributes are described.
         /// </summary>
@@ -197,13 +197,13 @@ namespace Flame.Verification
         /// The default parameter list description implementation.
         /// </summary>
         public static string DescribeParameterListDefault(
-            IEnumerable<IParameter> Parameters, 
+            IEnumerable<IParameter> Parameters,
             string LeftDelimiter, string RightDelimiter,
             Func<IParameter, string> DescribeParameter)
         {
             var sb = new StringBuilder();
             sb.Append(LeftDelimiter);
-            sb.Append(string.Join(",", Parameters.Select(DescribeParameter)));
+            sb.Append(string.Join(", ", Parameters.Select(DescribeParameter)));
             sb.Append(RightDelimiter);
             return sb.ToString();
         }
@@ -212,12 +212,13 @@ namespace Flame.Verification
         /// The default parameter list description implementation.
         /// </summary>
         public static string DescribeParameterListDefault(
-            IEnumerable<IParameter> Parameters, 
-            string LeftDelimiter, string RightDelimiter)
+            IEnumerable<IParameter> Parameters,
+            string LeftDelimiter, string RightDelimiter,
+            TypeRenderer Renderer)
         {
             return DescribeParameterListDefault(
                 Parameters, LeftDelimiter, RightDelimiter,
-                item => DescribeParameterDefault(item, DescribeTypeDefault));
+                item => DescribeParameterDefault(item, Renderer.Name));
         }
 
         /// <summary>
@@ -227,19 +228,22 @@ namespace Flame.Verification
         /// <param name="Method">The method to describe.</param>
         public static string DescribeMethodDefault(IMethod Method)
         {
+            var typeRenderer = new TypeRenderer()
+                .AbbreviateTypeNames(SimpleTypeFinder.Instance.Convert(Method));
+
             var sb = new StringBuilder();
             if (Method is IAccessor)
             {
                 var acc = (IAccessor)Method;
                 sb.Append(DescribeAttributesDefault(acc.DeclaringProperty));
                 sb.Append(' ');
-                sb.Append(DescribeTypeDefault(acc.DeclaringProperty.PropertyType));
+                sb.Append(typeRenderer.Name(acc.DeclaringProperty.PropertyType));
                 sb.Append(' ');
                 sb.Append(acc.DeclaringProperty.Name);
                 var parameters = Method.GetParameters();
                 if (parameters.Length > 0)
                 {
-                    sb.Append(DescribeParameterListDefault(parameters, "[", "]"));
+                    sb.Append(DescribeParameterListDefault(parameters, "[", "]", typeRenderer));
                 }
                 sb.Append(" { ");
                 sb.Append(DescribeAttributesDefault(acc));
@@ -251,10 +255,10 @@ namespace Flame.Verification
             {
                 sb.Append(DescribeAttributesDefault(Method));
                 sb.Append(' ');
-                sb.Append(DescribeTypeDefault(Method.ReturnType));
+                sb.Append(typeRenderer.Name(Method.ReturnType));
                 sb.Append(' ');
                 sb.Append(Method.Name);
-                sb.Append(DescribeParameterListDefault(Method.Parameters, "(", ");"));
+                sb.Append(DescribeParameterListDefault(Method.Parameters, "(", ");", typeRenderer));
             }
             return sb.ToString();
         }
