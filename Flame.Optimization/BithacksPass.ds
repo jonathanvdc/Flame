@@ -172,7 +172,7 @@ namespace Flame.Optimization
                 {
                     // We're going to use the LHS twice in the computation, so we have to spill it
                     // into a variable here.
-                    var lhsReg = new RegisterVariable(lhs.Type);
+                    var lhsReg = new SSAVariable(lhs.Type);
                     init.Add(lhsReg.CreateSetStatement(lhs));
                     lhs = lhsReg.CreateGetExpression();
                 }
@@ -191,7 +191,7 @@ namespace Flame.Optimization
             {
                 // Extract the high half of the multiplication's result and store that in
                 // a register.
-                var mulReg = new RegisterVariable(Type);
+                var mulReg = new SSAVariable(Type);
                 init.Add(mulReg.CreateSetStatement(
                     new StaticCastExpression(
                         new RightShiftExpression(
@@ -256,7 +256,7 @@ namespace Flame.Optimization
             {
                 // We're going to use the LHS twice in the computation, so we have to spill it
                 // into a variable here.
-                var lhsReg = new RegisterVariable(lhs.Type);
+                var lhsReg = new SSAVariable(lhs.Type);
                 init.Add(lhsReg.CreateSetStatement(lhs));
                 lhs = lhsReg.CreateGetExpression();
             }
@@ -294,9 +294,8 @@ namespace Flame.Optimization
                         new IntegerValue(magic.ShiftAmount).Cast(typeSpec)));
             }
 
-            var resultReg = new RegisterVariable(Type);
-            init.Add(resultReg.CreateSetStatement(result));
-            result = resultReg.CreateGetExpression();
+            var dupResult = DuplicateValue(result);
+            init.Add(dupResult.Item1);
 
             // Finally, get the result's sign bit and add it to the result. This requires a
             // *logical* right shift, which means we'll have to cast `result` to an unsigned
@@ -304,10 +303,10 @@ namespace Flame.Optimization
             var unsignedType = PrimitiveTypes.GetUIntType(typeSpec.Size);
             var unsignedSpec = unsignedType.GetIntegerSpec();
             result = new AddExpression(
-                result,
+                dupResult.Item2,
                 new StaticCastExpression(
                     new RightShiftExpression(
-                        new StaticCastExpression(result, unsignedType),
+                        new StaticCastExpression(dupResult.Item3, unsignedType),
                         new IntegerExpression(
                             new IntegerValue(typeSpec.Size - 1).Cast(unsignedSpec))),
                     Type));
@@ -316,6 +315,27 @@ namespace Flame.Optimization
             return new InitializedExpression(
                 new BlockStatement(init).Simplify(),
                 result);
+        }
+
+        private Tuple<IStatement, IExpression, IExpression> DuplicateValue(IExpression Value)
+        {
+            var valTy = Value.Type;
+            if (UseStackIntrinsics)
+            {
+                return new Tuple<IStatement, IExpression, IExpression>(
+                    new PushStackStatement(Value),
+                    new PeekStackExpression(valTy),
+                    new PopStackExpression(valTy));
+            }
+            else
+            {
+                var reg = new SSAVariable(valTy);
+                var getExpr = reg.CreateGetExpression();
+                return new Tuple<IStatement, IExpression, IExpression>(
+                    reg.CreateSetStatement(Value),
+                    getExpr,
+                    getExpr);
+            }
         }
 
         private static IExpression CreateMultiply(
