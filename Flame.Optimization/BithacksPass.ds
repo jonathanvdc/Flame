@@ -51,6 +51,11 @@ namespace Flame.Optimization
             assert(Expression is BinaryExpression);
             var exprType = Expression.Type;
 
+            if (!exprType.IsInteger)
+            {
+                return Expression.Accept(this);
+            }
+
             var binExpr = (BinaryExpression)Expression;
             var rhs = binExpr.RightOperand.EvaluateConstant();
             if (rhs == null)
@@ -84,6 +89,10 @@ namespace Flame.Optimization
                     {
                         return CreateUnsignedDivisionByConstant(binExpr.LeftOperand, rhsVal, exprType);
                     }
+                }
+                else if (exprType.IsSignedInteger && rhsVal.Spec.Size * 2 <= LargestIntSize)
+                {
+                    return CreateSignedDivisionByConstant(binExpr.LeftOperand, rhsVal, exprType);
                 }
             }
             else
@@ -168,9 +177,7 @@ namespace Flame.Optimization
             // the magic constant and extracting the high half of the result.
             var longType = PrimitiveTypes.GetUIntType(rhsVal.Spec.Size * 2);
             var longSpec = longType.GetIntegerSpec();
-            IExpression mul = new MultiplyExpression(
-                new StaticCastExpression(lhs, longType).Simplify(),
-                new IntegerExpression(magic.Multiplier.Cast(longSpec)));
+            IExpression mul = CreateMultiply(lhs, magic.Multiplier, longType);
 
             if (magic.UseAdd)
             {
@@ -213,6 +220,105 @@ namespace Flame.Optimization
                             new IntegerValue(rhsVal.Spec.Size + magic.ShiftAmount).Cast(longSpec))),
                     Type));
             }
+        }
+
+        /// <summary>
+        /// Creates an expression that performs signed integer division by a constant value.
+        /// </summary>
+        /// <param name="LeftOperand">The left-hand side of the division operation.</param>
+        /// <param name="RightOperand">The right-hand side of the division operation.</param>
+        /// <param name="Type">The division's result type.</param>
+        /// <returns>An expression that performs signed integer division by a constant value.</returns>
+        private IExpression CreateSignedDivisionByConstant(
+            IExpression LeftOperand, IntegerValue RightOperand, IType Type)
+        {
+            var magic = RightOperand.ComputeSignedDivisionMagic();
+
+            // If the RHS is greater than zero and the LHS is less than zero, then
+            // we'll add the LHS after the multiplication.
+            bool addLhs = RightOperand.IsPositive && magic.Multiplier.IsNegative;
+
+            // If the RHS is less than zero and the LHS is greater than zero, then
+            // we'll add the LHS after the multiplication.
+            bool subtractLhs = RightOperand.IsNegative && magic.Multiplier.IsPositive;
+
+            var init = new List<IStatement>();
+            var lhs = LeftOperand;
+            if ((addLhs || subtractLhs) && !IsLocalVariableGetExpr(lhs))
+            {
+                // We're going to use the LHS twice in the computation, so we have to spill it
+                // into a variable here.
+                var lhsReg = new RegisterVariable(lhs.Type);
+                init.Add(lhsReg.CreateSetStatement(lhs));
+                lhs = lhsReg.CreateGetExpression();
+            }
+
+            var typeSpec = Type.GetIntegerSpec();
+            var longType = PrimitiveTypes.GetIntType(typeSpec.Size * 2);
+            var longSpec = longType.GetIntegerSpec();
+
+            // Multiply the LHS with the magic multiplier and extract the high half
+            // of the result.
+            IExpression result = new StaticCastExpression(
+                new RightShiftExpression(
+                    CreateMultiply(lhs, magic.Multiplier, longType),
+                    new IntegerExpression(
+                        new IntegerValue(typeSpec.Size).Cast(longSpec))),
+                Type);
+
+            if (addLhs)
+            {
+                result = new AddExpression(result, lhs);
+            }
+            else if (subtractLhs)
+            {
+                result = new SubtractExpression(result, lhs);
+            }
+
+            if (magic.ShiftAmount > 0)
+            {
+                // Perform an *arithmetic* right shift if the shift amount is non-zero.
+                // This is just a `RightShiftExpression` since `decltype(result)` is `Type`,
+                // which is signed.
+                result = new RightShiftExpression(
+                    result,
+                    new IntegerExpression(
+                        new IntegerValue(magic.ShiftAmount).Cast(typeSpec)));
+            }
+
+            var resultReg = new RegisterVariable(Type);
+            init.Add(resultReg.CreateSetStatement(result));
+            result = resultReg.CreateGetExpression();
+
+            // Finally, get the result's sign bit and add it to the result. This requires a
+            // *logical* right shift, which means we'll have to cast `result` to an unsigned
+            // type, perform the shift and then cast it back to a signed type.
+            var unsignedType = PrimitiveTypes.GetUIntType(typeSpec.Size);
+            var unsignedSpec = unsignedType.GetIntegerSpec();
+            result = new AddExpression(
+                result,
+                new StaticCastExpression(
+                    new RightShiftExpression(
+                        new StaticCastExpression(result, unsignedType),
+                        new IntegerExpression(
+                            new IntegerValue(typeSpec.Size - 1).Cast(unsignedSpec))),
+                    Type));
+
+            // Wrap the initialization and the result in a single expression.
+            return new InitializedExpression(
+                new BlockStatement(init).Simplify(),
+                result);
+        }
+
+        private static IExpression CreateMultiply(
+            IExpression LeftOperand,
+            IntegerValue RightOperand,
+            IType ResultType)
+        {
+            var resultSpec = ResultType.GetIntegerSpec();
+            return new MultiplyExpression(
+                new StaticCastExpression(LeftOperand, ResultType).Simplify(),
+                new IntegerExpression(RightOperand.Cast(resultSpec)));
         }
 
         private static bool IsLocalVariableGetExpr(IExpression Expression)
