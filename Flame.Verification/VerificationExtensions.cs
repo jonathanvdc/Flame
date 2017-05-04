@@ -46,68 +46,68 @@ namespace Flame.Verification
             return success;
         }
 
-		private static MarkupNode CreateSyntheticSignatureNode(
-			IMethod Method, Func<IMethod, string> DescribeMethodSignature)
-		{
-			return new MarkupNode(NodeConstants.SourceNodeType, new[] 
-			{
-				new MarkupNode(NodeConstants.TextNodeType, DescribeMethodSignature(Method))
-			});
-		}
+        private static MarkupNode CreateSyntheticSignatureNode(
+            IMethod Method, Func<IMethod, string> DescribeMethodSignature)
+        {
+            return new MarkupNode(NodeConstants.SourceNodeType, new[] 
+            {
+                new MarkupNode(NodeConstants.TextNodeType, DescribeMethodSignature(Method))
+            });
+        }
 
-		private static MarkupNode CreateDefinitionDiagnostics(
-			IMethod Method, Func<IMethod, string> DescribeMethodSignature)
-		{
-			var defLoc = Method.GetSourceLocation();
+        private static MarkupNode CreateDefinitionDiagnostics(
+            IMethod Method, Func<IMethod, string> DescribeMethodSignature)
+        {
+            var defLoc = Method.GetSourceLocation();
 
-			if (defLoc != null)
-			{
-				return defLoc.CreateRemarkDiagnosticsNode("definition: ");
-			}
-			else
-			{
-				var src = CreateSyntheticSignatureNode(Method, DescribeMethodSignature);
-				var neutralSrc = new MarkupNode("neutral-diagnostics", new[] { src });
-				var title = new MarkupNode(NodeConstants.BrightNodeType, "signature: ");
+            if (defLoc != null)
+            {
+                return defLoc.CreateRemarkDiagnosticsNode("definition: ");
+            }
+            else
+            {
+                var src = CreateSyntheticSignatureNode(Method, DescribeMethodSignature);
+                var neutralSrc = new MarkupNode("neutral-diagnostics", new[] { src });
+                var title = new MarkupNode(NodeConstants.BrightNodeType, "signature: ");
 
-				return new MarkupNode(NodeConstants.RemarksNodeType, new[]
-				{
-					title,
-					neutralSrc
-				});
-			}
-		}
+                return new MarkupNode(NodeConstants.RemarksNodeType, new[]
+                {
+                    title,
+                    neutralSrc
+                });
+            }
+        }
 
-		private static MarkupNode CreateImplementationDiagnostics(
-			IMethod DefinitionMethod, IType ImplementationType, 
-			Func<IMethod, string> DescribeMethodSignature)
+        private static MarkupNode CreateImplementationDiagnostics(
+            IMethod DefinitionMethod, IType ImplementationType, 
+            Func<IMethod, string> DescribeMethodSignature)
         {
             var implLoc = ImplementationType.GetSourceLocation();
-			var defNode = CreateDefinitionDiagnostics(DefinitionMethod, DescribeMethodSignature);
+            var defNode = CreateDefinitionDiagnostics(DefinitionMethod, DescribeMethodSignature);
 
-			if (implLoc == null)
-			{
-				return defNode;
-			}
-			else
-			{
-				var mainNode = implLoc.CreateDiagnosticsNode();
-				return new MarkupNode("entry", new[] { mainNode, defNode });
-			}
+            if (implLoc == null)
+            {
+                return defNode;
+            }
+            else
+            {
+                var mainNode = implLoc.CreateDiagnosticsNode();
+                return new MarkupNode("entry", new[] { mainNode, defNode });
+            }
         }
 
         private static MarkupNode CreateImplementationNode(
-			IMethod DefinitionMethod, IType ImplementationType,
-			Func<IMethod, string> DescribeMethodSignature)
+            IMethod DefinitionMethod, IType ImplementationType,
+            Func<IMethod, string> DescribeMethodSignature)
         {
             var message = new MarkupNode(NodeConstants.TextNodeType, "method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
             var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType, DescribeMethodSignature);
             return new MarkupNode("entry", new[] { message, diagnostics });
         }
 
-		public static bool VerifyImplementation(
-			this IMethod DefinitionMethod, IType ImplementationType, 
-			ICompilerLog Log, Func<IMethod, string> DescribeMethodSignature)
+        public static bool VerifyImplementation(
+            this IMethod DefinitionMethod, IType ImplementationType, 
+            ICompilerLog Log, Func<IMethod, string> DescribeMethodSignature)
         {
             bool success = true;
             if (DefinitionMethod.GetIsAbstract() || DefinitionMethod.DeclaringType.GetIsInterface())
@@ -115,147 +115,147 @@ namespace Flame.Verification
                 var impl = DefinitionMethod.GetImplementation(ImplementationType);
                 if (impl == null || impl.Equals(DefinitionMethod))
                 {
-					Log.LogError(new LogEntry(
-						"method not implemented", 
-						CreateImplementationNode(
-							DefinitionMethod, 
-							ImplementationType, 
-							DescribeMethodSignature)));
+                    Log.LogError(new LogEntry(
+                        "method not implemented", 
+                        CreateImplementationNode(
+                            DefinitionMethod, 
+                            ImplementationType, 
+                            DescribeMethodSignature)));
                     success = false;
                 }
             }
             return success;
         }
 
-		public static bool VerifyImplementation(
-			this IType DefinitionType, IType ImplementationType, 
-			ICompilerLog Log, 
-			Func<IMethod, string> DescribeMethodSignature)
+        public static bool VerifyImplementation(
+            this IType DefinitionType, IType ImplementationType, 
+            ICompilerLog Log, 
+            Func<IMethod, string> DescribeMethodSignature)
         {
             bool success = true;
             foreach (var item in DefinitionType.GetAllMethods())
             {
                 if (!item.VerifyImplementation(ImplementationType, Log, DescribeMethodSignature)) 
-					success = false;
+                    success = false;
             }
             foreach (var prop in DefinitionType.GetAllProperties())
             foreach (var item in prop.Accessors)
             {
-				if (!item.VerifyImplementation(ImplementationType, Log, DescribeMethodSignature)) 
-					success = false;
+                if (!item.VerifyImplementation(ImplementationType, Log, DescribeMethodSignature)) 
+                    success = false;
             }
             return success;
         }
 
-		/// <summary>
-		/// The default type description implemenation.
-		/// </summary>
-		public static string DescribeTypeDefault(IType Type)
-		{
+        /// <summary>
+        /// The default type description implemenation.
+        /// </summary>
+        public static string DescribeTypeDefault(IType Type)
+        {
             return Type.FullName.ToString();
-		}
+        }
 
-		/// <summary>
-		/// The default method attribute description implementation:
-		/// the given method's relevant attributes are described.
-		/// </summary>
-		public static string DescribeAttributesDefault(ITypeMember Member)
-		{
-			var sb = new StringBuilder();
-			sb.Append(GetAccessModifierName(Member.GetAccess()));
-			if (Member is IMethod)
-			{
-				var method = (IMethod)Member;
-				if (method.GetIsAbstract())
-				{
-					sb.Append(" abstract");
-				}
-				if (method.BaseMethods.Any(item => !item.DeclaringType.GetIsInterface()))
-				{
-					sb.Append(" override");
-				}
-			}
-			if (Member.GetIsConstant())
-			{
-				sb.Append(" const");
-			}
-			return sb.ToString();
-		}
+        /// <summary>
+        /// The default method attribute description implementation:
+        /// the given method's relevant attributes are described.
+        /// </summary>
+        public static string DescribeAttributesDefault(ITypeMember Member)
+        {
+            var sb = new StringBuilder();
+            sb.Append(GetAccessModifierName(Member.GetAccess()));
+            if (Member is IMethod)
+            {
+                var method = (IMethod)Member;
+                if (method.GetIsAbstract())
+                {
+                    sb.Append(" abstract");
+                }
+                if (method.BaseMethods.Any(item => !item.DeclaringType.GetIsInterface()))
+                {
+                    sb.Append(" override");
+                }
+            }
+            if (Member.GetIsConstant())
+            {
+                sb.Append(" const");
+            }
+            return sb.ToString();
+        }
 
-		/// <summary>
-		/// The default parameter description implementation.
-		/// </summary>
-		public static string DescribeParameterDefault(
-			IParameter Parameter, Func<IType, string> DescribeType)
-		{
-			return DescribeType(Parameter.ParameterType) + " " + Parameter.Name;
-		}
+        /// <summary>
+        /// The default parameter description implementation.
+        /// </summary>
+        public static string DescribeParameterDefault(
+            IParameter Parameter, Func<IType, string> DescribeType)
+        {
+            return DescribeType(Parameter.ParameterType) + " " + Parameter.Name;
+        }
 
-		/// <summary>
-		/// The default parameter list description implementation.
-		/// </summary>
-		public static string DescribeParameterListDefault(
-			IEnumerable<IParameter> Parameters, 
-			string LeftDelimiter, string RightDelimiter,
-			Func<IParameter, string> DescribeParameter)
-		{
-			var sb = new StringBuilder();
-			sb.Append(LeftDelimiter);
-			sb.Append(string.Join(",", Parameters.Select(DescribeParameter)));
-			sb.Append(RightDelimiter);
-			return sb.ToString();
-		}
+        /// <summary>
+        /// The default parameter list description implementation.
+        /// </summary>
+        public static string DescribeParameterListDefault(
+            IEnumerable<IParameter> Parameters, 
+            string LeftDelimiter, string RightDelimiter,
+            Func<IParameter, string> DescribeParameter)
+        {
+            var sb = new StringBuilder();
+            sb.Append(LeftDelimiter);
+            sb.Append(string.Join(",", Parameters.Select(DescribeParameter)));
+            sb.Append(RightDelimiter);
+            return sb.ToString();
+        }
 
-		/// <summary>
-		/// The default parameter list description implementation.
-		/// </summary>
-		public static string DescribeParameterListDefault(
-			IEnumerable<IParameter> Parameters, 
-			string LeftDelimiter, string RightDelimiter)
-		{
-			return DescribeParameterListDefault(
-				Parameters, LeftDelimiter, RightDelimiter,
-				item => DescribeParameterDefault(item, DescribeTypeDefault));
-		}
+        /// <summary>
+        /// The default parameter list description implementation.
+        /// </summary>
+        public static string DescribeParameterListDefault(
+            IEnumerable<IParameter> Parameters, 
+            string LeftDelimiter, string RightDelimiter)
+        {
+            return DescribeParameterListDefault(
+                Parameters, LeftDelimiter, RightDelimiter,
+                item => DescribeParameterDefault(item, DescribeTypeDefault));
+        }
 
-		/// <summary>
-		/// Generates a string that describes the given method's signature.
-		/// </summary>
-		/// <returns>A method signature string.</returns>
-		/// <param name="Method">The method to describe.</param>
-		public static string DescribeMethodDefault(IMethod Method)
-		{
-			var sb = new StringBuilder();
-			if (Method is IAccessor)
-			{
-				var acc = (IAccessor)Method;
-				sb.Append(DescribeAttributesDefault(acc.DeclaringProperty));
-				sb.Append(' ');
-				sb.Append(DescribeTypeDefault(acc.DeclaringProperty.PropertyType));
-				sb.Append(' ');
-				sb.Append(acc.DeclaringProperty.Name);
-				var parameters = Method.GetParameters();
-				if (parameters.Length > 0)
-				{
-					sb.Append(DescribeParameterListDefault(parameters, "[", "]"));
-				}
-				sb.Append(" { ");
-				sb.Append(DescribeAttributesDefault(acc));
-				sb.Append(' ');
-				sb.Append(acc.AccessorType.Name.ToLower());
-				sb.Append("; }");
-			}
-			else
-			{
-				sb.Append(DescribeAttributesDefault(Method));
-				sb.Append(' ');
-				sb.Append(DescribeTypeDefault(Method.ReturnType));
-				sb.Append(' ');
-				sb.Append(Method.Name);
-				sb.Append(DescribeParameterListDefault(Method.Parameters, "(", ");"));
-			}
-			return sb.ToString();
-		}
+        /// <summary>
+        /// Generates a string that describes the given method's signature.
+        /// </summary>
+        /// <returns>A method signature string.</returns>
+        /// <param name="Method">The method to describe.</param>
+        public static string DescribeMethodDefault(IMethod Method)
+        {
+            var sb = new StringBuilder();
+            if (Method is IAccessor)
+            {
+                var acc = (IAccessor)Method;
+                sb.Append(DescribeAttributesDefault(acc.DeclaringProperty));
+                sb.Append(' ');
+                sb.Append(DescribeTypeDefault(acc.DeclaringProperty.PropertyType));
+                sb.Append(' ');
+                sb.Append(acc.DeclaringProperty.Name);
+                var parameters = Method.GetParameters();
+                if (parameters.Length > 0)
+                {
+                    sb.Append(DescribeParameterListDefault(parameters, "[", "]"));
+                }
+                sb.Append(" { ");
+                sb.Append(DescribeAttributesDefault(acc));
+                sb.Append(' ');
+                sb.Append(acc.AccessorType.Name.ToLower());
+                sb.Append("; }");
+            }
+            else
+            {
+                sb.Append(DescribeAttributesDefault(Method));
+                sb.Append(' ');
+                sb.Append(DescribeTypeDefault(Method.ReturnType));
+                sb.Append(' ');
+                sb.Append(Method.Name);
+                sb.Append(DescribeParameterListDefault(Method.Parameters, "(", ");"));
+            }
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Provides easy full assembly bare-bones verification.
