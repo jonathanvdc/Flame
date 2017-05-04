@@ -1024,7 +1024,7 @@ namespace Flame
 
             IntegerValue delta;
 
-            var ad = d.AbsoluteValue.Normalized;
+            var ad = this.AbsoluteValue.Normalized;
             var t = signedMin.Add(d.ShiftRight(unsigned.Size - 1));
             // Initialyze `anc`, the absolute value of `nc`.
             var anc = t.Subtract(one).Subtract(t.Remainder(ad).Normalized).Normalized;
@@ -1064,7 +1064,7 @@ namespace Flame
 
             // Compute the resulting magic number.
             var magicMultiplier = q2.Add(one).Cast(signed);
-            if (d.IsNegative)
+            if (this.IsNegative)
             {
                 magicMultiplier = magicMultiplier.Negated;
             }
