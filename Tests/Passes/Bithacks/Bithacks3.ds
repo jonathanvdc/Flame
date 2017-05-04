@@ -25,12 +25,15 @@ public static class Program
         var testList = new List<int>(GenerateTestValues());
         int mulFourSum = 0;
         int mulFiveSum = 0;
+        int mulMinusTwoSum = 0;
         foreach (var num in testList)
         {
             mulFourSum += num * 4;
             mulFiveSum += num * 5;
+            mulMinusTwoSum += num * -2;
         }
         Console.WriteLine(mulFourSum);
         Console.WriteLine(mulFiveSum);
+        Console.WriteLine(mulMinusTwoSum);
     }
 }

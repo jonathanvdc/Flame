@@ -135,12 +135,41 @@ namespace Flame.Optimization
             else
             {
                 assert(Expression is MultiplyExpression);
-                if (rhsVal.IsPowerOfTwo)
+                if (rhsVal.IsZero)
+                {
+                    // If the RHS is zero, then we can replace the multiplication by zero.
+                    return new IntegerExpression(rhsVal.Cast(exprType.GetIntegerSpec()));
+                }
+                else if (rhsVal.Equals(one))
+                {
+                    // If the RHS is one, then we can replace the multiplication by the LHS.
+                    return Visit(binExpr.LeftOperand);
+                }
+                else if (rhsVal.Normalized.Equals(one.Negated))
+                {
+                    // If the RHS is minus one, then we can replace the multiplication by a negation.
+                    return Visit(new NegateExpression(binExpr.LeftOperand));
+                }
+                else if (rhsVal.IsPowerOfTwo)
                 {
                     // If the RHS is a power of two, then we can replace the multiplication by a
                     // left shift.
                     var powOfTwo = rhsVal.IntegerLog(new IntegerValue(2).Cast(rhsVal.Spec));
                     return new LeftShiftExpression(Visit(binExpr.LeftOperand), new IntegerExpression(powOfTwo));
+                }
+                else
+                {
+                    var negRhsVal = rhsVal.Negated;
+                    if (negRhsVal.IsPowerOfTwo)
+                    {
+                        // If the RHS is a negative power of two, then we can replace the multiplication by a
+                        // left shift followed by a negation.
+                        var powOfTwo = negRhsVal.IntegerLog(new IntegerValue(2).Cast(negRhsVal.Spec));
+                        return new NegateExpression(
+                            new LeftShiftExpression(
+                                Visit(binExpr.LeftOperand),
+                                new IntegerExpression(powOfTwo)));
+                    }
                 }
             }
             return Expression.Accept(this);
