@@ -193,12 +193,9 @@ namespace Flame.Front.Target
             GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(ElideSelfAssignmentPass.Instance, ElideSelfAssignmentPass.ElideSelfAssignmentPassName));
             GlobalPassManager.RegisterPassCondition(ElideSelfAssignmentPass.ElideSelfAssignmentPassName, optInfo => optInfo.OptimizeMinimal);
 
-            // -fbithacks uses bitwise operations to make division/remainder by constant faster.
-            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(new BithacksPass(64, false), BithacksPass.BithacksPassName));
-            GlobalPassManager.RegisterPassCondition(BithacksPass.BithacksPassName, optInfo => optInfo.OptimizeNormal);
-
             // -ffix-shift-rhs casts shift operator rhs to appropriate types for -platform clr.
-            GlobalPassManager.RegisterLoweringPass(new StatementPassInfo(Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
+            GlobalPassManager.RegisterLoweringPass(new AtomicPassInfo<IStatement, IStatement>(
+                Flame.Cecil.FixShiftRhsPass.Instance, Flame.Cecil.FixShiftRhsPass.FixShiftRhsPassName));
 
             // -frelax-access turns private into internal, and protected into protected-or-internal.
             // That's surprisingly useful for passes like inlining and scalar replacement of aggregates.
