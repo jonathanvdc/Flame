@@ -100,7 +100,9 @@ namespace Flame.Verification
             IMethod DefinitionMethod, IType ImplementationType,
             Func<IMethod, string> DescribeMethodSignature)
         {
-            var message = new MarkupNode(NodeConstants.TextNodeType, "method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
+            var message = new MarkupNode(
+                NodeConstants.TextNodeType,
+                "method '" + DefinitionMethod.FullName + "' was not implemented in '" + ImplementationType.FullName + "'.");
             var diagnostics = CreateImplementationDiagnostics(DefinitionMethod, ImplementationType, DescribeMethodSignature);
             return new MarkupNode("entry", new[] { message, diagnostics });
         }
