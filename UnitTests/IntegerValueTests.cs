@@ -278,6 +278,18 @@ namespace UnitTests
                 new IntegerValue(7u).ComputeUnsignedDivisionMagic().ShiftAmount, 3);
 
             Assert.AreEqual(
+                new IntegerValue(0x80000001u).ComputeUnsignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("FFFFFFFF", NumberStyles.HexNumber), IntegerSpec.UInt32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(0x80000001u).ComputeUnsignedDivisionMagic().ShiftAmount, 31);
+
+            Assert.AreEqual(
+                new IntegerValue(0xFFFFFFFFu).ComputeUnsignedDivisionMagic().Multiplier,
+                new IntegerValue(BigInteger.Parse("80000001", NumberStyles.HexNumber), IntegerSpec.UInt32).Normalized);
+            Assert.AreEqual(
+                new IntegerValue(0xFFFFFFFFu).ComputeUnsignedDivisionMagic().ShiftAmount, 31);
+
+            Assert.AreEqual(
                 new IntegerValue(25ul).ComputeUnsignedDivisionMagic(1).Multiplier,
                 new IntegerValue(BigInteger.Parse("A3D70A3D70A3D70B", NumberStyles.HexNumber), IntegerSpec.UInt64).Normalized);
             Assert.AreEqual(

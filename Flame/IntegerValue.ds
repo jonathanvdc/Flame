@@ -914,6 +914,11 @@ namespace Flame
             // https://github.com/llvm-mirror/llvm/blob/master/lib/Support/APInt.cpp
             // The algorithm implemented there was originally taken from
             // "Hacker's Delight", Henry S. Warren, Jr., chapter 10.
+            //
+            // Additionally, a bugfix from 2014 has been implemented here. The bug was
+            // that the algorithm would produce incorrect results for divisor 0x80000001.
+            // The fixed algorithm can be found here:
+            // http://www.hackersdelight.org/hdcodetxt/magicu.c.txt
 
             assert(LeadingZeros >= 0);
 
@@ -933,6 +938,8 @@ namespace Flame
             var signedMin = new IntegerValue(d.Spec.SignedVariant.MinValue, d.Spec).Normalized;
             var signedMax = new IntegerValue(d.Spec.SignedVariant.MaxValue, d.Spec).Normalized;
 
+            bool gt = false;
+
             var nc = allOnes.Subtract(allOnes.Subtract(d).Remainder(d));
             // Initialize p.
             int p = d.Spec.Size - 1;
@@ -947,6 +954,10 @@ namespace Flame
             do
             {
                 p += 1;
+                if (q1.IsGreaterThanOrEqual(signedMin))
+                {
+                    gt = true;
+                }
                 if (r1.IsGreaterThanOrEqual(nc.Subtract(r1).Normalized))
                 {
                     // Update q1.
@@ -984,8 +995,8 @@ namespace Flame
                     r2 = r2.Add(r2).Add(one).Normalized;
                 }
                 delta = d.Subtract(one).Subtract(r2).Normalized;
-            } while (p < d.Spec.Size * 2 &&
-                    (q1.IsLessThan(delta) || (q1.Equals(delta) && r1.Equals(zero))));
+            } while (!gt &&
+                (q1.IsLessThan(delta) || (q1.Equals(delta) && r1.Equals(zero))));
 
             return new UnsignedDivisionMagic(
                 // Resulting magic number
