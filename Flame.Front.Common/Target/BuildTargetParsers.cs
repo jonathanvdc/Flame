@@ -35,9 +35,9 @@ namespace Flame.Front.Target
             RegisterRuntime(new PlatformRuntime(MipsBuildTargetParser.MarsIdentifier, MarsRuntimeLibraries.Resolver));
             RegisterRuntime(new PlatformRuntime(CppBuildTargetParser.CppIdentifier, EmptyAssemblyResolver.Instance));
 
-            Environments = new Dictionary<string, Func<ICompilerLog, IEnvironment>>(StringComparer.OrdinalIgnoreCase);
-            RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, ClrBuildTargetParser.CreateEnvironment);
-            RegisterEnvironment(CppBuildTargetParser.CppIdentifier, Flame.Cpp.CppEnvironment.Create);
+            envBinderMaps = new Dictionary<string, Func<ICompilerLog, IBinder>>(StringComparer.OrdinalIgnoreCase);
+            RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, log => ClrBuildTargetParser.CreateEnvironment(log));
+            RegisterEnvironment(CppBuildTargetParser.CppIdentifier, log => Flame.Cpp.CppEnvironment.Create(log));
             RegisterEnvironment(PythonBuildTargetParser.PythonIdentifier, _ => Flame.Python.PythonEnvironment.Instance);
             RegisterEnvironment(MipsBuildTargetParser.MarsIdentifier, _ => Flame.MIPS.MarsEnvironment.Instance);
             RegisterEnvironment(ContractBuildTargetParser.ContractIdentifier, _ => Flame.TextContract.ContractEnvironment.Instance);
@@ -55,10 +55,15 @@ namespace Flame.Front.Target
         /// </summary>
         public static IEnumerable<PlatformRuntime> Runtimes { get { return rts.Values; } }
 
+        private static Dictionary<string, Func<ICompilerLog, IBinder>> envBinderMaps;
+
         /// <summary>
         /// Gets a mapping of identifiers to environments.
         /// </summary>
-        public static Dictionary<string, Func<ICompilerLog, IEnvironment>> Environments { get; private set; }
+        public static IReadOnlyDictionary<string, Func<ICompilerLog, IBinder>> Environments
+        {
+            get { return envBinderMaps; }
+        }
 
         /// <summary>
         /// Registers the given runtime.
@@ -76,7 +81,21 @@ namespace Flame.Front.Target
         /// <param name="EnvironmentBuilder"></param>
         public static void RegisterEnvironment(string Name, Func<ICompilerLog, IEnvironment> EnvironmentBuilder)
         {
-            Environments[Name] = EnvironmentBuilder;
+            RegisterEnvironment(
+                Name,
+                log => new NamespaceTreeBinder(
+                    EnvironmentBuilder(log),
+                    new DescribedNamespace(new SimpleName(""), (IAssembly)null)));
+        }
+
+        /// <summary>
+        /// Registers an environment.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="EnvironmentBinderBuilder"></param>
+        public static void RegisterEnvironment(string Name, Func<ICompilerLog, IBinder> EnvironmentBinderBuilder)
+        {
+            envBinderMaps[Name] = EnvironmentBinderBuilder;
         }
 
         /// <summary>
@@ -144,17 +163,15 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// Gets the environment belonging to the given
-        /// environment identifier.
-        /// If no such runtime exists, then the empty environment
-        /// is returned.
+        /// Gets a binder for the runtime environment with the given identifier.
+        /// If no such runtime exists, then the empty environment is returned.
         /// </summary>
-        /// <param name="EnvironmentIdentifier"></param>
-        /// <param name="Log"></param>
+        /// <param name="EnvironmentIdentifier">The runtime environment's identifier.</param>
+        /// <param name="Log">A log to which diagnostics may be sent.</param>
         /// <returns></returns>
-        public static IEnvironment GetEnvironment(string EnvironmentIdentifier, ICompilerLog Log)
+        public static IBinder GetEnvironmentBinder(string EnvironmentIdentifier, ICompilerLog Log)
         {
-            Func<ICompilerLog, IEnvironment> result;
+            Func<ICompilerLog, IBinder> result;
             if (Environments.TryGetValue(EnvironmentIdentifier ?? "", out result))
             {
                 return result(Log);
@@ -164,7 +181,7 @@ namespace Flame.Front.Target
                 LogUnknownWarning(
                     Warnings.Instance.UnknownEnvironment, OptionExtensions.EnvironmentOption,
                     EnvironmentIdentifier, "environment", Log);
-                return EmptyEnvironment.Instance;
+                return EmptyBinder.Instance;
             }
         }
 
@@ -229,11 +246,11 @@ namespace Flame.Front.Target
             var rt = GetRuntime(RuntimeIdentifier, Log);
             var rtLibResolver = new RuntimeAssemblyResolver(rt, ReferenceResolvers.ReferenceResolver);
 
-            var env = GetEnvironment(EnvironmentIdentifier, Log);
+            var envBinder = GetEnvironmentBinder(EnvironmentIdentifier, Log);
 
             return new DependencyBuilder(
                 rtLibResolver, ReferenceResolvers.ReferenceResolver,
-                env, CurrentPath, OutputDirectory, Log);
+                envBinder, CurrentPath, OutputDirectory, Log);
         }
 
         public static BuildTarget CreateBuildTarget(

@@ -23,8 +23,10 @@ namespace Flame.Front.Target
         {
             get
             {
-                return Builder.RegisteredAssemblies.Select(item =>
-                    binders.GetOrAdd(item, asm => asm.CreateBinder()));
+                return Builder.RegisteredAssemblies
+                    .Select(item =>
+                        binders.GetOrAdd(item, asm => asm.CreateBinder()))
+                    .Concat(new IBinder[] { Builder.EnvironmentBinder });
             }
         }
 

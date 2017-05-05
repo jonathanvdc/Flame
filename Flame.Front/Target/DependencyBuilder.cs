@@ -10,14 +10,16 @@ namespace Flame.Front.Target
 {
     public class DependencyBuilder : IDependencyBuilder
     {
-        public DependencyBuilder(IAssemblyResolver RuntimeLibaryResolver, IAssemblyResolver ExternalResolver,
-            IEnvironment Environment, PathIdentifier CurrentPath, PathIdentifier OutputFolder, ICompilerLog Log)
+        public DependencyBuilder(
+            IAssemblyResolver RuntimeLibaryResolver, IAssemblyResolver ExternalResolver,
+            IBinder EnvironmentBinder, PathIdentifier CurrentPath,
+            PathIdentifier OutputFolder, ICompilerLog Log)
         {
             this.RuntimeLibaryResolver = RuntimeLibaryResolver;
             this.ExternalResolver = ExternalResolver;
             this.CurrentPath = CurrentPath;
             this.OutputFolder = OutputFolder;
-            this.Environment = Environment;
+            this.EnvironmentBinder = EnvironmentBinder;
             this.Properties = Properties;
             this.Log = Log;
             this.registeredAssemblies = new HashSet<IAssembly>();
@@ -27,7 +29,19 @@ namespace Flame.Front.Target
 
         public IAssemblyResolver RuntimeLibaryResolver { get; private set; }
         public IAssemblyResolver ExternalResolver { get; private set; }
-        public IEnvironment Environment { get; private set; }
+        
+        /// <summary>
+        /// Gets the binder for the runtime environment.
+        /// </summary>
+        /// <returns>The binder for the runtime environment.</returns>
+        public IBinder EnvironmentBinder { get; private set; }
+
+        /// <summary>
+        /// Gets the runtime environment for this dependency builder.
+        /// </summary>
+        /// <returns>The runtime environment.</returns>
+        public IEnvironment Environment { get { return EnvironmentBinder.Environment; } }
+
         public ICompilerLog Log { get; private set; }
         public PathIdentifier CurrentPath { get; private set; }
         public PathIdentifier OutputFolder { get; private set; }
