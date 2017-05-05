@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Flame.Front.Passes;
+using Flame.Binding;
+using Flame.Build;
 
 namespace Flame.Front.Target
 {
@@ -38,13 +40,30 @@ namespace Flame.Front.Target
             return new SpecificAssemblyResolver();
         }
 
+        /// <summary>
+        /// Creates a runtime environment description for the CLR back-end.
+        /// </summary>
+        /// <param name="Log">A log to which diagnostics can be sent.</param>
+        /// <returns>A runtime environment description for the CLR back-end.</returns>
         public static CecilEnvironment CreateEnvironment(ICompilerLog Log)
         {
             var resolver = CreateCecilAssemblyResolver();
 
-            var mscorlib = Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName, new Mono.Cecil.ReaderParameters() { AssemblyResolver = resolver });
+            var mscorlib = Mono.Cecil.ModuleDefinition.ReadModule(
+                typeof(object).Module.FullyQualifiedName,
+                new Mono.Cecil.ReaderParameters() { AssemblyResolver = resolver });
             var mscorlibAsm = new CecilAssembly(mscorlib.Assembly, Log, CecilReferenceResolver.ConversionCache);
             return new CecilEnvironment(mscorlibAsm.MainModule);
+        }
+
+        /// <summary>
+        /// Creates a runtime environment binder for the CLR back-end.
+        /// </summary>
+        /// <param name="Log">A log to which diagnostics can be sent.</param>
+        /// <returns>A runtime environment binder for the CLR back-end.</returns>
+        public static IBinder CreateEnvironmentBinder(ICompilerLog Log)
+        {
+            return CreateEnvironment(Log).CreateEnvironmentBinder();
         }
 
         private static Mono.Cecil.ModuleKind GetModuleKind(string Identifier, AssemblyCreationInfo Info)

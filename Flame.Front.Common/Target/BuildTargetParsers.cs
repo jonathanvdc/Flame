@@ -36,7 +36,7 @@ namespace Flame.Front.Target
             RegisterRuntime(new PlatformRuntime(CppBuildTargetParser.CppIdentifier, EmptyAssemblyResolver.Instance));
 
             envBinderMaps = new Dictionary<string, Func<ICompilerLog, IBinder>>(StringComparer.OrdinalIgnoreCase);
-            RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, log => ClrBuildTargetParser.CreateEnvironment(log));
+            RegisterEnvironment(ClrBuildTargetParser.ClrIdentifier, log => ClrBuildTargetParser.CreateEnvironmentBinder(log));
             RegisterEnvironment(CppBuildTargetParser.CppIdentifier, log => Flame.Cpp.CppEnvironment.Create(log));
             RegisterEnvironment(PythonBuildTargetParser.PythonIdentifier, _ => Flame.Python.PythonEnvironment.Instance);
             RegisterEnvironment(MipsBuildTargetParser.MarsIdentifier, _ => Flame.MIPS.MarsEnvironment.Instance);

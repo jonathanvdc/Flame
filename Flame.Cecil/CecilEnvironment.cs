@@ -14,6 +14,9 @@ using System.Collections.Concurrent;
 
 namespace Flame.Cecil
 {
+    /// <summary>
+    /// A runtime environment description for the CLR platform.
+    /// </summary>
     public class CecilEnvironment : IEnvironment
     {
         public CecilEnvironment(CecilModule Module)
@@ -39,6 +42,10 @@ namespace Flame.Cecil
             this.arrayTypes = new ConcurrentDictionary<int, CecilArrayType>();
         }
 
+        /// <summary>
+        /// Gets the module with which this environment is associated.
+        /// </summary>
+        /// <returns>The module with which this environment is associated.</returns>
         public CecilModule Module { get; private set; }
 
         private Dictionary<IType, IType> environmentEquivalents;
@@ -97,6 +104,58 @@ namespace Flame.Cecil
             else
             {
                 return Type;
+            }
+        }
+
+        /// <summary>
+        /// Creates a binder for this runtime environment's core type system.
+        /// </summary>
+        /// <returns>A binder for the core type system.</returns>
+        public IBinder CreateEnvironmentBinder()
+        {
+            return new CecilEnvironmentBinder(this);
+        }
+
+        /// <summary>
+        /// A binder for the core type system of CLR runtime environments.
+        /// </summary>
+        private class CecilEnvironmentBinder : IBinder
+        {
+            public CecilEnvironmentBinder(CecilEnvironment Environment)
+            {
+                this.cecilEnv = Environment;
+                this.typeMap = new Dictionary<QualifiedName, IType>();
+                foreach (var envType in Environment.environmentEquivalents.Values)
+                {
+                    this.typeMap[envType.FullName] = envType;
+                }
+            }
+
+            private CecilEnvironment cecilEnv;
+
+            private Dictionary<QualifiedName, IType> typeMap;
+
+            /// <inheritdoc/>
+            public IEnvironment Environment { get { return cecilEnv; } }
+
+            /// <inheritdoc/>
+            public IType BindType(QualifiedName Name)
+            {
+                IType result;
+                if (typeMap.TryGetValue(Name, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            /// <inheritdoc/>
+            public IEnumerable<IType> GetTypes()
+            {
+                return typeMap.Values;
             }
         }
     }
