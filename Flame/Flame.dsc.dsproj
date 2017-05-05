@@ -113,6 +113,7 @@
         <ItemGroup>
             <Compile Include="Attributes/FlagAttribute.ds" />
             <Compile Include="Attributes/PrimitiveAttributes.ds" />
+            <Compile Include="Attributes/RuntimeEquivalentAttribute.ds" />
             <Compile Include="Attributes/AccessAttribute.ds" />
             <Compile Include="Attributes/ConstructedAttribute.ds" />
             <Compile Include="Attributes/SetsMemberAttribute.ds" />
