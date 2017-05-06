@@ -39,6 +39,11 @@ namespace Flame.Cecil
                 { PrimitiveTypes.Boolean, Module.ConvertStrict(typeSystem.Boolean) },
                 { PrimitiveTypes.String, Module.ConvertStrict(typeSystem.String) }
             };
+            this.builtinEquivalents = new Dictionary<IType, IType>();
+            foreach (var pair in this.environmentEquivalents)
+            {
+                this.builtinEquivalents[pair.Value] = pair.Key;
+            }
             this.arrayTypes = new ConcurrentDictionary<int, CecilArrayType>();
         }
 
@@ -49,6 +54,7 @@ namespace Flame.Cecil
         public CecilModule Module { get; private set; }
 
         private Dictionary<IType, IType> environmentEquivalents;
+        private Dictionary<IType, IType> builtinEquivalents;
         private ConcurrentDictionary<int, CecilArrayType> arrayTypes;
 
         public string Name
@@ -100,6 +106,26 @@ namespace Flame.Cecil
                     arrayType.ArrayRank,
                     rank => new CecilArrayType(rank, Module));
                 return genericCecilArrayType.MakeGenericType(new IType[] { arrayType.ElementType });
+            }
+            else
+            {
+                return Type;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IType GetBuiltinType(IType Type)
+        {
+            IType equivalentType;
+            if (builtinEquivalents.TryGetValue(Type, out equivalentType))
+            {
+                return equivalentType;
+            }
+            else if (Type.GetIsGenericInstance() && Type.GetGenericDeclaration() is CecilArrayType)
+            {
+                var cecilArrayType = (CecilArrayType)Type.GetGenericDeclaration();
+                var elemType = Type.GenericParameters.Single();
+                return elemType.MakeArrayType(cecilArrayType.ArrayRank);
             }
             else
             {

@@ -25,13 +25,19 @@ namespace Flame.Binding
         {
             return Type;
         }
+
+        /// <inheritdoc/>
+        public IType GetBuiltinType(IType Type)
+        {
+            return Type;
+        }
     }
 
     public static class EmptyBinder : IBinder
     {
-		public const IType BindType(QualifiedName Name) { return null; }
-		public const [IType] GetTypes() { return Enumerable.Empty<IType>(); }
+        public const IType BindType(QualifiedName Name) { return null; }
+        public const [IType] GetTypes() { return Enumerable.Empty<IType>(); }
 
-		public IEnvironment Environment { const get return EmptyEnvironment; }
+        public IEnvironment Environment { const get return EmptyEnvironment; }
     }
 }

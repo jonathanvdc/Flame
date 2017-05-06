@@ -70,6 +70,12 @@ namespace Flame.Cpp
             return DeclaringEnvironment.GetEquivalentType(Type);
         }
 
+        /// <inheritdoc/>
+        public IType GetBuiltinType(IType Type)
+        {
+            return DeclaringEnvironment.GetBuiltinType(Type);
+        }
+
         public string Name
         {
             get { return DeclaringEnvironment.Name; }

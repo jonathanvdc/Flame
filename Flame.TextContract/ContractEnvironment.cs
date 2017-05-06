@@ -56,5 +56,11 @@ namespace Flame.TextContract
         {
             return Type;
         }
+
+        /// <inheritdoc/>
+        public IType GetBuiltinType(IType Type)
+        {
+            return Type;
+        }
     }
 }

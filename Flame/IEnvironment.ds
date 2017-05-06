@@ -46,5 +46,15 @@ namespace Flame
         /// <remarks>This allows a front-end to use environment-defined methods for primitive and
         /// collection types.</remarks>
         IType GetEquivalentType(IType Type);
+
+        /// <summary>
+        /// Gets the built-in type to which the given type is the environment's equivalent.
+        /// </summary>
+        /// <param name="Type">The environment type for which a builtin type is requested.</param>
+        /// <returns>The built-in type for which the given type is the environment's equivalent.
+        /// <c>Type</c> is returned if <c>Type<c/> is not an environment equivalent for a built-in type.</returns>
+        /// <remarks>This allows a front-end to map environment-specific types to the built-in types they
+        /// represent.</returns>
+        IType GetBuiltinType(IType Type);
     }
 }
