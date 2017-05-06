@@ -124,7 +124,7 @@ namespace Flame.Cecil
             else if (Type.GetIsGenericInstance() && Type.GetGenericDeclaration() is CecilArrayType)
             {
                 var cecilArrayType = (CecilArrayType)Type.GetGenericDeclaration();
-                var elemType = Type.GenericParameters.Single();
+                var elemType = Type.GetGenericArguments().Single();
                 return elemType.MakeArrayType(cecilArrayType.ArrayRank);
             }
             else
