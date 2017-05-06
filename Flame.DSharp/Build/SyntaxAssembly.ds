@@ -17,62 +17,62 @@ using Pixie;
 
 namespace Flame.DSharp.Build
 {
-	public class SyntaxAssembly : ISyntaxAssembly
-	{
-		public const this(set IBinder ExternalBinder)
-		{
-			this.Graph = new AncestryGraph();
-			this.Name = new SimpleName("");
-			this.AssemblyVersion = default(Version);
-			this.MainNamespace = new AssemblyNamespace(this);
-			this.Renderer = new DSharpTypeRenderer();
-			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
-		}
-		public const this(set IBinder ExternalBinder, set UnqualifiedName Name)
-		{
-			this.Graph = new AncestryGraph();
-			this.AssemblyVersion = default(Version);
-			this.MainNamespace = new AssemblyNamespace(this);
-			this.Renderer = new DSharpTypeRenderer();
-			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
-		}
-		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set TypeRenderer Renderer)
-		{
-			this.Graph = new AncestryGraph();
-			this.AssemblyVersion = default(Version);
-			this.MainNamespace = new AssemblyNamespace(this);
-			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
-		}
-		public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set Version AssemblyVersion,
-						  set TypeRenderer Renderer)
-		{
-			this.Graph = new AncestryGraph();
-			this.MainNamespace = new AssemblyNamespace(this);
-			this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
-		}
+    public class SyntaxAssembly : ISyntaxAssembly
+    {
+        public const this(set IBinder ExternalBinder)
+        {
+            this.Graph = new AncestryGraph();
+            this.Name = new SimpleName("");
+            this.AssemblyVersion = default(Version);
+            this.MainNamespace = new AssemblyNamespace(this);
+            this.Renderer = new DSharpTypeRenderer();
+            this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
+        }
+        public const this(set IBinder ExternalBinder, set UnqualifiedName Name)
+        {
+            this.Graph = new AncestryGraph();
+            this.AssemblyVersion = default(Version);
+            this.MainNamespace = new AssemblyNamespace(this);
+            this.Renderer = new DSharpTypeRenderer();
+            this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
+        }
+        public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set TypeRenderer Renderer)
+        {
+            this.Graph = new AncestryGraph();
+            this.AssemblyVersion = default(Version);
+            this.MainNamespace = new AssemblyNamespace(this);
+            this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
+        }
+        public const this(set IBinder ExternalBinder, set UnqualifiedName Name, set Version AssemblyVersion,
+                          set TypeRenderer Renderer)
+        {
+            this.Graph = new AncestryGraph();
+            this.MainNamespace = new AssemblyNamespace(this);
+            this.attrMap = new AttributeMap(new IAttribute[] { new AncestryGraphAttribute(Graph) });
+        }
 
-		public UnqualifiedName Name { const get; set; }
-		public QualifiedName FullName
-		{
-			const get { return new QualifiedName(Name); }
-		}
-		/// <summary>
+        public UnqualifiedName Name { const get; set; }
+        public QualifiedName FullName
+        {
+            const get { return new QualifiedName(Name); }
+        }
+        /// <summary>
         /// Gets the assembly's version.
         /// </summary>
         public Version AssemblyVersion { const get; set; }
 
         public AncestryGraph Graph { const get; private set; }
-		public TypeRenderer Renderer { const get; private set; }
+        public TypeRenderer Renderer { const get; private set; }
 
-		private AttributeMap attrMap;
+        private AttributeMap attrMap;
         public AttributeMap Attributes
         {
-        	const get { return attrMap; }
+            const get { return attrMap; }
         }
 
         /// <summary>
-		/// Gets the nameless root namespace of the assembly.
-		/// </summary>
+        /// Gets the nameless root namespace of the assembly.
+        /// </summary>
         public AssemblyNamespace MainNamespace { const get; private set; }
 
         /// <summary>
@@ -80,36 +80,36 @@ namespace Flame.DSharp.Build
         /// </summary>
         public void AddCompilationUnit(ICompilationUnit Item, ICompilerLog Log)
         {
-        	MainNamespace.ClearExtensionTypeCache();
-			var descMethod = new DescribedMethod("global", null);
-			var state = new SyntaxState(descMethod, GetSyntaxBinder(), Log, Renderer);
-			var binder = state.Binder;
-        	Item.CompileToNamespace(MainNamespace, binder, Log);
+            MainNamespace.ClearExtensionTypeCache();
+            var descMethod = new DescribedMethod("global", null);
+            var state = new SyntaxState(descMethod, GetSyntaxBinder(), Log, Renderer);
+            var binder = state.Binder;
+            Item.CompileToNamespace(MainNamespace, binder, Log);
         }
 
         /// <summary>
-		/// Gets the nameless root namespace of the assembly.
-		/// </summary>
-		public INamespaceBranchBuilder RootNamespace { const get return MainNamespace; }
+        /// Gets the nameless root namespace of the assembly.
+        /// </summary>
+        public INamespaceBranchBuilder RootNamespace { const get return MainNamespace; }
 
-		public IBinder ExternalBinder { const get; private set; }
-		private IBinder syntaxBinder;
-		public const IBinder GetSyntaxBinder()
-		{
-			if (syntaxBinder == null)
-			{
-				syntaxBinder = new CachingBinder(new DualBinder(CreateBinder(), ExternalBinder));
-			}
-			return syntaxBinder;
-		}
+        public IBinder ExternalBinder { const get; private set; }
+        private IBinder syntaxBinder;
+        public const IBinder GetSyntaxBinder()
+        {
+            if (syntaxBinder == null)
+            {
+                syntaxBinder = new CachingBinder(new DualBinder(CreateBinder(), ExternalBinder));
+            }
+            return syntaxBinder;
+        }
 
-		/// <summary>
+        /// <summary>
         /// Creates a binder for this assembly.
         /// </summary>
         /// <returns></returns>
         public const IBinder CreateBinder()
         {
-        	return new NamespaceTreeBinder(ExternalBinder.Environment, MainNamespace);
+            return new NamespaceTreeBinder(ExternalBinder.Environment, MainNamespace);
         }
 
         /// <summary>
@@ -117,81 +117,81 @@ namespace Flame.DSharp.Build
         /// </summary>
         public const [IType] AllTypes
         {
-        	const get
-        	{
-        		return CreateBinder().GetTypes();
-        	}
+            const get
+            {
+                return CreateBinder().GetTypes();
+            }
         }
 
-		public const IMethod GetEntryMethod()
-		{
-			foreach (var type in AllTypes)
+        public const IMethod GetEntryMethod()
+        {
+            foreach (var type in AllTypes)
             {
-				bool isSingletonType = type.IsSingleton;
+                bool isSingletonType = type.IsSingleton;
                 foreach (var item in type.GetMethods())
                 {
                     if (isSingletonType || item.IsStatic)
                     if (item.Name.ToString().Equals("main") || item.Name.ToString().Equals("Main"))
-					if (item.Access == AccessModifier.Public)
-					{
+                    if (item.Access == AccessModifier.Public)
+                    {
                         return item;
                     }
                 }
             }
             return null;
-		}
+        }
 
-		private IMethod entryPointWrapper;
+        private IMethod entryPointWrapper;
         /// <summary>
         /// Gets the entry point method for this assembly.
         /// </summary>
         /// <returns></returns>
         public const IMethod GetEntryPoint()
         {
-			if (entryPointWrapper == null)
-			{
-				var target = GetEntryMethod();
+            if (entryPointWrapper == null)
+            {
+                var target = GetEntryMethod();
 
-				if (target == null)
-				{
-					return null;
-				}
+                if (target == null)
+                {
+                    return null;
+                }
 
-				if (target.IsStatic)
-				{
-					entryPointWrapper = target;
-					return entryPointWrapper;
-				}
+                if (target.IsStatic)
+                {
+                    entryPointWrapper = target;
+                    return entryPointWrapper;
+                }
 
-				var descType = new DescribedType(new SimpleName("__entry_point"), RootNamespace);
-				descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
-				descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
-				var descMethod = new DescribedBodyMethod(target.Name, descType, target.ReturnType, true);
-				var targetParams = target.GetParameters();
-				var args = new IExpression[targetParams.Length];
-				for (int i = 0; i < targetParams.Length; i++)
-				{
-					descMethod.AddParameter(targetParams[i]);
-					args[i] = new ArgumentVariable(targetParams[i], i).CreateGetExpression();
-				}
-				foreach (var item in target.Attributes)
-				{
-					descMethod.AddAttribute(item);
-				}
-				var relaxedCall = new RelaxedInvocation(target, args);
-				if (target.ReturnType.Equals(PrimitiveTypes.Void))
-				{
-					var popStatement = new ExpressionStatement(relaxedCall);
-					descMethod.Body = new BlockStatement(new IStatement[] { popStatement, new ReturnStatement() });
-				}
-				else
-				{
-					descMethod.Body = new ReturnStatement(relaxedCall);
-				}
+                var descType = new DescribedType(new SimpleName("__entry_point"), RootNamespace);
+                descType.AddAttribute(PrimitiveAttributes.StaticTypeAttribute);
+                descType.AddAttribute(new AccessAttribute(AccessModifier.Public));
+                var descMethod = new DescribedBodyMethod(target.Name, descType, target.ReturnType, true);
+                var targetParams = target.GetParameters();
+                var args = new IExpression[targetParams.Length];
+                for (int i = 0; i < targetParams.Length; i++)
+                {
+                    descMethod.AddParameter(targetParams[i]);
+                    args[i] = new ArgumentVariable(targetParams[i], i).CreateGetExpression();
+                }
+                foreach (var item in target.Attributes)
+                {
+                    descMethod.AddAttribute(item);
+                }
+                var relaxedCall = new RelaxedInvocation(target, args);
+                if (target.ReturnType.Equals(PrimitiveTypes.Void))
+                {
+                    var popStatement = new ExpressionStatement(relaxedCall);
+                    descMethod.Body = new BlockStatement(new IStatement[] { popStatement, new ReturnStatement() });
+                }
+                else
+                {
+                    descMethod.Body = new ReturnStatement(relaxedCall);
+                }
 
-				entryPointWrapper = descMethod;
-			}
-			return entryPointWrapper;
+                entryPointWrapper = descMethod;
+            }
+            return entryPointWrapper;
         }
-	}
+    }
 }
