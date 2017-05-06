@@ -113,33 +113,42 @@ namespace Flame.Optimization
         public this(IBodyPassEnvironment PassEnvironment)
             : base(true)
         {
+            this.PassEnvironment = PassEnvironment;
             this.CallSize = 6;
             this.NonInlinableCallSize = 2;
-            this.PassEnvironment = PassEnvironment;
+            this.NewObjectSize = CallSize;
         }
 
         public this(
-            int CallSize, int NonInlinableCallSize,
-            IBodyPassEnvironment PassEnvironment)
+            IBodyPassEnvironment PassEnvironment,
+            int CallSize,
+            int NonInlinableCallSize,
+            int NewObjectSize)
             : base(true)
         {
+            this.PassEnvironment = PassEnvironment;
             this.CallSize = CallSize;
             this.NonInlinableCallSize = NonInlinableCallSize;
-            this.PassEnvironment = PassEnvironment;
+            this.NewObjectSize = NewObjectSize;
         }
 
         /// <summary>
-        /// Gets or sets the size that is assigned to invocation expressions.
+        /// Gets the size that is assigned to invocation expressions.
         /// </summary>
         /// <returns>The size that is assigned to invocation expressions.</returns>
         public int CallSize { get; private set; }
 
         /// <summary>
-        /// Gets or sets the size that is assigned to direct calls which cannot be
-        /// inlined.
+        /// Gets the size that is assigned to direct calls which cannot be inlined.
         /// </summary>
         /// <returns>The size that is assigned to direct calls which cannot be inlined.</returns>
         public int NonInlinableCallSize { get; private set; }
+
+        /// <summary>
+        /// Gets the size that is assigned to new-object expressions.
+        /// </summary>
+        /// <returns>The size that is assigned to new-object expressions.</returns>
+        public int NewObjectSize { get; private set; }
 
         /// <summary>
         /// Gets this size visitor's pass environment, which is used to decide if direct
@@ -182,8 +191,36 @@ namespace Flame.Optimization
                     Size += CallSize;
                 }
 
-                invExpr.AcceptPredicate(this);
+                // Visit the call's target and be lenient toward get-method expressions.
+                if (invExpr.Target is GetMethodExpression)
+                {
+                    invExpr.Target.Accept(this);
+                }
+                else
+                {
+                    Visit(invExpr.Target);
+                }
+                // Visit the call's arguments.
+                this.VisitAll(invExpr.Arguments);
                 return invExpr;
+            }
+            else if (Value is NewObjectExpression)
+            {
+                // Object creation may be optimized to an inlined constructor call. We
+                // should avoid duplicating new-object expressions to keep code size
+                // manageable.
+                Size += NewObjectSize;
+                return Value.Accept(this);
+            }
+            else if (Value is GetMethodExpression)
+            {
+                // A lone get-method expression is actually a surprisingly costly operation
+                // because it entails creating and initializing a new object. Also,
+                // duplicating a block that stores the result of get-method expression in
+                // an SSA variable can be a pessimization if this causes at least one of the
+                // variable's loads to be rewritten as a phi.
+                Size += NewObjectSize;
+                return Value.Accept(this);
             }
             else
             {
