@@ -1,6 +1,11 @@
-
+/// <summary>
+/// Represents a two-dimensional vector.
+/// </summary>
 public class Vector2<T>
 {
+    /// <summary>
+    /// Creates a two-dimensional vector from the given values.
+    /// </summary>
     public const this(set T X, set T Y)
         in { this != null }
         out { this != null }
@@ -8,6 +13,13 @@ public class Vector2<T>
         assert(this != null);
     }
 
+    /// <summary>
+    /// Gets the X coordinate.
+    /// </summary>
     public T X { const get; private set; }
+
+    /// <summary>
+    /// Gets the Y coordinate.
+    /// </summary>
     public T Y { const get; private set; }
 }
