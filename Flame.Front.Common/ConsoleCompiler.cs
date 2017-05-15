@@ -595,11 +595,6 @@ namespace Flame.Front.Cli
             var targetPath = State.Arguments.GetTargetPath(State.ParentPath, State.Project, Target);
             var dirName = targetPath.Parent;
 
-            if (Target.TargetAssembly is Flame.TextContract.ContractAssembly)
-            {
-                dirName = dirName.Combine(targetPath.NameWithoutExtension);
-            }
-
             bool forceWrite = !State.Log.Options.GetOption<bool>(PreserveUpToDateOptionKey, false)
                 || State.Log.Options.GetOption<bool>(ForceWriteOptionKey, !Target.PreferPreserve);
 
