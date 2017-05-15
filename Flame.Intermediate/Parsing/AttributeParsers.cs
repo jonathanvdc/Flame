@@ -47,6 +47,7 @@ namespace Flame.Intermediate.Parsing
         public const string AssociatedTypeNodeName = "#associated_type";
         public const string SingletonNodeName = "#singleton";
         public const string OperatorNodeName = "#operator";
+        public const string DocumentationNodeName = "#docs";
 
         public const string ConstructedAttributeNodeName = "#attribute";
 
@@ -72,7 +73,8 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public static INodeStructure<IAttribute> ParseSingletonAttribute(ParserState State, LNode Node)
         {
-            return new ConstantNodeStructure<IAttribute>(Node, new SingletonAttribute(IRParser.GetIdOrString(Node.Args.Single())));
+            return new ConstantNodeStructure<IAttribute>(
+                Node, new SingletonAttribute(IRParser.GetIdOrString(Node.Args.Single())));
         }
 
         /// <summary>
@@ -80,7 +82,8 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public static INodeStructure<IAttribute> ParseAssociatedTypeAttribute(ParserState State, LNode Node)
         {
-            return new LazyValueStructure<IAttribute>(Node, () => new AssociatedTypeAttribute(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value));
+            return new LazyValueStructure<IAttribute>(
+                Node, () => new AssociatedTypeAttribute(State.Parser.TypeReferenceParser.Parse(State, Node.Args.Single()).Value));
         }
 
         /// <summary>
@@ -88,7 +91,17 @@ namespace Flame.Intermediate.Parsing
         /// </summary>
         public static INodeStructure<IAttribute> ParseOperatorAttribute(ParserState State, LNode Node)
         {
-            return new LazyValueStructure<IAttribute>(Node, () => new OperatorAttribute(Operator.GetOperator(IRParser.GetIdOrString(Node.Args.Single()))));
+            return new LazyValueStructure<IAttribute>(
+                Node, () => new OperatorAttribute(Operator.GetOperator(IRParser.GetIdOrString(Node.Args.Single()))));
+        }
+
+        /// <summary>
+        /// Parses the given '#docs' attribute.
+        /// </summary>
+        public static INodeStructure<IAttribute> ParseDocumentationAttribute(ParserState State, LNode Node)
+        {
+            return new LazyValueStructure<IAttribute>(
+                Node, () => new DescriptionAttribute(MarkupHelpers.Deserialize(Node.Args.Single())));
         }
 
         /// <summary>
@@ -150,6 +163,7 @@ namespace Flame.Intermediate.Parsing
                     { SingletonNodeName, ParseSingletonAttribute },
                     { AssociatedTypeNodeName, ParseAssociatedTypeAttribute },
                     { OperatorNodeName, ParseOperatorAttribute },
+                    { DocumentationNodeName, ParseDocumentationAttribute },
 
                     // Parameterless primitive attributes:
                     // Access attributes:

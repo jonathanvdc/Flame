@@ -93,6 +93,7 @@
     <Compile Include="LiteralNodeStructure.cs" />
     <Compile Include="IRAssembly.cs" />
     <Compile Include="IRField.cs" />
+    <Compile Include="MarkupHelpers.cs" />
     <Compile Include="NodeCons.cs" />
     <Compile Include="NodeFactory.cs" />
     <Compile Include="NodeList.cs" />

@@ -71,7 +71,7 @@ namespace Flame.Intermediate.Emit
                 var ctedAttr = (IConstructedAttribute)Attribute;
                 var attrCtor = Assembly.MethodTable.GetReference(ctedAttr.Constructor);
                 var args = ConvertExpressions(Assembly, ctedAttr.GetArguments().Select(PrimitiveExpressionExtensions.ToExpression));
-                return new LazyNodeStructure<IAttribute>(Attribute, attr => 
+                return new LazyNodeStructure<IAttribute>(Attribute, attr =>
                     NodeFactory.Call(AttributeParsers.ConstructedAttributeNodeName, new[] { attrCtor }.Concat(args)));
             }
             else
@@ -86,8 +86,8 @@ namespace Flame.Intermediate.Emit
                     var singletonAttr = (SingletonAttribute)Attribute;
                     return new ConstantNodeStructure<IAttribute>(
                         NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[]
-                        { 
-                            NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName) 
+                        {
+                            NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName)
                         }), singletonAttr);
                 }
                 else if (Attribute is AssociatedTypeAttribute)
@@ -95,7 +95,7 @@ namespace Flame.Intermediate.Emit
                     var type = ((AssociatedTypeAttribute)Attribute).AssociatedType;
                     return new LazyNodeStructure<IAttribute>(Attribute, () =>
                         NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[]
-                    { 
+                    {
                         Assembly.TypeTable.GetReference(type)
                     }));
                 }
@@ -104,8 +104,17 @@ namespace Flame.Intermediate.Emit
                     var op = ((OperatorAttribute)Attribute).Operator;
                     return new LazyNodeStructure<IAttribute>(Attribute, () =>
                         NodeFactory.Call(AttributeParsers.OperatorNodeName, new LNode[]
-                    { 
+                    {
                         NodeFactory.IdOrLiteral(op.Name)
+                    }));
+                }
+                else if (Attribute is DescriptionAttribute)
+                {
+                    var descNode = ((DescriptionAttribute)Attribute).Contents;
+                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                        NodeFactory.Call(AttributeParsers.DocumentationNodeName, new LNode[]
+                    {
+                        MarkupHelpers.Serialize(descNode)
                     }));
                 }
                 else
@@ -127,12 +136,12 @@ namespace Flame.Intermediate.Emit
 
         private static readonly Dictionary<IGenericConstraint, INodeStructure<IGenericConstraint>> constantConstraints = new Dictionary<IGenericConstraint, INodeStructure<IGenericConstraint>>()
         {
-            { ReferenceTypeConstraint.Instance, 
+            { ReferenceTypeConstraint.Instance,
               new ConstantNodeStructure<IGenericConstraint>(NodeFactory.Id(AttributeParsers.ReferenceTypeNodeName), ReferenceTypeConstraint.Instance) },
-        
-            { ValueTypeConstraint.Instance, 
+
+            { ValueTypeConstraint.Instance,
               new ConstantNodeStructure<IGenericConstraint>(NodeFactory.Id(AttributeParsers.ValueTypeNodeName), ValueTypeConstraint.Instance) },
-        
+
             { EnumConstraint.Instance,
               new ConstantNodeStructure<IGenericConstraint>(NodeFactory.Id(AttributeParsers.EnumTypeNodeName), EnumConstraint.Instance) }
         };
@@ -145,7 +154,7 @@ namespace Flame.Intermediate.Emit
             }
             else if (Constraint is TypeConstraint)
             {
-                var result = new LazyNodeStructure<IGenericConstraint>(Constraint, item => 
+                var result = new LazyNodeStructure<IGenericConstraint>(Constraint, item =>
                     NodeFactory.Call(IRParser.TypeConstraintName, new LNode[] { Assembly.TypeTable.GetReference(((TypeConstraint)item).Type) }));
                 return new INodeStructure<IGenericConstraint>[] { result };
             }
