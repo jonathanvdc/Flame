@@ -571,6 +571,12 @@ namespace Flame.Front.Cli
         #region Saving
 
         private const string ForceWriteOptionKey = "force-write";
+        
+        /// <summary>
+        /// Gets the name of the flag that preserves assemblies that are up-to-date, rather
+        /// than overwriting them.
+        /// </summary>
+        private const string PreserveUpToDateOptionKey = "preserve-up-to-date";
 
         /// <summary>
         /// Saves the output assembly in the build target and the
@@ -590,7 +596,9 @@ namespace Flame.Front.Cli
                 dirName = dirName.Combine(targetPath.NameWithoutExtension);
             }
 
-            bool forceWrite = State.Log.Options.GetOption<bool>(ForceWriteOptionKey, !Target.PreferPreserve);
+            bool forceWrite = !State.Log.Options.GetOption<bool>(PreserveUpToDateOptionKey, false)
+                || State.Log.Options.GetOption<bool>(ForceWriteOptionKey, !Target.PreferPreserve);
+
             bool anyChanges = false;
 
             var outputProvider = new FileOutputProvider(dirName, targetPath, forceWrite);
@@ -613,7 +621,7 @@ namespace Flame.Front.Cli
                 }
             }
 
-            if (!anyChanges)
+            if (!forceWrite && !anyChanges)
             {
                 NotifyUpToDate(State.Log);
             }
