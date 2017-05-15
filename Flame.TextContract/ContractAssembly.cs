@@ -29,8 +29,13 @@ namespace Flame.TextContract
 
         public void Save(System.IO.Stream Stream)
         {
+            // Get the contract's code.
             var cb = mainNs.GetCode();
+            // Append a trailing newline.
+            cb.AppendLine();
+            // Set the indentation string.
             cb.IndentationString = new string(' ', 4);
+            // Write the code to a stream.
             string code = cb.ToString();
             using (StreamWriter writer = new StreamWriter(Stream))
             {
