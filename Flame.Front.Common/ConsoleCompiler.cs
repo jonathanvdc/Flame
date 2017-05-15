@@ -204,7 +204,10 @@ namespace Flame.Front.Cli
                 if (!mainState.Options.GetFlag(Flags.VerifyOnlyFlagName, false)
                     && (filteredLog.ErrorCount == 0 || mainState.Options.GetOption<bool>(ForceWriteOptionKey, false)))
                 {
-                    var docs = Document(mainState, mainAsm, auxAsms);
+                    var docs = Document(
+                        mainState,
+                        buildTarget,
+                        new IAssembly[] { mainAsm }.Concat(auxAsms).ToArray());
 
                     Save(mainState, buildTarget, docs);
                 }
@@ -492,7 +495,9 @@ namespace Flame.Front.Cli
         /// the input assemblies linked together.
         /// </summary>
         /// <returns></returns>
-        public static async Task<BuildTarget> LinkAsync(IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies, CompilerEnvironment State, Func<IAssembly, BuildTarget> CreateBuildTarget)
+        public static async Task<BuildTarget> LinkAsync(
+            IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies,
+            CompilerEnvironment State, Func<IAssembly, BuildTarget> CreateBuildTarget)
         {
             var target = CreateBuildTarget(MainAssembly);
             target = new BuildTarget(
@@ -551,11 +556,12 @@ namespace Flame.Front.Cli
         /// <param name="MainAssembly"></param>
         /// <param name="AuxiliaryAssemblies"></param>
         /// <returns></returns>
-        public static IDocumentationBuilder Document(CompilerEnvironment State,
-            IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
+        public static IDocumentationBuilder Document(
+            CompilerEnvironment State, BuildTarget Target,
+            IEnumerable<IAssembly> SourceAssemblies)
         {
             State.Log.LogEvent(new LogEntry("Status", "generating docs..."));
-            var result = State.Options.CreateDocumentationBuilder(MainAssembly, AuxiliaryAssemblies);
+            var result = State.Options.CreateDocumentationBuilder(Target.TargetAssembly, SourceAssemblies);
             State.Log.LogEvent(new LogEntry("Status", "done generating docs"));
             return result;
         }

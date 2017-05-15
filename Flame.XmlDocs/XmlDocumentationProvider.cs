@@ -103,15 +103,27 @@ namespace Flame.XmlDocs
 
         public static XmlDocumentationProvider FromAssembly(IAssembly Assembly)
         {
-            return FromAssemblies(Assembly, Enumerable.Empty<IAssembly>());
+            return FromAssemblies(Assembly, new IAssembly[] { Assembly });
         }
 
-        public static XmlDocumentationProvider FromAssemblies(IAssembly MainAssembly, IEnumerable<IAssembly> AuxiliaryAssemblies)
+        /// <summary>
+        /// Creates an XML documentation provider from the given assemblies.
+        /// </summary>
+        /// <param name="TargetAssembly">
+        /// The target assembly, which is the result of linking the documented assemblies.
+        /// Its signature used to generate documentation, but its contents are not.</param>
+        /// <param name="SourceAssemblies">
+        /// The assemblies which are linked into the target assembly. Their contents (but not
+        /// their signatures) are used to generate documentation.
+        /// </param>
+        /// <returns>An XML documentation provider.</returns>
+        public static XmlDocumentationProvider FromAssemblies(
+            IAssembly TargetAssembly,
+            IEnumerable<IAssembly> SourceAssemblies)
         {
             XmlDocumentationProvider provider = new XmlDocumentationProvider();
-            provider.Assembly = AssemblyDocumentation.FromAssembly(MainAssembly);
-            provider.AddContentDescriptions(MainAssembly);
-            foreach (var asm in AuxiliaryAssemblies)
+            provider.Assembly = AssemblyDocumentation.FromAssembly(TargetAssembly);
+            foreach (var asm in SourceAssemblies)
             {
                 provider.AddContentDescriptions(asm);
             }
