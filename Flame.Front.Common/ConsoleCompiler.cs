@@ -570,10 +570,14 @@ namespace Flame.Front.Cli
 
         #region Saving
 
+        /// <summary>
+        /// The name of the flag that tells the compiler to write output files even if
+        /// an error has occurred or the user has specified the `-preserve-up-to-date` flag.
+        /// </summary>
         private const string ForceWriteOptionKey = "force-write";
         
         /// <summary>
-        /// Gets the name of the flag that preserves assemblies that are up-to-date, rather
+        /// The name of the flag that preserves assemblies that are up-to-date, rather
         /// than overwriting them.
         /// </summary>
         private const string PreserveUpToDateOptionKey = "preserve-up-to-date";
