@@ -93,7 +93,9 @@ namespace Flame.Front
         public Stream OpenOutput()
         {
             string fileName = Path.Path;
-            stream = ForceWrite || !File.Exists(fileName) ? new FileStream(fileName, FileMode.Create) : (Stream)new PreservingFileStream(fileName);
+            stream = ForceWrite || !File.Exists(fileName)
+                ? new FileStream(fileName, FileMode.Create)
+                : (Stream)new PreservingFileStream(fileName);
             return stream;
         }
 
