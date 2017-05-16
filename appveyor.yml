@@ -1,5 +1,8 @@
 version: 0.9.12.{build}
 
+cache:
+  - C:\Users\appveyor\AppData\Local\NuGet\Cache
+
 clone_depth: 50
 install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.9.6/dsc.zip > dsc_binaries.zip
