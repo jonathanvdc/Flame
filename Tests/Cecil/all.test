@@ -12,6 +12,7 @@ tests
     Exceptions/Exceptions4.test;
     FirstClassDelegates/FirstClassDelegates.test;
     Foreach/Foreach.test;
+    GenericGetType/GenericGetType.test;
     Initialization/Initialization.test;
     LogicalOps/LogicalOps.test;
     LongLiterals/LongLiterals.test;

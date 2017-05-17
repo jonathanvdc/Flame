@@ -1,0 +1,16 @@
+using System;
+
+public module Program
+{
+    public static void PrintInfo<T>(T Value)
+        where T : object
+    {
+        Console.WriteLine(Value.GetType());
+        Console.WriteLine(Value);
+    }
+
+    public static void Main()
+    {
+        PrintInfo<int>(0);
+    }
+}
