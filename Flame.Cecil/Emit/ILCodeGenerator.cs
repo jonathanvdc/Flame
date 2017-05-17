@@ -812,12 +812,13 @@ namespace Flame.Cecil.Emit
 
         public static void EmitCall(IEmitContext Context, IMethod Method, IType CallerType, bool IsVirtual)
         {
-            if (IsVirtual)
+            if (CallerType != null && CallerType.GetIsPointer() && Method.DeclaringType.GetIsReferenceType())
             {
-                if (CallerType != null && CallerType.GetIsPointer())
-                {
-                    Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().ElementType);
-                }
+                Context.Emit(OpCodes.Constrained, CallerType.AsContainerType().ElementType);
+                Context.Emit(OpCodes.Callvirt, Method);
+            }
+            else if (IsVirtual)
+            {
                 Context.Emit(OpCodes.Callvirt, Method);
             }
             else
