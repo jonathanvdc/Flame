@@ -10,13 +10,13 @@ using Flame.DSharp.Lexer;
 
 namespace Flame.Syntax.DSharp
 {
-	public class AssignmentSyntax : VariableSyntaxBase, ISetVariableExpressionSyntax,
-									ITokenNode, IRelevantSyntax<Token>,
-									ISourceSyntax
+    public class AssignmentSyntax : VariableSyntaxBase, ISetVariableExpressionSyntax,
+                                    ITokenNode, IRelevantSyntax<Token>,
+                                    ISourceSyntax
     {
         public const this(set IVariableSyntax Variable, set IExpressionSyntax Value)
         {
-        	this.Operator = new Token(TokenType.Equals, "=");
+            this.Operator = new Token(TokenType.Equals, "=");
         }
         public const this(set IVariableSyntax Variable, set Token Operator, set IExpressionSyntax Value);
 
@@ -26,83 +26,83 @@ namespace Flame.Syntax.DSharp
 
         public [Token] LeadingTrivia
         {
-        	const get return Operator.GetAllTrivia();
+            const get return Operator.GetAllTrivia();
         }
 
         public [Token] TrailingTrivia
         {
-        	const get return Enumerable.Empty<Token>();
+            const get return Enumerable.Empty<Token>();
         }
 
         public IReadOnlyList<Token> Tokens
         {
-        	const get
-        	{
-        		var tks = new List<Token>();
-        		tks.AddRange(Variable.GetTokens());
-        		tks.Add(Operator);
-				tks.AddRange(Value.GetTokens());
-				return tks;
-        	}
+            const get
+            {
+                var tks = new List<Token>();
+                tks.AddRange(Variable.GetTokens());
+                tks.Add(Operator);
+                tks.AddRange(Value.GetTokens());
+                return tks;
+            }
         }
 
-		public SourceLocation Location
-		{
-			const get return Variable.GetSourceLocation().Concat(Operator.Location)
-														 .Concat(Value.GetSourceLocation());
-		}
+        public SourceLocation Location
+        {
+            const get return Variable.GetSourceLocation().Concat(Operator.Location)
+                                                         .Concat(Value.GetSourceLocation());
+        }
 
         public static const AssignedVariable CreateStoreVariable(ISyntaxState State, IVariable TargetVariable, Token Operator, IExpressionSyntax Value)
         {
-        	var SourceVariable = SyntaxExtensions.CreateVerifiedVariable(Value, State);
+            var SourceVariable = SyntaxExtensions.CreateVerifiedVariable(Value, State);
             IVariable val;
-        	if (Operator.Type == TokenType.PlusEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new AddExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.MinusEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new SubtractExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.AsteriskEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new MultiplyExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.SlashEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new DivideExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.AndEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new AndExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.BarEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new OrExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else if (Operator.Type == TokenType.CaretEquals)
-        	{
-        		val = new AsymmetricVariable(SourceVariable, new XorExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
-        	}
-        	else
-        	{
-        		if (Operator.Type != TokenType.Equals)
-        		{
-        			State.Log.LogError(new LogEntry(
-						"parser error",
-						"operator " + Operator.ToString() + " is not supported as an assignment operator.",
-						Operator.Location));
-        		}
-        		if (SourceVariable.Type.Is(TargetVariable.Type))
-        		{
-        			val = SourceVariable;
-        		}
-        		else
-        		{
-        			val = new ExpressionVariable(CastSyntax.CreateImplicitCast(State, SourceVariable.CreateGetExpression(), Value, TargetVariable.Type));
-        		}
-        	}
-        	return new AssignedVariable(TargetVariable, val);
+            if (Operator.Type == TokenType.PlusEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new AddExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.MinusEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new SubtractExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.AsteriskEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new MultiplyExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.SlashEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new DivideExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.AndEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new AndExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.BarEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new OrExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else if (Operator.Type == TokenType.CaretEquals)
+            {
+                val = new AsymmetricVariable(SourceVariable, new XorExpression(TargetVariable.CreateGetExpression(), SourceVariable.CreateGetExpression()));
+            }
+            else
+            {
+                if (Operator.Type != TokenType.Equals)
+                {
+                    State.Log.LogError(new LogEntry(
+                        "parser error",
+                        "operator " + Operator.ToString() + " is not supported as an assignment operator.",
+                        Operator.Location));
+                }
+                if (SourceVariable.Type.Is(TargetVariable.Type))
+                {
+                    val = SourceVariable;
+                }
+                else
+                {
+                    val = new ExpressionVariable(CastSyntax.CreateImplicitCast(State, SourceVariable.CreateGetExpression(), Value, TargetVariable.Type));
+                }
+            }
+            return new AssignedVariable(TargetVariable, val);
         }
 
         public AssignedVariable CreateStoreVariable(ISyntaxState State)
