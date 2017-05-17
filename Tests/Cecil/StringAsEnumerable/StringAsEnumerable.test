@@ -7,7 +7,7 @@ build
 
 run
 {
-    return = @($(net-runtime) bin/$(Filename).exe x x)@($(net-runtime) bin/$(Filename).exe x y);
+    return = @($(net-runtime) bin/$(Filename).exe);
 }
 
 configs
