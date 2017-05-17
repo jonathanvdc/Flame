@@ -182,6 +182,13 @@ namespace Flame.Syntax.DSharp
             {
                 return ConversionExpression.Create(expr, TargetType);
             }
+
+            var envTgtType = State.Environment.GetEquivalentType(TargetType);
+            var envValType = State.Environment.GetEquivalentType(expr.Type);
+            if (CastSyntax.UseImplicitCast(State, envValType, envTgtType))
+            {
+                return ConversionExpression.Create(expr, TargetType);
+            }
             else
             {
                 var diffBuilder = new TypeDiffComparer(State.Renderer);
