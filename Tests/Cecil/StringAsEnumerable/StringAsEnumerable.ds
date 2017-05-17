@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+
+public module Program
+{
+    public static void Main()
+    {
+        IEnumerable<char> enumerable = "hello world";
+        foreach (var c in enumerable)
+        {
+            Console.Write(c);
+        }
+        Console.WriteLine();
+    }
+}

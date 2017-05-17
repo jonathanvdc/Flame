@@ -17,6 +17,7 @@ tests
     LogicalOps/LogicalOps.test;
     LongLiterals/LongLiterals.test;
     ShiftOperators/ShiftOperators.test;
+    StringAsEnumerable/StringAsEnumerable.test;
     StringEquality/StringEquality.test;
     StringFormat/StringFormat.test;
     TryParse/TryParse.test;
