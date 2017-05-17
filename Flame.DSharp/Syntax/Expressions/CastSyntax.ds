@@ -159,7 +159,7 @@ namespace Flame.Syntax.DSharp
 
         #region Static
 
-        public static const IExpression[] CreateImplicitCast(ISyntaxState State, [IExpressionSyntax] Values, IType TargetType)
+        public static IExpression[] CreateImplicitCast(ISyntaxState State, [IExpressionSyntax] Values, IType TargetType)
         {
             var results = new List<IExpression>();
             foreach (var item in Values)
@@ -169,13 +169,13 @@ namespace Flame.Syntax.DSharp
             return results.ToArray();
         }
 
-        public static const IExpression CreateImplicitCast(ISyntaxState State, IExpressionSyntax Value, IType TargetType)
+        public static IExpression CreateImplicitCast(ISyntaxState State, IExpressionSyntax Value, IType TargetType)
         {
             var expr = Value.CreateVerifiedExpression(State);
             return CastSyntax.CreateImplicitCast(State, expr, Value, TargetType);
         }
 
-        public static const IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
+        public static IExpression CreateImplicitCast(ISyntaxState State, IExpression expr, ISyntaxNode Value, IType TargetType)
         {
             var valType = expr.Type;
             if (CastSyntax.UseImplicitCast(State, valType, TargetType))

@@ -24,12 +24,12 @@ public static class Program
     public static void Main()
     {
         var testList = new List<uint>(GenerateTestValues());
-        uint divThreeSum = 0;
-        uint remThreeSum = 0;
-        uint divSixteenSum = 0;
-        uint remSixteenSum = 0;
-        uint divThirtyOneSum = 0;
-        uint remThirtyOneSum = 0;
+        uint divThreeSum = (uint)0;
+        uint remThreeSum = (uint)0;
+        uint divSixteenSum = (uint)0;
+        uint remSixteenSum = (uint)0;
+        uint divThirtyOneSum = (uint)0;
+        uint remThirtyOneSum = (uint)0;
         foreach (var num in testList)
         {
             divThreeSum += num / (uint)3;

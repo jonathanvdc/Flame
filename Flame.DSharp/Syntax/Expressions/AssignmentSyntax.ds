@@ -52,7 +52,7 @@ namespace Flame.Syntax.DSharp
                                                          .Concat(Value.GetSourceLocation());
         }
 
-        public static const AssignedVariable CreateStoreVariable(ISyntaxState State, IVariable TargetVariable, Token Operator, IExpressionSyntax Value)
+        public static AssignedVariable CreateStoreVariable(ISyntaxState State, IVariable TargetVariable, Token Operator, IExpressionSyntax Value)
         {
             var SourceVariable = SyntaxExtensions.CreateVerifiedVariable(Value, State);
             IVariable val;
@@ -93,13 +93,18 @@ namespace Flame.Syntax.DSharp
                         "operator " + Operator.ToString() + " is not supported as an assignment operator.",
                         Operator.Location));
                 }
-                if (SourceVariable.Type.Is(TargetVariable.Type))
+                if (SourceVariable.Type.Equals(TargetVariable.Type))
                 {
                     val = SourceVariable;
                 }
                 else
                 {
-                    val = new ExpressionVariable(CastSyntax.CreateImplicitCast(State, SourceVariable.CreateGetExpression(), Value, TargetVariable.Type));
+                    val = new ExpressionVariable(
+                        CastSyntax.CreateImplicitCast(
+                            State,
+                            SourceVariable.CreateGetExpression(),
+                            Value,
+                            TargetVariable.Type));
                 }
             }
             return new AssignedVariable(TargetVariable, val);
