@@ -47,15 +47,7 @@ namespace Flame.Compiler.Expressions
             if (optVal.Type.IsEquivalent(TargetType))
                 return optVal;
 
-            var optExpr = new ReinterpretCastExpression(optVal, Type);
-            if (optExpr.IsConstant)
-            {
-                var evalExpr = optExpr.Evaluate();
-                if (evalExpr != null)
-                    return evalExpr.ToExpression();
-            }
-
-            return optExpr.Simplify();
+            return new ReinterpretCastExpression(optVal, Type).Simplify();
         }
 
         /// <summary>
