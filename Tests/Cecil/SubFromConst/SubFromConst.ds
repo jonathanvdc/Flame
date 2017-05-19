@@ -1,0 +1,10 @@
+using System;
+
+public module Program
+{
+    public static void Main()
+    {
+        var rand = new Random(15);
+        Console.WriteLine(32 - rand.Next(0, 32));
+    }
+}

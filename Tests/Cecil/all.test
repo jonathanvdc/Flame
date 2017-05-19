@@ -20,6 +20,7 @@ tests
     StringAsEnumerable/StringAsEnumerable.test;
     StringEquality/StringEquality.test;
     StringFormat/StringFormat.test;
+    SubFromConst/SubFromConst.test;
     TryParse/TryParse.test;
     WhileNext/WhileNext.test;
 }
