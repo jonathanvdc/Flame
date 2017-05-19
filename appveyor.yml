@@ -1,4 +1,4 @@
-version: 0.9.12.{build}
+version: 0.9.13.{build}
 
 cache:
   - C:\Users\appveyor\AppData\Local\NuGet\Cache
@@ -10,7 +10,7 @@ install:
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.sln
 build_script:
-  - set SEMVER=0.9.12
+  - set SEMVER=0.9.13
   - echo %APPVEYOR_REPO_TAG%
   # Build packages as SEMVER-ci{build}
   - ps: if ($env:APPVEYOR_REPO_TAG -eq $True) { $env:PKG_VERSION = $env:SEMVER; } else { $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"; }
