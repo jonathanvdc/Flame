@@ -117,7 +117,7 @@ namespace Flame.Cecil.Emit
             }
             else if (op == Mono.Cecil.Cil.OpCodes.Ldc_I4_S)
             {
-                return ((OpCodeInt16Block)block).Argument;
+                return ((OpCodeInt8Block)block).Argument;
             }
             else
             {
