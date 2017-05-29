@@ -259,9 +259,11 @@ namespace Flame.Front.Target
         {
             var log = DependencyBuilder.Log;
 
+            var version = log.GetAssemblyVersion(
+                SourceAssembly.AssemblyVersion ?? new Version(1, 0, 0, 0));
             var info = new AssemblyCreationInfo(
                 log.GetAssemblyName(SourceAssembly.Name.ToString()),
-                log.GetAssemblyVersion(SourceAssembly.AssemblyVersion),
+                version,
                 new Lazy<bool>(() => SourceAssembly.GetEntryPoint() != null));
             return Parser.CreateBuildTarget(PlatformIdentifier, info, DependencyBuilder);
         }
