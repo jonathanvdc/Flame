@@ -105,6 +105,9 @@
     <Reference Include="Loyc.Binary">
       <HintPath>..\Flame.Cecil\packages\Loyc.Binary.0.1.8\lib\net45\Loyc.Binary.dll</HintPath>
     </Reference>
+    <Reference Include="libwasm">
+      <HintPath>..\Flame.Cecil\packages\Wasm.0.1.1\lib\net45\libwasm.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Projects\DSharpProjectHandler.cs" />
