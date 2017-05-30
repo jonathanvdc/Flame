@@ -7,75 +7,75 @@ using System.IO;
 
 namespace Flame.Wasm
 {
-	public class WasmModule : IAssembly, IAssemblyBuilder
-	{
-		public WasmModule(
+    public class WasmModule : IAssembly, IAssemblyBuilder
+    {
+        public WasmModule(
             string Name, Version AssemblyVersion, 
             IEnvironment Environment, IWasmAbi Abi,
             ICompilerOptions Options)
-		{
+        {
             this.Name = new SimpleName(Name);
-			this.AssemblyVersion = AssemblyVersion;
-			this.Environment = Environment;
+            this.AssemblyVersion = AssemblyVersion;
+            this.Environment = Environment;
             this.Options = Options;
-			this.entryPoint = null;
+            this.entryPoint = null;
             this.moduleNs = new WasmModuleNamespace(this, new WasmModuleData(Abi));
             Abi.InitializeMemory(this);
-		}
+        }
 
-		/// <summary>
-		/// Gets this wasm module's name.
-		/// </summary>
-		public UnqualifiedName Name { get; private set; }
-		public IEnvironment Environment { get; private set; }
-		public Version AssemblyVersion { get; private set; }
+        /// <summary>
+        /// Gets this wasm module's name.
+        /// </summary>
+        public UnqualifiedName Name { get; private set; }
+        public IEnvironment Environment { get; private set; }
+        public Version AssemblyVersion { get; private set; }
         public ICompilerOptions Options { get; private set; }
 
-		private WasmModuleNamespace moduleNs;
-		private IMethod entryPoint;
+        private WasmModuleNamespace moduleNs;
+        private IMethod entryPoint;
         private IEnumerable<WasmExpr> epCode;
 
         public WasmModuleData Data { get { return moduleNs.Data; } }
 
         public QualifiedName FullName { get { return new QualifiedName(Name); } }
-		public AttributeMap Attributes { get { return AttributeMap.Empty; } }
+        public AttributeMap Attributes { get { return AttributeMap.Empty; } }
 
-		public IMethod GetEntryPoint() { return entryPoint; }
+        public IMethod GetEntryPoint() { return entryPoint; }
 
-		public IBinder CreateBinder()
-		{
-			return new Flame.Binding.NamespaceTreeBinder(Environment, moduleNs);
-		}
+        public IBinder CreateBinder()
+        {
+            return new Flame.Binding.NamespaceTreeBinder(Environment, moduleNs);
+        }
 
-		public INamespaceBuilder DeclareNamespace(string Name)
-		{
-			return moduleNs.DeclareNamespace(Name);
-		}
+        public INamespaceBuilder DeclareNamespace(string Name)
+        {
+            return moduleNs.DeclareNamespace(Name);
+        }
 
-		public void Save(IOutputProvider OutputProvider)
-		{
-			string code = ToCode().ToString();
-			using (var stream = OutputProvider.Create().OpenOutput())
-			using (var writer = new StreamWriter(stream))
-			{
-				writer.Write(code);
-			}
-		}
+        public void Save(IOutputProvider OutputProvider)
+        {
+            string code = ToCode().ToString();
+            using (var stream = OutputProvider.Create().OpenOutput())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write(code);
+            }
+        }
 
-		public void SetEntryPoint(IMethod Method)
-		{
-			entryPoint = Method;
-		}
+        public void SetEntryPoint(IMethod Method)
+        {
+            entryPoint = Method;
+        }
 
-		public void Initialize()
-		{ }
+        public void Initialize()
+        { }
 
-		public IAssembly Build()
-		{
+        public IAssembly Build()
+        {
             if (entryPoint != null)
                 epCode = Data.Abi.SetupEntryPoint(this);
             return this;
-		}
+        }
 
         private Tuple<int, IEnumerable<byte>> TrimInitialData(IReadOnlyList<byte> InitialData)
         {
@@ -132,30 +132,30 @@ namespace Flame.Wasm
             return new CallExpr(OpCodes.DeclareMemory, args);
         }
 
-		public CodeBuilder ToCode()
-		{
-			var cb = new CodeBuilder();
-			cb.IndentationString = new string(' ', 4);
-			cb.Append("(module ");
-			cb.IncreaseIndentation();
-			cb.AppendLine();
+        public CodeBuilder ToCode()
+        {
+            var cb = new CodeBuilder();
+            cb.IndentationString = new string(' ', 4);
+            cb.Append("(module ");
+            cb.IncreaseIndentation();
+            cb.AppendLine();
             if (Data.Memory.Size > 0)
                 cb.AddCodeBuilder(GetMemoryExpr().ToCode());
-			cb.AddCodeBuilder(moduleNs.ToCode());
+            cb.AddCodeBuilder(moduleNs.ToCode());
             if (epCode != null)
             {
                 foreach (var item in epCode)
                     cb.AddCodeBuilder(item.ToCode());
             }
-			cb.DecreaseIndentation();
-			cb.AddLine(")");
-			return cb;
-		}
+            cb.DecreaseIndentation();
+            cb.AddLine(")");
+            return cb;
+        }
 
-		public override string ToString()
-		{
-			return ToCode().ToString();
-		}
-	}
+        public override string ToString()
+        {
+            return ToCode().ToString();
+        }
+    }
 }
 

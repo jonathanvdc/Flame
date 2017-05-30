@@ -6,19 +6,19 @@ using System.Linq;
 
 namespace Flame.Wasm
 {
-	public class WasmField : IField, ILiteralField, IFieldBuilder
-	{
+    public class WasmField : IField, ILiteralField, IFieldBuilder
+    {
         public WasmField(IType DeclaringType, IFieldSignatureTemplate Template, WasmModuleData ModuleData)
-		{
-			this.DeclaringType = DeclaringType;
-			this.TemplateInstance = new FieldSignatureInstance(Template, this);
+        {
+            this.DeclaringType = DeclaringType;
+            this.TemplateInstance = new FieldSignatureInstance(Template, this);
             this.ModuleData = ModuleData;
-			this.Value = null;
-		}
+            this.Value = null;
+        }
 
-		public IType DeclaringType { get; private set; }
-		public FieldSignatureInstance TemplateInstance { get; private set; }
-		public IBoundObject Value { get; private set; }
+        public IType DeclaringType { get; private set; }
+        public FieldSignatureInstance TemplateInstance { get; private set; }
+        public IBoundObject Value { get; private set; }
 
         public WasmModuleData ModuleData { get; private set; }
 
@@ -28,31 +28,31 @@ namespace Flame.Wasm
         /// </summary>
         public MemorySection StaticStorageLocation { get; private set; }
 
-		public UnqualifiedName Name { get { return TemplateInstance.Name; } }
-		public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
-		public bool IsStatic { get { return TemplateInstance.IsStatic; } }
-		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
-		public IType FieldType { get { return TemplateInstance.FieldType.Value; } }
+        public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
+        public bool IsStatic { get { return TemplateInstance.IsStatic; } }
+        public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
+        public IType FieldType { get { return TemplateInstance.FieldType.Value; } }
 
-		public bool TrySetValue(IExpression Value)
-		{
-			if (!IsStatic)
-				return false;
+        public bool TrySetValue(IExpression Value)
+        {
+            if (!IsStatic)
+                return false;
 
-			var val = Value.EvaluateOrNull();
-			if (val != null)
-			{
-				this.Value = val;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+            var val = Value.EvaluateOrNull();
+            if (val != null)
+            {
+                this.Value = val;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-		public void Initialize()
-		{
+        public void Initialize()
+        {
             if (IsStatic)
             {
                 StaticStorageLocation = ModuleData.Memory.DeclareSection(
@@ -60,14 +60,14 @@ namespace Flame.Wasm
             }
         }
 
-		public IField Build()
-		{
+        public IField Build()
+        {
             if (IsStatic && Value != null)
             {
                 StaticStorageLocation.InitialData = GetBytes(Value);
             }
-			return this;
-		}
+            return this;
+        }
 
         private byte[] GetBytes(IBoundObject Object)
         {
@@ -135,5 +135,5 @@ namespace Flame.Wasm
 
             return (byte[])method.Invoke(null, new object[] { Value });
         }
-	}
+    }
 }

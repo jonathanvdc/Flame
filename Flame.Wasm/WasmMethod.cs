@@ -9,70 +9,70 @@ using Flame.Build;
 
 namespace Flame.Wasm
 {
-	public class WasmMethod : IMethod, IMethodBuilder
-	{
+    public class WasmMethod : IMethod, IMethodBuilder
+    {
         public WasmMethod(IType DeclaringType, IMethodSignatureTemplate Template, WasmModuleData ModuleData)
-		{
-			this.DeclaringType = DeclaringType;
-			this.TemplateInstance = new MethodSignatureInstance(Template, this);
+        {
+            this.DeclaringType = DeclaringType;
+            this.TemplateInstance = new MethodSignatureInstance(Template, this);
             this.ModuleData = ModuleData;
-			this.WasmName = WasmHelpers.GetWasmName(this);
-		}
+            this.WasmName = WasmHelpers.GetWasmName(this);
+        }
 
-		public IType DeclaringType { get; private set; }
-		public MethodSignatureInstance TemplateInstance { get; private set; }
+        public IType DeclaringType { get; private set; }
+        public MethodSignatureInstance TemplateInstance { get; private set; }
         public WasmModuleData ModuleData { get; private set; }
-		public WasmExpr Body { get; private set; }
+        public WasmExpr Body { get; private set; }
 
-		private WasmCodeGenerator bodyGen;
+        private WasmCodeGenerator bodyGen;
 
-		/// <summary>
-		/// Gets this method's actual name in the module.
-		/// </summary>
-		public string WasmName { get; private set; }
+        /// <summary>
+        /// Gets this method's actual name in the module.
+        /// </summary>
+        public string WasmName { get; private set; }
 
-		public UnqualifiedName Name { get { return TemplateInstance.Name; } }
-		public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
-		public bool IsStatic { get { return TemplateInstance.Template.IsStatic; } }
-		public bool IsConstructor { get { return TemplateInstance.IsConstructor; } }
+        public UnqualifiedName Name { get { return TemplateInstance.Name; } }
+        public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
+        public bool IsStatic { get { return TemplateInstance.Template.IsStatic; } }
+        public bool IsConstructor { get { return TemplateInstance.IsConstructor; } }
 
-		public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
-		public IEnumerable<IMethod> BaseMethods { get { return TemplateInstance.BaseMethods.Value; } }
-		public IType ReturnType { get { return TemplateInstance.ReturnType.Value; } }
-		public IEnumerable<IParameter> Parameters { get { return TemplateInstance.Parameters.Value; } }
-		public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
+        public AttributeMap Attributes { get { return TemplateInstance.Attributes.Value; } }
+        public IEnumerable<IMethod> BaseMethods { get { return TemplateInstance.BaseMethods.Value; } }
+        public IType ReturnType { get { return TemplateInstance.ReturnType.Value; } }
+        public IEnumerable<IParameter> Parameters { get { return TemplateInstance.Parameters.Value; } }
+        public IEnumerable<IGenericParameter> GenericParameters { get { return TemplateInstance.GenericParameters.Value; } }
 
         public bool IsImport { get { return Attributes.Contains(PrimitiveAttributes.Instance.ImportAttribute.AttributeType); } }
 
-		public WasmCodeGenerator BodyGenerator 
-		{
-			get 
-			{ 			
-				if (bodyGen == null)
+        public WasmCodeGenerator BodyGenerator 
+        {
+            get 
+            { 			
+                if (bodyGen == null)
                     bodyGen = new WasmCodeGenerator(this, ModuleData.Abi);
-				return bodyGen;
-			} 
-		}
-		public ICodeGenerator GetBodyGenerator()
-		{
-			return BodyGenerator;
-		}
+                return bodyGen;
+            } 
+        }
+        public ICodeGenerator GetBodyGenerator()
+        {
+            return BodyGenerator;
+        }
 
-		public void SetMethodBody(ICodeBlock Block)
-		{
-			this.Body = CodeBlock.ToExpression(Block);
-		}
+        public void SetMethodBody(ICodeBlock Block)
+        {
+            this.Body = CodeBlock.ToExpression(Block);
+        }
 
-		public void Initialize()
-		{ }
+        public void Initialize()
+        { }
 
-		public IMethod Build()
-		{
-			return this;
-		}
+        public IMethod Build()
+        {
+            return this;
+        }
 
-		public CodeBuilder ToCode()
-		{
+        public CodeBuilder ToCode()
+        {
             var cb = new CodeBuilder();
             var args = new List<WasmExpr>();
             args.Add(new IdentifierExpr(WasmName));
@@ -119,12 +119,12 @@ namespace Flame.Wasm
             }
             cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareFunction, args).ToCode());
             return cb;
-		}
+        }
 
-		public override string ToString()
-		{
-			return ToCode().ToString();
-		}
-	}
+        public override string ToString()
+        {
+            return ToCode().ToString();
+        }
+    }
 }
 

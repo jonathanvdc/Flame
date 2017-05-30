@@ -19,10 +19,10 @@ namespace Flame.Wasm
     }
 
     /// <summary>
-	/// An ABI interface for wasm applications.
-	/// </summary>
+    /// An ABI interface for wasm applications.
+    /// </summary>
     public interface IWasmAbi : IStackAbi, IWasmCallAbi
-	{
+    {
         /// <summary>
         /// Gets the ABI that is used for module imports.
         /// </summary>
@@ -39,10 +39,10 @@ namespace Flame.Wasm
         /// </summary>
         IEnumerable<WasmExpr> SetupEntryPoint(WasmModule Module);
 
-		/// <summary>
-		/// Gets the 'this' pointer.
-		/// </summary>
-		IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);
-	}
+        /// <summary>
+        /// Gets the 'this' pointer.
+        /// </summary>
+        IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);
+    }
 }
 
