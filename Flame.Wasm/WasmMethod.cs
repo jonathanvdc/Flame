@@ -44,14 +44,14 @@ namespace Flame.Wasm
 
         public bool IsImport { get { return Attributes.Contains(PrimitiveAttributes.Instance.ImportAttribute.AttributeType); } }
 
-        public WasmCodeGenerator BodyGenerator 
+        public WasmCodeGenerator BodyGenerator
         {
-            get 
-            { 			
+            get
+            {
                 if (bodyGen == null)
                     bodyGen = new WasmCodeGenerator(this, ModuleData.Abi);
                 return bodyGen;
-            } 
+            }
         }
         public ICodeGenerator GetBodyGenerator()
         {
@@ -99,8 +99,8 @@ namespace Flame.Wasm
                 var argLayout = ModuleData.Abi.GetArgumentLayout(this);
                 // Synthesize a method body that performs a call_import
                 var importCall = importAbi.CreateDirectCall(
-                                     importFunc, argLayout.ThisPointer.CreateGetExpression(), 
-                                     Parameters.Select((item, i) => 
+                                     importFunc, argLayout.ThisPointer.CreateGetExpression(),
+                                     Parameters.Select((item, i) =>
                                         argLayout.GetArgument(i).CreateGetExpression())
                                  .ToArray());
                 if (ReturnType.Equals(PrimitiveTypes.Void))
