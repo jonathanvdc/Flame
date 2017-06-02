@@ -5,7 +5,7 @@
 
 build
 {
-    $(dsc) $(Filename).ds $(Flags) -o bin/$(Filename).wast;
+    $(dsc) $(Filename).ds $(Flags) -o bin/$(Filename).wasm;
 }
 
 configs

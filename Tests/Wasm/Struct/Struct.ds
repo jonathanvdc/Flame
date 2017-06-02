@@ -32,7 +32,7 @@ public module StructTest
     {
         // var val = new Vector2(3, 4);
         // Vector2 copy = val;
-        return new Vector2(3, 4).LengthSquared;
+        return CopyVector(new Vector2(3, 4)).LengthSquared;
     }
 
     public void Main()

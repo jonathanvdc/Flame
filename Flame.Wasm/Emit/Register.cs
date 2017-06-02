@@ -2,18 +2,19 @@
 using Flame.Compiler.Emit;
 using Flame.Wasm.Emit;
 using Flame.Compiler;
+using Wasm.Instructions;
 
 namespace Flame.Wasm
 {
     /// <summary>
     /// A virtual register variable.
     /// </summary>
-    public class Register : IEmitVariable
+    public sealed class Register : IEmitVariable
     {
-        public Register(WasmCodeGenerator CodeGenerator, string Identifier, IType Type)
+        public Register(WasmCodeGenerator CodeGenerator, uint Index, IType Type)
         {
             this.CodeGenerator = CodeGenerator;
-            this.Identifier = Identifier;
+            this.Index = Index;
             this.Type = Type;
         }
 
@@ -23,9 +24,10 @@ namespace Flame.Wasm
         public WasmCodeGenerator CodeGenerator { get; private set; }
 
         /// <summary>
-        /// Gets this register's unique identifier.
+        /// Gets the register's index.
         /// </summary>
-        public string Identifier { get; private set; }
+        /// <returns>The register's index.</returns>
+        public uint Index { get; private set; }
 
         /// <summary>
         /// Gets this register's type.
@@ -34,7 +36,7 @@ namespace Flame.Wasm
 
         public ICodeBlock EmitGet()
         {
-            return CodeGenerator.EmitCallBlock(OpCodes.GetLocal, Type, new IdentifierExpr(Identifier));
+            return CodeGenerator.EmitInstructionBlock(Operators.GetLocal.Create(Index), Type);
         }
 
         public ICodeBlock EmitRelease()
@@ -44,7 +46,7 @@ namespace Flame.Wasm
 
         public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return CodeGenerator.EmitCallBlock(OpCodes.SetLocal, Type, new IdentifierExpr(Identifier), CodeBlock.ToExpression(Value));
+            return CodeGenerator.EmitInstructionBlock((CodeBlock)Value, Operators.SetLocal.Create(Index), Type);
         }
     }
 }

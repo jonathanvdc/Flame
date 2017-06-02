@@ -1,8 +1,9 @@
 ﻿using System;
+using Wasm.Instructions;
 
 namespace Flame.Wasm.Emit
 {
-    public class NopBlock : CodeBlock
+    public sealed class NopBlock : CodeBlock
     {
         public NopBlock(WasmCodeGenerator CodeGenerator)
             : base(CodeGenerator)
@@ -11,12 +12,17 @@ namespace Flame.Wasm.Emit
         /// <summary>
         /// Converts this wasm code block to a wasm expression.
         /// </summary>
-        public override WasmExpr Expression { get { return new CallExpr(OpCodes.Nop); } }
+        public WasmExpr Expression { get { return new WasmExpr(Operators.Nop.Create()); } }
 
         /// <summary>
         /// Gets this wasm code block's type.
         /// </summary>
         public override IType Type { get { return PrimitiveTypes.Void; } }
+
+        public override WasmExpr ToExpression(BlockContext Context, WasmFileBuilder File)
+        {
+            return Expression;
+        }
     }
 }
 

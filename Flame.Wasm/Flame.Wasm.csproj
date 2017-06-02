@@ -47,28 +47,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="OpCode.cs" />
     <Compile Include="WasmExpr.cs" />
     <Compile Include="ExprKind.cs" />
     <Compile Include="Emit\WasmCodeGenerator.cs" />
     <Compile Include="Emit\CodeBlock.cs" />
-    <Compile Include="Emit\ExprBlock.cs" />
+    <Compile Include="Emit\InstructionBlock.cs" />
     <Compile Include="Emit\NopBlock.cs" />
     <Compile Include="Emit\DelegateBlock.cs" />
     <Compile Include="WasmMethod.cs" />
     <Compile Include="WasmType.cs" />
     <Compile Include="WasmHelpers.cs" />
     <Compile Include="Emit\Register.cs" />
+    <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\StackSlot.cs" />
     <Compile Include="WasmModule.cs" />
     <Compile Include="WasmNamespace.cs" />
     <Compile Include="WasmAbi.cs" />
     <Compile Include="IWasmAbi.cs" />
     <Compile Include="Passes\StackAllocatingPass.cs" />
-    <Compile Include="GetNamedLocalExpression.cs" />
+    <Compile Include="GetRegisterExpression.cs" />
     <Compile Include="DirectCallExpression.cs" />
     <Compile Include="Passes\CallLoweringPass.cs" />
     <Compile Include="WasmField.cs" />
+    <Compile Include="WasmFileBuilder.cs" />
     <Compile Include="Emit\MemoryLocation.cs" />
     <Compile Include="Passes\PrologueEpiloguePass.cs" />
     <Compile Include="CallingConventionSpec.cs" />

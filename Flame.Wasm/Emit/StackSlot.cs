@@ -7,7 +7,7 @@ namespace Flame.Wasm.Emit
     /// <summary>
     /// A value that is stored on the stack.
     /// </summary>
-    public class StackSlot
+    public sealed class StackSlot
     {
         public StackSlot(WasmCodeGenerator CodeGenerator, IType Type, DataMember Slot)
         {

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Flame.Compiler.Native;
 using Flame.Compiler;
+using Wasm;
+using System.Linq;
 
 namespace Flame.Wasm
 {
@@ -29,21 +31,22 @@ namespace Flame.Wasm
         }
 
         /// <summary>
-        /// Gets the given method's signature, as a sequence of
-        /// 'param' and 'result' expressions.
+        /// Gets the given method's signature.
         /// </summary>
-        public IEnumerable<WasmExpr> GetSignature(IMethod Method)
+        public FunctionType GetSignature(IMethod Method)
         {
-            var results = new List<WasmExpr>();
+            var signature = new FunctionType(
+                Enumerable.Empty<WasmValueType>(),
+                Enumerable.Empty<WasmValueType>());
             foreach (var parameter in Method.Parameters)
             {
-                results.Add(WasmHelpers.DeclareParameter(parameter, this));
+                signature.ParameterTypes.Add(WasmHelpers.GetWasmValueType(parameter.ParameterType, this));
             }
             if (!Method.ReturnType.Equals(PrimitiveTypes.Void))
             {
-                results.Add(WasmHelpers.DeclareResult(Method.ReturnType, this));
+                signature.ReturnTypes.Add(WasmHelpers.GetWasmValueType(Method.ReturnType, this));
             }
-            return results;
+            return signature;
         }
 
         /// <summary>
@@ -56,8 +59,7 @@ namespace Flame.Wasm
             var args = new List<IExpression>();
             args.Add(ThisPointer);
             args.AddRange(Arguments);
-            return new DirectCallExpression(
-                OpCodes.CallImport, Target, Arguments);
+            return new DirectCallExpression(Target, Arguments);
         }
     }
 }

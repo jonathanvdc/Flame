@@ -22,7 +22,7 @@ namespace Flame.Wasm
         public IType DeclaringType { get; private set; }
         public MethodSignatureInstance TemplateInstance { get; private set; }
         public WasmModuleData ModuleData { get; private set; }
-        public WasmExpr Body { get; private set; }
+        public CodeBlock Body { get; private set; }
 
         private WasmCodeGenerator bodyGen;
 
@@ -49,7 +49,12 @@ namespace Flame.Wasm
             get
             {
                 if (bodyGen == null)
-                    bodyGen = new WasmCodeGenerator(this, ModuleData.Abi);
+                {
+                    bodyGen = new WasmCodeGenerator(
+                        this,
+                        ModuleData.Abi,
+                        ModuleData.Abi.GetSignature(this));
+                }
                 return bodyGen;
             }
         }
@@ -60,7 +65,7 @@ namespace Flame.Wasm
 
         public void SetMethodBody(ICodeBlock Block)
         {
-            this.Body = CodeBlock.ToExpression(Block);
+            this.Body = (CodeBlock)Block;
         }
 
         public void Initialize()
@@ -71,59 +76,28 @@ namespace Flame.Wasm
             return this;
         }
 
-        public CodeBuilder ToCode()
+        /// <summary>
+        /// Adds this method's definition to the given WebAssembly file builder.
+        /// </summary>
+        /// <param name="Builder">The file builder.</param>
+        public void Declare(WasmFileBuilder Builder)
         {
-            var cb = new CodeBuilder();
-            var args = new List<WasmExpr>();
-            args.Add(new IdentifierExpr(WasmName));
-            args.AddRange(ModuleData.Abi.GetSignature(this));
-            if (IsImport)
-            {
-                var importAbi = ModuleData.Abi.ImportAbi;
-
-                var importFunc = new DescribedMethod("__import_" + Name, DeclaringType, ReturnType, IsStatic);
-                foreach (var item in Parameters)
-                {
-                    var descParam = new DescribedParameter(
-                        new SimpleName(""), item.ParameterType);
-                    importFunc.AddParameter(descParam);
-                }
-
-                var importArgs = new List<WasmExpr>();
-                importArgs.Add(new IdentifierExpr(WasmHelpers.GetWasmName(importFunc)));
-                importArgs.Add(new StringExpr(DeclaringType.Name.ToString()));
-                importArgs.Add(new StringExpr(Name.ToString()));
-                importArgs.AddRange(importAbi.GetSignature(importFunc));
-                cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareImport, importArgs).ToCode());
-
-                var argLayout = ModuleData.Abi.GetArgumentLayout(this);
-                // Synthesize a method body that performs a call_import
-                var importCall = importAbi.CreateDirectCall(
-                                     importFunc, argLayout.ThisPointer.CreateGetExpression(),
-                                     Parameters.Select((item, i) =>
-                                        argLayout.GetArgument(i).CreateGetExpression())
-                                 .ToArray());
-                if (ReturnType.Equals(PrimitiveTypes.Void))
-                {
-                    args.Add(CodeBlock.ToExpression(importCall.Emit(BodyGenerator)));
-                }
-                else
-                {
-                    args.Add(CodeBlock.ToExpression(
-                        BodyGenerator.EmitReturn(importCall.Emit(BodyGenerator))));
-                }
-            }
-            else
-            {
-                args.AddRange(BodyGenerator.WrapBody(Body));
-            }
-            cb.AddCodeBuilder(new CallExpr(OpCodes.DeclareFunction, args).ToCode());
-            return cb;
+            Builder.DeclareMethod(this);
         }
 
-        public override string ToString()
+        /// <summary>
+        /// Adds this method's definition to the given WebAssembly file builder.
+        /// </summary>
+        /// <param name="Builder">The file builder.</param>
+        public void Define(WasmFileBuilder Builder)
         {
-            return ToCode().ToString();
+            if (!IsImport)
+            {
+                Builder.DefineMethod(
+                    this,
+                    BodyGenerator.WrapBody(
+                        Body.ToExpression(BlockContext.TopLevel, Builder)));
+            }
         }
     }
 }

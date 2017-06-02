@@ -11,14 +11,12 @@ namespace Flame.Wasm
     /// </summary>
     public class DirectCallExpression : IExpression, IMemberNode
     {
-        public DirectCallExpression(OpCode CallOp, IMethod Target, IEnumerable<IExpression> Arguments)
+        public DirectCallExpression(IMethod Target, IEnumerable<IExpression> Arguments)
         {
-            this.CallOp = CallOp;
             this.Target = Target;
             this.Arguments = Arguments;
         }
 
-        public OpCode CallOp { get; private set; }
         public IMethod Target { get; private set; }
         public IEnumerable<IExpression> Arguments { get; private set; }
 
@@ -34,7 +32,7 @@ namespace Flame.Wasm
 
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return new DirectCallExpression(CallOp, Target, Arguments.Select(Visitor.Visit).ToArray());
+            return new DirectCallExpression(Target, Arguments.Select(Visitor.Visit).ToArray());
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
@@ -46,7 +44,7 @@ namespace Flame.Wasm
             }
             else
             {
-                return new DirectCallExpression(CallOp, convMethod, Arguments);
+                return new DirectCallExpression(convMethod, Arguments);
             }
         }
 
@@ -57,17 +55,16 @@ namespace Flame.Wasm
 
         public IExpression Optimize()
         {
-            return new DirectCallExpression(CallOp, Target, Arguments.OptimizeAll());
+            return new DirectCallExpression(Target, Arguments.OptimizeAll());
         }
 
         public ICodeBlock Emit(ICodeGenerator CodeGenerator)
         {
             var wasmCg = (WasmCodeGenerator)CodeGenerator;
-            return wasmCg.EmitCallBlock(
-                CallOp, Type,
-                new WasmExpr[] { new IdentifierExpr(WasmHelpers.GetWasmName(Target)) }
-                    .Concat(Arguments.EmitAll(CodeGenerator).Select(CodeBlock.ToExpression))
-                    .ToArray());
+            return new CallBlock(
+                wasmCg,
+                (WasmMethod)Target,
+                Arguments.EmitAll(CodeGenerator).Cast<CodeBlock>().ToArray());
         }
     }
 }

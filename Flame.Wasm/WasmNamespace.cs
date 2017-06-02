@@ -51,23 +51,14 @@ namespace Flame.Wasm
             return this;
         }
 
-        public CodeBuilder ToCode()
+        /// <summary>
+        /// Gets the sequence of all method definitions in this namespace.
+        /// </summary>
+        /// <returns>The sequence of all method definitions.</returns>
+        public IEnumerable<WasmMethod> GetAllMethodDefinitions()
         {
-            var cb = new CodeBuilder();
-            foreach (var item in tyList)
-            {
-                cb.AddCodeBuilder(item.ToCode());
-            }
-            foreach (var item in nsList)
-            {
-                cb.AddCodeBuilder(item.ToCode());
-            }
-            return cb;
-        }
-
-        public override string ToString()
-        {
-            return ToCode().ToString();
+            return tyList.SelectMany(prop => prop.GetAllMethodDefinitions())
+                .Concat(nsList.SelectMany(prop => prop.GetAllMethodDefinitions()));
         }
     }
 

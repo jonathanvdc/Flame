@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Flame.Compiler.Native;
 using Flame.Wasm.Emit;
 using Flame.Compiler.Emit;
+using Wasm;
 
 namespace Flame.Wasm
 {
@@ -12,10 +13,9 @@ namespace Flame.Wasm
     public interface IWasmCallAbi : ICallAbi
     {
         /// <summary>
-        /// Gets the given method's signature, as a sequence of
-        /// 'param' and 'result' expressions.
+        /// Gets the given method's signature.
         /// </summary>
-        IEnumerable<WasmExpr> GetSignature(IMethod Method);
+        FunctionType GetSignature(IMethod Method);
     }
 
     /// <summary>
@@ -34,15 +34,21 @@ namespace Flame.Wasm
         void InitializeMemory(WasmModule Module);
 
         /// <summary>
-        /// Create a number of wasm expressions that setup the
-        /// given wasm module's entry point.
+        /// Adds the given module's entry point to the given WebAssembly file builder.
         /// </summary>
-        IEnumerable<WasmExpr> SetupEntryPoint(WasmModule Module);
+        /// <param name="Module">The module from which the entry point is derived.</param>
+        /// <param name="File">The WebAssembly file builder to update.</param>
+        void SetupEntryPoint(WasmModule Module, WasmFileBuilder File);
 
         /// <summary>
         /// Gets the 'this' pointer.
         /// </summary>
         IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator);
+
+        /// <summary>
+        /// Gets the argument variable with the given index.
+        /// </summary>
+        IEmitVariable GetArgument(WasmCodeGenerator CodeGenerator, int Index);
     }
 }
 

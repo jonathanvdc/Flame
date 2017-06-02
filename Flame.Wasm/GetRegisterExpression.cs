@@ -1,21 +1,22 @@
 ﻿using System;
 using Flame.Compiler;
 using Flame.Wasm.Emit;
+using Wasm.Instructions;
 
 namespace Flame.Wasm
 {
     /// <summary>
-    /// An expression that gets a named local. This is a wasm-specific expression.
+    /// An expression that gets a register. This is a WebAssembly-specific expression.
     /// </summary>
-    public class GetNamedLocalExpression : IExpression
+    public sealed class GetRegisterExpression : IExpression
     {
-        public GetNamedLocalExpression(string Name, IType Type)
+        public GetRegisterExpression(uint Index, IType Type)
         {
-            this.Name = Name;
+            this.Index = Index;
             this.Type = Type;
         }
 
-        public string Name { get; private set; }
+        public uint Index { get; private set; }
         public IType Type { get; private set; }
 
         public bool IsConstantNode
@@ -41,7 +42,7 @@ namespace Flame.Wasm
         public ICodeBlock Emit(ICodeGenerator CodeGenerator)
         {
             var wasmCodeGen = (WasmCodeGenerator)CodeGenerator;
-            return wasmCodeGen.EmitCallBlock(OpCodes.GetLocal, Type, new IdentifierExpr(Name));
+            return wasmCodeGen.EmitInstructionBlock(Operators.GetLocal.Create(Index), Type);
         }
     }
 }

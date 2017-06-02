@@ -1,18 +1,18 @@
 
-public module spectest
+public module io
 {
     /// <summary>
-    /// Prints a single character to standard output.
+    /// Prints a single byte to standard output.
     /// </summary>
     [[import]]
-    public void printChar(char Value);
+    public void stdout_write(byte Value);
 }
 
 public module Console
 {
     public void Write(char Value)
     {
-        spectest.printChar(Value);
+        io.stdout_write((byte)Value);
     }
 
     public void WriteLine()

@@ -6,18 +6,35 @@ using Flame.Compiler;
 namespace Flame.Wasm
 {
     /// <summary>
-    /// A data structure that represents a named section of linear memory.
+    /// A data structure that represents a named segment of linear memory.
     /// </summary>
-    public sealed class MemorySection
+    public sealed class MemorySegment
     {
-        public MemorySection(
-            int Offset, DataLayout Layout, 
+        public MemorySegment(
+            string Name,
+            int Offset,
+            DataLayout Layout,
             IReadOnlyList<byte> InitialData)
         {
+            this.Name = Name;
             this.Offset = Offset;
             this.Layout = Layout;
             this.InitialData = InitialData;
         }
+
+        public MemorySegment(
+            int Offset,
+            DataLayout Layout,
+            IReadOnlyList<byte> InitialData)
+            : this(null, Offset, Layout, InitialData)
+        {
+        }
+
+        /// <summary>
+        /// Gets this section's unique name if it has one.
+        /// </summary>
+        /// <returns>The section's unique name if it has one; otherwise, <c>null</c>.</returns>
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets this memory section's offset.
@@ -35,7 +52,7 @@ namespace Flame.Wasm
         public DataLayout Layout { get; private set; }
 
         /// <summary>
-        /// Gets or sets this section's initial data, 
+        /// Gets or sets this section's initial data,
         /// as a read-only sequence of bytes.
         /// This can be null if the memory section
         /// is left uninitialized.
@@ -51,7 +68,12 @@ namespace Flame.Wasm
 
         public override string ToString()
         {
-            return string.Format("memory-section({0}, {1}, {2})", Offset, Size, IsInitialized ? "initialized" : "uninitialized");
+            return string.Format(
+                "memory-section({0}{1}, {2}, {3})",
+                Name == null ? "" : Name + ", ",
+                Offset,
+                Size,
+                IsInitialized ? "initialized" : "uninitialized");
         }
     }
 
@@ -63,11 +85,13 @@ namespace Flame.Wasm
     {
         public MemoryLayout()
         {
-            this.memSecs = new List<MemorySection>();
+            this.memSegDict = new Dictionary<string, MemorySegment>();
+            this.memSecs = new List<MemorySegment>();
             this.offset = 0;
         }
 
-        private List<MemorySection> memSecs;
+        private Dictionary<string, MemorySegment> memSegDict;
+        private List<MemorySegment> memSecs;
         private int offset;
 
         /// <summary>
@@ -78,35 +102,79 @@ namespace Flame.Wasm
         /// <summary>
         /// Gets this memory layout's section list.
         /// </summary>
-        public IReadOnlyList<MemorySection> Sections { get { return memSecs; } }
+        public IReadOnlyList<MemorySegment> Segments { get { return memSecs; } }
 
         /// <summary>
-        /// Adds the given memory section to this memory
-        /// layout structure.
+        /// Gets the memory segment with the given name.
         /// </summary>
-        public MemorySection DeclareSection(MemorySection Section)
+        /// <param name="Name">The memory segment's name.</param>
+        /// <returns>The memory segment; <c>null</c> if the segment cannot be found..</returns>
+        public MemorySegment GetSegment(string Name)
+        {
+            MemorySegment result;
+            if (memSegDict.TryGetValue(Name, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Adds the given memory section to this memory layout.
+        /// </summary>
+        public MemorySegment DeclareSegment(MemorySegment Section)
         {
             memSecs.Add(Section);
+            if (Section.Name != null)
+            {
+                memSegDict.Add(Section.Name, Section);
+            }
             return Section;
         }
 
-        public MemorySection DeclareSection(DataLayout Layout, IReadOnlyList<byte> InitialData)
+        public MemorySegment DeclareSegment(string Name, DataLayout Layout, IReadOnlyList<byte> InitialData)
         {
-            var result = new MemorySection(offset, Layout, InitialData);
+            var result = new MemorySegment(Name, offset, Layout, InitialData);
             offset += Layout.Size;
-            return DeclareSection(result);
+            return DeclareSegment(result);
         }
-        public MemorySection DeclareSection(DataLayout Layout)
-        { 
-            return DeclareSection(Layout, null);
-        }
-        public MemorySection DeclareSection(IReadOnlyList<byte> InitialData)
+
+        public MemorySegment DeclareSegment(DataLayout Layout, IReadOnlyList<byte> InitialData)
         {
-            return DeclareSection(new DataLayout(InitialData.Count), InitialData);
+            return DeclareSegment(null, Layout, InitialData);
         }
-        public MemorySection DeclareSection(int Size)
-        { 
-            return DeclareSection(new DataLayout(Size));
+
+        public MemorySegment DeclareSegment(string Name, DataLayout Layout)
+        {
+            return DeclareSegment(Name, Layout, null);
+        }
+
+        public MemorySegment DeclareSegment(DataLayout Layout)
+        {
+            return DeclareSegment(Layout, null);
+        }
+
+        public MemorySegment DeclareSegment(string Name, IReadOnlyList<byte> InitialData)
+        {
+            return DeclareSegment(Name, new DataLayout(InitialData.Count), InitialData);
+        }
+
+        public MemorySegment DeclareSegment(IReadOnlyList<byte> InitialData)
+        {
+            return DeclareSegment(new DataLayout(InitialData.Count), InitialData);
+        }
+
+        public MemorySegment DeclareSegment(string Name, int Size)
+        {
+            return DeclareSegment(Name, new DataLayout(Size));
+        }
+
+        public MemorySegment DeclareSegment(int Size)
+        {
+            return DeclareSegment(new DataLayout(Size));
         }
     }
 }

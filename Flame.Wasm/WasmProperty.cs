@@ -46,14 +46,13 @@ namespace Flame.Wasm
             return this;
         }
 
-        public CodeBuilder ToCode()
+        /// <summary>
+        /// Gets the sequence of all method definitions in this property definition.
+        /// </summary>
+        /// <returns>The sequence of all method definitions.</returns>
+        public IEnumerable<WasmMethod> GetAllMethodDefinitions()
         {
-            var cb = new CodeBuilder();
-            foreach (var item in accList)
-            {
-                cb.AddCodeBuilder(item.ToCode());
-            }
-            return cb;
+            return accList;
         }
     }
 }

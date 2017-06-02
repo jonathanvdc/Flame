@@ -140,7 +140,7 @@ namespace Flame.Front.Target
             // a flow graph otherwise, anyway)
             extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeNormal));
 
-            return new BuildTarget(targetAsm, DependencyBuilder, "wast", true, extraPasses.ToPreferences());
+            return new BuildTarget(targetAsm, DependencyBuilder, "wasm", true, extraPasses.ToPreferences());
         }
     }
 }

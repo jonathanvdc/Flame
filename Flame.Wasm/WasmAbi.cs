@@ -10,6 +10,8 @@ using Flame.Compiler.Native;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
 using Flame.Wasm.Emit;
+using Wasm;
+using Wasm.Instructions;
 
 namespace Flame.Wasm
 {
@@ -92,7 +94,7 @@ namespace Flame.Wasm
         public IStatement CreatePrologue(IMethod Method)
         {
             var results = new List<IStatement>();
-            results.Add(FramePointerRegister.CreateSetStatement(new GetNamedLocalExpression(StackPointerName, PointerIntegerType)));
+            results.Add(FramePointerRegister.CreateSetStatement(new GetRegisterExpression(0, PointerIntegerType)));
             results.Add(StackPointerRegister.CreateSetStatement(FramePointerRegister.CreateGetExpression()));
             return new BlockStatement(results);
         }
@@ -104,11 +106,14 @@ namespace Flame.Wasm
         {
             if (HasMemoryReturnValue(Method))
             {
-                return new BlockStatement(new IStatement[] 
+                // The return value pointer is always the last register in the parameter
+                // list.
+                var ccSpec = GetConventionSpec(Method);
+                return new BlockStatement(new IStatement[]
                 {
                     new StoreAtAddressStatement(
-                        new GetNamedLocalExpression(
-                            ReturnPointerName, 
+                        new GetRegisterExpression(
+                            GetFirstArgumentIndex(Method) + (uint)ccSpec.RegisterArguments.Count(),
                             Method.ReturnType.MakePointerType(PointerKind.ReferencePointer)),
                         Value),
                     new ReturnStatement()
@@ -135,7 +140,7 @@ namespace Flame.Wasm
         {
             return StackPointerRegister.CreateSetStatement(
                 new AddExpression(
-                    StackPointerRegister.CreateGetExpression(), 
+                    StackPointerRegister.CreateGetExpression(),
                     new StaticCastExpression(Size, PointerIntegerType).Simplify()));
         }
 
@@ -146,19 +151,8 @@ namespace Flame.Wasm
         {
             return StackPointerRegister.CreateSetStatement(
                 new SubtractExpression(
-                    StackPointerRegister.CreateGetExpression(), 
+                    StackPointerRegister.CreateGetExpression(),
                     new StaticCastExpression(Size, PointerIntegerType).Simplify()));
-        }
-
-        /// <summary>
-        /// Gets the stack pointer.
-        /// </summary>
-        public CodeBlock GetStackPointer(WasmCodeGenerator CodeGenerator)
-        {
-            return CodeGenerator.EmitCallBlock(
-                OpCodes.GetLocal, 
-                PointerIntegerType, 
-                new IdentifierExpr(StackPointerName));
         }
 
         /// <summary>
@@ -187,7 +181,7 @@ namespace Flame.Wasm
                 i++;
             }
             return new CallingConventionSpec(
-                !Method.IsStatic, HasMemoryReturnValue(Method), 
+                !Method.IsStatic, HasMemoryReturnValue(Method),
                 memLocals, regLocals);
         }
 
@@ -262,8 +256,28 @@ namespace Flame.Wasm
         /// </summary>
         public IEmitVariable GetThisPointer(WasmCodeGenerator CodeGenerator)
         {
+            return new Register(CodeGenerator, 1, ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType));
+        }
+
+        /// <summary>
+        /// Gets the index of the given method's first argument register.
+        /// </summary>
+        /// <param name="Method">The method.</param>
+        /// <returns>The index of the first argument register.</returns>
+        private static uint GetFirstArgumentIndex(IMethod Method)
+        {
+            return Method.IsStatic ? 1u : 2u;
+        }
+
+        /// <summary>
+        /// Gets the argument variable with the given index.
+        /// </summary>
+        public IEmitVariable GetArgument(WasmCodeGenerator CodeGenerator, int Index)
+        {
+            uint offset = GetFirstArgumentIndex(CodeGenerator.Method);
             return new Register(
-                CodeGenerator, ThisPointerName, 
+                CodeGenerator,
+                offset + (uint)Index,
                 ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType));
         }
 
@@ -271,38 +285,39 @@ namespace Flame.Wasm
         /// Gets the given method's signature, as a sequence of
         /// 'param' and 'result' expressions.
         /// </summary>
-        public IEnumerable<WasmExpr> GetSignature(IMethod Method)
+        public FunctionType GetSignature(IMethod Method)
         {
-            var results = new List<WasmExpr>();
-            results.Add(WasmHelpers.DeclareParameter(StackPointerParameter, this));
+            var signature = new FunctionType(
+                Enumerable.Empty<WasmValueType>(),
+                Enumerable.Empty<WasmValueType>());
+            signature.ParameterTypes.Add(
+                WasmHelpers.GetWasmValueType(StackPointerParameter.ParameterType, this));
             var ccSpec = GetConventionSpec(Method);
             if (ccSpec.HasThisPointer)
             {
-                results.Add(WasmHelpers.DeclareParameter(
-                    new DescribedParameter(
-                        ThisPointerName,
-                        ThisVariable.GetThisType(Method.DeclaringType)), 
-                    this));
+                signature.ParameterTypes.Add(
+                    WasmHelpers.GetWasmValueType(ThisVariable.GetThisType(Method.DeclaringType), this));
             }
             var paramSigs = Method.GetParameters();
             foreach (var i in ccSpec.RegisterArguments)
             {
-                results.Add(WasmHelpers.DeclareParameter(paramSigs[i], this));
+                signature.ParameterTypes.Add(
+                    WasmHelpers.GetWasmValueType(paramSigs[i].ParameterType, this));
             }
             if (ccSpec.HasMemoryReturnValue)
             {
                 // Append a return pointer variable.
-                results.Add(WasmHelpers.DeclareParameter(
-                    new DescribedParameter(
-                        ReturnPointerName, 
-                        Method.ReturnType.MakePointerType(PointerKind.ReferencePointer)), 
-                    this));
+                signature.ParameterTypes.Add(
+                    WasmHelpers.GetWasmValueType(
+                        Method.ReturnType.MakePointerType(PointerKind.ReferencePointer),
+                        this));
             }
             else if (!Method.ReturnType.Equals(PrimitiveTypes.Void))
             {
-                results.Add(WasmHelpers.DeclareResult(Method.ReturnType, this));
+                signature.ReturnTypes.Add(
+                    WasmHelpers.GetWasmValueType(Method.ReturnType, this));
             }
-            return results;
+            return signature;
         }
 
         /// <summary>
@@ -312,6 +327,11 @@ namespace Flame.Wasm
         public IExpression CreateDirectCall(
             IMethod Target, IExpression ThisPointer, IEnumerable<IExpression> Arguments)
         {
+            if (Target.Attributes.Contains(PrimitiveAttributes.Instance.ImportAttribute.AttributeType))
+            {
+                return ImportAbi.CreateDirectCall(Target, ThisPointer, Arguments);
+            }
+
             var callInit = new List<IStatement>();
             var argArr = Arguments.ToArray();
             var paramArr = Target.GetParameters();
@@ -349,7 +369,7 @@ namespace Flame.Wasm
                     callInit.Add(new StoreAtAddressStatement(
                         Passes.CopyLoweringPass.IndexPointer(
                             StackPointerRegister.CreateGetExpression(), argStackSize,
-                            this, ty), 
+                            this, ty),
                         argArr[i]));
                     argStackSize += GetLayout(ty).Size;
                 }
@@ -390,10 +410,10 @@ namespace Flame.Wasm
                 var retVar = new LocalVariable(Target.ReturnType);
                 callArgs.Add(retVar.CreateAddressOfExpression());
                 return new InitializedExpression(
-                    new BlockStatement(new IStatement[] 
+                    new BlockStatement(new IStatement[]
                     {
                         new BlockStatement(callInit).Simplify(),
-                        new ExpressionStatement(new DirectCallExpression(OpCodes.Call, Target, callArgs))
+                        new ExpressionStatement(new DirectCallExpression(Target, callArgs))
                     }),
                     retVar.CreateGetExpression());
             }
@@ -402,29 +422,33 @@ namespace Flame.Wasm
                 // A scalar is returned. This is easy.
                 return new InitializedExpression(
                     new BlockStatement(callInit).Simplify(),
-                    new DirectCallExpression(OpCodes.Call, Target, callArgs));
+                    new DirectCallExpression(Target, callArgs));
             }
         }
+
+        private const string StackSegmentName = "stack";
 
         /// <summary>
         /// Initializes the given wasm module's memory layout.
         /// </summary>
         public void InitializeMemory(WasmModule Module)
         {
-            // Declare a null section. Make this 256 bytes by default.
-            Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("null-section-size", 1 << 8));
+            // Declare a null segment. Make it 256 bytes by default.
+            Module.Data.Memory.DeclareSegment(Module.Options.GetOption<int>("null-section-size", 1 << 8));
+            // Declare a stack segment. Make it 2^16 bytes by default.
+            Module.Data.Memory.DeclareSegment(StackSegmentName, Module.Options.GetOption<int>("stack-size", 1 << 16));
         }
 
         /// <summary>
-        /// Create a number of wasm expressions that setup the
-        /// given wasm module's entry point.
+        /// Adds the given module's entry point to the given WebAssembly file builder.
         /// </summary>
-        public IEnumerable<WasmExpr> SetupEntryPoint(WasmModule Module)
+        /// <param name="Module">The module from which the entry point is derived.</param>
+        /// <param name="File">The WebAssembly file builder to update.</param>
+        public void SetupEntryPoint(WasmModule Module, WasmFileBuilder File)
         {
-            var results = new List<WasmExpr>();
-            var ep = Module.GetEntryPoint();
+            var ep = (WasmMethod)Module.GetEntryPoint();
             if (ep == null)
-                return results;
+                return;
 
             if (ep.Parameters.Any())
             {
@@ -435,26 +459,26 @@ namespace Flame.Wasm
                         ep.GetSourceLocation()));
             }
 
-            // Declare a stack section. Make this 2^16 bytes by default.
-            var stackSection = Module.Data.Memory.DeclareSection(Module.Options.GetOption<int>("stack-size", 1 << 16));
-            // Declare an actual entry point function, which calls the
-            // user-defined entry point, and gives it a stack pointer value.
-            var epNode = new CallExpr(
-                OpCodes.DeclareFunction, 
-                new IdentifierExpr("main"),
-                new CallExpr(
-                    OpCodes.Call, 
-                    new IdentifierExpr(WasmHelpers.GetWasmName(ep)), 
-                    new CallExpr(
-                        OpCodes.Int32Const, 
-                        new Int32Expr(stackSection.Offset))));
+            // Create an entry point thunk method that calls the entry point with the
+            // initial stack address.
+            var epIndex = File.GetMethodIndex(ep);
+            var stackSegment = Module.Data.Memory.GetSegment(StackSegmentName);
+            var bodyInstructions = new List<Instruction>()
+            {
+                Operators.Int32Const.Create(stackSegment.Offset),
+                Operators.Call.Create(epIndex)
+            };
+            if (!ep.ReturnType.Equals(PrimitiveTypes.Void))
+            {
+                bodyInstructions.Add(Operators.Drop.Create());
+            }
 
-            results.Add(epNode);
-            results.Add(new CallExpr(
-                OpCodes.DeclareStart, 
-                new IdentifierExpr("main")));
+            uint thunkIndex = File.DefineMethod(
+                new FunctionType(Enumerable.Empty<WasmValueType>(), Enumerable.Empty<WasmValueType>()),
+                new FunctionBody(Enumerable.Empty<LocalEntry>(), bodyInstructions));
 
-            return results;
+            // Make that thunk the start function.
+            File.SetStartMethod(thunkIndex);
         }
     }
 

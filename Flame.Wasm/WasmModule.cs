@@ -4,13 +4,16 @@ using System.Linq;
 using Flame.Compiler.Build;
 using Flame.Compiler;
 using System.IO;
+using Wasm;
+using Wasm.Instructions;
+using WasmMemorySection = Wasm.MemorySection;
 
 namespace Flame.Wasm
 {
     public class WasmModule : IAssembly, IAssemblyBuilder
     {
         public WasmModule(
-            string Name, Version AssemblyVersion, 
+            string Name, Version AssemblyVersion,
             IEnvironment Environment, IWasmAbi Abi,
             ICompilerOptions Options)
         {
@@ -33,7 +36,6 @@ namespace Flame.Wasm
 
         private WasmModuleNamespace moduleNs;
         private IMethod entryPoint;
-        private IEnumerable<WasmExpr> epCode;
 
         public WasmModuleData Data { get { return moduleNs.Data; } }
 
@@ -54,11 +56,10 @@ namespace Flame.Wasm
 
         public void Save(IOutputProvider OutputProvider)
         {
-            string code = ToCode().ToString();
+            var file = ToWasmFile();
             using (var stream = OutputProvider.Create().OpenOutput())
-            using (var writer = new StreamWriter(stream))
             {
-                writer.Write(code);
+                file.WriteBinaryTo(stream);
             }
         }
 
@@ -72,89 +73,103 @@ namespace Flame.Wasm
 
         public IAssembly Build()
         {
-            if (entryPoint != null)
-                epCode = Data.Abi.SetupEntryPoint(this);
             return this;
         }
 
-        private Tuple<int, IEnumerable<byte>> TrimInitialData(IReadOnlyList<byte> InitialData)
+        /// <summary>
+        /// Creates a data segment for the given memory section if it initializes
+        /// a region of memory; otherwise, returns null.
+        /// </summary>
+        /// <param name="Memory">The memory section.</param>
+        private DataSegment GetDataSegmentOrNull(MemorySegment Memory)
         {
-            var initData = InitialData;
+            var initData = Memory.InitialData;
 
+            // Strip leading zero bytes. (Wasm memory is zero-initialized by default)
             int firstNonzero = 0;
             while (firstNonzero < initData.Count && initData[firstNonzero] == 0)
                 firstNonzero++;
 
             if (firstNonzero == initData.Count)
-                return Tuple.Create(firstNonzero, Enumerable.Empty<byte>());
+                // Nothing to initialize.
+                return null;
 
+            // Strip trailing zero bytes. (Wasm memory is zero-initialized by default)
             int lastNonzero = initData.Count - 1;
             while (lastNonzero >= 0 && initData[lastNonzero] == 0)
                 lastNonzero--;
 
-            return Tuple.Create(
-                firstNonzero, 
-                initData.Skip(firstNonzero).Take(lastNonzero - firstNonzero));
+            return new DataSegment(
+                0,
+                new InitializerExpression(new Instruction[]
+                {
+                    Operators.Int32Const.Create(Memory.Offset + firstNonzero)
+                }),
+                initData.Skip(firstNonzero).Take(lastNonzero - firstNonzero).ToArray());
         }
 
         /// <summary>
-        /// The WebAssembly page size, in bytes.
+        /// Creates the memory section for this WebAssembly module.
         /// </summary>
-        public const int PageSize = 64 * (1 << 10);
-
-        private WasmExpr GetMemoryExpr()
+        /// <returns>The memory section.</returns>
+        private WasmMemorySection CreateMemorySection()
         {
             // The initial and maximum memory size are required to
-            // be a multiple of the WebAssembly page size, 
+            // be a multiple of the WebAssembly page size,
             // which is 64KiB on all engines.
             int rem;
-            int pageCount = Math.DivRem(Data.Memory.Size, PageSize, out rem);
+            int pageCount = Math.DivRem(Data.Memory.Size, (int)MemoryType.PageSize, out rem);
             if (rem > 0)
                 pageCount++;
 
-            var args = new List<WasmExpr>();
-            args.Add(new Int32Expr(pageCount));
-            foreach (var sec in Data.Memory.Sections)
+            return new WasmMemorySection(new MemoryType[]
+            {
+                new MemoryType(new ResizableLimits((uint)pageCount))
+            });
+        }
+
+        /// <summary>
+        /// Creates the data section for this WebAssembly module.
+        /// </summary>
+        /// <returns>The data section.</returns>
+        private DataSection CreateDataSection()
+        {
+            var section = new DataSection();
+            foreach (var sec in Data.Memory.Segments)
             {
                 if (sec.IsInitialized)
                 {
-                    var trimmed = TrimInitialData(sec.InitialData);
-
-                    if (trimmed.Item2.Any())
+                    var segment = GetDataSegmentOrNull(sec);
+                    if (segment != null)
                     {
-                        args.Add(new CallExpr(
-                            OpCodes.DeclareSegment, new Int32Expr(sec.Offset + trimmed.Item1), 
-                            new StringExpr(new string(trimmed.Item2.Select(b => (char)b).ToArray()))));
+                        section.Segments.Add(segment);
                     }
                 }
             }
-
-            return new CallExpr(OpCodes.DeclareMemory, args);
+            return section;
         }
 
-        public CodeBuilder ToCode()
+        public WasmFile ToWasmFile()
         {
-            var cb = new CodeBuilder();
-            cb.IndentationString = new string(' ', 4);
-            cb.Append("(module ");
-            cb.IncreaseIndentation();
-            cb.AppendLine();
-            if (Data.Memory.Size > 0)
-                cb.AddCodeBuilder(GetMemoryExpr().ToCode());
-            cb.AddCodeBuilder(moduleNs.ToCode());
-            if (epCode != null)
+            var file = new WasmFile();
+            file.Sections.Add(CreateMemorySection());
+            file.Sections.Add(CreateDataSection());
+
+            var fileBuilder = WasmFileBuilder.Create(file);
+
+            var allMethods = moduleNs.GetAllMethodDefinitions();
+            foreach (var item in allMethods)
             {
-                foreach (var item in epCode)
-                    cb.AddCodeBuilder(item.ToCode());
+                item.Declare(fileBuilder);
             }
-            cb.DecreaseIndentation();
-            cb.AddLine(")");
-            return cb;
-        }
+            foreach (var item in allMethods)
+            {
+                item.Define(fileBuilder);
+            }
 
-        public override string ToString()
-        {
-            return ToCode().ToString();
+            Data.Abi.SetupEntryPoint(this, fileBuilder);
+
+            return file;
         }
     }
 }

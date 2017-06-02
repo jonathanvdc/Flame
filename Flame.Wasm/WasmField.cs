@@ -26,7 +26,7 @@ namespace Flame.Wasm
         /// Gets this field's static storage location, assuming that it's
         /// a static field.
         /// </summary>
-        public MemorySection StaticStorageLocation { get; private set; }
+        public MemorySegment StaticStorageLocation { get; private set; }
 
         public UnqualifiedName Name { get { return TemplateInstance.Name; } }
         public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
@@ -55,7 +55,7 @@ namespace Flame.Wasm
         {
             if (IsStatic)
             {
-                StaticStorageLocation = ModuleData.Memory.DeclareSection(
+                StaticStorageLocation = ModuleData.Memory.DeclareSegment(
                     ModuleData.Abi.GetLayout(FieldType));
             }
         }
