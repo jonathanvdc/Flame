@@ -274,11 +274,19 @@ namespace Flame.Wasm
         /// </summary>
         public IEmitVariable GetArgument(WasmCodeGenerator CodeGenerator, int Index)
         {
-            uint offset = GetFirstArgumentIndex(CodeGenerator.Method);
-            return new Register(
-                CodeGenerator,
-                offset + (uint)Index,
-                ThisVariable.GetThisType(CodeGenerator.Method.DeclaringType));
+            var paramType = CodeGenerator.Method.Parameters.ElementAt(Index).ParameterType;
+            if (paramType.IsScalar())
+            {
+                uint offset = GetFirstArgumentIndex(CodeGenerator.Method);
+                return new Register(
+                    CodeGenerator,
+                    offset + (uint)Index,
+                    paramType);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>

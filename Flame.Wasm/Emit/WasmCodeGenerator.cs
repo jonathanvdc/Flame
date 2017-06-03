@@ -903,16 +903,7 @@ namespace Flame.Wasm.Emit
 
         public IEmitVariable GetArgument(int Index)
         {
-            var param = Method.Parameters.ElementAt(Index);
-            var ty = param.ParameterType;
-            if (ty.IsScalar())
-            {
-                return new Register(this, (uint)Index, ty);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return Abi.GetArgument(this, Index);
         }
 
         public IEmitVariable GetLocal(UniqueTag Tag)
