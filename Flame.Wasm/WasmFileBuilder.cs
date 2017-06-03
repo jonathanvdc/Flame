@@ -129,7 +129,7 @@ namespace Flame.Wasm
         {
             var index = GetMethodIndex(Method) - funcImportCount;
             codeSection.Bodies[(int)index] = Body;
-            return index;
+            return funcImportCount + index;
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Flame.Wasm
             var typeIndex = GetTypeIndex(Signature);
             funcSection.FunctionTypes.Add(typeIndex);
             codeSection.Bodies.Add(Body);
-            return (uint)codeSection.Bodies.Count - 1;
+            return funcImportCount + (uint)codeSection.Bodies.Count - 1;
         }
 
         /// <summary>
