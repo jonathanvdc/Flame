@@ -46,7 +46,10 @@ namespace Flame.Wasm
 
         public ICodeBlock EmitSet(ICodeBlock Value)
         {
-            return CodeGenerator.EmitInstructionBlock((CodeBlock)Value, Operators.SetLocal.Create(Index), Type);
+            return CodeGenerator.EmitInstructionBlock(
+                (CodeBlock)Value,
+                Operators.SetLocal.Create(Index),
+                PrimitiveTypes.Void);
         }
     }
 }
