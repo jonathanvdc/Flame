@@ -11,13 +11,15 @@ namespace Flame.Wasm
     /// </summary>
     public class DirectCallExpression : IExpression, IMemberNode
     {
-        public DirectCallExpression(IMethod Target, IEnumerable<IExpression> Arguments)
+        public DirectCallExpression(IMethod Target, IType Type, IEnumerable<IExpression> Arguments)
         {
             this.Target = Target;
+            this.Type = Type;
             this.Arguments = Arguments;
         }
 
         public IMethod Target { get; private set; }
+        public IType Type { get; private set; }
         public IEnumerable<IExpression> Arguments { get; private set; }
 
         public bool IsConstantNode
@@ -25,26 +27,23 @@ namespace Flame.Wasm
             get { return Target.GetIsConstant(); }
         }
 
-        public IType Type
-        {
-            get { return Target.ReturnType; }
-        }
-
         public IExpression Accept(INodeVisitor Visitor)
         {
-            return new DirectCallExpression(Target, Arguments.Select(Visitor.Visit).ToArray());
+            return new DirectCallExpression(Target, Type, Arguments.Select(Visitor.Visit).ToArray());
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
         {
             var convMethod = Converter.Convert(Target);
-            if (object.ReferenceEquals(Target, convMethod))
+            var convRetType = Converter.Convert(Type);
+            if (object.ReferenceEquals(Target, convMethod)
+                && object.ReferenceEquals(Type, convRetType))
             {
                 return this;
             }
             else
             {
-                return new DirectCallExpression(convMethod, Arguments);
+                return new DirectCallExpression(convMethod, convRetType, Arguments);
             }
         }
 
@@ -55,7 +54,7 @@ namespace Flame.Wasm
 
         public IExpression Optimize()
         {
-            return new DirectCallExpression(Target, Arguments.OptimizeAll());
+            return new DirectCallExpression(Target, Type, Arguments.OptimizeAll());
         }
 
         public ICodeBlock Emit(ICodeGenerator CodeGenerator)
@@ -64,6 +63,7 @@ namespace Flame.Wasm
             return new CallBlock(
                 wasmCg,
                 (WasmMethod)Target,
+                Type,
                 Arguments.EmitAll(CodeGenerator).Cast<CodeBlock>().ToArray());
         }
     }

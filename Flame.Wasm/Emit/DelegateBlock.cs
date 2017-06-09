@@ -38,10 +38,12 @@ namespace Flame.Wasm.Emit
         public CallBlock(
             WasmCodeGenerator CodeGenerator,
             WasmMethod Callee,
+            IType Type,
             IReadOnlyList<CodeBlock> Arguments)
             : base(CodeGenerator)
         {
             this.Callee = Callee;
+            this.ty = Type;
             this.Arguments = Arguments;
         }
 
@@ -51,13 +53,22 @@ namespace Flame.Wasm.Emit
         /// <returns>The method that is called.</returns>
         public WasmMethod Callee { get; private set; }
 
+        private IType ty;
+
         /// <summary>
         /// Gets the list of arguments for the call.
         /// </summary>
         /// <returns>The argument list.</returns>
         public IReadOnlyList<CodeBlock> Arguments { get; private set; }
 
-        public override IType Type => Callee.ReturnType;
+        /// <summary>
+        /// Gets the result type of this call block. This is not
+        /// necessarily the same type as the callee's return type:
+        /// the ABI may change the return type of the WebAssembly
+        /// function relative to the original IR function.
+        /// </summary>
+        /// <returns>The result type of this call block.</returns>
+        public override IType Type => ty;
 
         public override WasmExpr ToExpression(BlockContext Context, WasmFileBuilder File)
         {

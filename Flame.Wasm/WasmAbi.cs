@@ -421,7 +421,9 @@ namespace Flame.Wasm
                     new BlockStatement(new IStatement[]
                     {
                         new BlockStatement(callInit).Simplify(),
-                        new ExpressionStatement(new DirectCallExpression(Target, callArgs))
+                        new ExpressionStatement(
+                            new DirectCallExpression(
+                                Target, PrimitiveTypes.Void, callArgs))
                     }),
                     retVar.CreateGetExpression());
             }
@@ -430,7 +432,7 @@ namespace Flame.Wasm
                 // A scalar is returned. This is easy.
                 return new InitializedExpression(
                     new BlockStatement(callInit).Simplify(),
-                    new DirectCallExpression(Target, callArgs));
+                    new DirectCallExpression(Target, Target.ReturnType, callArgs));
             }
         }
 

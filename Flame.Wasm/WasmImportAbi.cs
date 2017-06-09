@@ -59,7 +59,7 @@ namespace Flame.Wasm
             var args = new List<IExpression>();
             args.Add(ThisPointer);
             args.AddRange(Arguments);
-            return new DirectCallExpression(Target, Arguments);
+            return new DirectCallExpression(Target, Target.ReturnType, Arguments);
         }
     }
 }

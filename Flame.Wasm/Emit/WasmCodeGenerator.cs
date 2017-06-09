@@ -71,7 +71,9 @@ namespace Flame.Wasm.Emit
             {
                 locals.Add(new LocalEntry(WasmHelpers.GetWasmValueType(register.Type, Abi), 1));
             }
-            return new FunctionBody(locals, Body.ToInstructionList());
+            return new FunctionBody(
+                locals,
+                Body.Append(Operators.Unreachable.Create()).ToInstructionList());
         }
 
         #endregion
@@ -720,7 +722,7 @@ namespace Flame.Wasm.Emit
                 var func = (WasmMethod)delegBlock.Method;
                 if (delegBlock.Target == null)
                 {
-                    return new CallBlock(this, func, Arguments.Cast<CodeBlock>().ToArray());
+                    return new CallBlock(this, func, func.ReturnType, Arguments.Cast<CodeBlock>().ToArray());
                 }
             }
             throw new NotImplementedException();
