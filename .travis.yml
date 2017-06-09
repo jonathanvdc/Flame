@@ -3,6 +3,8 @@ solution: Flame.Cecil/Flame.Cecil.sln
 install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.9.6/dsc.zip > dsc.zip
   - unzip dsc.zip -d bin_dsc
+  - curl -L https://github.com/jonathanvdc/cs-wasm/releases/download/v0.1.3/cs-wasm-tools.zip > cs-wasm-tools.zip
+  - unzip cs-wasm-tools.zip -d cs-wasm-tools
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil/Flame.Cecil.sln
 script:
@@ -19,4 +21,4 @@ script:
   # optimizations at compile-time.
   - mono dsc/bin/Release/dsc.exe compare-test/src/compare-test.dsproj -O3 --debug
   # Run the tests
-  - mono compare-test/src/bin/compare-test.exe all-tests.test -j
+  - mono compare-test/src/bin/compare-test.exe all-tests.test -j --wasm-interp=cs-wasm-tools/wasm-interp.exe

@@ -7,6 +7,8 @@ clone_depth: 50
 install:
   - curl -L https://github.com/jonathanvdc/Flame/releases/download/v0.9.6/dsc.zip > dsc_binaries.zip
   - 7z x dsc_binaries.zip -obin_dsc
+  - curl -L https://github.com/jonathanvdc/cs-wasm/releases/download/v0.1.3/cs-wasm-tools.zip > cs-wasm-tools.zip
+  - 7z x cs-wasm-tools.zip -ocs-wasm-tools
   - git clone https://github.com/jonathanvdc/compare-test
   - nuget restore Flame.Cecil\Flame.Cecil.sln
 build_script:
@@ -98,4 +100,4 @@ deploy:
 
 test_script:
   # Run the tests
-  - compare-test\src\bin\compare-test.exe all-tests.test -j
+  - compare-test\src\bin\compare-test.exe all-tests.test -j --wasm-interp=cs-wasm-tools\wasm-interp.exe

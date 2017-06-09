@@ -1,0 +1,5 @@
+tests
+{
+    template RunWasm<Float32, spectest>;
+    template RunWasm<Float64, spectest>;
+}

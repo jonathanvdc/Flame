@@ -1,3 +1,8 @@
+public module spectest
+{
+    [[import]]
+    public void print(float Value);
+}
 
 public module FibTest
 {
@@ -20,5 +25,11 @@ public module FibTest
     public int Fac(int n)
     {
         return FacAcc(n, 1);
+    }
+
+    public static void Main()
+    {
+        spectest.print(Fac(5));
+        spectest.print(Fib(5));
     }
 }

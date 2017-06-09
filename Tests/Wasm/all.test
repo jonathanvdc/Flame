@@ -1,9 +1,55 @@
+init
+{
+    template RunWasm<filename,runtime>
+    {
+        run
+        {
+            _ = @($(wasm-interp) bin/$(filename).wasm --importer $(runtime));
+        }
+
+        build
+        {
+            $(dsc) $(filename).ds $(flags) -o bin/$(filename).wasm;
+        }
+
+        configs
+        {
+            Og { flags = $(flags) -Og; }
+            O2 { flags = $(flags) -O2; }
+            O3 { flags = $(flags) -O3; }
+        }
+
+        init
+        {
+            flags = -Wno-build -platform wasm;
+        }
+    }
+
+    template CompileWasm<filename>
+    {
+        build
+        {
+            $(dsc) $(filename).ds $(flags) -o bin/$(filename).wasm;
+        }
+
+        configs
+        {
+            Og { flags = $(flags) -Og; }
+            O2 { flags = $(flags) -O2; }
+            O3 { flags = $(flags) -O3; }
+        }
+
+        init
+        {
+            flags = -Wno-build -platform wasm;
+        }
+    }
+}
 
 tests
 {
     Fibonacci/Fibonacci.test;
-    Float/Float32.test;
-    Float/Float64.test;
+    Float/Float.test;
     Loop/Loop.test;
     Pointers/Pointers.test;
     Print/Print.test;
