@@ -100,4 +100,4 @@ deploy:
 
 test_script:
   # Run the tests
-  - compare-test\src\bin\compare-test.exe all-tests.test -j --wasm-interp=cs-wasm-tools\wasm-interp.exe
+  - compare-test\src\bin\compare-test.exe all-tests.test -j --wasm-interp=%cd%\cs-wasm-tools\wasm-interp.exe

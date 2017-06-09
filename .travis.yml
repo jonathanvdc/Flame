@@ -21,4 +21,4 @@ script:
   # optimizations at compile-time.
   - mono dsc/bin/Release/dsc.exe compare-test/src/compare-test.dsproj -O3 --debug
   # Run the tests
-  - mono compare-test/src/bin/compare-test.exe all-tests.test -j --wasm-interp=cs-wasm-tools/wasm-interp.exe
+  - mono compare-test/src/bin/compare-test.exe all-tests.test -j --wasm-interp=$(pwd)/cs-wasm-tools/wasm-interp.exe
