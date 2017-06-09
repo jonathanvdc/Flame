@@ -136,9 +136,13 @@ namespace Flame.Front.Target
             extraPasses.RegisterPassCondition(new PassCondition(NodeOptimizationPass.NodeOptimizationPassName + "-lowered", optInfo => optInfo.OptimizeMinimal));
 
             // Use -frelooper to deconstruct control-flow graphs,
-            // if -O3 or more has been specified (we won't construct
-            // a flow graph otherwise, anyway)
-            extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeNormal));
+            // if -O4 or higher has been specified. For -O2 and up,
+            // use -fcfg2while-switch instead.
+            extraPasses.RegisterPassCondition(new PassCondition(RelooperPass.RelooperPassName, optInfo => optInfo.OptimizeExperimental));
+
+            extraPasses.RegisterPassCondition(new PassCondition(
+                CFGToWhileSwitchPass.CFGToWhileSwitchPassName,
+                optInfo => optInfo.OptimizeNormal && !optInfo.OptimizeExperimental));
 
             return new BuildTarget(targetAsm, DependencyBuilder, "wasm", true, extraPasses.ToPreferences());
         }
