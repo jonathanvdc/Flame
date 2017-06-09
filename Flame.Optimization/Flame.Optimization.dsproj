@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup Name="Relooper">
     <Compile Include="Relooper/AutoLabelMap.ds" />
+    <Compile Include="Relooper/CFGToWhileSwitchPass.ds" />
     <Compile Include="Relooper/FlowGraphComponent.ds" />
     <Compile Include="Relooper/FlowShape.ds" />
     <Compile Include="Relooper/RelooperPass.ds" />

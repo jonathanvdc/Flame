@@ -1,0 +1,126 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Compiler;
+using Flame.Compiler.Expressions;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization.Relooper
+{
+    /// <summary>
+    /// A CFG lowering pass that uses a simple while-switch construction to
+    /// lower CFGs.
+    /// </summary>
+    public static class CFGToWhileSwitchPass :
+        StatementVisitorBase,
+        IPass<BodyPassArgument, IStatement>
+    {
+        /// <summary>
+        /// This name of this pass.
+        /// </summary>
+        public const string CFGToWhileSwitchPassName = "cfg2while-switch";
+
+        public override const bool Matches(IStatement Value)
+        {
+            return Value is FlowGraphStatement;
+        }
+
+        protected override IStatement Transform(IStatement Statement)
+        {
+            assert(Statement is FlowGraphStatement);
+            var flowGraphStmt = (FlowGraphStatement)Statement;
+            return LowerFlowGraph(flowGraphStmt.Graph);
+        }
+
+        private IStatement LowerFlowGraph(FlowGraph Graph)
+        {
+            if (!Enumerable.Any<BasicBlock>(Enumerable.Skip<BasicBlock>(Graph.Blocks, 1)))
+            {
+                // If there's only one block in the graph and its flow is
+                // terminated, then we can simply returns its body.
+                var epBlock = Graph.EntryPointBlock;
+                if (epBlock.Flow is TerminatedFlowBase)
+                {
+                    return epBlock.Contents;
+                }
+            }
+
+            var loopTag = new UniqueTag("while_true_loop");
+            var labelVar = new RegisterVariable(
+                "bb_label", PrimitiveTypes.Int32);
+            var blockMap = new AutoLabelMap();
+
+            var switchCases = new List<SwitchCase>();
+            foreach (var basicBlock in Graph.Blocks)
+            {
+                var caseVals = new List<IBoundObject>();
+                caseVals.Add(new IntegerExpression(blockMap[basicBlock.Tag]));
+                switchCases.Add(new SwitchCase(
+                    caseVals,
+                    new BlockStatement(new IStatement[]
+                    {
+                        basicBlock.Contents,
+                        LowerBlockFlow(basicBlock.Flow, labelVar, blockMap, loopTag)
+                    })));
+            }
+
+            return new BlockStatement(new IStatement[]
+            {
+                labelVar.CreateSetStatement(
+                    new IntegerExpression(
+                        blockMap[Graph.EntryPointTag])),
+                new WhileStatement(
+                    loopTag,
+                    new BooleanExpression(true),
+                    new SwitchStatement(
+                        labelVar.CreateGetExpression(),
+                        EmptyStatement,
+                        switchCases))
+            });
+        }
+
+        private IStatement LowerBlockFlow(
+            BlockFlow Flow,
+            IVariable LabelVariable,
+            AutoLabelMap LabelMap,
+            UniqueTag BreakTag)
+        {
+            if (Flow is JumpFlow)
+            {
+                var jump = (JumpFlow)Flow;
+                return LabelVariable.CreateSetStatement(
+                    new IntegerExpression(LabelMap[jump.Branch.TargetTag]));
+            }
+            else if (Flow is SelectFlow)
+            {
+                var selectFlow = (SelectFlow)Flow;
+                return new IfElseStatement(
+                    selectFlow.Condition,
+                    LabelVariable.CreateSetStatement(
+                        new IntegerExpression(
+                            LabelMap[selectFlow.ThenBranch.TargetTag])),
+                    LabelVariable.CreateSetStatement(
+                        new IntegerExpression(
+                            LabelMap[selectFlow.ElseBranch.TargetTag])));
+            }
+            else if (Flow is ExitFlow)
+            {
+                return new BreakStatement(BreakTag);
+            }
+            else
+            {
+                assert(Flow is TerminatedFlowBase);
+                return EmptyStatement;
+            }
+        }
+
+        public IStatement Apply(BodyPassArgument Arg)
+            in { VerifyCFGPass.Apply(Arg.Body) }
+        {
+            return this.Visit(DeconstructSSAPass.Apply(Arg.Body));
+        }
+    }
+}
