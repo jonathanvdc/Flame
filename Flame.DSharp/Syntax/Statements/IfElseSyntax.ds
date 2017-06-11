@@ -62,7 +62,7 @@ namespace Flame.Syntax.DSharp
             var cond = Condition.CreateVerifiedExpression(State);
             var ifBody = IfBody.CreateStatement(State);
 
-            if (ifBody.IsEmpty && Warnings.EmptyBody.UseWarning(State.Log.Options))
+            if (ifBody.IsEmpty && ElseBody == null && Warnings.EmptyBody.UseWarning(State.Log.Options))
             {
                 State.Log.LogWarning(new LogEntry(
                     "empty 'if' clause",
