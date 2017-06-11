@@ -5,38 +5,56 @@ using Flame.Compiler.Emit;
 
 namespace Flame.Compiler.Expressions
 {
-	public class SizeOfExpression : IExpression, IMemberNode
-	{
-		public const this(set IType Target);
+    /// <summary>
+    /// A type of expression that ascertains the size of a type.
+    /// </summary>
+    public class SizeOfExpression : IExpression, IMemberNode
+    {
+        /// <summary>
+        /// Creates an expression that computes the given type's size.
+        /// </summary>
+        public this(IType Target)
+        {
+            this.Target = Target;
+        }
 
-		public IType Target { const get; private set; }
+        /// <summary>
+        /// Gets the type whose size is to be computed.
+        /// </summary>
+        public IType Target { get; private set; }
 
+        /// <summary>
+        /// Gets the type of value returned by this size-of expression.
+        /// </summary>
         public IType Type
         {
-            const get { return PrimitiveTypes.Int32; }
+            get { return PrimitiveTypes.Int32; }
         }
 
         public bool IsConstantNode
         {
-            const get { return true; }
+            get { return true; }
         }
 
-		public IMemberNode ConvertMembers(MemberConverter Converter)
-		{
-			var elemType = Converter.Convert(Target);
-			if (object.ReferenceEquals(elemType, Target))
-			{
-				return this;
-			}
-			else return new SizeOfExpression(elemType);
-		}
+        public IMemberNode ConvertMembers(MemberConverter Converter)
+        {
+            var elemType = Converter.Convert(Target);
+            if (object.ReferenceEquals(elemType, Target))
+            {
+                return this;
+            }
+            else
+            {
+                return new SizeOfExpression(elemType);
+            }
+        }
 
-		public IExpression Accept(INodeVisitor Visitor)
-		{
-			return this;
-		}
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
 
-        public const IBoundObject Evaluate()
+        public IBoundObject Evaluate()
         {
             return null;
         }
@@ -51,9 +69,9 @@ namespace Flame.Compiler.Expressions
             return ((IUnmanagedCodeGenerator)Generator).EmitSizeOf(Target);
         }
 
-        public override const string ToString()
+        public override string ToString()
         {
-        	return "sizeof(" + Target.FullName + ")";
+            return "sizeof(" + Target.FullName + ")";
         }
-	}
+    }
 }
