@@ -71,27 +71,7 @@ namespace Flame.Compiler.Expressions
             }
 
             var cg = (IMemoryLayoutCodeGenerator)Generator;
-            var section = cg.Memory.GetSection(SectionName);
-            if (section == null)
-            {
-                throw new AbortCompilationException(string.Format(
-                    "Cannot compute static address '{0}:{1}' because " + 
-                    "section '{0}' does not exist.",
-                    SectionName,
-                    ChunkName));
-            }
-
-            var chunkTag = section.GetTag(ChunkName);
-            if (chunkTag == null)
-            {
-                throw new AbortCompilationException(string.Format(
-                    "Cannot compute static address '{0}:{1}' because " + 
-                    "section '{0}' does not define a chunk named '{1}'.",
-                    SectionName,
-                    ChunkName));
-            }
-
-            return cg.EmitChunkAddress(chunkTag);
+            return cg.EmitChunkAddress(SectionName, ChunkName);
         }
 
         public override string ToString()

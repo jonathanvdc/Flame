@@ -8,18 +8,12 @@ namespace Flame.Compiler.Emit
     public interface IMemoryLayoutCodeGenerator
     {
         /// <summary>
-        /// Gets the memory layout builder for the assembly serviced by this
-        /// code generator.
+        /// Creates a code block that produces the address of a named memory chunk
+        /// in a named memory section.
         /// </summary>
-        /// <returns>The memory layout builder.</returns>
-        MemoryLayoutBuilder Memory { get; }
-
-        /// <summary>
-        /// Creates a code block that produces the address of the memory chunk
-        /// with the given tag.
-        /// </summary>
-        /// <param name="Tag">The memory chunk's tag.</param>
+        /// <param name="SectionName">The name of the memory section that defines the chunk.</param>
+        /// <param name="ChunkName">The chunk whose address is to be computed.</param>
         /// <returns>A code block.</returns>
-        ICodeBlock EmitChunkAddress(UniqueTag Tag);
+        ICodeBlock EmitChunkAddress(string SectionName, string ChunkName);
     }
 }

@@ -886,16 +886,36 @@ namespace Flame.Wasm.Emit
         #region IMemoryLayoutCodeGenerator
 
         /// <summary>
-        /// Creates a code block that produces the address of the memory chunk
-        /// with the given tag.
+        /// Creates a code block that produces the address of a named memory chunk
+        /// in a named memory section.
         /// </summary>
-        /// <param name="Tag">The memory chunk's tag.</param>
+        /// <param name="SectionName">The name of the memory section that defines the chunk.</param>
+        /// <param name="ChunkName">The chunk whose address is to be computed.</param>
         /// <returns>A code block.</returns>
-        public ICodeBlock EmitChunkAddress(UniqueTag Tag)
+        public ICodeBlock EmitChunkAddress(string SectionName, string ChunkName)
         {
+            var section = Memory.GetSection(SectionName);
+            if (section == null)
+            {
+                throw new AbortCompilationException(string.Format(
+                    "Cannot compute static address '{0}:{1}' because " + 
+                    "section '{0}' does not exist.",
+                    SectionName,
+                    ChunkName));
+            }
+
+            var chunkTag = section.GetTag(ChunkName);
+            if (chunkTag == null)
+            {
+                throw new AbortCompilationException(string.Format(
+                    "Cannot compute static address '{0}:{1}' because " + 
+                    "section '{0}' does not define a chunk named '{1}'.",
+                    SectionName,
+                    ChunkName));
+            }
             return new StaticAddressBlock(
                 this,
-                Tag,
+                chunkTag,
                 PrimitiveTypes.Void.MakePointerType(PointerKind.TransientPointer));
         }
 
