@@ -1,0 +1,25 @@
+using Flame.Compiler.Native;
+
+namespace Flame.Compiler.Emit
+{
+    /// <summary>
+    /// A common interface for code generators that control the memory layout.
+    /// </summary>
+    public interface IMemoryLayoutCodeGenerator
+    {
+        /// <summary>
+        /// Gets the memory layout builder for the assembly serviced by this
+        /// code generator.
+        /// </summary>
+        /// <returns>The memory layout builder.</returns>
+        MemoryLayoutBuilder Memory { get; }
+
+        /// <summary>
+        /// Creates a code block that produces the address of the memory chunk
+        /// with the given tag.
+        /// </summary>
+        /// <param name="Tag">The memory chunk's tag.</param>
+        /// <returns>A code block.</returns>
+        ICodeBlock GetChunkAddress(UniqueTag Tag);
+    }
+}

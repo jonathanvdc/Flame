@@ -1,0 +1,374 @@
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Native
+{
+    /// <summary>
+    /// Describes a segment of a static linear memory layout.
+    /// </summary>
+    public class MemorySegment
+    {
+        /// <summary>
+        /// Creates an uninitialized memory segment from the given
+        /// offset and size.
+        /// </summary>
+        /// <param name="Offset">The memory segment's offset.</param>
+        /// <param name="Size">The memory segment's size in bytes.</param>
+        public this(int Offset, int Size)
+        {
+            this.Offset = Offset;
+            this.Size = Size;
+            this.InitialData = null;
+        }
+
+        /// <summary>
+        /// Creates an initialized memory segment from the given
+        /// offset and initial data.
+        /// </summary>
+        /// <param name="Offset">The memory segment's offset.</param>
+        /// <param name="InitialData">The memory segment's initial data.</param>
+        public this(int Offset, IReadOnlyList<byte> InitialData)
+        {
+            this.Offset = Offset;
+            this.Size = InitialData.Count;
+            this.InitialData = InitialData;
+        }
+
+        /// <summary>
+        /// Gets the offset at which this memory segment begins.
+        /// </summary>
+        /// <returns>The offset at which this memory segment begins.</returns>
+        public int Offset { get; private set; }
+
+        /// <summary>
+        /// Gets the size of this memory segment.
+        /// </summary>
+        /// <returns>This memory segment's size.</returns>
+        public int Size { get; private set; }
+
+        /// <summary>
+        /// Gets this memory segment's initial data, if any.
+        /// </summary>
+        /// <returns>The memory segment's initial data.</returns>
+        public IReadOnlyList<byte> InitialData { get; private set; }
+
+        /// <summary>
+        /// Tests if this memory segment is initialized.
+        /// </summary>
+        public bool IsInitialized { get { return InitialData != null; } }
+    }
+
+    /// <summary>
+    /// Describes a static linear memory layout.
+    /// </summary>
+    public class MemoryLayout
+    {
+        /// <summary>
+        /// Creates a static memory layout from the given memory segments and
+        /// anchor offsets.
+        /// </summary>
+        /// <param name="Segments">The memory segments in this layout.</param>
+        /// <param name="ChunkOffsets">
+        /// A mapping of memory chunk tags to the offsets at which they have been placed.
+        /// </param>
+        public this(
+            IReadOnlyList<MemorySegment> Segments,
+            IReadOnlyDictionary<UniqueTag, int> ChunkOffsets)
+        {
+            this.Segments = Segments;
+            this.ChunkOffsets = ChunkOffsets;
+            var namedChunkOffsetDict = new Dictionary<string, int>();
+            var foundChunkNames = new HashSet<string>();
+            foreach (var pair in ChunkOffsets)
+            {
+                string name = pair.Key.Name;
+                if (name == null)
+                {
+                    // Do nothing.
+                }
+                else if (foundChunkNames.Add(name))
+                {
+                    // Add items to the named chunk offset dictionary
+                    // if we haven't seen them before.
+                    namedChunkOffsetDict[name] = pair.Value;
+                }
+                else if (namedChunkOffsetDict.ContainsKey(name))
+                {
+                    // And if we have seen them before, remove them from the
+                    // named chunk offset dictionary.
+                    // This ensures that all only chunks with unique names
+                    // occur in the named chunk offset dictionary.
+                    namedChunkOffsetDict.Remove(name);
+                }
+            }
+            this.NamedChunkOffsets = namedChunkOffsetDict;
+        }
+
+        /// <summary>
+        /// Gets a list of segments in this memory layout.
+        /// </summary>
+        /// <returns>The segments in this layout.</returns>
+        public IReadOnlyList<MemorySegment> Segments { get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of memory chunk to the offsets at which they have been placed.
+        /// </summary>
+        /// <returns>A mapping of memory chunk tags to offsets.</returns>
+        public IReadOnlyDictionary<UniqueTag, int> ChunkOffsets { get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of unique memory chunk names to the offsets at which they have
+        /// been placed.
+        /// </summary>
+        /// <returns>A mapping of memory chunk names to offsets.</returns>
+        public IReadOnlyDictionary<string, int> NamedChunkOffsets { get; private set; }
+    }
+
+    /// <summary>
+    /// Describes a chunk of memory.
+    /// </summary>
+    public class MemoryChunk
+    {
+        /// <summary>
+        /// Creates an uninitialized memory chunk of the given size.
+        /// </summary>
+        /// <param name="Size">The memory chunk's size.</param>
+        public this(int Size)
+        {
+            this.Size = Size;
+            this.InitialData = null;
+        }
+
+        /// <summary>
+        /// Creates an initialized memory chunk from the given data.
+        /// </summary>
+        /// <param name="InitialData">The data to initialize the memory chunk with.</param>
+        public this(IReadOnlyList<byte> InitialData)
+        {
+            this.Size = InitialData.Count;
+            this.InitialData = InitialData;
+        }
+
+        /// <summary>
+        /// Gets the size of this memory chunk.
+        /// </summary>
+        /// <returns>This memory chunk's size.</returns>
+        public int Size { get; private set; }
+
+        /// <summary>
+        /// Gets this memory chunk's initial data, if any.
+        /// </summary>
+        /// <returns>The memory chunk's initial data.</returns>
+        public IReadOnlyList<byte> InitialData { get; private set; }
+
+        /// <summary>
+        /// Tests if this memory chunk is initialized.
+        /// </summary>
+        public bool IsInitialized { get { return InitialData != null; } }
+
+        /// <summary>
+        /// Initializes this memory chunk with the given data.
+        /// </summary>
+        /// <param name="Data">The memory chunk's initial data.</param>
+        public void Initialize(IReadOnlyList<byte> Data)
+        {
+            assert(Data != null);
+            this.InitialData = Data;
+        }
+
+        /// <summary>
+        /// Turns this memory chunk into an uninitialized memory chunk
+        /// of the given size.
+        /// </summary>
+        public void Uninitialize(int Size)
+        {
+            this.Size = Size;
+            this.InitialData = null;
+        }
+
+        /// <summary>
+        /// Creates a memory segment that places this chunk at the given offset.
+        /// </summary>
+        /// <param name="Offset">The offset at which to place this chunk.</param>
+        /// <returns>A memory segment.</returns>
+        public MemorySegment Place(int Offset)
+        {
+            if (IsInitialized)
+            {
+                return new MemorySegment(Offset, InitialData);
+            }
+            else
+            {
+                return new MemorySegment(Offset, Size);
+            }
+        }
+    }
+
+    /// <summary>
+    /// A memory section builder: a bag of memory chunks that can
+    /// be extended or turned into static memory segments.
+    /// </summary>
+    public class MemorySectionBuilder
+    {
+        /// <summary>
+        /// Creates a memory section builder.
+        /// </summary>
+        public this()
+        {
+            this.chunkMap = new Dictionary<UniqueTag, MemoryChunk>();
+            this.chunkNames = new Dictionary<string, UniqueTag>();
+        }
+
+        assembly Dictionary<UniqueTag, MemoryChunk> chunkMap;
+        private Dictionary<string, UniqueTag> chunkNames;
+
+        /// <summary>
+        /// Gets the tag beloning to the chunk with the given name, if a
+        /// memory chunk with the given name is defined in this section.
+        /// </summary>
+        /// <param name="Name">The name of the chunk whose tag is to be found.</param>
+        /// <returns>The chunk's unique tag, if a chunk with the given name exists; otherwise, <c>null</c>.</returns>
+        public UniqueTag GetTag(string Name)
+        {
+            UniqueTag result;
+            if (chunkNames.TryGetValue(Name, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the memory chunk with the given tag, if a memory chunk
+        /// has the given tag.
+        /// </summary>
+        /// <param name="Tag">The chunk's tag.</param>
+        /// <returns>
+        /// The memory chunk with the given tag, if it exists in this section; otherwise, <c>null</c>.
+        /// </returns>
+        public MemoryChunk GetChunk(UniqueTag Tag)
+        {
+            MemoryChunk result;
+            if (chunkMap.TryGetValue(Tag, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Defines a named chunk.
+        /// </summary>
+        /// <param name="Name">The memory chunk's unique name.</param>
+        /// <param name="Chunk">The memory chunk's description.</param>
+        /// <returns>The memory chunk's tag.</returns>
+        public UniqueTag Define(string Name, MemoryChunk Chunk)
+        {
+            var tag = new UniqueTag(Name);
+            chunkMap.Add(tag, Chunk);
+            chunkNames.Add(Name, tag);
+            return tag;
+        }
+
+        /// <summary>
+        /// Defines an anonymous memory chunk.
+        /// </summary>
+        /// <param name="Chunk">The memory chunk's description.</param>
+        /// <returns>The memory chunk's tag.</returns>
+        public UniqueTag Define(MemoryChunk Chunk)
+        {
+            var tag = new UniqueTag();
+            chunkMap.Add(tag, Chunk);
+            return tag;
+        }
+    }
+
+    /// <summary>
+    /// A memory layout builder can be used to build linear memory layouts
+    /// section by section, chunk by chunk.
+    /// </summary>
+    public class MemoryLayoutBuilder
+    {
+        /// <summary>
+        /// Creates an empty memory layout builder.
+        /// </summary>
+        public this()
+        {
+            this.allSectionBuilders = new List<MemorySectionBuilder>();
+            this.namedSectionBuilders = new Dictionary<string, MemorySectionBuilder>();
+        }
+
+        private List<MemorySectionBuilder> allSectionBuilders;
+        private Dictionary<string, MemorySectionBuilder> namedSectionBuilders;
+
+        /// <summary>
+        /// Defines an anonymous memory section.
+        /// </summary>
+        /// <returns>The memory section.</returns>
+        public MemorySectionBuilder DefineSection()
+        {
+            var result = new MemorySectionBuilder();
+            allSectionBuilders.Add(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Defines a named memory section.
+        /// </summary>
+        /// <param name="Name">The (unique) name for the memory section.</param>
+        /// <returns>The memory section.</returns>
+        public MemorySectionBuilder DefineSection(string Name)
+        {
+            var result = new MemorySectionBuilder();
+            allSectionBuilders.Add(result);
+            namedSectionBuilders.Add(Name, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the memory section with the given name, or <c>null</c>
+        /// if no such section exists.
+        /// </summary>
+        /// <param name="Name">The section's name.</param>
+        /// <returns>The memory section with the given name if it exists; otherwise, <c>null</c>.</returns>
+        public MemorySectionBuilder GetSection(string Name)
+        {
+            MemorySectionBuilder result;
+            if (namedSectionBuilders.TryGetValue(Name, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// "Freezes" this memory layout builder, resulting in a static memory layout.
+        /// </summary>
+        /// <returns>The memory segment.</returns>
+        public MemoryLayout Freeze()
+        {
+            var segments = new List<MemorySegment>();
+            var chunkOffsets = new Dictionary<UniqueTag, int>();
+            int offset = 0;
+            foreach (var sectionBuilder in allSectionBuilders)
+            {
+                foreach (var pair in sectionBuilder.chunkMap)
+                {
+                    var seg = pair.Value.Place(offset);
+                    offset += seg.Size;
+                    segments.Add(seg);
+                    chunkOffsets.Add(pair.Key, seg.Offset);
+                }
+            }
+            return new MemoryLayout(segments, chunkOffsets);
+        }
+    }
+}

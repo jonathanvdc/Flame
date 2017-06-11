@@ -7,6 +7,7 @@ using System.IO;
 using Wasm;
 using Wasm.Instructions;
 using WasmMemorySection = Wasm.MemorySection;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm
 {
@@ -22,8 +23,9 @@ namespace Flame.Wasm
             this.Environment = Environment;
             this.Options = Options;
             this.entryPoint = null;
-            this.moduleNs = new WasmModuleNamespace(this, new WasmModuleData(Abi));
-            Abi.InitializeMemory(this);
+            this.moduleNs = new WasmModuleNamespace(
+                this,
+                WasmModuleData.Create(Abi, Options));
         }
 
         /// <summary>
@@ -112,13 +114,15 @@ namespace Flame.Wasm
         /// Creates the memory section for this WebAssembly module.
         /// </summary>
         /// <returns>The memory section.</returns>
-        private WasmMemorySection CreateMemorySection()
+        private WasmMemorySection CreateMemorySection(MemoryLayout Memory)
         {
+            int memSize = Memory.Segments.Max<MemorySegment>(segment => segment.Offset + segment.Size);
+
             // The initial and maximum memory size are required to
             // be a multiple of the WebAssembly page size,
             // which is 64KiB on all engines.
             int rem;
-            int pageCount = Math.DivRem(Data.Memory.Size, (int)MemoryType.PageSize, out rem);
+            int pageCount = Math.DivRem(memSize, (int)MemoryType.PageSize, out rem);
             if (rem > 0)
                 pageCount++;
 
@@ -129,13 +133,13 @@ namespace Flame.Wasm
         }
 
         /// <summary>
-        /// Creates the data section for this WebAssembly module.
+        /// Creates a data section from the given memory layout.
         /// </summary>
         /// <returns>The data section.</returns>
-        private DataSection CreateDataSection()
+        private DataSection CreateDataSection(MemoryLayout Memory)
         {
             var section = new DataSection();
-            foreach (var sec in Data.Memory.Segments)
+            foreach (var sec in Memory.Segments)
             {
                 if (sec.IsInitialized)
                 {
@@ -151,11 +155,12 @@ namespace Flame.Wasm
 
         public WasmFile ToWasmFile()
         {
+            var memory = Data.Memory.Freeze();
             var file = new WasmFile();
-            file.Sections.Add(CreateMemorySection());
-            file.Sections.Add(CreateDataSection());
+            file.Sections.Add(CreateMemorySection(memory));
+            file.Sections.Add(CreateDataSection(memory));
 
-            var fileBuilder = WasmFileBuilder.Create(file);
+            var fileBuilder = WasmFileBuilder.Create(file, memory);
 
             var allMethods = moduleNs.GetAllMethodDefinitions();
             foreach (var item in allMethods)

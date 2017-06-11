@@ -6,6 +6,7 @@ using Flame.Compiler;
 using System.IO;
 using Wasm;
 using Wasm.Instructions;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm
 {
@@ -15,12 +16,14 @@ namespace Flame.Wasm
     public sealed class WasmFileBuilder
     {
         /// <summary>
-        /// Creates a file builder from the given file.
+        /// Creates a file builder from the given file and memory layout.
         /// </summary>
         /// <param name="File">The file.</param>
-        private WasmFileBuilder(WasmFile File)
+        /// <param name="Memory">The memory layout.</param>
+        private WasmFileBuilder(WasmFile File, MemoryLayout Memory)
         {
             this.file = File;
+            this.Memory = Memory;
             this.importSection = File.GetFirstSectionOrNull<ImportSection>();
             this.typeSection = File.GetFirstSectionOrNull<TypeSection>();
             this.funcSection = File.GetFirstSectionOrNull<FunctionSection>();
@@ -29,6 +32,12 @@ namespace Flame.Wasm
             this.methodIndices = new Dictionary<WasmMethod, uint>();
             this.importIndices = new Dictionary<WasmMethod, uint>();
         }
+
+        /// <summary>
+        /// Gets the static linear memory layout for this WebAssembly file.
+        /// </summary>
+        /// <returns>The linear memory layout.</returns>
+        public MemoryLayout Memory { get; private set; }
 
         /// <summary>
         /// The WebAssembly file that is populated by this builder.
@@ -166,10 +175,12 @@ namespace Flame.Wasm
         }
 
         /// <summary>
-        /// Creates a file builder from the given file.
+        /// Creates a file builder from the given file and memory layout.
         /// </summary>
         /// <param name="File">The file.</param>
-        public static WasmFileBuilder Create(WasmFile File)
+        /// <param name="Memory">The file's linear memory layout.</param>
+        /// <returns>A WebAssembly file builder.</returns>
+        public static WasmFileBuilder Create(WasmFile File, MemoryLayout Memory)
         {
             // Initialize import, type, function and code sections.
             if (File.GetFirstSectionOrNull<ImportSection>() == null)
@@ -192,7 +203,7 @@ namespace Flame.Wasm
                 File.Sections.Add(new CodeSection());
             }
 
-            return new WasmFileBuilder(File);
+            return new WasmFileBuilder(File, Memory);
         }
     }
 }

@@ -15,7 +15,7 @@ using WasmAnyType = Wasm.WasmType;
 namespace Flame.Wasm.Emit
 {
     /// <summary>
-    /// A code generator for wasm.
+    /// A code generator that produces WebAssembly instructions.
     /// </summary>
     public sealed class WasmCodeGenerator : ICodeGenerator, IUnmanagedCodeGenerator
     {
@@ -774,9 +774,7 @@ namespace Flame.Wasm.Emit
             {
                 var wasmField = (WasmField)Field;
                 return new MemoryLocation((CodeBlock)EmitTypeBinary(
-                    new StaticCastExpression(
-                        new IntegerExpression(wasmField.StaticStorageLocation.Offset),
-                        Abi.PointerIntegerType).Simplify().Emit(this),
+                    new StaticAddressBlock(this, wasmField.StaticStorageLocation, Abi.PointerIntegerType),
                     Field.FieldType.MakePointerType(PointerKind.ReferencePointer),
                     Operator.ReinterpretCast));
             }

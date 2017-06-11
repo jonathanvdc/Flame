@@ -65,6 +65,7 @@
             <Compile Include="Emit/IBranchingCodeGenerator.ds" />
             <Compile Include="Emit/IEmitVariable.ds" />
             <Compile Include="Emit/ILambdaCodeGenerator.ds" />
+            <Compile Include="Emit/IMemoryLayoutCodeGenerator.ds" />
             <Compile Include="Emit/CodeGeneratorExtensions.ds" />
             <Compile Include="Emit/IVariableMember.ds" />
             <Compile Include="Emit/RetypedVariableMember.ds" />
@@ -181,6 +182,7 @@
             <Compile Include="Native/ArgumentLayout.ds" />
             <Compile Include="Native/DataLayout.ds" />
             <Compile Include="Native/IAbi.ds" />
+            <Compile Include="Native/MemoryLayout.ds" />
         </ItemGroup>
     </ItemGroup>
     <ItemGroup Name="Statements">

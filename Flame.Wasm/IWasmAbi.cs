@@ -4,6 +4,7 @@ using Flame.Compiler.Native;
 using Flame.Wasm.Emit;
 using Flame.Compiler.Emit;
 using Wasm;
+using Flame.Compiler;
 
 namespace Flame.Wasm
 {
@@ -29,9 +30,12 @@ namespace Flame.Wasm
         IWasmCallAbi ImportAbi { get; }
 
         /// <summary>
-        /// Initializes the given wasm module's memory layout.
+        /// Creates a memory layout for a WebAssembly module based on the given
+        /// compiler options.
         /// </summary>
-        void InitializeMemory(WasmModule Module);
+        /// <param name="Options">The compiler options.</param>
+        /// <returns>A memory layout.</returns>
+        MemoryLayoutBuilder CreateMemoryLayout(ICompilerOptions Options);
 
         /// <summary>
         /// Adds the given module's entry point to the given WebAssembly file builder.

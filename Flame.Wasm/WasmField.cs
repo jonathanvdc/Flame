@@ -3,6 +3,7 @@ using Flame.Compiler;
 using Flame.Compiler.Build;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Compiler.Native;
 
 namespace Flame.Wasm
 {
@@ -26,7 +27,7 @@ namespace Flame.Wasm
         /// Gets this field's static storage location, assuming that it's
         /// a static field.
         /// </summary>
-        public MemorySegment StaticStorageLocation { get; private set; }
+        public UniqueTag StaticStorageLocation { get; private set; }
 
         public UnqualifiedName Name { get { return TemplateInstance.Name; } }
         public QualifiedName FullName { get { return Name.Qualify(DeclaringType.FullName); } }
@@ -55,16 +56,25 @@ namespace Flame.Wasm
         {
             if (IsStatic)
             {
-                StaticStorageLocation = ModuleData.Memory.DeclareSegment(
-                    ModuleData.Abi.GetLayout(FieldType));
+                StaticStorageLocation = ModuleData.GlobalSection.Define(
+                    new MemoryChunk(0));
             }
         }
 
         public IField Build()
         {
-            if (IsStatic && Value != null)
+            if (IsStatic)
             {
-                StaticStorageLocation.InitialData = GetBytes(Value);
+                var chunk = ModuleData.GlobalSection.GetChunk(StaticStorageLocation);
+                if (Value != null)
+                {
+                    chunk.Initialize(GetBytes(Value));
+                }
+                else
+                {
+                    var size = ModuleData.Abi.GetLayout(FieldType).Size;
+                    chunk.Uninitialize(size);
+                }
             }
             return this;
         }

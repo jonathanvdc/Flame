@@ -60,6 +60,7 @@
     <Compile Include="Emit\Register.cs" />
     <Compile Include="Emit\SequenceBlock.cs" />
     <Compile Include="Emit\StackSlot.cs" />
+    <Compile Include="Emit\StaticAddressBlock.cs" />
     <Compile Include="WasmModule.cs" />
     <Compile Include="WasmNamespace.cs" />
     <Compile Include="WasmAbi.cs" />
@@ -76,7 +77,6 @@
     <Compile Include="Passes\FieldLoweringPass.cs" />
     <Compile Include="Passes\CopyLoweringPass.cs" />
     <Compile Include="WasmImportAbi.cs" />
-    <Compile Include="MemoryLayout.cs" />
     <Compile Include="WasmModuleData.cs" />
     <Compile Include="Passes\RewriteVoidReturnPass.cs" />
     <Compile Include="WasmProperty.cs" />

@@ -436,17 +436,26 @@ namespace Flame.Wasm
             }
         }
 
-        private const string StackSegmentName = "stack";
+        private const string StackStartChunkName = "stack_start";
 
-        /// <summary>
-        /// Initializes the given wasm module's memory layout.
-        /// </summary>
-        public void InitializeMemory(WasmModule Module)
+        private const string HeapStartChunkName = "heap_start";
+
+        /// <inheritdoc/>
+        public MemoryLayoutBuilder CreateMemoryLayout(ICompilerOptions Options)
         {
-            // Declare a null segment. Make it 256 bytes by default.
-            Module.Data.Memory.DeclareSegment(Module.Options.GetOption<int>("null-section-size", 1 << 8));
-            // Declare a stack segment. Make it 2^16 bytes by default.
-            Module.Data.Memory.DeclareSegment(StackSegmentName, Module.Options.GetOption<int>("stack-size", 1 << 16));
+            var memory = new MemoryLayoutBuilder();
+            // Define a null section and make it 256 bytes by default.
+            var nullSection = memory.DefineSection();
+            nullSection.Define(new MemoryChunk(Options.GetOption<int>("null-section-size", 1 << 8)));
+            // Define a globals section.
+            memory.DefineSection(WasmModuleData.GlobalSectionName);
+            // Define a stack section and make it 2^16 bytes by default.
+            var stackSection = memory.DefineSection(WasmModuleData.StackSectionName);
+            stackSection.Define(StackStartChunkName, new MemoryChunk(Options.GetOption<int>("stack-size", 1 << 16)));
+            // Define a heap section and make it 2^16 bytes by default.
+            var heapSection = memory.DefineSection(WasmModuleData.HeapSectionName);
+            heapSection.Define(HeapStartChunkName, new MemoryChunk(Options.GetOption<int>("heap-size", 1 << 16)));
+            return memory;
         }
 
         /// <summary>
@@ -465,17 +474,17 @@ namespace Flame.Wasm
                 throw new AbortCompilationException(
                     new LogEntry(
                         AbortCompilationException.FatalErrorEntryTitle,
-                        "a wasm entry point function must not take any parameters.",
+                        "a WebAssembly entry point function must not take any parameters.",
                         ep.GetSourceLocation()));
             }
 
             // Create an entry point thunk method that calls the entry point with the
             // initial stack address.
             var epIndex = File.GetMethodIndex(ep);
-            var stackSegment = Module.Data.Memory.GetSegment(StackSegmentName);
+            var stackStart = File.Memory.NamedChunkOffsets[StackStartChunkName];
             var bodyInstructions = new List<Instruction>()
             {
-                Operators.Int32Const.Create(stackSegment.Offset),
+                Operators.Int32Const.Create(stackStart),
                 Operators.Call.Create(epIndex)
             };
             if (!ep.ReturnType.Equals(PrimitiveTypes.Void))
