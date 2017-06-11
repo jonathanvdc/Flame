@@ -19,7 +19,8 @@ namespace Flame.Intermediate.Emit
                                    IYieldCodeGenerator, ILambdaCodeGenerator,
                                    IInitializingCodeGenerator, IContractCodeGenerator,
                                    ISSACodeGenerator, IBlockCodeGenerator,
-                                   IStackCodeGenerator, ISwitchCodeGenerator
+                                   IStackCodeGenerator, ISwitchCodeGenerator,
+                                   IMemoryLayoutCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -900,6 +901,19 @@ namespace Flame.Intermediate.Emit
         public ICodeBlock EmitPop(IType Type)
         {
             return NodeBlock.Call(this, ExpressionParsers.PopStackName, Assembly.TypeTable.GetReference(Type));
+        }
+
+        #endregion
+
+        #region IMemoryLayoutCodeGenerator
+
+        public ICodeBlock EmitChunkAddress(string SectionName, string ChunkName)
+        {
+            return NodeBlock.Call(
+                this,
+                ExpressionParsers.ChunkAddressName,
+                NodeBlock.Id(this, SectionName),
+                NodeBlock.Id(this, ChunkName));
         }
 
         #endregion

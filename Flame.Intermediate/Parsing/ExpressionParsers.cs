@@ -376,6 +376,15 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Linear memory instrinsics
+
+        /// <summary>
+        /// A node name of chunk-address expressions.
+        /// </summary>
+        public const string ChunkAddressName = "#chunk_address";
+
+        #endregion
+
         #region Variables
 
         #region Create*VariableName
@@ -1737,6 +1746,29 @@ namespace Flame.Intermediate.Parsing
 
         #endregion
 
+        #region Linear memory intrinsics
+
+        /// <summary>
+        /// Parses the given '#chunk_address' node.
+        /// </summary>
+        /// <returns>A chunk-address expression.</returns>
+        public static IExpression ParseChunkAddressNode(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount != 2)
+            {
+                return new ErrorExpression(VoidExpression.Instance, new LogEntry(
+                    "Invalid '" + ChunkAddressName + "' node.",
+                    "'" + ChunkAddressName + "' nodes must have exactly two argumentss: " +
+                    "the name of the a memory section followed by the name of a memory chunk."));
+            }
+
+            return new ChunkAddressExpression(
+                IRParser.GetIdOrString(Node.Args[0]),
+                IRParser.GetIdOrString(Node.Args[1]));
+        }
+
+        #endregion
+
         #region Variables
 
         #region Generic
@@ -2235,6 +2267,9 @@ namespace Flame.Intermediate.Parsing
                     { PushStackName, CreateParser(ParsePushStackNode) },
                     { PeekStackName, CreateParser(ParsePeekStackNode) },
                     { PopStackName, CreateParser(ParsePopStackNode) },
+
+                    // Memory chunk intrinsics
+                    { ChunkAddressName, CreateParser(ParseChunkAddressNode) },
 
                     // Constants
                     //  - Bit<n>
