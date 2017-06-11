@@ -1,0 +1,102 @@
+using Flame.Compiler.Emit;
+using Flame.Compiler.Native;
+
+namespace Flame.Compiler.Expressions
+{
+    /// <summary>
+    /// An expression that produces the static address of a named memory chunk in a named section.
+    /// </summary>
+    public class ChunkAddressExpression : IExpression
+    {
+        /// <summary>
+        /// Creates an expression that loads the address of a named chunk in a named section.
+        /// </summary>
+        /// <param name="SectionName">The section's name.</param>
+        /// <param name="ChunkName">The chunk's name.</param>
+        public this(string SectionName, string ChunkName)
+        {
+            this.SectionName = SectionName;
+            this.ChunkName = ChunkName;
+        }
+
+        /// <summary>
+        /// Gets the name of the memory section that defines the chunk whose address is taken.
+        /// </summary>
+        /// <returns>The name of the memory section.</returns>
+        public string SectionName { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the memory chunk whose address is taken.
+        /// </summary>
+        /// <returns>The name of the memory chunk.</returns>
+        public string ChunkName { get; private set; }
+
+        /// <summary>
+        /// Gets the type of value returned by this expression.
+        /// </summary>
+        public IType Type
+        {
+            get { return PrimitiveTypes.Void.MakePointerType(PointerKind.TransientPointer); }
+        }
+
+        public bool IsConstantNode
+        {
+            get { return true; }
+        }
+
+        public IExpression Accept(INodeVisitor Visitor)
+        {
+            return this;
+        }
+
+        public IBoundObject Evaluate()
+        {
+            return null;
+        }
+
+        public IExpression Optimize()
+        {
+            return this;
+        }
+
+        public ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (!(Generator is IMemoryLayoutCodeGenerator))
+            {
+                throw new AbortCompilationException(string.Format(
+                    "Cannot compute static address '{0}:{1}' because " + 
+                    "the target platform does not support static addresses.",
+                    SectionName,
+                    ChunkName));
+            }
+
+            var cg = (IMemoryLayoutCodeGenerator)Generator;
+            var section = cg.Memory.GetSection(SectionName);
+            if (section == null)
+            {
+                throw new AbortCompilationException(string.Format(
+                    "Cannot compute static address '{0}:{1}' because " + 
+                    "section '{0}' does not exist.",
+                    SectionName,
+                    ChunkName));
+            }
+
+            var chunkTag = section.GetTag(ChunkName);
+            if (chunkTag == null)
+            {
+                throw new AbortCompilationException(string.Format(
+                    "Cannot compute static address '{0}:{1}' because " + 
+                    "section '{0}' does not define a chunk named '{1}'.",
+                    SectionName,
+                    ChunkName));
+            }
+
+            return cg.EmitChunkAddress(chunkTag);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("static-address({0}, {1})", SectionName, ChunkName);
+        }
+    }
+}

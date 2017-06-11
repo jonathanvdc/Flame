@@ -112,6 +112,7 @@
             <Compile Include="Expressions/IsExpression.ds" />
             <Compile Include="Expressions/LambdaExpression.ds" />
             <Compile Include="Expressions/CharExpression.ds" />
+            <Compile Include="Expressions/ChunkAddressExpression.ds" />
             <Compile Include="Expressions/CodeBlockExpression.ds" />
             <Compile Include="Expressions/UnaryExpression.ds" />
             <Compile Include="Expressions/UnboxExpression.ds" />
