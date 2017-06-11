@@ -924,6 +924,15 @@ namespace Flame.Recompilation
                 if (anyInitFields && !anyStaticCtors)
                     SynthetizeStaticConstructor(src);
                 RegisterImplementations(src);
+
+                // Compile all instance fields.
+                foreach (var field in src.Fields)
+                {
+                    if (!field.IsStatic)
+                    {
+                        GetField(field);
+                    }
+                }
             });
         }
 
