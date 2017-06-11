@@ -17,12 +17,13 @@ namespace Flame.Wasm.Emit
     /// <summary>
     /// A code generator that produces WebAssembly instructions.
     /// </summary>
-    public sealed class WasmCodeGenerator : ICodeGenerator, IUnmanagedCodeGenerator
+    public sealed class WasmCodeGenerator : ICodeGenerator, IUnmanagedCodeGenerator, IMemoryLayoutCodeGenerator
     {
-        public WasmCodeGenerator(IMethod Method, IWasmAbi Abi, FunctionType Signature)
+        public WasmCodeGenerator(IMethod Method, WasmModuleData ModuleData, FunctionType Signature)
         {
             this.Method = Method;
-            this.Abi = Abi;
+            this.Abi = ModuleData.Abi;
+            this.Memory = ModuleData.Memory;
             this.locals = new Dictionary<UniqueTag, IEmitVariable>();
             this.localRegisters = new List<Register>();
 
@@ -39,6 +40,13 @@ namespace Flame.Wasm.Emit
         /// Gets the ABI that this function uses.
         /// </summary>
         public IWasmAbi Abi { get; private set; }
+
+        /// <summary>
+        /// Gets the memory layout builder for the assembly serviced by this
+        /// code generator.
+        /// </summary>
+        /// <returns>The memory layout builder.</returns>
+        public MemoryLayoutBuilder Memory { get; private set; }
 
         private Dictionary<UniqueTag, IEmitVariable> locals;
         private List<Register> localRegisters;
@@ -871,6 +879,24 @@ namespace Flame.Wasm.Emit
                 new SequenceBlock(this, targetBlock, (CodeBlock)Value),
                 storeWasmOperator.Create(0, 0),
                 PrimitiveTypes.Void);
+        }
+
+        #endregion
+
+        #region IMemoryLayoutCodeGenerator
+
+        /// <summary>
+        /// Creates a code block that produces the address of the memory chunk
+        /// with the given tag.
+        /// </summary>
+        /// <param name="Tag">The memory chunk's tag.</param>
+        /// <returns>A code block.</returns>
+        public ICodeBlock EmitChunkAddress(UniqueTag Tag)
+        {
+            return new StaticAddressBlock(
+                this,
+                Tag,
+                PrimitiveTypes.Void.MakePointerType(PointerKind.TransientPointer));
         }
 
         #endregion

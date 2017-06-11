@@ -20,6 +20,6 @@ namespace Flame.Compiler.Emit
         /// </summary>
         /// <param name="Tag">The memory chunk's tag.</param>
         /// <returns>A code block.</returns>
-        ICodeBlock GetChunkAddress(UniqueTag Tag);
+        ICodeBlock EmitChunkAddress(UniqueTag Tag);
     }
 }

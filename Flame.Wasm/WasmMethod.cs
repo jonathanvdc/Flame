@@ -52,7 +52,7 @@ namespace Flame.Wasm
                 {
                     bodyGen = new WasmCodeGenerator(
                         this,
-                        ModuleData.Abi,
+                        ModuleData,
                         ModuleData.Abi.GetSignature(this));
                 }
                 return bodyGen;
