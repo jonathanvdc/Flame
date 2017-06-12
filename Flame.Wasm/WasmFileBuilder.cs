@@ -167,10 +167,7 @@ namespace Flame.Wasm
             }
             else
             {
-                // TODO: spell `startSection.StartFunctionIndex = MethodIndex;` when the Wasm package
-                // is updated.
-                file.Sections[file.Sections.IndexOf(startSection)] =
-                    new StartSection(MethodIndex, startSection.ExtraPayload);
+                startSection.StartFunctionIndex = MethodIndex;
             }
         }
 
