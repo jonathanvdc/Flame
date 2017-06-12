@@ -1,4 +1,4 @@
 tests
 {
-    template RunWasm<Struct, spectest>;
+    template RunWasm<Struct.ds, spectest>;
 }

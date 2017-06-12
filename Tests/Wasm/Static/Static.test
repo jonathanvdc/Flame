@@ -1,4 +1,4 @@
 tests
 {
-    template RunWasm<Static, spectest>;
+    template RunWasm<Static.ds, spectest>;
 }

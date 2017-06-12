@@ -9,7 +9,7 @@ init
 
         build
         {
-            $(dsc) $(filename).ds $(flags) -o bin/$(filename).wasm;
+            $(dsc) $(filename) $(flags) -o bin/$(filename).wasm;
         }
 
         configs
@@ -29,7 +29,7 @@ init
     {
         build
         {
-            $(dsc) $(filename).ds $(flags) -o bin/$(filename).wasm;
+            $(dsc) $(filename) $(flags) -o bin/$(filename).wasm;
         }
 
         configs
@@ -53,6 +53,7 @@ tests
     Loop/Loop.test;
     Pointers/Pointers.test;
     Print/Print.test;
+    PrintHeapStart/PrintHeapStart.test;
     Static/Static.test;
     Struct/Struct.test;
 }

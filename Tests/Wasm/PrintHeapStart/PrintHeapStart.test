@@ -1,0 +1,4 @@
+tests
+{
+    template RunWasm<PrintHeapStart.fir, spectest>;
+}

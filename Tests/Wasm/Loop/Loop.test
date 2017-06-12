@@ -1,4 +1,4 @@
 tests
 {
-    template CompileWasm<Loop>;
+    template CompileWasm<Loop.ds>;
 }

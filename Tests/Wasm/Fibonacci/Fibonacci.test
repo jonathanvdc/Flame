@@ -1,4 +1,4 @@
 tests
 {
-    template RunWasm<Fibonacci, spectest>;
+    template RunWasm<Fibonacci.ds, spectest>;
 }

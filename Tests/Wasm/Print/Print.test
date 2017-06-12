@@ -1,4 +1,4 @@
 tests
 {
-    template RunWasm<Print, base-runtime>;
+    template RunWasm<Print.ds, base-runtime>;
 }

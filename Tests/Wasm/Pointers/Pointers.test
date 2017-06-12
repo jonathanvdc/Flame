@@ -1,4 +1,4 @@
 tests
 {
-    template CompileWasm<Pointers>;
+    template CompileWasm<Pointers.ds>;
 }
