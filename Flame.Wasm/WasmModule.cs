@@ -6,6 +6,7 @@ using Flame.Compiler;
 using System.IO;
 using Wasm;
 using Wasm.Instructions;
+using Wasm.Optimize;
 using WasmMemorySection = Wasm.MemorySection;
 using Flame.Compiler.Native;
 
@@ -173,6 +174,9 @@ namespace Flame.Wasm
             }
 
             Data.Abi.SetupEntryPoint(this, fileBuilder);
+
+            // Optimize the WebAssembly file before returning it.
+            file.Optimize();
 
             return file;
         }
