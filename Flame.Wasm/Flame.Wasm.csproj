@@ -42,7 +42,7 @@
       <HintPath>..\Flame.Optimization\bin\Flame.Optimization.dll</HintPath>
     </Reference>
     <Reference Include="libwasm">
-      <HintPath>..\Flame.Cecil\packages\Wasm.0.1.4\lib\net45\libwasm.dll</HintPath>
+      <HintPath>..\Flame.Cecil\packages\Wasm.0.1.5\lib\net45\libwasm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
