@@ -5,124 +5,124 @@ using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler.Statements
 {
-	/// <summary>
-	/// Defines common functionality for statements that end a function call.
-	/// </summary>
-	public abstract class FlowTerminatingStatementBase : IFlowStatement
-	{
-		public bool IsConstantNode { const get return false; }
-		public abstract IStatement Accept(INodeVisitor Visitor);
-		public abstract IStatement Optimize();
-		public abstract ICodeBlock Emit(ICodeGenerator Generator);
+    /// <summary>
+    /// Defines common functionality for statements that end a function call.
+    /// </summary>
+    public abstract class FlowTerminatingStatementBase : IFlowStatement
+    {
+        public bool IsConstantNode { const get return false; }
+        public abstract IStatement Accept(INodeVisitor Visitor);
+        public abstract IStatement Optimize();
+        public abstract ICodeBlock Emit(ICodeGenerator Generator);
 
-		/// <summary>
-		/// Creates a basic block that represents this flow-terminating statement.
-		/// </summary>
-		public virtual void ToBlocks(BlockBuildingVisitor Visitor)
-		{
-			// Create the following block:
-			//
-			// @enter():
-			//     <body-statement>
-			//     unreachable
+        /// <summary>
+        /// Creates a basic block that represents this flow-terminating statement.
+        /// </summary>
+        public virtual void ToBlocks(BlockBuildingVisitor Visitor)
+        {
+            // Create the following block:
+            //
+            // @enter():
+            //     <body-statement>
+            //     unreachable
 
-			Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), TerminatedFlow);
-		}
+            Visitor.Builder.CreateCurrentBlock(this.Accept(Visitor), TerminatedFlow);
+        }
 
-		/// <summary>
-		/// Accepts and interacts with a flow visitor.
-		/// </summary>
-		public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
-			: IFlowStatement.AcceptFlow<TState, TFlow>
-		{
-			var result = Accept(Visitor);
+        /// <summary>
+        /// Accepts and interacts with a flow visitor.
+        /// </summary>
+        public IStatement AcceptFlow<TState, TFlow>(IFlowVisitor<TState, TFlow> Visitor)
+            : IFlowStatement.AcceptFlow<TState, TFlow>
+        {
+            var result = Accept(Visitor);
 
-			TFlow termFlow;
+            TFlow termFlow;
             if (Visitor is ILocalFlowVisitor<TState, TFlow>)
                 termFlow = ((ILocalFlowVisitor<TState, TFlow>)Visitor).TerminatedGlobalFlow;
             else
                 termFlow = Visitor.TerminatedFlow;
 
-			Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, termFlow);
-			return result;
-		}
-	}
+            Visitor.CurrentFlow = Visitor.CreateCollapsedFlow(Visitor.CurrentFlow, termFlow);
+            return result;
+        }
+    }
 
-	/// <summary>
-	/// Defines a statement that sets the function's return value,
-	/// and then terminates the function's execution.
-	/// </summary>
-	public class ReturnStatement : FlowTerminatingStatementBase, IFlowStatement
-	{
-		/// <summary>
-		/// Creates a return statement that returns `void`.
-		/// </summary>
-		public this();
+    /// <summary>
+    /// Defines a statement that sets the function's return value,
+    /// and then terminates the function's execution.
+    /// </summary>
+    public class ReturnStatement : FlowTerminatingStatementBase, IFlowStatement
+    {
+        /// <summary>
+        /// Creates a return statement that returns `void`.
+        /// </summary>
+        public this();
 
-		/// <summary>
-		/// Creates a return statement that returns the given value.
-		/// </summary>
-		public this(set IExpression Value);
+        /// <summary>
+        /// Creates a return statement that returns the given value.
+        /// </summary>
+        public this(set IExpression Value);
 
-		/// <summary>
-		/// Gets the value that is returned by this statement.
-		/// </summary>
-		public IExpression Value { get; private set; }
+        /// <summary>
+        /// Gets the value that is returned by this statement.
+        /// </summary>
+        public IExpression Value { get; private set; }
 
-		private ReturnStatement CreateReturn(IExpression NewValue)
-		{
-			if (Value == NewValue)
-			{
-				return this;
-			}
-			else
-			{
-				return new ReturnStatement(NewValue);
-			}
-		}
+        private ReturnStatement CreateReturn(IExpression NewValue)
+        {
+            if (Value == NewValue)
+            {
+                return this;
+            }
+            else
+            {
+                return new ReturnStatement(NewValue);
+            }
+        }
 
-		public override IStatement Accept(INodeVisitor Visitor)
-		{
-			if (Value == null)
-			{
-				return this;
-			}
-			else
-			{
-				return CreateReturn(Visitor.Visit(Value));
-			}
-		}
+        public override IStatement Accept(INodeVisitor Visitor)
+        {
+            if (Value == null)
+            {
+                return this;
+            }
+            else
+            {
+                return CreateReturn(Visitor.Visit(Value));
+            }
+        }
 
-		public override IStatement Optimize()
-		{
-			if (Value != null)
-			{
-				return new ReturnStatement(Value.Optimize());
-			}
-			else
-			{
-				return this;
-			}
-		}
+        public override IStatement Optimize()
+        {
+            if (Value != null)
+            {
+                return new ReturnStatement(Value.Optimize());
+            }
+            else
+            {
+                return this;
+            }
+        }
 
-		public override ICodeBlock Emit(ICodeGenerator Generator)
-		{
-			if (Value != null)
-			{
-				return Generator.EmitReturn(Value.Emit(Generator));
-			}
-			else
-			{
-				return Generator.EmitReturn(null);
-			}
-		}
+        public override ICodeBlock Emit(ICodeGenerator Generator)
+        {
+            if (Value != null)
+            {
+                return Generator.EmitReturn(Value.Emit(Generator));
+            }
+            else
+            {
+                return Generator.EmitReturn(null);
+            }
+        }
 
-		public override const string ToString()
-		{
-			if (Value == null)
-				return "return(void)";
-			else
-				return "return(" + Value + ")";
-		}
-	}
+        public override const string ToString()
+        {
+            if (Value == null)
+                return "return(void)";
+            else
+                return "return(" + Value + ")";
+        }
+    }
 }
