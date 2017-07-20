@@ -57,18 +57,19 @@ namespace Flame.Compiler.Statements
 		/// <summary>
 		/// Creates a return statement that returns `void`.
 		/// </summary>
-		public const this();
+		public this();
+
 		/// <summary>
 		/// Creates a return statement that returns the given value.
 		/// </summary>
-		public const this(set IExpression Value);
+		public this(set IExpression Value);
 
 		/// <summary>
 		/// Gets the value that is returned by this statement.
 		/// </summary>
-		public IExpression Value { const get; private set; }
+		public IExpression Value { get; private set; }
 
-		private const ReturnStatement CreateReturn(IExpression NewValue)
+		private ReturnStatement CreateReturn(IExpression NewValue)
 		{
 			if (Value == NewValue)
 			{
@@ -82,11 +83,14 @@ namespace Flame.Compiler.Statements
 
 		public override IStatement Accept(INodeVisitor Visitor)
 		{
-			if (Value == null) return this;
-
-			var expr = Visitor.Visit(Value);
-
-			return CreateReturn(expr);
+			if (Value == null)
+			{
+				return this;
+			}
+			else
+			{
+				return CreateReturn(Visitor.Visit(Value));
+			}
 		}
 
 		public override IStatement Optimize()
