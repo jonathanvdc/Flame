@@ -238,7 +238,9 @@ namespace Flame.Front.Options
 
         private static bool IsOption(string Argument)
         {
-            return !string.IsNullOrEmpty(Argument) && (Argument[0] == '-' || Argument[0] == '/');
+            return !string.IsNullOrEmpty(Argument)
+                && (Argument[0] == '-'
+                    || (Argument[0] == '/' && Argument.IndexOf('/', 1) < 0));
         }
 
         private static bool IsSplitOption(string Option)
