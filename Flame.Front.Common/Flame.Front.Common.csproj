@@ -111,7 +111,6 @@
     <Compile Include="Target\PassExtensions.cs" />
     <Compile Include="Target\PythonBuildTargetParser.cs" />
     <Compile Include="Target\PrintDotPass.cs" />
-    <Compile Include="Target\WasmBuildTargetParser.cs" />
     <Compile Include="Target\SpecializationPass.cs" />
     <Compile Include="Target\ScalarReplacementPass.cs" />
     <Compile Include="CompilerName.cs" />
@@ -170,10 +169,6 @@
     <ProjectReference Include="..\Flame.XmlDocs\Flame.XmlDocs.csproj">
       <Project>{CD2775AF-ED95-4562-9903-A309A6841BAE}</Project>
       <Name>Flame.XmlDocs</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Flame.Wasm\Flame.Wasm.csproj">
-      <Project>{24545215-0C8B-4B7A-B109-2E4B325FA728}</Project>
-      <Name>Flame.Wasm</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

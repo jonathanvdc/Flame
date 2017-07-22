@@ -9,7 +9,8 @@ init
 
         build
         {
-            $(dsc) $(filename) $(flags) -o bin/$(filename).wasm;
+            $(dsc) $(filename) $(flags) -platform ir -o bin/$(filename).flo;
+            $(flame-wasm) bin/$(filename).flo $(flags) -platform wasm -o bin/$(filename).wasm;
         }
 
         configs
@@ -21,7 +22,7 @@ init
 
         init
         {
-            flags = -Wno-build -platform wasm;
+            flags = -Wno-build;
         }
     }
 
@@ -29,7 +30,8 @@ init
     {
         build
         {
-            $(dsc) $(filename) $(flags) -o bin/$(filename).wasm;
+            $(dsc) $(filename) $(flags) -platform ir -o bin/$(filename).flo;
+            $(flame-wasm) bin/$(filename).flo $(flags) -platform wasm -o bin/$(filename).wasm;
         }
 
         configs
@@ -41,7 +43,7 @@ init
 
         init
         {
-            flags = -Wno-build -platform wasm;
+            flags = -Wno-build;
         }
     }
 }

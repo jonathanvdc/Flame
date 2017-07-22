@@ -14,4 +14,6 @@ init
 {
     // Specify what the '$dsc' command means.
     dsc = $net-runtime $(working-directory)/dsc/bin/Release/dsc.exe;
+    // Specify what the '$flame-wasm' command means.
+    flame-wasm = $net-runtime $(working-directory)/flame-wasm/bin/Release/flame-wasm.exe;
 }

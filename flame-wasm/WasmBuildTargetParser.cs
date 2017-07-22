@@ -2,7 +2,6 @@
 using Flame.Compiler.Projects;
 using Flame.Front;
 using Flame.Front.Target;
-using Flame.Wasm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +13,7 @@ using Flame.Wasm.Passes;
 using Flame.Optimization;
 using Flame.Optimization.Relooper;
 
-namespace Flame.Front.Target
+namespace Flame.Wasm
 {
     using MethodPassInfo = AtomicPassInfo<BodyPassArgument, IStatement>;
     using SignaturePassInfo = AtomicPassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;

@@ -26,7 +26,6 @@
         <dependency id="Mono.Cecil" version="0.9.6.4" />
         <dependency id="Newtonsoft.Json" version="10.0.2" />
         <dependency id="Loyc.Binary" version="0.1.8" />
-        <dependency id="Wasm" version="0.1.5" />
     </dependencies>
   </metadata>
   <files>
@@ -46,7 +45,6 @@
     <file src="Flame.Front.Common\bin\Release\Flame.Syntax.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.TextContract.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.Verification.*" target="lib\net45\" />
-    <file src="Flame.Front.Common\bin\Release\Flame.Wasm.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Flame.XmlDocs.*" target="lib\net45\" />
     <file src="Flame.Front.Common\bin\Release\Pixie.Xml.*" target="lib\net45\" />
     <file src="Flame.DSProject\bin\Release\Flame.DSProject.*" target="lib\net45\" />

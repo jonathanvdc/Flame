@@ -28,7 +28,6 @@ namespace Flame.Front.Target
             Parser.RegisterParser(new MipsBuildTargetParser());
             Parser.RegisterParser(new ContractBuildTargetParser());
             Parser.RegisterParser(new FlameIRBuildTargetParser());
-            Parser.RegisterParser(new WasmBuildTargetParser());
 
             rts = new Dictionary<string, PlatformRuntime>(StringComparer.OrdinalIgnoreCase);
             RegisterRuntime(new PlatformRuntime(ClrBuildTargetParser.ClrIdentifier, CecilRuntimeLibraries.Resolver));

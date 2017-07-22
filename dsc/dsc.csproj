@@ -179,10 +179,6 @@
       <Project>{A0782FAA-6754-4B9D-B856-334DFCBA3462}</Project>
       <Name>FlameRT</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Flame.Wasm\Flame.Wasm.csproj">
-      <Project>{24545215-0C8B-4B7A-B109-2E4B325FA728}</Project>
-      <Name>Flame.Wasm</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

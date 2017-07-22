@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 VisualStudioVersion = 12.0.31101.0
@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Front.Common", "..\Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.ExpressionTrees", "..\Flame.ExpressionTrees\Flame.ExpressionTrees.csproj", "{F127B39B-F086-4E70-B3FF-FE84BFFF4796}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Flame.Functional", "..\Flame.Functional\Flame.Functional.fsproj", "{69831620-9062-4E1F-AD22-D660F742E630}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Flame.Functional", "..\Flame.Functional\Flame.Functional.fsproj", "{69831620-9062-4E1F-AD22-D660F742E630}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Analysis", "..\Flame.Analysis\Flame.Analysis.csproj", "{F998B4B6-9C78-4451-9C48-0467549ADEBF}"
 EndProject
@@ -46,6 +46,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Build.Lazy", "..\Flame.Build.Lazy\Flame.Build.Lazy.csproj", "{CE744475-5A28-471C-96AC-42902D951CFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "..\UnitTests\UnitTests.csproj", "{93CAFAC2-CD91-41D5-8AC3-BAF58F3379F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "flame-wasm", "..\flame-wasm\flame-wasm.csproj", "{869E52D0-ABFE-4BB0-BD7C-517DC8EB01D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{69831620-9062-4E1F-AD22-D660F742E630}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69831620-9062-4E1F-AD22-D660F742E630}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69831620-9062-4E1F-AD22-D660F742E630}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869E52D0-ABFE-4BB0-BD7C-517DC8EB01D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869E52D0-ABFE-4BB0-BD7C-517DC8EB01D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869E52D0-ABFE-4BB0-BD7C-517DC8EB01D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869E52D0-ABFE-4BB0-BD7C-517DC8EB01D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8FA49FDD-2E4B-4F1B-9DC4-3A0DF48AD309}.Release|Any CPU.ActiveCfg = Release|Any CPU
