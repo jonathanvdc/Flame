@@ -28,6 +28,13 @@ namespace Flame.Cecil.Emit
             var aType = Left.BlockType;
             var bType = Right.BlockType;
 
+            if (aType.GetIsPointer() && bType.GetIsInteger()
+                && Operator.Equals(Operator.Add) || Operator.Equals(Operator.Subtract))
+            {
+                EmitPointerArithmetic(aType, bType, Context);
+                return;
+            }
+
             bool isEq = Operator.Equals(Operator.CheckEquality);
             bool isNeq = Operator.Equals(Operator.CheckInequality);
             if ((isEq || isNeq) &&
@@ -40,7 +47,7 @@ namespace Flame.Cecil.Emit
                     return;
                 }
                 else if (isNeq)
-                {					
+                {
                     EmitCallOp(GetEqualsOverload(aType, bType), Context);
                     UnaryOpBlock.EmitBooleanNot(Context);
                     return;
@@ -81,6 +88,26 @@ namespace Flame.Cecil.Emit
             Context.Stack.Pop();
             Context.Stack.Push(BlockType);
 
+            EmitInstrinsicCode(aType, bType, Operator, Context);
+        }
+
+        private void EmitPointerArithmetic(IType aType, IType bType, IEmitContext Context)
+        {
+            // push a
+            // push b
+            // sizeof typeof(*lhs)
+            // mul
+            // add/sub
+
+            Left.Emit(Context);
+            Right.Emit(Context);
+
+            Context.Stack.Pop();
+            Context.Stack.Pop();
+            Context.Stack.Push(BlockType);
+
+            Context.Emit(OpCodes.Sizeof, aType.AsPointerType().ElementType);
+            Context.Emit(OpCodes.Mul);
             EmitInstrinsicCode(aType, bType, Operator, Context);
         }
 
@@ -181,7 +208,7 @@ namespace Flame.Cecil.Emit
             }
             else if (Op.Equals(Operator.CheckEquality))
             {
-                Result = OpCodes.Ceq; 
+                Result = OpCodes.Ceq;
             }
             else if (Op.Equals(Operator.CheckGreaterThan))
             {
