@@ -28,24 +28,24 @@ namespace Flame.Cecil.Emit
             var aType = Left.BlockType;
             var bType = Right.BlockType;
 
-			bool isEq = Operator.Equals(Operator.CheckEquality);
-			bool isNeq = Operator.Equals(Operator.CheckInequality);
-			if ((isEq || isNeq) &&
-				aType.Equals(PrimitiveTypes.String) &&
-			    bType.Equals(PrimitiveTypes.String))
-			{
-				if (isEq)
-				{
-					EmitCallOp(GetEqualsOverload(aType, bType), Context);
-					return;
-				}
-				else if (isNeq)
-				{					
-					EmitCallOp(GetEqualsOverload(aType, bType), Context);
-					UnaryOpBlock.EmitBooleanNot(Context);
-					return;
-				}
-			}
+            bool isEq = Operator.Equals(Operator.CheckEquality);
+            bool isNeq = Operator.Equals(Operator.CheckInequality);
+            if ((isEq || isNeq) &&
+                aType.Equals(PrimitiveTypes.String) &&
+                bType.Equals(PrimitiveTypes.String))
+            {
+                if (isEq)
+                {
+                    EmitCallOp(GetEqualsOverload(aType, bType), Context);
+                    return;
+                }
+                else if (isNeq)
+                {					
+                    EmitCallOp(GetEqualsOverload(aType, bType), Context);
+                    UnaryOpBlock.EmitBooleanNot(Context);
+                    return;
+                }
+            }
 
             EmitInstrinsicOp(aType, bType, Context);
         }
@@ -61,10 +61,10 @@ namespace Flame.Cecil.Emit
             {
                 Operator negOp;
                 if (TryGetNegatedOperator(Op, out negOp))
-	            {
+                {
                     Context.Emit(GetOpCode(negOp, aType, bType));
                     UnaryOpBlock.EmitBooleanNot(Context);
-	            }
+                }
                 else
                 {
                     throw new NotImplementedException("THe IL back-end does not support binary operator '" + Op + "' for '" + aType.FullName + "' and '" + bType.FullName + "'.");
@@ -84,10 +84,10 @@ namespace Flame.Cecil.Emit
             EmitInstrinsicCode(aType, bType, Operator, Context);
         }
 
-		private void EmitCallOp(IMethod Method, IEmitContext Context)
-		{
-			((ICecilBlock)CodeGenerator.EmitOperatorCall(Method, Left, Right)).Emit(Context);
-		}
+        private void EmitCallOp(IMethod Method, IEmitContext Context)
+        {
+            ((ICecilBlock)CodeGenerator.EmitOperatorCall(Method, Left, Right)).Emit(Context);
+        }
 
         public IType BlockType
         {
