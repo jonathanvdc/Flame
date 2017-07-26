@@ -133,7 +133,7 @@ namespace Flame.Front.Target
                             new MarkupNode(NodeConstants.TextNodeType,
                                 "no " + Name + " was associated with '" + Identifier +
                                 "'. You can specify one explicitly by passing '-" + Option +
-                                "' followed by some known runtime identifier. "))));
+                                "' followed by some known " + Name + " identifier. "))));
                 }
             }
         }
@@ -181,7 +181,7 @@ namespace Flame.Front.Target
                 LogUnknownWarning(
                     Warnings.Instance.UnknownEnvironment, OptionExtensions.EnvironmentOption,
                     EnvironmentIdentifier, "environment", Log);
-                return EmptyBinder.Instance;
+                return new EmptyBinder(new StandaloneEnvironment());
             }
         }
 

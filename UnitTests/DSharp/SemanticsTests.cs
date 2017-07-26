@@ -1,17 +1,14 @@
-﻿using Flame;
+﻿using System;
+using System.Collections.Generic;
+using Flame;
+using Flame.Binding;
 using Flame.Build;
 using Flame.Compiler;
 using Flame.Compiler.Expressions;
-using Flame.Compiler.Statements;
 using Flame.DSharp.Build;
 using Flame.Syntax;
 using Flame.Syntax.DSharp;
 using Loyc.MiniTest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitTests.DSharp
 {
@@ -21,7 +18,7 @@ namespace UnitTests.DSharp
         private static ISyntaxState CreateState()
         {
             var descMethod = new DescribedMethod("", null, PrimitiveTypes.Void, true);
-            var emptyBinder = DSharpBuildHelpers.Instance.CreatePrimitiveBinder(Flame.Binding.EmptyBinder.Instance);
+            var emptyBinder = DSharpBuildHelpers.Instance.CreatePrimitiveBinder(new EmptyBinder());
             var log = new TestLog(EmptyCompilerOptions.Instance);
             return new SyntaxState(descMethod, emptyBinder, log, new DSharpTypeRenderer());
         }

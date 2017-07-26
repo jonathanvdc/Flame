@@ -15,7 +15,7 @@ namespace Flame.Front.Target
     public sealed class StandaloneEnvironment : IEnvironment
     {
         public StandaloneEnvironment()
-            : this(EmptyBinder.Instance)
+            : this(new EmptyBinder())
         { }
 
         public StandaloneEnvironment(IBinder Binder)

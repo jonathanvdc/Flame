@@ -33,11 +33,31 @@ namespace Flame.Binding
         }
     }
 
-    public static class EmptyBinder : IBinder
+    /// <summary>
+    /// A type binder implementation that defines no types.
+    /// </summary>
+    public class EmptyBinder : IBinder
     {
-        public const IType BindType(QualifiedName Name) { return null; }
-        public const [IType] GetTypes() { return Enumerable.Empty<IType>(); }
+        /// <summary>
+        /// Creates an empty binder with an empty environment.
+        /// </summary>
+        public this()
+        {
+            this.Environment = EmptyEnvironment;
+        }
 
-        public IEnvironment Environment { const get return EmptyEnvironment; }
+        /// <summary>
+        /// Creates an empty binder from the given environment.
+        /// </summary>
+        public this(IEnvironment Environment)
+        {
+            this.Environment = Environment;
+        }
+
+        public IType BindType(QualifiedName Name) { return null; }
+        public [IType] GetTypes() { return Enumerable.Empty<IType>(); }
+
+        /// <inheritdoc/>
+        public IEnvironment Environment { get; private set; }
     }
 }

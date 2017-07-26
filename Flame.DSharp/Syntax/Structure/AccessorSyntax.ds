@@ -63,11 +63,8 @@ namespace Flame.Syntax.DSharp
 
         public bool IsEmpty
         {
-            const get
+            get
             {
-                /*var dummySyntaxState = new SyntaxState(new DescribedMethod(), new EmptyBinder());
-                var statement = Body.CreateStatement(dummySyntaxState);
-                return statement.IsEmpty;*/
                 return Body is EmptySyntax;
             }
         }
