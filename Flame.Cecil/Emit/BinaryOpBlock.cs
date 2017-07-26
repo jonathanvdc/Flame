@@ -29,7 +29,7 @@ namespace Flame.Cecil.Emit
             var bType = Right.BlockType;
 
             if (aType.GetIsPointer() && bType.GetIsInteger()
-                && Operator.Equals(Operator.Add) || Operator.Equals(Operator.Subtract))
+                && (Operator.Equals(Operator.Add) || Operator.Equals(Operator.Subtract)))
             {
                 EmitPointerArithmetic(aType, bType, Context);
                 return;
