@@ -127,6 +127,7 @@
     <Compile Include="Target\IBuildTargetParser.cs" />
     <Compile Include="Target\MultiBuildTargetParser.cs" />
     <Compile Include="Target\PlatformRuntime.cs" />
+    <Compile Include="Target\StandaloneEnvironment.cs" />
     <Compile Include="TypedDictionary.cs" />
     <Compile Include="Passes\PassManager.cs" />
     <Compile Include="Cli\SourceLocationWriter.cs" />

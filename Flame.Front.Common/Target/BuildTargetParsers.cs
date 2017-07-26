@@ -40,6 +40,7 @@ namespace Flame.Front.Target
             RegisterEnvironment(PythonBuildTargetParser.PythonIdentifier, _ => Flame.Python.PythonEnvironment.Instance);
             RegisterEnvironment(MipsBuildTargetParser.MarsIdentifier, _ => Flame.MIPS.MarsEnvironment.Instance);
             RegisterEnvironment(ContractBuildTargetParser.ContractIdentifier, _ => Flame.TextContract.ContractEnvironment.Instance);
+            RegisterEnvironment(StandaloneEnvironment.StandaloneIdentifier, _ => new StandaloneEnvironment());
         }
 
         /// <summary>

@@ -188,9 +188,10 @@ namespace Flame.Front.Cli
 
                 var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, filteredLog));
 
-                var allAsms = CompileAsync(allStates, resolvedDependencies.Item1).Result;
+                var binderTask = resolvedDependencies.Item1;
+                var allAsms = Compile(allStates, ref binderTask);
 
-                var partitionedAsms = RewriteAssembliesAsync(GetMainAssembly(allAsms), resolvedDependencies.Item1, filteredLog).Result;
+                var partitionedAsms = RewriteAssemblies(GetMainAssembly(allAsms), binderTask.Result, filteredLog);
                 var mainAsm = partitionedAsms.Item1;
                 var auxAsms = partitionedAsms.Item2;
 
@@ -242,6 +243,24 @@ namespace Flame.Front.Cli
                 }
                 log.Console.WriteSeparator(1);
                 log.Dispose();
+            }
+        }
+
+        private static void PostConfigureEnvironment(IBinder Binder)
+        {
+            // Configuring standalone environments is hard because they introduce a chicken-egg
+            // problem: we need an environment to compile assemblies, but we want to use
+            // the compiled assemblies to create a standalone environment.
+            //
+            // HACK: create the standalone environment first and later configure it when
+            // all assemblies have been "compiled." Front-ends that perform semantic analysis
+            // lazily won't have used the unconfigured environment and will use the configured
+            // environment right away. At the time of writing, all front-ends are implemented like
+            // this.
+            var standaloneEnv = Binder.Environment as StandaloneEnvironment;
+            if (standaloneEnv != null)
+            {
+                standaloneEnv.Configure(Binder);
             }
         }
 
@@ -327,11 +346,12 @@ namespace Flame.Front.Cli
         /// <summary>
         /// Optionally rewrites the given main-and-other assemblies tuple.
         /// </summary>
-        protected virtual Task<Tuple<IAssembly, IEnumerable<IAssembly>>> RewriteAssembliesAsync(
-            Tuple<IAssembly, IEnumerable<IAssembly>> MainAndOtherAssemblies, Task<IBinder> Binder,
+        protected virtual Tuple<IAssembly, IEnumerable<IAssembly>> RewriteAssemblies(
+            Tuple<IAssembly, IEnumerable<IAssembly>> MainAndOtherAssemblies,
+            IBinder Binder,
             ICompilerLog Log)
         {
-            return Task.FromResult(MainAndOtherAssemblies);
+            return MainAndOtherAssemblies;
         }
 
         #endregion
@@ -471,16 +491,20 @@ namespace Flame.Front.Cli
         /// <param name="States"></param>
         /// <param name="BinderTask"></param>
         /// <returns></returns>
-        public static async Task<IEnumerable<IAssembly>> CompileAsync(IEnumerable<CompilerEnvironment> States, Task<IBinder> BinderTask)
+        public static IEnumerable<IAssembly> Compile(
+            IEnumerable<CompilerEnvironment> States,
+            ref Task<IBinder> BinderTask)
         {
-            var bindTask = BinderTask;
             var results = new List<IAssembly>();
             foreach (var item in States)
             {
-                var asm = await CompileAsync(item, bindTask);
+                var asm = CompileAsync(item, BinderTask).Result;
                 results.Add(asm);
-                bindTask = AddToBinderAsync(bindTask, asm);
+                BinderTask = AddToBinderAsync(BinderTask, asm);
             }
+
+            PostConfigureEnvironment(BinderTask.Result);
+
             return results;
         }
 
