@@ -1,0 +1,28 @@
+namespace System
+{
+    public class String
+    {
+        public this(char[] Data)
+        {
+            this.data = Data;
+        }
+
+        private char[] data;
+
+        public char this[int i] { get { return data[i]; } }
+
+        public void Print()
+        {
+            // Print the string.
+        }
+    }
+}
+
+public module Program
+{
+    public static void Main()
+    {
+        string s = "hello, world!";
+        s.Print();
+    }
+}

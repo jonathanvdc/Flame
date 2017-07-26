@@ -44,6 +44,7 @@ tests
     Specialization/Specialization4.test;
     SplitTails/SplitTails.test;
     SSAConstruction/SSAConstruction.test;
+    StandaloneEnvironment/StandaloneEnvironment.test;
     WholeProgram/WholeProgram.test;
     WholeProgram/WholeProgram2.test;
     WholeProgram/WholeProgram3.test;
