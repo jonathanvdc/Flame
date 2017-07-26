@@ -2,7 +2,7 @@
 
 build
 {
-    $(dsc) $(Filename).ds -platform ir -S -environment=standalone -o bin/$(Filename).fir $(Flags);
+    $(dsc) $(Filename).ds -platform ir -S -Wno-build -environment=standalone -o bin/$(Filename).fir $(Flags);
 }
 
 configs
