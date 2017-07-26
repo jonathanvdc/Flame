@@ -307,6 +307,10 @@ namespace Flame.Cecil.Emit
                     Context.Emit(OpCodes.Conv_I);
                 }
             }
+            else if (exprType.GetIsPointer() && IsPrimitiveType(targetType))
+            {
+                EmitPrimitiveConversion(exprType, targetType, Context);
+            }
             else if (exprType.GetIsVector() || exprType.GetIsArray())
             {
                 if (targetType.GetIsArray() || targetType.GetIsVector())
