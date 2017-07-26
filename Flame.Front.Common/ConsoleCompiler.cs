@@ -6,7 +6,6 @@ using Flame.Compiler.Projects;
 using Flame.Front.Cli;
 using Flame.Front.Options;
 using Flame.Front.Plugs;
-using Flame.Front.Preferences;
 using Flame.Front.Projects;
 using Flame.Front.State;
 using Flame.Front.Target;
@@ -101,9 +100,8 @@ namespace Flame.Front.Cli
         {
             var recLog = new SilentLog(DefaultOptions);
 
-            var prefs = new MergedOptions(PreferenceFile.ReadPreferences(OptionParser, recLog), DefaultOptions);
             var buildArgs = BuildArguments.Parse(OptionParser, args);
-            var mergedArgs = new MergedOptions(buildArgs, prefs);
+            var mergedArgs = new MergedOptions(buildArgs, DefaultOptions);
 
             var log = new ConsoleLog(ConsoleEnvironment.AcquireConsole(mergedArgs), mergedArgs);
 

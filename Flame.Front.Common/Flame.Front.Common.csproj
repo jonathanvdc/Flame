@@ -92,7 +92,6 @@
     <Compile Include="CompilerOptionExtensions.cs" />
     <Compile Include="ConsoleCompiler.cs" />
     <Compile Include="MarsRuntimeLibraries.cs" />
-    <Compile Include="Preferences\PreferenceFile.cs" />
     <Compile Include="Projects\FlameIRProject.cs" />
     <Compile Include="Projects\FlameIRProjectHandler.cs" />
     <Compile Include="Projects\ProjectHandlers.cs" />
