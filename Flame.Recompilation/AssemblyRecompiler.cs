@@ -738,7 +738,8 @@ namespace Flame.Recompilation
             if (SourceMethod.GetIsAnonymous())
             {
                 var visitor = new RecompilingTypeVisitor(this);
-                return new MemberCreationResult<IMethod>(MethodType.GetMethod(visitor.Convert(MethodType.Create(SourceMethod))));
+                return new MemberCreationResult<IMethod>(
+                    MethodType.GetMethod(visitor.Convert(MethodType.Create(SourceMethod))));
             }
             else if (IsExternal(SourceMethod))
             {
@@ -758,12 +759,21 @@ namespace Flame.Recompilation
             {
                 var recompGenericMethod = GetMethod(SourceMethod.GetRecursiveGenericDeclaration());
                 var recompDeclType = GetType(SourceMethod.DeclaringType);
-                return new MemberCreationResult<IMethod>(new GenericInstanceMethod(recompGenericMethod, GetGenericResolver(recompDeclType), recompDeclType));
+                return new MemberCreationResult<IMethod>(
+                    new GenericInstanceMethod(
+                        recompGenericMethod,
+                        GetGenericResolver(recompDeclType),
+                        recompDeclType));
             }
             else if (IsExternalStrict(SourceMethod))
             {
                 var recompDeclType = GetType(SourceMethod.DeclaringType);
-                return new MemberCreationResult<IMethod>(recompDeclType.GetMethod(SourceMethod.Name, SourceMethod.IsStatic, GetType(SourceMethod.ReturnType), GetTypes(SourceMethod.GetParameters().GetTypes())));
+                return new MemberCreationResult<IMethod>(
+                    recompDeclType.GetMethod(
+                        SourceMethod.Name,
+                        SourceMethod.IsStatic,
+                        GetType(SourceMethod.ReturnType),
+                        GetTypes(SourceMethod.GetParameters().GetTypes())));
             }
             else
             {
