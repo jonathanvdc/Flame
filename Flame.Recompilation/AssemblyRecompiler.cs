@@ -72,6 +72,10 @@ namespace Flame.Recompilation
             this.MetadataManager = new MetadataManager();
             this.implementations = new Dictionary<IMethod, HashSet<IMethod>>();
             this.pendingRecompilationList = new List<IMember>();
+            this.memberLowerer = Passes.MemberLoweringPass.Apply(
+                new MemberLoweringPassArgument(
+                    this,
+                    MetadataManager.GlobalMetadata));
         }
 
         public CompilationCache<IType> TypeCache { [Pure] get; private set; }
@@ -87,6 +91,7 @@ namespace Flame.Recompilation
 
         private Dictionary<IAssembly, RecompilationOptions> recompiledAssemblies;
         private Lazy<IEnvironment> cachedEnvironment;
+        private MemberConverter memberLowerer;
         private AsyncDictionary<IMethod, IStatement> methodBodies;
         private ConcurrentMultiDictionary<IType, IStatement> staticFieldInit;
         private ConcurrentMultiDictionary<IType, IStatement> instanceFieldInit;
@@ -469,6 +474,8 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IType> GetNewType(IType SourceType)
         {
+            SourceType = memberLowerer.Convert(SourceType);
+
             if (SourceType is MethodType)
             {
                 return new MemberCreationResult<IType>(MethodType.Create(GetMethod(MethodType.GetMethod(SourceType))));
@@ -621,6 +628,8 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IField> GetNewField(IField SourceField)
         {
+            SourceField = memberLowerer.Convert(SourceField);
+
             if (IsExternal(SourceField))
             {
                 return new MemberCreationResult<IField>(SourceField);
@@ -724,6 +733,8 @@ namespace Flame.Recompilation
 
         private MemberCreationResult<IMethod> GetNewMethod(IMethod SourceMethod)
         {
+            SourceMethod = memberLowerer.Convert(SourceMethod);
+
             if (SourceMethod.GetIsAnonymous())
             {
                 var visitor = new RecompilingTypeVisitor(this);
