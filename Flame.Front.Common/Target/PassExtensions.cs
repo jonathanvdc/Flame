@@ -17,6 +17,7 @@ namespace Flame.Front.Target
     using StatementPassInfo = AtomicPassInfo<IStatement, IStatement>;
     using RootPassInfo = AtomicPassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using LoopPassInfo = AtomicPassInfo<LoopPassArgument, LoopPassResult>;
+    using MemberLoweringPassInfo = AtomicPassInfo<MemberLoweringPassArgument, MemberConverter>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using Flame.Front.Passes;
@@ -215,6 +216,12 @@ namespace Flame.Front.Target
             // always on or off at the same time.
             GlobalPassManager.RegisterRootPass(new RootPassInfo(WrapExtensionPropertiesPass.RootPassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
             GlobalPassManager.RegisterSignaturePass(new SignaturePassInfo(WrapExtensionPropertiesPass.SignaturePassInstance, WrapExtensionPropertiesPass.WrapExtensionPropertiesPassName));
+
+            // -fextend-generics expands generic instances.
+            GlobalPassManager.RegisterMemberLoweringPass(
+                new MemberLoweringPassInfo(
+                    new GenericsExpansionPass(),
+                    GenericsExpansionPass.GenericsExpansionPassName));
         }
 
         /// <summary>
