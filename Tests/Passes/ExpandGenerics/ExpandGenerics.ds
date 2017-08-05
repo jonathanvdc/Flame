@@ -1,0 +1,51 @@
+using System;
+
+public enum ComparisonResult : int
+{
+    LeftGreater = 0,
+    RightGreater = 1,
+    Equal = 2
+}
+
+public interface IEnumComparable<T>
+{
+    ComparisonResult Compare(T other);
+}
+
+public class EnumComparableInt : IEnumComparable<EnumComparableInt>
+{
+    public this(int value)
+    {
+        this.value = value;
+    }
+
+    public int value;
+
+    public ComparisonResult Compare(EnumComparableInt other)
+    {
+        if (value == other.value)
+            return ComparisonResult.Equal;
+        else if (value < other.value)
+            return ComparisonResult.RightGreater;
+        else
+            return ComparisonResult.LeftGreater;
+    }
+}
+
+public module Program
+{
+    public static ComparisonResult Compare<T>(T left, T right)
+        where T : IEnumComparable<T>
+    {
+        return left.Compare(right);
+    }
+
+    public static void Main()
+    {
+        Console.WriteLine(
+            Compare<EnumComparableInt>(
+                new EnumComparableInt(1),
+                new EnumComparableInt(2))
+            == ComparisonResult.RightGreater);
+    }
+}
