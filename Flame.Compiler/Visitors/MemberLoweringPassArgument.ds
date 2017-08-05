@@ -1,0 +1,39 @@
+namespace Flame.Compiler.Visitors
+{
+    /// <summary>
+    /// Defines a data structure that holds information
+    /// that is relevant for member lowering passes.
+    /// </summary>
+    public class MemberLoweringPassArgument
+    {
+        /// <summary>
+        /// Creates a new member lowering pass argument from the given pass environment
+        /// and pass metadata.
+        /// </summary>
+        /// <param name="PassEnvironment">The pass environment.</param>
+        /// <param name="Metadata">The global pass metadata.</param>
+        public this(set IBodyPassEnvironment PassEnvironment, set IRandomAccessOptions GlobalMetadata)
+        { }
+
+        /// <summary>
+        /// Gets the pass environment for this pass.
+        /// </summary>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets the global pass metadata.
+        /// </summary>
+        /// <returns>The global pass metadata.</returns>
+        public IRandomAccessOptions GlobalMetadata { get; private set; }
+
+        /// <summary>
+        /// Gets the compiler log.
+        /// </summary>
+        public ICompilerLog Log { get { return PassEnvironment.Log; } }
+
+        /// <summary>
+        /// Gets the environment.
+        /// </summary>
+        public IEnvironment Environment { get { return PassEnvironment.Environment; } }
+    }
+}

@@ -37,4 +37,31 @@ namespace Flame.Compiler.Visitors
             return Statement; // Just ignore.
         }
     }
+
+    /// <summary>
+    /// Defines a generic constant pass, returns a constant value.
+    /// </summary>
+    public class ConstantPass<TInput, TOutput> : IPass<TInput, TOutput>
+    {
+        /// <summary>
+        /// Creates a constant pass from the given constant result.
+        /// </summary>
+        public this(TOutput Result)
+        {
+            this.Result = Result;
+        }
+
+        /// <summary>
+        /// Gets the constant value that is returned by this pass.
+        /// </summary>
+        public TOutput Result { get; private set; }
+
+        /// <summary>
+        /// Applies this pass to the given value.
+        /// </summary>
+        public const TOutput Apply(TInput Value)
+        {
+            return Result;
+        }
+    }
 }

@@ -11,6 +11,7 @@ namespace Flame.Recompilation
     using IMemberSignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using IMethodPass = IPass<BodyPassArgument, IStatement>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
+    using IMemberLoweringPass = IPass<MemberLoweringPassArgument, MemberConverter>;
     using Flame.Compiler.Build;
 
     /// <summary>
@@ -48,30 +49,64 @@ namespace Flame.Recompilation
         /// <param name="RootPass"></param>
         /// <param name="MemberSignaturePass"></param>
         public PassSuite(
-			IMethodPass MethodPass, IRootPass RootPass, 
+            IMethodPass MethodPass,
+            IRootPass RootPass,
             IMemberSignaturePass MemberSignaturePass)
-			: this(MethodPass, new SlimBodyPass(new EmptyPass<BodyPassArgument>()), 
-				   RootPass, MemberSignaturePass)
+            : this(
+                MethodPass,
+                new SlimBodyPass(new EmptyPass<BodyPassArgument>()),
+                RootPass,
+                MemberSignaturePass)
         { }
 
-		/// <summary>
-		/// Creates a pass suite from the given 
+        /// <summary>
+        /// Creates a pass suite from the given 
         /// method pass, machine lowering pass, 
         /// root pass and member signature pass.
-		/// </summary>
-		/// <param name="Optimizer"></param>
-		/// <param name="MethodPass"></param>
-		/// <param name="RootPass"></param>
-		/// <param name="MemberSignaturePass"></param>
-		public PassSuite(
-			IMethodPass MethodPass, IMethodPass LoweringPass, 
-            IRootPass RootPass, IMemberSignaturePass MemberSignaturePass)
-		{
-			this.MethodPass = MethodPass;
-			this.LoweringPass = LoweringPass;
-			this.RootPass = RootPass;
-			this.MemberSignaturePass = MemberSignaturePass;
-		}
+        /// </summary>
+        /// <param name="Optimizer"></param>
+        /// <param name="MethodPass"></param>
+        /// <param name="RootPass"></param>
+        /// <param name="MemberSignaturePass"></param>
+        public PassSuite(
+            IMethodPass MethodPass,
+            IMethodPass LoweringPass,
+            IRootPass RootPass,
+            IMemberSignaturePass MemberSignaturePass)
+            : this(
+                MethodPass,
+                LoweringPass,
+                RootPass,
+                MemberSignaturePass,
+                new ConstantPass<MemberLoweringPassArgument, MemberConverter>(
+                    new MemberConverter(
+                        new EmptyConverter<IType>(),
+                        new EmptyConverter<IMethod>(),
+                        new EmptyConverter<IField>())))
+        { }
+
+        /// <summary>
+        /// Creates a pass suite from the given method pass,
+        /// machine lowering pass, root pass, member signature
+        /// pass and member lowering pass.
+        /// </summary>
+        /// <param name="Optimizer"></param>
+        /// <param name="MethodPass"></param>
+        /// <param name="RootPass"></param>
+        /// <param name="MemberSignaturePass"></param>
+        public PassSuite(
+            IMethodPass MethodPass,
+            IMethodPass LoweringPass,
+            IRootPass RootPass,
+            IMemberSignaturePass MemberSignaturePass,
+            IMemberLoweringPass MemberLoweringPass)
+        {
+            this.MethodPass = MethodPass;
+            this.LoweringPass = LoweringPass;
+            this.RootPass = RootPass;
+            this.MemberSignaturePass = MemberSignaturePass;
+            this.MemberLoweringPass = MemberLoweringPass;
+        }
 
         /// <summary>
         /// Gets the method pass this pass suite applies to its
@@ -85,11 +120,11 @@ namespace Flame.Recompilation
         /// </remarks>
         public IMethodPass MethodPass { get; private set; }
 
-		/// <summary>
-		/// Gets the machine lowering pass this pass suite applies
-		/// to its input.
-		/// </summary>
-		public IMethodPass LoweringPass { get; private set; }
+        /// <summary>
+        /// Gets the machine lowering pass this pass suite applies
+        /// to its input.
+        /// </summary>
+        public IMethodPass LoweringPass { get; private set; }
 
         /// <summary>
         /// Gets this pass suite's root pass. A root
@@ -112,13 +147,24 @@ namespace Flame.Recompilation
         public IMemberSignaturePass MemberSignaturePass { get; private set; }
 
         /// <summary>
+        /// Gets the member lowering pass that this pass suite applies to
+        /// members.
+        /// </summary>
+        public IMemberLoweringPass MemberLoweringPass { get; private set; }
+
+        /// <summary>
         /// Prepends a method pass to this pass suite's method pass.
         /// </summary>
         /// <param name="Pass"></param>
         /// <returns></returns>
         public PassSuite PrependPass(IMethodPass Pass)
         {
-            return new PassSuite(new AggregateBodyPass(Pass, MethodPass), RootPass, MemberSignaturePass);
+            return new PassSuite(
+                new AggregateBodyPass(Pass, MethodPass),
+                LoweringPass,
+                RootPass,
+                MemberSignaturePass,
+                MemberLoweringPass);
         }
 
         /// <summary>
@@ -128,7 +174,12 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IMethodPass Pass)
         {
-            return new PassSuite(new AggregateBodyPass(MethodPass, Pass), RootPass, MemberSignaturePass);
+            return new PassSuite(
+                new AggregateBodyPass(MethodPass, Pass),
+                LoweringPass,
+                RootPass,
+                MemberSignaturePass,
+                MemberLoweringPass);
         }
 
         /// <summary>
@@ -138,7 +189,12 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite PrependPass(IMemberSignaturePass Pass)
         {
-            return new PassSuite(MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
+            return new PassSuite(
+                MethodPass,
+                LoweringPass,
+                RootPass,
+                new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass),
+                MemberLoweringPass);
         }
 
         /// <summary>
@@ -148,7 +204,12 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IMemberSignaturePass Pass)
         {
-            return new PassSuite(MethodPass, RootPass, new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass));
+            return new PassSuite(
+                MethodPass,
+                LoweringPass,
+                RootPass,
+                new AggregateMemberSignaturePass<IMember>(MemberSignaturePass, Pass),
+                MemberLoweringPass);
         }
 
         /// <summary>
@@ -158,7 +219,12 @@ namespace Flame.Recompilation
         /// <returns></returns>
         public PassSuite AppendPass(IRootPass Pass)
         {
-            return new PassSuite(MethodPass, new AggregateRootPass(RootPass, Pass), MemberSignaturePass);
+            return new PassSuite(
+                MethodPass,
+                LoweringPass,
+                new AggregateRootPass(RootPass, Pass),
+                MemberSignaturePass,
+                MemberLoweringPass);
         }
 
         /// <summary>
@@ -190,22 +256,22 @@ namespace Flame.Recompilation
             return MethodPass.Apply(new BodyPassArgument(Recompiler, metadata, SourceMethod, Body));
         }
 
-		/// <summary>
-		/// Applies the machine lowering pass to the given method's
-		/// body.
-		/// </summary>
-		/// <returns></returns>
-		/// <param name="Recompiler"></param>
-		/// <param name="Body"></param>
-		public IStatement LowerBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
-		{
-			var body = Recompiler.GetMethodBody(SourceMethod);
+        /// <summary>
+        /// Applies the machine lowering pass to the given method's
+        /// body.
+        /// </summary>
+        /// <returns></returns>
+        /// <param name="Recompiler"></param>
+        /// <param name="Body"></param>
+        public IStatement LowerBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
+        {
+            var body = Recompiler.GetMethodBody(SourceMethod);
 
-			if (body == null)
-				return null;
+            if (body == null)
+                return null;
 
             return LowerBody(Recompiler, SourceMethod, body);
-		}
+        }
 
         /// <summary>
         /// Applies the lowering pass to the given method 
