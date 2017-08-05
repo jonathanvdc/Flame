@@ -16,6 +16,7 @@ namespace Flame.Front.Passes
     using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
     using StatementPassInfo = PassInfo<IStatement, IStatement>;
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
+    using MemberLoweringPassInfo = PassInfo<MemberLoweringPassArgument, MemberConverter>;
 
     /// <summary>
     /// Defines a data structure that captures a sufficient condition for 
@@ -67,53 +68,81 @@ namespace Flame.Front.Passes
             : this((IEnumerable<PassCondition>)Conditions)
         { }
         public PassPreferences(IEnumerable<PassCondition> Conditions)
-            : this(Conditions,
-                   Enumerable.Empty<MethodPassInfo>())
+            : this(
+                Conditions,
+                Enumerable.Empty<MethodPassInfo>())
         { }
         public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
+            IEnumerable<PassCondition> Conditions,
             IEnumerable<MethodPassInfo> MethodPasses)
             : this(Conditions, MethodPasses, Enumerable.Empty<RootPassInfo>())
         { }
         public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
+            IEnumerable<PassCondition> Conditions,
             IEnumerable<AnalysisPassInfo> AnalysisPasses)
-            : this(Conditions, 
-                   AnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
+            : this(
+                Conditions,
+                AnalysisPasses.Select(BodyAnalysisPass.ToBodyPass).ToArray())
         { }
         public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
+            IEnumerable<PassCondition> Conditions,
             IEnumerable<StatementPassInfo> StatementPasses)
-            : this(Conditions,
-                   StatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
+            : this(
+                Conditions,
+                StatementPasses.Select(BodyStatementPass.ToBodyPass).ToArray())
         { }
         public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
+            IEnumerable<PassCondition> Conditions,
             IEnumerable<MethodPassInfo> MethodPasses,
             IEnumerable<RootPassInfo> RootPasses)
-            : this(Conditions, MethodPasses, RootPasses, 
-                   Enumerable.Empty<SignaturePassInfo>())
+            : this(
+                Conditions,
+                MethodPasses,
+                RootPasses,
+                Enumerable.Empty<SignaturePassInfo>())
         { }
-		public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
-			IEnumerable<MethodPassInfo> MethodPasses,
-			IEnumerable<RootPassInfo> RootPasses,
-			IEnumerable<SignaturePassInfo> SignaturePasses)
-			: this(Conditions, MethodPasses, Enumerable.Empty<MethodPassInfo>(), RootPasses, SignaturePasses)
-		{ }
-		public PassPreferences(
-			IEnumerable<PassCondition> Conditions,
-			IEnumerable<MethodPassInfo> MethodPasses,
-			IEnumerable<MethodPassInfo> LoweringPasses,
-			IEnumerable<RootPassInfo> RootPasses,
-			IEnumerable<SignaturePassInfo> SignaturePasses)
-		{
-			this.Conditions = Conditions;
-			this.MethodPasses = MethodPasses;
-			this.LoweringPasses = LoweringPasses;
-			this.RootPasses = RootPasses;
-			this.SignaturePasses = SignaturePasses;
-		}
+        public PassPreferences(
+            IEnumerable<PassCondition> Conditions,
+            IEnumerable<MethodPassInfo> MethodPasses,
+            IEnumerable<RootPassInfo> RootPasses,
+            IEnumerable<SignaturePassInfo> SignaturePasses)
+            : this(
+                Conditions,
+                MethodPasses,
+                Enumerable.Empty<MethodPassInfo>(),
+                RootPasses,
+                SignaturePasses)
+        { }
+        public PassPreferences(
+            IEnumerable<PassCondition> Conditions,
+            IEnumerable<MethodPassInfo> MethodPasses,
+            IEnumerable<MethodPassInfo> LoweringPasses,
+            IEnumerable<RootPassInfo> RootPasses,
+            IEnumerable<SignaturePassInfo> SignaturePasses)
+            : this(
+                Conditions,
+                MethodPasses,
+                LoweringPasses,
+                RootPasses,
+                SignaturePasses,
+                Enumerable.Empty<MemberLoweringPassInfo>())
+        { }
+
+        public PassPreferences(
+            IEnumerable<PassCondition> Conditions,
+            IEnumerable<MethodPassInfo> MethodPasses,
+            IEnumerable<MethodPassInfo> LoweringPasses,
+            IEnumerable<RootPassInfo> RootPasses,
+            IEnumerable<SignaturePassInfo> SignaturePasses,
+            IEnumerable<MemberLoweringPassInfo> MemberLoweringPasses)
+        {
+            this.Conditions = Conditions;
+            this.MethodPasses = MethodPasses;
+            this.LoweringPasses = LoweringPasses;
+            this.RootPasses = RootPasses;
+            this.SignaturePasses = SignaturePasses;
+            this.MemberLoweringPasses = MemberLoweringPasses;
+        }
 
         /// <summary>
         /// Gets a sequence of sufficient conditions for
@@ -126,10 +155,10 @@ namespace Flame.Front.Passes
         /// </summary>
         public IEnumerable<MethodPassInfo> MethodPasses { get; private set; }
 
-		/// <summary>
-		/// Gets a sequence of machine lowering passes.
-		/// </summary>
-		public IEnumerable<MethodPassInfo> LoweringPasses { get; private set; }
+        /// <summary>
+        /// Gets a sequence of machine lowering passes.
+        /// </summary>
+        public IEnumerable<MethodPassInfo> LoweringPasses { get; private set; }
 
         /// <summary>
         /// Gets a sequence of root passes.
@@ -142,6 +171,11 @@ namespace Flame.Front.Passes
         public IEnumerable<SignaturePassInfo> SignaturePasses { get; private set; }
 
         /// <summary>
+        /// Gets a sequence of member lowering passes.
+        /// </summary>
+        public IEnumerable<MemberLoweringPassInfo> MemberLoweringPasses { get; private set; }
+
+        /// <summary>
         /// Takes the union of these pass
         /// preferences and the given other 
         /// pass preferences.
@@ -151,20 +185,21 @@ namespace Flame.Front.Passes
         public PassPreferences Union(PassPreferences Other)
         {
             return new PassPreferences(
-				Conditions.Concat(Other.Conditions),
+                Conditions.Concat(Other.Conditions),
                 MethodPasses.Union(Other.MethodPasses),
-				LoweringPasses.Union(Other.LoweringPasses),
-				RootPasses.Union(Other.RootPasses),
-                SignaturePasses.Union(Other.SignaturePasses));
+                LoweringPasses.Union(Other.LoweringPasses),
+                RootPasses.Union(Other.RootPasses),
+                SignaturePasses.Union(Other.SignaturePasses),
+                MemberLoweringPasses.Union(Other.MemberLoweringPasses));
         }
 
-		/// <summary>
-		/// Creates a pass manager that is equivalent to this pass
-		/// preference set.
-		/// </summary>
-		public PassManager ToManager()
-		{
-			return new PassManager(this);
-		}
+        /// <summary>
+        /// Creates a pass manager that is equivalent to this pass
+        /// preference set.
+        /// </summary>
+        public PassManager ToManager()
+        {
+            return new PassManager(this);
+        }
     }
 }

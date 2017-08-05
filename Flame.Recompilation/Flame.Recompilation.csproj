@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregateMemberLoweringPass.cs" />
     <Compile Include="AggregateMemberSignaturePass.cs" />
     <Compile Include="AggregateRootPass.cs" />
     <Compile Include="AssemblyRecompiler.cs" />

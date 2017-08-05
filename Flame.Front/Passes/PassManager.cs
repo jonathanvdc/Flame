@@ -11,15 +11,17 @@ namespace Flame.Front.Passes
     using AnalysisPassInfo = PassInfo<Tuple<IStatement, IMethod, ICompilerLog>, IStatement>;
     using MethodPassInfo = PassInfo<BodyPassArgument, IStatement>;
     using SignaturePassInfo = PassInfo<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
+    using MemberLoweringPassInfo = PassInfo<MemberLoweringPassArgument, MemberConverter>;
     using StatementPassInfo = PassInfo<IStatement, IStatement>;
     using RootPassInfo = PassInfo<BodyPassArgument, IEnumerable<IMember>>;
     using IRootPass = IPass<BodyPassArgument, IEnumerable<IMember>>;
     using ISignaturePass = IPass<MemberSignaturePassArgument<IMember>, MemberSignaturePassResult>;
+    using IMemberLoweringPass = IPass<MemberLoweringPassArgument, MemberConverter>;
 
     /// <summary>
     /// A class of objects that manage a sequence of passes and their associated conditions.
     /// </summary>
-    public class PassManager
+    public sealed class PassManager
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Flame.Front.Passes.PassManager"/> class.
@@ -30,6 +32,7 @@ namespace Flame.Front.Passes
             this.LoweringPasses = new List<MethodPassInfo>();
             this.RootPasses = new List<RootPassInfo>();
             this.SignaturePasses = new List<SignaturePassInfo>();
+            this.MemberLoweringPasses = new List<MemberLoweringPassInfo>();
             this.PassConditions = new List<PassCondition>();
         }
 
@@ -43,6 +46,7 @@ namespace Flame.Front.Passes
             this.LoweringPasses = new List<MethodPassInfo>(Preferences.LoweringPasses);
             this.RootPasses = new List<RootPassInfo>(Preferences.RootPasses);
             this.SignaturePasses = new List<SignaturePassInfo>(Preferences.SignaturePasses);
+            this.MemberLoweringPasses = new List<MemberLoweringPassInfo>(Preferences.MemberLoweringPasses);
             this.PassConditions = new List<PassCondition>(Preferences.Conditions);
         }
 
@@ -56,6 +60,7 @@ namespace Flame.Front.Passes
             this.LoweringPasses = new List<MethodPassInfo>(Other.LoweringPasses);
             this.RootPasses = new List<RootPassInfo>(Other.RootPasses);
             this.SignaturePasses = new List<SignaturePassInfo>(Other.SignaturePasses);
+            this.MemberLoweringPasses = new List<MemberLoweringPassInfo>(Other.MemberLoweringPasses);
             this.PassConditions = new List<PassCondition>(Other.PassConditions);
         }
 
@@ -80,6 +85,11 @@ namespace Flame.Front.Passes
         /// Gets a list of signature passes.
         /// </summary>
         public List<SignaturePassInfo> SignaturePasses { get; private set; }
+
+        /// <summary>
+        /// Gets a list of member lowering passes.
+        /// </summary>
+        public List<MemberLoweringPassInfo> MemberLoweringPasses { get; private set; }
 
         /// <summary>
         /// Gets a list of pass conditions.
@@ -159,6 +169,15 @@ namespace Flame.Front.Passes
         }
 
         /// <summary>
+        /// Registers the given member lowering pass.
+        /// </summary>
+        /// <param name="Pass"></param>
+        public void RegisterMemberLoweringPass(MemberLoweringPassInfo Pass)
+        {
+            MemberLoweringPasses.Add(Pass);
+        }
+
+        /// <summary>
         /// Registers a sufficient condition for a
         /// pass to be run.
         /// </summary>
@@ -188,6 +207,7 @@ namespace Flame.Front.Passes
             this.LoweringPasses.InsertRange(0, Preferences.LoweringPasses);
             this.RootPasses.InsertRange(0, Preferences.RootPasses);
             this.SignaturePasses.InsertRange(0, Preferences.SignaturePasses);
+            this.MemberLoweringPasses.InsertRange(0, Preferences.MemberLoweringPasses);
             this.PassConditions.InsertRange(0, Preferences.Conditions);
         }
 
@@ -200,6 +220,7 @@ namespace Flame.Front.Passes
             this.LoweringPasses.AddRange(Preferences.LoweringPasses);
             this.RootPasses.AddRange(Preferences.RootPasses);
             this.SignaturePasses.AddRange(Preferences.SignaturePasses);
+            this.MemberLoweringPasses.AddRange(Preferences.MemberLoweringPasses);
             this.PassConditions.AddRange(Preferences.Conditions);
         }
 
@@ -210,30 +231,47 @@ namespace Flame.Front.Passes
         {
             return new PassPreferences(
                 PassConditions, MethodPasses, LoweringPasses,
-                RootPasses, SignaturePasses);
+                RootPasses, SignaturePasses, MemberLoweringPasses);
         }
 
         /// <summary>
         /// Creates an aggregate root pass from the given sequence
         /// of root passes.
         /// </summary>
-        /// <param name="RootPasses"></param>
+        /// <param name="Passes"></param>
         /// <returns></returns>
-        private IRootPass Aggregate(IEnumerable<IRootPass> RootPasses)
+        private static IRootPass Aggregate(IEnumerable<IRootPass> Passes)
         {
-            return RootPasses.Aggregate<IRootPass, IRootPass>(EmptyRootPass.Instance, (result, item) => new AggregateRootPass(result, item));
+            return Passes.Aggregate<IRootPass, IRootPass>(EmptyRootPass.Instance, (result, item) => new AggregateRootPass(result, item));
         }
 
         /// <summary>
         /// Creates an aggregate signature pass from the given sequence
         /// of signature passes.
         /// </summary>
-        /// <param name="RootPasses"></param>
+        /// <param name="Passes"></param>
         /// <returns></returns>
-        private ISignaturePass Aggregate(IEnumerable<ISignaturePass> RootPasses)
+        private static ISignaturePass Aggregate(IEnumerable<ISignaturePass> Passes)
         {
-            return RootPasses.Aggregate<ISignaturePass, ISignaturePass>(EmptyMemberSignaturePass<IMember>.Instance,
+            return Passes.Aggregate<ISignaturePass, ISignaturePass>(EmptyMemberSignaturePass<IMember>.Instance,
                 (result, item) => new AggregateMemberSignaturePass<IMember>(result, item));
+        }
+
+        /// <summary>
+        /// Creates an aggregate member lowering pass from the given sequence
+        /// of member lowering passes.
+        /// </summary>
+        /// <param name="Passes">A sequence of member lowering pass.</param>
+        /// <returns>An aggregate member lowering pass.</returns>
+        private static IMemberLoweringPass Aggregate(IEnumerable<IMemberLoweringPass> Passes)
+        {
+            return Passes.Aggregate<IMemberLoweringPass, IMemberLoweringPass>(
+                new ConstantPass<MemberLoweringPassArgument, MemberConverter>(
+                    new MemberConverter(
+                        new EmptyConverter<IType>(),
+                        new EmptyConverter<IMethod>(),
+                        new EmptyConverter<IField>())),
+                (result, item) => new AggregateMemberLoweringPass(result, item));
         }
 
         /// <summary>
@@ -262,7 +300,8 @@ namespace Flame.Front.Passes
                 { "Signature", SignaturePasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
                 { "Body", MethodPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
                 { "Lowering", LoweringPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
-                { "Root", RootPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() }
+                { "Root", RootPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() },
+                { "Member lowering", MemberLoweringPasses.Select(p => selector.SelectActive(p.NameTree)).Where(x => x != null).ToArray() }
             };
         }
 
@@ -296,12 +335,14 @@ namespace Flame.Front.Passes
             var selectedLoweringPasses = selector.InstantiateActive(LoweringPasses);
             var selectedRootPasses = selector.InstantiateActive(RootPasses);
             var selectedSigPasses = selector.InstantiateActive(SignaturePasses);
+            var selectedMemberLoweringPasses = selector.InstantiateActive(MemberLoweringPasses);
 
             return new PassSuite(
                 selectedMethodPasses.Aggregate(),
                 selectedLoweringPasses.Aggregate(),
                 Aggregate(selectedRootPasses),
-                Aggregate(selectedSigPasses));
+                Aggregate(selectedSigPasses),
+                Aggregate(selectedMemberLoweringPasses));
         }
     }
 }
