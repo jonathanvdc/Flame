@@ -139,7 +139,7 @@ namespace Flame.Optimization
         protected override IType ConvertGenericInstance(IType Type)
         {
             if (!Type.IsRecursiveGenericInstance
-                || !Type.CanExtend(Method.DeclaringType))
+                || !PassEnvironment.CanExtend(Type))
             {
                 return Type;
             }
@@ -164,11 +164,11 @@ namespace Flame.Optimization
             INamespace expandedDeclNs;
             if (declNs is IType)
             {
-                expandedDeclNs = Type.DeclaringNamespace;
+                expandedDeclNs = (INamespace)Convert((IType)declNs);
             }
             else
             {
-                expandedDeclNs = (INamespace)Convert((IType)declNs);
+                expandedDeclNs = Type.DeclaringNamespace;
             }
 
             if (expandedTypes.ContainsKey(Type))
@@ -352,11 +352,6 @@ namespace Flame.Optimization
             return IsCompleteGenericInstance(
                 Method.GetRecursiveGenericParameters(),
                 Method.GetRecursiveGenericArguments());
-        }
-
-        private static bool IsCompleteGenericInstance(IField Field)
-        {
-            return IsCompleteGenericInstance(Field.DeclaringType);
         }
     }
 }
