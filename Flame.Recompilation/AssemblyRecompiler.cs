@@ -179,6 +179,9 @@ namespace Flame.Recompilation
         /// <param name="ImplementedMethod"></param>
         private void RegisterImplementation(IMethod BaseMethod, IMethod ImplementationMethod)
         {
+            BaseMethod = memberLowerer.Convert(BaseMethod);
+            ImplementationMethod = memberLowerer.Convert(ImplementationMethod);
+
             while (BaseMethod is GenericMethodBase)
             {
                 BaseMethod = ((GenericMethodBase)BaseMethod).Declaration;
