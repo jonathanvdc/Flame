@@ -1,0 +1,365 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Build;
+using Flame.Compiler;
+using Flame.Compiler.Visitors;
+
+namespace Flame.Optimization
+{
+    /// <summary>
+    /// A pass that expands references to generic types and members to non-generic equivalents.
+    /// </summary>
+    public class GenericsExpansionPass : IPass<MemberLoweringPassArgument, MemberConverter>
+    {
+        public this()
+        {
+            this.ExpandedTypeNamer = NameType;
+            this.ExpandedMethodNamer = NameMethod;
+        }
+
+        public this(
+            Func<IType, UnqualifiedName> ExpandedTypeNamer,
+            Func<IMethod, UnqualifiedName> ExpandedMethodNamer)
+        {
+            this.ExpandedTypeNamer = ExpandedTypeNamer;
+            this.ExpandedMethodNamer = ExpandedMethodNamer;
+        }
+
+        /// <summary>
+        /// Gets the function that takes a generic instance and produces a name for the
+        /// expanded type that is equivalent to that generic instance.
+        /// </summary>
+        /// <returns>A function that maps types to names.</returns>
+        public Func<IType, UnqualifiedName> ExpandedTypeNamer { get; private set; }
+
+        /// <summary>
+        /// Gets the function that takes a generic instance and produces a name for the
+        /// expanded method that is equivalent to that generic instance.
+        /// </summary>
+        /// <returns>A function that maps methods to names.</returns>
+        public Func<IMethod, UnqualifiedName> ExpandedMethodNamer { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the generics expansion pass.
+        /// </summary>
+        public const string GenericsExpansionPassName = "expand-generics";
+
+        /// <inheritdoc/>
+        public MemberConverter Apply(MemberLoweringPassArgument Argument)
+        {
+            string genericsExpanderOption = "generics-expander";
+            var expander = Argument.GlobalMetadata.GetOption<GenericsExpander>(
+                genericsExpanderOption,
+                null);
+
+            if (expander == null)
+            {
+                expander = new GenericsExpander(
+                    Argument.PassEnvironment,
+                    ExpandedTypeNamer,
+                    ExpandedMethodNamer);
+
+                Argument.GlobalMetadata.SetOption<GenericsExpander>(
+                    genericsExpanderOption,
+                    expander);
+            }
+
+            return expander.MemberConverter;
+        }
+
+        private static UnqualifiedName NameType(IType Type)
+        {
+            return Type.Name;
+        }
+
+        private static UnqualifiedName NameMethod(IMethod Method)
+        {
+            return Method.Name;
+        }
+    }
+
+    /// <summary>
+    /// A type of object that expands generic instances.
+    /// </summary>
+    public class GenericsExpander : TypeTransformerBase
+    {
+        public this(
+            IBodyPassEnvironment PassEnvironment,
+            Func<IType, UnqualifiedName> ExpandedTypeNamer,
+            Func<IMethod, UnqualifiedName> ExpandedMethodNamer)
+        {
+            this.PassEnvironment = PassEnvironment;
+            this.ExpandedTypeNamer = ExpandedTypeNamer;
+            this.ExpandedMethodNamer = ExpandedMethodNamer;
+            this.expandedTypes = new Dictionary<IType, IType>();
+            this.expandedMethods = new Dictionary<IMethod, IMethod>();
+            this.expandedFields = new Dictionary<IField, IField>();
+        }
+
+        /// <summary>
+        /// Gets the pass environment used by this generics expander.
+        /// </summary>
+        /// <returns>The pass environment.</returns>
+        public IBodyPassEnvironment PassEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets the function that takes a generic instance and produces a name for the
+        /// expanded type that is equivalent to that generic instance.
+        /// </summary>
+        /// <returns>A function that maps types to names.</returns>
+        public Func<IType, UnqualifiedName> ExpandedTypeNamer { get; private set; }
+
+        /// <summary>
+        /// Gets the function that takes a generic instance and produces a name for the
+        /// expanded method that is equivalent to that generic instance.
+        /// </summary>
+        /// <returns>A function that maps methods to names.</returns>
+        public Func<IMethod, UnqualifiedName> ExpandedMethodNamer { get; private set; }
+
+        private Dictionary<IType, IType> expandedTypes;
+        private Dictionary<IMethod, IMethod> expandedMethods;
+        private Dictionary<IField, IField> expandedFields;
+
+        /// <summary>
+        /// Gets a member converter for this expander.
+        /// </summary>
+        /// <returns>A member converter.</returns>
+        public MemberConverter MemberConverter
+        {
+            get
+            {
+                return new MemberConverter(
+                    new DelegateConverter<IType, IType>(Convert),
+                    new DelegateConverter<IMethod, IMethod>(Convert),
+                    new DelegateConverter<IField, IField>(Convert));
+            }
+        }
+
+        protected override IType ConvertGenericInstance(IType Type)
+        {
+            if (!Type.IsRecursiveGenericInstance)
+            {
+                return Type;
+            }
+
+            IType result;
+            if (!expandedTypes.TryGetValue(Type, &result))
+            {
+                result = ExpandTypeImpl(Type);
+            }
+            return result;
+        }
+
+        private IType ExpandTypeImpl(IType Type)
+        {
+            if (!IsCompleteGenericInstance(Type))
+            {
+                expandedTypes[Type] = Type;
+                return Type;
+            }
+
+            var declNs = Type.DeclaringNamespace;
+            INamespace expandedDeclNs;
+            if (declNs is IType)
+            {
+                expandedDeclNs = Type.DeclaringNamespace;
+            }
+            else
+            {
+                expandedDeclNs = (INamespace)Convert((IType)declNs);
+            }
+
+            if (expandedTypes.ContainsKey(Type))
+            {
+                // Converting the declaring type already triggered an expansion
+                // for this type.
+                return expandedTypes[Type];
+            }
+
+            // Define a new type.
+            var expandedType = new DescribedType(ExpandedTypeNamer(Type), expandedDeclNs);
+            expandedTypes[Type] = expandedType;
+
+            // Copy the attributes.
+            foreach (var attr in Type.Attributes)
+            {
+                expandedType.AddAttribute(attr);
+            }
+
+            // Convert the type's base types.
+            foreach (var baseType in Type.BaseTypes)
+            {
+                expandedType.AddBaseType(Convert(baseType));
+            }
+
+            // Convert the type's fields.
+            foreach (var field in Type.Fields)
+            {
+                expandedType.AddField(ExpandFieldImpl(expandedType, field));
+            }
+
+            return expandedType;
+        }
+
+        public IMethod Convert(IMethod Method)
+        {
+            if (!Method.IsRecursiveGenericInstance)
+            {
+                return Method;
+            }
+
+            IMethod result;
+            if (!expandedMethods.TryGetValue(Method, &result))
+            {
+                result = ExpandMethodImpl(Method);
+            }
+            return result;
+        }
+
+        private IMethod ExpandMethodImpl(IMethod Method)
+        {
+            if (!IsCompleteGenericInstance(Method))
+            {
+                expandedMethods[Method] = Method;
+                return Method;
+            }
+
+            if (!PassEnvironment.CanExtend(Method.DeclaringType))
+            {
+                return Method;
+            }
+
+            var declaringType = Convert(Method.DeclaringType);
+
+            if (expandedMethods.ContainsKey(Method))
+            {
+                // Converting the declaring type already triggered an expansion
+                // for this method.
+                return expandedMethods[Method];
+            }
+
+            // Declare a new method.
+            var expandedMethod = new DescribedBodyMethod(
+                ExpandedMethodNamer(Method),
+                declaringType);
+
+            expandedMethod.IsStatic = Method.IsStatic;
+
+            expandedMethods[Method] = expandedMethod;
+
+            // Copy the attributes.
+            foreach (var attr in Method.Attributes)
+            {
+                expandedMethod.AddAttribute(attr);
+            }
+
+            // Convert the method's return type.
+            expandedMethod.ReturnType = Convert(Method.ReturnType);
+
+            // Convert the method's parameters.
+            foreach (var param in Method.Parameters)
+            {
+                expandedMethod.AddParameter(
+                    new RetypedParameter(
+                        param,
+                        Convert(param.ParameterType)));
+            }
+
+            // Convert the method's base methods.
+            foreach (var baseMethod in Method.BaseMethods)
+            {
+                expandedMethod.AddBaseMethod(Convert(baseMethod));
+            }
+
+            // Convert the method's body.
+            expandedMethod.Body = PassEnvironment.GetMethodBody(Method);
+
+            return expandedMethod;
+        }
+
+        public IField Convert(IField Field)
+        {
+            Convert(Field.DeclaringType);
+            IField result;
+            if (expandedFields.TryGetValue(Field, &result))
+            {
+                return result;
+            }
+            else
+            {
+                return Field;
+            }
+        }
+
+        private IField ExpandFieldImpl(IType DeclaringType, IField Field)
+        {
+            var newField = new DescribedField(
+                Field.Name,
+                DeclaringType,
+                PrimitiveTypes.Void,
+                Field.IsStatic);
+
+            expandedFields[Field] = newField;
+
+            // Convert the field type.
+            newField.FieldType = Convert(Field.FieldType);
+
+            // Copy the attributes.
+            foreach (var attr in Field.Attributes)
+            {
+                newField.AddAttribute(attr);
+            }
+
+            // TODO: convert the field's initial value.
+
+            return newField;
+        }
+
+        private static bool IsCompleteGenericInstance(
+            IEnumerable<IGenericParameter> RecursiveGenericParameters,
+            IEnumerable<IType> RecursiveGenericArguments)
+        {
+            var recGenericParams = Enumerable.ToArray<IGenericParameter>(
+                RecursiveGenericParameters);
+
+            var recGenericArgs = Enumerable.ToArray<IType>(
+                RecursiveGenericArguments);
+
+            if (recGenericParams.Length != recGenericArgs.Length)
+            {
+                return false;
+            }
+
+            foreach (var item in recGenericArgs)
+            {
+                if (!IsCompleteGenericInstance(item))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsCompleteGenericInstance(IType Type)
+        {
+            return !Type.IsGenericParameter
+                && IsCompleteGenericInstance(
+                    Type.GetRecursiveGenericParameters(),
+                    Type.GetRecursiveGenericArguments());
+        }
+
+        private static bool IsCompleteGenericInstance(IMethod Method)
+        {
+            return IsCompleteGenericInstance(
+                Method.GetRecursiveGenericParameters(),
+                Method.GetRecursiveGenericArguments());
+        }
+
+        private static bool IsCompleteGenericInstance(IField Field)
+        {
+            return IsCompleteGenericInstance(Field.DeclaringType);
+        }
+    }
+}
