@@ -138,7 +138,8 @@ namespace Flame.Optimization
 
         protected override IType ConvertGenericInstance(IType Type)
         {
-            if (!Type.IsRecursiveGenericInstance)
+            if (!Type.IsRecursiveGenericInstance
+                || !Type.CanExtend(Method.DeclaringType))
             {
                 return Type;
             }
@@ -219,14 +220,10 @@ namespace Flame.Optimization
 
         private IMethod ExpandMethodImpl(IMethod Method)
         {
-            if (!IsCompleteGenericInstance(Method))
+            if (!IsCompleteGenericInstance(Method)
+                || !PassEnvironment.CanExtend(Method.DeclaringType))
             {
                 expandedMethods[Method] = Method;
-                return Method;
-            }
-
-            if (!PassEnvironment.CanExtend(Method.DeclaringType))
-            {
                 return Method;
             }
 
