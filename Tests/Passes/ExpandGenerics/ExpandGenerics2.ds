@@ -1,0 +1,58 @@
+using System;
+
+public interface IMappable<T>
+{
+    IMappable<V> Map<V>(Func<T, V> Mapper);
+}
+
+public class ConsList<T> : IMappable<T>
+{
+    public this(T head)
+    {
+        this.Head = head;
+        this.Tail = null;
+    }
+
+    public this(T head, ConsList<T> tail)
+    {
+        this.Head = head;
+        this.Tail = tail;
+    }
+
+    public T Head { get; private set; }
+    public ConsList<T> Tail { get; private set; }
+    public bool HasTail { get { return Tail != null; } }
+
+    public IMappable<V> Map<V>(Func<T, V> Mapper)
+        : IMappable<T>.Map<V>
+    {
+        if (HasTail)
+        {
+            return new ConsList<V>(Mapper(Head), (ConsList<V>)Tail.Map<V>(Mapper));
+        }
+        else
+        {
+            return new ConsList<V>(Mapper(Head));
+        }
+    }
+}
+
+public module Program
+{
+    private static int Twice(int value)
+    {
+        return 2 * value;
+    }
+
+    private static IMappable<int> Twice(IMappable<int> value)
+    {
+        return value.Map<int>(Twice);
+    }
+
+    public static void Main()
+    {
+        var list = new ConsList<int>(10, new ConsList<int>(42));
+        var mappedList = (ConsList<int>)Twice(list);
+        Console.WriteLine(mappedList.Head + " " + mappedList.Tail.Head);
+    }
+}
