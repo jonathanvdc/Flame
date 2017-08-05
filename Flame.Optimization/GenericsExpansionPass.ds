@@ -200,6 +200,21 @@ namespace Flame.Optimization
                 expandedType.AddField(ExpandFieldImpl(expandedType, field));
             }
 
+            // Convert the type's methods.
+            foreach (var method in Type.Methods)
+            {
+                expandedType.AddMethod(Convert(method));
+            }
+
+            // Convert the type's accessors.
+            foreach (var property in Type.Properties)
+            {
+                foreach (var accessor in property.Accessors)
+                {
+                    expandedType.AddMethod(Convert(accessor));
+                }
+            }
+
             return expandedType;
         }
 
@@ -271,6 +286,11 @@ namespace Flame.Optimization
 
             // Convert the method's body.
             expandedMethod.Body = PassEnvironment.GetMethodBody(Method);
+
+            // Notify the environment that we created a new method.
+            // This allows the recompiler to pick up on implementations
+            // of virtual, abstract or interface methods.
+            PassEnvironment.NotifyCreated(expandedMethod);
 
             return expandedMethod;
         }

@@ -1552,6 +1552,12 @@ namespace Flame.Recompilation
             return !IsExternalStrict(Type);
         }
 
+        /// <inheritdoc/>
+        public void NotifyCreated(IMethod Method)
+        {
+            RegisterImplementations(Method);
+        }
+
         #endregion
     }
 }

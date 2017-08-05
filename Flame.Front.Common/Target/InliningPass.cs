@@ -14,55 +14,6 @@ using Flame.Optimization;
 
 namespace Flame.Front.Target
 {
-    /// <summary>
-    /// A body pass that is derived from another underlying
-    /// body pass environment, but comes with its own log.
-    /// </summary>
-    public class DerivedBodyPassEnvironment : IBodyPassEnvironment
-    {
-        public DerivedBodyPassEnvironment(
-            IBodyPassEnvironment BaseEnvironment, ICompilerLog Log)
-        {
-            this.BaseEnvironment = BaseEnvironment;
-            this.Log = Log;
-        }
-
-        /// <summary>
-        /// Gets the body pass environment this body pass environment
-        /// is based on.
-        /// </summary>
-        /// <value>The base environment.</value>
-        public IBodyPassEnvironment BaseEnvironment { get; private set; }
-
-        /// <summary>
-        /// Gets the body pass' log.
-        /// </summary>
-        public ICompilerLog Log { get; private set; }
-
-        /// <summary>
-        /// Gets the body pass' environment.
-        /// </summary>
-        public IEnvironment Environment { get { return BaseEnvironment.Environment; } }
-
-        /// <summary>
-        /// Gets the method body for the given method.
-        /// </summary>
-        /// <returns>The method body.</returns>
-        public IStatement GetMethodBody(IMethod Method)
-        {
-            return BaseEnvironment.GetMethodBody(Method);
-        }
-
-        /// <summary>
-        /// Checks if the given type can be extended with additional members.
-        /// </summary>
-        /// <returns><c>true</c> if the specified type can be extended; otherwise, <c>false</c>.</returns>
-        public bool CanExtend(IType Type)
-        {
-            return BaseEnvironment.CanExtend(Type);
-        }
-    }
-
     public class InliningPass : InliningPassBase
     {
         private InliningPass()

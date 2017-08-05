@@ -29,6 +29,13 @@ namespace Flame.Compiler.Visitors
         /// </summary>
         /// <returns><c>true</c> if the specified type can be extended; otherwise, <c>false</c>.</returns>
         bool CanExtend(IType Type);
+
+        /// <summary>
+        /// Notifies the pass environment that the given method has been created, possibly
+        /// after its declaring type was seen by the recompiler.
+        /// </summary>
+        /// <param name="Method">The newly-created method.</param>
+        void NotifyCreated(IMethod Method);
     }
 
     /// <summary>
@@ -188,7 +195,7 @@ namespace Flame.Compiler.Visitors
         /// Gets the first body pass to apply to the input.
         /// </summary>
         public IPass<BodyPassArgument, IStatement> First { get; private set; }
-        
+
         /// <summary>
         /// Gets the second body pass to apply to the input.
         /// </summary>
