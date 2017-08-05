@@ -95,6 +95,7 @@ namespace Flame.Optimization
             this.expandedTypes = new Dictionary<IType, IType>();
             this.expandedMethods = new Dictionary<IMethod, IMethod>();
             this.expandedFields = new Dictionary<IField, IField>();
+            this.genericMethodImpls = new Dictionary<IMethod, HashSet<IMethod>>();
         }
 
         /// <summary>
@@ -120,6 +121,7 @@ namespace Flame.Optimization
         private Dictionary<IType, IType> expandedTypes;
         private Dictionary<IMethod, IMethod> expandedMethods;
         private Dictionary<IField, IField> expandedFields;
+        private Dictionary<IMethod, HashSet<IMethod>> genericMethodImpls;
 
         /// <summary>
         /// Gets a member converter for this expander.
@@ -156,7 +158,7 @@ namespace Flame.Optimization
         {
             if (!IsCompleteGenericInstance(Type))
             {
-                expandedTypes[Type] = Type;
+                expandedTypes.Add(Type, Type);
                 return Type;
             }
 
@@ -180,7 +182,7 @@ namespace Flame.Optimization
 
             // Define a new type.
             var expandedType = new DescribedType(ExpandedTypeNamer(Type), expandedDeclNs);
-            expandedTypes[Type] = expandedType;
+            expandedTypes.Add(Type, expandedType);
 
             // Copy the attributes.
             foreach (var attr in Type.Attributes)
@@ -200,19 +202,10 @@ namespace Flame.Optimization
                 expandedType.AddField(ExpandFieldImpl(expandedType, field));
             }
 
-            // Convert the type's methods.
+            // Register generic method implementations.
             foreach (var method in Type.Methods)
             {
-                expandedType.AddMethod(Convert(method));
-            }
-
-            // Convert the type's accessors.
-            foreach (var property in Type.Properties)
-            {
-                foreach (var accessor in property.Accessors)
-                {
-                    expandedType.AddMethod(Convert(accessor));
-                }
+                RegisterGenericMethodImpls(method.GetGenericDeclaration());
             }
 
             return expandedType;
@@ -235,10 +228,14 @@ namespace Flame.Optimization
 
         private IMethod ExpandMethodImpl(IMethod Method)
         {
+            // If `Method` is generic, then we want to register it as
+            // an implementation of its base types.
+            RegisterGenericMethodImpls(Method.GetGenericDeclaration());
+
             if (!IsCompleteGenericInstance(Method)
                 || !PassEnvironment.CanExtend(Method.DeclaringType))
             {
-                expandedMethods[Method] = Method;
+                expandedMethods.Add(Method, Method);
                 return Method;
             }
 
@@ -258,7 +255,7 @@ namespace Flame.Optimization
 
             expandedMethod.IsStatic = Method.IsStatic;
 
-            expandedMethods[Method] = expandedMethod;
+            expandedMethods.Add(Method, expandedMethod);
 
             // Copy the attributes.
             foreach (var attr in Method.Attributes)
@@ -292,7 +289,39 @@ namespace Flame.Optimization
             // of virtual, abstract or interface methods.
             PassEnvironment.NotifyCreated(expandedMethod);
 
+            // If this method is generic, then we want to convert any and all
+            // implementations of this method.
+            var genericImpls = GetGenericMethodImpls(Method.GetGenericDeclaration());
+            foreach (var impl in genericImpls)
+            {
+                var implInstance = impl.MakeGenericMethod(Method.GetGenericArguments());
+                Convert(implInstance);
+            }
+
             return expandedMethod;
+        }
+
+        private void RegisterGenericMethodImpls(IMethod Method)
+        {
+            foreach (var baseMethod in Method.BaseMethods)
+            {
+                var genericBaseMethod = baseMethod.GetGenericDeclaration();
+                if (genericBaseMethod.IsGeneric)
+                {
+                    GetGenericMethodImpls(genericBaseMethod).Add(Method);
+                }
+            }
+        }
+
+        private HashSet<IMethod> GetGenericMethodImpls(IMethod Method)
+        {
+            HashSet<IMethod> results;
+            if (!genericMethodImpls.TryGetValue(Method, &results))
+            {
+                results = new HashSet<IMethod>();
+                genericMethodImpls.Add(Method, results);
+            }
+            return results;
         }
 
         public IField Convert(IField Field)
@@ -317,7 +346,7 @@ namespace Flame.Optimization
                 PrimitiveTypes.Void,
                 Field.IsStatic);
 
-            expandedFields[Field] = newField;
+            expandedFields.Add(Field, newField);
 
             // Convert the field type.
             newField.FieldType = Convert(Field.FieldType);
