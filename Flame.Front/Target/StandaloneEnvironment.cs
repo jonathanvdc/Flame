@@ -27,7 +27,7 @@ namespace Flame.Front.Target
         private Dictionary<IType, IType> equivTypeDict;
         private Dictionary<IType, IType> builtinTypeDict;
         private ReaderWriterLockSlim equivTypeLock;
-        private Lazy<IType> rootTypeVal;
+        private IType rootTypeVal;
 
         /// <summary>
         /// Configures this environment with the given binder.
@@ -36,7 +36,7 @@ namespace Flame.Front.Target
         public void Configure(IBinder Binder)
         {
             this.binder = Binder;
-            this.rootTypeVal = new Lazy<IType>(LookupRootType);
+            this.rootTypeVal = null;
             this.equivTypeDict = new Dictionary<IType, IType>();
             this.builtinTypeDict = new Dictionary<IType, IType>();
             this.equivTypeLock = new ReaderWriterLockSlim();
@@ -48,7 +48,17 @@ namespace Flame.Front.Target
         public const string StandaloneIdentifier = "standalone";
 
         /// <inheritdoc/>
-        public IType RootType => rootTypeVal.Value;
+        public IType RootType
+        {
+            get
+            {
+                if (rootTypeVal == null)
+                {
+                    rootTypeVal = LookupRootType();
+                }
+                return rootTypeVal;
+            }
+        }
 
         private IType LookupRootType()
         {
