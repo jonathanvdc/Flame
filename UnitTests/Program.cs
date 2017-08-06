@@ -14,18 +14,19 @@ namespace UnitTests
     {
         public static readonly VList<Pair<string, Func<int>>> Menu = new VList<Pair<string, Func<int>>>()
         {
-            new Pair<string,Func<int>>("Run unit tests of Flame.dll",  Flame),
-            new Pair<string,Func<int>>("Run unit tests of Flame.Build.Lazy.dll",  Flame_Build_Lazy),
-            new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll",  Flame_Compiler),
-            new Pair<string,Func<int>>("Run unit tests of Flame.DSharp.dll",  Flame_DSharp),
-            new Pair<string,Func<int>>("Run unit tests of Flame.Optimization.dll",  Flame_Optimization)
+            new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Build.Lazy.dll", Flame_Build_Lazy),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", Flame_Compiler),
+            new Pair<string,Func<int>>("Run unit tests of Flame.DSharp.dll", Flame_DSharp),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Optimization.dll", Flame_Optimization),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Front.dll", Flame_Front)
         };
 
         public static void Main(string[] args)
         {
             // Workaround for MS bug: Assert(false) will not fire in debugger
             Debug.Listeners.Clear();
-            Debug.Listeners.Add( new DefaultTraceListener() );
+            Debug.Listeners.Add(new DefaultTraceListener());
             if (RunMenu(Menu, args.Length > 0 ? args[0].GetEnumerator() : null) > 0)
                 // Let the outside world know that something went wrong (e.g. Travis CI)
                 Environment.ExitCode = 1;
@@ -42,24 +43,29 @@ namespace UnitTests
         {
             var reader = input ?? ConsoleChars();
             int errorCount = 0;
-            for (;;) {
+            for (;;)
+            {
                 Console.WriteLine();
                 Console.WriteLine("What do you want to do? (Esc to quit)");
                 for (int i = 0; i < menu.Count; i++)
-                    Console.WriteLine(PrintHelpers.HexDigitChar(i+1) + ". " + menu[i].Key);
+                    Console.WriteLine(PrintHelpers.HexDigitChar(i + 1) + ". " + menu[i].Key);
                 Console.WriteLine("Space. Run all tests");
 
                 if (!reader.MoveNext())
                     break;
 
                 char c = reader.Current;
-                if (c == ' ') {
-                    for (int i = 0; i < menu.Count; i++) {
+                if (c == ' ')
+                {
+                    for (int i = 0; i < menu.Count; i++)
+                    {
                         Console.WriteLine();
-                        ConsoleMessageSink.WriteColoredMessage(ConsoleColor.White, i+1, menu[i].Key);
+                        ConsoleMessageSink.WriteColoredMessage(ConsoleColor.White, i + 1, menu[i].Key);
                         errorCount += menu[i].Value();
                     }
-                } else {
+                }
+                else
+                {
                     int i = ParseHelpers.HexDigitValue(c);
                     if (i > 0 && i <= menu.Count)
                         errorCount += menu[i - 1].Value();
@@ -106,6 +112,12 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new Optimization.SimplifyFlowTests());
+        }
+
+        public static int Flame_Front()
+        {
+            return RunTests.RunMany(
+                new Front.StandaloneEnvironmentTests());
         }
     }
 }

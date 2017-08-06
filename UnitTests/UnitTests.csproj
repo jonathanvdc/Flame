@@ -77,12 +77,17 @@
     <Compile Include="Collections\ValueListTests.cs" />
     <Compile Include="Collections\SmallMultiDictionaryTests.cs" />
     <Compile Include="AttributeMapTests.cs" />
+    <Compile Include="Front\StandaloneEnvironmentTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Flame.Build.Lazy\Flame.Build.Lazy.csproj">
       <Project>{CE744475-5A28-471C-96AC-42902D951CFB}</Project>
       <Name>Flame.Build.Lazy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Front\Flame.Front.csproj">
+      <Project>{A362BCD9-7B23-45DA-99A6-6B995C92480E}</Project>
+      <Name>Flame.Front</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
