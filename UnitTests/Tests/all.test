@@ -1,11 +1,23 @@
 // A compare-test test description that runs all unit tests for Flame.
 // Note that the UnitTests project is assumed to have been built already.
 
+init
+{
+    template UnitTest<i>
+    {
+        run
+        {
+            $net-runtime ../bin/Release/UnitTests.exe $i;
+        }
+    }
+}
+
 tests
 {
-    flame.test;
-    flame-build-lazy.test;
-    flame-compiler.test;
-    flame-dsharp.test;
-    flame-optimization.test;
+    template UnitTest<1>;
+    template UnitTest<2>;
+    template UnitTest<3>;
+    template UnitTest<4>;
+    template UnitTest<5>;
+    template UnitTest<6>;
 }
