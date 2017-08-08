@@ -41,11 +41,12 @@ namespace Flame.Compiler.Expressions
         public override IExpression Optimize()
         {
             var optVal = Value.Optimize();
-            var optValTy = optVal.Type;
-            if (optValTy.IsReferenceType && !optValTy.IsPointer)
-                // Found a non-box reference type. Replace this unboxing
-                // operation by a dynamic cast.
+            if (TargetType.IsReferenceType && !TargetType.IsPointer)
+            {
+                // Unboxing a value to a reference type is equivalent
+                // to a dynamic cast.
                 return new DynamicCastExpression(optVal, TargetType).Simplify();
+            }
 
             var optExpr = Create(optVal, Type).Simplify();
             if (optExpr.IsConstant)
