@@ -34,11 +34,23 @@ namespace Flame
         /// </summary>
         public QualifiedName Qualify(QualifiedName Qualifier)
         {
-            var result = Qualify();
-            if (Qualifier.IsEmpty)
-                return result;
-            else
-                return result.Qualify(Qualifier);
+            return Qualify().Qualify(Qualifier);
+        }
+
+        /// <summary>
+        /// Qualifies this unqualified name with the given qualifier.
+        /// </summary>
+        public QualifiedName Qualify(UnqualifiedName Qualifier)
+        {
+            return Qualify().Qualify(Qualifier);
+        }
+
+        /// <summary>
+        /// Qualifies this unqualified name with the given simple name.
+        /// </summary>
+        public QualifiedName Qualify(string Qualifier)
+        {
+            return Qualify().Qualify(Qualifier);
         }
 
         public int CompareTo(UnqualifiedName Other)
