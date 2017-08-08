@@ -28,6 +28,8 @@ namespace Flame.Front.Target
         private Dictionary<IType, IType> builtinTypeDict;
         private ReaderWriterLockSlim equivTypeLock;
         private IType rootTypeVal;
+        private IType enumerableTypeVal;
+        private IType enumeratorTypeVal;
 
         /// <summary>
         /// Configures this environment with the given binder.
@@ -37,6 +39,8 @@ namespace Flame.Front.Target
         {
             this.binder = Binder;
             this.rootTypeVal = null;
+            this.enumerableTypeVal = null;
+            this.enumeratorTypeVal = null;
             this.equivTypeDict = new Dictionary<IType, IType>();
             this.builtinTypeDict = new Dictionary<IType, IType>();
             this.equivTypeLock = new ReaderWriterLockSlim();
@@ -54,27 +58,40 @@ namespace Flame.Front.Target
             {
                 if (rootTypeVal == null)
                 {
-                    rootTypeVal = LookupRootType();
+                    rootTypeVal = binder.BindType(objectName);
                 }
                 return rootTypeVal;
             }
         }
 
-        private IType LookupRootType()
+        /// <inheritdoc/>
+        public IType EnumerableType
         {
-            return binder.BindType(
-                new SimpleName("Object")
-                .Qualify(new SimpleName("System").Qualify()));
+            get
+            {
+                if (enumerableTypeVal == null)
+                {
+                    enumerableTypeVal = binder.BindType(enumerableName);
+                }
+                return enumerableTypeVal;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IType EnumeratorType
+        {
+            get
+            {
+                if (enumeratorTypeVal == null)
+                {
+                    enumeratorTypeVal = binder.BindType(enumeratorName);
+                }
+                return enumeratorTypeVal;
+            }
         }
 
         /// <inheritdoc/>
         public string Name => StandaloneIdentifier;
-
-        /// <inheritdoc/>
-        public IType EnumerableType => null;
-
-        /// <inheritdoc/>
-        public IType EnumeratorType => null;
 
         /// <inheritdoc/>
         public IType GetEquivalentType(IType Type)
@@ -191,5 +208,21 @@ namespace Flame.Front.Target
                 return Type;
             }
         }
+
+        private static readonly QualifiedName objectName =
+            new SimpleName("Object")
+            .Qualify("System");
+
+        private static readonly QualifiedName enumerableName =
+            new SimpleName("IEnumerable", 1)
+            .Qualify("Generic")
+            .Qualify("Collections")
+            .Qualify("System");
+
+        private static readonly QualifiedName enumeratorName =
+            new SimpleName("IEnumerator", 1)
+            .Qualify("Generic")
+            .Qualify("Collections")
+            .Qualify("System");
     }
 }
