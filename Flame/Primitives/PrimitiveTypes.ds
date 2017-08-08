@@ -229,7 +229,7 @@ namespace Flame
         {
             get
             {
-                return Type.IsInteger || Type.IsBit || Type.IsEnum || Char.Equals(Type) || Boolean.Equals(Char);
+                return Type.IsInteger || Type.IsBit || Type.IsEnum || Char.Equals(Type) || Boolean.Equals(Type);
             }
         }
 
