@@ -46,7 +46,7 @@ namespace Flame
                 var ptrType = (PointerType)obj;
                 if (ptrType.IsPointer && ptrType.PointerKind == PointerKind)
                 {
-                    return ElementType == ptrType.ElementType;
+                    return ElementType.Equals(ptrType.ElementType);
                 }
             }
             return false;

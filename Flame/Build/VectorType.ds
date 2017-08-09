@@ -39,8 +39,8 @@ namespace Flame
             if (obj is VectorType)
             {
                 var vectType = (VectorType)obj;
-                return ElementType == vectType.ElementType &&
-                       Enumerable.SequenceEqual<int>(Dimensions, vectType.Dimensions);
+                return ElementType.Equals(vectType.ElementType)
+                    && Enumerable.SequenceEqual<int>(Dimensions, vectType.Dimensions);
             }
             else
             {

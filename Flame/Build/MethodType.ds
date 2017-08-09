@@ -164,7 +164,7 @@ namespace Flame
         {
             if (obj is MethodType)
             {
-                return DelegateSignature == ((MethodType)obj).DelegateSignature;
+                return DelegateSignature.Equals(((MethodType)obj).DelegateSignature);
             }
             else
             {

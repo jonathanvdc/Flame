@@ -67,8 +67,8 @@ namespace Flame
             if (obj is ArrayType)
             {
                 var arrType = (ArrayType)obj;
-                return ArrayRank == arrType.ArrayRank &&
-                       ElementType.Equals(arrType.ElementType);
+                return ArrayRank == arrType.ArrayRank
+                    && ElementType.Equals(arrType.ElementType);
             }
             else
             {
