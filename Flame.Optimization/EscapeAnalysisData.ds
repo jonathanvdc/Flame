@@ -246,9 +246,11 @@ namespace Flame.Optimization
             this.paramTags = new List<UniqueTag>(Other.paramTags);
             this.ThisParameterTag = Other.ThisParameterTag;
             this.ReturnValueTag = Other.ReturnValueTag;
-            this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(Other.results);
+            this.results = new Dictionary<UniqueTag, EscapeAnalysisResult>(
+                (IDictionary<UniqueTag, EscapeAnalysisResult>)Other.results);
             this.dependencyGraph = new Graph<UniqueTag>(Other.dependencyGraph);
-            this.nodeTypes = new Dictionary<UniqueTag, IType>(Other.nodeTypes);
+            this.nodeTypes = new Dictionary<UniqueTag, IType>(
+                (IDictionary<UniqueTag, IType>)Other.nodeTypes);
         }
 
         // A list of unique tags for the parameter list.

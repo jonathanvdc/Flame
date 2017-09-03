@@ -99,7 +99,7 @@ namespace Flame.Syntax
             this.localStack.Push(
                 new DictionaryPair(
                     new LocalDictionary(),
-                    new LocalDictionary(parentLocals)));
+                    new LocalDictionary((IDictionary<string, DeclaredVariable>)parentLocals)));
         }
 
         /// <summary>
