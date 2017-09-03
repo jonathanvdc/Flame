@@ -221,7 +221,7 @@ namespace Flame.Cecil
             {
                 return Flame.Compiler.Expressions.NullExpression.Instance;
             }
-            throw new NotImplementedException();
+            return null;
         }
 
         #region Generics
