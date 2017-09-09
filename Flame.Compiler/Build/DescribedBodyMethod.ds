@@ -7,48 +7,65 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler
 {
+    /// <summary>
+    /// A piecewise constructed method that includes a method body.
+    /// </summary>
     public virtual class DescribedBodyMethod : DescribedMethod, IBodyMethod
     {
-        public const this(UnqualifiedName Name, IType DeclaringType)
+        public this(UnqualifiedName Name, IType DeclaringType)
             : base(Name, DeclaringType)
         {
             this.Body = new ReturnStatement();
         }
-        public const this(UnqualifiedName Name, IType DeclaringType, IType ReturnType, bool IsStatic)
+        public this(UnqualifiedName Name, IType DeclaringType, IType ReturnType, bool IsStatic)
             : base(Name, DeclaringType, ReturnType, IsStatic)
         {
             this.Body = new ReturnStatement(new DefaultValueExpression(ReturnType));
         }
-        public const this(string Name, IType DeclaringType)
+        public this(string Name, IType DeclaringType)
             : base(Name, DeclaringType)
         {
             this.Body = new ReturnStatement();
         }
-        public const this(string Name, IType DeclaringType, IType ReturnType, bool IsStatic)
+        public this(string Name, IType DeclaringType, IType ReturnType, bool IsStatic)
             : base(Name, DeclaringType, ReturnType, IsStatic)
         {
             this.Body = new ReturnStatement(new DefaultValueExpression(ReturnType));
         }
 
-        public IStatement Body { const get; set; }
+        /// <summary>
+        /// Gets or sets the method's body statement.
+        /// </summary>
+        /// <returns>The body statement.</returns>
+        public IStatement Body { get; set; }
 
         /// <summary>
         /// Gets the method's body statement.
         /// </summary>
-        /// <returns></returns>
-        public const IStatement GetMethodBody()
+        /// <returns>The body statement.</returns>
+        public IStatement GetMethodBody()
         {
             return Body;
         }
     }
 
+    /// <summary>
+    /// A piecewise constructed accessor that includes a method body.
+    /// </summary>
     public class DescribedBodyAccessor : DescribedBodyMethod, IAccessor
     {
-        public const this(set AccessorType AccessorType, set IProperty DeclaringProperty, IType ReturnType)
+        public this(set AccessorType AccessorType, set IProperty DeclaringProperty, IType ReturnType)
             : base(AccessorType.ToString().ToLower() + "_" + DeclaringProperty.Name,
                    DeclaringProperty.DeclaringType, ReturnType, DeclaringProperty.IsStatic);
 
-        public AccessorType AccessorType { const get; private set; }
-        public IProperty DeclaringProperty { const get; private set; }
+        /// <summary>
+        /// Gets or sets this accessor's type.
+        /// </summary>
+        public AccessorType AccessorType { get; private set; }
+
+        /// <summary>
+        /// Gets or sets this accessor's declaring property.
+        /// </summary>
+        public IProperty DeclaringProperty { get; private set; }
     }
 }
