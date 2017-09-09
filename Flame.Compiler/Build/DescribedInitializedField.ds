@@ -1,0 +1,62 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Flame.Build;
+using Flame.Compiler.Statements;
+using Flame.Compiler.Expressions;
+
+namespace Flame.Compiler
+{
+    /// <summary>
+    /// A piecewise constructed method that includes a method body.
+    /// </summary>
+    public virtual class DescribedInitializedField : DescribedField, IInitializedField
+    {
+        /// <summary>
+        /// Creates a new field.
+        /// </summary>
+        /// <param name="Name">The field's name.</param>
+        /// <param name="DeclaringType">The type in which the field is declared.</param>
+        /// <param name="FieldType">The type of value stored in the field.</param>
+        public this(UnqualifiedName Name, IType DeclaringType, IType FieldType)
+            : base(Name, DeclaringType, FieldType);
+
+        /// <summary>
+        /// Creates a new field.
+        /// </summary>
+        /// <param name="Name">The field's name.</param>
+        /// <param name="DeclaringType">The type in which the field is declared.</param>
+        /// <param name="FieldType">The type of value stored in the field.</param>
+        /// <param name="IsStatic">A Boolean flag that tells if the field is static.</param>
+        public this(UnqualifiedName Name, IType DeclaringType, IType FieldType, bool IsStatic)
+            : base(Name, DeclaringType, FieldType, IsStatic);
+
+        /// <summary>
+        /// Creates a new field.
+        /// </summary>
+        /// <param name="Name">The field's name.</param>
+        /// <param name="DeclaringType">The type in which the field is declared.</param>
+        /// <param name="FieldType">The type of value stored in the field.</param>
+        public this(string Name, IType DeclaringType, IType FieldType)
+            : base(Name, DeclaringType, FieldType);
+
+        /// <summary>
+        /// Creates a new field.
+        /// </summary>
+        /// <param name="Name">The field's name.</param>
+        /// <param name="DeclaringType">The type in which the field is declared.</param>
+        /// <param name="FieldType">The type of value stored in the field.</param>
+        /// <param name="IsStatic">A Boolean flag that tells if the field is static.</param>
+        public this(string Name, IType DeclaringType, IType FieldType, bool IsStatic)
+            : base(Name, DeclaringType, FieldType, IsStatic);
+
+        /// <summary>
+        /// Gets an expression that represents the field's initial value.
+        /// </summary>
+        /// <returns>
+        /// An expression that describes the field's initial value,
+        /// or <c>null</c> if the field does not have an initial value.
+        /// </returns>
+        public IExpression InitialValue { get; set; }
+    }
+}
