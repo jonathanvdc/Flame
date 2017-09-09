@@ -17,12 +17,13 @@ namespace UnitTests.Front
         {
             var env = new StandaloneEnvironment();
             var asm = new DescribedAssembly(new SimpleName("stdlib"), env);
+            Assert.AreEqual(null, env.RootType);
+            env.Configure(asm.CreateBinder());
+            Assert.AreEqual(null, env.RootType);
             var systemNs = new DescribedNamespace(new SimpleName("System"), (IAssembly)asm);
             asm.AddNamespace(systemNs);
             var objType = new DescribedType(new SimpleName("Object"), systemNs);
             systemNs.AddType(objType);
-            Assert.AreEqual(null, env.RootType);
-            env.Configure(asm.CreateBinder());
             Assert.AreEqual(objType, env.RootType);
         }
     }
