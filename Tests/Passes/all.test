@@ -11,6 +11,7 @@ tests
     ElideRuntimeCasts/ElideRuntimeCasts.test;
     ExpandGenerics/ExpandGenerics.test;
     ExpandGenerics/ExpandGenerics2.test;
+    ExpandGenerics/ExpandGenerics3.test;
     Heap2Stack/Heap2Stack.test;
     Heap2Stack/Heap2Stack2.test;
     Heap2Stack/Heap2Stack3.test;

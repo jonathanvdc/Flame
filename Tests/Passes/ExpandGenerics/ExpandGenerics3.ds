@@ -1,0 +1,14 @@
+using System;
+
+public module GenericClass<T>
+{
+    public static T[] EmptyArray = new T[] { };
+}
+
+public module Program
+{
+    public static void Main()
+    {
+        Console.WriteLine(GenericClass<int>.EmptyArray.Length);
+    }
+}
