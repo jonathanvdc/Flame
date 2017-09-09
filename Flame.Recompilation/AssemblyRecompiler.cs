@@ -522,7 +522,9 @@ namespace Flame.Recompilation
             {
                 var declType = ((IGenericParameter)SourceType).DeclaringMember;
                 var recompiledDeclType = (IGenericMember)GetMember(declType);
-                return new MemberCreationResult<IType>(recompiledDeclType.GenericParameters.Single((item) => item.Name.Equals(SourceType.Name)));
+                return new MemberCreationResult<IType>(
+                    recompiledDeclType.GenericParameters.Single(
+                        item => item.Name.Equals(SourceType.Name)));
             }
             else
             {
