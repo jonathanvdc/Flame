@@ -111,7 +111,7 @@ namespace Flame
 
         public override bool Equals(SimpleName Other)
         {
-            return Name == Other.Name
+            return Name.Equals(Other.Name)
                 && TypeParameterCount == Other.TypeParameterCount;
         }
         public override bool Equals(UnqualifiedName Other)
