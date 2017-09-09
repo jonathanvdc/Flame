@@ -340,24 +340,35 @@ namespace Flame.Optimization
 
         private IField ExpandFieldImpl(IType DeclaringType, IField Field)
         {
-            var newField = new DescribedField(
-                Field.Name,
+            assert(Field is GenericInstanceField);
+            var genInstField = (GenericInstanceField)Field;
+
+            var newField = new DescribedInitializedField(
+                genInstField.Name,
                 DeclaringType,
                 PrimitiveTypes.Void,
-                Field.IsStatic);
+                genInstField.IsStatic);
 
             expandedFields.Add(Field, newField);
 
             // Convert the field type.
-            newField.FieldType = Convert(Field.FieldType);
+            newField.FieldType = Convert(genInstField.FieldType);
 
             // Copy the attributes.
-            foreach (var attr in Field.Attributes)
+            foreach (var attr in genInstField.Attributes)
             {
                 newField.AddAttribute(attr);
             }
 
-            // TODO: convert the field's initial value.
+            if (genInstField.Declaration is IInitializedField)
+            {
+                // Convert the field's initial value.
+                newField.InitialValue = MemberNodeVisitor.ConvertMembers(
+                    MemberConverter,
+                    MemberNodeVisitor.ConvertTypes(
+                        new GenericResolvingConverter(genInstField.Resolver),
+                        ((IInitializedField)genInstField.Declaration).InitialValue));
+            }
 
             return newField;
         }
