@@ -138,7 +138,7 @@ namespace Flame.Front.Target
                 return equivType;
             }
 
-            equivType = binder.BindType(Type.FullName);
+            equivType = binder.BindType(GetEquivalentTypeName(Type));
 
             if (equivType != null)
             {
@@ -148,6 +148,19 @@ namespace Flame.Front.Target
             else
             {
                 return Type;
+            }
+        }
+
+        private static QualifiedName GetEquivalentTypeName(IType BuiltinType)
+        {
+            UnqualifiedName equivTypeName;
+            if (equivalentTypeNames.TryGetValue(BuiltinType, out equivTypeName))
+            {
+                return equivTypeName.Qualify(BuiltinType.DeclaringNamespace.FullName);
+            }
+            else
+            {
+                return BuiltinType.FullName;
             }
         }
 
@@ -183,7 +196,7 @@ namespace Flame.Front.Target
         /// <inheritdoc/>
         public IEnumerable<IType> GetDefaultBaseTypes(IType Type, IEnumerable<IType> CurrentBaseTypes)
         {
-            if (RootType == null || Type.GetIsInterface())
+            if (RootType == null || Type.GetIsInterface() || Type.GetIsRootType())
                 return Enumerable.Empty<IType>();
 
             foreach (var baseTy in CurrentBaseTypes)
@@ -224,5 +237,14 @@ namespace Flame.Front.Target
             .Qualify("Generic")
             .Qualify("Collections")
             .Qualify("System");
+
+        private static readonly Dictionary<IType, UnqualifiedName> equivalentTypeNames =
+            new Dictionary<IType, UnqualifiedName>()
+        {
+            { PrimitiveTypes.Float32, new SimpleName("Single", 0) },
+            { PrimitiveTypes.Float64, new SimpleName("Double", 0) },
+            { PrimitiveTypes.UInt8, new SimpleName("Byte", 0) },
+            { PrimitiveTypes.Int8, new SimpleName("SByte", 0) }
+        };
     }
 }
