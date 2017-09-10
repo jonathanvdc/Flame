@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Attributes;
 
 namespace Flame.Intermediate.Emit
 {
@@ -74,53 +75,64 @@ namespace Flame.Intermediate.Emit
                 return new LazyNodeStructure<IAttribute>(Attribute, attr =>
                     NodeFactory.Call(AttributeParsers.ConstructedAttributeNodeName, new[] { attrCtor }.Concat(args)));
             }
+
+            string attrName;
+            if (constantAttributeNames.TryGetValue(Attribute, out attrName))
+            {
+                return new ConstantNodeStructure<IAttribute>(NodeFactory.Id(attrName), Attribute);
+            }
+            else if (Attribute is IntrinsicAttribute)
+            {
+                // Format:
+                //
+                // #intrinsic(<attribute_name>, <argument_expressions...>)
+
+                var intrinsicAttr = (IntrinsicAttribute)Attribute;
+                var args = ConvertExpressions(Assembly, intrinsicAttr.Arguments.Select(PrimitiveExpressionExtensions.ToExpression));
+                return new LazyNodeStructure<IAttribute>(Attribute, attr =>
+                    NodeFactory.Call(
+                        AttributeParsers.IntrinsicAttributeNodeName,
+                        new[] { NodeFactory.IdOrLiteral(intrinsicAttr.Name) }.Concat(args)));
+            }
+            else if (Attribute is SingletonAttribute)
+            {
+                var singletonAttr = (SingletonAttribute)Attribute;
+                return new ConstantNodeStructure<IAttribute>(
+                    NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[]
+                    {
+                        NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName)
+                    }), singletonAttr);
+            }
+            else if (Attribute is AssociatedTypeAttribute)
+            {
+                var type = ((AssociatedTypeAttribute)Attribute).AssociatedType;
+                return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                    NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[]
+                {
+                    Assembly.TypeTable.GetReference(type)
+                }));
+            }
+            else if (Attribute is OperatorAttribute)
+            {
+                var op = ((OperatorAttribute)Attribute).Operator;
+                return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                    NodeFactory.Call(AttributeParsers.OperatorNodeName, new LNode[]
+                {
+                    NodeFactory.IdOrLiteral(op.Name)
+                }));
+            }
+            else if (Attribute is DescriptionAttribute)
+            {
+                var descNode = ((DescriptionAttribute)Attribute).Contents;
+                return new LazyNodeStructure<IAttribute>(Attribute, () =>
+                    NodeFactory.Call(AttributeParsers.DocumentationNodeName, new LNode[]
+                {
+                    MarkupHelpers.Serialize(descNode)
+                }));
+            }
             else
             {
-                string attrName;
-                if (constantAttributeNames.TryGetValue(Attribute, out attrName))
-                {
-                    return new ConstantNodeStructure<IAttribute>(NodeFactory.Id(attrName), Attribute);
-                }
-                else if (Attribute is SingletonAttribute)
-                {
-                    var singletonAttr = (SingletonAttribute)Attribute;
-                    return new ConstantNodeStructure<IAttribute>(
-                        NodeFactory.Call(AttributeParsers.SingletonNodeName, new LNode[]
-                        {
-                            NodeFactory.IdOrLiteral(singletonAttr.InstanceMemberName)
-                        }), singletonAttr);
-                }
-                else if (Attribute is AssociatedTypeAttribute)
-                {
-                    var type = ((AssociatedTypeAttribute)Attribute).AssociatedType;
-                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
-                        NodeFactory.Call(AttributeParsers.AssociatedTypeNodeName, new LNode[]
-                    {
-                        Assembly.TypeTable.GetReference(type)
-                    }));
-                }
-                else if (Attribute is OperatorAttribute)
-                {
-                    var op = ((OperatorAttribute)Attribute).Operator;
-                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
-                        NodeFactory.Call(AttributeParsers.OperatorNodeName, new LNode[]
-                    {
-                        NodeFactory.IdOrLiteral(op.Name)
-                    }));
-                }
-                else if (Attribute is DescriptionAttribute)
-                {
-                    var descNode = ((DescriptionAttribute)Attribute).Contents;
-                    return new LazyNodeStructure<IAttribute>(Attribute, () =>
-                        NodeFactory.Call(AttributeParsers.DocumentationNodeName, new LNode[]
-                    {
-                        MarkupHelpers.Serialize(descNode)
-                    }));
-                }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
         }
 

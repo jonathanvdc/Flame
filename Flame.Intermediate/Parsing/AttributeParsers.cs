@@ -49,6 +49,7 @@ namespace Flame.Intermediate.Parsing
         public const string OperatorNodeName = "#operator";
         public const string DocumentationNodeName = "#docs";
 
+        public const string IntrinsicAttributeNodeName = "#intrinsic";
         public const string ConstructedAttributeNodeName = "#attribute";
 
         #endregion
@@ -117,8 +118,10 @@ namespace Flame.Intermediate.Parsing
         {
             if (Node.ArgCount == 0)
             {
-                throw new InvalidOperationException("Invalid '" + ConstructedAttributeNodeName + "' node: '" +
-                    ConstructedAttributeNodeName + "' nodes must have at least one argument, representing the attribute's constructor.");
+                throw new InvalidOperationException(
+                    "Invalid '" + ConstructedAttributeNodeName + "' node: '" +
+                    ConstructedAttributeNodeName +
+                    "' nodes must have at least one argument, representing the attribute's constructor.");
             }
 
             // Format: #attribute(<attribute_constructor>, <argument_expressions...>)
@@ -131,18 +134,56 @@ namespace Flame.Intermediate.Parsing
 
                 if (args.Any(item => item == null))
                 {
-                    throw new InvalidOperationException("Invalid '" + ConstructedAttributeNodeName + 
+                    throw new InvalidOperationException(
+                        "Invalid '" + ConstructedAttributeNodeName + 
                         "' node: one of the attribute node's arguments could not be evaluated at compile-time.");
                 }
 
                 int paramCount = attrCtor.Parameters.Count();
                 if (args.Length != paramCount)
                 {
-                    throw new InvalidOperationException("Invalid '" + ConstructedAttributeNodeName + "' node: '" +
+                    throw new InvalidOperationException(
+                        "Invalid '" + ConstructedAttributeNodeName + "' node: '" +
                         attrCtor.FullName + "' takes " + paramCount + (paramCount == 1 ? " argument" : " arguments") + ", but is given " +
                         args.Length + ".");
                 }
                 return new ConstructedAttribute(attrCtor, args);
+            });
+        }
+
+        /// <summary>
+        /// Parses an intrinsic attribute: an named, well-known attribute that
+        /// takes a sequence of compile-time constant expressions.
+        /// </summary>
+        /// <param name="State">The parser state.</param>
+        /// <param name="Node">The node that contains the attribute.</param>
+        /// <returns></returns>
+        public static INodeStructure<IAttribute> ParseIntrinsicAttribute(ParserState State, LNode Node)
+        {
+            if (Node.ArgCount == 0)
+            {
+                throw new InvalidOperationException(
+                    "Invalid '" + IntrinsicAttributeNodeName + "' node: '" +
+                    IntrinsicAttributeNodeName +
+                    "' nodes must have at least one argument, representing the attribute's name.");
+            }
+
+            // Format: #intrinsic(<attribute_name>, <argument_expressions...>)
+            return new LazyValueStructure<IAttribute>(Node, () =>
+            {
+                var attrName = IRParser.GetIdOrString(Node.Args[0]);
+                var args = ExpressionParsers.ParseExpressions(State, Node.Args.Skip(1))
+                    .Select(item => item.Evaluate())
+                    .ToArray();
+
+                if (args.Any(item => item == null))
+                {
+                    throw new InvalidOperationException(
+                        "Invalid '" + IntrinsicAttributeNodeName +
+                        "' node: one of the attribute node's arguments could not be evaluated at compile-time.");
+                }
+
+                return new IntrinsicAttribute(attrName, args);
             });
         }
 
@@ -158,6 +199,7 @@ namespace Flame.Intermediate.Parsing
                 {
                     // Constructed attributes:
                     { ConstructedAttributeNodeName, ParseConstructedAttribute },
+                    { IntrinsicAttributeNodeName, ParseIntrinsicAttribute },
 
                     // Not-so-parameterless primitive attributes:
                     { SingletonNodeName, ParseSingletonAttribute },
