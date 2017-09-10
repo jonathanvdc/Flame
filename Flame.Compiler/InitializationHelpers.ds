@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Flame.Build;
 using Flame.Compiler.Expressions;
 using Flame.Compiler.Statements;
 using Flame.Compiler.Variables;
+using Flame.Compiler.Visitors;
 
 namespace Flame.Compiler
 {
@@ -20,48 +23,151 @@ namespace Flame.Compiler
         /// An (initialized fields, uninitialized fields) tuple.
         /// </returns>
         public static Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>> PartitionFieldsByInitialization(
-            [IField] Fields)
+            IEnumerable<IField> Fields)
         {
             var initFields = new List<IField>();
             var uninitFields = new List<IField>();
             foreach (var field in Fields)
             {
-                if (field is IInitializedField)
+                if (HasInitialValue(field))
                 {
-                    if (((IInitializedField)field).InitialValue != null)
-                    {
-                        initFields.Add(field);
-                        next;
-                    }
+                    initFields.Add(field);
                 }
-                if (field is ILiteralField)
+                else
                 {
-                    if (((ILiteralField)field).Value != null)
-                    {
-                        initFields.Add(field);
-                        next;
-                    }
+                    uninitFields.Add(field);
                 }
-                uninitFields.Add(field);
             }
             return new Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>>(
                 initFields, uninitFields);
         }
 
         /// <summary>
-        /// Filters all initializated fields from the given sequence of fields.
+        /// Retrieves all initializated fields from the given sequence of fields.
         /// </summary>
-        public static IReadOnlyList<IField> FilterInitalizedFields([IField] Fields)
+        public static IReadOnlyList<IField> FilterInitializedFields(IEnumerable<IField> Fields)
         {
             return PartitionFieldsByInitialization(Fields).Item1;
         }
 
         /// <summary>
-        /// Filters all uninitializated fields from the given sequence of fields.
+        /// Retrieves all uninitializated fields from the given sequence of fields.
         /// </summary>
-        public static IReadOnlyList<IField> FilterUninitalizedFields([IField] Fields)
+        public static IReadOnlyList<IField> FilterUninitializedFields(IEnumerable<IField> Fields)
         {
             return PartitionFieldsByInitialization(Fields).Item2;
+        }
+
+        /// <summary>
+        /// Gets the initial value for the given field. This function can also handle
+        /// generic instance fields.
+        /// </summary>
+        /// <param name="Field">The fields whose initial value is to be found.</param>
+        /// <returns>The initial value.</returns>
+        public static IExpression GetInitialValue(IField Field)
+        {
+            if (Field is GenericInstanceField)
+            {
+                var genInstField = (GenericInstanceField)Field;
+                var initVal = GetInitialValue(genInstField.Declaration);
+                if (initVal == null)
+                {
+                    return null;
+                }
+
+                return MemberNodeVisitor.ConvertTypes(
+                    new GenericResolvingConverter(genInstField.Resolver),
+                    initVal);
+            }
+            else if (Field is IInitializedField)
+            {
+                return ((IInitializedField)Field).InitialValue;
+            }
+            else if (Field is ILiteralField)
+            {
+                var literal = ((ILiteralField)Field).Value;
+                if (literal == null)
+                {
+                    return null;
+                }
+
+                return literal.ToExpression();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Tests if the given field has an initial value.
+        /// </summary>
+        /// <param name="Field">The field to test for an initial value.</param>
+        /// <returns><c>true</c> if the given field has an initial value; otherwise, <c>false</c>.</returns>
+        public static bool HasInitialValue(IField Field)
+        {
+            if (Field is GenericInstanceField)
+            {
+                var genInstField = (GenericInstanceField)Field;
+                return HasInitialValue(genInstField.Declaration);
+            }
+            else if (Field is IInitializedField)
+            {
+                return ((IInitializedField)Field).InitialValue != null;
+            }
+            else if (Field is ILiteralField)
+            {
+                return ((ILiteralField)Field).Value != null;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Creates a statement that initializes the given field within the
+        /// context of a constructor. If the field has an initial value, then
+        /// that value is assigned to the field. Otherwise, the field's default
+        /// value is assigned to the field.
+        /// </summary>
+        /// <param name="Field">The field to initialize.</param>
+        /// <returns>A statement that initializes the field.</returns>
+        public static IStatement CreateFieldInitializationStatement(
+            IField Field)
+        {
+            var declType = Field.DeclaringType;
+            IExpression thisVal;
+            if (Field.IsStatic)
+            {
+                thisVal = null;
+            }
+            else
+            {
+                thisVal = new ThisVariable(declType).CreateGetExpression();
+            }
+
+            IField refField;
+            var recGenericParams = Enumerable.ToArray<IGenericParameter>(declType.GetRecursiveGenericParameters());
+            if (declType.IsGenericDeclaration && recGenericParams.Length > 0)
+            {
+                var thisRefTy = declType.MakeRecursiveGenericType(recGenericParams);
+                refField = new GenericInstanceField(
+                    Field, (IGenericResolver)thisRefTy, thisRefTy);
+            }
+            else
+            {
+                refField = Field;
+            }
+
+            var fieldValue = GetInitialValue(refField);
+            if (fieldValue == null)
+            {
+                fieldValue = new DefaultValueExpression(refField.FieldType)
+            }
+
+            return new FieldVariable(refField, thisVal)
+                .CreateSetStatement(fieldValue);
         }
 
         /// <summary>
@@ -81,8 +187,10 @@ namespace Flame.Compiler
             var partitionedFields = PartitionFieldsByInitialization(allFields);
             var uninitFields = partitionedFields.Item2;
             if (uninitFields.Count == 0)
+            {
                 // Nothing to do here.
                 return EmptyStatement;
+            }
 
             var getThisExpr = new ThisVariable(Type).CreateGetExpression();
             var initFields = partitionedFields.Item1;
@@ -100,7 +208,7 @@ namespace Flame.Compiler
             var results = new List<IStatement>();
             foreach (var field in uninitFields)
             {
-                // Initialize this field by its type's default value to it.
+                // Initialize this field by assigning its type's default value to it.
                 results.Add(new FieldSetStatement(
                     field, getThisExpr,
                     new DefaultValueExpression(field.FieldType)));
