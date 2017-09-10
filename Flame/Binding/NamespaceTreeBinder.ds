@@ -4,25 +4,33 @@ using System.Text;
 
 namespace Flame.Binding
 {
-	public class NamespaceTreeBinder : IBinder
-	{
-		public const this(set IEnvironment environment, set INamespaceTree NamespaceTree);
+    /// <summary>
+    /// A binder that searches through a namespace tree to bind names to types.
+    /// </summary>
+    public class NamespaceTreeBinder : IBinder
+    {
+        public this(set IEnvironment environment, set INamespaceTree NamespaceTree);
 
-		public INamespaceTree NamespaceTree { const get; private set; }
+        /// <summary>
+        /// Gets the namespace tree to search through when a name is to be bound
+        /// to a type.
+        /// </summary>
+        public INamespaceTree NamespaceTree { get; private set; }
 
-		private IEnvironment environment;
-		/// <summary>
-		/// Gets the environment for this binder.
-		/// </summary>
-        public override IEnvironment Environment : IBinder.Environment { get return environment; }
-        public override [IType] GetTypes() : IBinder.GetTypes
+        private IEnvironment environment;
+
+        /// <summary>
+        /// Gets the environment for this binder.
+        /// </summary>
+        public override IEnvironment Environment : IBinder.Environment { get { return environment; } }
+        public override IEnumerable<IType> GetTypes() : IBinder.GetTypes
         {
-        	return NamespaceTree.GetAllTypes();
+            return NamespaceTree.GetAllTypes();
         }
 
         public override IType BindType(QualifiedName Name)
         {
-        	return NamespaceTree.FindType(Name);
+            return NamespaceTree.FindType(Name);
         }
-	}
+    }
 }

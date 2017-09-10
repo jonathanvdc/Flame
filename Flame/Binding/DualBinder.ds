@@ -5,31 +5,55 @@ using System.Linq;
 
 namespace Flame.Binding
 {
-	public class DualBinder : IBinder
-	{
-		public const this(set IBinder MainBinder, set IBinder ExtraBinder);
-
-		/// <summary>
-		/// Gets the environment for this binder.
-		/// </summary>
-        public override IEnvironment Environment : IBinder.Environment { const get return MainBinder.Environment; }
-
-        public IBinder MainBinder { const get; private set; }
-        public IBinder ExtraBinder { const get; private set; }
-
-        public override [IType] GetTypes() : IBinder.GetTypes
+    /// <summary>
+    /// A binder that uses a main binder to bind names to types and a fallback
+    /// binder to bind names for which the main binder can't find a type.
+    /// </summary>
+    public class DualBinder : IBinder
+    {
+        public this(IBinder MainBinder, IBinder ExtraBinder)
         {
-        	return Enumerable.Concat<IType>(
-				MainBinder.GetTypes(), ExtraBinder.GetTypes());
+            this.MainBinder = MainBinder;
+            this.ExtraBinder = ExtraBinder;
+        }
+
+        /// <summary>
+        /// Gets the environment for this binder.
+        /// </summary>
+        public override IEnvironment Environment : IBinder.Environment
+        {
+            get { return MainBinder.Environment; }
+        }
+
+        /// <summary>
+        /// Gets the dual binder's main binder, which supplies the environment
+        /// and is used first when binding a name to a type.
+        /// </summary>
+        public IBinder MainBinder { get; private set; }
+
+        /// <summary>
+        /// Gets the dual binder's extra type, which is used as a fallback when
+        /// the main binder fails to bind a name to a type.
+        /// </summary>
+        public IBinder ExtraBinder { get; private set; }
+
+        public override IEnumerable<IType> GetTypes() : IBinder.GetTypes
+        {
+            return Enumerable.Concat<IType>(
+                MainBinder.GetTypes(), ExtraBinder.GetTypes());
         }
 
         public override IType BindType(QualifiedName Name)
         {
-        	var boundType = MainBinder.BindType(Name);
-        	if (boundType == null)
-        		return ExtraBinder.BindType(Name);
-        	else
-        		return boundType;
+            var boundType = MainBinder.BindType(Name);
+            if (boundType == null)
+            {
+                return ExtraBinder.BindType(Name);
+            }
+            else
+            {
+                return boundType;
+            }
         }
-	}
+    }
 }

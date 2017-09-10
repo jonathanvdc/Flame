@@ -5,44 +5,57 @@ using System.Linq;
 
 namespace Flame.Binding
 {
-	/// <summary>
-	/// A binder that performs a type lookup only once, and then caches the result.
-	/// </summary>
-	public class CachingBinder : IBinder
-	{
-		public const this(set IBinder Binder)
-		{
-			this.cache = new Dictionary<QualifiedName, IType>();
-		}
+    /// <summary>
+    /// A binder that performs a type lookup only once, and then caches the result.
+    /// An exception is made for failed lookups---these may be performed repeatedly
+    /// so that future lookups of the same name might have a chance to succeed.
+    /// </summary>
+    public class CachingBinder : IBinder
+    {
+        public this(IBinder Binder)
+        {
+            this.Binder = Binder;
+            this.cache = new Dictionary<QualifiedName, IType>();
+        }
 
-		public IBinder Binder { const get; private set; }
+        /// <summary>
+        /// Gets the binder that is used to perform lookups. The caching
+        /// binder then caches the results returned by this binder.
+        /// </summary>
+        /// <returns>The binder under the hood.</returns>
+        public IBinder Binder { get; private set; }
 
-		private Dictionary<QualifiedName, IType> cache;
-		public IType BindType(QualifiedName Name)
-		{
-			if (cache.TryGetValue(Name, &IType result))
-			{
-				return result;
-			}
-			else
-			{
-				var result = Binder.BindType(Name);
-				cache[Name] = result;
-				return result;
-			}
-		}
+        private Dictionary<QualifiedName, IType> cache;
+        public IType BindType(QualifiedName Name)
+        {
+            if (cache.TryGetValue(Name, &IType result))
+            {
+                return result;
+            }
+            else
+            {
+                var result = Binder.BindType(Name);
+                if (result != null)
+                {
+                    cache[Name] = result;
+                }
+                return result;
+            }
+        }
 
-		private IType[] allTypes;
-		public [IType] GetTypes()
-		{
-			if (allTypes == null)
-				allTypes = Enumerable.ToArray<IType>(Binder.GetTypes());
-			return allTypes;
-		}
+        private IType[] allTypes;
+        public IEnumerable<IType> GetTypes()
+        {
+            if (allTypes == null)
+            {
+                allTypes = Enumerable.ToArray<IType>(Binder.GetTypes());
+            }
+            return allTypes;
+        }
 
-		/// <summary>
-		/// Gets the environment for this binder.
-		/// </summary>
-		public IEnvironment Environment { get return Binder.Environment; }
-	}
+        /// <summary>
+        /// Gets the environment for this binder.
+        /// </summary>
+        public IEnvironment Environment { get { return Binder.Environment; } }
+    }
 }
