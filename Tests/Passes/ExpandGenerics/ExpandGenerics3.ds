@@ -2,7 +2,13 @@ using System;
 
 public module GenericClass<T>
 {
+    static this()
+    {
+        SingletonArray = new T[] { default(T) };
+    }
+
     public static T[] EmptyArray = new T[] { };
+    public static T[] SingletonArray;
 }
 
 public module Program
@@ -10,5 +16,6 @@ public module Program
     public static void Main()
     {
         Console.WriteLine(GenericClass<int>.EmptyArray.Length);
+        Console.WriteLine(GenericClass<int>.SingletonArray[0]);
     }
 }
