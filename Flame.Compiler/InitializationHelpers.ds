@@ -7,106 +7,106 @@ using Flame.Compiler.Variables;
 
 namespace Flame.Compiler
 {
-	/// <summary>
-	/// A collection of methods that make dealing with field initialization
-	/// easier.
-	/// </summary>
-	public static class InitializationHelpers
-	{
-		/// <summary>
-		/// Partitions the given sequence of fields by their initialization.
-		/// </summary>
-		/// <returns>
-		/// An (initialized fields, uninitialized fields) tuple.
-		/// </returns>
-		public static Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>> PartitionFieldsByInitialization(
-			[IField] Fields)
-		{
-			var initFields = new List<IField>();
-			var uninitFields = new List<IField>();
-			foreach (var field in Fields)
-			{
-				if (field is IInitializedField)
-				{
-					if (((IInitializedField)field).InitialValue != null)
-					{
-						initFields.Add(field);
-						next;
-					}
-				}
-				if (field is ILiteralField)
-				{
-					if (((ILiteralField)field).Value != null)
-					{
-						initFields.Add(field);
-						next;
-					}
-				}
-				uninitFields.Add(field);
-			}
-			return new Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>>(
-				initFields, uninitFields);
-		}
+    /// <summary>
+    /// A collection of methods that make dealing with field initialization
+    /// easier.
+    /// </summary>
+    public static class InitializationHelpers
+    {
+        /// <summary>
+        /// Partitions the given sequence of fields by their initialization.
+        /// </summary>
+        /// <returns>
+        /// An (initialized fields, uninitialized fields) tuple.
+        /// </returns>
+        public static Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>> PartitionFieldsByInitialization(
+            [IField] Fields)
+        {
+            var initFields = new List<IField>();
+            var uninitFields = new List<IField>();
+            foreach (var field in Fields)
+            {
+                if (field is IInitializedField)
+                {
+                    if (((IInitializedField)field).InitialValue != null)
+                    {
+                        initFields.Add(field);
+                        next;
+                    }
+                }
+                if (field is ILiteralField)
+                {
+                    if (((ILiteralField)field).Value != null)
+                    {
+                        initFields.Add(field);
+                        next;
+                    }
+                }
+                uninitFields.Add(field);
+            }
+            return new Tuple<IReadOnlyList<IField>, IReadOnlyList<IField>>(
+                initFields, uninitFields);
+        }
 
-		/// <summary>
-		/// Filters all initializated fields from the given sequence of fields.
-		/// </summary>
-		public static IReadOnlyList<IField> FilterInitalizedFields([IField] Fields)
-		{
-			return PartitionFieldsByInitialization(Fields).Item1;
-		}
+        /// <summary>
+        /// Filters all initializated fields from the given sequence of fields.
+        /// </summary>
+        public static IReadOnlyList<IField> FilterInitalizedFields([IField] Fields)
+        {
+            return PartitionFieldsByInitialization(Fields).Item1;
+        }
 
-		/// <summary>
-		/// Filters all uninitializated fields from the given sequence of fields.
-		/// </summary>
-		public static IReadOnlyList<IField> FilterUninitalizedFields([IField] Fields)
-		{
-			return PartitionFieldsByInitialization(Fields).Item2;
-		}
+        /// <summary>
+        /// Filters all uninitializated fields from the given sequence of fields.
+        /// </summary>
+        public static IReadOnlyList<IField> FilterUninitalizedFields([IField] Fields)
+        {
+            return PartitionFieldsByInitialization(Fields).Item2;
+        }
 
-		/// <summary>
-		/// Creates a statement that initializes all fields of the enclosing
-		/// type which do not have an initial value. They are assigned the
-		/// default value for their type.
-		/// </summary>
-		/// <remarks>
-		/// If the given type is a value type, no fields are initialized, and
-		/// `IsStatic` is `true`, then the 'this' pointer's pointee is
-		/// initialized (unless the set of fields to initialize is empty).
-		/// </remarks>
-		public static IStatement CreateUninitializedFieldInitializer(
-			IType Type, bool IsStatic)
-		{
-			var allFields = Type.Fields.GetFields(IsStatic);
-			var partitionedFields = PartitionFieldsByInitialization(allFields);
-			var uninitFields = partitionedFields.Item2;
-			if (uninitFields.Count == 0)
-				// Nothing to do here.
-				return EmptyStatement;
+        /// <summary>
+        /// Creates a statement that initializes all fields of the enclosing
+        /// type which do not have an initial value. They are assigned the
+        /// default value for their type.
+        /// </summary>
+        /// <remarks>
+        /// If the given type is a value type, no fields are initialized, and
+        /// `IsStatic` is `true`, then the 'this' pointer's pointee is
+        /// initialized (unless the set of fields to initialize is empty).
+        /// </remarks>
+        public static IStatement CreateUninitializedFieldInitializer(
+            IType Type, bool IsStatic)
+        {
+            var allFields = Type.Fields.GetFields(IsStatic);
+            var partitionedFields = PartitionFieldsByInitialization(allFields);
+            var uninitFields = partitionedFields.Item2;
+            if (uninitFields.Count == 0)
+                // Nothing to do here.
+                return EmptyStatement;
 
-			var getThisExpr = new ThisVariable(Type).CreateGetExpression();
-			var initFields = partitionedFields.Item1;
-			if (!IsStatic && initFields.Count == 0 && Type.IsValueType)
-			{
-				// This is a tiny code size optimization.
-				// Create a statement that does this:
-				//
-				//     *this = default(T);
-				//
-				return new AtAddressVariable(getThisExpr)
-					.CreateSetStatement(new DefaultValueExpression(Type));
-			}
+            var getThisExpr = new ThisVariable(Type).CreateGetExpression();
+            var initFields = partitionedFields.Item1;
+            if (!IsStatic && initFields.Count == 0 && Type.IsValueType)
+            {
+                // This is a tiny code size optimization.
+                // Create a statement that does this:
+                //
+                //     *this = default(T);
+                //
+                return new AtAddressVariable(getThisExpr)
+                    .CreateSetStatement(new DefaultValueExpression(Type));
+            }
 
-			var results = new List<IStatement>();
-			foreach (var field in uninitFields)
-			{
-				// Initialize this field by its type's default value to it.
-				results.Add(new FieldSetStatement(
-					field, getThisExpr,
-					new DefaultValueExpression(field.FieldType)));
-			}
+            var results = new List<IStatement>();
+            foreach (var field in uninitFields)
+            {
+                // Initialize this field by its type's default value to it.
+                results.Add(new FieldSetStatement(
+                    field, getThisExpr,
+                    new DefaultValueExpression(field.FieldType)));
+            }
 
-			return new BlockStatement(results).Simplify();
-		}
-	}
+            return new BlockStatement(results).Simplify();
+        }
+    }
 }
