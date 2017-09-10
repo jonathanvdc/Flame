@@ -1013,7 +1013,7 @@ namespace Flame.Recompilation
         private bool RequestRecompileInitializedFields(IType Type)
         {
             bool success = false;
-            foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
+            foreach (var field in InitializationHelpers.Instance.FilterInitializedFields(Type.Fields))
             {
                 RequestRecompilation(field);
                 if (field.IsStatic && !field.GetIsConstant())
@@ -1027,7 +1027,7 @@ namespace Flame.Recompilation
         /// </summary>
         private void RecompileInitializedFields(IType Type)
         {
-            foreach (var field in InitializationHelpers.Instance.FilterInitalizedFields(Type.Fields))
+            foreach (var field in InitializationHelpers.Instance.FilterInitializedFields(Type.Fields))
             {
                 GetField(field);
             }
