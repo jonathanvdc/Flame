@@ -265,7 +265,9 @@ namespace Flame.Optimization
             if (dissected == null
                 || !InliningExtensions.CanInline(dissected.Method, dissected.ThisValue)
                 || !this.ShouldInline(dissected))
+            {
                 return Expression.Accept(this);
+            }
 
             // Perform the actual inlining operation.
             var result = Inline(dissected);
@@ -356,6 +358,29 @@ namespace Flame.Optimization
 
             // Copy the method body.
             var body = CloningVisitor.Visit(oldMethodBody);
+
+            if (Call.Method.IsConstructor && !Call.Method.IsStatic)
+            {
+                // We can inline instance constructor calls, but they do require a little extra
+                // love: we need to make explicit the implicit field initialization performed
+                // by the constructor.
+                var allInitFields = InitializationHelpers.FilterInitializedFields(
+                    Call.Method.DeclaringType.Fields);
+
+                if (allInitFields.Count > 0)
+                {
+                    // If at least one field needs to be initialized, then we'll prepend that
+                    // initialization logic to the constructor body statement.
+                    var stmts = new List<IStatement>(allInitFields.Count);
+                    foreach (var initField in allInitFields)
+                    {
+                        stmts.Add(InitializationHelpers.CreateFieldInitializationStatement(initField));
+                    }
+
+                    stmts.Add(body);
+                    body = new BlockStatement(stmts);
+                }
+            }
 
             IExpression thisExpr = null;
             if (Call.ThisValue != null)
