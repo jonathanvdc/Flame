@@ -946,7 +946,7 @@ namespace Flame.Recompilation
                 bool anyInitFields = RequestRecompileInitializedFields(src);
                 bool anyStaticCtors = RegisterStaticConstructors(src);
                 if (anyInitFields && !anyStaticCtors)
-                    SynthetizeStaticConstructor(src);
+                    SynthesizeStaticConstructor(src);
                 RegisterImplementations(src);
 
                 // Compile all instance fields.
@@ -1343,10 +1343,10 @@ namespace Flame.Recompilation
         }
 
         /// <summary>
-        /// Synthetizes a static constructor for the given type.
+        /// Synthesizes a static constructor for the given type.
         /// </summary>
         /// <param name="SourceType">The type to synthetize a static constructor for.</param>
-        private void SynthetizeStaticConstructor(IType SourceType)
+        private void SynthesizeStaticConstructor(IType SourceType)
         {
             var cctor = new DescribedBodyMethod(".cctor", SourceType);
             cctor.IsStatic = true;
@@ -1571,6 +1571,11 @@ namespace Flame.Recompilation
         public void NotifyCreated(IMethod Method)
         {
             RegisterImplementations(Method);
+            if (Method.IsStatic && Method.IsConstructor)
+            {
+                // Static constructors should always be compiled.
+                RequestRecompilation(Method);
+            }
         }
 
         #endregion
