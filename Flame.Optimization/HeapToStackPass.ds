@@ -471,11 +471,50 @@ namespace Flame.Optimization
             //     The type must be a non-virtual reference type, and
             //     cannot be an interface, a generic parameter, a method
             //     type, or a primitive type.
+            //
+            //     Additionally, it cannot override `void Finalize()`.
 
             return Type.IsReferenceType && !Type.IsPrimitive
                 && !Type.IsInterface && !Type.IsGenericParameter
                 && !Type.IsAbstract && !Type.IsVirtual
-                && MethodType.GetMethod(Type) == null;
+                && MethodType.GetMethod(Type) == null
+                && !DefinesFinalizeOverride(Type);
+        }
+
+        /// <summary>
+        /// Checks if the given type defines an override for `void Finalize()`.
+        /// </summary>
+        /// <param name="Type">The type to check.</param>
+        /// <returns>
+        /// <c>true</c> if the type defines an override for `void Finalize()`; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool DefinesFinalizeOverride(IType Type)
+        {
+            if (Type.IsRootType)
+            {
+                return false;
+            }
+
+            var finalizeMethod = Type.Methods.GetMethod(
+                new SimpleName("Finalize"),
+                true,
+                PrimitiveTypes.Void,
+                new IType[] { });
+
+            if (finalizeMethod != null)
+            {
+                return true;
+            }
+
+            var baseType = Type.GetParent();
+            if (baseType == null)
+            {
+                return false;
+            }
+            else
+            {
+                return DefinesFinalizeOverride(baseType);
+            }
         }
 
         /// <summary>
