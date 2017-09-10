@@ -7,8 +7,6 @@ namespace Flame.Binding
 {
     /// <summary>
     /// A binder that performs a type lookup only once, and then caches the result.
-    /// An exception is made for failed lookups---these may be performed repeatedly
-    /// so that future lookups of the same name might have a chance to succeed.
     /// </summary>
     public class CachingBinder : IBinder
     {
@@ -35,10 +33,7 @@ namespace Flame.Binding
             else
             {
                 var result = Binder.BindType(Name);
-                if (result != null)
-                {
-                    cache[Name] = result;
-                }
+                cache[Name] = result;
                 return result;
             }
         }
