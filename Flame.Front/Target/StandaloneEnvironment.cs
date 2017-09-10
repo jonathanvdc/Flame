@@ -196,8 +196,13 @@ namespace Flame.Front.Target
         /// <inheritdoc/>
         public IEnumerable<IType> GetDefaultBaseTypes(IType Type, IEnumerable<IType> CurrentBaseTypes)
         {
-            if (RootType == null || Type.GetIsInterface() || Type.GetIsRootType())
+            if (RootType == null
+                || Type.GetIsInterface()
+                || Type.GetIsRootType()
+                || Type.FullName.Equals(objectName))
+            {
                 return Enumerable.Empty<IType>();
+            }
 
             foreach (var baseTy in CurrentBaseTypes)
             {
@@ -241,10 +246,10 @@ namespace Flame.Front.Target
         private static readonly Dictionary<IType, UnqualifiedName> equivalentTypeNames =
             new Dictionary<IType, UnqualifiedName>()
         {
-            { PrimitiveTypes.Float32, new SimpleName("Single", 0) },
-            { PrimitiveTypes.Float64, new SimpleName("Double", 0) },
-            { PrimitiveTypes.UInt8, new SimpleName("Byte", 0) },
-            { PrimitiveTypes.Int8, new SimpleName("SByte", 0) }
+            { PrimitiveTypes.Float32, new SimpleName("Single") },
+            { PrimitiveTypes.Float64, new SimpleName("Double") },
+            { PrimitiveTypes.UInt8, new SimpleName("Byte") },
+            { PrimitiveTypes.Int8, new SimpleName("SByte") }
         };
     }
 }
