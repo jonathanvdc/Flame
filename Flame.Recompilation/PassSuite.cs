@@ -257,28 +257,11 @@ namespace Flame.Recompilation
         }
 
         /// <summary>
-        /// Applies the machine lowering pass to the given method's
-        /// body.
-        /// </summary>
-        /// <returns></returns>
-        /// <param name="Recompiler"></param>
-        /// <param name="Body"></param>
-        public IStatement LowerBody(AssemblyRecompiler Recompiler, IMethod SourceMethod)
-        {
-            var body = Recompiler.GetMethodBody(SourceMethod);
-
-            if (body == null)
-                return null;
-
-            return LowerBody(Recompiler, SourceMethod, body);
-        }
-
-        /// <summary>
         /// Applies the lowering pass to the given method 
         /// body statement.
         /// </summary>
-        /// <param name="Recompiler"></param>
-        /// <param name="SourceMethod"></param>
+        /// <param name="Recompiler">The assembly recompiler.</param>
+        /// <param name="SourceMethod">The source method that defines the body.</param>
         /// <param name="Body">The method body to lower.</param>
         /// <returns></returns>
         public IStatement LowerBody(

@@ -111,11 +111,11 @@ namespace Flame.Recompilation
         /// </summary>
         private List<IMember> pendingRecompilationList;
 
-		private HashSet<IMethod> ComputeImplementationsWorklist()
-		{
-			var worklist = new HashSet<IMethod>();
-			foreach (var pair in implementations)
-			{
+        private HashSet<IMethod> ComputeImplementationsWorklist()
+        {
+            var worklist = new HashSet<IMethod>();
+            foreach (var pair in implementations)
+            {
                 // If the base method is used by this assembly,
                 // then we must compile the implementation as well.
                 // Moreover, if the base method is external, then we must
@@ -123,28 +123,28 @@ namespace Flame.Recompilation
                 // externally-defined base method might be called by
                 // external code.
                 if (MethodCache.ContainsKey(pair.Key) || IsExternal(pair.Key))
-				{
-					worklist.UnionWith(pair.Value);
-				}
-			}
-			worklist.ExceptWith(MethodCache.Keys);
-			return worklist;
-		}
+                {
+                    worklist.UnionWith(pair.Value);
+                }
+            }
+            worklist.ExceptWith(MethodCache.Keys);
+            return worklist;
+        }
 
         /// <summary>
         /// Recompiles all implementations.
         /// </summary>
         private void RecompileImplementations()
         {
-			var worklist = ComputeImplementationsWorklist();
-			while (worklist.Count > 0)
-			{
-				foreach (var impl in worklist)
-				{
-					GetMethod(impl);
-				}
-				worklist = ComputeImplementationsWorklist();
-			}
+            var worklist = ComputeImplementationsWorklist();
+            while (worklist.Count > 0)
+            {
+                foreach (var impl in worklist)
+                {
+                    GetMethod(impl);
+                }
+                worklist = ComputeImplementationsWorklist();
+            }
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Flame.Recompilation
         /// <param name="Type"></param>
         private void RegisterImplementations(IType Type)
         {
-			foreach (var item in Type.Methods.Concat(Type.Properties.SelectMany(item => item.Accessors)))
+            foreach (var item in Type.Methods.Concat(Type.Properties.SelectMany(item => item.Accessors)))
             {
                 RegisterImplementations(item);
             }
@@ -1035,51 +1035,53 @@ namespace Flame.Recompilation
 
         private void RecompileFieldBody(IFieldBuilder TargetField, IField SourceField)
         {
-            if (RecompileBodies)
+            if (!RecompileBodies)
             {
-                var initField = SourceField as IInitializedField;
-                if (initField != null)
+                return;
+            }
+
+            var initField = SourceField as IInitializedField;
+            if (initField != null)
+            {
+                var expr = initField.InitialValue;
+                if (expr != null)
                 {
-                    var expr = initField.InitialValue;
-                    if (expr != null)
+                    try
                     {
-                        try
+                        bool isStatic = TargetField.IsStatic;
+                        var initVal = isStatic
+                            ? GetExpression(expr, CreateEmptyMethod(TargetField))
+                            : null;
+                        TaskManager.RunSequential(() =>
                         {
-                            bool isStatic = TargetField.IsStatic;
-                            var initVal = isStatic
-                                ? GetExpression(expr, CreateEmptyMethod(TargetField))
-                                : null;
-                            TaskManager.RunSequential(() =>
+                            if (!isStatic || !TargetField.TrySetValue(initVal))
                             {
-                                if (!isStatic || !TargetField.TrySetValue(initVal))
-                                {
-                                    // If the field is static,
-                                    // -OR-
-                                    // if the back-end refuses to perform the field initialization,
-                                    // then we'll take care of it here, by adding an element
-                                    // to the set of initialization actions for the declaring type.
-                                    // Constructors will then add them to their method bodies.
-                                    var declTy = SourceField.DeclaringType;
-                                    var initDict = isStatic ? staticFieldInit : instanceFieldInit;
-                                    initDict.Add(
-                                        declTy,
-                                        CreateFieldInitializationStatement(
-                                            SourceField, expr, isStatic, declTy));
-                                }
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.LogError(new LogEntry(
-                                "unhandled exception while compiling field",
-                                "an unhandled exception was thrown while compiling value of field '" + SourceField.FullName + "'."));
-                            Log.LogException(ex);
-                            throw;
-                        }
+                                // If the field is static,
+                                // -OR-
+                                // if the back-end refuses to perform the field initialization,
+                                // then we'll take care of it here, by adding an element
+                                // to the set of initialization actions for the declaring type.
+                                // Constructors will then add them to their method bodies.
+                                var declTy = SourceField.DeclaringType;
+                                var initDict = isStatic ? staticFieldInit : instanceFieldInit;
+                                initDict.Add(
+                                    declTy,
+                                    CreateFieldInitializationStatement(
+                                        SourceField, expr, isStatic, declTy));
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.LogError(new LogEntry(
+                            "unhandled exception while compiling field",
+                            "an unhandled exception was thrown while compiling value of field '" + SourceField.FullName + "'."));
+                        Log.LogException(ex);
+                        throw;
                     }
                 }
-                TaskManager.RunSequential<IField>(TargetField.Build);
             }
+            TaskManager.RunSequential<IField>(TargetField.Build);
         }
 
         #endregion
@@ -1176,30 +1178,6 @@ namespace Flame.Recompilation
             try
             {
                 var initBody = bodyMethod.GetMethodBody();
-                if (bodyMethod.IsConstructor)
-                {
-                    var declTy = bodyMethod.DeclaringType;
-
-                    // Constructors should also handle field initialization.
-                    // If any fields have to be initialized explicitly, then
-                    // we will compile them now and add them to the
-                    // constructor's method body.
-                    RecompileInitializedFields(declTy);
-
-                    ConcurrentMultiDictionary<IType, IStatement> initDict;
-                    if (bodyMethod.IsStatic)
-                        initDict = staticFieldInit;
-                    else
-                        initDict = instanceFieldInit;
-
-                    var stmtList = new List<IStatement>(initDict[declTy]);
-                    if (stmtList.Count > 0)
-                    {
-                        stmtList.Add(initBody);
-                        // Update the body statement with the initialization actions.
-                        initBody = new BlockStatement(stmtList);
-                    }
-                }
                 return Passes.OptimizeBody(this, bodyMethod, initBody);
             }
             catch (Exception ex)
@@ -1239,17 +1217,50 @@ namespace Flame.Recompilation
         private void RecompileMethodBodyCore(
             IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
-			var body = Passes.LowerBody(this, SourceMethod);
-
-            // Don't proceed if there is no method body.
+            var body = GetMethodBody(SourceMethod);
             if (body == null)
             {
+                // Some methods are allowed not to have a method body. But regardless
+                // of whether `SourceMethod` is one of those methods or not, we are
+                // pretty much done here.
                 if (!IsBodylessMethod(SourceMethod))
                 {
-                    Log.LogError(new LogEntry("recompilation error", "could not find a method body for '" + SourceMethod.FullName + "'."));
+                    Log.LogError(
+                        new LogEntry(
+                            "recompilation error",
+                            "could not find a method body for '" +
+                            SourceMethod.FullName + "'.",
+                            SourceMethod.GetSourceLocation()));
                 }
                 return;
             }
+
+            if (SourceMethod.IsConstructor)
+            {
+                var declTy = SourceMethod.DeclaringType;
+
+                // Constructors might also have to handle field initialization.
+                // If any fields have to be initialized explicitly, then we will
+                // compile them now and add them to the constructor's method body.
+                RecompileInitializedFields(declTy);
+
+                ConcurrentMultiDictionary<IType, IStatement> initDict;
+                if (SourceMethod.IsStatic)
+                    initDict = staticFieldInit;
+                else
+                    initDict = instanceFieldInit;
+
+                var stmtList = new List<IStatement>(initDict[declTy]);
+                if (stmtList.Count > 0)
+                {
+                    stmtList.Add(body);
+    
+                    // Update the body statement with the initialization actions.
+                    body = new BlockStatement(stmtList);
+                }
+            }
+
+            body = Passes.LowerBody(this, SourceMethod, body);
 
             // Recompile all roots that can be derived from
             // this source method and body.
@@ -1272,6 +1283,7 @@ namespace Flame.Recompilation
                 Log.LogException(ex);
             }
         }
+
         private void RecompileMethodBody(IMethodBuilder TargetMethod, IMethod SourceMethod)
         {
             if (RecompileBodies)
