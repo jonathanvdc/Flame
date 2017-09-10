@@ -5,66 +5,66 @@ using Flame.Compiler.Expressions;
 
 namespace Flame.Compiler
 {
-	public static class PrimitiveExpressionExtensions
-	{
-		public static const IExpression ToExpression(this IBoundObject Value)
-		{
-			if (Value == null)
-				return null;
+    public static class PrimitiveExpressionExtensions
+    {
+        public static IExpression ToExpression(this IBoundObject Value)
+        {
+            if (Value == null)
+                return null;
 
-			var valType = Value.Type;
-			if (valType.Equals(PrimitiveTypes.Boolean))
-			{
-				return new BooleanExpression(Value.GetValue<bool>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Null))
-			{
-				return NullExpression;
-			}
-			else if (valType.Equals(PrimitiveTypes.Void))
-			{
-				return VoidExpression;
-			}
-			else if (valType.IsInteger)
-			{
-				return new IntegerExpression(Value.GetValue<IntegerValue>());
-			}
-			else if (valType.IsBit)
-			{
-				return new BitExpression(Value.GetValue<BitValue>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Float64))
-			{
-				return new Float64Expression(Value.GetValue<float64>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Float32))
-			{
-				return new Float32Expression(Value.GetValue<float32>());
-			}
-			else if (valType.Equals(PrimitiveTypes.Char))
-			{
-				return new CharExpression(Value.GetValue<char>());
-			}
-			else if (valType.Equals(PrimitiveTypes.String))
-			{
-				var val = Value.GetValue<string>();
-				if (val == null)
-					return new ReinterpretCastExpression(NullExpression, PrimitiveTypes.String);
-				else
-					return new StringExpression(val);
-			}
-			else
-			{
-				return null;
-			}
-		}
+            var valType = Value.Type;
+            if (valType.Equals(PrimitiveTypes.Boolean))
+            {
+                return new BooleanExpression(Value.GetValue<bool>());
+            }
+            else if (valType.Equals(PrimitiveTypes.Null))
+            {
+                return NullExpression;
+            }
+            else if (valType.Equals(PrimitiveTypes.Void))
+            {
+                return VoidExpression;
+            }
+            else if (valType.IsInteger)
+            {
+                return new IntegerExpression(Value.GetValue<IntegerValue>());
+            }
+            else if (valType.IsBit)
+            {
+                return new BitExpression(Value.GetValue<BitValue>());
+            }
+            else if (valType.Equals(PrimitiveTypes.Float64))
+            {
+                return new Float64Expression(Value.GetValue<float64>());
+            }
+            else if (valType.Equals(PrimitiveTypes.Float32))
+            {
+                return new Float32Expression(Value.GetValue<float32>());
+            }
+            else if (valType.Equals(PrimitiveTypes.Char))
+            {
+                return new CharExpression(Value.GetValue<char>());
+            }
+            else if (valType.Equals(PrimitiveTypes.String))
+            {
+                var val = Value.GetValue<string>();
+                if (val == null)
+                    return new ReinterpretCastExpression(NullExpression, PrimitiveTypes.String);
+                else
+                    return new StringExpression(val);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-		/// <summary>
-		/// Gets a boolean value that indicates if primitive expressions can be created for this type.
-		/// </summary>
-		public static bool IsPrimitiveExpressionType(this IType Type)
-		{
-			return Type.IsPrimitive;
-		}
-	}
+        /// <summary>
+        /// Gets a boolean value that indicates if primitive expressions can be created for this type.
+        /// </summary>
+        public static bool IsPrimitiveExpressionType(this IType Type)
+        {
+            return Type.IsPrimitive;
+        }
+    }
 }
