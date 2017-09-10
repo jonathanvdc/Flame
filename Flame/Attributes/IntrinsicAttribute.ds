@@ -64,7 +64,7 @@ namespace Flame.Attributes
         }
 
         private static ConcurrentDictionary<string, IType> attrTypes = new ConcurrentDictionary<string, IType>();
-        private static IReadOnlyList<IBoundObject> emptyArgList = new IBoundObject[] { };
+        private static IReadOnlyList<IBoundObject> emptyArgList = (IReadOnlyList<IBoundObject>)new IBoundObject[] { };
 
         private static IType SynthesizeAttributeType(string Name)
         {
