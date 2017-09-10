@@ -190,6 +190,12 @@ namespace Flame.Optimization
                 expandedType.AddAttribute(attr);
             }
 
+            // Register generic method implementations.
+            foreach (var method in Type.Methods)
+            {
+                RegisterGenericMethodImpls(method.GetGenericDeclaration());
+            }
+
             // Convert the type's base types.
             foreach (var baseType in Type.BaseTypes)
             {
@@ -202,10 +208,13 @@ namespace Flame.Optimization
                 expandedType.AddField(ExpandFieldImpl(expandedType, field));
             }
 
-            // Register generic method implementations.
+            // Convert the type's static constructors.
             foreach (var method in Type.Methods)
             {
-                RegisterGenericMethodImpls(method.GetGenericDeclaration());
+                if (method.IsConstructor && method.IsStatic)
+                {
+                    expandedType.AddMethod(Convert(method));
+                }
             }
 
             return expandedType;
@@ -254,6 +263,7 @@ namespace Flame.Optimization
                 declaringType);
 
             expandedMethod.IsStatic = Method.IsStatic;
+            expandedMethod.IsConstructor = Method.IsConstructor;
 
             expandedMethods.Add(Method, expandedMethod);
 
@@ -363,11 +373,15 @@ namespace Flame.Optimization
             if (genInstField.Declaration is IInitializedField)
             {
                 // Convert the field's initial value.
-                newField.InitialValue = MemberNodeVisitor.ConvertMembers(
-                    MemberConverter,
-                    MemberNodeVisitor.ConvertTypes(
-                        new GenericResolvingConverter(genInstField.Resolver),
-                        ((IInitializedField)genInstField.Declaration).InitialValue));
+                var initValue = ((IInitializedField)genInstField.Declaration).InitialValue;
+                if (initValue != null)
+                {
+                    newField.InitialValue = MemberNodeVisitor.ConvertMembers(
+                        MemberConverter,
+                        MemberNodeVisitor.ConvertTypes(
+                            new GenericResolvingConverter(genInstField.Resolver),
+                            initValue));
+                }
             }
 
             return newField;
