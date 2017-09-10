@@ -3,16 +3,21 @@ using System.Collections.Generic;
 
 namespace Flame
 {
+    /// <summary>
+    /// An attribute that is constructed by invoking a constructor on a sequence
+    /// of arguments.
+    /// </summary>
     public interface IConstructedAttribute : IAttribute
     {
         /// <summary>
-        /// Gets the constructor that was used to create this attribute.
+        /// Gets the constructor that is used to create this attribute.
         /// </summary>
-        IMethod Constructor { const get; }
+        IMethod Constructor { get; }
+
         /// <summary>
-        /// Gets the arguments that were passed to the attribute constructor.
+        /// Gets the arguments that are passed to the attribute constructor.
         /// </summary>
-        /// <returns></returns>
-        [IBoundObject] GetArguments();
+        /// <returns>A sequence of arguments.</returns>
+        IEnumerable<IBoundObject> GetArguments();
     }
 }
