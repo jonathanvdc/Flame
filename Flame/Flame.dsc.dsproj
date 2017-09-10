@@ -112,6 +112,7 @@
     <ItemGroup Name="Attributes">
         <ItemGroup>
             <Compile Include="Attributes/FlagAttribute.ds" />
+            <Compile Include="Attributes/IntrinsicAttribute.ds" />
             <Compile Include="Attributes/PrimitiveAttributes.ds" />
             <Compile Include="Attributes/AccessAttribute.ds" />
             <Compile Include="Attributes/ConstructedAttribute.ds" />
@@ -119,7 +120,6 @@
             <Compile Include="Attributes/OperatorAttribute.ds" />
             <Compile Include="Attributes/DescriptionAttribute.ds" />
             <Compile Include="Attributes/EnumerableAttribute.ds" />
-            <Compile Include="Attributes/CastAttribute.ds" />
             <Compile Include="Attributes/SingletonAttribute.ds" />
             <Compile Include="Attributes/AssociatedTypeAttribute.ds" />
             <Compile Include="Attributes/FieldAccessorAttribute.ds" />

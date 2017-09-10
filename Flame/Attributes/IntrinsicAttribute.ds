@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using Flame.Primitives;
+
+namespace Flame.Attributes
+{
+    /// <summary>
+    /// Describes a named attribute that is well-understood by the compiler.
+    /// </summary>
+    public class IntrinsicAttribute : IAttribute
+    {
+        /// <summary>
+        /// Creates an intrinsic attribute with the given name and an empty argument list.
+        /// </summary>
+        /// <param name="Name">The attribute's name.</param>
+        public this(string Name)
+        {
+            this.Name = Name;
+            this.Arguments = emptyArgList;
+            this.AttributeType = attrTypes.GetOrAdd(Name, SynthesizeAttributeType);
+        }
+
+        /// <summary>
+        /// Creates an intrinsic attribute with the given name and argument list.
+        /// </summary>
+        /// <param name="Name">The attribute's name.</param>
+        /// <param name="Arguments">The attribute's list of arguments.</param>
+        public this(string Name, IReadOnlyList<IBoundObject> Arguments)
+        {
+            this.Name = Name;
+            this.Arguments = Arguments;
+            this.AttributeType = attrTypes.GetOrAdd(Name, SynthesizeAttributeType);
+        }
+
+        /// <summary>
+        /// Gets the name of this intrinsic attribute.
+        /// </summary>
+        /// <returns>The name of the intrinsic attribute.</returns>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the list of arguments that is supplied to this intrinsic attribute.
+        /// </summary>
+        /// <returns>The argument list.</returns>
+        public IReadOnlyList<IBoundObject> Arguments { get; private set; }
+
+        /// <summary>
+        /// Gets the type for this attribute.
+        /// </summary>
+        /// <returns>The attribute type.</returns>
+        public IType AttributeType { get; private set; }
+
+        /// <summary>
+        /// Gets the attribute as a bound object.
+        /// </summary>
+        /// <returns>This attribute, as a bound object.</returns>
+        public IBoundObject Value
+        {
+            get
+            {
+                return new BoundPrimitive<IAttribute>(AttributeType, this);
+            }
+        }
+
+        private static ConcurrentDictionary<string, IType> attrTypes = new ConcurrentDictionary<string, IType>();
+        private static IReadOnlyList<IBoundObject> emptyArgList = new IBoundObject[] { };
+
+        private static IType SynthesizeAttributeType(string Name)
+        {
+            return new PrimitiveType<IAttribute>(Name, 0, null);
+        }
+    }
+}
