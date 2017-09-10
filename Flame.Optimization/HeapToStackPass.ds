@@ -681,9 +681,11 @@ namespace Flame.Optimization
             {
                 if (!field.IsStatic)
                 {
-                    var fieldDef = new DescribedField(
-                        field.Name, descTy,
-                        typeConv.Convert(field.FieldType), false);
+                    var fieldDef = new DescribedInitializedField(
+                        field.Name,
+                        descTy,
+                        typeConv.Convert(field.FieldType),
+                        false);
 
                     // Make fields internal, so we don't inhibit any
                     // optimizations.
@@ -693,6 +695,15 @@ namespace Flame.Optimization
                     {
                         if (!attr.AttributeType.Equals(AccessAttribute.AccessAttributeType))
                             fieldDef.AddAttribute(attr);
+                    }
+
+                    // Convert initial values.
+                    var initValue = InitializationHelpers.GetInitialValue(field);
+                    if (initValue != null)
+                    {
+                        fieldDef.InitialValue = MemberNodeVisitor.ConvertTypes(
+                            typeConv,
+                            initValue);
                     }
 
                     descTy.AddField(fieldDef);
