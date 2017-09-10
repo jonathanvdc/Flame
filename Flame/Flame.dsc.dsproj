@@ -111,7 +111,6 @@
     </ItemGroup>
     <ItemGroup Name="Attributes">
         <ItemGroup>
-            <Compile Include="Attributes/FlagAttribute.ds" />
             <Compile Include="Attributes/IntrinsicAttribute.ds" />
             <Compile Include="Attributes/PrimitiveAttributes.ds" />
             <Compile Include="Attributes/AccessAttribute.ds" />

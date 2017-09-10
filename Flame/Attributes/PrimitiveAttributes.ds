@@ -1,54 +1,104 @@
 using System;
 using System.Collections.Generic;
+using Flame.Attributes;
 
 namespace Flame
 {
+    /// <summary>
+    /// A collection of common intrinsic attributes.
+    /// </summary>
     public static class PrimitiveAttributes
     {
-        #region Static
-
         static this()
         {
-            PrimitiveAttributes.InterfaceAttribute = new FlagAttribute("InterfaceAttribute");
-            PrimitiveAttributes.ValueTypeAttribute = new FlagAttribute("ValueTypeAttribute");
-            PrimitiveAttributes.ReferenceTypeAttribute = new FlagAttribute("ReferenceTypeAttribute");
-            PrimitiveAttributes.EnumAttribute = new FlagAttribute("EnumAttribute");
-            PrimitiveAttributes.ExtensionAttribute = new FlagAttribute("ExtensionAttribute");
-            PrimitiveAttributes.ConstantAttribute = new FlagAttribute("ConstantAttribute");
-            PrimitiveAttributes.AbstractAttribute = new FlagAttribute("AbstractAttribute");
-            PrimitiveAttributes.VirtualAttribute = new FlagAttribute("VirtualAttribute");
-            PrimitiveAttributes.RootTypeAttribute = new FlagAttribute("RootTypeAttribute");
-            PrimitiveAttributes.HiddenAttribute = new FlagAttribute("HiddenAttribute");
-            PrimitiveAttributes.RecompileAttribute = new FlagAttribute("RecompileAttribute");
-            PrimitiveAttributes.IndexerAttribute = new FlagAttribute("IndexerAttribute");
-            PrimitiveAttributes.InlineAttribute = new FlagAttribute("InlineAttribute");
-            PrimitiveAttributes.OutAttribute = new FlagAttribute("OutAttribute");
-            PrimitiveAttributes.InAttribute = new FlagAttribute("InAttribute");
-            PrimitiveAttributes.StaticTypeAttribute = new FlagAttribute("StaticTypeAttribute");
-            PrimitiveAttributes.CastAttribute = new FlagAttribute("CastAttribute");
-            PrimitiveAttributes.ImportAttribute = new FlagAttribute("ImportAttribute");
-            PrimitiveAttributes.InitOnlyAttribute = new FlagAttribute("InitOnlyAttribute");
-            PrimitiveAttributes.TotalInitializationAttribute = new FlagAttribute("TotalInitializationAttribute");
-            PrimitiveAttributes.VarArgsAttribute = new FlagAttribute("VarArgsAttribute");
+            PrimitiveAttributes.InterfaceAttribute = new IntrinsicAttribute("InterfaceAttribute");
+            PrimitiveAttributes.ValueTypeAttribute = new IntrinsicAttribute("ValueTypeAttribute");
+            PrimitiveAttributes.ReferenceTypeAttribute = new IntrinsicAttribute("ReferenceTypeAttribute");
+            PrimitiveAttributes.EnumAttribute = new IntrinsicAttribute("EnumAttribute");
+            PrimitiveAttributes.ExtensionAttribute = new IntrinsicAttribute("ExtensionAttribute");
+            PrimitiveAttributes.ConstantAttribute = new IntrinsicAttribute("ConstantAttribute");
+            PrimitiveAttributes.AbstractAttribute = new IntrinsicAttribute("AbstractAttribute");
+            PrimitiveAttributes.VirtualAttribute = new IntrinsicAttribute("VirtualAttribute");
+            PrimitiveAttributes.RootTypeAttribute = new IntrinsicAttribute("RootTypeAttribute");
+            PrimitiveAttributes.HiddenAttribute = new IntrinsicAttribute("HiddenAttribute");
+            PrimitiveAttributes.RecompileAttribute = new IntrinsicAttribute("RecompileAttribute");
+            PrimitiveAttributes.IndexerAttribute = new IntrinsicAttribute("IndexerAttribute");
+            PrimitiveAttributes.InlineAttribute = new IntrinsicAttribute("InlineAttribute");
+            PrimitiveAttributes.OutAttribute = new IntrinsicAttribute("OutAttribute");
+            PrimitiveAttributes.InAttribute = new IntrinsicAttribute("InAttribute");
+            PrimitiveAttributes.StaticTypeAttribute = new IntrinsicAttribute("StaticTypeAttribute");
+            PrimitiveAttributes.CastAttribute = new IntrinsicAttribute("CastAttribute");
+            PrimitiveAttributes.ImportAttribute = new IntrinsicAttribute("ImportAttribute");
+            PrimitiveAttributes.InitOnlyAttribute = new IntrinsicAttribute("InitOnlyAttribute");
+            PrimitiveAttributes.TotalInitializationAttribute = new IntrinsicAttribute("TotalInitializationAttribute");
+            PrimitiveAttributes.VarArgsAttribute = new IntrinsicAttribute("VarArgsAttribute");
         }
 
+        /// <summary>
+        /// An attribute that is used to classify a type as an interface.
+        /// </summary>
         public static IAttribute InterfaceAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to classify a type as a value type.
+        /// </summary>
         public static IAttribute ValueTypeAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to classify a type as a reference type.
+        /// </summary>
         public static IAttribute ReferenceTypeAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to classify a type as an enum.
+        /// </summary>
         public static IAttribute EnumAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to note that a member is an extension member.
+        /// </summary>
         public static IAttribute ExtensionAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to mark a member as pure.
+        /// </summary>
         public static IAttribute ConstantAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to mark a method or type as abstract.
+        /// </summary>
         public static IAttribute AbstractAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to mark a method or type as virtual.
+        /// </summary>
         public static IAttribute VirtualAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to mark a type as a root type.
+        /// </summary>
         public static IAttribute RootTypeAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to hide a member from users.
+        /// </summary>
         public static IAttribute HiddenAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is tells the recompiler to recompile something,
+        /// even if it doesn't belong to the current compilation unit.
+        /// </summary>
         public static IAttribute RecompileAttribute { get; private set; }
+
+        /// <summary>
+        /// An attribute that is used to mark a property as an indexer.
+        /// </summary>
         public static IAttribute IndexerAttribute { get; private set; }
 
         /// <summary>
         /// Hints that it is profitable to inline a method. The compiler does not have to
         /// inline methods with this attribute, but it does tell the optimizer that method
-        /// inlining might be profitable beyond the inlining heuristic's assessment.
+        /// inlining might be profitable beyond the inlining heuristic's initial assessment.
         /// </summary>
         public static IAttribute InlineAttribute { get; private set; }
 
@@ -78,7 +128,5 @@ namespace Flame
         /// can be constructed from zero or more arguments.
         /// </summary>
         public static IAttribute VarArgsAttribute { get; private set; }
-
-        #endregion
     }
 }
