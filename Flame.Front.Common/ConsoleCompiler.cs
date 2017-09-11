@@ -485,7 +485,7 @@ namespace Flame.Front.Cli
         /// <param name="States"></param>
         /// <param name="BinderTask"></param>
         /// <returns></returns>
-        public IEnumerable<IAssembly> Compile(
+        public IReadOnlyList<IAssembly> Compile(
             IEnumerable<CompilerEnvironment> States,
             ref Task<IBinder> BinderTask)
         {
