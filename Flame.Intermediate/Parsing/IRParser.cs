@@ -159,16 +159,16 @@ namespace Flame.Intermediate.Parsing
             return Node.IsId ? Node.Name.Name : (Node.Value == null ? null : Node.Value.ToString());
         }
 
-		/// <summary>
-		/// Gets the given literal node's value as a 32-bit
-		/// signed integer.
-		/// </summary>
-		/// <returns>The integer literal encoded in the given node.</returns>
-		/// <param name="Node">A literal node.</param>
-		public static int GetInt32(LNode Node)
-		{
-			return Convert.ToInt32(Node.Value);
-		}
+        /// <summary>
+        /// Gets the given literal node's value as a 32-bit
+        /// signed integer.
+        /// </summary>
+        /// <returns>The integer literal encoded in the given node.</returns>
+        /// <param name="Node">A literal node.</param>
+        public static int GetInt32(LNode Node)
+        {
+            return Convert.ToInt32(Node.Value);
+        }
 
         /// <summary>
         /// Parses all dependency tables of the given type in the given sequence of nodes.
@@ -312,7 +312,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IType>(Node, () =>
             {
                 var declMethod = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-				int index = GetInt32(Node.Args[1]);
+                int index = GetInt32(Node.Args[1]);
                 return declMethod.GenericParameters.ElementAt(index);
             });
         }
@@ -354,7 +354,7 @@ namespace Flame.Intermediate.Parsing
             return new LazyValueStructure<IType>(Node, () =>
             {
                 var elemType = State.Parser.TypeReferenceParser.Parse(State, Node.Args[0]).Value;
-				int dims = GetInt32(Node.Args[1]);
+                int dims = GetInt32(Node.Args[1]);
                 return elemType.MakeArrayType(dims);
             });
         }
@@ -838,8 +838,8 @@ namespace Flame.Intermediate.Parsing
                     { ExpressionParsers.SetArgumentNodeName, ExpressionParsers.CreateSetArgumentParser(paramList) },
                     { ExpressionParsers.ReleaseArgumentNodeName, ExpressionParsers.CreateReleaseArgumentParser(paramList) },
 
-					{ ExpressionParsers.GetReturnValueNodeName, ExpressionParsers.CreateConstantParser(new ReturnValueGetExpression(EnclosingMethod.ReturnType)) },
-				};
+                    { ExpressionParsers.GetReturnValueNodeName, ExpressionParsers.CreateConstantParser(new ReturnValueGetExpression(EnclosingMethod.ReturnType)) },
+                };
 
                 if (!EnclosingMethod.IsStatic && EnclosingMethod.DeclaringType != null)
                 {
