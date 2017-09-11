@@ -244,7 +244,12 @@ namespace Flame.Front.Cli
             }
         }
 
-        private static void PostConfigureEnvironment(IBinder Binder)
+        /// <summary>
+        /// Configures the given binder's environment after all input and library
+        /// assemblies have been loaded.
+        /// </summary>
+        /// <param name="Binder">The binder to configure.</param>
+        protected virtual void PostConfigureEnvironment(IBinder Binder)
         {
             // Configuring standalone environments is hard because they introduce a chicken-egg
             // problem: we need an environment to compile assemblies, but we want to use
@@ -468,18 +473,9 @@ namespace Flame.Front.Cli
         /// <param name="State"></param>
         /// <param name="BinderTask"></param>
         /// <returns></returns>
-        public static async Task<IAssembly> CompileAsync(CompilerEnvironment State, Task<IBinder> BinderTask)
+        public static Task<IAssembly> CompileAsync(CompilerEnvironment State, Task<IBinder> BinderTask)
         {
-            var projAsm = await State.CompileAsync(BinderTask);
-
-            if (State.Options.MustVerifyAssembly())
-            {
-                State.Log.LogEvent(new LogEntry("Status", "verifying '" + State.Project.Name + "'..."));
-                VerificationExtensions.VerifyAssembly(projAsm, State.Log);
-                State.Log.LogEvent(new LogEntry("Status", "verified '" + State.Project.Name + "'..."));
-            }
-
-            return projAsm;
+            return State.CompileAsync(BinderTask);
         }
 
         /// <summary>
@@ -489,21 +485,39 @@ namespace Flame.Front.Cli
         /// <param name="States"></param>
         /// <param name="BinderTask"></param>
         /// <returns></returns>
-        public static IEnumerable<IAssembly> Compile(
+        public IEnumerable<IAssembly> Compile(
             IEnumerable<CompilerEnvironment> States,
             ref Task<IBinder> BinderTask)
         {
-            var results = new List<IAssembly>();
-            foreach (var item in States)
+            var statesArray = States.ToArray();
+
+            // Compile the assemblies.
+            var compiledAssemblies = new List<IAssembly>();
+            foreach (var state in statesArray)
             {
-                var asm = CompileAsync(item, BinderTask).Result;
-                results.Add(asm);
+                var asm = CompileAsync(state, BinderTask).Result;
+                compiledAssemblies.Add(asm);
                 BinderTask = AddToBinderAsync(BinderTask, asm);
             }
 
             PostConfigureEnvironment(BinderTask.Result);
 
-            return results;
+            // Verify assemblies *after* compiling them and post-configuring
+            // the environment. Some assemblies might be interdependent and
+            // verifying them before their dependencies have been compiled
+            // will lead to errors.
+            for (int i = 0; i < statesArray.Length; i++)
+            {
+                var state = statesArray[i];
+                if (state.Options.MustVerifyAssembly())
+                {
+                    state.Log.LogEvent(new LogEntry("Status", "verifying '" + state.Project.Name + "'..."));
+                    VerificationExtensions.VerifyAssembly(compiledAssemblies[i], state.Log);
+                    state.Log.LogEvent(new LogEntry("Status", "verified '" + state.Project.Name + "'..."));
+                }
+            }
+
+            return compiledAssemblies;
         }
 
         #endregion
