@@ -15,6 +15,7 @@ namespace Flame.Intermediate
             this.AttributeNodes = AttributeNodes;
             this.cachedAttrs = new Lazy<AttributeMap>(() => new AttributeMap(AttributeNodes.Select(item => item.Value)));
         }
+
         public IRSignature(UnqualifiedName Name)
         {
             this.Name = Name;
@@ -22,7 +23,12 @@ namespace Flame.Intermediate
             this.cachedAttrs = new Lazy<AttributeMap>(() => AttributeMap.Empty);
         }
 
+        /// <summary>
+        /// Gets the name of the declared member.
+        /// </summary>
+        /// <returns>The name.</returns>
         public UnqualifiedName Name { get; private set; }
+
         public IEnumerable<INodeStructure<IAttribute>> AttributeNodes { get; private set; }
 
         public const string MemberNodeName = "#member";
