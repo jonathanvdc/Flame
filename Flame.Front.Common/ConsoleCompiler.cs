@@ -186,10 +186,10 @@ namespace Flame.Front.Cli
 
                 var allStates = fixedProjs.Select(proj => new CompilerEnvironment(proj.Project.CurrentPath, buildArgs, proj.Handler, proj.Project.Project, filteredLog));
 
-                var binderTask = resolvedDependencies.Item1;
-                var allAsms = Compile(allStates, ref binderTask);
+                var binder = resolvedDependencies.Item1.Result;
+                var allAsms = Compile(allStates, ref binder);
 
-                var partitionedAsms = RewriteAssemblies(GetMainAssembly(allAsms), binderTask.Result, filteredLog);
+                var partitionedAsms = RewriteAssemblies(GetMainAssembly(allAsms), binder, filteredLog);
                 var mainAsm = partitionedAsms.Item1;
                 var auxAsms = partitionedAsms.Item2;
 
@@ -416,15 +416,17 @@ namespace Flame.Front.Cli
         #region Dependency resolution
 
         /// <summary>
-        /// Adds the given assembly's binder to the pre-existing binder task.
+        /// Creates a new binder that is the union of the given assembly's binder
+        /// and the pre-existing binder.
         /// </summary>
-        /// <param name="BinderTask"></param>
-        /// <param name="Assembly"></param>
-        /// <returns></returns>
-        public static async Task<IBinder> AddToBinderAsync(Task<IBinder> BinderTask, IAssembly Assembly)
+        /// <param name="BinderTask">The existing binder.</param>
+        /// <param name="Assembly">An assembly from which types may be resolved.</param>
+        /// <returns>
+        /// A binder that can resolve types from both the original binder and the assembly.
+        /// </returns>
+        public static IBinder AddToBinder(IBinder Binder, IAssembly Assembly)
         {
-            var binder = await BinderTask;
-            return new DualBinder(binder, Assembly.CreateBinder());
+            return new DualBinder(Binder, Assembly.CreateBinder());
         }
 
         /// <summary>
@@ -468,26 +470,33 @@ namespace Flame.Front.Cli
         #region Compiling
 
         /// <summary>
-        /// Compiles a single project to a single target assembly, given a binder task.
+        /// Compiles a single project to a single target assembly, given a binder.
         /// </summary>
-        /// <param name="State"></param>
-        /// <param name="BinderTask"></param>
-        /// <returns></returns>
-        public static Task<IAssembly> CompileAsync(CompilerEnvironment State, Task<IBinder> BinderTask)
+        /// <param name="State">The state for the project to compile.</param>
+        /// <param name="Binder">The binder to use.</param>
+        /// <returns>A task that yields a compiled assembly.</returns>
+        public static Task<IAssembly> Compile(CompilerEnvironment State, IBinder Binder)
         {
-            return State.CompileAsync(BinderTask);
+            return State.CompileAsync(Task.FromResult<IBinder>(Binder));
         }
 
         /// <summary>
         /// Compiles the given sequence of projects in order, given a binder task.
         /// Successive projects can depend on the previous projects' assemblies.
         /// </summary>
-        /// <param name="States"></param>
-        /// <param name="BinderTask"></param>
-        /// <returns></returns>
+        /// <param name="States">
+        /// A sequence of states, each of which specifying an assembly to compile.
+        /// </param>
+        /// <param name="Binder">
+        /// A binder. It is assigned a new binder that can also resolve types from
+        /// the compiled assemblies.
+        /// </param>
+        /// <returns>
+        /// A list of compiled assemblies, each corresponding to an input project.
+        /// </returns>
         public IReadOnlyList<IAssembly> Compile(
             IEnumerable<CompilerEnvironment> States,
-            ref Task<IBinder> BinderTask)
+            ref IBinder Binder)
         {
             var statesArray = States.ToArray();
 
@@ -495,12 +504,12 @@ namespace Flame.Front.Cli
             var compiledAssemblies = new List<IAssembly>();
             foreach (var state in statesArray)
             {
-                var asm = CompileAsync(state, BinderTask).Result;
+                var asm = Compile(state, Binder).Result;
                 compiledAssemblies.Add(asm);
-                BinderTask = AddToBinderAsync(BinderTask, asm);
+                Binder = AddToBinder(Binder, asm);
             }
 
-            PostConfigureEnvironment(BinderTask.Result);
+            PostConfigureEnvironment(Binder);
 
             // Verify assemblies *after* compiling them and post-configuring
             // the environment. Some assemblies might be interdependent and
