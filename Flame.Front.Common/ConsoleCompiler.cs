@@ -245,11 +245,11 @@ namespace Flame.Front.Cli
         }
 
         /// <summary>
-        /// Configures the given binder's environment after all input and library
+        /// Configures the given binder's binder after all input and library
         /// assemblies have been loaded.
         /// </summary>
         /// <param name="Binder">The binder to configure.</param>
-        protected virtual void PostConfigureEnvironment(IBinder Binder)
+        protected virtual void PostConfigureBinder(IBinder Binder)
         {
             // Configuring standalone environments is hard because they introduce a chicken-egg
             // problem: we need an environment to compile assemblies, but we want to use
@@ -509,7 +509,7 @@ namespace Flame.Front.Cli
                 Binder = AddToBinder(Binder, asm);
             }
 
-            PostConfigureEnvironment(Binder);
+            PostConfigureBinder(Binder);
 
             // Verify assemblies *after* compiling them and post-configuring
             // the environment. Some assemblies might be interdependent and
