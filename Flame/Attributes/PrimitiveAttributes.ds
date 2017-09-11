@@ -32,6 +32,7 @@ namespace Flame
             PrimitiveAttributes.InitOnlyAttribute = new IntrinsicAttribute("InitOnlyAttribute");
             PrimitiveAttributes.TotalInitializationAttribute = new IntrinsicAttribute("TotalInitializationAttribute");
             PrimitiveAttributes.VarArgsAttribute = new IntrinsicAttribute("VarArgsAttribute");
+            PrimitiveAttributes.NopAttribute = new IntrinsicAttribute("NopAttribute");
         }
 
         /// <summary>
@@ -104,8 +105,18 @@ namespace Flame
 
         public static IAttribute OutAttribute { get; private set; }
         public static IAttribute InAttribute { get; private set; }
+
+        /// <summary>
+        /// Hints that a type does not have any instance members.
+        /// </summary>
         public static IAttribute StaticTypeAttribute { get; private set; }
+
         public static IAttribute CastAttribute { get; private set; }
+
+        /// <summary>
+        /// Specifies that a member's implementation is imported from some outside
+        /// context---it is not defined in the assembly that declares it.
+        /// </summary>
         public static IAttribute ImportAttribute { get; private set; }
 
         /// <summary>
@@ -128,5 +139,11 @@ namespace Flame
         /// can be constructed from zero or more arguments.
         /// </summary>
         public static IAttribute VarArgsAttribute { get; private set; }
+
+        /// <summary>
+        /// Hints that a method doesn't do anything at all. Calls to it can be
+        /// elided safely.
+        /// </summary>
+        public static IAttribute NopAttribute { get; private set; }
     }
 }
