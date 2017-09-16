@@ -14,12 +14,29 @@ namespace Flame.Front.Target
     /// </summary>
     public sealed class StandaloneEnvironment : IEnvironment
     {
+        /// <summary>
+        /// Creates a standalone environment.
+        /// </summary>
         public StandaloneEnvironment()
-            : this(new EmptyBinder())
+            : this(DefaultStandaloneIdentifier)
         { }
 
-        public StandaloneEnvironment(IBinder Binder)
+        /// <summary>
+        /// Creates a standalone environment with the given name.
+        /// </summary>
+        /// <param name="Name">The environment's name.</param>
+        public StandaloneEnvironment(string Name)
+            : this(Name, new EmptyBinder())
+        { }
+
+        /// <summary>
+        /// Creates a standalone environment with the given name and binder.
+        /// </summary>
+        /// <param name="Name">The environment's name.</param>
+        /// <param name="Binder">The binder for the environment.</param>
+        public StandaloneEnvironment(string Name, IBinder Binder)
         {
+            this.Name = Name;
             Configure(Binder);
         }
 
@@ -47,9 +64,9 @@ namespace Flame.Front.Target
         }
 
         /// <summary>
-        /// The environment identifier for the standalone environment.
+        /// The default environment identifier for the standalone environment.
         /// </summary>
-        public const string StandaloneIdentifier = "standalone";
+        public const string DefaultStandaloneIdentifier = "standalone";
 
         /// <inheritdoc/>
         public IType RootType
@@ -91,7 +108,7 @@ namespace Flame.Front.Target
         }
 
         /// <inheritdoc/>
-        public string Name => StandaloneIdentifier;
+        public string Name { get; private set; }
 
         /// <inheritdoc/>
         public IType GetEquivalentType(IType Type)
