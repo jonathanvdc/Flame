@@ -42,8 +42,10 @@ namespace Flame.Cecil
             }
 
             if (Template.Attributes.Value.Contains(OperatorAttribute.OperatorAttributeType))
+            {
                 // User-defined operators are `hidebysig specialname`
                 attrs |= MethodAttributes.HideBySig | MethodAttributes.SpecialName;
+            }
 
             methodDef.Attributes = attrs;
 
@@ -88,6 +90,12 @@ namespace Flame.Cecil
             }
 
             methodDef.Attributes = attrs;
+
+            if (Template.Attributes.Value.Contains(
+                PrimitiveAttributes.Instance.RuntimeImplementedAttribute.AttributeType))
+            {
+                methodDef.IsRuntime = true;
+            }
 
             if (simpleBaseMethod == null)
             {

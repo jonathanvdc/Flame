@@ -90,6 +90,11 @@ namespace Flame.Cecil
             {
                 attrs.Add(PrimitiveAttributes.Instance.VirtualAttribute);
             }
+            if (resolvedMethod.IsRuntime)
+            {
+                attrs.Add(PrimitiveAttributes.Instance.RuntimeImplementedAttribute);
+            }
+
             if (resolvedMethod.IsSpecialName)
             {
                 var op = CecilOperatorNames.ParseOperatorName(resolvedMethod.Name);

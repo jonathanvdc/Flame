@@ -1130,7 +1130,8 @@ namespace Flame.Recompilation
         {
             return SourceMethod.GetIsAbstract()
                 || (SourceMethod.DeclaringType != null && SourceMethod.DeclaringType.GetIsInterface())
-                || SourceMethod.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType);
+                || SourceMethod.HasAttribute(PrimitiveAttributes.Instance.ImportAttribute.AttributeType)
+                || SourceMethod.HasAttribute(PrimitiveAttributes.Instance.RuntimeImplementedAttribute.AttributeType);
         }
 
         private IStatement GetMethodBodyCore(IMethod SourceMethod)

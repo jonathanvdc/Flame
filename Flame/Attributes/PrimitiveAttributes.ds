@@ -29,6 +29,7 @@ namespace Flame
             PrimitiveAttributes.StaticTypeAttribute = new IntrinsicAttribute("StaticTypeAttribute");
             PrimitiveAttributes.CastAttribute = new IntrinsicAttribute("CastAttribute");
             PrimitiveAttributes.ImportAttribute = new IntrinsicAttribute("ImportAttribute");
+            PrimitiveAttributes.RuntimeImplementedAttribute = new IntrinsicAttribute("RuntimeImplementedAttribute");
             PrimitiveAttributes.InitOnlyAttribute = new IntrinsicAttribute("InitOnlyAttribute");
             PrimitiveAttributes.TotalInitializationAttribute = new IntrinsicAttribute("TotalInitializationAttribute");
             PrimitiveAttributes.VarArgsAttribute = new IntrinsicAttribute("VarArgsAttribute");
@@ -118,6 +119,11 @@ namespace Flame
         /// context---it is not defined in the assembly that declares it.
         /// </summary>
         public static IAttribute ImportAttribute { get; private set; }
+
+        /// <summary>
+        /// Specifies that a member is implemented by the runtime itself.
+        /// </summary>
+        public static IAttribute RuntimeImplementedAttribute { get; private set; }
 
         /// <summary>
         /// Specifies that some field can only be initialized by an
