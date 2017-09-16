@@ -11,8 +11,9 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Creates a static cast from the given value and type.
         /// </summary>
-        public const this(IExpression Value, IType TargetType)
-            : base(Value, TargetType);
+        public this(IExpression Value, IType TargetType)
+            : base(Value, TargetType)
+        { }
 
         /// <summary>
         /// Creates a new conversion expression that converts the given
@@ -34,13 +35,19 @@ namespace Flame.Compiler.Expressions
         /// <summary>
         /// Tries to simplify this static_cast expression.
         /// </summary>
-        public IExpression Simplify()
+        public override IExpression Simplify()
         {
             var valTy = Value.Type;
-            if (valTy.IsEquivalent(TargetType))
+            if (MethodType.GetMethod(TargetType) != null)
+            {
+                // Don't elide conversions between delegate types.
+                return this;
+            }
+            else if (valTy.IsEquivalent(TargetType))
+            {
                 return Value;
-
-            if (valTy.IsPrimitiveExpressionType() && TargetType.IsPrimitiveExpressionType())
+            }
+            else if (valTy.IsPrimitiveExpressionType() && TargetType.IsPrimitiveExpressionType())
             {
                 var evalExpr = Evaluate();
                 if (evalExpr != null)

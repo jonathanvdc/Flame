@@ -81,19 +81,7 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public virtual IExpression Optimize()
         {
-            var optVal = Value.Optimize();
-            if (optVal.Type.IsEquivalent(TargetType))
-                return optVal;
-
-            var optExpr = Create(optVal, Type).Simplify();
-            if (optExpr.IsConstant)
-            {
-                var evalExpr = optExpr.Evaluate();
-                if (evalExpr != null)
-                    return evalExpr.ToExpression();
-            }
-
-            return optExpr;
+            return Create(Value.Optimize(), Type).Simplify();
         }
 
         /// <summary>
@@ -101,6 +89,19 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public virtual IExpression Simplify()
         {
+            if (Value.Type.IsEquivalent(TargetType))
+            {
+                return Value;
+            }
+            else if (Value.IsConstant)
+            {
+                var evalExpr = Value.Evaluate();
+                if (evalExpr != null)
+                {
+                    return evalExpr.ToExpression();
+                }
+            }
+
             return this;
         }
     }
