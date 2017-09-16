@@ -64,10 +64,7 @@ namespace Flame.Cecil
 
         private IMethod GetDelegateSignature()
         {
-            if (CecilDelegateType.IsDelegateType(this))
-                return GetMethods().Single(item => item.Name.ToString() == "Invoke" && !item.IsStatic);
-            else
-                return null;
+            return MethodType.GetDelegateSignatureFromAttribute(this);
         }
     }
 }

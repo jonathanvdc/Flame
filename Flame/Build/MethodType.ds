@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Flame.Attributes;
 using Flame.Build;
 
 namespace Flame
@@ -11,7 +12,10 @@ namespace Flame
     /// </summary>
     public class MethodType : IDelegateType
     {
-        protected this(set IMethod DelegateSignature);
+        private this(IMethod DelegateSignature)
+        {
+            this.DelegateSignature = DelegateSignature;
+        }
 
         /// <summary>
         /// Gets the method this method type is based on.
@@ -47,9 +51,10 @@ namespace Flame
             {
                 var genericMethod = GetMethod(
                     Type.GetRecursiveGenericDeclaration());
+
                 if (genericMethod == null)
                     return null;
-                    
+
                 var genericInstType = (GenericTypeBase)Type;
                 return new GenericInstanceMethod(
                     genericMethod,
@@ -58,7 +63,7 @@ namespace Flame
             }
             else
             {
-                return null;
+                return GetDelegateSignatureFromAttribute(Type);
             }
         }
 
@@ -76,6 +81,53 @@ namespace Flame
                     results.Add(method);
             }
             return results;
+        }
+
+        /// <summary>
+        /// The name of the attribute that identifies a type as an attribute.
+        /// Attributes with this name take a single string argument that represents
+        /// the method to invoke.
+        /// </summary>
+        public const string DelegateAttributeName = "DelegateAttribute";
+
+        static this()
+        {
+            this.delegateAttributeType = new IntrinsicAttribute(DelegateAttributeName).AttributeType;
+        }
+
+        private static IType delegateAttributeType;
+
+        /// <summary>
+        /// Finds the delegate signature of the given type by looking at its
+        /// delegate attribute. If the given type does not have a delegate
+        /// signature, then <c>null</c> is returned.
+        /// </summary>
+        /// <param name="Type">The type to examine.</param>
+        /// <returns>A delegate signature for the type, if one can be found; otherwise, <c>null</c>.</returns>
+        public static IMethod GetDelegateSignatureFromAttribute(IType Type)
+        {
+            var attribute = Type.GetAttribute(delegateAttributeType);
+            if (attribute == null)
+            {
+                return null;
+            }
+            else
+            {
+                var methodName = ((IntrinsicAttribute)attribute).Arguments[0].GetValue<string>();
+                var unqualifiedMethodName = new SimpleName(methodName);
+                IMethod signature = null;
+                foreach (var method in Type.GetMethods())
+                {
+                    if (method.Name.Equals(unqualifiedMethodName)
+                        && !method.IsStatic)
+                    {
+                        signature = method;
+                        break;
+                    }
+                }
+
+                return signature;
+            }
         }
 
         public QualifiedName FullName

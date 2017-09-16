@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flame.Attributes;
+using Flame.Compiler.Expressions;
 
 namespace Flame.Cecil
 {
@@ -177,6 +179,13 @@ namespace Flame.Cecil
                 {
                     attrs.Add(new AssociatedTypeAttribute(associatedSingleton));
                 }
+            }
+            if (CecilDelegateType.IsDelegateType(this))
+            {
+                attrs.Add(
+                    new IntrinsicAttribute(
+                        MethodType.DelegateAttributeName,
+                        new IBoundObject[] { new StringExpression("Invoke") }));
             }
             return attrs;
         }
