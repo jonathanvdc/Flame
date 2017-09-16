@@ -273,18 +273,7 @@ namespace Flame
 
         public int GetAncestryDegree(IType First, IType Second)
         {
-            // Method types can decay to other method types and to delegate types,
-            // but not all delegate types can decay to method types.
-            if (First is MethodType)
-            {
-                return GetAncestryDegree(
-                    MethodType.GetMethod(First),
-                    MethodType.GetMethod(Second));
-            }
-            else
-            {
-                return -1;
-            }
+            return GetAncestryDegree(MethodType.GetMethod(First), MethodType.GetMethod(Second));
         }
     }
 }
