@@ -90,15 +90,13 @@ namespace Flame
         /// </summary>
         public const string DelegateAttributeName = "DelegateAttribute";
 
-        static this()
-        {
-            DelegateAttributeType = new IntrinsicAttribute(DelegateAttributeName).AttributeType;
-        }
-
         /// <summary>
         /// Gets the type of a delegate attribute.
         /// </summary>
-        public static IType DelegateAttributeType { get; assembly set; }
+        public static IType DelegateAttributeType
+        {
+            get { return new IntrinsicAttribute(DelegateAttributeName).AttributeType; }
+        }
 
         /// <summary>
         /// Finds the delegate signature of the given type by looking at its
