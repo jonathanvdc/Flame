@@ -14,12 +14,21 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the method group contained in this expression.
         /// </summary>
-        public static const [IMethod] GetMethodGroup(this IExpression Expression)
+        public static IEnumerable<IMethod> GetMethodGroup(
+            this IExpression Expression)
         {
             return MethodType.GetIntersectedMethods(Expression.Type);
         }
 
-        public static const IExpression CreateDelegateInvocationExpression(this IExpression Expression, [IExpression] Arguments)
+        /// <summary>
+        /// Creates an expression that invokes the given delegate expression.
+        /// </summary>
+        /// <param name="Expression">The delegate to invoke.</param>
+        /// <param name="Arguments">The argument list for the call.</param>
+        /// <returns>An expression that invokes the delegate and produces a result value.</returns>
+        public static IExpression CreateDelegateInvocationExpression(
+            this IExpression Expression,
+            IEnumerable<IExpression> Arguments)
         {
             if (Expression is IDelegateExpression)
             {
@@ -27,11 +36,22 @@ namespace Flame.Compiler
             }
             else
             {
-                return new InvocationExpression(Expression, Arguments);
+                var exprType = Expression.Type;
+                if (exprType.HasAttribute(MethodType.DelegateAttributeType))
+                {
+                    var invokeMethod = MethodType.GetMethod(exprType);
+                    return new InvocationExpression(invokeMethod, Expression, Arguments);
+                }
+                else
+                {
+                    return new InvocationExpression(Expression, Arguments);
+                }
             }
         }
 
-        public static const IExpression MakeGenericDelegateExpression(this IExpression Expression, [IType] TypeArguments)
+        public static IExpression MakeGenericDelegateExpression(
+            this IExpression Expression,
+            IEnumerable<IType> TypeArguments)
         {
             if (Expression is IDelegateExpression)
             {
@@ -46,7 +66,8 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets an expression's delegate parameter types.
         /// </summary>
-        public static const [IType] GetDelegateParameterTypes(this IExpression Expression)
+        public static IEnumerable<IType> GetDelegateParameterTypes(
+            this IExpression Expression)
         {
             if (Expression is IDelegateExpression)
             {
@@ -70,7 +91,8 @@ namespace Flame.Compiler
         /// Filters out all delegates in the given sequence of method that have
         /// an override or implementation which is also present in the given array.
         /// </summary>
-        public static const IExpression[] FilterBaseDelegates(this [IExpression] Methods)
+        public static IExpression[] FilterBaseDelegates(
+            this IEnumerable<IExpression> Methods)
         {
             /*
             // This *should* compile, but doesn't. :(
@@ -132,7 +154,9 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="ParameterTypes"></param>
         /// <returns></returns>
-        public const static IExpression[] GetBestDelegates(this [IExpression] Candidates, IType[] ParameterTypes)
+        public static IExpression[] GetBestDelegates(
+            this IEnumerable<IExpression> Candidates,
+            IType[] ParameterTypes)
         {
             var paramTypes = ParameterTypes;
             var dict = new Dictionary<IExpression, IType[]>();
@@ -150,7 +174,9 @@ namespace Flame.Compiler
         /// Gets the delegate expression that matches the specifies parameter
         /// types best.
         /// </summary>
-        public const static IExpression GetBestDelegate(this [IExpression] Candidates, IType[] ParameterTypes)
+        public static IExpression GetBestDelegate(
+            this IEnumerable<IExpression> Candidates,
+            IType[] ParameterTypes)
         {
             var bestElems = Candidates.GetBestDelegates(ParameterTypes);
             if (bestElems.Length == 1)
