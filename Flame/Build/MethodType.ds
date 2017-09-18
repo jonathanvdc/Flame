@@ -92,10 +92,13 @@ namespace Flame
 
         static this()
         {
-            this.delegateAttributeType = new IntrinsicAttribute(DelegateAttributeName).AttributeType;
+            DelegateAttributeType = new IntrinsicAttribute(DelegateAttributeName).AttributeType;
         }
 
-        private static IType delegateAttributeType;
+        /// <summary>
+        /// Gets the type of a delegate attribute.
+        /// </summary>
+        public static IType DelegateAttributeType { get; assembly set; }
 
         /// <summary>
         /// Finds the delegate signature of the given type by looking at its
@@ -106,7 +109,7 @@ namespace Flame
         /// <returns>A delegate signature for the type, if one can be found; otherwise, <c>null</c>.</returns>
         public static IMethod GetDelegateSignatureFromAttribute(IType Type)
         {
-            var attribute = Type.GetAttribute(delegateAttributeType);
+            var attribute = Type.GetAttribute(DelegateAttributeType);
             if (attribute == null)
             {
                 return null;
