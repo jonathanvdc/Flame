@@ -19,6 +19,7 @@ namespace Flame
             PrimitiveAttributes.ConstantAttribute = new IntrinsicAttribute("ConstantAttribute");
             PrimitiveAttributes.AbstractAttribute = new IntrinsicAttribute("AbstractAttribute");
             PrimitiveAttributes.VirtualAttribute = new IntrinsicAttribute("VirtualAttribute");
+            PrimitiveAttributes.CompileAtomicallyAttribute = new IntrinsicAttribute("CompileAtomicallyAttribute");
             PrimitiveAttributes.RootTypeAttribute = new IntrinsicAttribute("RootTypeAttribute");
             PrimitiveAttributes.HiddenAttribute = new IntrinsicAttribute("HiddenAttribute");
             PrimitiveAttributes.RecompileAttribute = new IntrinsicAttribute("RecompileAttribute");
@@ -77,6 +78,13 @@ namespace Flame
         public static IAttribute VirtualAttribute { get; private set; }
 
         /// <summary>
+        /// An attribute that ensures that a type is compiled atomically: it
+        /// is either not compiled at all, or each and every one of its members
+        /// are compiled, regardless of whether they are used or not.
+        /// </summary>
+        public static IAttribute CompileAtomicallyAttribute { get; private set; }
+
+        /// <summary>
         /// An attribute that is used to mark a type as a root type.
         /// </summary>
         public static IAttribute RootTypeAttribute { get; private set; }
@@ -87,7 +95,7 @@ namespace Flame
         public static IAttribute HiddenAttribute { get; private set; }
 
         /// <summary>
-        /// An attribute that is tells the recompiler to recompile something,
+        /// An attribute that tells the recompiler to recompile something,
         /// even if it doesn't belong to the current compilation unit.
         /// </summary>
         public static IAttribute RecompileAttribute { get; private set; }

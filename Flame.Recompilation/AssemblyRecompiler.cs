@@ -957,6 +957,26 @@ namespace Flame.Recompilation
                         GetField(field);
                     }
                 }
+
+                if (src.HasAttribute(
+                    PrimitiveAttributes.Instance.CompileAtomicallyAttribute.AttributeType))
+                {
+                    foreach (var field in src.Fields)
+                    {
+                        GetField(field);
+                    }
+                    foreach (var method in src.Methods)
+                    {
+                        GetMethod(method);
+                    }
+                    foreach (var prop in src.Properties)
+                    {
+                        foreach (var accessor in prop.Accessors)
+                        {
+                            GetMethod(accessor);
+                        }
+                    }
+                }
             });
         }
 
