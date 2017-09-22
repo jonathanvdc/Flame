@@ -20,7 +20,7 @@ namespace Flame.Intermediate.Emit
                                    IInitializingCodeGenerator, IContractCodeGenerator,
                                    ISSACodeGenerator, IBlockCodeGenerator,
                                    IStackCodeGenerator, ISwitchCodeGenerator,
-                                   IMemoryLayoutCodeGenerator
+                                   IMemoryLayoutCodeGenerator, IBranchingCodeGenerator
     {
         public IRCodeGenerator(IRAssemblyBuilder Assembly, IMethod Method)
         {
@@ -29,6 +29,7 @@ namespace Flame.Intermediate.Emit
 
             this.variableNames = new UniqueNameSet<IVariableMember>(item => item.Name.ToString(), "%");
             this.tags = new UniqueNameMap<UniqueTag>(item => item.Name, "!");
+            this.definedLabels = new HashSet<UniqueTag>();
             this.postprocessNode = x => x;
         }
 
@@ -36,6 +37,7 @@ namespace Flame.Intermediate.Emit
         public IMethod Method { get; private set; }
 
         private UniqueNameMap<UniqueTag> tags;
+        private HashSet<UniqueTag> definedLabels;
         private UniqueNameSet<IVariableMember> variableNames;
         private Func<LNode, LNode> postprocessNode;
 
@@ -914,6 +916,47 @@ namespace Flame.Intermediate.Emit
                 ExpressionParsers.ChunkAddressName,
                 NodeBlock.Id(this, SectionName),
                 NodeBlock.Id(this, ChunkName));
+        }
+
+        #endregion
+
+        #region Goto
+
+        private string DefineGotoLabel(UniqueTag Label)
+        {
+            string name = tags[Label];
+
+            if (definedLabels.Add(Label))
+            {
+                var oldPostprocessor = this.postprocessNode;
+                this.postprocessNode = body => oldPostprocessor(
+                    NodeFactory.Call(
+                        ExpressionParsers.DefineGotoLabelNodeName,
+                        new LNode[]
+                        {
+                            NodeFactory.IdOrLiteral(name),
+                            body
+                        }));
+            }
+
+            return name;
+        }
+
+        public ICodeBlock EmitMarkLabel(UniqueTag Label)
+        {
+            return NodeBlock.Call(
+                this,
+                ExpressionParsers.MarkGotoLabelNodeName,
+                NodeFactory.IdOrLiteral(DefineGotoLabel(Label)));
+        }
+
+        public ICodeBlock EmitGotoLabel(UniqueTag Label, ICodeBlock Condition)
+        {
+            return NodeBlock.Call(
+                this,
+                ExpressionParsers.GotoNodeName,
+                NodeFactory.IdOrLiteral(DefineGotoLabel(Label)),
+                NodeBlock.ToNode(Condition));
         }
 
         #endregion

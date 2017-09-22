@@ -2226,7 +2226,7 @@ namespace Flame.Intermediate.Parsing
             {
                 if (IRParser.GetIdOrString(node.Args[0]) == Name)
                 {
-                    return ToExpression(new GotoLabelStatement(Label));
+                    return ToExpression(new GotoLabelStatement(Label, ParseExpression(state, node.Args[1])));
                 }
                 else
                 {
