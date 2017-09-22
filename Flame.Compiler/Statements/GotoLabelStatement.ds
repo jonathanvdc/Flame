@@ -108,7 +108,14 @@ namespace Flame.Compiler.Statements
 
             var nextBlockTag = Visitor.Builder.NextBlockTag;
 
-            if (Condition.EvaluatesTo<bool>(true))
+            var evalCond = Expression.EvaluateConstant();
+            if (evalCond.EvaluatesTo<bool>(true))
+            {
+                Visitor.Builder.CreateCurrentBlock(
+                    EmptyStatement,
+                    new JumpFlow(new BlockBranch(Label)));
+            }
+            else if (evalCond.EvaluatesTo<bool>(false))
             {
                 Visitor.Builder.CreateCurrentBlock(
                     EmptyStatement,
