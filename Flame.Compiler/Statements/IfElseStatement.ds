@@ -16,33 +16,34 @@ namespace Flame.Compiler.Statements
         /// Creates an if-else statement based on the given condition and 'if' body.
         /// The 'else' body is assumed to be the empty statement.
         /// </summary>
-        public const this(set IExpression Condition, set IStatement IfBody)
+        public this(set IExpression Condition, set IStatement IfBody)
         {
             this.ElseBody = EmptyStatement;
         }
+
         /// <summary>
         /// Creates an if-else statement based on the given condition, 'if' body
         /// and 'else' body.
         /// </summary>
-        public const this(set IExpression Condition, set IStatement IfBody, set IStatement ElseBody);
+        public this(set IExpression Condition, set IStatement IfBody, set IStatement ElseBody);
 
         /// <summary>
         /// Gets the if-else statement's condition expression, which determines
         /// which path is taken.
         /// </summary>
-        public IExpression Condition { const get; private set; }
+        public IExpression Condition { get; private set; }
 
         /// <summary>
         /// Gets the if-else statement's 'if' body. This path will be taken
         /// if the condition expression evaluates to `true`.
         /// </summary>
-        public IStatement IfBody { const get; private set; }
+        public IStatement IfBody { get; private set; }
 
         /// <summary>
         /// Gets the if-else statement's 'else' body. This path will be taken
         /// if the condition expression evaluates to `false`.
         /// </summary>
-        public IStatement ElseBody { const get; private set; }
+        public IStatement ElseBody { get; private set; }
 
         /// <summary>
         /// Tries to determine statically which path will be taken.
@@ -70,7 +71,7 @@ namespace Flame.Compiler.Statements
             }
         }
 
-        private const IfElseStatement CreateIfElse(IExpression NewCond, IStatement NewIf, IStatement NewElse)
+        private IfElseStatement CreateIfElse(IExpression NewCond, IStatement NewIf, IStatement NewElse)
         {
             if (this.Condition == NewCond && this.IfBody == NewIf &&
                 this.ElseBody == NewElse)
@@ -149,12 +150,12 @@ namespace Flame.Compiler.Statements
                     new BlockBranch(elseTag)));
         }
 
-        public bool IsConstantNode : IStatement.IsConstantNode
+        public bool IsConstantNode
         {
-            const get { return true; }
+            get { return true; }
         }
 
-        public IStatement Optimize() : IStatement.Optimize
+        public IStatement Optimize()
         {
             var optCond = Condition.Optimize();
             var condVal = optCond.EvaluateConstant();
@@ -189,7 +190,7 @@ namespace Flame.Compiler.Statements
             }
         }
 
-        public ICodeBlock Emit(ICodeGenerator Generator) : INode.Emit
+        public ICodeBlock Emit(ICodeGenerator Generator)
         {
             var conditionBlock = Condition.Emit(Generator);
             var ifBodyBlock = IfBody.Emit(Generator);
