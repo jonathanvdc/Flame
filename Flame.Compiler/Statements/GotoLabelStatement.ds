@@ -108,7 +108,7 @@ namespace Flame.Compiler.Statements
 
             var nextBlockTag = Visitor.Builder.NextBlockTag;
 
-            var evalCond = Expression.EvaluateConstant();
+            var evalCond = Condition.EvaluateConstant();
             if (evalCond.EvaluatesTo<bool>(true))
             {
                 Visitor.Builder.CreateCurrentBlock(
