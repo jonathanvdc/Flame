@@ -14,18 +14,30 @@ namespace Flame.Compiler.Expressions
         /// Creates a get-method expression from the given method and calling expression.
         /// The resulting delegate is created by the given operator.
         /// </summary>
-        public this(set IMethod Target, set IExpression Caller, set Operator Op);
+        public this(IMethod Target, IExpression Caller, Operator Op)
+        {
+            this.Target = Target;
+            this.Caller = Caller;
+            this.Op = Op;
+        }
 
         /// <summary>
         /// Creates a get-method expression from the given method and calling
         /// expression.
         /// </summary>
-        public this(set IMethod Target, set IExpression Caller)
+        public this(IMethod Target, IExpression Caller)
         {
+            this.Target = Target;
+            this.Caller = Caller;
+
             if (!Target.IsConstructor && Target.IsVirtual)
+            {
                 Op = Operator.GetVirtualDelegate;
+            }
             else
+            {
                 Op = Operator.GetDelegate;
+            }
         }
 
         /// <summary>
@@ -43,19 +55,24 @@ namespace Flame.Compiler.Expressions
         /// </summary>
         public Operator Op { get; private set; }
 
-        public [IType] ParameterTypes { get return Target.Parameters.GetTypes(); }
-
-        public IType ReturnType
+        /// <inheritdoc/>
+        public IEnumerable<IType> ParameterTypes
         {
-            get return Target.ReturnType;
+            get { return Target.Parameters.GetTypes(); }
         }
 
-        public IExpression CreateInvocationExpression([IExpression] Arguments)
+        /// <inheritdoc/>
+        public IType ReturnType
+        {
+            get { return Target.ReturnType; }
+        }
+
+        public IExpression CreateInvocationExpression(IEnumerable<IExpression> Arguments)
         {
             return new InvocationExpression(this, Arguments);
         }
 
-        public IDelegateExpression MakeGenericExpression([IType] TypeArguments)
+        public IDelegateExpression MakeGenericExpression(IEnumerable<IType> TypeArguments)
         {
             return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller, Op);
         }

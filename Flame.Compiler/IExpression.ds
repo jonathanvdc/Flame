@@ -46,7 +46,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the delegate expression's parameter types.
         /// </summary>
-        [IType] ParameterTypes { get; }
+        IEnumerable<IType> ParameterTypes { get; }
 
         /// <summary>
         /// Gets the return type of the delegate expression's delegate.
@@ -57,11 +57,11 @@ namespace Flame.Compiler
         /// Creates an invocation expression based on this delegate expression and
         /// the given arguments.
         /// </summary>
-        IExpression CreateInvocationExpression([IExpression] Arguments);
+        IExpression CreateInvocationExpression(IEnumerable<IExpression> Arguments);
 
         /// <summary>
         /// Creates a generic delegate instantiation.
         /// </summary>
-        IDelegateExpression MakeGenericExpression([IType] TypeArguments);
+        IDelegateExpression MakeGenericExpression(IEnumerable<IType> TypeArguments);
     }
 }
