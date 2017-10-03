@@ -57,7 +57,7 @@ namespace Flame.Compiler.Expressions
 
         public IDelegateExpression MakeGenericExpression([IType] TypeArguments)
         {
-            return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller);
+            return new GetMethodExpression(Target.MakeGenericMethod(TypeArguments), Caller, Op);
         }
 
         public IMemberNode ConvertMembers(MemberConverter Converter)
@@ -69,7 +69,7 @@ namespace Flame.Compiler.Expressions
             }
             else
             {
-                return new GetMethodExpression(convMethod, Caller);
+                return new GetMethodExpression(convMethod, Caller, Op);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Flame.Compiler.Expressions
             }
             else
             {
-                return new GetMethodExpression(Target, transCaller);
+                return new GetMethodExpression(Target, transCaller, Op);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Flame.Compiler.Expressions
         public IExpression Optimize()
         {
             var callerExpr = Caller.OptimizeOrNull();
-            return new GetMethodExpression(Target, callerExpr);
+            return new GetMethodExpression(Target, callerExpr, Op);
         }
 
         public ICodeBlock Emit(ICodeGenerator Generator)
