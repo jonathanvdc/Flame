@@ -2287,18 +2287,18 @@ namespace Flame.Intermediate.Parsing
                     { BreakNodeName, CreateParser(ParseBreak) },
                     { ContinueNodeName, CreateParser(ParseContinue) },
                     { TagReferenceName, (state, node) =>
-                        throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'.") },
+                        { throw new InvalidOperationException("Undefined block tag '" + node.Args[0].Name.Name + "'."); } },
                     { FlowGraphNodeName, CreateParser(ParseFlowGraph) },
                     { CaughtExceptionNodeName, CreateParser(ParseCaughtException) },
 
                     // Locals
                     { DefineLocalNodeName, CreateParser(ParseLocalDefinition) },
                     { GetLocalNodeName, (state, node) =>
-                        throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'.") },
+                        { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); } },
                     { AddressOfLocalNodeName, (state, node) =>
-                        throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'.") },
+                        { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); } },
                     { SetLocalNodeName, (state, node) =>
-                        throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'.") },
+                        { throw new InvalidOperationException("Undefined local '" + IRParser.GetIdOrString(node.Args[0]) + "'."); } },
                     { ReleaseLocalNodeName, CreateParser((state, node) =>
                         new WarningExpression(
                             VoidExpression.Instance,
@@ -2313,9 +2313,9 @@ namespace Flame.Intermediate.Parsing
                     // Goto
                     { DefineGotoLabelNodeName, CreateParser(ParseGotoLabelDefinition) },
                     { GotoNodeName, (state, node) =>
-                        throw new InvalidOperationException("Undefined goto label '" + IRParser.GetIdOrString(node.Args[0]) + "'.") },
+                        { throw new InvalidOperationException("Undefined goto label '" + IRParser.GetIdOrString(node.Args[0]) + "'."); } },
                     { MarkGotoLabelNodeName, (state, node) =>
-                        throw new InvalidOperationException("Undefined goto label '" + IRParser.GetIdOrString(node.Args[0]) + "'.") },
+                        { throw new InvalidOperationException("Undefined goto label '" + IRParser.GetIdOrString(node.Args[0]) + "'."); } },
 
                     // Null expressions
                     { IRParser.NullNodeName, CreateParser((state, node) => null) },
