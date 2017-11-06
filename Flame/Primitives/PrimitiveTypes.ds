@@ -81,7 +81,8 @@ namespace Flame
                 PrimitiveTypes.Boolean,
                 PrimitiveTypes.String,
                 PrimitiveTypes.Char,
-                PrimitiveTypes.Void
+                PrimitiveTypes.Void,
+                PrimitiveTypes.Null
             });
         }
 
