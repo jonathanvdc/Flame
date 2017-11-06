@@ -25,7 +25,6 @@ namespace Flame.Intermediate.Parsing
         #region Static
 
         public const string NullNodeName = "#null";
-
         public const string RuntimeDependencyNodeName = "#runtime_dependency";
         public const string LibraryDependencyNodeName = "#external_dependency";
         public const string TypeTableName = "#type_table";
@@ -76,6 +75,7 @@ namespace Flame.Intermediate.Parsing
         public const string StringTypeName = "#string";
         public const string BooleanTypeName = "#bool";
         public const string VoidTypeName = "#void";
+        public const string NullTypeName = "#null_type";
 
         public const string TypeConstraintName = "#type_constraint";
 
@@ -1052,6 +1052,7 @@ namespace Flame.Intermediate.Parsing
                     { CharTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Char) },
                     { StringTypeName, CreatePredefinedTypeParser(PrimitiveTypes.String) },
                     { VoidTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Void) },
+                    { NullTypeName, CreatePredefinedTypeParser(PrimitiveTypes.Null) },
                     { EquatableTypeName, CreatePredefinedTypeParser(PrimitiveTypes.IEquatable) },
                     { HashableTypeName, CreatePredefinedTypeParser(PrimitiveTypes.IHashable) }
                 });

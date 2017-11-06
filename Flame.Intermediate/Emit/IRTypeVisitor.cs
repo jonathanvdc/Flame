@@ -156,7 +156,8 @@ namespace Flame.Intermediate.Emit
             { PrimitiveTypes.String, IRParser.StringTypeName },
             { PrimitiveTypes.Char, IRParser.CharTypeName },
             { PrimitiveTypes.Void, IRParser.VoidTypeName },
-            { PrimitiveTypes.Boolean, IRParser.BooleanTypeName }
+            { PrimitiveTypes.Boolean, IRParser.BooleanTypeName },
+            { PrimitiveTypes.Null, IRParser.NullTypeName }
         };
 
         protected override LNode ConvertPrimitiveType(IType Type)
