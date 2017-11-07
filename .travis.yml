@@ -1,2 +1,11 @@
 language: csharp
-solution: Flame.sln
+install:
+  # Restore nuget packages
+  - make nuget
+
+script:
+  # Build Flame using csc
+  - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
+
+  # Build Flame using ecsc
+  - make

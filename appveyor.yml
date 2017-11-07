@@ -1,4 +1,17 @@
 version: 0.11.0.{build}
-build:
-  project: Flame.sln
-  verbosity: minimal
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+build_script:
+  # Restore NuGet packages
+  - nuget restore Flame.sln
+  # Build Flame with csc
+  - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flamewasm.sln
+
+  # Build Flame with ecsc
+  - make
