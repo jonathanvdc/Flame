@@ -7,6 +7,10 @@ assembly_info:
   assembly_file_version: "{version}"
   assembly_informational_version: "{version}"
 
+install:
+  # Add cygwin binaries to the PATH
+  - set PATH=%PATH%;C:\cygwin\bin
+
 build_script:
   # Restore NuGet packages
   - nuget restore Flame.sln
