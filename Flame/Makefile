@@ -1,4 +1,5 @@
 files = \
+	Collections/*.cs \
 	Names/*.cs \
 	*.cs
 
