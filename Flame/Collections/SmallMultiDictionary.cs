@@ -82,12 +82,6 @@ namespace Flame.Collections
         internal ValueList<HashedKeyValuePair<TKey, TValue>> pairs;
 
         /// <summary>
-        /// Gets the multi-dictionary's capacity.
-        /// </summary>
-        /// <returns>The multi-dictionary's capacity.</returns>
-        public int Capacity { get { return pairs.Capacity; } }
-
-        /// <summary>
         /// Gets the number of elements in the multi-dictionary.
         /// </summary>
         /// <returns>The number of elements in the multi-dictionary.</returns>
@@ -161,14 +155,6 @@ namespace Flame.Collections
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// Gets all values with the given key.
-        /// </summary>
-        public IEnumerable<TValue> this[TKey Key]
-        {
-            get { return GetAll(Key); }
         }
 
         /// <summary>

@@ -16,13 +16,9 @@ namespace Flame
         /// </summary>
         QualifiedName FullName { get; }
 
-        /*
-
         /// <summary>
         /// Gets the member's attributes.
         /// </summary>
         AttributeMap Attributes { get; }
-
-        */
     }
 }
