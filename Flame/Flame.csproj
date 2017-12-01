@@ -42,6 +42,7 @@
     <Compile Include="ContractHelpers.cs" />
     <Compile Include="IAssembly.cs" />
     <Compile Include="IAttribute.cs" />
+    <Compile Include="IField.cs" />
     <Compile Include="IMember.cs" />
     <Compile Include="IType.cs" />
     <Compile Include="ITypeMember.cs" />

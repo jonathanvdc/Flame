@@ -21,5 +21,11 @@ namespace Flame
         /// </summary>
         /// <returns>A read-only list of base types.</returns>
         IReadOnlyList<IType> BaseTypes { get; }
+
+        /// <summary>
+        /// Gets this type's fields.
+        /// </summary>
+        /// <returns>A read-only list of fields.</returns>
+        IReadOnlyList<IField> Fields { get; }
     }
 }
