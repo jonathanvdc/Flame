@@ -31,6 +31,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections/SmallMultiDictionary.cs" />
     <Compile Include="Collections/ValueList.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\QualifiedName.cs" />
