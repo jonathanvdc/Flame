@@ -13,7 +13,13 @@ namespace Flame
         /// this type is declared inside of another type.
         /// </summary>
         /// <returns>The parent assembly.</returns>
-        IAssembly DeclaringAssembly { get; }
+        IAssembly Assembly { get; }
+
+        /// <summary>
+        /// Gets the type that declares this type, if any.
+        /// </summary>
+        /// <returns>The declaring type.</returns>
+        IType ParentType { get; }
 
         /// <summary>
         /// Gets this type's base types. Base types can be either classes or
