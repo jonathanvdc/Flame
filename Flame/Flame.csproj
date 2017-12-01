@@ -43,7 +43,10 @@
     <Compile Include="IAssembly.cs" />
     <Compile Include="IAttribute.cs" />
     <Compile Include="IField.cs" />
+    <Compile Include="IGenericMember.cs" />
+    <Compile Include="IGenericParameter.cs" />
     <Compile Include="IMember.cs" />
+    <Compile Include="IMethod.cs" />
     <Compile Include="IType.cs" />
     <Compile Include="ITypeMember.cs" />
     <Compile Include="Parameter.cs" />

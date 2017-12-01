@@ -5,7 +5,7 @@ namespace Flame
     /// <summary>
     /// Defines a type of value.
     /// </summary>
-    public interface IType : ITypeMember
+    public interface IType : ITypeMember, IGenericMember
     {
         /// <summary>
         /// Gets the assembly that declares and owns this type.
