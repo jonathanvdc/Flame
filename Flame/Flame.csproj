@@ -46,6 +46,7 @@
     <Compile Include="IMember.cs" />
     <Compile Include="IType.cs" />
     <Compile Include="ITypeMember.cs" />
+    <Compile Include="Parameter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
