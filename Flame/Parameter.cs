@@ -10,7 +10,7 @@ namespace Flame
         /// </summary>
         /// <param name="type">The parameter's type.</param>
         public Parameter(IType type)
-            : this(type, new SimpleName("param"))
+            : this(type, emptyParameterName)
         { }
 
         /// <summary>
@@ -64,5 +64,7 @@ namespace Flame
         /// </summary>
         /// <returns>The parameter's full name.</returns>
         public QualifiedName FullName => Name.Qualify();
+
+        private static SimpleName emptyParameterName = new SimpleName("");
     }
 }
