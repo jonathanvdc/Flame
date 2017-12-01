@@ -8,6 +8,14 @@ namespace Flame
     public interface IType : IMember
     {
         /// <summary>
+        /// Gets the assembly that declares and owns this type.
+        /// This property returns the parent assembly even if
+        /// this type is declared inside of another type.
+        /// </summary>
+        /// <returns>The parent assembly.</returns>
+        IAssembly DeclaringAssembly { get; }
+
+        /// <summary>
         /// Gets this type's base types. Base types can be either classes or
         /// interfaces.
         /// </summary>
