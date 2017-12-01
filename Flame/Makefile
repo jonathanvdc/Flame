@@ -1,4 +1,5 @@
 files = \
+	Names/*.cs \
 	*.cs
 
 ifeq ($(ASM_VERSION),)

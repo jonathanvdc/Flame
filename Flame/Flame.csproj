@@ -31,7 +31,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Names\GenericName.cs" />
+    <Compile Include="Names\QualifiedName.cs" />
+    <Compile Include="Names\SimpleName.cs" />
+    <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContractHelpers.cs" />
     <Compile Include="IType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
