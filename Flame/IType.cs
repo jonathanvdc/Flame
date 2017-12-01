@@ -5,7 +5,7 @@ namespace Flame
     /// <summary>
     /// Defines a type of value.
     /// </summary>
-    public interface IType : IMember
+    public interface IType : ITypeMember
     {
         /// <summary>
         /// Gets the assembly that declares and owns this type.
@@ -14,12 +14,6 @@ namespace Flame
         /// </summary>
         /// <returns>The parent assembly.</returns>
         IAssembly Assembly { get; }
-
-        /// <summary>
-        /// Gets the type that declares this type, if any.
-        /// </summary>
-        /// <returns>The declaring type.</returns>
-        IType ParentType { get; }
 
         /// <summary>
         /// Gets this type's base types. Base types can be either classes or
