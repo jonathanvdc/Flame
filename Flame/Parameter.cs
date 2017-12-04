@@ -18,8 +18,31 @@ namespace Flame
         /// </summary>
         /// <param name="type">The parameter's type.</param>
         /// <param name="name">The parameter's name.</param>
+        public Parameter(IType type, string name)
+            : this(type, new SimpleName(name))
+        { }
+
+        /// <summary>
+        /// Creates a parameter from a type and a name.
+        /// </summary>
+        /// <param name="type">The parameter's type.</param>
+        /// <param name="name">The parameter's name.</param>
         public Parameter(IType type, UnqualifiedName name)
             : this(type, name, AttributeMap.Empty)
+        { }
+
+        /// <summary>
+        /// Creates a parameter from a type, a name
+        /// and an attribute map.
+        /// </summary>
+        /// <param name="type">The parameter's type.</param>
+        /// <param name="name">The parameter's name.</param>
+        /// <param name="attributes">The parameter's attributes.</param>
+        public Parameter(
+            IType type,
+            string name,
+            AttributeMap attributes)
+            : this(type, new SimpleName(name), attributes)
         { }
 
         /// <summary>
