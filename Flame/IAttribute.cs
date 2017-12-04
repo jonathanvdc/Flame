@@ -11,10 +11,5 @@ namespace Flame
         /// Gets the attribute's type.
         /// </summary>
         IType AttributeType { get; }
-
-        /// <summary>
-        /// Gets the attribute's value.
-        /// </summary>
-        object Value { get; }
     }
 }
