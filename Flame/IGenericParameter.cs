@@ -11,7 +11,7 @@ namespace Flame
         IGenericMember ParentMember { get; }
 
         /// <summary>
-        /// Gets the constraint this generic parameter places on types.
+        /// Gets the constraint this generic parameter places on arguments.
         /// </summary>
         TypeConstraint Constraint { get; }
     }
