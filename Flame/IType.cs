@@ -27,5 +27,17 @@ namespace Flame
         /// </summary>
         /// <returns>A read-only list of fields.</returns>
         IReadOnlyList<IField> Fields { get; }
+
+        /// <summary>
+        /// Gets this type's methods.
+        /// </summary>
+        /// <returns>A read-only list of methods.</returns>
+        IReadOnlyList<IMethod> Methods { get; }
+
+        /// <summary>
+        /// Gets this type's properties.
+        /// </summary>
+        /// <returns>A read-only list of properties.</returns>
+        IReadOnlyList<IProperty> Properties { get; }
     }
 }
