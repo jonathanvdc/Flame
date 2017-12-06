@@ -37,6 +37,9 @@ namespace Flame.TypeSystem
         private void Initialize()
         {
             baseTypeList = new List<IType>();
+            fieldList = new List<IField>();
+            methodList = new List<IMethod>();
+            propertyList = new List<IProperty>();
         }
 
         /// <inheritdoc/>
@@ -46,16 +49,21 @@ namespace Flame.TypeSystem
         public IAssembly Assembly { get; private set; }
 
         private List<IType> baseTypeList;
+        private List<IField> fieldList;
+        private List<IMethod> methodList;
+        private List<IProperty> propertyList;
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes => baseTypeList;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
+        public IReadOnlyList<IField> Fields => fieldList;
 
-        public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IMethod> Methods => methodList;
 
-        public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IProperty> Properties => propertyList;
 
         /// <summary>
         /// Makes a particular type a base type of this type.
@@ -66,6 +74,44 @@ namespace Flame.TypeSystem
         public void AddBaseType(IType type)
         {
             baseTypeList.Add(type);
+        }
+
+        /// <summary>
+        /// Adds a field to this type.
+        /// </summary>
+        /// <param name="field">The field to add.</param>
+        public void AddField(IField field)
+        {
+            CheckParent(field);
+            fieldList.Add(field);
+        }
+
+        /// <summary>
+        /// Adds a method to this type.
+        /// </summary>
+        /// <param name="method">The method to add.</param>
+
+        public void AddMethod(IMethod method)
+        {
+            CheckParent(method);
+            methodList.Add(method);
+        }
+
+        /// <summary>
+        /// Adds a property to this type.
+        /// </summary>
+        /// <param name="property">The property to add.</param>
+        public void AddProperty(IProperty property)
+        {
+            CheckParent(property);
+            propertyList.Add(property);
+        }
+
+        private void CheckParent(ITypeMember member)
+        {
+            ContractHelpers.Assert(
+                this.Equals(member.ParentType),
+                "A member can only be added to its defining type.");
         }
     }
 }
