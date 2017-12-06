@@ -5,16 +5,16 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type that can be constructed incrementally in an imperative fashion.
     /// </summary>
-    public class DescribedType : IType
+    public class DescribedType : DescribedMember, IType
     {
         /// <summary>
         /// Creates a type from a name and a parent assembly.
         /// </summary>
-        /// <param name="name">The type's name.</param>
+        /// <param name="fullName">The type's full name.</param>
         /// <param name="assembly">The assembly that defines the type.</param>
-        public DescribedType(QualifiedName name, IAssembly assembly)
+        public DescribedType(QualifiedName fullName, IAssembly assembly)
+            : base(fullName)
         {
-            this.FullName = name;
             this.Assembly = assembly;
             Initialize();
         }
@@ -27,8 +27,8 @@ namespace Flame.TypeSystem
         /// The type's parent type, i.e., the type that defines it.
         /// </param>
         public DescribedType(UnqualifiedName name, IType parentType)
+            : base(name.Qualify(parentType.FullName))
         {
-            this.FullName = name.Qualify(parentType.FullName);
             this.ParentType = parentType;
             this.Assembly = parentType.Assembly;
             Initialize();
@@ -37,23 +37,18 @@ namespace Flame.TypeSystem
         private void Initialize()
         {
             baseTypeList = new List<IType>();
-            attributeBuilder = new AttributeMapBuilder();
         }
 
-        public QualifiedName FullName { get; private set; }
-
+        /// <inheritdoc/>
         public IType ParentType { get; private set; }
 
+        /// <inheritdoc/>
         public IAssembly Assembly { get; private set; }
 
         private List<IType> baseTypeList;
-        private AttributeMapBuilder attributeBuilder;
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes => baseTypeList;
-
-        /// <inheritdoc/>
-        public AttributeMap Attributes => new AttributeMap(attributeBuilder);
 
         /// <inheritdoc/>
         public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
@@ -73,15 +68,6 @@ namespace Flame.TypeSystem
         public void AddBaseType(IType type)
         {
             baseTypeList.Add(type);
-        }
-
-        /// <summary>
-        /// Adds an attribute to this type's attribute map.
-        /// </summary>
-        /// <param name="attribute">The attribute to add.</param>
-        public void AddAttribute(IAttribute attribute)
-        {
-            attributeBuilder.Add(attribute);
         }
     }
 }
