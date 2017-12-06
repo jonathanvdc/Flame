@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static Flame.ContractHelpers;
 
@@ -17,11 +18,23 @@ namespace Flame
             this.qualifierIndex = qualifierIndex;
         }
 
+        /// <summary>
+        /// Creates a qualified name from an array of qualifiers.
+        /// </summary>
+        /// <param name="qualifiers">The qualified name's qualifiers.</param>
         internal QualifiedName(UnqualifiedName[] qualifiers)
         {
             this = default(QualifiedName);
             this.qualifiers = qualifiers;
         }
+
+        /// <summary>
+        /// Creates a qualified name from a sequence of qualifiers.
+        /// </summary>
+        /// <param name="qualifiers">The qualified name's qualifiers.</param>
+        public QualifiedName(IReadOnlyList<UnqualifiedName> qualifiers)
+            : this(qualifiers.ToArray<UnqualifiedName>())
+        { }
 
         /// <summary>
         /// Creates a qualified name by prepending a qualifier to another
@@ -30,29 +43,16 @@ namespace Flame
         /// <param name="qualifier">A qualifier to prepend to a name.</param>
         /// <param name="name">A qualified name to prepend the qualifier to.</param>
         public QualifiedName(UnqualifiedName qualifier, QualifiedName name)
-        {
-            this = default(QualifiedName);
-            if (qualifier.IsEmpty)
-            {
-                this.qualifiers = name.qualifiers;
-                this.qualifierIndex = name.qualifierIndex;
-            }
-            else
-            {
-                this.qualifiers = name.PrependQualifier(qualifier);
-            }
-        }
+            : this(name.PrependQualifier(qualifier))
+        { }
 
         /// <summary>
         /// Creates a qualified name from an unqualified name.
         /// </summary>
         /// <param name="name">An unqualified name to qualify.</param>
         public QualifiedName(UnqualifiedName name)
-        {
-            this = default(QualifiedName);
-            if (!name.IsEmpty)
-                this.qualifiers = new UnqualifiedName[] { name };
-        }
+            : this(new UnqualifiedName[] { name })
+        { }
 
         /// <summary>
         /// Creates a qualified name from a qualifier and an unqualified name.
@@ -62,25 +62,49 @@ namespace Flame
         /// </param>
         /// <param name="name">An unqualified name to qualify.</param>
         public QualifiedName(string qualifier, QualifiedName name)
-        {
-            this = default(QualifiedName);
-            if (!string.IsNullOrWhiteSpace(qualifier))
-                this.qualifiers = name.PrependQualifier(new SimpleName(qualifier));
-        }
+            : this(name.PrependQualifier(new SimpleName(qualifier)))
+        { }
 
         /// <summary>
-        /// Creates a qualified name from the simple name that corresponds
-        /// to a string.
+        /// Creates a qualified name from a string that is interpreted
+        /// as a simple name.
         /// </summary>
         /// <param name="name">
         /// A string to create a simple name from, which is subsequently qualified.
         /// </param>
         public QualifiedName(string name)
+            : this(new UnqualifiedName[] { new SimpleName(name) })
+        { }
+
+        /// <summary>
+        /// Creates a qualified name from a sequence of strings that are
+        /// interpreted as simple names.
+        /// </summary>
+        /// <param name="path">
+        /// A list of strings, each of which is interpreted as a
+        /// simple name.
+        /// </param>
+        public QualifiedName(IReadOnlyList<string> names)
         {
             this = default(QualifiedName);
-            if (!string.IsNullOrWhiteSpace(name))
-                this.qualifiers = new UnqualifiedName[] { new SimpleName(name) };
+            this.qualifiers = new UnqualifiedName[names.Count];
+            for (int i = 0; i < qualifiers.Length; i++)
+            {
+                qualifiers[i] = new SimpleName(names[i]);
+            }
         }
+
+        /// <summary>
+        /// Creates a qualified name from an array of strings that are
+        /// interpreted as simple names.
+        /// </summary>
+        /// <param name="path">
+        /// A list of strings, each of which is interpreted as a
+        /// simple name.
+        /// </param>
+        public QualifiedName(params string[] names)
+            : this((IReadOnlyList<string>)names)
+        { }
 
         private UnqualifiedName[] qualifiers;
         private int qualifierIndex;
@@ -286,10 +310,7 @@ namespace Flame
         /// </summary>
         public QualifiedName Qualify(string preQualifier)
         {
-            if (string.IsNullOrEmpty(preQualifier))
-                return this;
-            else
-                return new QualifiedName(preQualifier, this);
+            return new QualifiedName(preQualifier, this);
         }
 
         /// <summary>
@@ -300,10 +321,7 @@ namespace Flame
         /// </summary>
         public QualifiedName Qualify(UnqualifiedName preQualifier)
         {
-            if (preQualifier.IsEmpty)
-                return this;
-            else
-                return new QualifiedName(preQualifier, this);
+            return new QualifiedName(preQualifier, this);
         }
 
         /// <summary>

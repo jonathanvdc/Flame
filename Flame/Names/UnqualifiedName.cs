@@ -9,20 +9,6 @@ namespace Flame
     public abstract class UnqualifiedName : IEquatable<UnqualifiedName>
     {
         /// <summary>
-        /// Checks if this unqualified name is empty. Members are not
-        /// allowed to have empty names and qualified names discard
-        /// empty names implicitly.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if this unqualified name is empty;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool IsEmpty
-        {
-            get { return false; }
-        }
-
-        /// <summary>
         /// Creates a qualified name for this unqualified name.
         /// </summary>
         public QualifiedName Qualify()

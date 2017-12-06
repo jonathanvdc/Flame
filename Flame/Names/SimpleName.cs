@@ -37,12 +37,6 @@ namespace Flame
         public int TypeParameterCount { get; private set; }
 
         /// <inheritdoc/>
-        public override bool IsEmpty
-        {
-            get { return string.IsNullOrWhiteSpace(Name); }
-        }
-
-        /// <inheritdoc/>
         public override string ToString()
         {
             if (TypeParameterCount == 0)
