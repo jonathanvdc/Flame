@@ -135,6 +135,16 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the fully unqualified version of this qualified name, i.e.,
+        /// the last element in the qualifier path.
+        /// </summary>
+        /// <returns>The fully unqualified name.</returns>
+        public UnqualifiedName FullyUnqualifiedName
+        {
+            get { return qualifiers[qualifiers.Length]; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this name is a qualified name,
         /// rather than an unqualified name.
         /// </summary>
