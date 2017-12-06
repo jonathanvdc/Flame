@@ -35,7 +35,7 @@ namespace Flame
         /// <inheritdoc/>
         public override bool IsLegalAccessor(IAccessor accessor)
         {
-            return accessor.ReturnType.Equals(accessor.ParentProperty.PropertyType)
+            return object.Equals(accessor.ReturnType, accessor.ParentProperty.PropertyType)
                 && accessor.Parameters.SequenceEqual<Parameter>(
                     accessor.ParentProperty.IndexerParameters);
         }
