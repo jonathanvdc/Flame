@@ -5,7 +5,7 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type that can be constructed incrementally in an imperative fashion.
     /// </summary>
-    public class DescribedType : DescribedMember, IType
+    public class DescribedType : DescribedGenericMember, IType
     {
         /// <summary>
         /// Creates a type from a name and a parent assembly.
@@ -56,8 +56,6 @@ namespace Flame.TypeSystem
         public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
 
         public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
-
-        public IReadOnlyList<IGenericParameter> GenericParameters => throw new System.NotImplementedException();
 
         /// <summary>
         /// Makes a particular type a base type of this type.
