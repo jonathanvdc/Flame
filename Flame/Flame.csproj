@@ -41,6 +41,7 @@
     <Compile Include="TypeSystem\DescribedGenericMember.cs" />
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
+    <Compile Include="TypeSystem\PrimitiveTypes.cs" />
     <Compile Include="AccessorKind.cs" />
     <Compile Include="AttributeMap.cs" />
     <Compile Include="ContractHelpers.cs" />
