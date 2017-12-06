@@ -25,6 +25,9 @@ namespace Flame.TypeSystem
         public QualifiedName FullName { get; private set; }
 
         /// <inheritdoc/>
+        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
+        /// <inheritdoc/>
         public AttributeMap Attributes => new AttributeMap(attributeBuilder);
 
         /// <summary>

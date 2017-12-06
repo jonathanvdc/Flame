@@ -7,6 +7,11 @@ namespace Flame
     public interface IMember
     {
         /// <summary>
+        /// Gets the member's unqualified name.
+        /// </summary>
+        UnqualifiedName Name { get; }
+
+        /// <summary>
         /// Gets the member's full name.
         /// </summary>
         QualifiedName FullName { get; }
@@ -15,21 +20,5 @@ namespace Flame
         /// Gets the member's attributes.
         /// </summary>
         AttributeMap Attributes { get; }
-    }
-
-    /// <summary>
-    /// Extends members with useful functionality.
-    /// </summary>
-    public static class MemberExtensions
-    {
-        /// <summary>
-        /// Gets a member's unqualified name.
-        /// </summary>
-        /// <param name="member">The member to examine.</param>
-        /// <returns>The member's unqualified name.</returns>
-        public static UnqualifiedName GetName(this IMember member)
-        {
-            return member.FullName.FullyUnqualifiedName;
-        }
     }
 }
