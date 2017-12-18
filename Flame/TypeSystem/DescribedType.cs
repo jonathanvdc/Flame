@@ -110,7 +110,7 @@ namespace Flame.TypeSystem
         private void CheckParent(ITypeMember member)
         {
             ContractHelpers.Assert(
-                this.Equals(member.ParentType),
+                object.Equals(this, member.ParentType),
                 "A member can only be added to its defining type.");
         }
     }

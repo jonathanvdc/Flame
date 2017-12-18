@@ -31,7 +31,7 @@ namespace Flame.TypeSystem
         public void AddGenericParameter(IGenericParameter genericParameter)
         {
             ContractHelpers.Assert(
-                this.Equals(genericParameter.ParentMember),
+                object.Equals(this, genericParameter.ParentMember),
                 "Generic parameters can only be added to their declaring member.");
 
             genericParamList.Add(genericParameter);

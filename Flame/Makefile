@@ -1,6 +1,7 @@
 files = \
 	Collections/*.cs \
 	Names/*.cs \
+	TypeSystem/*.cs \
 	*.cs
 
 ifeq ($(ASM_VERSION),)
