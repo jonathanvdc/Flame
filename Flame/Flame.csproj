@@ -34,10 +34,12 @@
     <Compile Include="Collections/SmallMultiDictionary.cs" />
     <Compile Include="Collections/ValueList.cs" />
     <Compile Include="Names\GenericName.cs" />
+    <Compile Include="Names\PointerName.cs" />
     <Compile Include="Names\QualifiedName.cs" />
     <Compile Include="Names\SimpleName.cs" />
     <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeSystem\ContainerType.cs" />
     <Compile Include="TypeSystem\DescribedGenericMember.cs" />
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
