@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Flame.Collections;
 
 namespace Flame.TypeSystem
 {
@@ -26,11 +27,6 @@ namespace Flame.TypeSystem
             this.Name = name;
             this.FullName = fullName;
             this.Attributes = attributes;
-            this.BaseTypes = new IType[0];
-            this.Fields = new IField[0];
-            this.Methods = new IMethod[0];
-            this.Properties = new IProperty[0];
-            this.GenericParameters = new IGenericParameter[0];
         }
 
         /// <summary>
@@ -48,19 +44,19 @@ namespace Flame.TypeSystem
             ElementType.Assembly;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IType> BaseTypes { get; private set; }
+        public IReadOnlyList<IType> BaseTypes => EmptyArray<IType>.Value;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IField> Fields { get; private set; }
+        public IReadOnlyList<IField> Fields => EmptyArray<IField>.Value;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IMethod> Methods { get; private set; }
+        public IReadOnlyList<IMethod> Methods => EmptyArray<IMethod>.Value;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IProperty> Properties { get; private set; }
+        public IReadOnlyList<IProperty> Properties => EmptyArray<IProperty>.Value;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IGenericParameter> GenericParameters { get; private set; }
+        public IReadOnlyList<IGenericParameter> GenericParameters => EmptyArray<IGenericParameter>.Value;
 
         /// <inheritdoc/>
         public IType ParentType => null;
