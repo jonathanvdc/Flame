@@ -15,7 +15,7 @@ namespace Flame.TypeSystem
         public DescribedType(QualifiedName fullName, IAssembly assembly)
             : base(fullName)
         {
-            this.Assembly = assembly;
+            this.Parent = new TypeParent(assembly);
             Initialize();
         }
 
@@ -29,8 +29,7 @@ namespace Flame.TypeSystem
         public DescribedType(UnqualifiedName name, IType parentType)
             : base(name.Qualify(parentType.FullName))
         {
-            this.ParentType = parentType;
-            this.Assembly = parentType.Assembly;
+            this.Parent = new TypeParent(parentType);
             Initialize();
         }
 
@@ -43,10 +42,7 @@ namespace Flame.TypeSystem
         }
 
         /// <inheritdoc/>
-        public IType ParentType { get; private set; }
-
-        /// <inheritdoc/>
-        public IAssembly Assembly { get; private set; }
+        public TypeParent Parent { get; private set; }
 
         private List<IType> baseTypeList;
         private List<IField> fieldList;

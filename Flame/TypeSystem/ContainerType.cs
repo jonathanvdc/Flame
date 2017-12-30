@@ -36,12 +36,7 @@ namespace Flame.TypeSystem
         public IType ElementType { get; private set; }
 
         /// <inheritdoc/>
-        public IAssembly Assembly =>
-            // TODO: should we maybe return `null` instead?
-            // Containers are never "defined" in an assembly.
-            // On the other hand, having `ContainerType.Assembly`
-            // return `null` feels like a hack.
-            ElementType.Assembly;
+        public TypeParent Parent => TypeParent.Nothing;
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes => EmptyArray<IType>.Value;
@@ -57,9 +52,6 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters => EmptyArray<IGenericParameter>.Value;
-
-        /// <inheritdoc/>
-        public IType ParentType => null;
 
         /// <inheritdoc/>
         public UnqualifiedName Name { get; private set; }
