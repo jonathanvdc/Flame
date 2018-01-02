@@ -1,5 +1,9 @@
 namespace Flame.TypeSystem
 {
+    /// <summary>
+    /// A type of object that recursively applies a mapping to
+    /// types.
+    /// </summary>
     public abstract class TypeVisitor
     {
         /// <summary>

@@ -51,6 +51,7 @@
     <Compile Include="TypeSystem\DescribedType.cs" />
     <Compile Include="TypeSystem\PointerType.cs" />
     <Compile Include="TypeSystem\PrimitiveTypes.cs" />
+    <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
     <Compile Include="AccessorKind.cs" />
     <Compile Include="AttributeMap.cs" />
