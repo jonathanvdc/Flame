@@ -65,7 +65,26 @@ namespace Flame.Collections
         public LruCache(int capacity)
         {
             this.Capacity = capacity;
-            this.cache = new Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>>();
+            this.cache =
+                new Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>>();
+            this.evictionList = new LinkedList<KeyValuePair<TKey, TValue>>();
+        }
+
+        /// <summary>
+        /// Creates an LRU cache with a particular capacity and a
+        /// key equality comparer.
+        /// </summary>
+        /// <param name="capacity">
+        /// The maximal number of key-value pairs in the LRU cache.
+        /// </param>
+        /// <param name="comparer">
+        /// An equality comparer for keys.
+        /// </param>
+        public LruCache(int capacity, IEqualityComparer<TKey> comparer)
+        {
+            this.Capacity = capacity;
+            this.cache =
+                new Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>>(comparer);
             this.evictionList = new LinkedList<KeyValuePair<TKey, TValue>>();
         }
 
