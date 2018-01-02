@@ -41,6 +41,7 @@
     <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeSystem\ContainerType.cs" />
+    <Compile Include="TypeSystem\DescribedField.cs" />
     <Compile Include="TypeSystem\DescribedGenericMember.cs" />
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
