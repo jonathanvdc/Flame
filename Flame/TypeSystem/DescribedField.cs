@@ -18,10 +18,10 @@ namespace Flame.TypeSystem
         /// <param name="fieldType">The type of value stored in the field.</param>
         public DescribedField(
             IType parentType,
-            SimpleName name,
+            UnqualifiedName name,
             bool isStatic,
             IType fieldType)
-            : base(name.Qualify(parentType.Name))
+            : base(name.Qualify(parentType.FullName))
         {
             this.ParentType = parentType;
             this.IsStatic = isStatic;
