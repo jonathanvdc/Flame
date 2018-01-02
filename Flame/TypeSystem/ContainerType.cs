@@ -62,6 +62,17 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public AttributeMap Attributes { get; private set; }
 
+        /// <summary>
+        /// Creates a container type that is identical to this one
+        /// except for its element type, which is set to a given
+        /// type.
+        /// </summary>
+        /// <param name="newElementType">
+        /// The element type of the new container type.
+        /// </param>
+        /// <returns>Another container type.</returns>
+        public abstract ContainerType WithElementType(IType newElementType);
+
         /// <inheritdoc/>
         public abstract override bool Equals(object obj);
 

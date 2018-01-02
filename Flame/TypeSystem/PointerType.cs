@@ -59,6 +59,19 @@ namespace Flame.TypeSystem
         {
             return ((object)ElementType).GetHashCode() << 2 ^ Kind.GetHashCode();
         }
+
+        /// <inheritdoc/>
+        public override ContainerType WithElementType(IType newElementType)
+        {
+            if (object.ReferenceEquals(ElementType, newElementType))
+            {
+                return this;
+            }
+            else
+            {
+                return newElementType.MakePointerType(Kind);
+            }
+        }
     }
 
     /// <summary>
