@@ -18,7 +18,7 @@ namespace Flame.TypeSystem
         /// <param name="kind">
         /// The pointer's kind.
         /// </param>
-        public PointerType(IType elementType, PointerKind kind)
+        internal PointerType(IType elementType, PointerKind kind)
             : base(
                 elementType,
                 new PointerName(elementType.Name.Qualify(), kind),
@@ -43,8 +43,9 @@ namespace Flame.TypeSystem
         /// </returns>
         public bool Equals(PointerType other)
         {
-            return object.Equals(ElementType, other.ElementType)
-                && Kind.Equals(other.Kind);
+            return object.ReferenceEquals(this, other)
+                || (object.Equals(ElementType, other.ElementType)
+                    && Kind.Equals(other.Kind));
         }
 
         /// <inheritdoc/>
