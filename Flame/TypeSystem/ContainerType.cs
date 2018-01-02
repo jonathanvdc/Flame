@@ -61,5 +61,11 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public AttributeMap Attributes { get; private set; }
+
+        /// <inheritdoc/>
+        public abstract override bool Equals(object obj);
+
+        /// <inheritdoc/>
+        public abstract override int GetHashCode();
     }
 }

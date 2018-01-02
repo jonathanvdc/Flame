@@ -7,7 +7,7 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type for pointers or references to values.
     /// </summary>
-    public sealed class PointerType : ContainerType
+    public sealed class PointerType : ContainerType, IEquatable<PointerType>
     {
         /// <summary>
         /// Creates a pointer type from an element type and a pointer kind.
@@ -33,6 +33,31 @@ namespace Flame.TypeSystem
         /// </summary>
         /// <returns>The pointer kind.</returns>
         public PointerKind Kind { get; private set; }
+
+        /// <summary>
+        /// Checks if this pointer type equals an other pointer type.
+        /// </summary>
+        /// <param name="other">The other pointer type.</param>
+        /// <returns>
+        /// <c>true</c> if the pointer types are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(PointerType other)
+        {
+            return object.Equals(ElementType, other.ElementType)
+                && Kind.Equals(other.Kind);
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is PointerKind && Equals((PointerType)obj);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return ((object)ElementType).GetHashCode() << 2 ^ Kind.GetHashCode();
+        }
     }
 
     /// <summary>
