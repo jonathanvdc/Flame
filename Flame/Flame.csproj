@@ -63,6 +63,7 @@
     <Compile Include="ITypeMember.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="TypeConstraint.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
