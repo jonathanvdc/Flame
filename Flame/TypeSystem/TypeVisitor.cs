@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Flame.TypeSystem
 {
     /// <summary>
@@ -38,6 +40,12 @@ namespace Flame.TypeSystem
                 var container = (ContainerType)type;
                 return container.WithElementType(Visit(container.ElementType));
             }
+            else if (type.IsRecursiveGenericInstance())
+            {
+                return Visit(type.GetRecursiveGenericDeclaration())
+                    .MakeRecursiveGenericType(
+                        VisitAll(type.GetRecursiveGenericArguments()));
+            }
             else
             {
                 return type;
@@ -59,6 +67,21 @@ namespace Flame.TypeSystem
             {
                 return VisitUninteresting(type);
             }
+        }
+
+        /// <summary>
+        /// Visits all types in a list of types.
+        /// </summary>
+        /// <param name="types">A list of types to visit.</param>
+        /// <returns>A list of visited types.</returns>
+        public IReadOnlyList<IType> VisitAll(IReadOnlyList<IType> types)
+        {
+            var results = new IType[types.Count];
+            for (int i = 0; i < results.Length; i++)
+            {
+                results[i] = Visit(types[i]);
+            }
+            return results;
         }
     }
 }

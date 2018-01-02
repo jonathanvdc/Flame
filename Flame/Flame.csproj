@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="Collections/Cache.cs" />
     <Compile Include="Collections/EmptyArray.cs" />
+    <Compile Include="Collections/ReadOnlySlice.cs" />
     <Compile Include="Collections/SmallMultiDictionary.cs" />
     <Compile Include="Collections/ValueList.cs" />
     <Compile Include="Names\ArrayName.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedMethod.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
+    <Compile Include="TypeSystem\GenericType.cs" />
     <Compile Include="TypeSystem\PointerType.cs" />
     <Compile Include="TypeSystem\PrimitiveTypes.cs" />
     <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
