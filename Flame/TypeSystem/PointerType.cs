@@ -51,7 +51,7 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return obj is PointerKind && Equals((PointerType)obj);
+            return obj is PointerType && Equals((PointerType)obj);
         }
 
         /// <inheritdoc/>

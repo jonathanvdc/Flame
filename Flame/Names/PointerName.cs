@@ -58,7 +58,7 @@ namespace Flame
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            return ElementName.GetHashCode() ^ (Kind.GetHashCode() << 8);
+            return (ElementName.GetHashCode() << 2) ^ Kind.GetHashCode();
         }
     }
 }
