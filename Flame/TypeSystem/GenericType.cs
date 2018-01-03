@@ -1,15 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.TypeSystem
 {
+    /// <summary>
+    /// A base type for generic instance types.
+    /// </summary>
     public abstract class GenericTypeBase : IType
     {
-        public GenericTypeBase(IType declaration)
+        /// <summary>
+        /// Creates a generic type from a declaration.
+        /// </summary>
+        /// <param name="declaration">A declaration.</param>
+        internal GenericTypeBase(IType declaration)
         {
             this.Declaration = declaration;
         }
 
+        /// <summary>
+        /// Gets the generic type declaration this type instantiates.
+        /// </summary>
+        /// <returns>The generic type declaration.</returns>
         public IType Declaration { get; private set; }
 
         /// <inheritdoc/>
@@ -41,7 +53,10 @@ namespace Flame.TypeSystem
             Declaration.GenericParameters;
     }
 
-    public sealed class GenericType : GenericTypeBase
+    /// <summary>
+    /// A generic type that is instantiated with a list of type arguments.
+    /// </summary>
+    public sealed class GenericType : GenericTypeBase, IEquatable<GenericType>
     {
         internal GenericType(
             IType declaration,
@@ -51,23 +66,53 @@ namespace Flame.TypeSystem
             this.GenericArguments = genericArguments;
         }
 
+        /// <summary>
+        /// Gets this generic type's list of generic arguments.
+        /// </summary>
+        /// <returns>The generic arguments.</returns>
         public IReadOnlyList<IType> GenericArguments { get; private set; }
 
         /// <inheritdoc/>
         public override TypeParent Parent => Declaration.Parent;
 
-        public override bool Equals(object obj)
+        /// <summary>
+        /// Checks if this generic type equals another.
+        /// </summary>
+        /// <param name="other">A generic type.</param>
+        /// <returns>
+        /// <c>true</c> if the types are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(GenericType other)
         {
-            throw new NotImplementedException();
+            return object.ReferenceEquals(this, other)
+                || (object.Equals(Declaration, other.Declaration)
+                    && Enumerable.SequenceEqual<IType>(
+                        GenericArguments, other.GenericArguments));
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is GenericType && Equals((GenericType)obj);
+        }
+
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            int result = ((object)Declaration).GetHashCode();
+            int genericArgCount = GenericArguments.Count;
+            for (int i = 0; i < genericArgCount; i++)
+            {
+                result = (result << 2) ^ ((object)GenericArguments[i]).GetHashCode();
+            }
+            return result;
         }
     }
 
-    public sealed class GenericInstanceType : GenericTypeBase
+    /// <summary>
+    /// A type that is defined in an instantiated generic type.
+    /// </summary>
+    public sealed class GenericInstanceType : GenericTypeBase, IEquatable<GenericInstanceType>
     {
         internal GenericInstanceType(
             IType declaration,
@@ -86,14 +131,30 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override TypeParent Parent => new TypeParent(ParentType);
 
-        public override bool Equals(object obj)
+        /// <summary>
+        /// Checks if this generic instance type equals another.
+        /// </summary>
+        /// <param name="other">A generic instance type.</param>
+        /// <returns>
+        /// <c>true</c> if the types are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(GenericInstanceType other)
         {
-            throw new NotImplementedException();
+            return object.ReferenceEquals(this, other)
+                || (object.Equals(Declaration, other.Declaration)
+                    && object.Equals(ParentType, other.ParentType));
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is GenericInstanceType && Equals((GenericInstanceType)obj);
+        }
+
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return (((object)ParentType).GetHashCode() << 4) ^ ((object)Declaration).GetHashCode();
         }
     }
 }
