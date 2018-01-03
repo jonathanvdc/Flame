@@ -33,9 +33,11 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public abstract override int GetHashCode();
 
-        public UnqualifiedName Name => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public abstract UnqualifiedName Name { get; }
 
-        public QualifiedName FullName => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public abstract QualifiedName FullName { get; }
 
         public IReadOnlyList<IType> BaseTypes => throw new System.NotImplementedException();
 
@@ -64,6 +66,17 @@ namespace Flame.TypeSystem
             : base(declaration)
         {
             this.GenericArguments = genericArguments;
+
+            var simpleTypeArgNames = new QualifiedName[genericArguments.Count];
+            var qualTypeArgNames = new QualifiedName[simpleTypeArgNames.Length];
+            for (int i = 0; i < qualTypeArgNames.Length; i++)
+            {
+                simpleTypeArgNames[i] = genericArguments[i].Name.Qualify();
+                qualTypeArgNames[i] = genericArguments[i].FullName;
+            }
+
+            this.simpleName = new GenericName(declaration.Name, simpleTypeArgNames);
+            this.qualName = new GenericName(declaration.FullName, qualTypeArgNames).Qualify();
         }
 
         /// <summary>
@@ -72,8 +85,17 @@ namespace Flame.TypeSystem
         /// <returns>The generic arguments.</returns>
         public IReadOnlyList<IType> GenericArguments { get; private set; }
 
+        private UnqualifiedName simpleName;
+        private QualifiedName qualName;
+
         /// <inheritdoc/>
         public override TypeParent Parent => Declaration.Parent;
+
+        /// <inheritdoc/>
+        public override UnqualifiedName Name => simpleName;
+
+        /// <inheritdoc/>
+        public override QualifiedName FullName => qualName;
 
         /// <summary>
         /// Checks if this generic type equals another.
@@ -120,6 +142,7 @@ namespace Flame.TypeSystem
             : base(declaration)
         {
             this.ParentType = parentType;
+            this.qualName = Declaration.Name.Qualify(ParentType.FullName);
         }
 
         /// <summary>
@@ -130,6 +153,14 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override TypeParent Parent => new TypeParent(ParentType);
+
+        private QualifiedName qualName;
+
+        /// <inheritdoc/>
+        public override UnqualifiedName Name => qualName.FullyUnqualifiedName;
+
+        /// <inheritdoc/>
+        public override QualifiedName FullName => qualName;
 
         /// <summary>
         /// Checks if this generic instance type equals another.
