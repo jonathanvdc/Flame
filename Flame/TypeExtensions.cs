@@ -181,7 +181,7 @@ namespace Flame
                     offset,
                     parameterCount);
                 offset += parameterCount;
-                return type.MakeGenericType(slice);
+                return type.MakeGenericType(slice.ToArray());
             }
         }
 
