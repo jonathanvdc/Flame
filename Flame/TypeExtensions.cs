@@ -12,14 +12,14 @@ namespace Flame
     /// </summary>
     public static class TypeExtensions
     {
-        private const int typeCacheCapacity = 100;
+        internal const int TypeCacheCapacity = 128;
 
         private static ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>> pointerTypeCache
             = new ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>>(createPointerTypeCache);
 
         private static LruCache<Tuple<IType, PointerKind>, PointerType> createPointerTypeCache()
         {
-            return new LruCache<Tuple<IType, PointerKind>, PointerType>(typeCacheCapacity);
+            return new LruCache<Tuple<IType, PointerKind>, PointerType>(TypeCacheCapacity);
         }
 
         private static ThreadLocal<LruCache<Tuple<IType, int>, ArrayType>> arrayTypeCache
@@ -27,7 +27,7 @@ namespace Flame
 
         private static LruCache<Tuple<IType, int>, ArrayType> createArrayTypeCache()
         {
-            return new LruCache<Tuple<IType, int>, ArrayType>(typeCacheCapacity);
+            return new LruCache<Tuple<IType, int>, ArrayType>(TypeCacheCapacity);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Flame
             
                 if (parentType is GenericTypeBase)
                 {
-                    type = new GenericInstanceType(type, (GenericTypeBase)parentType);
+                    type = GenericInstanceType.Create(type, (GenericTypeBase)parentType);
                 }
             }
 

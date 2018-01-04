@@ -54,6 +54,9 @@ namespace Flame.TypeSystem
         public IReadOnlyList<IGenericParameter> GenericParameters => EmptyArray<IGenericParameter>.Value;
 
         /// <inheritdoc/>
+        public IReadOnlyList<IType> NestedTypes => EmptyArray<IType>.Value;
+
+        /// <inheritdoc/>
         public UnqualifiedName Name { get; private set; }
 
         /// <inheritdoc/>

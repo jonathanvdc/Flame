@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Flame.Collections;
 
 namespace Flame.TypeSystem
 {
@@ -16,6 +18,7 @@ namespace Flame.TypeSystem
         internal GenericTypeBase(IType declaration)
         {
             this.Declaration = declaration;
+            this.nestedTypesCache = new Lazy<IReadOnlyList<IType>>(createNestedTypes);
         }
 
         /// <summary>
@@ -53,6 +56,22 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters =>
             Declaration.GenericParameters;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> NestedTypes => nestedTypesCache.Value;
+
+        private Lazy<IReadOnlyList<IType>> nestedTypesCache;
+
+        private IReadOnlyList<IType> createNestedTypes()
+        {
+            var nestedTypeDecls = Declaration.NestedTypes;
+            var results = new IType[nestedTypeDecls.Count];
+            for (int i = 0; i < results.Length; i++)
+            {
+                results[i] = GenericInstanceType.Create(nestedTypeDecls[i], this);
+            }
+            return results;
+        }
     }
 
     /// <summary>
@@ -136,7 +155,7 @@ namespace Flame.TypeSystem
     /// </summary>
     public sealed class GenericInstanceType : GenericTypeBase, IEquatable<GenericInstanceType>
     {
-        internal GenericInstanceType(
+        private GenericInstanceType(
             IType declaration,
             GenericTypeBase parentType)
             : base(declaration)
@@ -186,6 +205,31 @@ namespace Flame.TypeSystem
         public override int GetHashCode()
         {
             return (((object)ParentType).GetHashCode() << 4) ^ ((object)Declaration).GetHashCode();
+        }
+
+        private static ThreadLocal<LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>> instanceCache
+            = new ThreadLocal<LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>>(
+                createInstanceCache);
+
+        private static LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType> createInstanceCache()
+        {
+            return new LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>(
+                TypeExtensions.TypeCacheCapacity);
+        }
+
+        internal static GenericInstanceType Create(
+            IType declaration,
+            GenericTypeBase parentType)
+        {
+            return instanceCache.Value.Get(
+                new Tuple<IType, GenericTypeBase>(declaration, parentType),
+                createImpl);
+        }
+
+        private static GenericInstanceType createImpl(
+            Tuple<IType, GenericTypeBase> arg)
+        {
+            return new GenericInstanceType(arg.Item1, arg.Item2);
         }
     }
 }

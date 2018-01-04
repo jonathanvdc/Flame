@@ -38,6 +38,12 @@ namespace Flame
         /// </summary>
         /// <returns>A read-only list of properties.</returns>
         IReadOnlyList<IProperty> Properties { get; }
+
+        /// <summary>
+        /// Gets the nested types defined by this type.
+        /// </summary>
+        /// <returns>A read-only list of nested types.</returns>
+        IReadOnlyList<IType> NestedTypes { get; }
     }
 
     /// <summary>
