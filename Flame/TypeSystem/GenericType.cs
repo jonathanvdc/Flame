@@ -18,7 +18,9 @@ namespace Flame.TypeSystem
         internal GenericTypeBase(IType declaration)
         {
             this.Declaration = declaration;
-            this.nestedTypesCache = new Lazy<IReadOnlyList<IType>>(createNestedTypes);
+            this.instantiatingVisitorCache = new Lazy<TypeMappingVisitor>(CreateInstantiatingVisitor);
+            this.nestedTypesCache = new Lazy<IReadOnlyList<IType>>(CreateNestedTypes);
+            this.baseTypeCache = new Lazy<IReadOnlyList<IType>>(CreateBaseTypes);
         }
 
         /// <summary>
@@ -42,12 +44,23 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public abstract QualifiedName FullName { get; }
 
-        public IReadOnlyList<IType> BaseTypes => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> BaseTypes => baseTypeCache.Value;
 
+        private Lazy<IReadOnlyList<IType>> baseTypeCache;
+
+        private IReadOnlyList<IType> CreateBaseTypes()
+        {
+            return instantiatingVisitorCache.Value.VisitAll(Declaration.BaseTypes);
+        }
+
+        /// <inheritdoc/>
         public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
 
+        /// <inheritdoc/>
         public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
 
+        /// <inheritdoc/>
         public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
 
         /// <inheritdoc/>
@@ -62,7 +75,7 @@ namespace Flame.TypeSystem
 
         private Lazy<IReadOnlyList<IType>> nestedTypesCache;
 
-        private IReadOnlyList<IType> createNestedTypes()
+        private IReadOnlyList<IType> CreateNestedTypes()
         {
             var nestedTypeDecls = Declaration.NestedTypes;
             var results = new IType[nestedTypeDecls.Count];
@@ -71,6 +84,23 @@ namespace Flame.TypeSystem
                 results[i] = GenericInstanceType.Create(nestedTypeDecls[i], this);
             }
             return results;
+        }
+
+        private Lazy<TypeMappingVisitor> instantiatingVisitorCache;
+
+        private TypeMappingVisitor CreateInstantiatingVisitor()
+        {
+            var allParams = this.GetRecursiveGenericParameters();
+            var allArgs = Declaration.GetRecursiveGenericArguments();
+
+            int argCount = allArgs.Count;
+            var mapping = new Dictionary<IType, IType>();
+            for (int i = 0; i < argCount; i++)
+            {
+                mapping[allParams[i]] = allArgs[i];
+            }
+
+            return new TypeMappingVisitor(mapping);
         }
     }
 
@@ -223,10 +253,10 @@ namespace Flame.TypeSystem
         {
             return instanceCache.Value.Get(
                 new Tuple<IType, GenericTypeBase>(declaration, parentType),
-                createImpl);
+                CreateImpl);
         }
 
-        private static GenericInstanceType createImpl(
+        private static GenericInstanceType CreateImpl(
             Tuple<IType, GenericTypeBase> arg)
         {
             return new GenericInstanceType(arg.Item1, arg.Item2);

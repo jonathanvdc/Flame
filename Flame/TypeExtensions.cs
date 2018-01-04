@@ -186,11 +186,11 @@ namespace Flame
         }
 
         /// <summary>
-        /// Gets the recursive generic parameters for a particular type.
+        /// Gets the recursive generic arguments for a particular type.
         /// </summary>
         /// <param name="type">A type to examine.</param>
         /// <returns>
-        /// The type's list of recursive generic parameters.
+        /// The type's list of recursive generic arguments.
         /// </returns>
         public static IReadOnlyList<IType> GetRecursiveGenericArguments(
             this IType type)
@@ -212,6 +212,32 @@ namespace Flame
             {
                 recursiveGenericArguments.AddRange(((GenericType)type).GenericArguments);
             }
+        }
+
+        /// <summary>
+        /// Gets the recursive generic parameters for a particular type.
+        /// </summary>
+        /// <param name="type">A type to examine.</param>
+        /// <returns>
+        /// The type's list of recursive generic parameters.
+        /// </returns>
+        public static IReadOnlyList<IType> GetRecursiveGenericParameters(
+            this IType type)
+        {
+            var results = new List<IType>();
+            GetRecursiveGenericParametersImpl(type, results);
+            return results;
+        }
+
+        private static void GetRecursiveGenericParametersImpl(
+            IType type, List<IType> recursiveGenericParameters)
+        {
+            var parentType = type.Parent.TypeOrNull;
+            if (parentType != null)
+            {
+                GetRecursiveGenericParametersImpl(parentType, recursiveGenericParameters);
+            }
+            recursiveGenericParameters.AddRange(type.GenericParameters);
         }
     }
 }
