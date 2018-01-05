@@ -57,9 +57,15 @@ namespace Flame.Collections
         public int Count { get; private set; }
 
         /// <summary>
+        /// Tells if this value list has been properly initialized
+        /// by a constructor.
+        /// </summary>
+        public bool IsInitialized => Items != null;
+
+        /// <summary>
         /// Gets the size of this list's backing array.
         /// </summary>
-        public int Capacity { get { return Items.Length; } }
+        public int Capacity => Items.Length;
 
         /// <summary>
         /// Gets the element at the given index in this list.

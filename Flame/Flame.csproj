@@ -36,6 +36,7 @@
     <Compile Include="Collections/ReadOnlySlice.cs" />
     <Compile Include="Collections/SmallMultiDictionary.cs" />
     <Compile Include="Collections/ValueList.cs" />
+    <Compile Include="Collections/WeakCache.cs" />
     <Compile Include="Names\ArrayName.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\PointerName.cs" />
