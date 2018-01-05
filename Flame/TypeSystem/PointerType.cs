@@ -107,6 +107,22 @@ namespace Flame.TypeSystem
         }
     }
 
+    internal sealed class StructuralPointerTypeComparer : IEqualityComparer<PointerType>
+    {
+        public bool Equals(PointerType x, PointerType y)
+        {
+            return object.ReferenceEquals(x, y)
+                || (object.Equals(x.ElementType, y.ElementType)
+                    && x.Kind.Equals(y.Kind));
+        }
+
+        public int GetHashCode(PointerType obj)
+        {
+            return (((object)obj.ElementType).GetHashCode() << 3)
+                ^ obj.Kind.GetHashCode();
+        }
+    }
+
     /// <summary>
     /// Identifies a particular kind of pointer.
     /// </summary>
