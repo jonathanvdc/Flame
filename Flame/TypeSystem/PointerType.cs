@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using Flame.Collections;
 
 namespace Flame.TypeSystem
 {
@@ -18,7 +20,7 @@ namespace Flame.TypeSystem
         /// <param name="kind">
         /// The pointer's kind.
         /// </param>
-        internal PointerType(IType elementType, PointerKind kind)
+        private PointerType(IType elementType, PointerKind kind)
             : base(
                 elementType,
                 new PointerName(elementType.Name.Qualify(), kind),
@@ -71,6 +73,37 @@ namespace Flame.TypeSystem
             {
                 return newElementType.MakePointerType(Kind);
             }
+        }
+
+        private static ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>> pointerTypeCache
+            = new ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>>(createPointerTypeCache);
+
+        private static LruCache<Tuple<IType, PointerKind>, PointerType> createPointerTypeCache()
+        {
+            return new LruCache<Tuple<IType, PointerKind>, PointerType>(TypeExtensions.TypeCacheCapacity);
+        }
+
+        /// <summary>
+        /// Creates a pointer type of a particular kind that has a
+        /// type as element.
+        /// </summary>
+        /// <param name="type">
+        /// The type of values referred to by the pointer type.
+        /// </param>
+        /// <param name="kind">
+        /// The kind of the pointer type.
+        /// </param>
+        /// <returns>A pointer type.</returns>
+        internal static PointerType Create(IType type, PointerKind kind)
+        {
+            return pointerTypeCache.Value.Get(
+                new Tuple<IType, PointerKind>(type, kind),
+                CreateImpl);
+        }
+
+        private static PointerType CreateImpl(Tuple<IType, PointerKind> input)
+        {
+            return new PointerType(input.Item1, input.Item2);
         }
     }
 

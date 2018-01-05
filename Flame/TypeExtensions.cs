@@ -14,14 +14,6 @@ namespace Flame
     {
         internal const int TypeCacheCapacity = 128;
 
-        private static ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>> pointerTypeCache
-            = new ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>>(createPointerTypeCache);
-
-        private static LruCache<Tuple<IType, PointerKind>, PointerType> createPointerTypeCache()
-        {
-            return new LruCache<Tuple<IType, PointerKind>, PointerType>(TypeCacheCapacity);
-        }
-
         private static ThreadLocal<LruCache<Tuple<IType, int>, ArrayType>> arrayTypeCache
             = new ThreadLocal<LruCache<Tuple<IType, int>, ArrayType>>(createArrayTypeCache);
 
@@ -43,14 +35,7 @@ namespace Flame
         /// <returns>A pointer type.</returns>
         public static PointerType MakePointerType(this IType type, PointerKind kind)
         {
-            return pointerTypeCache.Value.Get(
-                new Tuple<IType, PointerKind>(type, kind),
-                MakePointerTypeImpl);
-        }
-
-        private static PointerType MakePointerTypeImpl(Tuple<IType, PointerKind> input)
-        {
-            return new PointerType(input.Item1, input.Item2);
+            return PointerType.Create(type, kind);
         }
 
         /// <summary>
