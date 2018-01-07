@@ -12,7 +12,7 @@ namespace UnitTests
 
     public class Program
     {
-        public static readonly VList<Pair<string, Func<int>>> Menu = new VList<Pair<string, Func<int>>>()
+        public static readonly List<Pair<string, Func<int>>> Menu = new List<Pair<string, Func<int>>>()
         {
             new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame)
         };
@@ -27,16 +27,8 @@ namespace UnitTests
                 Environment.ExitCode = 1;
         }
 
-        private static IEnumerator<char> ConsoleChars()
+        public static int RunMenu(List<Pair<string, Func<int>>> menu, IEnumerator<char> input)
         {
-            for (ConsoleKeyInfo k; (k = Console.ReadKey(true)).Key != ConsoleKey.Escape
-                && k.Key != ConsoleKey.Enter;)
-                yield return k.KeyChar;
-        }
-
-        public static int RunMenu(IList<Pair<string, Func<int>>> menu, IEnumerator<char> input = null)
-        {
-            var reader = input ?? ConsoleChars();
             int errorCount = 0;
             for (;;)
             {
@@ -46,10 +38,24 @@ namespace UnitTests
                     Console.WriteLine(PrintHelpers.HexDigitChar(i + 1) + ". " + menu[i].Key);
                 Console.WriteLine("Space. Run all tests");
 
-                if (!reader.MoveNext())
-                    break;
+                char c = default(char);
+                if (input == null)
+                {
+                    for (ConsoleKeyInfo k; (k = Console.ReadKey(true)).Key != ConsoleKey.Escape
+                        && k.Key != ConsoleKey.Enter;)
+                    {
+                        c = k.KeyChar;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (!input.MoveNext())
+                        break;
 
-                char c = reader.Current;
+                    c = input.Current;
+                }
+
                 if (c == ' ')
                 {
                     for (int i = 0; i < menu.Count; i++)
