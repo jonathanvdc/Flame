@@ -27,9 +27,44 @@ namespace UnitTests
                 true);
         }
 
+        [Test]
+        public void WeakCache()
+        {
+            new CacheStressTester<object, object>(rng).TestCache(
+                new WeakCache<object, object>(EqualityComparer<object>.Default),
+                GenerateInt32Object,
+                GenerateInt32Object,
+                false);
+        }
+
+        [Test]
+        public void WeakCacheCleanup()
+        {
+            // Create a weak cache.
+            var newCache = new WeakCache<object, object>(EqualityComparer<object>.Default);
+            const int opCount = 40000;
+            // Insert new values and re-shuffle old values. Just check that the cache
+            // cleanup code doesn't cause exceptions.
+            for (int i = 0; i < opCount; i++)
+            {
+                newCache.Insert(i, GenerateInt32Object(rng));
+
+                object value;
+                if (newCache.TryGet(GenerateInt32Object(rng), out value))
+                {
+                    newCache.Insert(GenerateInt32Object(rng), value);
+                }
+            }
+        }
+
         private int GenerateInt32(Random rng)
         {
             return rng.Next(short.MinValue, short.MaxValue);
+        }
+
+        private object GenerateInt32Object(Random rng)
+        {
+            return GenerateInt32(rng);
         }
     }
 
@@ -49,7 +84,7 @@ namespace UnitTests
             bool relaxHasKey)
         {
             var dict = new Dictionary<TKey, TValue>();
-            const int opCount = 200000;
+            const int opCount = 40000;
             for (int i = 0; i < opCount; i++)
             {
                 int op = rng.Next(3);

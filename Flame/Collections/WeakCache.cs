@@ -42,8 +42,6 @@ namespace Flame.Collections
             25165843, 100663319, 402653189, 1610612741
         };
 
-        private const int initialBucketSize = 4;
-
         private int TruncateHashCode(int hashCode)
         {
             return TruncateHashCode(hashCode, buckets.Length);
@@ -163,8 +161,7 @@ namespace Flame.Collections
                         var newBucket = newBuckets[newBucketIndex];
                         if (!newBucket.IsInitialized)
                         {
-                            newBucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(
-                                initialBucketSize);
+                            newBucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
                             initializedBucketCount++;
                         }
                         newBucket.Add(entry);
@@ -203,8 +200,7 @@ namespace Flame.Collections
             var bucket = buckets[index];
             if (!bucket.IsInitialized)
             {
-                bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(
-                    initialBucketSize);
+                bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
                 initializedBucketCount++;
             }
 
