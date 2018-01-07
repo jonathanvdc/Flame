@@ -16,4 +16,6 @@ build_script:
   - nuget restore Flame.sln
   # Build Flame with csc
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
+  # Run the tests
+  - UnitTests\bin\Release\UnitTests.exe 1
 
