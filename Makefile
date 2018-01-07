@@ -20,6 +20,6 @@ clean: clean-ecsc
 	make -C Flame clean
 
 test: exe
-	./UnitTests/bin/clr/UnitTests.exe 1
+	mono ./UnitTests/bin/clr/UnitTests.exe 1
 
 include flame-make-scripts/use-ecsc.mk
