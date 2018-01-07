@@ -31,12 +31,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections/Cache.cs" />
-    <Compile Include="Collections/EmptyArray.cs" />
-    <Compile Include="Collections/ReadOnlySlice.cs" />
-    <Compile Include="Collections/SmallMultiDictionary.cs" />
-    <Compile Include="Collections/ValueList.cs" />
-    <Compile Include="Collections/WeakCache.cs" />
     <Compile Include="Names\ArrayName.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\PointerName.cs" />
@@ -72,6 +66,12 @@
     <Compile Include="Parameter.cs" />
     <Compile Include="TypeConstraint.cs" />
     <Compile Include="TypeExtensions.cs" />
+    <Compile Include="Collections\Cache.cs" />
+    <Compile Include="Collections\EmptyArray.cs" />
+    <Compile Include="Collections\ReadOnlySlice.cs" />
+    <Compile Include="Collections\SmallMultiDictionary.cs" />
+    <Compile Include="Collections\ValueList.cs" />
+    <Compile Include="Collections\WeakCache.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

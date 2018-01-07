@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5202A5A4-69CB-4795-A998-4BAC410900F0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>UnitTests</RootNamespace>
+    <AssemblyName>UnitTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\packages\Loyc.Essentials.24.3.0\lib\net45\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\packages\Loyc.Collections.24.3.0\lib\net45\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Math">
+      <HintPath>..\packages\Loyc.Math.24.3.0\lib\net45\Loyc.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\packages\Loyc.Syntax.24.3.0\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Utilities">
+      <HintPath>..\packages\Loyc.Utilities.24.3.0\lib\net45\Loyc.Utilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Flame\CacheTests.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Flame\Flame.csproj">
+      <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
+      <Name>Flame</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Flame\" />
+  </ItemGroup>
+</Project>
