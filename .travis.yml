@@ -9,3 +9,6 @@ script:
 
   # Build Flame using ecsc
   - make
+
+  # Run the tests
+  - make test
