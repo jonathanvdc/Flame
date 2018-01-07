@@ -55,13 +55,31 @@ namespace Flame.TypeSystem
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
+        public IReadOnlyList<IField> Fields
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
+        public IReadOnlyList<IMethod> Methods
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
+        public IReadOnlyList<IProperty> Properties
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         /// <inheritdoc/>
         public AttributeMap Attributes => Declaration.Attributes;
