@@ -46,6 +46,13 @@ namespace Flame.Collections
         // new buckets. This requires taking a global lock.
 
         /// <summary>
+        /// Creates a weak cache.
+        /// </summary>
+        public WeakCache()
+            : this(EqualityComparer<TKey>.Default)
+        { }
+
+        /// <summary>
         /// Creates a weak cache that uses a particular key comparer
         /// under the hood.
         /// </summary>
