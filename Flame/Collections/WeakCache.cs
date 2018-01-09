@@ -420,6 +420,58 @@ namespace Flame.Collections
                         value = default(TValue);
                         result = false;
                     }
+                    buckets[bucketIndex] = bucket;
+                }
+            }
+            finally
+            {
+                resizeLock.ExitReadLock();
+            }
+
+            if (mustResize)
+            {
+                ResizeTo(resizeSize);
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public override TValue Get(TKey key, Func<TKey, TValue> createValue)
+        {
+            var hashCode = keyComparer.GetHashCode(key);
+            int bucketIndex = TruncateHashCode(hashCode);
+            int domain = GetConcurrencyDomain(bucketIndex);
+
+            bool mustResize;
+            int resizeSize;
+            TValue result;
+
+            try
+            {
+                resizeLock.EnterReadLock();
+
+                lock (domainLocks[domain])
+                {
+                    mustResize = RegisterAccess(domain, out resizeSize);
+                    var bucket = buckets[bucketIndex];
+                    if (!bucket.IsInitialized)
+                    {
+                        bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
+                        initializedBucketCount++;
+                    }
+
+                    if (!TryFindValue(hashCode, key, out result, ref bucket))
+                    {
+                        result = createValue(key);
+                        bucket.Add(
+                            new HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>(
+                                hashCode,
+                                new WeakReference<TKey>(key),
+                                new WeakReference<TValue>(result)));
+                    }
+
+                    buckets[bucketIndex] = bucket;
                 }
             }
             finally
