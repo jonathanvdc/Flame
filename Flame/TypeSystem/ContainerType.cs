@@ -10,8 +10,17 @@ namespace Flame.TypeSystem
     public abstract class ContainerType : IType
     {
         /// <summary>
-        /// Creates a container type from an element type, a name,
-        /// a full name and an attribute map.
+        /// Creates an uninitialized container type from an element type.
+        /// </summary>
+        /// <param name="elementType">The element type.</param>
+        protected ContainerType(IType elementType)
+        {
+            this.ElementType = elementType;
+        }
+
+        /// <summary>
+        /// Creates an initialized container type from an element type,
+        /// a name, a full name and an attribute map.
         /// </summary>
         /// <param name="elementType">The element type.</param>
         /// <param name="name">The container type's name.</param>
@@ -22,8 +31,22 @@ namespace Flame.TypeSystem
             UnqualifiedName name,
             QualifiedName fullName,
             AttributeMap attributes)
+            : this(elementType)
         {
-            this.ElementType = elementType;
+            Initialize(name, fullName, attributes);
+        }
+
+        /// <summary>
+        /// Initializes an uninitialized container type.
+        /// </summary>
+        /// <param name="name">The container type's name.</param>
+        /// <param name="fullName">The container type's fully qualified name.</param>
+        /// <param name="attributes">The container type's attributes.</param>
+        protected void Initialize(
+            UnqualifiedName name,
+            QualifiedName fullName,
+            AttributeMap attributes)
+        {
             this.Name = name;
             this.FullName = fullName;
             this.Attributes = attributes;
@@ -75,11 +98,5 @@ namespace Flame.TypeSystem
         /// </param>
         /// <returns>Another container type.</returns>
         public abstract ContainerType WithElementType(IType newElementType);
-
-        /// <inheritdoc/>
-        public abstract override bool Equals(object obj);
-
-        /// <inheritdoc/>
-        public abstract override int GetHashCode();
     }
 }

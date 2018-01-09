@@ -9,10 +9,11 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type for pointers or references to values.
     /// </summary>
-    public sealed class PointerType : ContainerType, IEquatable<PointerType>
+    public sealed class PointerType : ContainerType
     {
         /// <summary>
-        /// Creates a pointer type from an element type and a pointer kind.
+        /// Creates an uninitialized pointer type from an element
+        /// type and a pointer kind.
         /// </summary>
         /// <param name="elementType">
         /// The type of element referred to by the pointer.
@@ -21,11 +22,7 @@ namespace Flame.TypeSystem
         /// The pointer's kind.
         /// </param>
         private PointerType(IType elementType, PointerKind kind)
-            : base(
-                elementType,
-                new PointerName(elementType.Name.Qualify(), kind),
-                new PointerName(elementType.FullName, kind).Qualify(),
-                AttributeMap.Empty)
+            : base(elementType)
         {
             this.Kind = kind;
         }
@@ -35,32 +32,6 @@ namespace Flame.TypeSystem
         /// </summary>
         /// <returns>The pointer kind.</returns>
         public PointerKind Kind { get; private set; }
-
-        /// <summary>
-        /// Checks if this pointer type equals an other pointer type.
-        /// </summary>
-        /// <param name="other">The other pointer type.</param>
-        /// <returns>
-        /// <c>true</c> if the pointer types are equal; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Equals(PointerType other)
-        {
-            return object.ReferenceEquals(this, other)
-                || (object.Equals(ElementType, other.ElementType)
-                    && Kind.Equals(other.Kind));
-        }
-
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
-        {
-            return obj is PointerType && Equals((PointerType)obj);
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            return ((object)ElementType).GetHashCode() << 2 ^ Kind.GetHashCode();
-        }
 
         /// <inheritdoc/>
         public override ContainerType WithElementType(IType newElementType)
@@ -75,13 +46,11 @@ namespace Flame.TypeSystem
             }
         }
 
-        private static ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>> pointerTypeCache
-            = new ThreadLocal<LruCache<Tuple<IType, PointerKind>, PointerType>>(createPointerTypeCache);
-
-        private static LruCache<Tuple<IType, PointerKind>, PointerType> createPointerTypeCache()
-        {
-            return new LruCache<Tuple<IType, PointerKind>, PointerType>(TypeExtensions.TypeCacheCapacity);
-        }
+        // This cache interns all pointer types: if two PointerType instances
+        // (in the wild, not in this private set-up logic) have equal element
+        // types and kinds, then they are *referentially* equal.
+        private static WeakCache<PointerType, PointerType> pointerTypeCache
+            = new WeakCache<PointerType, PointerType>(new StructuralPointerTypeComparer());
 
         /// <summary>
         /// Creates a pointer type of a particular kind that has a
@@ -96,14 +65,18 @@ namespace Flame.TypeSystem
         /// <returns>A pointer type.</returns>
         internal static PointerType Create(IType type, PointerKind kind)
         {
-            return pointerTypeCache.Value.Get(
-                new Tuple<IType, PointerKind>(type, kind),
-                CreateImpl);
+            return pointerTypeCache.Get(
+                new PointerType(type, kind),
+                InitializeInstance);
         }
 
-        private static PointerType CreateImpl(Tuple<IType, PointerKind> input)
+        private static PointerType InitializeInstance(PointerType instance)
         {
-            return new PointerType(input.Item1, input.Item2);
+            instance.Initialize(
+                new PointerName(instance.ElementType.Name.Qualify(), instance.Kind),
+                new PointerName(instance.ElementType.FullName, instance.Kind).Qualify(),
+                AttributeMap.Empty);
+            return instance;
         }
     }
 
