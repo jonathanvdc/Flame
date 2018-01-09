@@ -57,7 +57,7 @@ namespace Flame.Collections
             ref ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>> bucket)
         {
             bool inserted = false;
-            for (int i = 0; i < bucket.Count;)
+            for (int i = bucket.Count - 1; i >= 0; i--)
             {
                 var entry = bucket[i];
                 TKey entryKey;
@@ -66,11 +66,10 @@ namespace Flame.Collections
                     || !entry.Value.TryGetTarget(out entryValue))
                 {
                     // This entry has expired. Remove it and continue to the
-                    // next iteration without incrementing i.
+                    // next iteration.
                     bucket.RemoveAt(i);
-                    continue;
                 }
-                if (keyHashCode == entry.KeyHashCode
+                else if (keyHashCode == entry.KeyHashCode
                     && keyComparer.Equals(key, entryKey))
                 {
                     inserted = true;
@@ -80,7 +79,6 @@ namespace Flame.Collections
                             entry.Key,
                             new WeakReference<TValue>(value));
                 }
-                i++;
             }
 
             if (!inserted)
@@ -99,7 +97,7 @@ namespace Flame.Collections
         {
             bool found = false;
             value = default(TValue);
-            for (int i = 0; i < bucket.Count;)
+            for (int i = bucket.Count - 1; i >= 0; i--)
             {
                 var entry = bucket[i];
                 TKey entryKey;
@@ -108,17 +106,15 @@ namespace Flame.Collections
                     || !entry.Value.TryGetTarget(out entryValue))
                 {
                     // This entry has expired. Remove it and continue to the
-                    // next iteration without incrementing i.
+                    // next iteration.
                     bucket.RemoveAt(i);
-                    continue;
                 }
-                if (keyHashCode == entry.KeyHashCode
+                else if (keyHashCode == entry.KeyHashCode
                     && keyComparer.Equals(key, entryKey))
                 {
                     found = true;
                     value = entryValue;
                 }
-                i++;
             }
             return found;
         }
