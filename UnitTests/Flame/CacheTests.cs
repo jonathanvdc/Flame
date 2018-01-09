@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Loyc.MiniTest;
 using Flame;
@@ -20,21 +21,23 @@ namespace UnitTests
         [Test]
         public void LruCache()
         {
-            new CacheStressTester<int, int>(rng).TestCache(
+            var time = new CacheStressTester<int, int>(rng).TestCache(
                 new LruCache<int, int>(128),
                 GenerateInt32,
                 GenerateInt32,
                 true);
+            Console.WriteLine("LRU cache test took " + time);
         }
 
         [Test]
         public void WeakCache()
         {
-            new CacheStressTester<object, object>(rng).TestCache(
+            var time = new CacheStressTester<object, object>(rng).TestCache(
                 new WeakCache<object, object>(EqualityComparer<object>.Default),
                 GenerateInt32Object,
                 GenerateInt32Object,
                 false);
+            Console.WriteLine("Weak cache test took " + time);
         }
 
         [Test]
@@ -77,14 +80,17 @@ namespace UnitTests
 
         private Random rng;
 
-        public void TestCache(
+        public TimeSpan TestCache(
             Cache<TKey, TValue> cache,
             Func<Random, TKey> generateKey,
             Func<Random, TValue> generateValue,
             bool relaxHasKey)
         {
+            var perfTimer = new Stopwatch();
+            perfTimer.Start();
+
             var dict = new Dictionary<TKey, TValue>();
-            const int opCount = 40000;
+            const int opCount = 100000;
             for (int i = 0; i < opCount; i++)
             {
                 int op = rng.Next(3);
@@ -141,6 +147,9 @@ namespace UnitTests
                         "' (key: '" + key + "').");
                 }
             }
+
+            perfTimer.Stop();
+            return perfTimer.Elapsed;
         }
     }
 
