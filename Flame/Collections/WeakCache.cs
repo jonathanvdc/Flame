@@ -374,7 +374,7 @@ namespace Flame.Collections
                     if (!bucket.IsInitialized)
                     {
                         bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
-                        initializedBucketCount++;
+                        Interlocked.Increment(ref initializedBucketCount);
                     }
 
                     OverwriteValue(hashCode, key, value, ref bucket);
@@ -458,7 +458,7 @@ namespace Flame.Collections
                     if (!bucket.IsInitialized)
                     {
                         bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
-                        initializedBucketCount++;
+                        Interlocked.Increment(ref initializedBucketCount);
                     }
 
                     if (!TryFindValue(hashCode, key, out result, ref bucket))
