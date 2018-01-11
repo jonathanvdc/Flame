@@ -5,6 +5,8 @@ using System.Linq;
 using Loyc.MiniTest;
 using Flame;
 using Flame.Collections;
+using Loyc;
+using System.Threading;
 
 namespace UnitTests
 {
@@ -60,6 +62,63 @@ namespace UnitTests
             }
         }
 
+        [Test]
+        public void WeakCacheCleanup2()
+        {
+            int iterations = 100;
+            var cache = new WeakCache<object, object>();
+            for (int i = 0; i < iterations; i++)
+            {
+                new CacheStressTester<object, object>(
+                    rng,
+                    CacheStressTester<object, object>.DefaultOpCount / iterations)
+                    .TestCache(
+                        cache,
+                        GenerateInt32Object,
+                        GenerateInt32Object,
+                        false);
+                GC.Collect();
+            }
+        }
+
+        [Test]
+        public void WeakCacheConcurrent()
+        {
+            int threadCount = 16;
+
+            var cache = new WeakCache<object, object>();
+            var tests = new ConcurrentCacheTest[threadCount];
+            var threads = new Thread[threadCount];
+            int delta = (short.MaxValue - short.MinValue) / threadCount;
+
+            var timer = new Stopwatch();
+            timer.Start();
+            for (int i = 0; i < threadCount; i++)
+            {
+                tests[i] = new ConcurrentCacheTest(
+                    cache,
+                    new Random(rng.Next()),
+                    short.MinValue + i * delta,
+                    short.MinValue + (i + 1) * delta);
+
+                threads[i] = new Thread(tests[i].Run);
+                threads[i].Start();
+            }
+
+            var totalTime = new TimeSpan(0);
+            for (int i = 0; i < threadCount; i++)
+            {
+                threads[i].Join();
+                totalTime += tests[i].RunTime;
+            }
+            timer.Stop();
+
+            Console.WriteLine(
+                "Concurrent cache test wall clock time: " + timer.Elapsed);
+            Console.WriteLine(
+                "Concurrent cache test total time: " + totalTime);
+        }
+
         private int GenerateInt32(Random rng)
         {
             return rng.Next(short.MinValue, short.MaxValue);
@@ -73,12 +132,20 @@ namespace UnitTests
 
     internal class CacheStressTester<TKey, TValue>
     {
-        public CacheStressTester(Random rng)
+        public CacheStressTester(Random rng, int opCount)
         {
             this.rng = rng;
+            this.opCount = opCount;
         }
 
+        public CacheStressTester(Random rng)
+            : this(rng, DefaultOpCount)
+        { }
+
         private Random rng;
+        private int opCount;
+
+        public static readonly int DefaultOpCount = 10000;
 
         public TimeSpan TestCache(
             Cache<TKey, TValue> cache,
@@ -90,7 +157,6 @@ namespace UnitTests
             perfTimer.Start();
 
             var dict = new Dictionary<TKey, TValue>();
-            const int opCount = 100000;
             for (int i = 0; i < opCount; i++)
             {
                 int op = rng.Next(3);
@@ -150,6 +216,51 @@ namespace UnitTests
 
             perfTimer.Stop();
             return perfTimer.Elapsed;
+        }
+    }
+
+    internal class ConcurrentCacheTest
+    {
+        public ConcurrentCacheTest(
+            WeakCache<object, object> cache,
+            Random rng,
+            int rangeStart,
+            int rangeEnd)
+        {
+            this.cache = cache;
+            this.rng = rng;
+            this.rangeStart = rangeStart;
+            this.rangeEnd = rangeEnd;
+        }
+
+        private WeakCache<object, object> cache;
+        private Random rng;
+        private int rangeStart;
+        private int rangeEnd;
+
+        public TimeSpan RunTime { get; private set; }
+
+        public void Run()
+        {
+            var tester = new CacheStressTester<object, object>(rng);
+
+            // TODO: figure out why try-get sometimes returns 'false'
+            // when it should return 'true' in a multi-threaded setting.
+            RunTime = tester.TestCache(
+                cache,
+                generateKey,
+                generateValue,
+                true);
+        }
+
+        private object generateKey(Random rng)
+        {
+            return rng.Next(rangeStart + 1, rangeEnd - 1);
+        }
+
+        private object generateValue(Random rng)
+        {
+            return rng.Next();
         }
     }
 
