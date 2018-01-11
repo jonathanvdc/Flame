@@ -297,6 +297,19 @@ namespace Flame.Collections
             return bucketIndex % MaxConcurrency;
         }
 
+        private bool AcquireBucket(int bucketIndex, out int resizeSize)
+        {
+            int domain = GetConcurrencyDomain(bucketIndex);
+            Monitor.Enter(domainLocks[domain]);
+            return RegisterAccess(domain, out resizeSize);
+        }
+
+        private void ReleaseBucket(int bucketIndex)
+        {
+            int domain = GetConcurrencyDomain(bucketIndex);
+            Monitor.Exit(domainLocks[domain]);
+        }
+
         /// <inheritdoc/>
         public sealed override void Insert(TKey key, TValue value)
         {
@@ -310,20 +323,22 @@ namespace Flame.Collections
                 resizeLock.EnterReadLock();
 
                 int bucketIndex = TruncateHashCode(hashCode);
-                int domain = GetConcurrencyDomain(bucketIndex);
 
-                lock (domainLocks[domain])
+                try
                 {
-                    mustResize = RegisterAccess(domain, out resizeSize);
-                    var bucket = buckets[bucketIndex];
+                    mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
+                    var bucket = buckets[bucketIndex];
                     if (bucket.IsEmpty)
                     {
                         Interlocked.Increment(ref initializedBucketCount);
                     }
-
                     bucket.OverwriteOrAdd(keyComparer, hashCode, key, value);
                     buckets[bucketIndex] = bucket;
+                }
+                finally
+                {
+                    ReleaseBucket(bucketIndex);
                 }
             }
             finally
@@ -351,11 +366,11 @@ namespace Flame.Collections
                 resizeLock.EnterReadLock();
 
                 int bucketIndex = TruncateHashCode(hashCode);
-                int domain = GetConcurrencyDomain(bucketIndex);
 
-                lock (domainLocks[domain])
+                try
                 {
-                    mustResize = RegisterAccess(domain, out resizeSize);
+                    mustResize = AcquireBucket(bucketIndex, out resizeSize);
+
                     var bucket = buckets[bucketIndex];
                     bool wasEmpty = bucket.IsEmpty;
                     result = bucket.TryFindValue(keyComparer, hashCode, key, out value);
@@ -364,6 +379,10 @@ namespace Flame.Collections
                         Interlocked.Decrement(ref initializedBucketCount);
                     }
                     buckets[bucketIndex] = bucket;
+                }
+                finally
+                {
+                    ReleaseBucket(bucketIndex);
                 }
             }
             finally
@@ -393,11 +412,11 @@ namespace Flame.Collections
                 resizeLock.EnterReadLock();
 
                 int bucketIndex = TruncateHashCode(hashCode);
-                int domain = GetConcurrencyDomain(bucketIndex);
 
-                lock (domainLocks[domain])
+                try
                 {
-                    mustResize = RegisterAccess(domain, out resizeSize);
+                    mustResize = AcquireBucket(bucketIndex, out resizeSize);
+
                     var bucket = buckets[bucketIndex];
                     if (bucket.IsEmpty)
                     {
@@ -411,6 +430,10 @@ namespace Flame.Collections
                     }
 
                     buckets[bucketIndex] = bucket;
+                }
+                finally
+                {
+                    ReleaseBucket(bucketIndex);
                 }
             }
             finally
