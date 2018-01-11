@@ -74,7 +74,7 @@ namespace Flame.Collections
         public WeakCache(IEqualityComparer<TKey> keyComparer, int maxConcurrency)
         {
             this.keyComparer = keyComparer;
-            this.buckets = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>[primes[0]];
+            this.buckets = new WeakCacheBucket<TKey, TValue>[primes[0]];
             this.initializedBucketCount = 0;
             this.accessCounters = new int[maxConcurrency];
             this.domainLocks = new object[maxConcurrency];
@@ -87,7 +87,7 @@ namespace Flame.Collections
             }
         }
 
-        private ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>[] buckets;
+        private WeakCacheBucket<TKey, TValue>[] buckets;
         private IEqualityComparer<TKey> keyComparer;
         private int initializedBucketCount;
         private int[] accessCounters;
@@ -116,73 +116,6 @@ namespace Flame.Collections
             return (hashCode & int.MaxValue) % bucketCount;
         }
 
-        private void OverwriteValue(
-            int keyHashCode, TKey key, TValue value,
-            ref ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>> bucket)
-        {
-            bool inserted = false;
-            for (int i = bucket.Count - 1; i >= 0; i--)
-            {
-                var entry = bucket[i];
-                TKey entryKey;
-                TValue entryValue;
-                if (!entry.Key.TryGetTarget(out entryKey)
-                    || !entry.Value.TryGetTarget(out entryValue))
-                {
-                    // This entry has expired. Remove it and continue to the
-                    // next iteration.
-                    bucket.RemoveAt(i);
-                }
-                else if (keyHashCode == entry.KeyHashCode
-                    && keyComparer.Equals(key, entryKey))
-                {
-                    inserted = true;
-                    bucket[i] =
-                        new HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>(
-                            keyHashCode,
-                            entry.Key,
-                            new WeakReference<TValue>(value));
-                }
-            }
-
-            if (!inserted)
-            {
-                bucket.Add(
-                    new HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>(
-                        keyHashCode,
-                        new WeakReference<TKey>(key),
-                        new WeakReference<TValue>(value)));
-            }
-        }
-
-        private bool TryFindValue(
-            int keyHashCode, TKey key, out TValue value,
-            ref ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>> bucket)
-        {
-            bool found = false;
-            value = default(TValue);
-            for (int i = bucket.Count - 1; i >= 0; i--)
-            {
-                var entry = bucket[i];
-                TKey entryKey;
-                TValue entryValue;
-                if (!entry.Key.TryGetTarget(out entryKey)
-                    || !entry.Value.TryGetTarget(out entryValue))
-                {
-                    // This entry has expired. Remove it and continue to the
-                    // next iteration.
-                    bucket.RemoveAt(i);
-                }
-                else if (keyHashCode == entry.KeyHashCode
-                    && keyComparer.Equals(key, entryKey))
-                {
-                    found = true;
-                    value = entryValue;
-                }
-            }
-            return found;
-        }
-
         private bool TryGetNextPrime(out int nextPrime)
         {
             int numBuckets = buckets.Length;
@@ -207,32 +140,40 @@ namespace Flame.Collections
         /// <remarks>This method is not thread-safe.</remarks>
         private void ResizeToImpl(int bucketCount)
         {
-            var newBuckets = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>[
+            var newBuckets = new WeakCacheBucket<TKey, TValue>[
                 bucketCount];
 
             initializedBucketCount = 0;
             for (int i = 0; i < buckets.Length; i++)
             {
                 var oldBucket = buckets[i];
-                for (int j = 0; j < oldBucket.Count; j++)
+                while (!oldBucket.IsEmpty)
                 {
-                    var entry = oldBucket[j];
+                    var kvPair = oldBucket.keyValuePair;
                     TKey entryKey;
                     TValue entryValue;
-                    if (entry.Key.TryGetTarget(out entryKey)
-                        && entry.Value.TryGetTarget(out entryValue))
+                    if (kvPair.Key.TryGetTarget(out entryKey)
+                        && kvPair.Value.TryGetTarget(out entryValue))
                     {
                         // This entry is still alive. Add it to the right
                         // bucket in the new bucket array.
-                        var newBucketIndex = TruncateHashCode(entry.KeyHashCode, bucketCount);
+                        var newBucketIndex = TruncateHashCode(kvPair.KeyHashCode, bucketCount);
                         var newBucket = newBuckets[newBucketIndex];
-                        if (!newBucket.IsInitialized)
+                        if (newBucket.IsEmpty)
                         {
-                            newBucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
                             initializedBucketCount++;
                         }
-                        newBucket.Add(entry);
+                        newBucket.Add(kvPair);
                         newBuckets[newBucketIndex] = newBucket;
+                    }
+
+                    if (oldBucket.spilloverList == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        oldBucket = oldBucket.spilloverList.contents;
                     }
                 }
             }
@@ -291,18 +232,7 @@ namespace Flame.Collections
             for (int i = concurrencyDomain; i < buckets.Length; i += MaxConcurrency)
             {
                 var bucket = buckets[i];
-                for (int j = bucket.Count - 1; j >= 0; j--)
-                {
-                    var entry = bucket[j];
-                    TKey entryKey;
-                    TValue entryValue;
-                    if (!entry.Key.TryGetTarget(out entryKey)
-                        || !entry.Value.TryGetTarget(out entryValue))
-                    {
-                        // This entry is dead. Remove it from the bucket.
-                        bucket.RemoveAt(j);
-                    }
-                }
+                bucket.Cleanup();
                 buckets[i] = bucket;
             }
         }
@@ -378,13 +308,13 @@ namespace Flame.Collections
                 {
                     mustResize = RegisterAccess(domain, out resizeSize);
                     var bucket = buckets[bucketIndex];
-                    if (!bucket.IsInitialized)
+
+                    if (bucket.IsEmpty)
                     {
-                        bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
                         Interlocked.Increment(ref initializedBucketCount);
                     }
 
-                    OverwriteValue(hashCode, key, value, ref bucket);
+                    bucket.OverwriteOrAdd(keyComparer, hashCode, key, value);
                     buckets[bucketIndex] = bucket;
                 }
             }
@@ -418,14 +348,11 @@ namespace Flame.Collections
                 {
                     mustResize = RegisterAccess(domain, out resizeSize);
                     var bucket = buckets[bucketIndex];
-                    if (bucket.IsInitialized)
+                    bool wasEmpty = bucket.IsEmpty;
+                    result = bucket.TryFindValue(keyComparer, hashCode, key, out value);
+                    if (!wasEmpty && bucket.IsEmpty)
                     {
-                        result = TryFindValue(hashCode, key, out value, ref bucket);
-                    }
-                    else
-                    {
-                        value = default(TValue);
-                        result = false;
+                        Interlocked.Decrement(ref initializedBucketCount);
                     }
                     buckets[bucketIndex] = bucket;
                 }
@@ -462,20 +389,15 @@ namespace Flame.Collections
                 {
                     mustResize = RegisterAccess(domain, out resizeSize);
                     var bucket = buckets[bucketIndex];
-                    if (!bucket.IsInitialized)
+                    if (bucket.IsEmpty)
                     {
-                        bucket = new ValueList<HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>>(4);
                         Interlocked.Increment(ref initializedBucketCount);
                     }
 
-                    if (!TryFindValue(hashCode, key, out result, ref bucket))
+                    if (!bucket.TryFindValue(keyComparer, hashCode, key, out result))
                     {
                         result = createValue(key);
-                        bucket.Add(
-                            new HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>(
-                                hashCode,
-                                new WeakReference<TKey>(key),
-                                new WeakReference<TValue>(result)));
+                        bucket.Add(hashCode, key, result);
                     }
 
                     buckets[bucketIndex] = bucket;
@@ -493,5 +415,221 @@ namespace Flame.Collections
 
             return result;
         }
+    }
+
+    internal struct WeakCacheBucket<TKey, TValue>
+        where TKey : class
+        where TValue : class
+    {
+        /// <summary>
+        /// Tests if this key-value bucket is empty.
+        /// </summary>
+        public bool IsEmpty => keyValuePair.Key == null;
+
+        public HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>> keyValuePair;
+        public WeakCacheBucketNode<TKey, TValue> spilloverList;
+
+        /// <summary>
+        /// Tries to find the value that is associated with a particular key.
+        /// </summary>
+        /// <param name="keyComparer">An equality comparer for keys.</param>
+        /// <param name="keyHashCode">The hash code for the key.</param>
+        /// <param name="key">The key to search for.</param>
+        /// <param name="value">The value associated with the key.</param>
+        public bool TryFindValue(
+            IEqualityComparer<TKey> keyComparer,
+            int keyHashCode,
+            TKey key,
+            out TValue value)
+        {
+            TKey kvPairKey;
+            TValue kvPairValue;
+            if (!TryIsolateFirstLiveEntry(out kvPairKey, out kvPairValue))
+            {
+                value = default(TValue);
+                return false;
+            }
+
+            if (keyValuePair.KeyHashCode == keyHashCode
+                && keyComparer.Equals(key, kvPairKey))
+            {
+                value = kvPairValue;
+                return true;
+            }
+            else if (spilloverList != null)
+            {
+                return spilloverList.contents.TryFindValue(
+                    keyComparer, keyHashCode, key, out value);
+            }
+            else
+            {
+                value = default(TValue);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Adds a new key-value pair to this bucket. The key must not
+        /// be in the bucket yet.
+        /// </summary>
+        /// <param name="keyHashCode">The key's hash code.</param>
+        /// <param name="key">The key to add to this bucket.</param>
+        /// <param name="value">The value to associate with the key.</param>
+        public void Add(int keyHashCode, TKey key, TValue value)
+        {
+            Add(
+                new HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>>(
+                    keyHashCode,
+                    new WeakReference<TKey>(key),
+                    new WeakReference<TValue>(value)));
+        }
+
+        /// <summary>
+        /// Adds a new key-value pair to this bucket. The key-value pair's
+        /// key must not be present in the bucket yet.
+        /// </summary>
+        /// <param name="kvPair">The key-value pair to add.</param>
+        public void Add(
+            HashedKeyValuePair<WeakReference<TKey>, WeakReference<TValue>> kvPair)
+        {
+            if (!IsEmpty)
+            {
+                var newSpilloverlist = new WeakCacheBucketNode<TKey, TValue>(this);
+                this.spilloverList = newSpilloverlist;
+            }
+
+            this.keyValuePair = kvPair;
+        }
+
+        /// <summary>
+        /// Tries to overwrite the value for a key-value pair.
+        /// </summary>
+        /// <param name="keyComparer">An equality comparer for keys.</param>
+        /// <param name="keyHashCode">The hash code for the key.</param>
+        /// <param name="key">The key to add to the bucket.</param>
+        /// <param name="value">The value to associate with the key.</param>
+        private bool TryOverwrite(
+            IEqualityComparer<TKey> keyComparer,
+            int keyHashCode,
+            TKey key,
+            TValue value)
+        {
+            TKey kvPairKey;
+            TValue kvPairValue;
+            if (!TryIsolateFirstLiveEntry(out kvPairKey, out kvPairValue))
+            {
+                return false;
+            }
+
+            if (keyValuePair.KeyHashCode == keyHashCode
+                && keyComparer.Equals(key, kvPairKey))
+            {
+                // Update the local value.
+                keyValuePair.Value.SetTarget(value);
+                return true;
+            }
+            else if (spilloverList != null)
+            {
+                // Try to overwrite the value in the spillover list..
+                return spilloverList.contents.TryOverwrite(
+                    keyComparer, keyHashCode, key, value);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Overwrites the value for a key-value pair or adds a
+        /// new key-value pair to this bucket.
+        /// </summary>
+        /// <param name="keyComparer">An equality comparer for keys.</param>
+        /// <param name="keyHashCode">The hash code for the key.</param>
+        /// <param name="key">The key to add to the bucket.</param>
+        /// <param name="value">The value to associate with the key.</param>
+        public void OverwriteOrAdd(
+            IEqualityComparer<TKey> keyComparer,
+            int keyHashCode,
+            TKey key,
+            TValue value)
+        {
+            if (!TryOverwrite(keyComparer, keyHashCode, key, value))
+            {
+                Add(keyHashCode, key, value);
+            }
+        }
+
+        /// <summary>
+        /// Deletes the first element in this bucket.
+        /// </summary>
+        private void DeleteFirst()
+        {
+            if (spilloverList == null)
+            {
+                this = default(WeakCacheBucket<TKey, TValue>);
+            }
+            else
+            {
+                this = spilloverList.contents;
+            }
+        }
+
+        /// <summary>
+        /// Deletes all leading dead entries and returns the first
+        /// live entry, if any. Then returns the first entry, if
+        /// any.
+        /// </summary>
+        private bool TryIsolateFirstLiveEntry(
+            out TKey key,
+            out TValue value)
+        {
+            key = default(TKey);
+            value = default(TValue);
+
+            while (!IsEmpty
+                && (!keyValuePair.Key.TryGetTarget(out key)
+                    || !keyValuePair.Value.TryGetTarget(out value)))
+            {
+                DeleteFirst();
+            }
+
+            return !IsEmpty;
+        }
+
+        /// <summary>
+        /// Cleans up all dead key-value pairs in this bucket.
+        /// </summary>
+        public void Cleanup()
+        {
+            TKey kvPairKey;
+            TValue kvPairValue;
+            if (!TryIsolateFirstLiveEntry(out kvPairKey, out kvPairValue))
+            {
+                return;
+            }
+
+            if (spilloverList != null)
+            {
+                spilloverList.contents.Cleanup();
+                if (spilloverList.contents.IsEmpty)
+                {
+                    spilloverList = null;
+                }
+            }
+        }
+    }
+
+    internal sealed class WeakCacheBucketNode<TKey, TValue>
+        where TKey : class
+        where TValue : class
+    {
+        public WeakCacheBucketNode(
+            WeakCacheBucket<TKey, TValue> contents)
+        {
+            this.contents = contents;
+        }
+
+        public WeakCacheBucket<TKey, TValue> contents;
     }
 }
