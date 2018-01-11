@@ -231,8 +231,15 @@ namespace Flame.Collections
         {
             for (int i = concurrencyDomain; i < buckets.Length; i += MaxConcurrency)
             {
+                ContractHelpers.Assert(GetConcurrencyDomain(i) == concurrencyDomain);
+
                 var bucket = buckets[i];
+                bool wasEmpty = bucket.IsEmpty;
                 bucket.Cleanup();
+                if (!wasEmpty && bucket.IsEmpty)
+                {
+                    Interlocked.Decrement(ref initializedBucketCount);
+                }
                 buckets[i] = bucket;
             }
         }
@@ -294,8 +301,6 @@ namespace Flame.Collections
         public sealed override void Insert(TKey key, TValue value)
         {
             var hashCode = keyComparer.GetHashCode(key);
-            int bucketIndex = TruncateHashCode(hashCode);
-            int domain = GetConcurrencyDomain(bucketIndex);
 
             bool mustResize;
             int resizeSize;
@@ -303,6 +308,9 @@ namespace Flame.Collections
             try
             {
                 resizeLock.EnterReadLock();
+
+                int bucketIndex = TruncateHashCode(hashCode);
+                int domain = GetConcurrencyDomain(bucketIndex);
 
                 lock (domainLocks[domain])
                 {
@@ -333,8 +341,6 @@ namespace Flame.Collections
         public sealed override bool TryGet(TKey key, out TValue value)
         {
             var hashCode = keyComparer.GetHashCode(key);
-            int bucketIndex = TruncateHashCode(hashCode);
-            int domain = GetConcurrencyDomain(bucketIndex);
 
             bool mustResize;
             int resizeSize;
@@ -343,6 +349,9 @@ namespace Flame.Collections
             try
             {
                 resizeLock.EnterReadLock();
+
+                int bucketIndex = TruncateHashCode(hashCode);
+                int domain = GetConcurrencyDomain(bucketIndex);
 
                 lock (domainLocks[domain])
                 {
@@ -374,8 +383,6 @@ namespace Flame.Collections
         public override TValue Get(TKey key, Func<TKey, TValue> createValue)
         {
             var hashCode = keyComparer.GetHashCode(key);
-            int bucketIndex = TruncateHashCode(hashCode);
-            int domain = GetConcurrencyDomain(bucketIndex);
 
             bool mustResize;
             int resizeSize;
@@ -384,6 +391,9 @@ namespace Flame.Collections
             try
             {
                 resizeLock.EnterReadLock();
+
+                int bucketIndex = TruncateHashCode(hashCode);
+                int domain = GetConcurrencyDomain(bucketIndex);
 
                 lock (domainLocks[domain])
                 {
