@@ -14,14 +14,6 @@ namespace Flame
     {
         internal const int TypeCacheCapacity = 128;
 
-        private static ThreadLocal<LruCache<Tuple<IType, int>, ArrayType>> arrayTypeCache
-            = new ThreadLocal<LruCache<Tuple<IType, int>, ArrayType>>(createArrayTypeCache);
-
-        private static LruCache<Tuple<IType, int>, ArrayType> createArrayTypeCache()
-        {
-            return new LruCache<Tuple<IType, int>, ArrayType>(TypeCacheCapacity);
-        }
-
         /// <summary>
         /// Creates a pointer type of a particular kind that has a
         /// type as element.
@@ -51,14 +43,7 @@ namespace Flame
         /// <returns>A array type.</returns>
         public static ArrayType MakeArrayType(this IType type, int rank)
         {
-            return arrayTypeCache.Value.Get(
-                new Tuple<IType, int>(type, rank),
-                MakeArrayTypeImpl);
-        }
-
-        private static ArrayType MakeArrayTypeImpl(Tuple<IType, int> input)
-        {
-            return new ArrayType(input.Item1, input.Item2);
+            return ArrayType.Create(type, rank);
         }
 
         public static GenericType MakeGenericType(

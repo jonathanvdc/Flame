@@ -84,9 +84,8 @@ namespace Flame.TypeSystem
     {
         public bool Equals(PointerType x, PointerType y)
         {
-            return object.ReferenceEquals(x, y)
-                || (object.Equals(x.ElementType, y.ElementType)
-                    && x.Kind.Equals(y.Kind));
+            return object.Equals(x.ElementType, y.ElementType)
+                && x.Kind.Equals(y.Kind);
         }
 
         public int GetHashCode(PointerType obj)
