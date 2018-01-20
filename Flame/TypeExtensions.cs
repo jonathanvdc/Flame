@@ -46,11 +46,24 @@ namespace Flame
             return ArrayType.Create(type, rank);
         }
 
+        /// <summary>
+        /// Creates a generic specialization of a particular generic
+        /// type declaration
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic type declaration that is specialized into
+        /// a concrete type.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic type is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
         public static GenericType MakeGenericType(
-            this IType type,
+            this IType declaration,
             IReadOnlyList<IType> genericArguments)
         {
-            return new GenericType(type, genericArguments);
+            return GenericType.Create(declaration, genericArguments);
         }
 
         /// <summary>
