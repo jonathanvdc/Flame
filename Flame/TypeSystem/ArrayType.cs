@@ -50,16 +50,16 @@ namespace Flame.TypeSystem
             = new WeakCache<ArrayType, ArrayType>(new StructuralArrayTypeComparer());
 
         /// <summary>
-        /// Creates a pointer type of a particular kind that has a
+        /// Creates an array type of a particular rank that has a
         /// type as element.
         /// </summary>
         /// <param name="type">
-        /// The type of values referred to by the pointer type.
+        /// The type of values referred to by the array type.
         /// </param>
-        /// <param name="kind">
-        /// The kind of the pointer type.
+        /// <param name="rank">
+        /// The array type's rank, that is, its dimensionality.
         /// </param>
-        /// <returns>A pointer type.</returns>
+        /// <returns>An array type.</returns>
         internal static ArrayType Create(IType type, int rank)
         {
             return ArrayTypeCache.Get(

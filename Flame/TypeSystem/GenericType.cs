@@ -12,12 +12,19 @@ namespace Flame.TypeSystem
     public abstract class GenericTypeBase : IType
     {
         /// <summary>
-        /// Creates a generic type from a declaration.
+        /// Creates an uninitialized generic type from a declaration.
         /// </summary>
         /// <param name="declaration">A declaration.</param>
         internal GenericTypeBase(IType declaration)
         {
             this.Declaration = declaration;
+        }
+
+        /// <summary>
+        /// Initializes a generic type.
+        /// </summary>
+        protected void Initialize()
+        {
             this.instantiatingVisitorCache = new Lazy<TypeMappingVisitor>(CreateInstantiatingVisitor);
             this.nestedTypesCache = new Lazy<IReadOnlyList<IType>>(CreateNestedTypes);
             this.baseTypeCache = new Lazy<IReadOnlyList<IType>>(CreateBaseTypes);
@@ -31,12 +38,6 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public abstract TypeParent Parent { get; }
-
-        /// <inheritdoc/>
-        public abstract override bool Equals(object obj);
-
-        /// <inheritdoc/>
-        public abstract override int GetHashCode();
 
         /// <inheritdoc/>
         public abstract UnqualifiedName Name { get; }
@@ -125,15 +126,20 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A generic type that is instantiated with a list of type arguments.
     /// </summary>
-    public sealed class GenericType : GenericTypeBase, IEquatable<GenericType>
+    public sealed class GenericType : GenericTypeBase
     {
-        internal GenericType(
+        private GenericType(
             IType declaration,
             IReadOnlyList<IType> genericArguments)
             : base(declaration)
         {
             this.GenericArguments = genericArguments;
+        }
 
+        private static GenericType InitializeInstance(GenericType instance)
+        {
+            var declaration = instance.Declaration;
+            var genericArguments = instance.GenericArguments;
             var simpleTypeArgNames = new QualifiedName[genericArguments.Count];
             var qualTypeArgNames = new QualifiedName[simpleTypeArgNames.Length];
             for (int i = 0; i < qualTypeArgNames.Length; i++)
@@ -142,8 +148,12 @@ namespace Flame.TypeSystem
                 qualTypeArgNames[i] = genericArguments[i].FullName;
             }
 
-            this.simpleName = new GenericName(declaration.Name, simpleTypeArgNames);
-            this.qualName = new GenericName(declaration.FullName, qualTypeArgNames).Qualify();
+            instance.simpleName = new GenericName(declaration.Name, simpleTypeArgNames);
+            instance.qualName = new GenericName(declaration.FullName, qualTypeArgNames).Qualify();
+
+            instance.Initialize();
+
+            return instance;
         }
 
         /// <summary>
@@ -164,35 +174,51 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
+        // This cache interns all generic types: if two GenericType instances
+        // (in the wild, not in this private set-up logic) have equal declaration
+        // types and type arguments, then they are *referentially* equal.
+        private static WeakCache<GenericType, GenericType> GenericTypeCache
+            = new WeakCache<GenericType, GenericType>(new StructuralGenericTypeComparer());
+
         /// <summary>
-        /// Checks if this generic type equals another.
+        /// Creates a generic specialization of a particular generic
+        /// type declaration
         /// </summary>
-        /// <param name="other">A generic type.</param>
-        /// <returns>
-        /// <c>true</c> if the types are equal; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Equals(GenericType other)
+        /// <param name="declaration">
+        /// The generic type declaration that is specialized into
+        /// a concrete type.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic type is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
+        internal static GenericType Create(
+            IType declaration,
+            IReadOnlyList<IType> genericArguments)
         {
-            return object.ReferenceEquals(this, other)
-                || (object.Equals(Declaration, other.Declaration)
-                    && Enumerable.SequenceEqual<IType>(
-                        GenericArguments, other.GenericArguments));
+            return GenericTypeCache.Get(
+                new GenericType(declaration, genericArguments),
+                InitializeInstance);
+        }
+    }
+
+    internal sealed class StructuralGenericTypeComparer : IEqualityComparer<GenericType>
+    {
+        public bool Equals(GenericType x, GenericType y)
+        {
+            return object.Equals(x, y.Declaration)
+                && Enumerable.SequenceEqual<IType>(
+                    x.GenericArguments, y.GenericArguments);
         }
 
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
+        public int GetHashCode(GenericType obj)
         {
-            return obj is GenericType && Equals((GenericType)obj);
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            int result = ((object)Declaration).GetHashCode();
-            int genericArgCount = GenericArguments.Count;
+            int result = ((object)obj.Declaration).GetHashCode();
+            int genericArgCount = obj.GenericArguments.Count;
             for (int i = 0; i < genericArgCount; i++)
             {
-                result = (result << 2) ^ ((object)GenericArguments[i]).GetHashCode();
+                result = (result << 2) ^ ((object)obj.GenericArguments[i]).GetHashCode();
             }
             return result;
         }
