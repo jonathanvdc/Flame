@@ -329,12 +329,14 @@ namespace Flame.Collections
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
+                    var inv = bucket.EnterInvariant();
                     if (bucket.IsEmpty)
                     {
                         Interlocked.Increment(ref initializedBucketCount);
                     }
                     bucket.OverwriteOrAdd(keyComparer, hashCode, key, value);
                     buckets[bucketIndex] = bucket;
+                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
@@ -372,6 +374,7 @@ namespace Flame.Collections
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
+                    var inv = bucket.EnterInvariant();
                     bool wasEmpty = bucket.IsEmpty;
                     result = bucket.TryFindValue(keyComparer, hashCode, key, out value);
                     if (!wasEmpty && bucket.IsEmpty)
@@ -379,6 +382,7 @@ namespace Flame.Collections
                         Interlocked.Decrement(ref initializedBucketCount);
                     }
                     buckets[bucketIndex] = bucket;
+                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
@@ -418,6 +422,7 @@ namespace Flame.Collections
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
+                    var inv = bucket.EnterInvariant();
                     if (bucket.IsEmpty)
                     {
                         Interlocked.Increment(ref initializedBucketCount);
@@ -430,6 +435,7 @@ namespace Flame.Collections
                     }
 
                     buckets[bucketIndex] = bucket;
+                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
@@ -649,6 +655,52 @@ namespace Flame.Collections
                 {
                     spilloverList = null;
                 }
+            }
+        }
+
+        public HashSet<TKey> EnterInvariant()
+        {
+#if DEBUG
+            return GetLiveKeys();
+#else
+            return null;
+#endif
+        }
+
+        public void LeaveInvariant(HashSet<TKey> keys)
+        {
+#if DEBUG
+            var liveKeys = GetLiveKeys();
+            ContractHelpers.Assert(keys.IsSubsetOf(liveKeys));
+#endif
+        }
+
+        private HashSet<TKey> GetLiveKeys()
+        {
+            var keys = new HashSet<TKey>();
+            AddLiveKeysTo(keys);
+            return keys;
+        }
+
+        private void AddLiveKeysTo(HashSet<TKey> keys)
+        {
+            if (IsEmpty)
+            {
+                return;
+            }
+
+            TKey key;
+            TValue value;
+
+            if (keyValuePair.Key.TryGetTarget(out key)
+                && keyValuePair.Value.TryGetTarget(out value))
+            {
+                keys.Add(key);
+            }
+
+            if (spilloverList != null)
+            {
+                spilloverList.contents.AddLiveKeysTo(keys);
             }
         }
     }

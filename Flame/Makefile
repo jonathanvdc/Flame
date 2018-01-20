@@ -8,7 +8,7 @@ ifeq ($(ASM_VERSION),)
 	ASM_VERSION:=0.0.1.0
 endif
 
-common_options = -asm-name=Flame -asm-version=$(ASM_VERSION) -Wall -Wextra
+common_options = -asm-name=Flame -asm-version=$(ASM_VERSION) -Wall -Wextra -Wno-unused-method
 
 .PHONY: all flo dll clean
 all: flo dll
