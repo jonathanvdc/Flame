@@ -28,6 +28,7 @@ namespace Flame.TypeSystem
             this.instantiatingVisitorCache = new Lazy<TypeMappingVisitor>(CreateInstantiatingVisitor);
             this.nestedTypesCache = new Lazy<IReadOnlyList<IType>>(CreateNestedTypes);
             this.baseTypeCache = new Lazy<IReadOnlyList<IType>>(CreateBaseTypes);
+            this.fieldsCache = new Lazy<IReadOnlyList<IField>>(CreateFields);
         }
 
         /// <summary>
@@ -55,13 +56,26 @@ namespace Flame.TypeSystem
             return instantiatingVisitorCache.Value.VisitAll(Declaration.BaseTypes);
         }
 
+        private Lazy<IReadOnlyList<IField>> fieldsCache;
+
         /// <inheritdoc/>
         public IReadOnlyList<IField> Fields
         {
             get
             {
-                throw new System.NotImplementedException();
+                return fieldsCache.Value;
             }
+        }
+
+        private IReadOnlyList<IField> CreateFields()
+        {
+            var declFields = Declaration.Fields;
+            var fields = new IField[declFields.Count];
+            for (int i = 0; i < fields.Length; i++)
+            {
+                fields[i] = GenericInstanceField.Create(declFields[i], this);
+            }
+            return fields;
         }
 
         /// <inheritdoc/>
@@ -104,6 +118,11 @@ namespace Flame.TypeSystem
             }
             return results;
         }
+
+        /// <summary>
+        /// Gets a visitor that substitutes generic arguments for parameters.
+        /// </summary>
+        internal TypeMappingVisitor InstantiatingVisitor => instantiatingVisitorCache.Value;
 
         private Lazy<TypeMappingVisitor> instantiatingVisitorCache;
 
@@ -182,7 +201,7 @@ namespace Flame.TypeSystem
 
         /// <summary>
         /// Creates a generic specialization of a particular generic
-        /// type declaration
+        /// type declaration.
         /// </summary>
         /// <param name="declaration">
         /// The generic type declaration that is specialized into
@@ -283,8 +302,8 @@ namespace Flame.TypeSystem
         /// <param name="parentType">
         /// A specialization of the generic declaration's parent type.
         /// </param>
-        /// <returns></returns>
-        public static GenericInstanceType Create(
+        /// <returns>A specialization of the generic declaration.</returns>
+        internal static GenericInstanceType Create(
             IType declaration,
             GenericTypeBase parentType)
         {
