@@ -273,7 +273,18 @@ namespace Flame.TypeSystem
             new WeakCache<GenericInstanceType, GenericInstanceType>(
                 new StructuralGenericInstanceTypeComparer());
 
-        internal static GenericInstanceType Create(
+        /// <summary>
+        /// Creates a generic instance type from a generic declaration
+        /// and a parent type that is itself an (indirect) generic type.
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic declaration to specialize.
+        /// </param>
+        /// <param name="parentType">
+        /// A specialization of the generic declaration's parent type.
+        /// </param>
+        /// <returns></returns>
+        public static GenericInstanceType Create(
             IType declaration,
             GenericTypeBase parentType)
         {
