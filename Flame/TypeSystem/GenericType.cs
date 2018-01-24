@@ -227,15 +227,29 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type that is defined in an instantiated generic type.
     /// </summary>
-    public sealed class GenericInstanceType : GenericTypeBase, IEquatable<GenericInstanceType>
+    public sealed class GenericInstanceType : GenericTypeBase
     {
+        /// <summary>
+        /// Creates an uninitialized generic instance type.
+        /// </summary>
+        /// <param name="declaration">The type's declaration.</param>
+        /// <param name="parentType">The type's parent type.</param>
         private GenericInstanceType(
             IType declaration,
             GenericTypeBase parentType)
             : base(declaration)
         {
             this.ParentType = parentType;
-            this.qualName = Declaration.Name.Qualify(ParentType.FullName);
+        }
+
+        private static GenericInstanceType InitializeInstance(GenericInstanceType instance)
+        {
+            instance.qualName = instance.Declaration.Name.Qualify(
+                instance.ParentType.FullName);
+
+            instance.Initialize();
+
+            return instance;
         }
 
         /// <summary>
@@ -255,55 +269,31 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
-        /// <summary>
-        /// Checks if this generic instance type equals another.
-        /// </summary>
-        /// <param name="other">A generic instance type.</param>
-        /// <returns>
-        /// <c>true</c> if the types are equal; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Equals(GenericInstanceType other)
-        {
-            return object.ReferenceEquals(this, other)
-                || (object.Equals(Declaration, other.Declaration)
-                    && object.Equals(ParentType, other.ParentType));
-        }
-
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
-        {
-            return obj is GenericInstanceType && Equals((GenericInstanceType)obj);
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            return (((object)ParentType).GetHashCode() << 4) ^ ((object)Declaration).GetHashCode();
-        }
-
-        private static ThreadLocal<LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>> instanceCache
-            = new ThreadLocal<LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>>(
-                createInstanceCache);
-
-        private static LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType> createInstanceCache()
-        {
-            return new LruCache<Tuple<IType, GenericTypeBase>, GenericInstanceType>(
-                TypeExtensions.TypeCacheCapacity);
-        }
+        private static WeakCache<GenericInstanceType, GenericInstanceType> instanceCache =
+            new WeakCache<GenericInstanceType, GenericInstanceType>(
+                new StructuralGenericInstanceTypeComparer());
 
         internal static GenericInstanceType Create(
             IType declaration,
             GenericTypeBase parentType)
         {
-            return instanceCache.Value.Get(
-                new Tuple<IType, GenericTypeBase>(declaration, parentType),
-                CreateImpl);
+            return instanceCache.Get(
+                new GenericInstanceType(declaration, parentType),
+                InitializeInstance);
+        }
+    }
+
+    internal sealed class StructuralGenericInstanceTypeComparer : IEqualityComparer<GenericInstanceType>
+    {
+        public bool Equals(GenericInstanceType x, GenericInstanceType y)
+        {
+            return object.Equals(x, y.Declaration)
+                && object.Equals(x.ParentType, y.ParentType);
         }
 
-        private static GenericInstanceType CreateImpl(
-            Tuple<IType, GenericTypeBase> arg)
+        public int GetHashCode(GenericInstanceType obj)
         {
-            return new GenericInstanceType(arg.Item1, arg.Item2);
+            return (((object)obj.ParentType).GetHashCode() << 4) ^ ((object)obj.Declaration).GetHashCode();
         }
     }
 }
