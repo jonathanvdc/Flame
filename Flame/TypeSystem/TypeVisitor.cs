@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Flame.TypeSystem
@@ -82,6 +83,42 @@ namespace Flame.TypeSystem
                 results[i] = Visit(types[i]);
             }
             return results;
+        }
+
+        /// <summary>
+        /// Visits a particular method's recursive generic arguments
+        /// and creates a new specialization based on the results.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public IMethod Visit(IMethod method)
+        {
+            if (method is GenericMethod)
+            {
+                throw new NotImplementedException();
+            }
+
+            var parentType = method.ParentType;
+            var newParentType = Visit(parentType);
+            if (!object.Equals(
+                newParentType.GetRecursiveGenericDeclaration(),
+                parentType.GetRecursiveGenericDeclaration()))
+            {
+                throw new InvalidOperationException(
+                    "Cannot replace parent type of method '" + method.FullName.ToString() +
+                    "' by unrelated type '" + newParentType.FullName.ToString() + "'.");
+            }
+
+            if (newParentType is GenericTypeBase)
+            {
+                return GenericInstanceMethod.Create(
+                    method.GetRecursiveGenericDeclaration(),
+                    (GenericTypeBase)newParentType);
+            }
+            else
+            {
+                return method.GetRecursiveGenericDeclaration();
+            }
         }
     }
 }

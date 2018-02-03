@@ -101,6 +101,11 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters =>
+            // TODO: this is wrong and should be fixed: the types in
+            // `Declaration.GenericParameters` are have `Declaration`
+            // as parent type, which violates the invariant that generic
+            // parameters should always be declared by their declaring
+            // member.
             Declaration.GenericParameters;
 
         /// <inheritdoc/>
@@ -128,17 +133,7 @@ namespace Flame.TypeSystem
 
         private TypeMappingVisitor CreateInstantiatingVisitor()
         {
-            var allParams = this.GetRecursiveGenericParameters();
-            var allArgs = Declaration.GetRecursiveGenericArguments();
-
-            int argCount = allArgs.Count;
-            var mapping = new Dictionary<IType, IType>();
-            for (int i = 0; i < argCount; i++)
-            {
-                mapping[allParams[i]] = allArgs[i];
-            }
-
-            return new TypeMappingVisitor(mapping);
+            return new TypeMappingVisitor(this.GetRecursiveGenericArgumentMapping());
         }
     }
 

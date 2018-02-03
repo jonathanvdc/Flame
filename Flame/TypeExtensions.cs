@@ -104,6 +104,30 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the recursive generic declaration of a method.
+        ///
+        /// If the method is not a recursive generic instance,
+        /// the method itself is returned.
+        ///
+        /// If the method is a recursive generic instance, the
+        /// recursive generic declaration of the method's generic
+        /// declaration is returned.
+        /// </summary>
+        /// <param name="method">A method to examine.</param>
+        /// <returns>
+        /// The method's recursive generic declaration.
+        /// </returns>
+        public static IMethod GetRecursiveGenericDeclaration(
+            this IMethod method)
+        {
+            while (method is GenericMethodBase)
+            {
+                method = ((GenericMethodBase)method).Declaration;
+            }
+            return method;
+        }
+
+        /// <summary>
         /// Turns a recursive generic declaration into a recursive generic
         /// instance with a particular list of recursive generic arguments.
         /// </summary>
@@ -198,22 +222,41 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the generic arguments given to a particular type, if any.
+        /// The list returned by this method does not include arguments
+        /// given to parent types of the provided type.
+        /// </summary>
+        /// <returns>A list of generic argument types.</returns>
+        public static IReadOnlyList<IType> GetGenericArguments(
+            this IType type)
+        {
+            if (type is GenericType)
+            {
+                return ((GenericType)type).GenericArguments;
+            }
+            else
+            {
+                return EmptyArray<IType>.Value;
+            }
+        }
+
+        /// <summary>
         /// Gets the recursive generic parameters for a particular type.
         /// </summary>
         /// <param name="type">A type to examine.</param>
         /// <returns>
         /// The type's list of recursive generic parameters.
         /// </returns>
-        public static IReadOnlyList<IType> GetRecursiveGenericParameters(
+        public static IReadOnlyList<IGenericParameter> GetRecursiveGenericParameters(
             this IType type)
         {
-            var results = new List<IType>();
+            var results = new List<IGenericParameter>();
             GetRecursiveGenericParametersImpl(type, results);
             return results;
         }
 
         private static void GetRecursiveGenericParametersImpl(
-            IType type, List<IType> recursiveGenericParameters)
+            IType type, List<IGenericParameter> recursiveGenericParameters)
         {
             var parentType = type.Parent.TypeOrNull;
             if (parentType != null)
@@ -221,6 +264,86 @@ namespace Flame
                 GetRecursiveGenericParametersImpl(parentType, recursiveGenericParameters);
             }
             recursiveGenericParameters.AddRange(type.GenericParameters);
+        }
+
+
+        /// <summary>
+        /// Creates a dictionary that maps a type's recursive generic
+        /// parameters to their arguments. Additionally, original
+        /// generic parameters are also mapped to modified generic
+        /// parameters.
+        /// </summary>
+        /// <param name="type">The type to create the mapping for.</param>
+        /// <returns>A mapping of generic parameters to their arguments.</returns>
+        public static IReadOnlyDictionary<IType, IType> GetRecursiveGenericArgumentMapping(
+            this IType type)
+        {
+            var mapping = new Dictionary<IType, IType>();
+            AddToRecursiveGenericArgumentMapping(type, mapping);
+            return mapping;
+        }
+
+        private static void AddToRecursiveGenericArgumentMapping(
+            IType type, Dictionary<IType, IType> mapping)
+        {
+            if (type is GenericInstanceType)
+            {
+                var genericInstType = (GenericInstanceType)type;
+                var originalParams = genericInstType.Declaration.GenericParameters;
+                var newParams = genericInstType.GenericParameters;
+                var paramCount = newParams.Count;
+                for (int i = 0; i < paramCount; i++)
+                {
+                    mapping[originalParams[i]] = newParams[i];
+                }
+                AddToRecursiveGenericArgumentMapping(
+                    genericInstType.ParentType, mapping);
+            }
+            else if (type is GenericType)
+            {
+                var genericType = (GenericType)type;
+                var originalParams = genericType.GetRecursiveGenericDeclaration().GenericParameters;
+                var args = genericType.GenericArguments;
+                var paramCount = originalParams.Count;
+                for (int i = 0; i < paramCount; i++)
+                {
+                    mapping[originalParams[i]] = args[i];
+                }
+
+                var genericTypeParent = genericType.Parent;
+                if (genericTypeParent.IsType)
+                {
+                    AddToRecursiveGenericArgumentMapping(
+                        genericType.Parent.Type, mapping);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a dictionary that maps a method's recursive generic
+        /// parameters to their arguments. Additionally, original
+        /// generic parameters are also mapped to modified generic
+        /// parameters.
+        /// </summary>
+        /// <param name="type">The method to create the mapping for.</param>
+        /// <returns>A mapping of generic parameters to their arguments.</returns>
+        public static IReadOnlyDictionary<IType, IType> GetRecursiveGenericArgumentMapping(
+            this IMethod method)
+        {
+            var mapping = new Dictionary<IType, IType>();
+            if (method is GenericMethod)
+            {
+                var genericInst = (GenericMethod)method;
+                var originalParams = genericInst.Declaration.GenericParameters;
+                var args = genericInst.GenericArguments;
+                var paramCount = originalParams.Count;
+                for (int i = 0; i < paramCount; i++)
+                {
+                    mapping[originalParams[i]] = args[i];
+                }
+            }
+            AddToRecursiveGenericArgumentMapping(method.ParentType, mapping);
+            return mapping;
         }
     }
 }

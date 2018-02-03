@@ -1,3 +1,5 @@
+using System;
+
 namespace Flame
 {
     /// <summary>
@@ -89,5 +91,17 @@ namespace Flame
         public QualifiedName FullName => Name.Qualify();
 
         private static SimpleName emptyParameterName = new SimpleName("");
+
+        /// <summary>
+        /// Creates a new parameter that retains all characteristics
+        /// from this parameter except for its type, which is replaced
+        /// by the given type.
+        /// </summary>
+        /// <param name="type">The type of the new parameter.</param>
+        /// <returns>The new parameter.</returns>
+        public Parameter WithType(IType type)
+        {
+            return new Parameter(type, this.Name, this.Attributes);
+        }
     }
 }
