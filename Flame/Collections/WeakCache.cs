@@ -569,7 +569,7 @@ namespace Flame.Collections
             }
             else if (spilloverList != null)
             {
-                // Try to overwrite the value in the spillover list..
+                // Try to overwrite the value in the spillover list.
                 return spilloverList.contents.TryOverwrite(
                     keyComparer, keyHashCode, key, value);
             }
