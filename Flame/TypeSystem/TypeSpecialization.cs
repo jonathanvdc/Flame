@@ -101,7 +101,13 @@ namespace Flame.TypeSystem
         {
             get
             {
-                throw new System.NotImplementedException();
+                var declProperties = Declaration.Properties;
+                var properties = new IProperty[declProperties.Count];
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    properties[i] = IndirectPropertySpecialization.Create(declProperties[i], this);
+                }
+                return properties;
             }
         }
 

@@ -55,11 +55,11 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public AttributeMap Attributes => Declaration.Attributes;
 
-        // This cache interns all generic instance fields:
-        // if two GenericInstanceField instances (in the wild, not
+        // This cache interns all indirect field specializations:
+        // if two IndirectFieldSpecialization instances (in the wild, not
         // in this private set-up logic) have equal declaration
         // and parent types, then they are *referentially* equal.
-        private static WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization> GenericFieldCache
+        private static WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization> instanceCache
             = new WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization>(
                 new StructuralIndirectFieldSpecializationComparer());
 
@@ -79,7 +79,7 @@ namespace Flame.TypeSystem
             IField declaration,
             TypeSpecialization parentType)
         {
-            return GenericFieldCache.Get(
+            return instanceCache.Get(
                 new IndirectFieldSpecialization(declaration, parentType),
                 InitializeInstance);
         }

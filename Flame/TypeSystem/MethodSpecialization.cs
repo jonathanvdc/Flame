@@ -84,14 +84,7 @@ namespace Flame.TypeSystem
 
         private IReadOnlyList<Parameter> CreateParameters()
         {
-            var oldParameters = Declaration.Parameters;
-            var results = new Parameter[oldParameters.Count];
-            for (int i = 0; i < results.Length; i++)
-            {
-                results[i] = oldParameters[i].WithType(
-                    InstantiatingVisitor.Visit(oldParameters[i].Type));
-            }
-            return results;
+            return InstantiatingVisitor.VisitAll(Declaration.Parameters);
         }
 
         /// <inheritdoc/>
@@ -102,13 +95,7 @@ namespace Flame.TypeSystem
 
         private IReadOnlyList<IMethod> CreateBaseMethods()
         {
-            var oldBaseMethods = Declaration.BaseMethods;
-            var results = new IMethod[oldBaseMethods.Count];
-            for (int i = 0; i < results.Length; i++)
-            {
-                results[i] = InstantiatingVisitor.Visit(oldBaseMethods[i]);
-            }
-            return results;
+            return InstantiatingVisitor.VisitAll(Declaration.BaseMethods);
         }
     }
 

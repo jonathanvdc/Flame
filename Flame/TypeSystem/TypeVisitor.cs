@@ -86,16 +86,45 @@ namespace Flame.TypeSystem
         }
 
         /// <summary>
+        /// Visits a parameter's type and uses the result
+        /// to create a new parameter.
+        /// </summary>
+        /// <param name="parameter">The parameter to visit.</param>
+        /// <returns>A visited parameter.</returns>
+        public Parameter Visit(Parameter parameter)
+        {
+            return parameter.WithType(Visit(parameter.Type));
+        }
+
+        /// <summary>
+        /// Visits all parameters in a list of parameters.
+        /// </summary>
+        /// <param name="parameters">A list of parameters to visit.</param>
+        /// <returns>A list of visited parameters.</returns>
+        public IReadOnlyList<Parameter> VisitAll(IReadOnlyList<Parameter> parameters)
+        {
+            var results = new Parameter[parameters.Count];
+            for (int i = 0; i < results.Length; i++)
+            {
+                results[i] = Visit(parameters[i]);
+            }
+            return results;
+        }
+
+        /// <summary>
         /// Visits a particular method's recursive generic arguments
         /// and creates a new specialization based on the results.
         /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
+        /// <param name="method">The method to visit.</param>
+        /// <returns>A visited method.</returns>
         public IMethod Visit(IMethod method)
         {
             if (method is DirectMethodSpecialization)
             {
-                throw new NotImplementedException();
+                var specialization = (DirectMethodSpecialization)method;
+                return Visit(specialization.Declaration)
+                    .MakeGenericMethod(
+                        VisitAll(specialization.GenericArguments));
             }
 
             var parentType = method.ParentType;
@@ -119,6 +148,21 @@ namespace Flame.TypeSystem
             {
                 return method.GetRecursiveGenericDeclaration();
             }
+        }
+
+        /// <summary>
+        /// Visits all methods in a list of methods.
+        /// </summary>
+        /// <param name="methods">A list of methods to visit.</param>
+        /// <returns>A list of visited methods.</returns>
+        public IReadOnlyList<IMethod> VisitAll(IReadOnlyList<IMethod> methods)
+        {
+            var results = new IMethod[methods.Count];
+            for (int i = 0; i < results.Length; i++)
+            {
+                results[i] = Visit(methods[i]);
+            }
+            return results;
         }
     }
 }
