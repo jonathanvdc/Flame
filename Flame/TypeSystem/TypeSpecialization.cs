@@ -86,7 +86,13 @@ namespace Flame.TypeSystem
         {
             get
             {
-                throw new System.NotImplementedException();
+                var declMethods = Declaration.Methods;
+                var methods = new IMethod[declMethods.Count];
+                for (int i = 0; i < methods.Length; i++)
+                {
+                    methods[i] = IndirectMethodSpecialization.Create(declMethods[i], this);
+                }
+                return methods;
             }
         }
 
