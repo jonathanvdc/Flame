@@ -135,7 +135,6 @@ namespace Flame.TypeSystem
         }
 
         private GenericTypeBase parentTy;
-        private Lazy<IReadOnlyList<Parameter>> parameterCache;
         private QualifiedName qualName;
 
         /// <summary>
