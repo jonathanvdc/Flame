@@ -47,6 +47,9 @@ namespace Flame.TypeSystem
         public abstract QualifiedName FullName { get; }
 
         /// <inheritdoc/>
+        public abstract IReadOnlyList<IGenericParameter> GenericParameters { get; }
+
+        /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes => baseTypeCache.Value;
 
         private Lazy<IReadOnlyList<IType>> baseTypeCache;
@@ -98,15 +101,6 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public AttributeMap Attributes => Declaration.Attributes;
-
-        /// <inheritdoc/>
-        public IReadOnlyList<IGenericParameter> GenericParameters =>
-            // TODO: this is wrong and should be fixed: the types in
-            // `Declaration.GenericParameters` are have `Declaration`
-            // as parent type, which violates the invariant that generic
-            // parameters should always be declared by their declaring
-            // member.
-            Declaration.GenericParameters;
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => nestedTypesCache.Value;
@@ -187,6 +181,10 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<IGenericParameter> GenericParameters =>
+            EmptyArray<IGenericParameter>.Value;
 
         // This cache interns all generic types: if two GenericType instances
         // (in the wild, not in this private set-up logic) have equal declaration
@@ -283,6 +281,15 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<IGenericParameter> GenericParameters
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         private static WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization> instanceCache =
             new WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization>(

@@ -151,6 +151,7 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
+        /// <inheritdoc/>
         public override IReadOnlyList<IGenericParameter> GenericParameters
         {
             get
@@ -245,13 +246,18 @@ namespace Flame.TypeSystem
         /// <returns>The generic arguments.</returns>
         public IReadOnlyList<IType> GenericArguments { get; private set; }
 
+        /// <inheritdoc/>
         public override IType ParentType => Declaration.ParentType;
 
+        /// <inheritdoc/>
         public override UnqualifiedName Name => unqualName;
 
+        /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
-        public override IReadOnlyList<IGenericParameter> GenericParameters => Declaration.GenericParameters;
+        /// <inheritdoc/>
+        public override IReadOnlyList<IGenericParameter> GenericParameters =>
+            EmptyArray<IGenericParameter>.Value;
 
         // This cache interns all direct method specializations: if two
         // DirectMethodSpecialization instances (in the wild, not in this
