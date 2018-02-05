@@ -79,7 +79,7 @@ namespace Flame
         /// specialized.
         /// </param>
         /// <returns>A generic specialization.</returns>
-        public static DirectMethodSpecialization MakeGenericType(
+        public static DirectMethodSpecialization MakeGenericMethod(
             this IMethod declaration,
             IReadOnlyList<IType> genericArguments)
         {
