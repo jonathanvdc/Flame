@@ -12,8 +12,6 @@ namespace Flame
     /// </summary>
     public static class TypeExtensions
     {
-        internal const int TypeCacheCapacity = 128;
-
         /// <summary>
         /// Creates a pointer type of a particular kind that has a
         /// type as element.
