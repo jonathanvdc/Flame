@@ -19,8 +19,6 @@ namespace UnitTests
 
         public static void Main(string[] args)
         {
-            new TypeConstruction(globalRng).GenerateCompositeTypes();
-
             // Workaround for MS bug: Assert(false) will not fire in debugger
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new DefaultTraceListener());

@@ -69,15 +69,16 @@ namespace UnitTests
             var cache = new WeakCache<object, object>();
             for (int i = 0; i < iterations; i++)
             {
-                new CacheStressTester<object, object>(
+                var stressTester = new CacheStressTester<object, object>(
                     rng,
-                    CacheStressTester<object, object>.DefaultOpCount / iterations)
-                    .TestCache(
+                    CacheStressTester<object, object>.DefaultOpCount / iterations);
+                stressTester.TestCache(
                         cache,
                         GenerateInt32Object,
                         GenerateInt32Object,
                         false);
-                GC.Collect();
+                stressTester = null;
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
         }
 
@@ -126,7 +127,27 @@ namespace UnitTests
 
         private object GenerateInt32Object(Random rng)
         {
-            return GenerateInt32(rng);
+            return new Int32Object(GenerateInt32(rng));
+        }
+    }
+
+    internal sealed class Int32Object
+    {
+        public Int32Object(int Value)
+        {
+            this.Value = this.Value;
+        }
+
+        public int Value { get; private set; }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+           return obj is Int32Object && Value == ((Int32Object)obj).Value; 
         }
     }
 
@@ -177,12 +198,15 @@ namespace UnitTests
                     var cacheHasKey = cache.TryGet(key, out cacheValue);
                     if (!relaxHasKey)
                     {
+                        if (hasKey != cacheHasKey)
+                        {
+                            cache.TryGet(key, out cacheValue);
+                        }
                         Assert.AreEqual(
                             hasKey,
                             cacheHasKey,
-                            "Try-get operation error: cache says " + 
-                            "it does not contain key '" + key +
-                            "', but it should.");
+                            "Try-get operation error: 'cache.TryGet' returned '" + cacheHasKey +
+                            "', but it should have returned '" + hasKey + "'.");
                     }
                     if (cacheHasKey)
                     {
