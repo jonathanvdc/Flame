@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 
 namespace Flame.TypeSystem
@@ -158,12 +159,13 @@ namespace Flame.TypeSystem
             }
         }
 
-        // This cache interns all generic instance methods: if two
-        // GenericInstanceMethod instances (in the wild, not in this
+        // This cache interns all indirect method specializations: if two
+        // IndirectMethodSpecialization instances (in the wild, not in this
         // private set-up logic) have equal declaration
-        // types and type arguments, then they are *referentially* equal.
+        // types and parent types, then they are *referentially* equal.
         private static WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization> instanceCache
-            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(new StructuralIndirectMethodSpecializationComparer());
+            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(
+                new StructuralIndirectMethodSpecializationComparer());
 
         /// <summary>
         /// Creates a generic instance method from a generic declaration
@@ -250,5 +252,56 @@ namespace Flame.TypeSystem
         public override QualifiedName FullName => qualName;
 
         public override IReadOnlyList<IGenericParameter> GenericParameters => Declaration.GenericParameters;
+
+        // This cache interns all direct method specializations: if two
+        // DirectMethodSpecialization instances (in the wild, not in this
+        // private set-up logic) have equal declaration
+        // types and type arguments, then they are *referentially* equal.
+        private static WeakCache<DirectMethodSpecialization, DirectMethodSpecialization> instanceCache
+            = new WeakCache<DirectMethodSpecialization, DirectMethodSpecialization>(
+                new StructuralDirectMethodSpecializationComparer());
+
+        /// <summary>
+        /// Creates a direct generic specialization of a particular
+        /// generic method declaration.
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic method declaration that is specialized into
+        /// a concrete method.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic method is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
+        internal static DirectMethodSpecialization Create(
+            IMethod declaration,
+            IReadOnlyList<IType> genericArguments)
+        {
+            return instanceCache.Get(
+                new DirectMethodSpecialization(declaration, genericArguments),
+                InitializeInstance);
+        }
+    }
+
+    internal sealed class StructuralDirectMethodSpecializationComparer : IEqualityComparer<DirectMethodSpecialization>
+    {
+        public bool Equals(DirectMethodSpecialization x, DirectMethodSpecialization y)
+        {
+            return object.Equals(x, y.Declaration)
+                && Enumerable.SequenceEqual<IType>(
+                    x.GenericArguments, y.GenericArguments);
+        }
+
+        public int GetHashCode(DirectMethodSpecialization obj)
+        {
+            int result = ((object)obj.Declaration).GetHashCode();
+            int genericArgCount = obj.GenericArguments.Count;
+            for (int i = 0; i < genericArgCount; i++)
+            {
+                result = (result << 2) ^ ((object)obj.GenericArguments[i]).GetHashCode();
+            }
+            return result;
+        }
     }
 }
