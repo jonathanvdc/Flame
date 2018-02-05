@@ -120,9 +120,9 @@ namespace Flame
         public static IMethod GetRecursiveGenericDeclaration(
             this IMethod method)
         {
-            while (method is GenericMethodBase)
+            while (method is MethodSpecialization)
             {
-                method = ((GenericMethodBase)method).Declaration;
+                method = ((MethodSpecialization)method).Declaration;
             }
             return method;
         }
@@ -331,9 +331,9 @@ namespace Flame
             this IMethod method)
         {
             var mapping = new Dictionary<IType, IType>();
-            if (method is GenericMethod)
+            if (method is DirectMethodSpecialization)
             {
-                var genericInst = (GenericMethod)method;
+                var genericInst = (DirectMethodSpecialization)method;
                 var originalParams = genericInst.Declaration.GenericParameters;
                 var args = genericInst.GenericArguments;
                 var paramCount = originalParams.Count;

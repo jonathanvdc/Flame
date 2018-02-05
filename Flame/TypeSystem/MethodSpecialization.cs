@@ -7,7 +7,7 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A base type for method specializations.
     /// </summary>
-    public abstract class GenericMethodBase : IMethod
+    public abstract class MethodSpecialization : IMethod
     {
         /// <summary>
         /// Creates an uninitialized generic method specialization
@@ -16,12 +16,12 @@ namespace Flame.TypeSystem
         /// <param name="declaration">
         /// A generic method declaration.
         /// </param>
-        public GenericMethodBase(IMethod declaration)
+        public MethodSpecialization(IMethod declaration)
         {
             this.Declaration = declaration;
         }
 
-        protected static GenericMethodBase InitializeInstance(GenericMethodBase instance)
+        protected static MethodSpecialization InitializeInstance(MethodSpecialization instance)
         {
             instance.InstantiatingVisitor = new TypeMappingVisitor(
                 TypeExtensions.GetRecursiveGenericArgumentMapping(instance));
@@ -115,9 +115,9 @@ namespace Flame.TypeSystem
     /// A specialization of a method that is obtained by specializing
     /// the method's parent type.
     /// </summary>
-    public sealed class GenericInstanceMethod : GenericMethodBase
+    public sealed class IndirectMethodSpecialization : MethodSpecialization
     {
-        private GenericInstanceMethod(
+        private IndirectMethodSpecialization(
             IMethod declaration,
             GenericTypeBase parentType)
             : base(declaration)
@@ -125,9 +125,9 @@ namespace Flame.TypeSystem
             this.parentTy = parentType;
         }
 
-        private static GenericInstanceMethod InitializeInstance(GenericInstanceMethod instance)
+        private static IndirectMethodSpecialization InitializeInstance(IndirectMethodSpecialization instance)
         {
-            GenericMethodBase.InitializeInstance(instance);
+            MethodSpecialization.InitializeInstance(instance);
             instance.qualName = instance.Declaration.Name.Qualify(
                 instance.parentTy.FullName);
 
@@ -162,8 +162,8 @@ namespace Flame.TypeSystem
         // GenericInstanceMethod instances (in the wild, not in this
         // private set-up logic) have equal declaration
         // types and type arguments, then they are *referentially* equal.
-        private static WeakCache<GenericInstanceMethod, GenericInstanceMethod> instanceCache
-            = new WeakCache<GenericInstanceMethod, GenericInstanceMethod>(new StructuralGenericInstanceMethodComparer());
+        private static WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization> instanceCache
+            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(new StructuralGenericInstanceMethodComparer());
 
         /// <summary>
         /// Creates a generic instance method from a generic declaration
@@ -176,25 +176,25 @@ namespace Flame.TypeSystem
         /// A specialization of the generic declaration's parent type.
         /// </param>
         /// <returns>A specialization of the generic declaration.</returns>
-        internal static GenericInstanceMethod Create(
+        internal static IndirectMethodSpecialization Create(
             IMethod declaration,
             GenericTypeBase parentType)
         {
             return instanceCache.Get(
-                new GenericInstanceMethod(declaration, parentType),
+                new IndirectMethodSpecialization(declaration, parentType),
                 InitializeInstance);
         }
     }
 
-    internal sealed class StructuralGenericInstanceMethodComparer : IEqualityComparer<GenericInstanceMethod>
+    internal sealed class StructuralGenericInstanceMethodComparer : IEqualityComparer<IndirectMethodSpecialization>
     {
-        public bool Equals(GenericInstanceMethod x, GenericInstanceMethod y)
+        public bool Equals(IndirectMethodSpecialization x, IndirectMethodSpecialization y)
         {
             return object.Equals(x.Declaration, y.Declaration)
                 && object.Equals(x.ParentType, y.ParentType);
         }
 
-        public int GetHashCode(GenericInstanceMethod obj)
+        public int GetHashCode(IndirectMethodSpecialization obj)
         {
             return (((object)obj.ParentType).GetHashCode() << 3)
                 ^ ((object)obj.Declaration).GetHashCode();
@@ -205,9 +205,9 @@ namespace Flame.TypeSystem
     /// A generic method specialization obtained by passing
     /// type arguments directly to a generic declaration.
     /// </summary>
-    public sealed class GenericMethod : GenericMethodBase
+    public sealed class DirectMethodSpecialization : MethodSpecialization
     {
-        public GenericMethod(
+        public DirectMethodSpecialization(
             IMethod declaration,
             IReadOnlyList<IType> genericArguments)
             : base(declaration)
@@ -215,7 +215,7 @@ namespace Flame.TypeSystem
             this.GenericArguments = genericArguments;
         }
 
-        private static GenericMethod InitializeInstance(GenericMethod instance)
+        private static DirectMethodSpecialization InitializeInstance(DirectMethodSpecialization instance)
         {
             var genericArguments = instance.GenericArguments;
             var simpleTypeArgNames = new QualifiedName[genericArguments.Count];
@@ -229,7 +229,7 @@ namespace Flame.TypeSystem
             instance.unqualName = new GenericName(instance.Declaration.Name, simpleTypeArgNames);
             instance.qualName = new GenericName(instance.Declaration.FullName, qualTypeArgNames).Qualify();
 
-            GenericMethod.InitializeInstance(instance);
+            DirectMethodSpecialization.InitializeInstance(instance);
 
             return instance;
         }

@@ -93,7 +93,7 @@ namespace Flame.TypeSystem
         /// <returns></returns>
         public IMethod Visit(IMethod method)
         {
-            if (method is GenericMethod)
+            if (method is DirectMethodSpecialization)
             {
                 throw new NotImplementedException();
             }
@@ -111,7 +111,7 @@ namespace Flame.TypeSystem
 
             if (newParentType is GenericTypeBase)
             {
-                return GenericInstanceMethod.Create(
+                return IndirectMethodSpecialization.Create(
                     method.GetRecursiveGenericDeclaration(),
                     (GenericTypeBase)newParentType);
             }
