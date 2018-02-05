@@ -245,6 +245,26 @@ namespace Flame.Collections
         }
 
         /// <summary>
+        /// Explictly cleans up all outdated keys in the weak cache.
+        /// </summary>
+        public void Cleanup()
+        {
+            try
+            {
+                resizeLock.EnterWriteLock();
+
+                for (int i = 0; i < MaxConcurrency; i++)
+                {
+                    Cleanup(i);
+                }
+            }
+            finally
+            {
+                resizeLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
         /// Registers an access to a concurrency domain.
         /// </summary>
         /// <param name="concurrencyDomain">
@@ -650,10 +670,15 @@ namespace Flame.Collections
 
             if (spilloverList != null)
             {
-                spilloverList.contents.Cleanup();
-                if (spilloverList.contents.IsEmpty)
+                var newSpilloverContents = spilloverList.contents;
+                newSpilloverContents.Cleanup();
+                if (newSpilloverContents.IsEmpty)
                 {
                     spilloverList = null;
+                }
+                else
+                {
+                    spilloverList.contents = newSpilloverContents;
                 }
             }
         }
