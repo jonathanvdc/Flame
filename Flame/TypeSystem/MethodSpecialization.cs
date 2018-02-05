@@ -27,8 +27,8 @@ namespace Flame.TypeSystem
             instance.InstantiatingVisitor = new TypeMappingVisitor(
                 TypeExtensions.GetRecursiveGenericArgumentMapping(instance));
 
-            instance.ReturnType = instance.InstantiatingVisitor.Visit(
-                instance.Declaration.ReturnType);
+            instance.ReturnParameter = instance.InstantiatingVisitor.Visit(
+                instance.Declaration.ReturnParameter);
             instance.parameterCache = new Lazy<IReadOnlyList<Parameter>>(
                 instance.CreateParameters);
             instance.baseMethodCache = new Lazy<IReadOnlyList<IMethod>>(
@@ -77,7 +77,7 @@ namespace Flame.TypeSystem
         public bool IsStatic => Declaration.IsStatic;
 
         /// <inheritdoc/>
-        public IType ReturnType { get; private set; }
+        public Parameter ReturnParameter { get; private set; }
 
         /// <inheritdoc/>
         public IReadOnlyList<Parameter> Parameters => parameterCache.Value;

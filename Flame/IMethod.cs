@@ -26,9 +26,9 @@ namespace Flame
         bool IsStatic { get; }
 
         /// <summary>
-        /// Gets the method's return type.
+        /// Gets the method's return parameter.
         /// </summary>
-        IType ReturnType { get; }
+        Parameter ReturnParameter { get; }
 
         /// <summary>
         /// Gets the method's parameters.

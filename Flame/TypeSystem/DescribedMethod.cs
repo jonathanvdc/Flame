@@ -24,7 +24,7 @@ namespace Flame.TypeSystem
         {
             this.ParentType = parentType;
             this.IsStatic = isStatic;
-            this.ReturnType = returnType;
+            this.ReturnParameter = new Parameter(returnType);
             this.paramList = new List<Parameter>();
             this.baseMethodList = new List<IMethod>();
         }
@@ -39,7 +39,7 @@ namespace Flame.TypeSystem
         public bool IsStatic { get; set; }
 
         /// <inheritdoc/>
-        public IType ReturnType { get; set; }
+        public Parameter ReturnParameter { get; set; }
 
         private List<Parameter> paramList;
         private List<IMethod> baseMethodList;
