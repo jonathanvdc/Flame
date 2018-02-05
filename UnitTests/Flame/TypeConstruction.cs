@@ -1,0 +1,87 @@
+using System;
+using System.Collections.Generic;
+using Flame;
+using Flame.TypeSystem;
+using Loyc.MiniTest;
+
+namespace UnitTests
+{
+    [TestFixture]
+    public class TypeConstruction
+    {
+        public TypeConstruction(Random rng)
+        {
+            this.rng = rng;
+            this.simpleType = new DescribedType(new SimpleName("A").Qualify(), null);
+            this.genericType = new DescribedType(new SimpleName("B", 3).Qualify(), null);
+            this.genericType.AddGenericParameter(
+                new DescribedGenericParameter(this.genericType, "T1"));
+            this.genericType.AddGenericParameter(
+                new DescribedGenericParameter(this.genericType, "T2"));
+            this.genericType.AddGenericParameter(
+                new DescribedGenericParameter(this.genericType, "T3"));
+        }
+
+        private Random rng;
+
+        private DescribedType simpleType;
+
+        private DescribedType genericType;
+
+        [Test]
+        public void GenerateCompositeTypes()
+        {
+            // This method generates composite types to ensure that
+            // the 'Create' methods for those types work without
+            // crashing, even if composite types are nested.
+
+            const int types = 1000;
+            for (int i = 0; i < types; i++)
+            {
+                GenerateType(10);
+            }
+        }
+
+        private IType GenerateType(int depth)
+        {
+            if (depth <= 0)
+            {
+                return simpleType;
+            }
+
+            switch (rng.Next(0, 4))
+            {
+                case 1:
+                    return genericType.MakeGenericType(GenerateTypes(depth - 1, genericType.GenericParameters.Count));
+                case 2:
+                    return GenerateType(depth - 1).MakePointerType(GeneratePointerKind());
+                case 3:
+                    return GenerateType(depth - 1).MakeArrayType(rng.Next(1, 10));
+                default:
+                    return simpleType;
+            }
+        }
+
+        private IReadOnlyList<IType> GenerateTypes(int depth, int count)
+        {
+            var results = new List<IType>();
+            while (results.Count < count)
+                results.Add(GenerateType(depth));
+
+            return results;
+        }
+
+        private PointerKind GeneratePointerKind()
+        {
+            switch (rng.Next(0, 3))
+            {
+                case 1:
+                    return PointerKind.Box;
+                case 2:
+                    return PointerKind.Reference;
+                default:
+                    return PointerKind.Transient;
+            }
+        }
+    }
+}
