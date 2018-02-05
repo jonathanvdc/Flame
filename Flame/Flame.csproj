@@ -45,12 +45,12 @@
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedMethod.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
-    <Compile Include="TypeSystem\GenericInstanceField.cs" />
-    <Compile Include="TypeSystem\GenericType.cs" />
+    <Compile Include="TypeSystem\IndirectFieldSpecialization.cs" />
     <Compile Include="TypeSystem\MethodSpecialization.cs" />
     <Compile Include="TypeSystem\PointerType.cs" />
     <Compile Include="TypeSystem\PrimitiveTypes.cs" />
     <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
+    <Compile Include="TypeSystem\TypeSpecialization.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
     <Compile Include="AccessorKind.cs" />
     <Compile Include="AttributeMap.cs" />

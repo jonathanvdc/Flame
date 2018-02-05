@@ -59,11 +59,11 @@ namespace Flame
         /// specialized.
         /// </param>
         /// <returns>A generic specialization.</returns>
-        public static GenericType MakeGenericType(
+        public static DirectTypeSpecialization MakeGenericType(
             this IType declaration,
             IReadOnlyList<IType> genericArguments)
         {
-            return GenericType.Create(declaration, genericArguments);
+            return DirectTypeSpecialization.Create(declaration, genericArguments);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Flame
         /// </returns>
         public static bool IsRecursiveGenericInstance(this IType type)
         {
-            return type is GenericTypeBase;
+            return type is TypeSpecialization;
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace Flame
         public static IType GetRecursiveGenericDeclaration(
             this IType type)
         {
-            while (type is GenericTypeBase)
+            while (type is TypeSpecialization)
             {
-                type = ((GenericTypeBase)type).Declaration;
+                type = ((TypeSpecialization)type).Declaration;
             }
             return type;
         }
@@ -170,9 +170,9 @@ namespace Flame
                     recursiveGenericArguments,
                     ref offset);
             
-                if (parentType is GenericTypeBase)
+                if (parentType is TypeSpecialization)
                 {
-                    type = GenericInstanceType.Create(type, (GenericTypeBase)parentType);
+                    type = IndirectTypeSpecialization.Create(type, (TypeSpecialization)parentType);
                 }
             }
 
@@ -215,9 +215,9 @@ namespace Flame
             {
                 GetRecursiveGenericArgumentsImpl(parentType, recursiveGenericArguments);
             }
-            if (type is GenericType)
+            if (type is DirectTypeSpecialization)
             {
-                recursiveGenericArguments.AddRange(((GenericType)type).GenericArguments);
+                recursiveGenericArguments.AddRange(((DirectTypeSpecialization)type).GenericArguments);
             }
         }
 
@@ -230,9 +230,9 @@ namespace Flame
         public static IReadOnlyList<IType> GetGenericArguments(
             this IType type)
         {
-            if (type is GenericType)
+            if (type is DirectTypeSpecialization)
             {
-                return ((GenericType)type).GenericArguments;
+                return ((DirectTypeSpecialization)type).GenericArguments;
             }
             else
             {
@@ -286,9 +286,9 @@ namespace Flame
         private static void AddToRecursiveGenericArgumentMapping(
             IType type, Dictionary<IType, IType> mapping)
         {
-            if (type is GenericInstanceType)
+            if (type is IndirectTypeSpecialization)
             {
-                var genericInstType = (GenericInstanceType)type;
+                var genericInstType = (IndirectTypeSpecialization)type;
                 var originalParams = genericInstType.Declaration.GenericParameters;
                 var newParams = genericInstType.GenericParameters;
                 var paramCount = newParams.Count;
@@ -299,9 +299,9 @@ namespace Flame
                 AddToRecursiveGenericArgumentMapping(
                     genericInstType.ParentType, mapping);
             }
-            else if (type is GenericType)
+            else if (type is DirectTypeSpecialization)
             {
-                var genericType = (GenericType)type;
+                var genericType = (DirectTypeSpecialization)type;
                 var originalParams = genericType.GetRecursiveGenericDeclaration().GenericParameters;
                 var args = genericType.GenericArguments;
                 var paramCount = originalParams.Count;

@@ -7,15 +7,15 @@ using Flame.Collections;
 namespace Flame.TypeSystem
 {
     /// <summary>
-    /// A base type for generic instance types.
+    /// A base type for generic type specializations.
     /// </summary>
-    public abstract class GenericTypeBase : IType
+    public abstract class TypeSpecialization : IType
     {
         /// <summary>
         /// Creates an uninitialized generic type from a declaration.
         /// </summary>
         /// <param name="declaration">A declaration.</param>
-        internal GenericTypeBase(IType declaration)
+        internal TypeSpecialization(IType declaration)
         {
             this.Declaration = declaration;
         }
@@ -73,7 +73,7 @@ namespace Flame.TypeSystem
             var fields = new IField[declFields.Count];
             for (int i = 0; i < fields.Length; i++)
             {
-                fields[i] = GenericInstanceField.Create(declFields[i], this);
+                fields[i] = IndirectFieldSpecialization.Create(declFields[i], this);
             }
             return fields;
         }
@@ -119,7 +119,7 @@ namespace Flame.TypeSystem
             var results = new IType[nestedTypeDecls.Count];
             for (int i = 0; i < results.Length; i++)
             {
-                results[i] = GenericInstanceType.Create(nestedTypeDecls[i], this);
+                results[i] = IndirectTypeSpecialization.Create(nestedTypeDecls[i], this);
             }
             return results;
         }
@@ -140,9 +140,9 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A generic type that is instantiated with a list of type arguments.
     /// </summary>
-    public sealed class GenericType : GenericTypeBase
+    public sealed class DirectTypeSpecialization : TypeSpecialization
     {
-        private GenericType(
+        private DirectTypeSpecialization(
             IType declaration,
             IReadOnlyList<IType> genericArguments)
             : base(declaration)
@@ -150,7 +150,7 @@ namespace Flame.TypeSystem
             this.GenericArguments = genericArguments;
         }
 
-        private static GenericType InitializeInstance(GenericType instance)
+        private static DirectTypeSpecialization InitializeInstance(DirectTypeSpecialization instance)
         {
             var declaration = instance.Declaration;
             var genericArguments = instance.GenericArguments;
@@ -191,8 +191,9 @@ namespace Flame.TypeSystem
         // This cache interns all generic types: if two GenericType instances
         // (in the wild, not in this private set-up logic) have equal declaration
         // types and type arguments, then they are *referentially* equal.
-        private static WeakCache<GenericType, GenericType> GenericTypeCache
-            = new WeakCache<GenericType, GenericType>(new StructuralGenericTypeComparer());
+        private static WeakCache<DirectTypeSpecialization, DirectTypeSpecialization> GenericTypeCache
+            = new WeakCache<DirectTypeSpecialization, DirectTypeSpecialization>(
+                new StructuralDirectTypeSpecializationComparer());
 
         /// <summary>
         /// Creates a generic specialization of a particular generic
@@ -207,26 +208,26 @@ namespace Flame.TypeSystem
         /// specialized.
         /// </param>
         /// <returns>A generic specialization.</returns>
-        internal static GenericType Create(
+        internal static DirectTypeSpecialization Create(
             IType declaration,
             IReadOnlyList<IType> genericArguments)
         {
             return GenericTypeCache.Get(
-                new GenericType(declaration, genericArguments),
+                new DirectTypeSpecialization(declaration, genericArguments),
                 InitializeInstance);
         }
     }
 
-    internal sealed class StructuralGenericTypeComparer : IEqualityComparer<GenericType>
+    internal sealed class StructuralDirectTypeSpecializationComparer : IEqualityComparer<DirectTypeSpecialization>
     {
-        public bool Equals(GenericType x, GenericType y)
+        public bool Equals(DirectTypeSpecialization x, DirectTypeSpecialization y)
         {
             return object.Equals(x, y.Declaration)
                 && Enumerable.SequenceEqual<IType>(
                     x.GenericArguments, y.GenericArguments);
         }
 
-        public int GetHashCode(GenericType obj)
+        public int GetHashCode(DirectTypeSpecialization obj)
         {
             int result = ((object)obj.Declaration).GetHashCode();
             int genericArgCount = obj.GenericArguments.Count;
@@ -241,22 +242,22 @@ namespace Flame.TypeSystem
     /// <summary>
     /// A type that is defined in an instantiated generic type.
     /// </summary>
-    public sealed class GenericInstanceType : GenericTypeBase
+    public sealed class IndirectTypeSpecialization : TypeSpecialization
     {
         /// <summary>
         /// Creates an uninitialized generic instance type.
         /// </summary>
         /// <param name="declaration">The type's declaration.</param>
         /// <param name="parentType">The type's parent type.</param>
-        private GenericInstanceType(
+        private IndirectTypeSpecialization(
             IType declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
             : base(declaration)
         {
             this.ParentType = parentType;
         }
 
-        private static GenericInstanceType InitializeInstance(GenericInstanceType instance)
+        private static IndirectTypeSpecialization InitializeInstance(IndirectTypeSpecialization instance)
         {
             instance.qualName = instance.Declaration.Name.Qualify(
                 instance.ParentType.FullName);
@@ -270,7 +271,7 @@ namespace Flame.TypeSystem
         /// Gets the parent type of this generic instance type.
         /// </summary>
         /// <returns>The parent type.</returns>
-        public GenericTypeBase ParentType { get; private set; }
+        public TypeSpecialization ParentType { get; private set; }
 
         /// <inheritdoc/>
         public override TypeParent Parent => new TypeParent(ParentType);
@@ -283,9 +284,9 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
-        private static WeakCache<GenericInstanceType, GenericInstanceType> instanceCache =
-            new WeakCache<GenericInstanceType, GenericInstanceType>(
-                new StructuralGenericInstanceTypeComparer());
+        private static WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization> instanceCache =
+            new WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization>(
+                new StructuralIndirectTypeSpecializationComparer());
 
         /// <summary>
         /// Creates a generic instance type from a generic declaration
@@ -298,25 +299,25 @@ namespace Flame.TypeSystem
         /// A specialization of the generic declaration's parent type.
         /// </param>
         /// <returns>A specialization of the generic declaration.</returns>
-        internal static GenericInstanceType Create(
+        internal static IndirectTypeSpecialization Create(
             IType declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
         {
             return instanceCache.Get(
-                new GenericInstanceType(declaration, parentType),
+                new IndirectTypeSpecialization(declaration, parentType),
                 InitializeInstance);
         }
     }
 
-    internal sealed class StructuralGenericInstanceTypeComparer : IEqualityComparer<GenericInstanceType>
+    internal sealed class StructuralIndirectTypeSpecializationComparer : IEqualityComparer<IndirectTypeSpecialization>
     {
-        public bool Equals(GenericInstanceType x, GenericInstanceType y)
+        public bool Equals(IndirectTypeSpecialization x, IndirectTypeSpecialization y)
         {
             return object.Equals(x, y.Declaration)
                 && object.Equals(x.ParentType, y.ParentType);
         }
 
-        public int GetHashCode(GenericInstanceType obj)
+        public int GetHashCode(IndirectTypeSpecialization obj)
         {
             return (((object)obj.ParentType).GetHashCode() << 4) ^ ((object)obj.Declaration).GetHashCode();
         }

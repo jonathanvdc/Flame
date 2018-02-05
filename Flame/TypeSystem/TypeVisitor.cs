@@ -109,11 +109,11 @@ namespace Flame.TypeSystem
                     "' by unrelated type '" + newParentType.FullName.ToString() + "'.");
             }
 
-            if (newParentType is GenericTypeBase)
+            if (newParentType is TypeSpecialization)
             {
                 return IndirectMethodSpecialization.Create(
                     method.GetRecursiveGenericDeclaration(),
-                    (GenericTypeBase)newParentType);
+                    (TypeSpecialization)newParentType);
             }
             else
             {

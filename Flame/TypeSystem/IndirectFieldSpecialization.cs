@@ -8,18 +8,18 @@ namespace Flame.TypeSystem
     /// A specialization of a field belonging to a recursively
     /// generic type.
     /// </summary>
-    public sealed class GenericInstanceField : IField
+    public sealed class IndirectFieldSpecialization : IField
     {
-        private GenericInstanceField(
+        private IndirectFieldSpecialization(
             IField declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
         {
             this.Declaration = declaration;
             this.parentTy = parentType;
         }
 
-        private static GenericInstanceField InitializeInstance(
-            GenericInstanceField field)
+        private static IndirectFieldSpecialization InitializeInstance(
+            IndirectFieldSpecialization field)
         {
             field.FieldType = field.parentTy.InstantiatingVisitor.Visit(
                 field.Declaration.FieldType);
@@ -35,7 +35,7 @@ namespace Flame.TypeSystem
         /// <returns>A generic field declaration.</returns>
         public IField Declaration { get; private set; }
 
-        private GenericTypeBase parentTy;
+        private TypeSpecialization parentTy;
 
         /// <inheritdoc/>
         public bool IsStatic => Declaration.IsStatic;
@@ -59,9 +59,9 @@ namespace Flame.TypeSystem
         // if two GenericInstanceField instances (in the wild, not
         // in this private set-up logic) have equal declaration
         // and parent types, then they are *referentially* equal.
-        private static WeakCache<GenericInstanceField, GenericInstanceField> GenericFieldCache
-            = new WeakCache<GenericInstanceField, GenericInstanceField>(
-                new StructuralGenericInstanceFieldComparer());
+        private static WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization> GenericFieldCache
+            = new WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization>(
+                new StructuralIndirectFieldSpecializationComparer());
 
         /// <summary>
         /// Creates a generic field specialization of a particular generic
@@ -75,25 +75,25 @@ namespace Flame.TypeSystem
         /// A specialization of the generic declaration's parent type.
         /// </param>
         /// <returns>A specialization of the generic declaration.</returns>
-        internal static GenericInstanceField Create(
+        internal static IndirectFieldSpecialization Create(
             IField declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
         {
             return GenericFieldCache.Get(
-                new GenericInstanceField(declaration, parentType),
+                new IndirectFieldSpecialization(declaration, parentType),
                 InitializeInstance);
         }
     }
 
-    internal sealed class StructuralGenericInstanceFieldComparer : IEqualityComparer<GenericInstanceField>
+    internal sealed class StructuralIndirectFieldSpecializationComparer : IEqualityComparer<IndirectFieldSpecialization>
     {
-        public bool Equals(GenericInstanceField x, GenericInstanceField y)
+        public bool Equals(IndirectFieldSpecialization x, IndirectFieldSpecialization y)
         {
             return object.Equals(x.Declaration, y.Declaration)
                 && object.Equals(x.ParentType, y.ParentType);
         }
 
-        public int GetHashCode(GenericInstanceField obj)
+        public int GetHashCode(IndirectFieldSpecialization obj)
         {
             return (((object)obj.Declaration).GetHashCode() << 3)
                 ^ ((object)obj.ParentType).GetHashCode();

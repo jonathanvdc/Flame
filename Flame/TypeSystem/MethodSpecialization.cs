@@ -119,7 +119,7 @@ namespace Flame.TypeSystem
     {
         private IndirectMethodSpecialization(
             IMethod declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
             : base(declaration)
         {
             this.parentTy = parentType;
@@ -134,7 +134,7 @@ namespace Flame.TypeSystem
             return instance;
         }
 
-        private GenericTypeBase parentTy;
+        private TypeSpecialization parentTy;
         private QualifiedName qualName;
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Flame.TypeSystem
         // private set-up logic) have equal declaration
         // types and type arguments, then they are *referentially* equal.
         private static WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization> instanceCache
-            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(new StructuralGenericInstanceMethodComparer());
+            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(new StructuralIndirectMethodSpecializationComparer());
 
         /// <summary>
         /// Creates a generic instance method from a generic declaration
@@ -178,7 +178,7 @@ namespace Flame.TypeSystem
         /// <returns>A specialization of the generic declaration.</returns>
         internal static IndirectMethodSpecialization Create(
             IMethod declaration,
-            GenericTypeBase parentType)
+            TypeSpecialization parentType)
         {
             return instanceCache.Get(
                 new IndirectMethodSpecialization(declaration, parentType),
@@ -186,7 +186,7 @@ namespace Flame.TypeSystem
         }
     }
 
-    internal sealed class StructuralGenericInstanceMethodComparer : IEqualityComparer<IndirectMethodSpecialization>
+    internal sealed class StructuralIndirectMethodSpecializationComparer : IEqualityComparer<IndirectMethodSpecialization>
     {
         public bool Equals(IndirectMethodSpecialization x, IndirectMethodSpecialization y)
         {
