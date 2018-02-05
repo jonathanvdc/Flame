@@ -165,7 +165,7 @@ namespace Flame
         /// <returns>The fully unqualified name.</returns>
         public UnqualifiedName FullyUnqualifiedName
         {
-            get { return qualifiers[qualifiers.Length]; }
+            get { return qualifiers[qualifiers.Length - 1]; }
         }
 
         /// <summary>
