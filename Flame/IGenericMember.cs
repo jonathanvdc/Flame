@@ -6,7 +6,7 @@ namespace Flame
     /// Defines a generic member: a member that has a list of
     /// generic parameters.
     /// </summary>
-    public interface IGenericMember
+    public interface IGenericMember : IMember
     {
         /// <summary>
         /// Gets the list of generic parameters for this generic member.

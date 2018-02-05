@@ -67,6 +67,26 @@ namespace Flame
         }
 
         /// <summary>
+        /// Creates a generic specialization of a particular generic
+        /// method declaration
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic method declaration that is specialized into
+        /// a concrete method.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic method is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
+        public static DirectMethodSpecialization MakeGenericType(
+            this IMethod declaration,
+            IReadOnlyList<IType> genericArguments)
+        {
+            return DirectMethodSpecialization.Create(declaration, genericArguments);
+        }
+
+        /// <summary>
         /// Tells if a particular type is either a generic instance or a
         /// nested type of a generic instance.
         /// </summary>
@@ -210,14 +230,30 @@ namespace Flame
         private static void GetRecursiveGenericArgumentsImpl(
             IType type, List<IType> recursiveGenericArguments)
         {
-            var parentType = type.Parent.TypeOrNull;
-            if (parentType != null)
+            var parent = type.Parent;
+            if (parent.IsType)
             {
-                GetRecursiveGenericArgumentsImpl(parentType, recursiveGenericArguments);
+                GetRecursiveGenericArgumentsImpl(parent.Type, recursiveGenericArguments);
             }
+            else if (parent.IsMethod)
+            {
+                GetRecursiveGenericArgumentsImpl(parent.Method, recursiveGenericArguments);
+            }
+
             if (type is DirectTypeSpecialization)
             {
                 recursiveGenericArguments.AddRange(((DirectTypeSpecialization)type).GenericArguments);
+            }
+        }
+
+        private static void GetRecursiveGenericArgumentsImpl(
+            IMethod method, List<IType> recursiveGenericArguments)
+        {
+            GetRecursiveGenericArgumentsImpl(method.ParentType, recursiveGenericArguments);
+
+            if (method is DirectMethodSpecialization)
+            {
+                recursiveGenericArguments.AddRange(((DirectMethodSpecialization)method).GenericArguments);
             }
         }
 
@@ -233,6 +269,25 @@ namespace Flame
             if (type is DirectTypeSpecialization)
             {
                 return ((DirectTypeSpecialization)type).GenericArguments;
+            }
+            else
+            {
+                return EmptyArray<IType>.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the generic arguments given to a particular method, if any.
+        /// The list returned by this method does not include arguments
+        /// given to parent types of the provided method.
+        /// </summary>
+        /// <returns>A list of generic argument types.</returns>
+        public static IReadOnlyList<IType> GetGenericArguments(
+            this IMethod method)
+        {
+            if (method is DirectMethodSpecialization)
+            {
+                return ((DirectMethodSpecialization)method).GenericArguments;
             }
             else
             {
@@ -286,18 +341,10 @@ namespace Flame
         private static void AddToRecursiveGenericArgumentMapping(
             IType type, Dictionary<IType, IType> mapping)
         {
-            if (type is IndirectTypeSpecialization)
+            if (type is IndirectTypeSpecialization
+                || type is IndirectGenericParameterSpecialization)
             {
-                var genericInstType = (IndirectTypeSpecialization)type;
-                var originalParams = genericInstType.Declaration.GenericParameters;
-                var newParams = genericInstType.GenericParameters;
-                var paramCount = newParams.Count;
-                for (int i = 0; i < paramCount; i++)
-                {
-                    mapping[originalParams[i]] = newParams[i];
-                }
-                AddToRecursiveGenericArgumentMapping(
-                    genericInstType.ParentType, mapping);
+                AddIndirectSpecializationToGenericArgumentMapping(type, mapping);
             }
             else if (type is DirectTypeSpecialization)
             {
@@ -319,6 +366,28 @@ namespace Flame
             }
         }
 
+        private static void AddIndirectSpecializationToGenericArgumentMapping(
+            IType type, Dictionary<IType, IType> mapping)
+        {
+            var originalParams = type.GetRecursiveGenericDeclaration().GenericParameters;
+            var newParams = type.GenericParameters;
+            var paramCount = newParams.Count;
+            for (int i = 0; i < paramCount; i++)
+            {
+                mapping[originalParams[i]] = newParams[i];
+            }
+
+            var parent = type.Parent;
+            if (parent.IsMethod)
+            {
+                AddToRecursiveGenericArgumentMapping(parent.Method, mapping);
+            }
+            else
+            {
+                AddToRecursiveGenericArgumentMapping(parent.Type, mapping);
+            }
+        }
+
         /// <summary>
         /// Creates a dictionary that maps a method's recursive generic
         /// parameters to their arguments. Additionally, original
@@ -331,7 +400,26 @@ namespace Flame
             this IMethod method)
         {
             var mapping = new Dictionary<IType, IType>();
-            if (method is DirectMethodSpecialization)
+            AddToRecursiveGenericArgumentMapping(method, mapping);
+            return mapping;
+        }
+
+        private static void AddToRecursiveGenericArgumentMapping(
+            IMethod method, Dictionary<IType, IType> mapping)
+        {
+            if (method is IndirectMethodSpecialization)
+            {
+                var specialization = (IndirectMethodSpecialization)method;
+                var originalParams = specialization.Declaration.GenericParameters;
+                var newParams = specialization.GenericParameters;
+                var paramCount = newParams.Count;
+                for (int i = 0; i < paramCount; i++)
+                {
+                    mapping[originalParams[i]] = newParams[i];
+                }
+                AddToRecursiveGenericArgumentMapping(specialization.ParentType, mapping);
+            }
+            else if (method is DirectMethodSpecialization)
             {
                 var genericInst = (DirectMethodSpecialization)method;
                 var originalParams = genericInst.Declaration.GenericParameters;
@@ -341,9 +429,8 @@ namespace Flame
                 {
                     mapping[originalParams[i]] = args[i];
                 }
+                AddToRecursiveGenericArgumentMapping(genericInst.ParentType, mapping);
             }
-            AddToRecursiveGenericArgumentMapping(method.ParentType, mapping);
-            return mapping;
         }
     }
 }

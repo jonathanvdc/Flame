@@ -49,7 +49,7 @@ namespace Flame
     /// <summary>
     /// Gets a type's parent, that is, the entity that defines
     /// the type. A type parent can be either an assembly, another
-    /// type or nothing at all.
+    /// type, a method (for generic parameters only), or nothing at all.
     /// </summary>
     public struct TypeParent
     {
@@ -78,6 +78,18 @@ namespace Flame
         }
 
         /// <summary>
+        /// Creates a type parent that wraps around a method.
+        /// </summary>
+        /// <param name="method">
+        /// The method that defines a type.
+        /// </param>
+        public TypeParent(IMethod method)
+        {
+            this = default(TypeParent);
+            this.MethodOrNull = method;
+        }
+
+        /// <summary>
         /// Gets a type parent that indicates that a type has no parent.
         /// </summary>
         public static TypeParent Nothing => default(TypeParent);
@@ -97,6 +109,13 @@ namespace Flame
         public IType TypeOrNull { get; private set; }
 
         /// <summary>
+        /// Gets the method that is this type parent. If this type
+        /// parent is not a method, then <c>null</c> is returned.
+        /// </summary>
+        /// <returns>A method or <c>null</c>.</returns>
+        public IMethod MethodOrNull { get; private set; }
+
+        /// <summary>
         /// Checks if this type parent is an assembly.
         /// </summary>
         public bool IsAssembly => AssemblyOrNull != null;
@@ -107,10 +126,15 @@ namespace Flame
         public bool IsType => TypeOrNull != null;
 
         /// <summary>
+        /// Checks if this type parent is a method.
+        /// </summary>
+        public bool IsMethod => MethodOrNull != null;
+
+        /// <summary>
         /// Checks if this type parent is nothing at all, that is,
         /// no entity directly "defines" the type.
         /// </summary>
-        public bool IsNothing => !IsAssembly && !IsType;
+        public bool IsNothing => !IsAssembly && !IsType && !IsMethod;
 
         /// <summary>
         /// Gets the assembly that is this type parent. Throws
@@ -141,6 +165,22 @@ namespace Flame
                     throw new InvalidOperationException("Type parent is not a type.");
 
                 return TypeOrNull;
+            }
+        }
+
+        /// <summary>
+        /// Gets the method that is this type parent. Throws
+        /// if this type parent is not a method.
+        /// </summary>
+        /// <returns>A method.</returns>
+        public IMethod Method
+        {
+            get
+            {
+                if (!IsMethod)
+                    throw new InvalidOperationException("Type parent is not a method.");
+
+                return MethodOrNull;
             }
         }
     }

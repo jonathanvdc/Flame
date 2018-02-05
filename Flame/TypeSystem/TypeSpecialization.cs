@@ -255,15 +255,24 @@ namespace Flame.TypeSystem
             this.ParentType = parentType;
         }
 
+        /// <summary>
+        /// Initializes an uninitialized indirect type specialization.
+        /// </summary>
+        /// <param name="instance">The instance to initialize.</param>
+        /// <returns>The instance.</returns>
         private static IndirectTypeSpecialization InitializeInstance(IndirectTypeSpecialization instance)
         {
             instance.qualName = instance.Declaration.Name.Qualify(
                 instance.ParentType.FullName);
+            instance.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(
+                instance.CreateGenericParameters);
 
             instance.Initialize();
 
             return instance;
         }
+
+        private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
 
         /// <summary>
         /// Gets the parent type of this generic instance type.
@@ -283,12 +292,11 @@ namespace Flame.TypeSystem
         public override QualifiedName FullName => qualName;
 
         /// <inheritdoc/>
-        public override IReadOnlyList<IGenericParameter> GenericParameters
+        public override IReadOnlyList<IGenericParameter> GenericParameters => genericParameterCache.Value;
+
+        private IReadOnlyList<IGenericParameter> CreateGenericParameters()
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
+            return IndirectGenericParameterSpecialization.CreateAll(Declaration, this);
         }
 
         private static WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization> instanceCache =

@@ -131,12 +131,15 @@ namespace Flame.TypeSystem
             MethodSpecialization.InitializeInstance(instance);
             instance.qualName = instance.Declaration.Name.Qualify(
                 instance.parentTy.FullName);
+            instance.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(
+                instance.CreateGenericParameters);
 
             return instance;
         }
 
         private TypeSpecialization parentTy;
         private QualifiedName qualName;
+        private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
 
         /// <summary>
         /// Gets the parent type specialization that defines this method
@@ -152,12 +155,12 @@ namespace Flame.TypeSystem
         public override QualifiedName FullName => qualName;
 
         /// <inheritdoc/>
-        public override IReadOnlyList<IGenericParameter> GenericParameters
+        public override IReadOnlyList<IGenericParameter> GenericParameters =>
+            genericParameterCache.Value;
+
+        private IReadOnlyList<IGenericParameter> CreateGenericParameters()
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
+            return IndirectGenericParameterSpecialization.CreateAll(Declaration, this);
         }
 
         // This cache interns all indirect method specializations: if two
@@ -232,7 +235,7 @@ namespace Flame.TypeSystem
             instance.unqualName = new GenericName(instance.Declaration.Name, simpleTypeArgNames);
             instance.qualName = new GenericName(instance.Declaration.FullName, qualTypeArgNames).Qualify();
 
-            DirectMethodSpecialization.InitializeInstance(instance);
+            MethodSpecialization.InitializeInstance(instance);
 
             return instance;
         }

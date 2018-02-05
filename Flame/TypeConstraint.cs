@@ -1,3 +1,5 @@
+using System;
+
 namespace Flame
 {
     /// <summary>
@@ -13,6 +15,13 @@ namespace Flame
         /// <c>true</c> if the type satisfies this constraint; otherwise, <c>false</c>.
         /// </returns>
         public abstract bool IsSatisfiedBy(IType type);
+
+        /// <summary>
+        /// Applies a mapping to all types in this type constraint.
+        /// </summary>
+        /// <param name="mapping">A mapping of types to types.</param>
+        /// <returns>A (new) type constraint.</returns>
+        public abstract TypeConstraint Map(Func<IType, IType> mapping);
     }
 
     /// <summary>
@@ -32,6 +41,12 @@ namespace Flame
         public override bool IsSatisfiedBy(IType type)
         {
             return true;
+        }
+
+        /// <inhertidoc/>
+        public override TypeConstraint Map(Func<IType, IType> mapping)
+        {
+            return this;
         }
     }
 }
