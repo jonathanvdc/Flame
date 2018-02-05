@@ -27,6 +27,8 @@ namespace Flame.TypeSystem
                 instance.Declaration.PropertyType);
             instance.indexerParamCache = new Lazy<IReadOnlyList<Parameter>>(
                 instance.CreateIndexerParameters);
+            instance.accessorCache = new Lazy<IReadOnlyList<IAccessor>>(
+                instance.CreateAccessors);
 
             return instance;
         }
@@ -41,6 +43,7 @@ namespace Flame.TypeSystem
         private QualifiedName qualName;
         private IType propType;
         private Lazy<IReadOnlyList<Parameter>> indexerParamCache;
+        private Lazy<IReadOnlyList<IAccessor>> accessorCache;
 
         /// <inheritdoc/>
         public IType PropertyType => propType;
@@ -55,13 +58,19 @@ namespace Flame.TypeSystem
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IAccessor> Accessors
+        public IReadOnlyList<IAccessor> Accessors => accessorCache.Value;
+
+        private IReadOnlyList<IAccessor> CreateAccessors()
         {
-            get
+            var declMethods = Declaration.Accessors;
+            var methods = new IAccessor[declMethods.Count];
+            for (int i = 0; i < methods.Length; i++)
             {
-                throw new System.NotImplementedException();
+                methods[i] = IndirectAccessorSpecialization.Create(declMethods[i], this);
             }
+            return methods;
         }
+
 
         /// <inheritdoc/>
         public IType ParentType => specializedParentType;

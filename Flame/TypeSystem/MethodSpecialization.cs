@@ -103,9 +103,9 @@ namespace Flame.TypeSystem
     /// A specialization of a method that is obtained by specializing
     /// the method's parent type.
     /// </summary>
-    public sealed class IndirectMethodSpecialization : MethodSpecialization
+    public class IndirectMethodSpecialization : MethodSpecialization
     {
-        private IndirectMethodSpecialization(
+        internal IndirectMethodSpecialization(
             IMethod declaration,
             TypeSpecialization parentType)
             : base(declaration)
@@ -173,8 +173,43 @@ namespace Flame.TypeSystem
             IMethod declaration,
             TypeSpecialization parentType)
         {
-            return instanceCache.Get(
-                new IndirectMethodSpecialization(declaration, parentType),
+            if (declaration is IAccessor)
+            {
+                var accessor = (IAccessor)declaration;
+                return Create(
+                    accessor,
+                    IndirectPropertySpecialization.Create(
+                        accessor.ParentProperty,
+                        parentType));
+            }
+            else
+            {
+                return instanceCache.Get(
+                    new IndirectMethodSpecialization(declaration, parentType),
+                    InitializeInstance);
+            }
+        }
+
+        /// <summary>
+        /// Creates a generic instance accessor from a generic declaration
+        /// and a parent property that is itself an indirect property specialization.
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic declaration to specialize.
+        /// </param>
+        /// <param name="parentProperty">
+        /// A specialization of the generic declaration's parent type.
+        /// </param>
+        /// <returns>A specialization of the generic declaration.</returns>
+        internal static IndirectAccessorSpecialization Create(
+            IAccessor declaration,
+            IndirectPropertySpecialization parentProperty)
+        {
+            var accessor = (IAccessor)declaration;
+            return (IndirectAccessorSpecialization)instanceCache.Get(
+                new IndirectAccessorSpecialization(
+                    accessor,
+                    parentProperty),
                 InitializeInstance);
         }
     }
