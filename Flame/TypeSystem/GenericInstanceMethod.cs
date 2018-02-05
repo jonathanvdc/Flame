@@ -150,8 +150,13 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override QualifiedName FullName => qualName;
 
-        public override IReadOnlyList<IGenericParameter> GenericParameters =>
-            throw new System.NotImplementedException();
+        public override IReadOnlyList<IGenericParameter> GenericParameters
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         // This cache interns all generic instance methods: if two
         // GenericInstanceMethod instances (in the wild, not in this
