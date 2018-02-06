@@ -583,7 +583,14 @@ namespace Flame.Collections
             if (keyValuePair.KeyHashCode == keyHashCode
                 && keyComparer.Equals(key, kvPairKey))
             {
-                // Update the local value.
+                // Update both the value *and* the key.
+                //
+                // The latter needs to be updated because the
+                // key is a weak reference. To leave the old key
+                // in place is an invitation for the GC to kick in
+                // and collect the old key, making the *new*
+                // key-value pair invalid.
+                keyValuePair.Key.SetTarget(key);
                 keyValuePair.Value.SetTarget(value);
                 return true;
             }
