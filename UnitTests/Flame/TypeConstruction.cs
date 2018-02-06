@@ -20,13 +20,15 @@ namespace UnitTests
                 new DescribedGenericParameter(this.genericType, "T2"));
             this.genericType.AddGenericParameter(
                 new DescribedGenericParameter(this.genericType, "T3"));
+            this.nestedGenericType = new DescribedType(new SimpleName("C"), this.genericType);
+            this.genericType.AddNestedType(this.nestedGenericType);
         }
 
         private Random rng;
 
         private DescribedType simpleType;
-
         private DescribedType genericType;
+        private DescribedType nestedGenericType;
 
         [Test]
         public void GenerateCompositeTypes()
@@ -49,13 +51,17 @@ namespace UnitTests
                 return simpleType;
             }
 
-            switch (rng.Next(0, 4))
+            switch (rng.Next(0, 5))
             {
                 case 1:
-                    return genericType.MakeGenericType(GenerateTypes(depth - 1, genericType.GenericParameters.Count));
+                    return genericType.MakeGenericType(
+                        GenerateTypes(depth / 3, genericType.GenericParameters.Count));
                 case 2:
-                    return GenerateType(depth - 1).MakePointerType(GeneratePointerKind());
+                    return nestedGenericType.MakeRecursiveGenericType(
+                        GenerateTypes(depth / 3, genericType.GenericParameters.Count));
                 case 3:
+                    return GenerateType(depth - 1).MakePointerType(GeneratePointerKind());
+                case 4:
                     return GenerateType(depth - 1).MakeArrayType(rng.Next(1, 10));
                 default:
                     return simpleType;
