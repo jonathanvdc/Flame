@@ -141,6 +141,12 @@ namespace Flame.TypeSystem
         {
             return new TypeMappingVisitor(this.GetRecursiveGenericArgumentMapping());
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 
     /// <summary>

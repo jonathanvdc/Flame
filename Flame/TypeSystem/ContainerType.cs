@@ -98,5 +98,11 @@ namespace Flame.TypeSystem
         /// </param>
         /// <returns>Another container type.</returns>
         public abstract ContainerType WithElementType(IType newElementType);
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 }

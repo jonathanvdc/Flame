@@ -84,6 +84,12 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public AttributeMap Attributes => Declaration.Attributes;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
+
         // This cache interns all indirect property specializations:
         // if two IndirectPropertySpecialization instances (in the wild, not
         // in this private set-up logic) have equal declaration

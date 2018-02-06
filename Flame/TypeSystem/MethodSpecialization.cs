@@ -97,6 +97,12 @@ namespace Flame.TypeSystem
         {
             return InstantiatingVisitor.VisitAll(Declaration.BaseMethods);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 
     /// <summary>

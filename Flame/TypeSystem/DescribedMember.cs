@@ -38,5 +38,11 @@ namespace Flame.TypeSystem
         {
             attributeBuilder.Add(attribute);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
+        }
     }
 }
