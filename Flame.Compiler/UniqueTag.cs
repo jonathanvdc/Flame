@@ -10,6 +10,13 @@ namespace Flame.Compiler
         /// <summary>
         /// Creates a new unique tag.
         /// </summary>
+        public UniqueTag()
+            : this("")
+        { }
+
+        /// <summary>
+        /// Creates a new unique tag.
+        /// </summary>
         /// <param name="name">The tag's name.</param>
         public UniqueTag(string name)
         {
@@ -31,8 +38,36 @@ namespace Flame.Compiler
         /// <summary>
         /// Creates a new value tag.
         /// </summary>
+        public ValueTag() : base()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new value tag.
+        /// </summary>
         /// <param name="name">The tag's name.</param>
         public ValueTag(string name) : base(name)
+        {
+        }
+    }
+
+    /// <summary>
+    /// A unique tag type for basic blocks.
+    /// </summary>
+    public sealed class BasicBlockTag : UniqueTag
+    {
+        /// <summary>
+        /// Creates a new basic block tag.
+        /// </summary>
+        public BasicBlockTag() : base()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new basic block tag.
+        /// </summary>
+        /// <param name="name">The tag's name.</param>
+        public BasicBlockTag(string name) : base(name)
         {
         }
     }

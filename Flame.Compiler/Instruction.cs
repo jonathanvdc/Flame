@@ -15,7 +15,7 @@ namespace Flame.Compiler
         public abstract IType Type { get; }
 
         /// <summary>
-        /// Gets the list of values this instruction takes as arguments.
+        /// Gets a list of values this instruction takes as arguments.
         /// </summary>
         /// <returns>The values taken as arguments.</returns>
         public abstract IReadOnlyList<ValueTag> Arguments { get; }
