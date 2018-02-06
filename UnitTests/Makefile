@@ -4,6 +4,7 @@ files = \
 
 libraries = \
 	../Flame/bin/clr/Flame.dll \
+	../Flame.Compiler/bin/clr/Flame.Compiler.dll \
 	../packages/Loyc.Essentials.24.3.0/lib/net45/Loyc.Essentials.dll \
 	../packages/Loyc.Collections.24.3.0/lib/net45/Loyc.Collections.dll \
 	../packages/Loyc.Math.24.3.0/lib/net45/Loyc.Math.dll \

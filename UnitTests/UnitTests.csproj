@@ -60,6 +60,10 @@
       <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
       <Name>Flame</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj">
+      <Project>{7042BE93-0037-4506-B3D6-7C28774F8AD5}</Project>
+      <Name>Flame.Compiler</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flame\" />
