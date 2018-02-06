@@ -201,9 +201,10 @@ namespace Flame.TypeSystem
         // This cache interns all generic types: if two GenericType instances
         // (in the wild, not in this private set-up logic) have equal declaration
         // types and type arguments, then they are *referentially* equal.
-        private static WeakCache<DirectTypeSpecialization, DirectTypeSpecialization> GenericTypeCache
-            = new WeakCache<DirectTypeSpecialization, DirectTypeSpecialization>(
-                new StructuralDirectTypeSpecializationComparer());
+        private static InterningCache<DirectTypeSpecialization> GenericTypeCache
+            = new InterningCache<DirectTypeSpecialization>(
+                new StructuralDirectTypeSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic specialization of a particular generic
@@ -222,9 +223,8 @@ namespace Flame.TypeSystem
             IType declaration,
             IReadOnlyList<IType> genericArguments)
         {
-            return GenericTypeCache.Get(
-                new DirectTypeSpecialization(declaration, genericArguments),
-                InitializeInstance);
+            return GenericTypeCache.Intern(
+                new DirectTypeSpecialization(declaration, genericArguments));
         }
     }
 
@@ -311,9 +311,10 @@ namespace Flame.TypeSystem
             return IndirectGenericParameterSpecialization.CreateAll(Declaration, this);
         }
 
-        private static WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization> instanceCache =
-            new WeakCache<IndirectTypeSpecialization, IndirectTypeSpecialization>(
-                new StructuralIndirectTypeSpecializationComparer());
+        private static InterningCache<IndirectTypeSpecialization> instanceCache =
+            new InterningCache<IndirectTypeSpecialization>(
+                new StructuralIndirectTypeSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic instance type from a generic declaration
@@ -330,9 +331,8 @@ namespace Flame.TypeSystem
             IType declaration,
             TypeSpecialization parentType)
         {
-            return instanceCache.Get(
-                new IndirectTypeSpecialization(declaration, parentType),
-                InitializeInstance);
+            return instanceCache.Intern(
+                new IndirectTypeSpecialization(declaration, parentType));
         }
     }
 

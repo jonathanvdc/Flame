@@ -59,9 +59,10 @@ namespace Flame.TypeSystem
         // if two IndirectFieldSpecialization instances (in the wild, not
         // in this private set-up logic) have equal declaration
         // and parent types, then they are *referentially* equal.
-        private static WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization> instanceCache
-            = new WeakCache<IndirectFieldSpecialization, IndirectFieldSpecialization>(
-                new StructuralIndirectFieldSpecializationComparer());
+        private static InterningCache<IndirectFieldSpecialization> instanceCache
+            = new InterningCache<IndirectFieldSpecialization>(
+                new StructuralIndirectFieldSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic field specialization of a particular generic
@@ -79,9 +80,8 @@ namespace Flame.TypeSystem
             IField declaration,
             TypeSpecialization parentType)
         {
-            return instanceCache.Get(
-                new IndirectFieldSpecialization(declaration, parentType),
-                InitializeInstance);
+            return instanceCache.Intern(
+                new IndirectFieldSpecialization(declaration, parentType));
         }
     }
 

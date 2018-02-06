@@ -154,9 +154,10 @@ namespace Flame.TypeSystem
         // IndirectMethodSpecialization instances (in the wild, not in this
         // private set-up logic) have equal declaration
         // types and parent types, then they are *referentially* equal.
-        private static WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization> instanceCache
-            = new WeakCache<IndirectMethodSpecialization, IndirectMethodSpecialization>(
-                new StructuralIndirectMethodSpecializationComparer());
+        private static InterningCache<IndirectMethodSpecialization> instanceCache
+            = new InterningCache<IndirectMethodSpecialization>(
+                new StructuralIndirectMethodSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic instance method from a generic declaration
@@ -184,9 +185,8 @@ namespace Flame.TypeSystem
             }
             else
             {
-                return instanceCache.Get(
-                    new IndirectMethodSpecialization(declaration, parentType),
-                    InitializeInstance);
+                return instanceCache.Intern(
+                    new IndirectMethodSpecialization(declaration, parentType));
             }
         }
 
@@ -206,11 +206,10 @@ namespace Flame.TypeSystem
             IndirectPropertySpecialization parentProperty)
         {
             var accessor = (IAccessor)declaration;
-            return (IndirectAccessorSpecialization)instanceCache.Get(
+            return (IndirectAccessorSpecialization)instanceCache.Intern(
                 new IndirectAccessorSpecialization(
                     accessor,
-                    parentProperty),
-                InitializeInstance);
+                    parentProperty));
         }
     }
 
@@ -288,9 +287,10 @@ namespace Flame.TypeSystem
         // DirectMethodSpecialization instances (in the wild, not in this
         // private set-up logic) have equal declaration
         // types and type arguments, then they are *referentially* equal.
-        private static WeakCache<DirectMethodSpecialization, DirectMethodSpecialization> instanceCache
-            = new WeakCache<DirectMethodSpecialization, DirectMethodSpecialization>(
-                new StructuralDirectMethodSpecializationComparer());
+        private static InterningCache<DirectMethodSpecialization> instanceCache
+            = new InterningCache<DirectMethodSpecialization>(
+                new StructuralDirectMethodSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a direct generic specialization of a particular
@@ -309,9 +309,8 @@ namespace Flame.TypeSystem
             IMethod declaration,
             IReadOnlyList<IType> genericArguments)
         {
-            return instanceCache.Get(
-                new DirectMethodSpecialization(declaration, genericArguments),
-                InitializeInstance);
+            return instanceCache.Intern(
+                new DirectMethodSpecialization(declaration, genericArguments));
         }
     }
 

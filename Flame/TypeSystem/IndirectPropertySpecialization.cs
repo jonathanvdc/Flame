@@ -88,9 +88,10 @@ namespace Flame.TypeSystem
         // if two IndirectPropertySpecialization instances (in the wild, not
         // in this private set-up logic) have equal declaration
         // and parent types, then they are *referentially* equal.
-        private static WeakCache<IndirectPropertySpecialization, IndirectPropertySpecialization> instanceCache
-            = new WeakCache<IndirectPropertySpecialization, IndirectPropertySpecialization>(
-                new StructuralIndirectPropertySpecializationComparer());
+        private static InterningCache<IndirectPropertySpecialization> instanceCache
+            = new InterningCache<IndirectPropertySpecialization>(
+                new StructuralIndirectPropertySpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic property specialization of a particular generic
@@ -108,9 +109,8 @@ namespace Flame.TypeSystem
             IProperty declaration,
             TypeSpecialization parentType)
         {
-            return instanceCache.Get(
-                new IndirectPropertySpecialization(declaration, parentType),
-                InitializeInstance);
+            return instanceCache.Intern(
+                new IndirectPropertySpecialization(declaration, parentType));
         }
     }
 

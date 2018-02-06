@@ -49,8 +49,10 @@ namespace Flame.TypeSystem
         // This cache interns all pointer types: if two PointerType instances
         // (in the wild, not in this private set-up logic) have equal element
         // types and kinds, then they are *referentially* equal.
-        private static WeakCache<PointerType, PointerType> pointerTypeCache
-            = new WeakCache<PointerType, PointerType>(new StructuralPointerTypeComparer());
+        private static InterningCache<PointerType> instanceCache
+            = new InterningCache<PointerType>(
+                new StructuralPointerTypeComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a pointer type of a particular kind that has a
@@ -65,9 +67,7 @@ namespace Flame.TypeSystem
         /// <returns>A pointer type.</returns>
         internal static PointerType Create(IType type, PointerKind kind)
         {
-            return pointerTypeCache.Get(
-                new PointerType(type, kind),
-                InitializeInstance);
+            return instanceCache.Intern(new PointerType(type, kind));
         }
 
         private static PointerType InitializeInstance(PointerType instance)

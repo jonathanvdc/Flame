@@ -46,8 +46,10 @@ namespace Flame.TypeSystem
         // This cache interns all array types: if two ArrayType instances
         // (in the wild, not in this private set-up logic) have equal element
         // types and ranks, then they are *referentially* equal.
-        private static WeakCache<ArrayType, ArrayType> ArrayTypeCache
-            = new WeakCache<ArrayType, ArrayType>(new StructuralArrayTypeComparer());
+        private static InterningCache<ArrayType> instanceCache
+            = new InterningCache<ArrayType>(
+                new StructuralArrayTypeComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates an array type of a particular rank that has a
@@ -62,9 +64,7 @@ namespace Flame.TypeSystem
         /// <returns>An array type.</returns>
         internal static ArrayType Create(IType type, int rank)
         {
-            return ArrayTypeCache.Get(
-                new ArrayType(type, rank),
-                InitializeInstance);
+            return instanceCache.Intern(new ArrayType(type, rank));
         }
 
         private static ArrayType InitializeInstance(ArrayType instance)

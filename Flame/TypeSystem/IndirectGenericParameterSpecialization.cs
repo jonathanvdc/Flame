@@ -75,9 +75,10 @@ namespace Flame.TypeSystem
                 InstantiatingVisitor.Visit);
         }
 
-        private static WeakCache<IndirectGenericParameterSpecialization, IndirectGenericParameterSpecialization> instanceCache =
-            new WeakCache<IndirectGenericParameterSpecialization, IndirectGenericParameterSpecialization>(
-                new StructuralGenericParameterSpecializationComparer());
+        private static InterningCache<IndirectGenericParameterSpecialization> instanceCache =
+            new InterningCache<IndirectGenericParameterSpecialization>(
+                new StructuralGenericParameterSpecializationComparer(),
+                InitializeInstance);
 
         /// <summary>
         /// Creates a generic parameter specialization from a generic parameter
@@ -94,9 +95,8 @@ namespace Flame.TypeSystem
             IGenericParameter declaration,
             IGenericMember parentMember)
         {
-            return instanceCache.Get(
-                new IndirectGenericParameterSpecialization(declaration, parentMember),
-                InitializeInstance);
+            return instanceCache.Intern(
+                new IndirectGenericParameterSpecialization(declaration, parentMember));
         }
 
         /// <summary>
