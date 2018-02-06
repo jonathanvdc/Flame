@@ -54,17 +54,35 @@ namespace UnitTests
             switch (rng.Next(0, 5))
             {
                 case 1:
-                    return genericType.MakeGenericType(
-                        GenerateTypes(depth / 3, genericType.GenericParameters.Count));
+                {
+                    var args = GenerateTypes(depth / 3, genericType.GenericParameters.Count);
+                    var result = genericType.MakeGenericType(args);
+                    Assert.AreSame(result, genericType.MakeGenericType(args));
+                    return result;
+                }
                 case 2:
-                    return nestedGenericType.MakeRecursiveGenericType(
-                        GenerateTypes(depth / 3, genericType.GenericParameters.Count));
+                {
+                    var args = GenerateTypes(depth / 3, genericType.GenericParameters.Count);
+                    var result = nestedGenericType.MakeRecursiveGenericType(args);
+                    Assert.AreSame(result, nestedGenericType.MakeRecursiveGenericType(args));
+                    return result;
+                }
                 case 3:
-                    return GenerateType(depth - 1).MakePointerType(GeneratePointerKind());
+                {
+                    var elemType = GenerateType(depth - 1);
+                    var ptrKind = GeneratePointerKind();
+                    var result = elemType.MakePointerType(ptrKind);
+                    Assert.AreSame(result, elemType.MakePointerType(ptrKind));
+                    return result;
+                }
                 case 4:
+                {
                     return GenerateType(depth - 1).MakeArrayType(rng.Next(1, 10));
+                }
                 default:
+                {
                     return simpleType;
+                }
             }
         }
 
