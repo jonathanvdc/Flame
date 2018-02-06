@@ -43,10 +43,8 @@ namespace Flame
                 return Name;
 
             var sb = new StringBuilder(Name);
-            sb.Append('<');
-            for (int i = 1; i < TypeParameterCount; i++)
-                sb.Append(',');
-            sb.Append('>');
+            sb.Append('`');
+            sb.Append(TypeParameterCount);
             return sb.ToString();
         }
 

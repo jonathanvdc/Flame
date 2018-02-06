@@ -39,7 +39,7 @@ namespace Flame
         /// <inheritdoc/>
         public override string ToString()
         {
-            return ElementName.ToString() + "* " + Kind.ToString();
+            return ElementName.ToString() + " " + Kind.ToString() + "*";
         }
 
         /// <inheritdoc/>
