@@ -48,6 +48,17 @@ namespace Flame.Collections
             }
             return result;
         }
+
+        /// <summary>
+        /// Tests if this cache contains a particular key.
+        /// </summary>
+        /// <returns><c>true</c> if the key is in the cache; <c>false</c> otherwise.</returns>
+        /// <param name="key">The key to look for.</param>
+        public virtual bool ContainsKey(TKey key)
+        {
+            TValue value;
+            return TryGet(key, out value);
+        }
     }
 
     /// <summary>
