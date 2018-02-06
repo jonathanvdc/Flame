@@ -54,7 +54,7 @@ namespace Flame
             sb.Append('<');
             sb.Append(TypeArgumentNames[0]);
 
-            for (int i = 0; i < typeArgNameCount; i++)
+            for (int i = 1; i < typeArgNameCount; i++)
             {
                 sb.Append(',');
                 sb.Append(TypeArgumentNames[i].FullName);
