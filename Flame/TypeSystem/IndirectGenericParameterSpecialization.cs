@@ -132,7 +132,7 @@ namespace Flame.TypeSystem
     {
         public bool Equals(IndirectGenericParameterSpecialization x, IndirectGenericParameterSpecialization y)
         {
-            return object.Equals(x, y.Declaration)
+            return object.Equals(x.Declaration, y.Declaration)
                 && object.Equals(x.ParentMember, y.ParentMember);
         }
 

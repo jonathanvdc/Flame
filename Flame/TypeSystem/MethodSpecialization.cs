@@ -324,7 +324,7 @@ namespace Flame.TypeSystem
     {
         public bool Equals(DirectMethodSpecialization x, DirectMethodSpecialization y)
         {
-            return object.Equals(x, y.Declaration)
+            return object.Equals(x.Declaration, y.Declaration)
                 && Enumerable.SequenceEqual<IType>(
                     x.GenericArguments, y.GenericArguments);
         }

@@ -238,7 +238,7 @@ namespace Flame.TypeSystem
     {
         public bool Equals(DirectTypeSpecialization x, DirectTypeSpecialization y)
         {
-            return object.Equals(x, y.Declaration)
+            return object.Equals(x.Declaration, y.Declaration)
                 && Enumerable.SequenceEqual<IType>(
                     x.GenericArguments, y.GenericArguments);
         }
@@ -346,7 +346,7 @@ namespace Flame.TypeSystem
     {
         public bool Equals(IndirectTypeSpecialization x, IndirectTypeSpecialization y)
         {
-            return object.Equals(x, y.Declaration)
+            return object.Equals(x.Declaration, y.Declaration)
                 && object.Equals(x.ParentType, y.ParentType);
         }
 
