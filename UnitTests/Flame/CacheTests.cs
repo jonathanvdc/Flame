@@ -27,19 +27,33 @@ namespace UnitTests
                 new LruCache<int, int>(128),
                 GenerateInt32,
                 GenerateInt32,
+                true,
                 true);
             Console.WriteLine("LRU cache test took " + time);
         }
 
         [Test]
-        public void WeakCache()
+        public void WeakCacheNoOverwrite()
         {
             var time = new CacheStressTester<object, object>(rng).TestCache(
                 new WeakCache<object, object>(EqualityComparer<object>.Default),
                 GenerateInt32Object,
                 GenerateInt32Object,
+                false,
                 false);
-            Console.WriteLine("Weak cache test took " + time);
+            Console.WriteLine("No-overwrite weak cache test took " + time);
+        }
+
+        [Test]
+        public void WeakCacheOverwrite()
+        {
+            var time = new CacheStressTester<object, object>(rng).TestCache(
+                new WeakCache<object, object>(EqualityComparer<object>.Default),
+                GenerateInt32Object,
+                GenerateInt32Object,
+                false,
+                true);
+            Console.WriteLine("Overwrite weak cache test took " + time);
         }
 
         [Test]
@@ -73,12 +87,14 @@ namespace UnitTests
                     rng,
                     CacheStressTester<object, object>.DefaultOpCount / iterations);
                 stressTester.TestCache(
-                        cache,
-                        GenerateInt32Object,
-                        GenerateInt32Object,
-                        false);
+                    cache,
+                    GenerateInt32Object,
+                    GenerateInt32Object,
+                    false,
+                    false);
                 stressTester = null;
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                cache.Cleanup();
             }
         }
 
@@ -135,7 +151,7 @@ namespace UnitTests
     {
         public Int32Object(int Value)
         {
-            this.Value = this.Value;
+            this.Value = Value;
         }
 
         public int Value { get; private set; }
@@ -148,6 +164,11 @@ namespace UnitTests
         public override bool Equals(object obj)
         {
            return obj is Int32Object && Value == ((Int32Object)obj).Value; 
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 
@@ -172,7 +193,8 @@ namespace UnitTests
             Cache<TKey, TValue> cache,
             Func<Random, TKey> generateKey,
             Func<Random, TValue> generateValue,
-            bool relaxHasKey)
+            bool relaxHasKey,
+            bool allowOverwrite)
         {
             var perfTimer = new Stopwatch();
             perfTimer.Start();
@@ -185,9 +207,17 @@ namespace UnitTests
                 {
                     // Perform an insertion.
                     var key = generateKey(rng);
-                    var value = generateValue(rng);
-                    dict[key] = value;
-                    cache.Insert(key, value);
+                    if (allowOverwrite || !cache.ContainsKey(key))
+                    {
+                        var value = generateValue(rng);
+                        // Delete the old key before inserting the
+                        // new key to make sure that the new key is
+                        // kept alive by the GC rather than the old
+                        // key.
+                        dict.Remove(key);
+                        dict[key] = value;
+                        cache.Insert(key, value);
+                    }
                 }
                 else if (op == 1)
                 {
@@ -198,10 +228,6 @@ namespace UnitTests
                     var cacheHasKey = cache.TryGet(key, out cacheValue);
                     if (!relaxHasKey)
                     {
-                        if (hasKey != cacheHasKey)
-                        {
-                            cache.TryGet(key, out cacheValue);
-                        }
                         Assert.AreEqual(
                             hasKey,
                             cacheHasKey,
@@ -222,19 +248,22 @@ namespace UnitTests
                 {
                     // Perform a get operation.
                     var key = generateKey(rng);
-                    TValue value;
-                    if (!dict.TryGetValue(key, out value))
+                    if (allowOverwrite || !cache.ContainsKey(key))
                     {
-                        value = generateValue(rng);
-                        dict[key] = value;
+                        TValue value;
+                        if (!dict.TryGetValue(key, out value))
+                        {
+                            value = generateValue(rng);
+                            dict[key] = value;
+                        }
+                        var cacheValue = cache.Get(key, new ConstantFunction<TKey, TValue>(value).Apply);
+                        Assert.AreEqual(
+                            value,
+                            cacheValue,
+                            "Get operation error: cached value '" + cacheValue +
+                            "' does not match actual value '" + value +
+                            "' (key: '" + key + "').");
                     }
-                    var cacheValue = cache.Get(key, new ConstantFunction<TKey, TValue>(value).Apply);
-                    Assert.AreEqual(
-                        value,
-                        cacheValue,
-                        "Get operation error: cached value '" + cacheValue +
-                        "' does not match actual value '" + value +
-                        "' (key: '" + key + "').");
                 }
             }
 
@@ -268,23 +297,22 @@ namespace UnitTests
         {
             var tester = new CacheStressTester<object, object>(rng);
 
-            // TODO: figure out why try-get sometimes returns 'false'
-            // when it should return 'true' in a multi-threaded setting.
             RunTime = tester.TestCache(
                 cache,
                 generateKey,
                 generateValue,
+                false,
                 true);
         }
 
         private object generateKey(Random rng)
         {
-            return rng.Next(rangeStart + 1, rangeEnd - 1);
+            return new Int32Object(rng.Next(rangeStart + 1, rangeEnd - 1));
         }
 
         private object generateValue(Random rng)
         {
-            return rng.Next();
+            return new Int32Object(rng.Next());
         }
     }
 
