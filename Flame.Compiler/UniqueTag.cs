@@ -22,4 +22,18 @@ namespace Flame.Compiler
         /// <returns>The tag's name.</returns>
         public string Name { get; private set; }
     }
+
+    /// <summary>
+    /// A unique tag type for values.
+    /// </summary>
+    public sealed class ValueTag : UniqueTag
+    {
+        /// <summary>
+        /// Creates a new value tag.
+        /// </summary>
+        /// <param name="name">The tag's name.</param>
+        public ValueTag(string name) : base(name)
+        {
+        }
+    }
 }

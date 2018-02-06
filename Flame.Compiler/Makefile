@@ -23,7 +23,7 @@ clean:
 include ../flame-make-scripts/use-ecsc.mk
 
 bin/flo/Flame.Compiler.flo: $(files) $(libraries) | ecsc
-	$(ECSC) $(files) -platform ir -runtime clr -o $@ $(common_options)
+	$(ECSC) $(files) -platform ir -runtime clr -libs $(libraries) -o $@ $(common_options)
 
 bin/clr/Flame.Compiler.dll: $(files) $(libraries) | ecsc
-	$(ECSC) $(files) -platform clr -o $@ $(common_options)
+	$(ECSC) $(files) -platform clr -libs $(libraries) -o $@ $(common_options)
