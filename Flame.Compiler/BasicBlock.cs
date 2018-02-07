@@ -98,6 +98,29 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to append.</param>
+        /// <param name="name">The preferred name of the instruction's tag.</param>
+        /// <returns>The appended instruction.</returns>
+        public SelectedInstruction AppendInstruction(Instruction instruction, string name)
+        {
+            return Graph.InsertInstructionInBasicBlock(Tag, instruction, name, InstructionTags.Count);
+        }
+
+        /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to append.</param>
+        /// <returns>The appended instruction.</returns>
+        public SelectedInstruction AppendInstruction(Instruction instruction)
+        {
+            return AppendInstruction(instruction, "");
+        }
+
+        /// <summary>
         /// Tests if this basic block equals another basic block.
         /// </summary>
         /// <param name="other">The other basic block.</param>

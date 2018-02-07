@@ -391,52 +391,30 @@ namespace Flame.Compiler
             return new BasicBlock(newGraph, tag, newData);
         }
 
-        // internal BasicBlock UpdateBasicBlockData(BasicBlockTag tag, BasicBlockData data)
-        // {
-        //     AssertContainsBasicBlock(tag);
-        //     var newGraph = new FlowGraph(this);
-        //     newGraph.blocks = newGraph.blocks.SetItem(tag, data);
+        internal SelectedInstruction InsertInstructionInBasicBlock(
+            BasicBlockTag blockTag,
+            Instruction instruction,
+            string name,
+            int offset)
+        {
+            AssertContainsBasicBlock(blockTag);
 
-        //     var paramTypeBuilder = newGraph.blockParamTypes.ToBuilder();
-        //     var valueParentBuilder = newGraph.valueParents.ToBuilder();
+            var insnTag = new ValueTag(name);
 
-        //     // Remove the basic block from the value parent and parameter type
-        //     // dictionaries.
-        //     RemoveBasicBlockImpl(tag, valueParentBuilder, paramTypeBuilder);
+            var oldBlockData = blocks[blockTag];
+            var newBlockData = new BasicBlockData(
+                oldBlockData.Parameters,
+                oldBlockData.InstructionTags.Insert(offset, insnTag),
+                oldBlockData.Flow);
 
-        //     // Add the new basic block to the value parent and parameter type
-        //     // dictionaries.
-        //     var newParams = data.Parameters;
-        //     int newParamCount = newParams.Count;
-        //     for (int i = 0; i < newParamCount; i++)
-        //     {
-        //         var item = newParams[i];
-
-        //         ContractHelpers.Assert(
-        //             !valueParentBuilder.ContainsKey(item.Tag),
-        //             "Value tag '" + item.Tag.Name + "' cannot appear twice in the same control-flow graph.");
-
-        //         paramTypeBuilder.Add(item.Tag, item.Type);
-        //         valueParentBuilder.Add(item.Tag, tag);
-        //     }
-
-        //     var newInstrs = data.Instructions;
-        //     int newInstrCount = newInstrs.Count;
-        //     for (int i = 0; i < newInstrCount; i++)
-        //     {
-        //         var item = newInstrs[i];
-
-        //         ContractHelpers.Assert(
-        //             !valueParentBuilder.ContainsKey(item),
-        //             "Value tag '" + item.Name + "' cannot appear twice in the same control-flow graph.");
-
-        //         valueParentBuilder.Add(item, tag);
-        //     }
-
-        //     newGraph.blockParamTypes = paramTypeBuilder.ToImmutable();
-        //     newGraph.valueParents = valueParentBuilder.ToImmutable();
-
-        //     return new BasicBlock(newGraph, tag, data);
-        // }
+            var newGraph = new FlowGraph(this);
+            newGraph.blocks = newGraph.blocks.SetItem(blockTag, newBlockData);
+            newGraph.instructions = newGraph.instructions.Add(insnTag, instruction);
+            newGraph.valueParents = newGraph.valueParents.Add(insnTag, blockTag);
+            return new SelectedInstruction(
+                new BasicBlock(newGraph, blockTag, newBlockData),
+                insnTag,
+                instruction);
+        }
     }
 }

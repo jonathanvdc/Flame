@@ -40,6 +40,7 @@
     <Compile Include="BlockParameter.cs" />
     <Compile Include="FlowGraph.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
