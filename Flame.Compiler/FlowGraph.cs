@@ -430,7 +430,7 @@ namespace Flame.Compiler
             BasicBlockTag blockTag,
             Instruction instruction,
             string name,
-            int offset)
+            int index)
         {
             AssertContainsBasicBlock(blockTag);
 
@@ -439,7 +439,7 @@ namespace Flame.Compiler
             var oldBlockData = blocks[blockTag];
             var newBlockData = new BasicBlockData(
                 oldBlockData.Parameters,
-                oldBlockData.InstructionTags.Insert(offset, insnTag),
+                oldBlockData.InstructionTags.Insert(index, insnTag),
                 oldBlockData.Flow);
 
             var newGraph = new FlowGraph(this);
@@ -449,7 +449,8 @@ namespace Flame.Compiler
             return new SelectedInstruction(
                 new BasicBlock(newGraph, blockTag, newBlockData),
                 insnTag,
-                instruction);
+                instruction,
+                index);
         }
 
         internal SelectedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)

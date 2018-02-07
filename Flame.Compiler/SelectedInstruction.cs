@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace Flame.Compiler
 {
@@ -13,6 +14,19 @@ namespace Flame.Compiler
             this.Block = block;
             this.Tag = tag;
             this.Instruction = instruction;
+            this.instrIndexValue = -1;
+        }
+
+        internal SelectedInstruction(
+            BasicBlock block,
+            ValueTag tag,
+            Instruction instruction,
+            int instructionIndex)
+        {
+            this.Block = block;
+            this.Tag = tag;
+            this.Instruction = instruction;
+            this.instrIndexValue = instructionIndex;
         }
 
         /// <summary>
@@ -32,6 +46,68 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The instruction.</returns>
         public Instruction Instruction { get; private set; }
+
+        private int instrIndexValue;
+
+        /// <summary>
+        /// Gets the index of this instruction in the defining block's
+        /// list of instructions.
+        /// </summary>
+        /// <returns>The instruction index.</returns>
+        public int InstructionIndex
+        {
+            get
+            {
+                if (instrIndexValue < 0)
+                {
+                    instrIndexValue = Block.InstructionTags.IndexOf(Tag);
+                    Interlocked.MemoryBarrier();
+                }
+                return instrIndexValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets the previous instruction in the basic block that defines
+        /// this instruction. Returns null if there is no such instruction.
+        /// </summary>
+        /// <returns>The previous instruction or null.</returns>
+        public SelectedInstruction PreviousInstructionOrNull
+        {
+            get
+            {
+                int prevIndex = InstructionIndex - 1;
+                if (prevIndex < 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Block.Graph.GetInstruction(Block.InstructionTags[prevIndex]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the next instruction in the basic block that defines
+        /// this instruction. Returns null if there is no such instruction.
+        /// </summary>
+        /// <returns>The next instruction or null.</returns>
+        public SelectedInstruction NextInstructionOrNull
+        {
+            get
+            {
+                int nextIndex = InstructionIndex + 1;
+                if (nextIndex == Block.InstructionTags.Count)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Block.Graph.GetInstruction(Block.InstructionTags[nextIndex]);
+                }
+            }
+        }
 
         /// <summary>
         /// Replaces this instruction with another instruction. Returns
@@ -61,7 +137,7 @@ namespace Flame.Compiler
                 Block.Tag,
                 instruction,
                 name,
-                Block.InstructionTags.IndexOf(Tag));
+                InstructionIndex);
         }
 
         /// <summary>
@@ -88,7 +164,7 @@ namespace Flame.Compiler
                 Block.Tag,
                 instruction,
                 name,
-                Block.InstructionTags.IndexOf(Tag) + 1);
+                InstructionIndex + 1);
         }
 
         /// <summary>

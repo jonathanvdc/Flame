@@ -62,6 +62,41 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets the index of this instruction in the defining block's
+        /// list of instructions.
+        /// </summary>
+        /// <returns>The instruction index.</returns>
+        public int InstructionIndex => ImmutableInstruction.InstructionIndex;
+
+        /// <summary>
+        /// Gets the previous instruction in the basic block that defines
+        /// this instruction. Returns null if there is no such instruction.
+        /// </summary>
+        /// <returns>The previous instruction or null.</returns>
+        public InstructionBuilder PreviousInstructionOrNull
+        {
+            get
+            {
+                var prevInsn = ImmutableInstruction.PreviousInstructionOrNull;
+                return prevInsn == null ? null : Graph.GetInstruction(prevInsn.Tag);
+            }
+        }
+
+        /// <summary>
+        /// Gets the next instruction in the basic block that defines
+        /// this instruction. Returns null if there is no such instruction.
+        /// </summary>
+        /// <returns>The next instruction or null.</returns>
+        public InstructionBuilder NextInstructionOrNull
+        {
+            get
+            {
+                var nextInsn = ImmutableInstruction.NextInstructionOrNull;
+                return nextInsn == null ? null : Graph.GetInstruction(nextInsn.Tag);
+            }
+        }
+
+        /// <summary>
         /// Inserts a particular instruction just before this instruction.
         /// Returns the inserted instruction builder.
         /// </summary>
