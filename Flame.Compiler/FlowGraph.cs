@@ -65,6 +65,16 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a new basic block that includes all basic blocks in this
+        /// graph plus an empty basic block. The latter basic block is returned.
+        /// </summary>
+        /// <returns>An empty basic block in a new control-flow graph.</returns>
+        public BasicBlock AddBasicBlock()
+        {
+            return AddBasicBlock("");
+        }
+
+        /// <summary>
         /// Removes the basic block with a particular tag from this
         /// control-flow graph.
         /// </summary>
@@ -107,24 +117,24 @@ namespace Flame.Compiler
         /// Returns a new control-flow graph that does not contain the
         /// instruction.
         /// </summary>
-        /// <param name="insnTag">The tag of the instruction to remove.</param>
+        /// <param name="instructionTag">The tag of the instruction to remove.</param>
         /// <returns>
         /// A control-flow graph that no longer contains the instruction.
         /// </returns>
-        public FlowGraph RemoveInstruction(ValueTag insnTag)
+        public FlowGraph RemoveInstruction(ValueTag instructionTag)
         {
-            AssertContainsInstruction(insnTag);
-            var parentTag = valueParents[insnTag];
+            AssertContainsInstruction(instructionTag);
+            var parentTag = valueParents[instructionTag];
             var oldBlockData = blocks[parentTag];
             var newBlockData = new BasicBlockData(
                 oldBlockData.Parameters,
-                oldBlockData.InstructionTags.Remove(insnTag),
+                oldBlockData.InstructionTags.Remove(instructionTag),
                 oldBlockData.Flow);
 
             var newGraph = new FlowGraph(this);
             newGraph.blocks = newGraph.blocks.SetItem(parentTag, newBlockData);
-            newGraph.instructions = newGraph.instructions.Remove(insnTag);
-            newGraph.valueParents = newGraph.valueParents.Remove(insnTag);
+            newGraph.instructions = newGraph.instructions.Remove(instructionTag);
+            newGraph.valueParents = newGraph.valueParents.Remove(instructionTag);
             return newGraph;
         }
 
@@ -212,8 +222,8 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the type of a value in this graph.
         /// </summary>
-        /// <param name="tag">The value's type.</param>
-        /// <returns></returns>
+        /// <param name="tag">The value's tag.</param>
+        /// <returns>The value's type.</returns>
         public IType GetValueType(ValueTag tag)
         {
             AssertContainsValue(tag);
@@ -238,6 +248,16 @@ namespace Flame.Compiler
         {
             AssertContainsValue(tag);
             return GetBasicBlock(valueParents[tag]);
+        }
+
+        /// <summary>
+        /// Creates a mutable control-flow graph builder from
+        /// this immutable control-flow graph.
+        /// </summary>
+        /// <returns>A mutable control-flow graph builder.</returns>
+        public FlowGraphBuilder ToBuilder()
+        {
+            return new FlowGraphBuilder(this);
         }
 
         /// <summary>

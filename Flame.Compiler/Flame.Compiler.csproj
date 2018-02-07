@@ -35,10 +35,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicBlock.cs" />
+    <Compile Include="BasicBlockBuilder.cs" />
     <Compile Include="BasicBlockData.cs" />
     <Compile Include="BlockFlow.cs" />
     <Compile Include="BlockParameter.cs" />
     <Compile Include="FlowGraph.cs" />
+    <Compile Include="FlowGraphBuilder.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
