@@ -93,6 +93,16 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets the instruction with a particular tag.
+        /// </summary>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <returns>A selected instruction.</returns>
+        public InstructionBuilder GetInstruction(ValueTag tag)
+        {
+            return new InstructionBuilder(this, tag);
+        }
+
+        /// <summary>
         /// Checks if this control-flow graph contains a basic block
         /// with a particular tag.
         /// </summary>
