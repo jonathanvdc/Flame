@@ -1,7 +1,7 @@
 using Flame.Collections;
 using System.Collections.Generic;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Flow
 {
     /// <summary>
     /// Control flow that unconditionally jumps to a particular branch.
