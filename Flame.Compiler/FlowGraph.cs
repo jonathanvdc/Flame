@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Flame.Collections;
 using Flame.Compiler.Flow;
 using System.Collections.Immutable;
+using System;
 
 namespace Flame.Compiler
 {
@@ -98,6 +99,32 @@ namespace Flame.Compiler
             newGraph.instructions = newGraph.instructions.RemoveRange(oldInsns);
             newGraph.blocks = newGraph.blocks.Remove(tag);
 
+            return newGraph;
+        }
+
+        /// <summary>
+        /// Removes a particular instruction from this control-flow graph.
+        /// Returns a new control-flow graph that does not contain the
+        /// instruction.
+        /// </summary>
+        /// <param name="insnTag">The tag of the instruction to remove.</param>
+        /// <returns>
+        /// A control-flow graph that no longer contains the instruction.
+        /// </returns>
+        public FlowGraph RemoveInstruction(ValueTag insnTag)
+        {
+            AssertContainsInstruction(insnTag);
+            var parentTag = valueParents[insnTag];
+            var oldBlockData = blocks[parentTag];
+            var newBlockData = new BasicBlockData(
+                oldBlockData.Parameters,
+                oldBlockData.InstructionTags.Remove(insnTag),
+                oldBlockData.Flow);
+
+            var newGraph = new FlowGraph(this);
+            newGraph.blocks = newGraph.blocks.SetItem(parentTag, newBlockData);
+            newGraph.instructions = newGraph.instructions.Remove(insnTag);
+            newGraph.valueParents = newGraph.valueParents.Remove(insnTag);
             return newGraph;
         }
 
@@ -267,6 +294,34 @@ namespace Flame.Compiler
         public void AssertContainsValue(ValueTag tag)
         {
             AssertContainsValue(tag, "The graph does not contain the given value.");
+        }
+
+        /// <summary>
+        /// Asserts that this control-flow graph must contain an instruction
+        /// with a particular tag.
+        /// </summary>
+        /// <param name="tag">
+        /// The tag of the instruction that must be in the graph.
+        /// </param>
+        /// <param name="message">
+        /// The error message for when no instruction in this control-flow graph
+        /// has the tag.
+        /// </param>
+        public void AssertContainsInstruction(ValueTag tag, string message)
+        {
+            ContractHelpers.Assert(ContainsInstruction(tag), message);
+        }
+
+        /// <summary>
+        /// Asserts that this control-flow graph must contain an instruction
+        /// with a particular tag.
+        /// </summary>
+        /// <param name="tag">
+        /// The tag of the instruction that must be in the graph.
+        /// </param>
+        public void AssertContainsInstruction(ValueTag tag)
+        {
+            AssertContainsInstruction(tag, "The graph does not contain the given instruction.");
         }
 
         internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)

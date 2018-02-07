@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -6,7 +7,7 @@ namespace Flame.Compiler
     /// <summary>
     /// A basic block in a control-flow graph.
     /// </summary>
-    public struct BasicBlock
+    public struct BasicBlock : IEquatable<BasicBlock>
     {
         internal BasicBlock(FlowGraph graph, BasicBlockTag tag, BasicBlockData data)
         {
@@ -79,6 +80,46 @@ namespace Flame.Compiler
         public BasicBlock WithParameters(ImmutableList<BlockParameter> parameters)
         {
             return Graph.UpdateBasicBlockParameters(Tag, parameters);
+        }
+
+        /// <summary>
+        /// Removes the instruction with a particular tag from
+        /// this basic block. Returns a new basic block in a new
+        /// control-flow graph.
+        /// </summary>
+        /// <param name="tag">The tag of the instruction to remove.</param>
+        /// <returns>A new basic block in a new control-flow graph.</returns>
+        public BasicBlock RemoveInstruction(ValueTag tag)
+        {
+            ContractHelpers.Assert(
+                Graph.GetValueParent(tag).Tag == this.Tag,
+                "Basic block does not define the instruction being removed.");
+            return Graph.RemoveInstruction(tag).GetBasicBlock(this.Tag);
+        }
+
+        /// <summary>
+        /// Tests if this basic block equals another basic block.
+        /// </summary>
+        /// <param name="other">The other basic block.</param>
+        /// <returns>
+        /// <c>true</c> if this basic block equals the other
+        /// basic block; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(BasicBlock other)
+        {
+            return Graph == other.Graph && Tag == other.Tag;
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is BasicBlock && Equals((BasicBlock)obj);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return (Graph.GetHashCode() << 16) ^ Tag.GetHashCode();
         }
     }
 }
