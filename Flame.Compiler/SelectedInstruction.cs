@@ -34,6 +34,60 @@ namespace Flame.Compiler
         public Instruction Instruction { get; private set; }
 
         /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name for the instruction.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertBefore(Instruction instruction, string name)
+        {
+            return Block.Graph.InsertInstructionInBasicBlock(
+                Block.Tag,
+                instruction,
+                name,
+                Block.InstructionTags.IndexOf(Tag));
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertBefore(Instruction instruction)
+        {
+            return InsertBefore(instruction, "");
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just after this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name for the instruction.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertAfter(Instruction instruction, string name)
+        {
+            return Block.Graph.InsertInstructionInBasicBlock(
+                Block.Tag,
+                instruction,
+                name,
+                Block.InstructionTags.IndexOf(Tag) + 1);
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just after this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertAfter(Instruction instruction)
+        {
+            return InsertAfter(instruction, "");
+        }
+
+        /// <summary>
         /// Tests if this selected instruction is the same instruction
         /// as another selected instruction.
         /// </summary>
