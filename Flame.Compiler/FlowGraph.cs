@@ -46,9 +46,7 @@ namespace Flame.Compiler
                 EmptyArray<BlockParameter>.Value,
                 EmptyArray<ValueTag>.Value,
                 UnreachableFlow.Instance);
-            var newGraph = new FlowGraph(this);
-            newGraph.blocks = newGraph.blocks.Add(tag, data);
-            return new BasicBlock(newGraph, tag, data);
+            return UpdateBasicBlockData(tag, data);
         }
 
         /// <summary>
