@@ -43,6 +43,7 @@
     <Compile Include="FlowGraphBuilder.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionBuilder.cs" />
+    <Compile Include="MethodImplementation.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
