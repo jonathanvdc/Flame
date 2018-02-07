@@ -12,14 +12,14 @@ namespace Flame.Compiler
         /// <param name="graph">An immutable control-flow graph.</param>
         public FlowGraphBuilder(FlowGraph graph)
         {
-            this.Graph = graph;
+            this.ImmutableGraph = graph;
         }
 
         /// <summary>
         /// Gets or sets the control-flow graph wrapped by this builder.
         /// </summary>
         /// <returns>The control-flow graph.</returns>
-        internal FlowGraph Graph { get; set; }
+        internal FlowGraph ImmutableGraph { get; set; }
 
         /// <summary>
         /// Gets the tag of the entry point block.
@@ -29,11 +29,11 @@ namespace Flame.Compiler
         {
             get
             {
-                return Graph.EntryPointTag;
+                return ImmutableGraph.EntryPointTag;
             }
             set
             {
-                Graph = Graph.WithEntryPoint(value);
+                ImmutableGraph = ImmutableGraph.WithEntryPoint(value);
             }
         }
 
@@ -44,8 +44,8 @@ namespace Flame.Compiler
         /// <returns>An empty basic block builder.</returns>
         public BasicBlockBuilder AddBasicBlock(string name)
         {
-            var newBlock = Graph.AddBasicBlock(name);
-            Graph = newBlock.Graph;
+            var newBlock = ImmutableGraph.AddBasicBlock(name);
+            ImmutableGraph = newBlock.Graph;
             return GetBasicBlock(newBlock.Tag);
         }
 
@@ -65,7 +65,7 @@ namespace Flame.Compiler
         /// <param name="tag">The basic block's tag.</param>
         public void RemoveBasicBlock(BasicBlockTag tag)
         {
-            Graph = Graph.RemoveBasicBlock(tag);
+            ImmutableGraph = ImmutableGraph.RemoveBasicBlock(tag);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Flame.Compiler
         /// </returns>
         public void RemoveInstruction(ValueTag instructionTag)
         {
-            Graph = Graph.RemoveInstruction(instructionTag);
+            ImmutableGraph = ImmutableGraph.RemoveInstruction(instructionTag);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Flame.Compiler
         /// </returns>
         public bool ContainsBasicBlock(BasicBlockTag tag)
         {
-            return Graph.ContainsBasicBlock(tag);
+            return ImmutableGraph.ContainsBasicBlock(tag);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Flame.Compiler
         /// </returns>
         public bool ContainsInstruction(ValueTag tag)
         {
-            return Graph.ContainsInstruction(tag);
+            return ImmutableGraph.ContainsInstruction(tag);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Flame.Compiler
         /// </returns>
         public bool ContainsBlockParameter(ValueTag tag)
         {
-            return Graph.ContainsBlockParameter(tag);
+            return ImmutableGraph.ContainsBlockParameter(tag);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Flame.Compiler
         /// </returns>
         public bool ContainsValue(ValueTag tag)
         {
-            return Graph.ContainsValue(tag);
+            return ImmutableGraph.ContainsValue(tag);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Flame.Compiler
         /// <returns>The value's type.</returns>
         public IType GetValueType(ValueTag tag)
         {
-            return Graph.GetValueType(tag);
+            return ImmutableGraph.GetValueType(tag);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Flame.Compiler
         /// <returns>The basic block that defines the value.</returns>
         public BasicBlockBuilder GetValueParent(ValueTag tag)
         {
-            return GetBasicBlock(Graph.GetValueParent(tag).Tag);
+            return GetBasicBlock(ImmutableGraph.GetValueParent(tag).Tag);
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Flame.Compiler
         /// <returns>An immutable control-flow graph.</returns>
         public FlowGraph ToImmutable()
         {
-            return Graph;
+            return ImmutableGraph;
         }
     }
 }
