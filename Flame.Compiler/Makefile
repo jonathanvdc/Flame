@@ -1,4 +1,5 @@
 files = \
+	Flow/*.cs \
 	*.cs
 
 libraries = \
