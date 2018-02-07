@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockFlow.cs" />
+    <Compile Include="BlockParameter.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
