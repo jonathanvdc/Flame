@@ -416,5 +416,15 @@ namespace Flame.Compiler
                 insnTag,
                 instruction);
         }
+
+        internal SelectedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)
+        {
+            var newGraph = new FlowGraph(this);
+            newGraph.instructions = newGraph.instructions.Add(tag, instruction);
+            return new SelectedInstruction(
+                newGraph.GetValueParent(tag),
+                tag,
+                instruction);
+        }
     }
 }

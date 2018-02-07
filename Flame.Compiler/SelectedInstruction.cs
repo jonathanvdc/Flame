@@ -34,6 +34,21 @@ namespace Flame.Compiler
         public Instruction Instruction { get; private set; }
 
         /// <summary>
+        /// Replaces this instruction with another instruction. Returns
+        /// the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">
+        /// The other instruction to replace this instruction with.
+        /// </param>
+        /// <returns>
+        /// A new instruction in a new control-flow graph.
+        /// </returns>
+        public SelectedInstruction ReplaceInstruction(Instruction instruction)
+        {
+            return Block.Graph.ReplaceInstruction(Tag, instruction);
+        }
+
+        /// <summary>
         /// Inserts a particular instruction just before this instruction.
         /// Returns the new instruction in a new control-flow graph.
         /// </summary>
