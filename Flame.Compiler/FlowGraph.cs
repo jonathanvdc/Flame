@@ -159,7 +159,22 @@ namespace Flame.Compiler
         /// <returns>A basic block.</returns>
         public BasicBlock GetBasicBlock(BasicBlockTag tag)
         {
+            AssertContainsBasicBlock(tag);
             return new BasicBlock(this, tag, blocks[tag]);
+        }
+
+        /// <summary>
+        /// Gets the instruction with a particular tag.
+        /// </summary>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <returns>A selected instruction.</returns>
+        public SelectedInstruction GetInstruction(ValueTag tag)
+        {
+            AssertContainsInstruction(tag);
+            return new SelectedInstruction(
+                GetValueParent(tag),
+                tag,
+                instructions[tag]);
         }
 
         /// <summary>
