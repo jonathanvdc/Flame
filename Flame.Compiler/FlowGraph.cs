@@ -23,10 +23,7 @@ namespace Flame.Compiler
             this.EntryPointTag = new BasicBlockTag("entry-point");
             this.blocks = this.blocks.SetItem(
                 this.EntryPointTag,
-                new BasicBlockData(
-                    EmptyArray<BlockParameter>.Value,
-                    EmptyArray<ValueTag>.Value,
-                    UnreachableFlow.Instance));
+                new BasicBlockData());
         }
 
         private FlowGraph(
@@ -59,11 +56,49 @@ namespace Flame.Compiler
         public BasicBlock AddBasicBlock(string name)
         {
             var tag = new BasicBlockTag(name);
-            var data = new BasicBlockData(
-                EmptyArray<BlockParameter>.Value,
-                EmptyArray<ValueTag>.Value,
-                UnreachableFlow.Instance);
-            return UpdateBasicBlockData(tag, data);
+            var data = new BasicBlockData();
+
+            var newGraph = new FlowGraph(this);
+            newGraph.blocks = newGraph.blocks.Add(tag, data);
+            return new BasicBlock(newGraph, tag, data);
+        }
+
+        /// <summary>
+        /// Removes the basic block with a particular tag from this
+        /// control-flow graph.
+        /// </summary>
+        /// <param name="tag">The basic block's tag.</param>
+        /// <returns>
+        /// A new control-flow graph that does not contain the basic block.
+        /// </returns>
+        public FlowGraph RemoveBasicBlock(BasicBlockTag tag)
+        {
+            AssertContainsBasicBlock(tag);
+
+            var newGraph = new FlowGraph(this);
+
+            var oldData = blocks[tag];
+            var oldParams = oldData.Parameters;
+            var oldInsns = oldData.InstructionTags;
+
+            var paramTypeBuilder = newGraph.blockParamTypes.ToBuilder();
+            var valueParentBuilder = newGraph.valueParents.ToBuilder();
+
+            int oldParamCount = oldParams.Count;
+            for (int i = 0; i < oldParamCount; i++)
+            {
+                paramTypeBuilder.Remove(oldParams[i].Tag);
+                valueParentBuilder.Remove(oldParams[i].Tag);
+            }
+
+            valueParentBuilder.RemoveRange(oldInsns);
+
+            newGraph.blockParamTypes = paramTypeBuilder.ToImmutable();
+            newGraph.valueParents = valueParentBuilder.ToImmutable();
+            newGraph.instructions = newGraph.instructions.RemoveRange(oldInsns);
+            newGraph.blocks = newGraph.blocks.Remove(tag);
+
+            return newGraph;
         }
 
         /// <summary>
@@ -234,16 +269,44 @@ namespace Flame.Compiler
             AssertContainsValue(tag, "The graph does not contain the given value.");
         }
 
-        internal BasicBlock UpdateBasicBlockData(BasicBlockTag tag, BasicBlockData data)
+        internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)
         {
             AssertContainsBasicBlock(tag);
+            var oldBlock = blocks[tag];
+
+            var newData = new BasicBlockData(
+                oldBlock.Parameters,
+                oldBlock.InstructionTags,
+                flow);
+
             var newGraph = new FlowGraph(this);
-            newGraph.blocks = newGraph.blocks.SetItem(tag, data);
+            newGraph.blocks = newGraph.blocks.SetItem(tag, newData);
+
+            return new BasicBlock(newGraph, tag, newData);
+        }
+
+        internal BasicBlock UpdateBasicBlockParameters(
+            BasicBlockTag tag,
+            ImmutableList<BlockParameter> parameters)
+        {
+            AssertContainsBasicBlock(tag);
+            var oldBlock = blocks[tag];
+
+            var newData = new BasicBlockData(
+                parameters,
+                oldBlock.InstructionTags,
+                oldBlock.Flow);
+
+            var oldData = blocks[tag];
+            var oldParams = oldData.Parameters;
+
+            var newGraph = new FlowGraph(this);
 
             var paramTypeBuilder = newGraph.blockParamTypes.ToBuilder();
             var valueParentBuilder = newGraph.valueParents.ToBuilder();
 
-            var oldParams = blocks[tag].Parameters;
+            // Remove the basic block's parameters from the value parent
+            // and parameter type dictionaries.
             int oldParamCount = oldParams.Count;
             for (int i = 0; i < oldParamCount; i++)
             {
@@ -251,11 +314,12 @@ namespace Flame.Compiler
                 valueParentBuilder.Remove(oldParams[i].Tag);
             }
 
-            var newParams = data.Parameters;
-            int newParamCount = newParams.Count;
+            // Add the new basic block parameters to the value parent and
+            // parameter type dictionaries.
+            int newParamCount = parameters.Count;
             for (int i = 0; i < newParamCount; i++)
             {
-                var item = newParams[i];
+                var item = parameters[i];
 
                 ContractHelpers.Assert(
                     !valueParentBuilder.ContainsKey(item.Tag),
@@ -265,25 +329,59 @@ namespace Flame.Compiler
                 valueParentBuilder.Add(item.Tag, tag);
             }
 
-            valueParentBuilder.RemoveRange(blocks[tag].Instructions);
-
-            var newInstrs = data.Instructions;
-            int newInstrCount = newInstrs.Count;
-            for (int i = 0; i < newInstrCount; i++)
-            {
-                var item = newInstrs[i];
-
-                ContractHelpers.Assert(
-                    !valueParentBuilder.ContainsKey(item),
-                    "Value tag '" + item.Name + "' cannot appear twice in the same control-flow graph.");
-
-                valueParentBuilder.Add(item, tag);
-            }
-
             newGraph.blockParamTypes = paramTypeBuilder.ToImmutable();
             newGraph.valueParents = valueParentBuilder.ToImmutable();
+            newGraph.blocks = newGraph.blocks.SetItem(tag, newData);
 
-            return new BasicBlock(newGraph, tag, data);
+            return new BasicBlock(newGraph, tag, newData);
         }
+
+        // internal BasicBlock UpdateBasicBlockData(BasicBlockTag tag, BasicBlockData data)
+        // {
+        //     AssertContainsBasicBlock(tag);
+        //     var newGraph = new FlowGraph(this);
+        //     newGraph.blocks = newGraph.blocks.SetItem(tag, data);
+
+        //     var paramTypeBuilder = newGraph.blockParamTypes.ToBuilder();
+        //     var valueParentBuilder = newGraph.valueParents.ToBuilder();
+
+        //     // Remove the basic block from the value parent and parameter type
+        //     // dictionaries.
+        //     RemoveBasicBlockImpl(tag, valueParentBuilder, paramTypeBuilder);
+
+        //     // Add the new basic block to the value parent and parameter type
+        //     // dictionaries.
+        //     var newParams = data.Parameters;
+        //     int newParamCount = newParams.Count;
+        //     for (int i = 0; i < newParamCount; i++)
+        //     {
+        //         var item = newParams[i];
+
+        //         ContractHelpers.Assert(
+        //             !valueParentBuilder.ContainsKey(item.Tag),
+        //             "Value tag '" + item.Tag.Name + "' cannot appear twice in the same control-flow graph.");
+
+        //         paramTypeBuilder.Add(item.Tag, item.Type);
+        //         valueParentBuilder.Add(item.Tag, tag);
+        //     }
+
+        //     var newInstrs = data.Instructions;
+        //     int newInstrCount = newInstrs.Count;
+        //     for (int i = 0; i < newInstrCount; i++)
+        //     {
+        //         var item = newInstrs[i];
+
+        //         ContractHelpers.Assert(
+        //             !valueParentBuilder.ContainsKey(item),
+        //             "Value tag '" + item.Name + "' cannot appear twice in the same control-flow graph.");
+
+        //         valueParentBuilder.Add(item, tag);
+        //     }
+
+        //     newGraph.blockParamTypes = paramTypeBuilder.ToImmutable();
+        //     newGraph.valueParents = valueParentBuilder.ToImmutable();
+
+        //     return new BasicBlock(newGraph, tag, data);
+        // }
     }
 }

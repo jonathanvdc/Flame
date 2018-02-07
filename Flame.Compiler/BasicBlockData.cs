@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Flame.Compiler.Flow;
 
 namespace Flame.Compiler
 {
@@ -7,6 +9,16 @@ namespace Flame.Compiler
     /// </summary>
     internal sealed class BasicBlockData
     {
+        /// <summary>
+        /// Creates an empty basic block.
+        /// </summary>
+        public BasicBlockData()
+            : this(
+                ImmutableList.Create<BlockParameter>(),
+                ImmutableList.Create<ValueTag>(),
+                UnreachableFlow.Instance)
+        { }
+
         /// <summary>
         /// Creates a basic block from a list of parameters,
         /// a list of instructions and an end-of-block control
@@ -22,12 +34,12 @@ namespace Flame.Compiler
         /// The block's end-of-block control flow.
         /// </param>
         public BasicBlockData(
-            IReadOnlyList<BlockParameter> parameters,
-            IReadOnlyList<ValueTag> instructions,
+            ImmutableList<BlockParameter> parameters,
+            ImmutableList<ValueTag> instructions,
             BlockFlow flow)
         {
             this.Parameters = parameters;
-            this.Instructions = instructions;
+            this.InstructionTags = instructions;
             this.Flow = flow;
         }
 
@@ -35,13 +47,13 @@ namespace Flame.Compiler
         /// Gets this basic block's list of parameters.
         /// </summary>
         /// <returns>The basic block's parameters.</returns>
-        public IReadOnlyList<BlockParameter> Parameters { get; private set; }
+        public ImmutableList<BlockParameter> Parameters { get; private set; }
 
         /// <summary>
         /// Gets the list of instructions in this basic block.
         /// </summary>
         /// <returns>The list of instructions.</returns>
-        public IReadOnlyList<ValueTag> Instructions { get; private set; }
+        public ImmutableList<ValueTag> InstructionTags { get; private set; }
 
         /// <summary>
         /// Gets the control flow at the end of this basic block.

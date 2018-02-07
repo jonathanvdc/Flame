@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Flame.Compiler
 {
@@ -33,13 +34,13 @@ namespace Flame.Compiler
         /// Gets this basic block's list of parameters.
         /// </summary>
         /// <returns>The basic block's parameters.</returns>
-        public IReadOnlyList<BlockParameter> Parameters => data.Parameters;
+        public ImmutableList<BlockParameter> Parameters => data.Parameters;
 
         /// <summary>
-        /// Gets the list of instructions in this basic block.
+        /// Gets the list of all instruction tags in this basic block.
         /// </summary>
-        /// <returns>The list of instructions.</returns>
-        public IReadOnlyList<ValueTag> Instructions => data.Instructions;
+        /// <returns>The list of all instruction tags.</returns>
+        public ImmutableList<ValueTag> InstructionTags => data.InstructionTags;
 
         /// <summary>
         /// Gets the control flow at the end of this basic block.
@@ -47,20 +48,37 @@ namespace Flame.Compiler
         /// <returns>The end-of-block control flow.</returns>
         public BlockFlow Flow => data.Flow;
 
-        private BasicBlock WithData(BasicBlockData newData)
-        {
-            return Graph.UpdateBasicBlockData(Tag, newData);
-        }
-
         /// <summary>
         /// Creates a new basic block in a new control-flow graph that
         /// has a particular flow.
         /// </summary>
         /// <param name="flow">The new flow.</param>
         /// <returns>A new basic block in a new control-flow graph.</returns>
-        public BasicBlock WithBlockFlow(BlockFlow flow)
+        public BasicBlock WithFlow(BlockFlow flow)
         {
-            return WithData(new BasicBlockData(data.Parameters, data.Instructions, flow));
+            return Graph.UpdateBasicBlockFlow(Tag, flow);
+        }
+
+        /// <summary>
+        /// Creates a new basic block in a new control-flow graph that
+        /// has a particular list of parameters.
+        /// </summary>
+        /// <param name="parameters">The new parameters.</param>
+        /// <returns>A new basic block in a new control-flow graph.</returns>
+        public BasicBlock WithParameters(IReadOnlyList<BlockParameter> parameters)
+        {
+            return WithParameters(parameters.ToImmutableList<BlockParameter>());
+        }
+
+        /// <summary>
+        /// Creates a new basic block in a new control-flow graph that
+        /// has a particular list of parameters.
+        /// </summary>
+        /// <param name="parameters">The new parameters.</param>
+        /// <returns>A new basic block in a new control-flow graph.</returns>
+        public BasicBlock WithParameters(ImmutableList<BlockParameter> parameters)
+        {
+            return Graph.UpdateBasicBlockParameters(Tag, parameters);
         }
     }
 }
