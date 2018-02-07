@@ -90,7 +90,7 @@ namespace UnitTests
                     cache,
                     GenerateInt32Object,
                     GenerateInt32Object,
-                    false,
+                    true,
                     false);
                 stressTester = null;
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
@@ -234,7 +234,7 @@ namespace UnitTests
                             "Try-get operation error: 'cache.TryGet' returned '" + cacheHasKey +
                             "', but it should have returned '" + hasKey + "'.");
                     }
-                    if (cacheHasKey)
+                    if (hasKey && cacheHasKey)
                     {
                         Assert.AreEqual(
                             value,

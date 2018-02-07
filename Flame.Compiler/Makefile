@@ -3,7 +3,8 @@ files = \
 	*.cs
 
 libraries = \
-	../Flame/bin/clr/Flame.dll
+	../Flame/bin/clr/Flame.dll \
+	../packages/System.Collections.Immutable.1.4.0/lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.dll
 
 ifeq ($(ASM_VERSION),)
 	ASM_VERSION:=0.0.1.0
@@ -24,7 +25,7 @@ clean:
 include ../flame-make-scripts/use-ecsc.mk
 
 bin/flo/Flame.Compiler.flo: $(files) $(libraries) | ecsc
-	$(ECSC) $(files) -platform ir -runtime clr -libs $(libraries) -o $@ $(common_options)
+	$(ECSC) $(files) -platform ir -runtime clr -libs $(libraries) -rt-libs System -o $@ $(common_options)
 
 bin/clr/Flame.Compiler.dll: $(files) $(libraries) | ecsc
-	$(ECSC) $(files) -platform clr -libs $(libraries) -o $@ $(common_options)
+	$(ECSC) $(files) -platform clr -libs $(libraries) -rt-libs System -o $@ $(common_options)

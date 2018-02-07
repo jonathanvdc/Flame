@@ -4,10 +4,10 @@ install:
   - make nuget
 
 script:
-  # Build Flame using csc
-  - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
+  # Build Flame using csc (Debug)
+  - msbuild /p:Configuration=Debug /verbosity:quiet /nologo Flame.sln
 
-  # Build Flame using ecsc
+  # Build Flame using csc (Release)
   - make
 
   # Run the tests

@@ -29,10 +29,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicBlock.cs" />
+    <Compile Include="BasicBlockData.cs" />
     <Compile Include="BlockFlow.cs" />
     <Compile Include="BlockParameter.cs" />
+    <Compile Include="FlowGraph.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -46,5 +52,8 @@
       <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
       <Name>Flame</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

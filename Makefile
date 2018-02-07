@@ -1,31 +1,18 @@
-exe:
-	make -C Flame dll
-	make -C Flame.Compiler dll
-	make -C UnitTests exe
+release:
+	msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
 
-all:
-	make -C Flame all
-	make -C Flame.Compiler all
-	make -C UnitTests all
+debug:
+	msbuild /p:Configuration=Debug /verbosity:quiet /nologo Flame.sln
 
-dll:
-	make -C Flame dll
-	make -C Flame.Compiler dll
-
-flo:
-	make -C Flame flo
-	make -C Flame.Compiler flo
-	make -C UnitTests flo
+all: debug release
 
 nuget:
 	nuget restore Flame.sln
 
-clean: clean-ecsc
+clean:
 	make -C Flame clean
 	make -C Flame.Compiler clean
 	make -C UnitTests clean
 
-test: exe
-	mono ./UnitTests/bin/clr/UnitTests.exe 1
-
-include flame-make-scripts/use-ecsc.mk
+test: debug
+	mono ./UnitTests/bin/Debug/UnitTests.exe 1

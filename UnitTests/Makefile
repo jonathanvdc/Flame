@@ -5,6 +5,7 @@ files = \
 libraries = \
 	../Flame/bin/clr/Flame.dll \
 	../Flame.Compiler/bin/clr/Flame.Compiler.dll \
+	../packages/System.Collections.Immutable.1.4.0/lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.dll \
 	../packages/Loyc.Essentials.24.3.0/lib/net45/Loyc.Essentials.dll \
 	../packages/Loyc.Collections.24.3.0/lib/net45/Loyc.Collections.dll \
 	../packages/Loyc.Math.24.3.0/lib/net45/Loyc.Math.dll \
