@@ -3,11 +3,11 @@ using System.Collections.Generic;
 namespace Flame.Compiler
 {
     /// <summary>
-    /// A method implementation: a method body represented as a
+    /// A method body: a method implementation represented as a
     /// control-flow graph along with a private copy of the return
     /// parameter, 'this' parameter and input parameters.
     /// </summary>
-    public sealed class MethodImplementation
+    public sealed class MethodBody
     {
         /// <summary>
         /// Creates a method implementation.
@@ -21,20 +21,20 @@ namespace Flame.Compiler
         /// <param name="parameters">
         /// The method implementation's input parameters.
         /// </param>
-        /// <param name="body">
-        /// The method implementation's body, represented
+        /// <param name="implementation">
+        /// The method implementation, represented
         /// as a control-flow graph.
         /// </param>
-        public MethodImplementation(
+        public MethodBody(
             Parameter returnParameter,
             Parameter thisParameter,
             IReadOnlyList<Parameter> parameters,
-            FlowGraph body)
+            FlowGraph implementation)
         {
             this.ReturnParameter = returnParameter;
             this.ThisParameter = thisParameter;
             this.Parameters = parameters;
-            this.Body = body;
+            this.Implementation = implementation;
         }
 
         /// <summary>
@@ -57,9 +57,9 @@ namespace Flame.Compiler
 
         /// <summary>
         /// Gets the control-flow graph that constitutes the method
-        /// implementation's body.
+        /// implementation.
         /// </summary>
         /// <returns>The method implementation.</returns>
-        public FlowGraph Body { get; private set; }
+        public FlowGraph Implementation { get; private set; }
     }
 }
