@@ -61,5 +61,44 @@ namespace Flame.Compiler
             ContractHelpers.Assert(arguments.Count == ParameterCount);
             return new Instruction(this, arguments);
         }
+
+        /// <summary>
+        /// Tests if a particular instruction is an instance of
+        /// this prototype.
+        /// </summary>
+        /// <param name="instruction">The instruction to examine.</param>
+        /// <returns>
+        /// <c>true</c> if the instruction is an instance of this
+        /// prototype; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsPrototypeOf(Instruction instruction)
+        {
+            return Equals(instruction.Prototype);
+        }
+
+        /// <summary>
+        /// Asserts that a particular instruction is an instance of
+        /// this prototype.
+        /// </summary>
+        /// <param name="instruction">The instruction to examine.</param>
+        /// <param name="errorMessage">
+        /// An error message to print if the assertion does not hold true.
+        /// </param>
+        public void AssertIsPrototypeOf(Instruction instruction, string errorMessage)
+        {
+            ContractHelpers.Assert(IsPrototypeOf(instruction), errorMessage);
+        }
+
+        /// <summary>
+        /// Asserts that a particular instruction is an instance of
+        /// this prototype.
+        /// </summary>
+        /// <param name="instruction">The instruction to examine.</param>
+        public void AssertIsPrototypeOf(Instruction instruction)
+        {
+            AssertIsPrototypeOf(
+                instruction,
+                "Instruction is not an instance of prototype '" + ToString() + "'.");
+        }
     }
 }
