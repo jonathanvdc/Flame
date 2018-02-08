@@ -44,6 +44,7 @@
     <Compile Include="FlowGraphBuilder.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionBuilder.cs" />
+    <Compile Include="InstructionPrototype.cs" />
     <Compile Include="MethodBody.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />

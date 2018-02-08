@@ -245,7 +245,7 @@ namespace Flame.Compiler
             Instruction instr;
             if (instructions.TryGetValue(tag, out instr))
             {
-                return instr.Type;
+                return instr.ResultType;
             }
             else
             {
