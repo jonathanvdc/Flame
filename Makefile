@@ -1,3 +1,4 @@
+.PHONY: release debug all nuget clean test
 release:
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
 
