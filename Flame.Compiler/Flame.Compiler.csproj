@@ -55,6 +55,7 @@
     <Compile Include="Flow\UnreachableFlow.cs" />
     <Compile Include="Instructions\AllocaArrayPrototype.cs" />
     <Compile Include="Instructions\AllocaPrototype.cs" />
+    <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
