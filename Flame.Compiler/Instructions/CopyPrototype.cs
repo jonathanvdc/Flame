@@ -66,7 +66,7 @@ namespace Flame.Compiler.Instructions
     {
         public bool Equals(CopyPrototype x, CopyPrototype y)
         {
-            return x.ResultType.Equals(y.ResultType);
+            return object.Equals(x.ResultType, y.ResultType);
         }
 
         public int GetHashCode(CopyPrototype obj)

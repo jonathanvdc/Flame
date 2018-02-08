@@ -56,7 +56,7 @@ namespace Flame.Compiler.Instructions
     {
         public bool Equals(AllocaArrayPrototype x, AllocaArrayPrototype y)
         {
-            return x.ElementType.Equals(y.ElementType);
+            return object.Equals(x.ElementType, y.ElementType);
         }
 
         public int GetHashCode(AllocaArrayPrototype obj)
