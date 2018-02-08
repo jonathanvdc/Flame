@@ -60,6 +60,7 @@
     <Compile Include="AccessorKind.cs" />
     <Compile Include="AttributeMap.cs" />
     <Compile Include="ContractHelpers.cs" />
+    <Compile Include="ExceptionSpecification.cs" />
     <Compile Include="IAssembly.cs" />
     <Compile Include="IAttribute.cs" />
     <Compile Include="IField.cs" />
