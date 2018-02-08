@@ -36,6 +36,7 @@ namespace Flame.Compiler.Instructions
         {
             return EmptyArray<string>.Value;
         }
+
         private static readonly InterningCache<AllocaArrayPrototype> instanceCache
             = new InterningCache<AllocaArrayPrototype>(
                 new StructuralAllocaArrayPrototypeComparer());

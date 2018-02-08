@@ -17,12 +17,12 @@ namespace Flame
 
         /// <summary>
         /// Tells if this exception specification allows for an exception
-        /// of a particular type to be thrown.
+        /// of a particular type or a derived type to be thrown.
         /// </summary>
         /// <param name="exceptionType">The type of exception to examine.</param>
         /// <returns>
         /// <c>true</c> if an exception of type <paramref name="exceptionType"/>
-        /// can be thrown; otherwise, <c>false</c>.
+        /// or a derived type can be thrown; otherwise, <c>false</c>.
         /// </returns>
         public abstract bool CanThrow(IType exceptionType);
 
