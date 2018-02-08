@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Flame.Compiler
 {
     /// <summary>
@@ -36,6 +38,16 @@ namespace Flame.Compiler
                 ImmutableGraph = ImmutableGraph.WithEntryPoint(value);
             }
         }
+
+        /// <summary>
+        /// Gets a sequence of all basic block tags in this control-flow graph.
+        /// </summary>
+        public IEnumerable<BasicBlockTag> BasicBlockTags => ImmutableGraph.BasicBlockTags;
+
+        /// <summary>
+        /// Gets a sequence of all instruction tags in this control-flow graph.
+        /// </summary>
+        public IEnumerable<ValueTag> InstructionTags => ImmutableGraph.InstructionTags;
 
         /// <summary>
         /// Adds an empty basic block to this flow-graph builder.

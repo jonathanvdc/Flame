@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Flame.Compiler
@@ -34,6 +35,21 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>A type of value.</returns>
         public IType ResultType => Prototype.ResultType;
+
+        /// <summary>
+        /// Checks if this instruction conforms to the rules for its
+        /// instruction prototype.
+        /// </summary>
+        /// <param name="body">
+        /// The method body that defines this instruction.
+        /// </param>
+        /// <returns>
+        /// A list of validation errors.
+        /// </returns>
+        public IReadOnlyList<string> Validate(MethodBody body)
+        {
+            return Prototype.CheckConformance(this, body);
+        }
 
         /// <summary>
         /// Tests if this instruction is (superficially) identical to

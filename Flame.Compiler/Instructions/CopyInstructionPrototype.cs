@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Flame.Collections;
 
 namespace Flame.Compiler.Instructions
@@ -20,6 +21,26 @@ namespace Flame.Compiler.Instructions
 
         /// <inheritdoc/>
         public override int ParameterCount => 1;
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<string> CheckConformance(
+            Instruction instance,
+            MethodBody body)
+        {
+            var inputType = body.Implementation.GetValueType(instance.Arguments[0]);
+            if (inputType.Equals(ResultType))
+            {
+                return ImmutableList<string>.Empty;
+            }
+            else
+            {
+                return ImmutableList<string>.Empty.Add(
+                    string.Format(
+                        "Input type '{0}' does not match result type '{1}'.",
+                        inputType,
+                        ResultType));
+            }
+        }
 
         private static readonly InterningCache<CopyInstructionPrototype> instanceCache
             = new InterningCache<CopyInstructionPrototype>(

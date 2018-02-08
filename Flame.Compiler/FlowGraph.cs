@@ -49,6 +49,16 @@ namespace Flame.Compiler
         public BasicBlockTag EntryPointTag { get; private set; }
 
         /// <summary>
+        /// Gets a sequence of all basic block tags in this control-flow graph.
+        /// </summary>
+        public IEnumerable<BasicBlockTag> BasicBlockTags => blocks.Keys;
+
+        /// <summary>
+        /// Gets a sequence of all instruction tags in this control-flow graph.
+        /// </summary>
+        public IEnumerable<ValueTag> InstructionTags => instructions.Keys;
+
+        /// <summary>
         /// Creates a new basic block that includes all basic blocks in this
         /// graph plus an empty basic block. The latter basic block is returned.
         /// </summary>
