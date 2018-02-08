@@ -5,8 +5,8 @@ using Flame.TypeSystem;
 namespace Flame.Compiler.Instructions
 {
     /// <summary>
-    /// A prototype for alloca-array instructions, which allocate an array
-    /// of values on the stack.
+    /// A prototype for alloca-array instructions, which allocate a
+    /// variable-length array of values on the stack.
     /// </summary>
     public sealed class AllocaArrayPrototype : InstructionPrototype
     {
