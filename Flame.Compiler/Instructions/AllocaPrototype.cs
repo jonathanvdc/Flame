@@ -45,7 +45,7 @@ namespace Flame.Compiler.Instructions
         /// Gets the alloca instruction prototype for a particular result type.
         /// </summary>
         /// <param name="resultType">The result type.</param>
-        /// <returns>A alloca instruction prototype.</returns>
+        /// <returns>An alloca instruction prototype.</returns>
         public static AllocaPrototype Create(IType resultType)
         {
             return instanceCache.Intern(new AllocaPrototype(resultType));

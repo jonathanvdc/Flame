@@ -41,10 +41,10 @@ namespace Flame.Compiler.Instructions
                 new StructuralAllocaArrayPrototypeComparer());
 
         /// <summary>
-        /// Gets the alloca instruction prototype for a particular result type.
+        /// Gets the alloca-array instruction prototype for a particular result type.
         /// </summary>
         /// <param name="resultType">The result type.</param>
-        /// <returns>A alloca instruction prototype.</returns>
+        /// <returns>An alloca-array instruction prototype.</returns>
         public static AllocaArrayPrototype Create(IType resultType)
         {
             return instanceCache.Intern(new AllocaArrayPrototype(resultType));
