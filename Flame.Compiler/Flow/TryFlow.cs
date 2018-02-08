@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Flame.Compiler
+namespace Flame.Compiler.Flow
 {
     /// <summary>
     /// Control flow that executes an instruction and checks if that

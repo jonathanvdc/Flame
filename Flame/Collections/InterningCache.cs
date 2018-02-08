@@ -28,6 +28,16 @@ namespace Flame.Collections
             this.initialize = initialize;
         }
 
+        /// <summary>
+        /// Creates an interning cache from a comparer.
+        /// </summary>
+        /// <param name="comparer">
+        /// A comparer that tests if input values are structurally equal.
+        /// </param>
+        public InterningCache(IEqualityComparer<T> comparer)
+            : this(comparer, NopInitialization)
+        { }
+
         private WeakCache<T, T> mainCache;
 
         private Func<T, T> initialize;
@@ -44,6 +54,11 @@ namespace Flame.Collections
         public T Intern(T value)
         {
             return mainCache.Get(value, initialize);
+        }
+
+        private static T NopInitialization(T value)
+        {
+            return value;
         }
     }
 }

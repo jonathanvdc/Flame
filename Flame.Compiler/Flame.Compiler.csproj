@@ -53,6 +53,7 @@
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\TryFlow.cs" />
     <Compile Include="Flow\UnreachableFlow.cs" />
+    <Compile Include="Instructions\CopyInstruction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
