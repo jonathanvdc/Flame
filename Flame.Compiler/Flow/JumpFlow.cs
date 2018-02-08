@@ -26,15 +26,15 @@ namespace Flame.Compiler.Flow
         public Branch Branch { get; private set; }
 
         /// <inheritdoc/>
-        public override IReadOnlyList<ValueTag> Arguments => EmptyArray<ValueTag>.Value;
+        public override IReadOnlyList<Instruction> Instructions => EmptyArray<Instruction>.Value;
 
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => new Branch[] { Branch };
 
         /// <inheritdoc/>
-        public override BlockFlow WithArguments(IReadOnlyList<ValueTag> arguments)
+        public override BlockFlow WithInstructions(IReadOnlyList<Instruction> instructions)
         {
-            ContractHelpers.Assert(arguments.Count == 0, "Jump flow does not take any arguments.");
+            ContractHelpers.Assert(instructions.Count == 0, "Jump flow does not take any instructions.");
             return this;
         }
 

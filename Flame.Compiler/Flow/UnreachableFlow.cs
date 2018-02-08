@@ -18,15 +18,15 @@ namespace Flame.Compiler.Flow
         public static readonly UnreachableFlow Instance = new UnreachableFlow();
 
         /// <inheritdoc/>
-        public override IReadOnlyList<ValueTag> Arguments => EmptyArray<ValueTag>.Value;
+        public override IReadOnlyList<Instruction> Instructions => EmptyArray<Instruction>.Value;
 
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => EmptyArray<Branch>.Value;
 
         /// <inheritdoc/>
-        public override BlockFlow WithArguments(IReadOnlyList<ValueTag> arguments)
+        public override BlockFlow WithInstructions(IReadOnlyList<Instruction> instructions)
         {
-            ContractHelpers.Assert(arguments.Count == 0, "Unreachable flow does not take any arguments.");
+            ContractHelpers.Assert(instructions.Count == 0, "Unreachable flow does not take any instructions.");
             return this;
         }
 

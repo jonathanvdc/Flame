@@ -12,7 +12,7 @@ namespace Flame.Compiler.Flow
         /// Creates return flow that returns a particular value.
         /// </summary>
         /// <param name="returnValue">The value to return.</param>
-        public ReturnFlow(ValueTag returnValue)
+        public ReturnFlow(Instruction returnValue)
         {
             this.ReturnValue = returnValue;
         }
@@ -21,19 +21,19 @@ namespace Flame.Compiler.Flow
         /// Gets the value returned by this return flow.
         /// </summary>
         /// <returns>The returned value.</returns>
-        public ValueTag ReturnValue { get; private set; }
+        public Instruction ReturnValue { get; private set; }
 
         /// <inheritdoc/>
-        public override IReadOnlyList<ValueTag> Arguments => new ValueTag[] { ReturnValue };
+        public override IReadOnlyList<Instruction> Instructions => new Instruction[] { ReturnValue };
 
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => EmptyArray<Branch>.Value;
 
         /// <inheritdoc/>
-        public override BlockFlow WithArguments(IReadOnlyList<ValueTag> arguments)
+        public override BlockFlow WithInstructions(IReadOnlyList<Instruction> instructions)
         {
-            ContractHelpers.Assert(arguments.Count == 1, "Return flow takes exactly one argument.");
-            var newReturnValue = arguments[0];
+            ContractHelpers.Assert(instructions.Count == 1, "Return flow takes exactly one instruction.");
+            var newReturnValue = instructions[0];
             if (object.ReferenceEquals(newReturnValue, ReturnValue))
             {
                 return this;
