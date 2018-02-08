@@ -7,9 +7,9 @@ namespace Flame.Compiler.Instructions
     /// <summary>
     /// The prototype for copy instructions.
     /// </summary>
-    public sealed class CopyInstructionPrototype : InstructionPrototype
+    public sealed class CopyPrototype : InstructionPrototype
     {
-        private CopyInstructionPrototype(IType resultType)
+        private CopyPrototype(IType resultType)
         {
             this.type = resultType;
         }
@@ -42,30 +42,30 @@ namespace Flame.Compiler.Instructions
             }
         }
 
-        private static readonly InterningCache<CopyInstructionPrototype> instanceCache
-            = new InterningCache<CopyInstructionPrototype>(
-                new StructuralCopyInstructionPrototypeComparer());
+        private static readonly InterningCache<CopyPrototype> instanceCache
+            = new InterningCache<CopyPrototype>(
+                new StructuralCopyPrototypeComparer());
 
         /// <summary>
         /// Gets the copy instruction prototype for a particular result type.
         /// </summary>
         /// <param name="resultType">The result type.</param>
         /// <returns>A copy instruction prototype.</returns>
-        public static CopyInstructionPrototype Create(IType resultType)
+        public static CopyPrototype Create(IType resultType)
         {
-            return instanceCache.Intern(new CopyInstructionPrototype(resultType));
+            return instanceCache.Intern(new CopyPrototype(resultType));
         }
     }
 
-    internal sealed class StructuralCopyInstructionPrototypeComparer
-        : IEqualityComparer<CopyInstructionPrototype>
+    internal sealed class StructuralCopyPrototypeComparer
+        : IEqualityComparer<CopyPrototype>
     {
-        public bool Equals(CopyInstructionPrototype x, CopyInstructionPrototype y)
+        public bool Equals(CopyPrototype x, CopyPrototype y)
         {
             return x.ResultType.Equals(y.ResultType);
         }
 
-        public int GetHashCode(CopyInstructionPrototype obj)
+        public int GetHashCode(CopyPrototype obj)
         {
             return obj.ResultType.GetHashCode();
         }
