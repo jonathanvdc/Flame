@@ -16,6 +16,12 @@ namespace Flame.Compiler
         public abstract IType ResultType { get; }
 
         /// <summary>
+        /// Gets the number of arguments this instruction takes when instantiated.
+        /// </summary>
+        /// <returns>The number of arguments this instruction takes.</returns>
+        public abstract int ParameterCount { get; }
+
+        /// <summary>
         /// Instantiates this prototype with a list of arguments.
         /// </summary>
         /// <param name="arguments">
@@ -25,6 +31,10 @@ namespace Flame.Compiler
         /// An instruction whose prototype is equal to this prototype
         /// and whose argument list corresponds to <paramref name="arguments"/>.
         /// </returns>
-        public abstract Instruction Instantiate(IReadOnlyList<ValueTag> arguments);
+        public Instruction Instantiate(IReadOnlyList<ValueTag> arguments)
+        {
+            ContractHelpers.Assert(arguments.Count == ParameterCount);
+            return new Instruction(this, arguments);
+        }
     }
 }

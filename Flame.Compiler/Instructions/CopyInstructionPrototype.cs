@@ -4,42 +4,6 @@ using Flame.Collections;
 namespace Flame.Compiler.Instructions
 {
     /// <summary>
-    /// An instruction that outputs an existing value without modifying
-    /// it in any way. This is equivalent to a shallow copy.
-    /// </summary>
-    public sealed class CopyInstruction : Instruction
-    {
-        internal CopyInstruction(CopyInstructionPrototype proto, ValueTag value)
-        {
-            this.proto = proto;
-            this.Value = value;
-        }
-
-        /// <summary>
-        /// Creates a copy instruction from a result type and a value.
-        /// </summary>
-        /// <param name="type">The type of the copy instruction's input and output.</param>
-        /// <param name="value">The value to copy.</param>
-        public CopyInstruction(IType type, ValueTag value)
-            : this(CopyInstructionPrototype.Create(type), value)
-        { }
-
-        private CopyInstructionPrototype proto;
-
-        /// <summary>
-        /// Gets the value that is copied by this instruction.
-        /// </summary>
-        /// <returns>The value that is copied.</returns>
-        public ValueTag Value { get; private set; }
-
-        /// <inheritdoc/>
-        public override InstructionPrototype Prototype => proto;
-
-        /// <inheritdoc/>
-        public override IReadOnlyList<ValueTag> Arguments => new ValueTag[] { Value };
-    }
-
-    /// <summary>
     /// The prototype for copy instructions.
     /// </summary>
     public sealed class CopyInstructionPrototype : InstructionPrototype
@@ -55,11 +19,7 @@ namespace Flame.Compiler.Instructions
         public override IType ResultType => type;
 
         /// <inheritdoc/>
-        public override Instruction Instantiate(IReadOnlyList<ValueTag> arguments)
-        {
-            ContractHelpers.Assert(arguments.Count == 1, "Copy instructions take exactly one argument.");
-            return new CopyInstruction(this, arguments[0]);
-        }
+        public override int ParameterCount => 1;
 
         private static readonly InterningCache<CopyInstructionPrototype> instanceCache
             = new InterningCache<CopyInstructionPrototype>(
