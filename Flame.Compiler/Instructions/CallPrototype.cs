@@ -131,7 +131,7 @@ namespace Flame.Compiler.Instructions
                 new StructuralCallPrototypeComparer());
 
         /// <summary>
-        /// Gets the call instruction prototype for a particular callee signature.
+        /// Gets the call instruction prototype for a particular callee.
         /// </summary>
         /// <param name="callee">The method to call.</param>
         /// <param name="lookup">The method lookup strategy for the call.</param>

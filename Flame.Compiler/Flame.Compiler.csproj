@@ -57,6 +57,7 @@
     <Compile Include="Instructions\AllocaPrototype.cs" />
     <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
+    <Compile Include="Instructions\IndirectCallPrototype.cs" />
     <Compile Include="Instructions\MethodLookup.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

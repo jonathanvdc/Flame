@@ -1,0 +1,137 @@
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Collections;
+using Flame.TypeSystem;
+
+namespace Flame.Compiler.Instructions
+{
+    /// <summary>
+    /// An instruction prototype for indirect call instructions:
+    /// instructions that call a delegate or function pointer.
+    /// </summary>
+    public sealed class IndirectCallPrototype : InstructionPrototype
+    {
+        private IndirectCallPrototype(
+            IType returnType,
+            IReadOnlyList<IType> parameterTypes)
+        {
+            this.returnType = returnType;
+            this.ParameterTypes = parameterTypes;
+        }
+
+        private IType returnType;
+
+        /// <summary>
+        /// Gets the list of parameter types.
+        /// </summary>
+        /// <returns>The parameter types.</returns>
+        public IReadOnlyList<IType> ParameterTypes { get; private set; }
+
+        /// <inheritdoc/>
+        public override IType ResultType => returnType;
+
+        /// <inheritdoc/>
+        public override int ParameterCount => 1 + ParameterTypes.Count;
+
+        /// <inheritdoc/>
+        public override ExceptionSpecification ExceptionSpecification
+            => ExceptionSpecification.ThrowAny;
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<string> CheckConformance(
+            Instruction instance,
+            MethodBody body)
+        {
+            var errors = new List<string>();
+
+            var argList = GetArgumentList(instance);
+            int paramCount = ParameterTypes.Count;
+            for (int i = 0; i < paramCount; i++)
+            {
+                var paramType = ParameterTypes[i];
+                var argType = body.Implementation.GetValueType(argList[i]);
+
+                if (!paramType.Equals(argType))
+                {
+                    errors.Add(
+                        string.Format(
+                            "Argument of type '{0}' was provided where an " +
+                            "argument of type '{1}' was expected.",
+                            paramType.FullName,
+                            argType.FullName));
+                }
+            }
+
+            return errors;
+        }
+
+        /// <summary>
+        /// Gets the callee delegate or function pointer argument in an
+        /// instruction that conforms to this prototype.
+        /// </summary>
+        /// <param name="instruction">
+        /// An instruction that conforms to this prototype.
+        /// </param>
+        /// <returns>The callee argument.</returns>
+        public ValueTag GetCalleeArgument(Instruction instruction)
+        {
+            AssertIsPrototypeOf(instruction);
+            return instruction.Arguments[0];
+        }
+
+        /// <summary>
+        /// Gets the argument list argument in an instruction that conforms to
+        /// this prototype.
+        /// </summary>
+        /// <param name="instruction">
+        /// An instruction that conforms to this prototype.
+        /// </param>
+        /// <returns>The formal argument list.</returns>
+        public ReadOnlySlice<ValueTag> GetArgumentList(Instruction instruction)
+        {
+            AssertIsPrototypeOf(instruction);
+            return new ReadOnlySlice<ValueTag>(
+                instruction.Arguments,
+                1,
+                instruction.Arguments.Count - 1);
+        }
+
+        private static readonly InterningCache<IndirectCallPrototype> instanceCache
+            = new InterningCache<IndirectCallPrototype>(
+                new StructuralIndirectCallPrototypeComparer());
+
+        /// <summary>
+        /// Gets the indirect call instruction prototype for a particular return
+        /// type and parameter type list.
+        /// </summary>
+        /// <param name="returnType">The type of value returned by the callee.</param>
+        /// <param name="parameterTypes">A list of the callee's parameter types.</param>
+        /// <returns>An indirect call instruction prototype.</returns>
+        public static IndirectCallPrototype Create(IType returnType, IReadOnlyList<IType> parameterTypes)
+        {
+            return instanceCache.Intern(new IndirectCallPrototype(returnType, parameterTypes));
+        }
+    }
+
+    internal sealed class StructuralIndirectCallPrototypeComparer
+        : IEqualityComparer<IndirectCallPrototype>
+    {
+        public bool Equals(IndirectCallPrototype x, IndirectCallPrototype y)
+        {
+            return object.Equals(x.ResultType, y.ResultType)
+                && x.ParameterTypes.SequenceEqual<IType>(y.ParameterTypes);
+        }
+
+        public int GetHashCode(IndirectCallPrototype obj)
+        {
+            int hashCode = obj.ResultType.GetHashCode();
+            var paramTypes = obj.ParameterTypes;
+            var paramTypeCount = paramTypes.Count;
+            for (int i = 0; i < paramTypeCount; i++)
+            {
+                hashCode = (hashCode << 3) ^ paramTypes[i].GetHashCode();
+            }
+            return hashCode;
+        }
+    }
+}
