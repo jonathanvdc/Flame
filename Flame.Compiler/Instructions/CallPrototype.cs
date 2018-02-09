@@ -10,9 +10,10 @@ namespace Flame.Compiler.Instructions
     /// </summary>
     public sealed class CallPrototype : InstructionPrototype
     {
-        private CallPrototype(IMethod callee)
+        private CallPrototype(IMethod callee, MethodLookup lookup)
         {
             this.Callee = callee;
+            this.Lookup = lookup;
         }
 
         /// <summary>
@@ -132,11 +133,12 @@ namespace Flame.Compiler.Instructions
         /// <summary>
         /// Gets the call instruction prototype for a particular callee signature.
         /// </summary>
-        /// <param name="calleeSignature">The signature of the callee delegate.</param>
+        /// <param name="callee">The method to call.</param>
+        /// <param name="lookup">The method lookup strategy for the call.</param>
         /// <returns>A call instruction prototype.</returns>
-        public static CallPrototype Create(IMethod calleeSignature)
+        public static CallPrototype Create(IMethod callee, MethodLookup lookup)
         {
-            return instanceCache.Intern(new CallPrototype(calleeSignature));
+            return instanceCache.Intern(new CallPrototype(callee, lookup));
         }
     }
 
