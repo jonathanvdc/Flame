@@ -1,15 +1,15 @@
-﻿namespace Flame.Compiler.Constants
+namespace Flame.Compiler.Constants
 {
     /// <summary>
-    /// A Boolean constant.
+    /// A 64-bit floating point constant.
     /// </summary>
-    public sealed class BooleanConstant : Constant
+    public sealed class Float64Constant : Constant
     {
         /// <summary>
         /// Creates a constant from a value.
         /// </summary>
         /// <param name="value">The constant value.</param>
-        public BooleanConstant(bool value)
+        public Float64Constant(double value)
         {
             this.Value = value;
         }
@@ -18,13 +18,13 @@
         /// Gets the value represented by this constant.
         /// </summary>
         /// <returns>The constant value.</returns>
-        public bool Value { get; private set; }
+        public double Value { get; private set; }
 
         /// <inheritdoc/>
         public override bool Equals(Constant other)
         {
-            return other is BooleanConstant
-                && Value == ((BooleanConstant)other).Value;
+            return other is Float64Constant
+                && Value == ((Float64Constant)other).Value;
         }
 
         /// <inheritdoc/>

@@ -1,15 +1,15 @@
-﻿namespace Flame.Compiler.Constants
+namespace Flame.Compiler.Constants
 {
     /// <summary>
-    /// A Boolean constant.
+    /// A character string constant.
     /// </summary>
-    public sealed class BooleanConstant : Constant
+    public sealed class StringConstant : Constant
     {
         /// <summary>
         /// Creates a constant from a value.
         /// </summary>
         /// <param name="value">The constant value.</param>
-        public BooleanConstant(bool value)
+        public StringConstant(string value)
         {
             this.Value = value;
         }
@@ -18,13 +18,13 @@
         /// Gets the value represented by this constant.
         /// </summary>
         /// <returns>The constant value.</returns>
-        public bool Value { get; private set; }
+        public string Value { get; private set; }
 
         /// <inheritdoc/>
         public override bool Equals(Constant other)
         {
-            return other is BooleanConstant
-                && Value == ((BooleanConstant)other).Value;
+            return other is StringConstant
+                && Value == ((StringConstant)other).Value;
         }
 
         /// <inheritdoc/>
