@@ -9,6 +9,27 @@ namespace Flame.Collections
     /// </summary>
     public struct ReadOnlySlice<T>
     {
+        /// <summary>
+        /// Creates a read-only slice of a list that contains the entire list.
+        /// </summary>
+        /// <param name="list">The list to "slice."</param>
+        public ReadOnlySlice(IReadOnlyList<T> list)
+        {
+            this.list = list;
+            this.offset = 0;
+            this.Count = list.Count;
+        }
+
+        /// <summary>
+        /// Creates a read-only slice of a list.
+        /// </summary>
+        /// <param name="list">The list to slice.</param>
+        /// <param name="offset">
+        /// The offset in the list of the first element in the slice.
+        /// </param>
+        /// <param name="count">
+        /// The number of elements in the slice.
+        /// </param>
         public ReadOnlySlice(IReadOnlyList<T> list, int offset, int count)
         {
             this.list = list;

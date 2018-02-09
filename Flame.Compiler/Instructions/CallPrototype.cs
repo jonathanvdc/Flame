@@ -90,6 +90,35 @@ namespace Flame.Compiler.Instructions
                 }
             }
 
+            errors.AddRange(CheckArgumentTypes(argList, Callee.Parameters, body));
+
+            return errors;
+        }
+
+        internal static IReadOnlyList<string> CheckArgumentTypes(
+            ReadOnlySlice<ValueTag> arguments,
+            IReadOnlyList<Parameter> parameters,
+            MethodBody body)
+        {
+            var errors = new List<string>();
+
+            int paramCount = parameters.Count;
+            for (int i = 0; i < paramCount; i++)
+            {
+                var paramType = parameters[i].Type;
+                var argType = body.Implementation.GetValueType(arguments[i]);
+
+                if (!paramType.Equals(argType))
+                {
+                    errors.Add(
+                        string.Format(
+                            "Argument of type '{0}' was provided where an " +
+                            "argument of type '{1}' was expected.",
+                            paramType.FullName,
+                            argType.FullName));
+                }
+            }
+
             return errors;
         }
 
@@ -109,7 +138,7 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Gets the argument list argument in an instruction that conforms to
+        /// Gets the argument list in an instruction that conforms to
         /// this prototype.
         /// </summary>
         /// <param name="instruction">

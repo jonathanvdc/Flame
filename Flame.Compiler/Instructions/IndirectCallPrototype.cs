@@ -80,7 +80,7 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Gets the argument list argument in an instruction that conforms to
+        /// Gets the argument list in an instruction that conforms to
         /// this prototype.
         /// </summary>
         /// <param name="instruction">
