@@ -6,32 +6,38 @@ namespace Flame.Compiler.Instructions
 {
     /// <summary>
     /// An instruction prototype for call instructions: instructions that
-    /// call a delegate.
+    /// call a method.
     /// </summary>
     public sealed class CallPrototype : InstructionPrototype
     {
-        private CallPrototype(IMethod calleeSignature)
+        private CallPrototype(IMethod callee)
         {
-            this.CalleeSignature = calleeSignature;
+            this.Callee = callee;
         }
 
         /// <summary>
-        /// Gets the signature of the callee delegate.
+        /// Gets the method to call.
         /// </summary>
-        /// <returns>The callee's signature.</returns>
-        public IMethod CalleeSignature { get; private set; }
+        /// <returns>The callee.</returns>
+        public IMethod Callee { get; private set; }
+
+        /// <summary>
+        /// Gets the method lookup strategy used by this call.
+        /// </summary>
+        /// <returns></returns>
+        public MethodLookup Lookup { get; private set; }
 
         /// <inheritdoc/>
         public override IType ResultType
-            => CalleeSignature.ReturnParameter.Type;
+            => Callee.ReturnParameter.Type;
 
         /// <inheritdoc/>
         public override int ParameterCount
-            => (CalleeSignature.IsStatic ? 1 : 2) + CalleeSignature.Parameters.Count;
+            => (Callee.IsStatic ? 0 : 1) + Callee.Parameters.Count;
 
         /// <inheritdoc/>
         public override ExceptionSpecification ExceptionSpecification
-            // TODO: use the callee signature's exception specification instead
+            // TODO: use the callee's exception specification instead
             // of a throw-any exception specification.
             => ExceptionSpecification.ThrowAny;
 
@@ -42,7 +48,7 @@ namespace Flame.Compiler.Instructions
         {
             var errors = new List<string>();
 
-            bool isStatic = CalleeSignature.IsStatic;
+            bool isStatic = Callee.IsStatic;
             if (!isStatic)
             {
                 var thisType = body.Implementation
@@ -53,18 +59,18 @@ namespace Flame.Compiler.Instructions
                 {
                     errors.Add("Type of the 'this' argument must be a pointer type.");
                 }
-                else if (!thisType.Equals(CalleeSignature.ParentType))
+                else if (!thisType.Equals(Callee.ParentType))
                 {
                     errors.Add(
                         string.Format(
                             "Pointee type of 'this' argument type '{0}' should " +
                             "have been parent type '{1}'.",
                             thisType.FullName,
-                            CalleeSignature.ParentType.FullName));
+                            Callee.ParentType.FullName));
                 }
             }
 
-            var parameters = CalleeSignature.Parameters;
+            var parameters = Callee.Parameters;
             var argList = GetArgumentList(instance);
             int paramCount = parameters.Count;
             for (int i = 0; i < paramCount; i++)
@@ -87,20 +93,6 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Gets the callee delegate in an instruction that conforms to
-        /// this prototype.
-        /// </summary>
-        /// <param name="instruction">
-        /// An instruction that conforms to this prototype.
-        /// </param>
-        /// <returns>The callee delegate.</returns>
-        public ValueTag GetCalleeDelegate(Instruction instruction)
-        {
-            AssertIsPrototypeOf(instruction);
-            return instruction.Arguments[0];
-        }
-
-        /// <summary>
         /// Gets the 'this' argument in an instruction that conforms to
         /// this prototype.
         /// </summary>
@@ -111,8 +103,8 @@ namespace Flame.Compiler.Instructions
         public ValueTag GetThisArgument(Instruction instruction)
         {
             AssertIsPrototypeOf(instruction);
-            ContractHelpers.Assert(!CalleeSignature.IsStatic);
-            return instruction.Arguments[1];
+            ContractHelpers.Assert(!Callee.IsStatic);
+            return instruction.Arguments[0];
         }
 
         /// <summary>
@@ -126,7 +118,7 @@ namespace Flame.Compiler.Instructions
         public ReadOnlySlice<ValueTag> GetArgumentList(Instruction instruction)
         {
             AssertIsPrototypeOf(instruction);
-            int offset = CalleeSignature.IsStatic ? 1 : 2;
+            int offset = Callee.IsStatic ? 0 : 1;
             return new ReadOnlySlice<ValueTag>(
                 instruction.Arguments,
                 offset,
@@ -153,12 +145,12 @@ namespace Flame.Compiler.Instructions
     {
         public bool Equals(CallPrototype x, CallPrototype y)
         {
-            return object.Equals(x.CalleeSignature, y.CalleeSignature);
+            return object.Equals(x.Callee, y.Callee) && x.Lookup == y.Lookup;
         }
 
         public int GetHashCode(CallPrototype obj)
         {
-            return obj.CalleeSignature.GetHashCode();
+            return (obj.Callee.GetHashCode() << 1) ^ obj.Lookup.GetHashCode();
         }
     }
 }
