@@ -46,7 +46,7 @@ namespace Flame.Collections
     /// A small, memory-friendly and cache-friendly dictionary
     /// with O(n) asymptotic complexity for all operations.
     /// </summary>
-    internal sealed class SmallMultiDictionary<TKey, TValue>
+    public sealed class SmallMultiDictionary<TKey, TValue>
     {
         /// <summary>
         /// Creates a small multi-dictionary.

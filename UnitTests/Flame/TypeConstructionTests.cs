@@ -7,9 +7,9 @@ using Loyc.MiniTest;
 namespace UnitTests
 {
     [TestFixture]
-    public class TypeConstruction
+    public class TypeConstructionTests
     {
-        public TypeConstruction(Random rng)
+        public TypeConstructionTests(Random rng)
         {
             this.rng = rng;
             this.simpleType = new DescribedType(new SimpleName("A").Qualify(), null);

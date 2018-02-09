@@ -82,7 +82,9 @@ namespace UnitTests
             return RunTests.RunMany(
                 new CacheTests(globalRng),
                 new IntegerConstantTests(),
-                new TypeConstruction(globalRng));
+                new SmallMultiDictionaryTests(),
+                new TypeConstructionTests(globalRng),
+                new ValueListTests());
         }
     }
 }
