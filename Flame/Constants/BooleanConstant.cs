@@ -1,4 +1,4 @@
-﻿namespace Flame.Compiler.Constants
+﻿namespace Flame.Constants
 {
     /// <summary>
     /// A Boolean constant.

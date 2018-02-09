@@ -1,6 +1,6 @@
 using System;
 
-namespace Flame.Compiler
+namespace Flame
 {
     /// <summary>
     /// A constant value.

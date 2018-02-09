@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Flame.Compiler.Constants;
+using Flame.Constants;
 
 namespace Flame.Compiler.Flow
 {

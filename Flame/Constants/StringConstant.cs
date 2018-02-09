@@ -1,6 +1,6 @@
 using System;
 
-namespace Flame.Compiler.Constants
+namespace Flame.Constants
 {
     /// <summary>
     /// A character string constant.

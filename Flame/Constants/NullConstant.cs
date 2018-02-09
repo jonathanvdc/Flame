@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Flame.Compiler.Constants
+namespace Flame.Constants
 {
     /// <summary>
     /// A null pointer constant.

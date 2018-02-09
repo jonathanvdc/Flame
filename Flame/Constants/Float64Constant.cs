@@ -1,4 +1,4 @@
-namespace Flame.Compiler.Constants
+namespace Flame.Constants
 {
     /// <summary>
     /// A 64-bit floating point constant.
