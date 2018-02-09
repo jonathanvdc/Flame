@@ -61,6 +61,7 @@
     <Compile Include="Instructions\AllocaArrayPrototype.cs" />
     <Compile Include="Instructions\AllocaPrototype.cs" />
     <Compile Include="Instructions\CallPrototype.cs" />
+    <Compile Include="Instructions\ConstantPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
     <Compile Include="Instructions\IndirectCallPrototype.cs" />
     <Compile Include="Instructions\MethodLookup.cs" />
