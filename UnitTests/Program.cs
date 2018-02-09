@@ -82,6 +82,7 @@ namespace UnitTests
             return RunTests.RunMany(
                 new CacheTests(globalRng),
                 new IntegerConstantTests(),
+                new QualifiedNameTests(),
                 new SmallMultiDictionaryTests(),
                 new TypeConstructionTests(globalRng),
                 new ValueListTests());
