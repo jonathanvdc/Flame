@@ -1,3 +1,5 @@
+using System;
+
 namespace Flame.Compiler.Constants
 {
     /// <summary>
@@ -11,6 +13,11 @@ namespace Flame.Compiler.Constants
         /// <param name="value">The constant value.</param>
         public StringConstant(string value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             this.Value = value;
         }
 
