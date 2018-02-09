@@ -138,6 +138,9 @@ namespace Flame.Compiler.Instructions
         /// <returns>A call instruction prototype.</returns>
         public static CallPrototype Create(IMethod callee, MethodLookup lookup)
         {
+            ContractHelpers.Assert(
+                lookup == MethodLookup.Static || !callee.IsStatic,
+                "A static callee method cannot be resolved via virtual lookup.");
             return instanceCache.Intern(new CallPrototype(callee, lookup));
         }
     }
