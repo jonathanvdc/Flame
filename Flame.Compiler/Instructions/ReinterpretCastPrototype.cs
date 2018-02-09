@@ -37,7 +37,7 @@ namespace Flame.Compiler.Instructions
             Instruction instance,
             MethodBody body)
         {
-            var argType = body.Implementation.GetValueType(instance.Arguments[0]);
+            var argType = body.Implementation.GetValueType(GetOperand(instance));
             if (!(argType is PointerType))
             {
                 return new string[]
@@ -50,6 +50,20 @@ namespace Flame.Compiler.Instructions
             {
                 return EmptyArray<string>.Value;
             }
+        }
+
+        /// <summary>
+        /// Gets the input pointer of an instance of this reinterpret
+        /// cast instruction prototype.
+        /// </summary>
+        /// <param name="instance">
+        /// An instance of this reinterpret-cast instruction prototype.
+        /// </param>
+        /// <returns>The input pointer.</returns>
+        public ValueTag GetOperand(Instruction instance)
+        {
+            AssertIsPrototypeOf(instance);
+            return instance.Arguments[0];
         }
 
         private static readonly InterningCache<ReinterpretCastPrototype> instanceCache
