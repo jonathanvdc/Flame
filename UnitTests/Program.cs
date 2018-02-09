@@ -81,6 +81,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new CacheTests(globalRng),
+                new IntegerConstantTests(),
                 new TypeConstruction(globalRng));
         }
     }
