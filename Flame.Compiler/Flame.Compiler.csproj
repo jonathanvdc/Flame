@@ -40,7 +40,6 @@
     <Compile Include="BlockFlow.cs" />
     <Compile Include="BlockParameter.cs" />
     <Compile Include="Branch.cs" />
-    <Compile Include="Constant.cs" />
     <Compile Include="FlowGraph.cs" />
     <Compile Include="FlowGraphBuilder.cs" />
     <Compile Include="Instruction.cs" />
@@ -49,11 +48,6 @@
     <Compile Include="MethodBody.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
-    <Compile Include="Constants\BooleanConstant.cs" />
-    <Compile Include="Constants\Float32Constant.cs" />
-    <Compile Include="Constants\Float64Constant.cs" />
-    <Compile Include="Constants\NullConstant.cs" />
-    <Compile Include="Constants\StringConstant.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />

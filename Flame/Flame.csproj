@@ -31,6 +31,36 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessorKind.cs" />
+    <Compile Include="AttributeMap.cs" />
+    <Compile Include="Constant.cs" />
+    <Compile Include="ContractHelpers.cs" />
+    <Compile Include="ExceptionSpecification.cs" />
+    <Compile Include="IAssembly.cs" />
+    <Compile Include="IAttribute.cs" />
+    <Compile Include="IField.cs" />
+    <Compile Include="IGenericMember.cs" />
+    <Compile Include="IGenericParameter.cs" />
+    <Compile Include="IMember.cs" />
+    <Compile Include="IMethod.cs" />
+    <Compile Include="IProperty.cs" />
+    <Compile Include="IType.cs" />
+    <Compile Include="ITypeMember.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="TypeConstraint.cs" />
+    <Compile Include="TypeExtensions.cs" />
+    <Compile Include="Collections\Cache.cs" />
+    <Compile Include="Collections\EmptyArray.cs" />
+    <Compile Include="Collections\InterningCache.cs" />
+    <Compile Include="Collections\ReadOnlySlice.cs" />
+    <Compile Include="Collections\SmallMultiDictionary.cs" />
+    <Compile Include="Collections\ValueList.cs" />
+    <Compile Include="Collections\WeakCache.cs" />
+    <Compile Include="Constants\BooleanConstant.cs" />
+    <Compile Include="Constants\Float32Constant.cs" />
+    <Compile Include="Constants\Float64Constant.cs" />
+    <Compile Include="Constants\NullConstant.cs" />
+    <Compile Include="Constants\StringConstant.cs" />
     <Compile Include="Names\ArrayName.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\PointerName.cs" />
@@ -57,30 +87,6 @@
     <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
     <Compile Include="TypeSystem\TypeSpecialization.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
-    <Compile Include="AccessorKind.cs" />
-    <Compile Include="AttributeMap.cs" />
-    <Compile Include="ContractHelpers.cs" />
-    <Compile Include="ExceptionSpecification.cs" />
-    <Compile Include="IAssembly.cs" />
-    <Compile Include="IAttribute.cs" />
-    <Compile Include="IField.cs" />
-    <Compile Include="IGenericMember.cs" />
-    <Compile Include="IGenericParameter.cs" />
-    <Compile Include="IMember.cs" />
-    <Compile Include="IMethod.cs" />
-    <Compile Include="IProperty.cs" />
-    <Compile Include="IType.cs" />
-    <Compile Include="ITypeMember.cs" />
-    <Compile Include="Parameter.cs" />
-    <Compile Include="TypeConstraint.cs" />
-    <Compile Include="TypeExtensions.cs" />
-    <Compile Include="Collections\Cache.cs" />
-    <Compile Include="Collections\EmptyArray.cs" />
-    <Compile Include="Collections\InterningCache.cs" />
-    <Compile Include="Collections\ReadOnlySlice.cs" />
-    <Compile Include="Collections\SmallMultiDictionary.cs" />
-    <Compile Include="Collections\ValueList.cs" />
-    <Compile Include="Collections\WeakCache.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
