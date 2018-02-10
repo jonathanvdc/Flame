@@ -119,5 +119,33 @@ namespace Flame.Compiler
         {
             return CopyPrototype.Create(type).Instantiate(value);
         }
+
+        /// <summary>
+        /// Creates an indirect call instruction.
+        /// </summary>
+        /// <param name="returnType">
+        /// The type of value returned by the callee.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// A list of parameter types.
+        /// </param>
+        /// <param name="callee">
+        /// The delegate or function pointer to call.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list for the call.
+        /// </param>
+        /// <returns>
+        /// An indirect call instruction.
+        /// </returns>
+        public static Instruction CreateIndirectCall(
+            IType returnType,
+            IReadOnlyList<IType> parameterTypes,
+            ValueTag callee,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return IndirectCallPrototype.Create(returnType, parameterTypes)
+                .Instantiate(callee, arguments);
+        }
     }
 }

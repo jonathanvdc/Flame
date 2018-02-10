@@ -73,7 +73,7 @@ namespace Flame.Compiler.Instructions
         /// An instruction that conforms to this prototype.
         /// </param>
         /// <returns>The callee argument.</returns>
-        public ValueTag GetCalleeArgument(Instruction instruction)
+        public ValueTag GetCallee(Instruction instruction)
         {
             AssertIsPrototypeOf(instruction);
             return instruction.Arguments[0];
@@ -94,6 +94,26 @@ namespace Flame.Compiler.Instructions
                 instruction.Arguments,
                 1,
                 instruction.Arguments.Count - 1);
+        }
+
+        /// <summary>
+        /// Instantiates this indirect call prototype.
+        /// </summary>
+        /// <param name="callee">
+        /// The delegate or function pointer to call.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list for the call.
+        /// </param>
+        /// <returns>
+        /// An indirect call instruction.
+        /// </returns>
+        public Instruction Instantiate(ValueTag callee, IReadOnlyList<ValueTag> arguments)
+        {
+            var extendedArgs = new List<ValueTag>();
+            extendedArgs.Add(callee);
+            extendedArgs.AddRange(arguments);
+            return Instantiate(extendedArgs);
         }
 
         private static readonly InterningCache<IndirectCallPrototype> instanceCache
