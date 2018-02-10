@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -35,6 +36,36 @@ namespace Flame.Compiler.Instructions
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             return EmptyArray<string>.Value;
+        }
+
+        /// <summary>
+        /// Gets the number of elements allocated by an instance
+        /// of this prototype.
+        /// </summary>
+        /// <param name="instance">
+        /// An alloca-array instruction.
+        /// </param>
+        /// <returns>
+        /// The number of elements allocated by the instruction.
+        /// </returns>
+        public ValueTag GetElementCount(Instruction instance)
+        {
+            AssertIsPrototypeOf(instance);
+            return instance.Arguments[0];
+        }
+
+        /// <summary>
+        /// Instantiates this prototype.
+        /// </summary>
+        /// <param name="elementCount">
+        /// The number of elements to allocate storage for.
+        /// </param>
+        /// <returns>
+        /// An alloca-array instruction.
+        /// </returns>
+        public Instruction Instantiate(ValueTag elementCount)
+        {
+            return Instantiate(new ValueTag[] { elementCount });
         }
 
         private static readonly InterningCache<AllocaArrayPrototype> instanceCache

@@ -37,6 +37,15 @@ namespace Flame.Compiler.Instructions
             return EmptyArray<string>.Value;
         }
 
+        /// <summary>
+        /// Instantiates this prototype.
+        /// </summary>
+        /// <returns>An alloca instruction.</returns>
+        public Instruction Instantiate()
+        {
+            return Instantiate(EmptyArray<ValueTag>.Value);
+        }
+
         private static readonly InterningCache<AllocaPrototype> instanceCache
             = new InterningCache<AllocaPrototype>(
                 new StructuralAllocaPrototypeComparer());
@@ -44,11 +53,11 @@ namespace Flame.Compiler.Instructions
         /// <summary>
         /// Gets the alloca instruction prototype for a particular result type.
         /// </summary>
-        /// <param name="resultType">The result type.</param>
+        /// <param name="elementType">The type of value to allocate storage for.</param>
         /// <returns>An alloca instruction prototype.</returns>
-        public static AllocaPrototype Create(IType resultType)
+        public static AllocaPrototype Create(IType elementType)
         {
-            return instanceCache.Intern(new AllocaPrototype(resultType));
+            return instanceCache.Intern(new AllocaPrototype(elementType));
         }
     }
 

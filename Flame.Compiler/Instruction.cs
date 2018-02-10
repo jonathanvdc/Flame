@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace Flame.Compiler
@@ -8,7 +7,7 @@ namespace Flame.Compiler
     /// <summary>
     /// An instruction: a statement that produces a single value.
     /// </summary>
-    public struct Instruction : IEquatable<Instruction>
+    public partial struct Instruction : IEquatable<Instruction>
     {
         internal Instruction(
             InstructionPrototype prototype,
