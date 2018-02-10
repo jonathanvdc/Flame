@@ -53,7 +53,7 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Gets the input pointer of an instance of this reinterpret
+        /// Gets the input pointer of an instance of this reinterpret-
         /// cast instruction prototype.
         /// </summary>
         /// <param name="instance">
@@ -64,6 +64,21 @@ namespace Flame.Compiler.Instructions
         {
             AssertIsPrototypeOf(instance);
             return instance.Arguments[0];
+        }
+
+        /// <summary>
+        /// Creates an instance of this reinterpret-cast instruction
+        /// prototype.
+        /// </summary>
+        /// <param name="operand">
+        /// A pointer to cast to another pointer type.
+        /// </param>
+        /// <returns>
+        /// A reinterpret-cast instruction.
+        /// </returns>
+        public Instruction Instantiate(ValueTag operand)
+        {
+            return Instantiate(new ValueTag[] { operand });
         }
 
         private static readonly InterningCache<ReinterpretCastPrototype> instanceCache

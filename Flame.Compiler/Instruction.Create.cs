@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Flame.Compiler.Instructions;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -209,6 +210,25 @@ namespace Flame.Compiler
             IReadOnlyList<ValueTag> arguments)
         {
             return NewObjectPrototype.Create(constructor).Instantiate(arguments);
+        }
+
+        /// <summary>
+        /// Creates a reinterpret-cast instruction that converts
+        /// from one pointer type to another.
+        /// </summary>
+        /// <param name="targetType">
+        /// A type to convert operands to.
+        /// </param>
+        /// <param name="operand">
+        /// An operand to convert to the target type.
+        /// </param>
+        /// <returns>
+        /// A reinterpret-cast instruction.
+        /// </returns>
+        public static Instruction CreateReinterpretCast(
+            PointerType targetType, ValueTag operand)
+        {
+            return ReinterpretCastPrototype.Create(targetType).Instantiate(operand);
         }
     }
 }
