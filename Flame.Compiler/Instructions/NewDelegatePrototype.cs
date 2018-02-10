@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -103,7 +104,7 @@ namespace Flame.Compiler.Instructions
                         return new string[]
                         {
                             string.Format(
-                                "First (pseudo-this) argument of type '{0}' was " + 
+                                "First (pseudo-this) argument of type '{0}' was " +
                                 "provided where an argument of type '{1}' was expected.",
                                 paramType.FullName,
                                 firstArgType.FullName)
@@ -128,7 +129,23 @@ namespace Flame.Compiler.Instructions
             ContractHelpers.Assert(HasThisArgument);
             return instruction.Arguments[0];
         }
-        
+
+        /// <summary>
+        /// Creates an instance of this new-delegate instruction prototype.
+        /// </summary>
+        /// <param name="thisArgument">
+        /// The 'this' argument, if any. A <c>null</c> value means that
+        /// there is no 'this' argument.
+        /// </param>
+        /// <returns>A new-delegate instruction.</returns>
+        public Instruction Instantiate(ValueTag thisArgument)
+        {
+            return Instantiate(
+                thisArgument == null
+                ? EmptyArray<ValueTag>.Value
+                : new ValueTag[] { thisArgument });
+        }
+
         private static readonly InterningCache<NewDelegatePrototype> instanceCache
             = new InterningCache<NewDelegatePrototype>(
                 new StructuralNewDelegatePrototypeComparer());

@@ -159,5 +159,36 @@ namespace Flame.Compiler
         {
             return LoadPrototype.Create(pointeeType).Instantiate(pointer);
         }
+
+        /// <summary>
+        /// Creates a new-delegate instruction.
+        /// </summary>
+        /// <param name="delegateType">
+        /// The type of the resulting delegate or function pointer.
+        /// </param>
+        /// <param name="callee">
+        /// The method called by the resulting delegate or function
+        /// pointer.
+        /// </param>
+        /// <param name="thisArgument">
+        /// The 'this' argument, if any. A <c>null</c> value means that
+        /// there is no 'this' argument.
+        /// </param>
+        /// <param name="lookup">
+        /// The method implementation lookup technique to use.
+        /// </param>
+        /// <returns>
+        /// A new-delegate instruction.
+        /// </returns>
+        public static Instruction CreateNewDelegate(
+            IType delegateType,
+            IMethod callee,
+            ValueTag thisArgument,
+            MethodLookup lookup)
+        {
+            return NewDelegatePrototype
+                .Create(delegateType, callee, thisArgument != null, lookup)
+                .Instantiate(thisArgument);
+        }
     }
 }
