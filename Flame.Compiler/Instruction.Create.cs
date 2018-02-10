@@ -190,5 +190,25 @@ namespace Flame.Compiler
                 .Create(delegateType, callee, thisArgument != null, lookup)
                 .Instantiate(thisArgument);
         }
+
+        /// <summary>
+        /// Creates a new-object instruction that allocates storage on the
+        /// heap for an object and initializes it using a constructor.
+        /// </summary>
+        /// <param name="constructor">
+        /// The constructor to initialize objects with.
+        /// </param>
+        /// <param name="arguments">
+        /// A list of arguments to call the constructor with.
+        /// </param>
+        /// <returns>
+        /// A new-object instruction.
+        /// </returns>
+        public static Instruction CreateNewObject(
+            IMethod constructor,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return NewObjectPrototype.Create(constructor).Instantiate(arguments);
+        }
     }
 }
