@@ -33,7 +33,7 @@ namespace Flame.Constants
         /// <inheritdoc/>
         public override string ToString()
         {
-            return "<null>";
+            return "null";
         }
     }
 }

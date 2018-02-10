@@ -656,7 +656,7 @@ namespace Flame.Constants
         /// <inheritdoc/>
         public override string ToString()
         {
-            return "{ Value : " + Value + ", Size : " + Spec.Size + ", IsSigned : " + Spec.IsSigned + " }";
+            return (Spec.IsSigned ? "i" : "u") + Spec.Size + " " + Value;
         }
 
         /// <summary>

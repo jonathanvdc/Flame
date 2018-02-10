@@ -43,7 +43,7 @@ namespace Flame.Constants
         /// <inheritdoc/>
         public override string ToString()
         {
-            return Value.ToString();
+            return "\"" + Value.Replace("\"", "\\\"") + "\"";
         }
     }
 }

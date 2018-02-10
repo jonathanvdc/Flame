@@ -36,7 +36,7 @@ namespace Flame.Constants
         /// <inheritdoc/>
         public override string ToString()
         {
-            return Value.ToString();
+            return "f32 " + Value.ToString();
         }
     }
 }
