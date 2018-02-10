@@ -34,5 +34,23 @@ namespace Flame.Compiler
         {
             return AllocaPrototype.Create(elementType).Instantiate();
         }
+
+        /// <summary>
+        /// Creates an instruction that creates a constant value of a
+        /// particular type.
+        /// </summary>
+        /// <param name="value">
+        /// The constant value to produce.
+        /// </param>
+        /// <param name="type">
+        /// The type of value created by the instruction.
+        /// </param>
+        /// <returns>
+        /// A constant instruction.
+        /// </returns>
+        public static Instruction CreateConstant(Constant value, IType type)
+        {
+            return ConstantPrototype.Create(value, type).Instantiate();
+        }
     }
 }

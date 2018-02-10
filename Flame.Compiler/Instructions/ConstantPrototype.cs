@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 
@@ -37,6 +38,15 @@ namespace Flame.Compiler.Instructions
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             return EmptyArray<string>.Value;
+        }
+
+        /// <summary>
+        /// Creates an instance of this prototype.
+        /// </summary>
+        /// <returns>A constant instruction.</returns>
+        public Instruction Instantiate()
+        {
+            return Instantiate(EmptyArray<ValueTag>.Value);
         }
 
         private static readonly InterningCache<ConstantPrototype> instanceCache
