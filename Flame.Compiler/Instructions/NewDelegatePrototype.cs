@@ -82,7 +82,7 @@ namespace Flame.Compiler.Instructions
                             "Type of the 'this' argument must be a pointer type."
                         };
                     }
-                    else if (!thisType.Equals(Callee.ParentType))
+                    else if (!thisType.ElementType.Equals(Callee.ParentType))
                     {
                         return new string[]
                         {
