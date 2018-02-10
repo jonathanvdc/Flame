@@ -147,5 +147,17 @@ namespace Flame.Compiler
             return IndirectCallPrototype.Create(returnType, parameterTypes)
                 .Instantiate(callee, arguments);
         }
+
+        /// <summary>
+        /// Creates a load instruction.
+        /// </summary>
+        /// <param name="pointeeType">The type of value to load.</param>
+        /// <param name="pointer">A pointer to the value to load.</param>
+        /// <returns>A load instruction.</returns>
+        public static Instruction CreateLoad(
+            IType pointeeType, ValueTag pointer)
+        {
+            return LoadPrototype.Create(pointeeType).Instantiate(pointer);
+        }
     }
 }

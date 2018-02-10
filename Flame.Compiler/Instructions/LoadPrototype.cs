@@ -73,6 +73,18 @@ namespace Flame.Compiler.Instructions
             return instance.Arguments[0];
         }
 
+        /// <summary>
+        /// Creates an instance of this load prototype.
+        /// </summary>
+        /// <param name="pointer">
+        /// A pointer to the value to load.
+        /// </param>
+        /// <returns>A load instruction.</returns>
+        public Instruction Instantiate(ValueTag pointer)
+        {
+            return Instantiate(new ValueTag[] { pointer });
+        }
+
         private static readonly InterningCache<LoadPrototype> instanceCache
             = new InterningCache<LoadPrototype>(
                 new StructuralLoadPrototypeComparer());
