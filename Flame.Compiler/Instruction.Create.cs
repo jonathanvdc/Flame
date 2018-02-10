@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler
@@ -33,6 +34,54 @@ namespace Flame.Compiler
         public static Instruction CreateAlloca(IType elementType)
         {
             return AllocaPrototype.Create(elementType).Instantiate();
+        }
+
+        /// <summary>
+        /// Creates an instruction that calls a particular method.
+        /// </summary>
+        /// <param name="callee">The method to call.</param>
+        /// <param name="lookup">
+        /// The method implementation lookup technique to use for calling the method.
+        /// </param>
+        /// <param name="arguments">
+        /// The extended argument list: a list of arguments prefixed with a 'this'
+        /// argument, if applicable.
+        /// </param>
+        /// <returns>
+        /// A call instruction.
+        /// </returns>
+        public static Instruction CreateCall(
+            IMethod callee,
+            MethodLookup lookup,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return CallPrototype.Create(callee, lookup).Instantiate(arguments);
+        }
+
+        /// <summary>
+        /// Creates an instruction that calls a particular method.
+        /// </summary>
+        /// <param name="callee">The method to call.</param>
+        /// <param name="lookup">
+        /// The method implementation lookup technique to use for calling the method.
+        /// </param>
+        /// <param name="thisArgument">
+        /// The 'this' argument for the method call.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list for the method call.
+        /// </param>
+        /// <returns>
+        /// A call instruction.
+        /// </returns>
+        public static Instruction CreateCall(
+            IMethod callee,
+            MethodLookup lookup,
+            ValueTag thisArgument,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return CallPrototype.Create(callee, lookup)
+                .Instantiate(thisArgument, arguments);
         }
 
         /// <summary>

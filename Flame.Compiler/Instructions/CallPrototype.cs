@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -93,6 +94,28 @@ namespace Flame.Compiler.Instructions
             errors.AddRange(CheckArgumentTypes(argList, Callee.Parameters, body));
 
             return errors;
+        }
+
+        /// <summary>
+        /// Instantiates this call instruction prototype.
+        /// </summary>
+        /// <param name="thisArgument">
+        /// The 'this' argument for the call.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list for the call.
+        /// </param>
+        /// <returns>
+        /// A call instruction.
+        /// </returns>
+        public Instruction Instantiate(
+            ValueTag thisArgument,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            var extendedArgs = new List<ValueTag>();
+            extendedArgs.Add(thisArgument);
+            extendedArgs.AddRange(arguments);
+            return Instantiate(extendedArgs);
         }
 
         internal static IReadOnlyList<string> CheckArgumentTypes(
