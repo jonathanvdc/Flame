@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Flame.Collections;
@@ -44,6 +45,20 @@ namespace Flame.Compiler.Instructions
                         inputType,
                         ResultType));
             }
+        }
+
+        /// <summary>
+        /// Instantiates this copy prototype.
+        /// </summary>
+        /// <param name="value">
+        /// The value to copy.
+        /// </param>
+        /// <returns>
+        /// A copy instruction.
+        /// </returns>
+        public Instruction Instantiate(ValueTag value)
+        {
+            return Instantiate(new ValueTag[] { value });
         }
 
         private static readonly InterningCache<CopyPrototype> instanceCache

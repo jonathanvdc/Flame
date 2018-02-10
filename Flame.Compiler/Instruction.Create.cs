@@ -101,5 +101,23 @@ namespace Flame.Compiler
         {
             return ConstantPrototype.Create(value, type).Instantiate();
         }
+
+        /// <summary>
+        /// Creates a copy instruction, which creates an alias for
+        /// an existing value.
+        /// </summary>
+        /// <param name="type">
+        /// The type of value to copy.
+        /// </param>
+        /// <param name="value">
+        /// The value to copy.
+        /// </param>
+        /// <returns>
+        /// A copy instruction.
+        /// </returns>
+        public static Instruction CreateCopy(IType type, ValueTag value)
+        {
+            return CopyPrototype.Create(type).Instantiate(value);
+        }
     }
 }
