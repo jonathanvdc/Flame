@@ -230,5 +230,29 @@ namespace Flame.Compiler
         {
             return ReinterpretCastPrototype.Create(targetType).Instantiate(operand);
         }
+
+        /// <summary>
+        /// Creates a store instruction.
+        /// </summary>
+        /// <param name="pointeeType">
+        /// The type of <paramref name="value"/>. Also the type of
+        /// value pointed to by <paramref name="pointer"/>.
+        /// </param>
+        /// <param name="pointer">
+        /// A pointer the target of the store.
+        /// </param>
+        /// <param name="value">
+        /// A value to store at <paramref name="pointer"/>'s pointee.
+        /// </param>
+        /// <returns>
+        /// A store instruction.
+        /// </returns>
+        public static Instruction CreateStore(
+            IType pointeeType,
+            ValueTag pointer,
+            ValueTag value)
+        {
+            return StorePrototype.Create(pointeeType).Instantiate(pointer, value);
+        }
     }
 }

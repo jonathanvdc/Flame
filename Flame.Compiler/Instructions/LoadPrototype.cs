@@ -26,7 +26,7 @@ namespace Flame.Compiler.Instructions
         public override ExceptionSpecification ExceptionSpecification
             // TODO: refine this somehow to reflect the fact that this can
             // only go wrong if the loaded pointer is null (or a dangling
-            // pointer for transient pointers).
+            // pointer if the loaded pointer is transient).
             => ExceptionSpecification.ThrowAny;
 
         /// <inheritdoc/>
