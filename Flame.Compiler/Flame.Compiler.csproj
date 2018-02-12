@@ -68,6 +68,8 @@
     <Compile Include="Instructions\NewObjectPrototype.cs" />
     <Compile Include="Instructions\ReinterpretCastPrototype.cs" />
     <Compile Include="Instructions\StorePrototype.cs" />
+    <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
+    <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -84,5 +86,6 @@
     <Folder Include="Constants\" />
     <Folder Include="Flow\" />
     <Folder Include="Instructions\" />
+    <Folder Include="TypeSystem\" />
   </ItemGroup>
 </Project>
