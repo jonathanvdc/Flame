@@ -13,8 +13,11 @@ namespace Flame.TypeSystem
         /// </summary>
         /// <param name="parentType">The method's parent type.</param>
         /// <param name="name">The method's name.</param>
-        /// <param name="isStatic">The method's staticness.</param>
-        /// <param name="returnType">The type of value returned by the method</param>
+        /// <param name="isStatic">
+        /// Tells if the method should be a static method
+        /// or an instance method.
+        /// </param>
+        /// <param name="returnType">The type of value returned by the method.</param>
         public DescribedMethod(
             IType parentType,
             UnqualifiedName name,
