@@ -68,6 +68,9 @@
     <Compile Include="Instructions\NewObjectPrototype.cs" />
     <Compile Include="Instructions\ReinterpretCastPrototype.cs" />
     <Compile Include="Instructions\StorePrototype.cs" />
+    <Compile Include="Pipeline\AssemblyContentDescription.cs" />
+    <Compile Include="Pipeline\ITarget.cs" />
+    <Compile Include="Pipeline\ITargetAssembly.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -86,6 +89,7 @@
     <Folder Include="Constants\" />
     <Folder Include="Flow\" />
     <Folder Include="Instructions\" />
+    <Folder Include="Pipeline\" />
     <Folder Include="TypeSystem\" />
   </ItemGroup>
 </Project>
