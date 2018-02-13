@@ -164,5 +164,37 @@ namespace Flame.TypeSystem
             }
             return results;
         }
+
+        /// <summary>
+        /// Visits a particular field's recursive generic arguments
+        /// and creates a new specialization based on the results.
+        /// </summary>
+        /// <param name="field">The field to visit.</param>
+        /// <returns>A visited field.</returns>
+        public IField Visit(IField field)
+        {
+            var parentType = field.ParentType;
+            var newParentType = Visit(parentType);
+            if (!object.Equals(
+                newParentType.GetRecursiveGenericDeclaration(),
+                parentType.GetRecursiveGenericDeclaration()))
+            {
+                throw new InvalidOperationException(
+                    "Cannot replace parent type of field '" + field.FullName.ToString() +
+                    "' by unrelated type '" + newParentType.FullName.ToString() + "'.");
+            }
+
+            if (newParentType is TypeSpecialization)
+            {
+                return IndirectFieldSpecialization.Create(
+                    field.GetRecursiveGenericDeclaration(),
+                    (TypeSpecialization)newParentType);
+            }
+            else
+            {
+                return field.GetRecursiveGenericDeclaration();
+            }
+        }
+
     }
 }

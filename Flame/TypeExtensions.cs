@@ -146,6 +146,29 @@ namespace Flame
         }
 
         /// <summary>
+        /// Gets the recursive generic declaration of a field.
+        ///
+        /// If the field is not a recursive generic instance,
+        /// the field itself is returned.
+        ///
+        /// If the field is a recursive generic instance, the
+        /// recursive generic declaration of the field's generic
+        /// declaration is returned.
+        /// </summary>
+        /// <param name="field">A field to examine.</param>
+        /// <returns>
+        /// The field's recursive generic declaration.
+        /// </returns>
+        public static IField GetRecursiveGenericDeclaration(this IField field)
+        {
+            while (field is IndirectFieldSpecialization)
+            {
+                field = ((IndirectFieldSpecialization)field).Declaration;
+            }
+            return field;
+        }
+
+        /// <summary>
         /// Turns a recursive generic declaration into a recursive generic
         /// instance with a particular list of recursive generic arguments.
         /// </summary>

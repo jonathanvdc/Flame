@@ -30,6 +30,20 @@ namespace Flame.TypeSystem
         }
 
         /// <summary>
+        /// Creates a member mapping from a type mapping.
+        /// </summary>
+        /// <param name="mapType">
+        /// A type-to-type mapping.
+        /// </param>
+        public MemberMapping(Func<IType, IType> mapType)
+        {
+            this.MapType = mapType;
+            var visitor = new TypeFuncVisitor(mapType);
+            MapMethod = visitor.Visit;
+            MapField = visitor.Visit;
+        }
+
+        /// <summary>
         /// Gets a type-to-type mapping.
         /// </summary>
         /// <returns>A type-to-type mapping.</returns>

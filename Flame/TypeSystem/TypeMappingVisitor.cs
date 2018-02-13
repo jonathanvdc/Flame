@@ -39,4 +39,41 @@ namespace Flame.TypeSystem
             return Mapping[type];
         }
     }
+
+    /// <summary>
+    /// A type visitor that uses a type-to-type mapping function under
+    /// the hood.
+    /// </summary>
+    public sealed class TypeFuncVisitor : TypeVisitor
+    {
+        /// <summary>
+        /// Creates a type visitor based on a type-to-type mapping
+        /// function.
+        /// </summary>
+        /// <param name="mapType">
+        /// A type-to-type mapping function.
+        /// </param>
+        public TypeFuncVisitor(Func<IType, IType> mapType)
+        {
+            this.MapType = mapType;
+        }
+
+        /// <summary>
+        /// Gets the type-to-type mapping this visitor uses under the hood.
+        /// </summary>
+        /// <returns>A type-to-type mapping.</returns>
+        public Func<IType, IType> MapType { get; private set; }
+
+        /// <inheritdoc/>
+        protected override bool IsOfInterest(IType type)
+        {
+            return true;
+        }
+
+        /// <inheritdoc/>
+        protected override IType VisitInteresting(IType type)
+        {
+            return MapType(type);
+        }
+    }
 }
