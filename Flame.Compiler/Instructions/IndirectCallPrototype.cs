@@ -65,6 +65,14 @@ namespace Flame.Compiler.Instructions
             return errors;
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newReturnType = mapping.MapType(returnType);
+            var newParamTypes = ParameterTypes.EagerSelect<IType, IType>(mapping.MapType);
+            return Create(newReturnType, newParamTypes);
+        }
+
         /// <summary>
         /// Gets the callee delegate or function pointer argument in an
         /// instruction that conforms to this prototype.

@@ -37,6 +37,20 @@ namespace Flame.Compiler.Instructions
             return EmptyArray<string>.Value;
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newType = mapping.MapType(ElementType);
+            if (object.ReferenceEquals(newType, ElementType))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(newType);
+            }
+        }
+
         /// <summary>
         /// Instantiates this prototype.
         /// </summary>

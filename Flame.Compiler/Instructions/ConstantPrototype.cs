@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Collections;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Instructions
 {
@@ -38,6 +39,20 @@ namespace Flame.Compiler.Instructions
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             return EmptyArray<string>.Value;
+        }
+
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newType = mapping.MapType(type);
+            if (object.ReferenceEquals(newType, type))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(Value, newType);
+            }
         }
 
         /// <summary>

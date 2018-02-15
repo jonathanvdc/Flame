@@ -96,6 +96,20 @@ namespace Flame.Compiler.Instructions
             return errors;
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newMethod = mapping.MapMethod(Callee);
+            if (object.ReferenceEquals(newMethod, Callee))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(newMethod, Lookup);
+            }
+        }
+
         /// <summary>
         /// Instantiates this call instruction prototype.
         /// </summary>

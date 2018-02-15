@@ -57,6 +57,20 @@ namespace Flame.Compiler.Instructions
             }
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newType = mapping.MapType(elemType);
+            if (object.ReferenceEquals(newType, elemType))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(newType);
+            }
+        }
+
         /// <summary>
         /// Gets the pointer that is loaded by an instance of this
         /// prototype.

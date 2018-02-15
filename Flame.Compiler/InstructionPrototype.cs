@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -45,6 +46,14 @@ namespace Flame.Compiler
         public abstract IReadOnlyList<string> CheckConformance(
             Instruction instance,
             MethodBody body);
+
+        /// <summary>
+        /// Applies a member mapping to this instruction
+        /// prototype.
+        /// </summary>
+        /// <param name="mapping">A member mapping.</param>
+        /// <returns>A transformed instruction prototype.</returns>
+        public abstract InstructionPrototype Map(MemberMapping mapping);
 
         /// <summary>
         /// Instantiates this prototype with a list of arguments.

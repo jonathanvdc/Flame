@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -49,6 +50,26 @@ namespace Flame.Compiler.Instructions
             else
             {
                 return EmptyArray<string>.Value;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newType = mapping.MapType(TargetType);
+            if (object.ReferenceEquals(newType, TargetType))
+            {
+                return this;
+            }
+            else if (!(newType is PointerType))
+            {
+                throw new InvalidOperationException(
+                    "Cannot transform a reinterpret cast to take non-pointer target type '" +
+                    newType.FullName + "'.");
+            }
+            else
+            {
+                return Create((PointerType)newType);
             }
         }
 

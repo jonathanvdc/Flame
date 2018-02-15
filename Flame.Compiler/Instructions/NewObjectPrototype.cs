@@ -43,6 +43,20 @@ namespace Flame.Compiler.Instructions
                 body);
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newMethod = mapping.MapMethod(Constructor);
+            if (object.ReferenceEquals(newMethod, Constructor))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(newMethod);
+            }
+        }
+
         /// <summary>
         /// Gets the argument list in an instruction that conforms to
         /// this prototype.

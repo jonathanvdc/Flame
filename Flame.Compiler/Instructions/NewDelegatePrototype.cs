@@ -14,12 +14,12 @@ namespace Flame.Compiler.Instructions
         private NewDelegatePrototype(
             IType delegateType,
             IMethod callee,
-            bool hasThisParameter,
+            bool hasThisArgument,
             MethodLookup lookup)
         {
             this.delegateType = delegateType;
             this.Callee = callee;
-            this.HasThisArgument = hasThisParameter;
+            this.HasThisArgument = hasThisArgument;
             this.Lookup = lookup;
         }
 
@@ -115,6 +115,16 @@ namespace Flame.Compiler.Instructions
             return EmptyArray<string>.Value;
         }
 
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            return Create(
+                mapping.MapType(delegateType),
+                mapping.MapMethod(Callee),
+                HasThisArgument,
+                Lookup);
+        }
+
         /// <summary>
         /// Gets the 'this' argument in an instruction that conforms to
         /// this prototype.
@@ -160,8 +170,8 @@ namespace Flame.Compiler.Instructions
         /// The method that is invoked when the delegates produced by instances
         /// of the prototype are called.
         /// </param>
-        /// <param name="hasThisParameter">
-        /// Tells if a 'this' parameter is included in the delegate.
+        /// <param name="hasThisArgument">
+        /// Tells if a 'this' argument is included in the delegate.
         /// </param>
         /// <param name="lookup">
         /// The method lookup strategy for the prototype.
@@ -170,10 +180,10 @@ namespace Flame.Compiler.Instructions
         public static NewDelegatePrototype Create(
             IType delegateType,
             IMethod callee,
-            bool hasThisParameter,
+            bool hasThisArgument,
             MethodLookup lookup)
         {
-            if (hasThisParameter)
+            if (hasThisArgument)
             {
                 ContractHelpers.Assert(
                     !callee.IsStatic || callee.Parameters.Count >= 1,
@@ -188,7 +198,7 @@ namespace Flame.Compiler.Instructions
                 new NewDelegatePrototype(
                     delegateType,
                     callee,
-                    hasThisParameter,
+                    hasThisArgument,
                     lookup));
         }
     }

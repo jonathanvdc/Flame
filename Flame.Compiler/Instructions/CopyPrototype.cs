@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Flame.Collections;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Instructions
 {
@@ -44,6 +45,20 @@ namespace Flame.Compiler.Instructions
                         "Input type '{0}' does not match result type '{1}'.",
                         inputType,
                         ResultType));
+            }
+        }
+
+        /// <inheritdoc/>
+        public override InstructionPrototype Map(MemberMapping mapping)
+        {
+            var newType = mapping.MapType(type);
+            if (object.ReferenceEquals(newType, type))
+            {
+                return this;
+            }
+            else
+            {
+                return Create(newType);
             }
         }
 
