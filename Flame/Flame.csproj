@@ -53,6 +53,7 @@
     <Compile Include="Collections\Cache.cs" />
     <Compile Include="Collections\EmptyArray.cs" />
     <Compile Include="Collections\InterningCache.cs" />
+    <Compile Include="Collections\ReadOnlyListExtensions.cs" />
     <Compile Include="Collections\ReadOnlySlice.cs" />
     <Compile Include="Collections\SmallMultiDictionary.cs" />
     <Compile Include="Collections\ValueList.cs" />
