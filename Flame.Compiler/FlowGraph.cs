@@ -3,6 +3,7 @@ using Flame.Collections;
 using Flame.Compiler.Flow;
 using System.Collections.Immutable;
 using System;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -367,6 +368,49 @@ namespace Flame.Compiler
         public void AssertContainsInstruction(ValueTag tag)
         {
             AssertContainsInstruction(tag, "The graph does not contain the given instruction.");
+        }
+
+        /// <summary>
+        /// Applies a member mapping to this flow graph.
+        /// </summary>
+        /// <param name="mapping">A member mapping.</param>
+        /// <returns>A transformed flow graph.</returns>
+        public FlowGraph Map(MemberMapping mapping)
+        {
+            // Apply the mapping to all instructions.
+            var newInstructionMap = ImmutableDictionary
+                .Create<ValueTag, Instruction>()
+                .ToBuilder();
+
+            foreach (var insnPair in instructions)
+            {
+                newInstructionMap[insnPair.Key] = insnPair.Value.Map(mapping);
+            }
+
+            // Apply the mapping to all basic blocks.
+            var newBlockMap = ImmutableDictionary
+                .Create<BasicBlockTag, BasicBlockData>()
+                .ToBuilder();
+
+            var newParamTypeMap = ImmutableDictionary
+                .Create<ValueTag, IType>()
+                .ToBuilder();
+
+            foreach (var blockPair in blocks)
+            {
+                var newBlock = blockPair.Value.Map(mapping);
+                newBlockMap[blockPair.Key] = newBlock;
+                foreach (var newBlockParam in newBlock.Parameters)
+                {
+                    newParamTypeMap[newBlockParam.Tag] = newBlockParam.Type;
+                }
+            }
+
+            var result = new FlowGraph(this);
+            result.instructions = newInstructionMap.ToImmutable();
+            result.blocks = newBlockMap.ToImmutable();
+            result.blockParamTypes = newParamTypeMap.ToImmutable();
+            return result;
         }
 
         internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)

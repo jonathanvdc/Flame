@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Flame.Compiler.Flow;
+using Flame.Collections;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -60,5 +62,30 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The end-of-block control flow.</returns>
         public BlockFlow Flow { get; private set; }
+
+        /// <summary>
+        /// Applies a member mapping to this basic block.
+        /// </summary>
+        /// <param name="mapping">A member mapping.</param>
+        /// <returns>A transformed basic block.</returns>
+        public BasicBlockData Map(MemberMapping mapping)
+        {
+            var newParameters = ImmutableList<BlockParameter>.Empty.ToBuilder();
+            foreach (var param in Parameters)
+            {
+                newParameters.Add(param.Map(mapping));
+            }
+
+            var newFlowInsns = new List<Instruction>();
+            foreach (var insn in Flow.Instructions)
+            {
+                newFlowInsns.Add(insn.Map(mapping));
+            }
+
+            return new BasicBlockData(
+                newParameters.ToImmutable(),
+                InstructionTags,
+                Flow.WithInstructions(newFlowInsns));
+        }
     }
 }

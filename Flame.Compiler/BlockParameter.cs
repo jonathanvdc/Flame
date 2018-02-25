@@ -1,3 +1,5 @@
+using Flame.TypeSystem;
+
 namespace Flame.Compiler
 {
     /// <summary>
@@ -37,5 +39,15 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The block parameter's type.</returns>
         public IType Type { get; private set; }
+
+        /// <summary>
+        /// Applies a member mapping to this block parameter.
+        /// </summary>
+        /// <param name="mapping">A member mapping.</param>
+        /// <returns>A transformed block parameter.</returns>
+        public BlockParameter Map(MemberMapping mapping)
+        {
+            return new BlockParameter(mapping.MapType(Type), Tag);
+        }
     }
 }
