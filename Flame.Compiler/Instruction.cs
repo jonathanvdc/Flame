@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -48,6 +49,16 @@ namespace Flame.Compiler
         public IReadOnlyList<string> Validate(MethodBody body)
         {
             return Prototype.CheckConformance(this, body);
+        }
+
+        /// <summary>
+        /// Applies a member mapping to this instruction.
+        /// </summary>
+        /// <param name="mapping">A member mapping.</param>
+        /// <returns>A transformed prototype.</returns>
+        public Instruction Map(MemberMapping mapping)
+        {
+            return Prototype.Map(mapping).Instantiate(Arguments);
         }
 
         /// <summary>
