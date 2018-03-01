@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Flame.Collections;
 using Flame.Compiler.Flow;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler
 {
@@ -63,6 +66,22 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The method implementation.</returns>
         public FlowGraph Implementation { get; private set; }
+
+        /// <summary>
+        /// Applies a member mapping to this method body's implementation,
+        /// 'this' parameter, parameter list and return parameter.
+        /// The result is returned as a new method body.
+        /// </summary>
+        /// <param name="memberMapping">The member mapping to apply.</param>
+        /// <returns>A new method body.</returns>
+        public MethodBody Map(MemberMapping memberMapping)
+        {
+            var newRetParam = ReturnParameter.Map(memberMapping);
+            var newThisParam = ThisParameter.Map(memberMapping);
+            var newParamList = Parameter.MapAll(Parameters, memberMapping);
+            var newImpl = Implementation.Map(memberMapping);
+            return new MethodBody(newRetParam, newThisParam, newParamList, newImpl);
+        }
 
         /// <summary>
         /// Validates this method body and returns a list of error messages.

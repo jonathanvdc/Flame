@@ -92,8 +92,8 @@ namespace Flame.Compiler.Pipeline
 
         private MethodBody GetActualSpecializationBody(IMethod method)
         {
-            var mapping = method.GetRecursiveGenericArgumentMapping();
-            throw new NotImplementedException();
+            var mapping = new TypeMappingVisitor(method.GetRecursiveGenericArgumentMapping());
+            return currentBody.Map(new MemberMapping(mapping.Visit));
         }
 
         /// <summary>

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Flame.Collections;
+using Flame.TypeSystem;
 
 namespace Flame
 {
@@ -102,6 +105,42 @@ namespace Flame
         public Parameter WithType(IType type)
         {
             return new Parameter(type, this.Name, this.Attributes);
+        }
+
+        /// <summary>
+        /// Applies a member mapping to this parameter's type.
+        /// The result is returned as a new parameter.
+        /// </summary>
+        /// <param name="mapping">
+        /// The member mapping to apply.
+        /// </param>
+        /// <returns>
+        /// A new parameter.
+        /// </returns>
+        public Parameter Map(MemberMapping mapping)
+        {
+            return WithType(mapping.MapType(Type));
+        }
+
+        private static Parameter MapOne(
+            Parameter parameter,
+            MemberMapping mapping)
+        {
+            return parameter.Map(mapping);
+        }
+
+        /// <summary>
+        /// Applies a member mapping to every element of a read-only list.
+        /// </summary>
+        /// <param name="parameters">The elements to map on.</param>
+        /// <param name="mapping">The member mapping to apply to each member.</param>
+        /// <returns>A list of transformed parameters.</returns>
+        public static IReadOnlyList<Parameter> MapAll(
+            IReadOnlyList<Parameter> parameters,
+            MemberMapping mapping)
+        {
+            return parameters.EagerSelect<Parameter, Parameter, MemberMapping>(
+                MapOne, mapping);
         }
     }
 }
