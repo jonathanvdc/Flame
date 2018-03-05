@@ -72,6 +72,7 @@
     <Compile Include="Pipeline\ITarget.cs" />
     <Compile Include="Pipeline\ITargetAssembly.cs" />
     <Compile Include="Pipeline\MethodBodyHolder.cs" />
+    <Compile Include="Pipeline\Optimizer.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
