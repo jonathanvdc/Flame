@@ -11,12 +11,25 @@ namespace Flame.Compiler.Pipeline
         /// <summary>
         /// Creates an assembly content description.
         /// </summary>
-        /// <param name="fullName"></param>
-        /// <param name="attributes"></param>
-        /// <param name="types"></param>
-        /// <param name="typeMembers"></param>
-        /// <param name="methodBodies"></param>
-        /// <param name="entryPoint"></param>
+        /// <param name="fullName">
+        /// The assembly's full name.
+        /// </param>
+        /// <param name="attributes">
+        /// The assembly's attribute map.
+        /// </param>
+        /// <param name="types">
+        /// The list of types to include in the assembly.
+        /// </param>
+        /// <param name="typeMembers">
+        /// The type members to include in the assembly.
+        /// </param>
+        /// <param name="methodBodies">
+        /// A mapping of methods to method bodies.
+        /// </param>
+        /// <param name="entryPoint">
+        /// An optional entry point method. <c>null</c> means that
+        /// the assembly has no entry point.
+        /// </param>
         public AssemblyContentDescription(
             QualifiedName fullName,
             AttributeMap attributes,
