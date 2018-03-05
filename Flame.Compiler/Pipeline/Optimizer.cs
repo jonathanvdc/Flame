@@ -12,6 +12,13 @@ namespace Flame.Compiler.Pipeline
         /// <summary>
         /// Creates a method body optimizer.
         /// </summary>
+        public Optimizer()
+            : this(GetInitialMethodBodyDefault)
+        { }
+
+        /// <summary>
+        /// Creates a method body optimizer.
+        /// </summary>
         /// <param name="getInitialMethodBody">
         /// A delegate that tries to find an initial method body for a
         /// method. This initial method body is is the starting point for
@@ -85,6 +92,30 @@ namespace Flame.Compiler.Pipeline
         {
             var holder = GetMethodBodyHolder(method);
             return holder.GetSpecializationBody(method);
+        }
+
+        /// <summary>
+        /// Gets an initial method body for a method using the default
+        /// mechanism of checking if the method is a body method and
+        /// requesting its method body if so.
+        /// </summary>
+        /// <param name="method">
+        /// The recursive generic method declaration to inspect.
+        /// </param>
+        /// <returns>
+        /// A method body if one can be found; otherwise <c>null</c>.
+        /// </returns>
+        public static MethodBody GetInitialMethodBodyDefault(IMethod method)
+        {
+            var bodyMethod = method as IBodyMethod;
+            if (bodyMethod == null)
+            {
+                return null;
+            }
+            else
+            {
+                return bodyMethod.Body;
+            }
         }
     }
 }
