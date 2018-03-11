@@ -43,6 +43,12 @@ namespace Flame.Ir
         /// </returns>
         public InstructionPrototype DecodeInstructionProtoype(LNode node)
         {
+            if (!FeedbackHelpers.AssertIsCall(node, Log)
+                && !FeedbackHelpers.AssertIsId(node.Target, Log))
+            {
+                return null;
+            }
+
             var identifier = node.Name;
             var args = node.Args;
             return Codec.InstructionCodec.Decode(identifier, args, this);

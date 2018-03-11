@@ -54,7 +54,9 @@
     <Compile Include="CodecElement.cs" />
     <Compile Include="DecoderState.cs" />
     <Compile Include="EncoderState.cs" />
+    <Compile Include="FeedbackHelpers.cs" />
     <Compile Include="IrCodec.cs" />
+    <Compile Include="LoycSourceDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
