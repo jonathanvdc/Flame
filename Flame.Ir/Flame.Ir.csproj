@@ -41,9 +41,20 @@
     <Reference Include="Loyc.Syntax">
       <HintPath>..\packages\Loyc.Syntax.26.2.0\lib\net45\Loyc.Syntax.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\packages\Pixie.0.1.1\lib\net45\Pixie.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie.Terminal">
+      <HintPath>..\packages\Pixie.0.1.1\lib\net45\Pixie.Terminal.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Codec.cs" />
+    <Compile Include="CodecElement.cs" />
+    <Compile Include="DecoderState.cs" />
+    <Compile Include="EncoderState.cs" />
+    <Compile Include="IrCodec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
