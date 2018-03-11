@@ -88,7 +88,7 @@
     <Compile Include="TypeSystem\IndirectPropertySpecialization.cs" />
     <Compile Include="TypeSystem\IntegerSpecAttribute.cs" />
     <Compile Include="TypeSystem\IntrinsicAttribute.cs" />
-    <Compile Include="TypeSystem\MemberMapping.cs" />    
+    <Compile Include="TypeSystem\MemberMapping.cs" />
     <Compile Include="TypeSystem\MethodSpecialization.cs" />
     <Compile Include="TypeSystem\PointerType.cs" />
     <Compile Include="TypeSystem\PrimitiveTypes.cs" />
