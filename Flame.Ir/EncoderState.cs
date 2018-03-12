@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Flame.Compiler;
+using Flame.Constants;
 using Loyc;
 using Loyc.Syntax;
 
@@ -62,6 +64,29 @@ namespace Flame.Ir
         public LNode Encode(InstructionPrototype prototype)
         {
             return Encode<InstructionPrototype>(prototype, Codec.InstructionCodec);
+        }
+
+        /// <summary>
+        /// Encodes a constant value.
+        /// </summary>
+        /// <param name="value">The value to encode.</param>
+        /// <returns>An encoded constant value.</returns>
+        public LNode Encode(Constant value)
+        {
+            if (value is NullConstant)
+            {
+                return Factory.Null;
+            }
+            else if (value is StringConstant)
+            {
+                return Factory.Literal(((StringConstant)value).Value);
+            }
+            else if (value is BooleanConstant)
+            {
+                return Factory.Literal(((BooleanConstant)value).Value);
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

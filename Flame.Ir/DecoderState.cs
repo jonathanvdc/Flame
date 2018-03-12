@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Flame.Compiler;
+using Flame.Constants;
 using Loyc.Syntax;
+using Loyc.Syntax.Les;
 using Pixie;
+using Pixie.Markup;
 
 namespace Flame.Ir
 {
@@ -69,6 +72,81 @@ namespace Flame.Ir
         public InstructionPrototype DecodeInstructionProtoype(LNode node)
         {
             return Decode<InstructionPrototype>(node, Codec.InstructionCodec);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a constant value.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A decoded constant.</returns>
+        public Constant DecodeConstant(LNode node)
+        {
+            if (!FeedbackHelpers.AssertIsLiteral(node, Log))
+            {
+                return null;
+            }
+
+            var value = node.Value;
+
+            // Miscellaneous constants: null, strings, Booleans.
+            if (value == null)
+            {
+                return NullConstant.Instance;
+            }
+            else if (value is string)
+            {
+                return new StringConstant((string)value);
+            }
+            else if (value is bool)
+            {
+                return BooleanConstant.Create((bool)value);
+            }
+
+            // Fixed-width integer constants and characters.
+            if (value is char)
+            {
+                return new IntegerConstant((char)value);
+            }
+            else if (value is sbyte)
+            {
+                return new IntegerConstant((sbyte)value);
+            }
+            else if (value is short)
+            {
+                return new IntegerConstant((short)value);
+            }
+            else if (value is int)
+            {
+                return new IntegerConstant((int)value);
+            }
+            else if (value is long)
+            {
+                return new IntegerConstant((long)value);
+            }
+            else if (value is byte)
+            {
+                return new IntegerConstant((byte)value);
+            }
+            else if (value is ushort)
+            {
+                return new IntegerConstant((ushort)value);
+            }
+            else if (value is uint)
+            {
+                return new IntegerConstant((uint)value);
+            }
+            else if (value is ulong)
+            {
+                return new IntegerConstant((ulong)value);
+            }
+
+            // TODO: support arbitrary-width integer constants.
+
+            FeedbackHelpers.LogSyntaxError(
+                Log,
+                node,
+                new Text("unknown literal type."));
+            return null;
         }
     }
 }

@@ -48,6 +48,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for constant instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<ConstantPrototype, IReadOnlyList<LNode>> Constant =
+            new CodecElement<ConstantPrototype, IReadOnlyList<LNode>>(
+                "const", EncodeConstant, DecodeConstant);
+
+        private static ConstantPrototype DecodeConstant(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return ConstantPrototype.Create(state.DecodeConstant(data[0]), state.DecodeType(data[1]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeConstant(ConstantPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.Value), state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
         /// A codec element for copy instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -76,6 +94,7 @@ namespace Flame.Ir
                 return new Codec<InstructionPrototype, IReadOnlyList<LNode>>()
                     .Add(AllocaArray)
                     .Add(Alloca)
+                    .Add(Constant)
                     .Add(Copy);
             }
         }
