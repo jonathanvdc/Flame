@@ -12,6 +12,42 @@ namespace Flame.Ir
     public static class InstructionCodecElements
     {
         /// <summary>
+        /// A codec element for alloca-array instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<AllocaArrayPrototype, IReadOnlyList<LNode>> AllocaArray =
+            new CodecElement<AllocaArrayPrototype, IReadOnlyList<LNode>>(
+                "alloca_array", EncodeAllocaArray, DecodeAllocaArray);
+
+        private static AllocaArrayPrototype DecodeAllocaArray(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return AllocaArrayPrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeAllocaArray(AllocaArrayPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
+        /// A codec element for alloca instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<AllocaPrototype, IReadOnlyList<LNode>> Alloca =
+            new CodecElement<AllocaPrototype, IReadOnlyList<LNode>>(
+                "alloca", EncodeAlloca, DecodeAlloca);
+
+        private static AllocaPrototype DecodeAlloca(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return AllocaPrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeAlloca(AllocaPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
         /// A codec element for copy instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -38,6 +74,8 @@ namespace Flame.Ir
             get
             {
                 return new Codec<InstructionPrototype, IReadOnlyList<LNode>>()
+                    .Add(AllocaArray)
+                    .Add(Alloca)
                     .Add(Copy);
             }
         }
