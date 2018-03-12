@@ -24,6 +24,25 @@ namespace Flame.Ir
         /// A delegate that decodes objects.
         /// </param>
         public CodecElement(
+            string identifier,
+            Func<TObj, EncoderState, TEnc> encode,
+            Func<TEnc, DecoderState, TObj> decode)
+            : this(GSymbol.Get(identifier), encode, decode)
+        { }
+
+        /// <summary>
+        /// Creates a codec for a specific type of object.
+        /// </summary>
+        /// <param name="prototypeName">
+        /// An identifier for encoded objects.
+        /// </param>
+        /// <param name="encode">
+        /// A delegate that encodes objects.
+        /// </param>
+        /// <param name="decode">
+        /// A delegate that decodes objects.
+        /// </param>
+        public CodecElement(
             Symbol identifier,
             Func<TObj, EncoderState, TEnc> encode,
             Func<TEnc, DecoderState, TObj> decode)

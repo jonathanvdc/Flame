@@ -34,6 +34,31 @@ namespace Flame.Ir
         /// <returns>The codec.</returns>
         public IrCodec Codec { get; private set; }
 
+        private T Decode<T>(LNode node, Codec<T, IReadOnlyList<LNode>> codec)
+        {
+            if (!FeedbackHelpers.AssertIsCall(node, Log)
+                && !FeedbackHelpers.AssertIsId(node.Target, Log))
+            {
+                return default(T);
+            }
+
+            var identifier = node.Name;
+            var args = node.Args;
+            return codec.Decode(identifier, args, this);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a type.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>
+        /// A decoded type.
+        /// </returns>
+        public IType DecodeType(LNode node)
+        {
+            return Decode<IType>(node, Codec.TypeCodec);
+        }
+
         /// <summary>
         /// Decodes an LNode as an instruction prototype.
         /// </summary>
@@ -43,15 +68,7 @@ namespace Flame.Ir
         /// </returns>
         public InstructionPrototype DecodeInstructionProtoype(LNode node)
         {
-            if (!FeedbackHelpers.AssertIsCall(node, Log)
-                && !FeedbackHelpers.AssertIsId(node.Target, Log))
-            {
-                return null;
-            }
-
-            var identifier = node.Name;
-            var args = node.Args;
-            return Codec.InstructionCodec.Decode(identifier, args, this);
+            return Decode<InstructionPrototype>(node, Codec.InstructionCodec);
         }
     }
 }

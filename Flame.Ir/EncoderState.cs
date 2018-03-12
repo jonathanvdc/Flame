@@ -1,4 +1,5 @@
-﻿using Flame.Compiler;
+﻿using System.Collections.Generic;
+using Flame.Compiler;
 using Loyc;
 using Loyc.Syntax;
 
@@ -32,6 +33,25 @@ namespace Flame.Ir
         /// <returns>A node factory.</returns>
         public LNodeFactory Factory { get; private set; }
 
+        private LNode Encode<T>(T value, Codec<T, IReadOnlyList<LNode>> codec)
+        {
+            Symbol identifier;
+            var args = codec.Encode(value, this, out identifier);
+            return Factory.Call(Factory.Id(identifier), args);
+        }
+
+        /// <summary>
+        /// Encodes a type.
+        /// </summary>
+        /// <param name="type">The type to encode.</param>
+        /// <returns>
+        /// An encoded type.
+        /// </returns>
+        public LNode Encode(IType type)
+        {
+            return Encode<IType>(type, Codec.TypeCodec);
+        }
+
         /// <summary>
         /// Encodes an instruction prototype.
         /// </summary>
@@ -41,9 +61,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(InstructionPrototype prototype)
         {
-            Symbol identifier;
-            var args = Codec.InstructionCodec.Encode(prototype, this, out identifier);
-            return Factory.Call(Factory.Id(identifier), args);
+            return Encode<InstructionPrototype>(prototype, Codec.InstructionCodec);
         }
     }
 }
