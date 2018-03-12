@@ -227,9 +227,19 @@ namespace Flame.Ir
         public static SourceSpan ToSourceSpan(SourceRange range)
         {
             return new SourceSpan(
-                new LoycSourceDocument(range.Source),
+                ToSourceDocument(range.Source),
                 range.StartIndex,
                 range.Length);
+        }
+
+        /// <summary>
+        /// Wraps a Loyc source file in a Pixie source document.
+        /// </summary>
+        /// <param name="sourceFile">A Loyc source file to wrap.</param>
+        /// <returns>A Pixie source document.</returns>
+        public static SourceDocument ToSourceDocument(ISourceFile sourceFile)
+        {
+            return new LoycSourceDocument(sourceFile);
         }
     }
 }
