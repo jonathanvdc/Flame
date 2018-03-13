@@ -185,24 +185,75 @@ namespace Flame.Constants
             return result;
         }
 
+        /// <summary>
+        /// Checks if this integer spec equals another integer spec.
+        /// </summary>
+        /// <param name="other">An integer spec.</param>
+        /// <returns>
+        /// <c>true</c> if the integer specs are equal; otherwise, <c>false</c>.
+        /// </returns>
         public bool Equals(IntegerSpec other)
         {
             return Size == other.Size && IsSigned == other.IsSigned;
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object other)
         {
             return other is IntegerSpec && Equals((IntegerSpec)other);
         }
 
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return (IsSigned.GetHashCode() << 16) ^ Size.GetHashCode();
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return (IsSigned ? "i" : "u") + Size.ToString();
+        }
+
+        /// <summary>
+        /// Tries to parse an integer spec's string representation.
+        /// </summary>
+        /// <param name="str">
+        /// A string representation of an integer spec.
+        /// </param>
+        /// <param name="spec">
+        /// A parsed integer spec.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the string was parsed successfully; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryParse(string str, out IntegerSpec spec)
+        {
+            bool isSigned;
+            switch (str[0])
+            {
+                case 'i':
+                    isSigned = true;
+                    break;
+                case 'u':
+                    isSigned = false;
+                    break;
+                default:
+                    spec = null;
+                    return false;
+            }
+
+            int size;
+            if (int.TryParse(str.Substring(1), out size))
+            {
+                spec = new IntegerSpec(size, isSigned);
+                return true;
+            }
+            else
+            {
+                spec = null;
+                return false;
+            }
         }
 
         static IntegerSpec()
