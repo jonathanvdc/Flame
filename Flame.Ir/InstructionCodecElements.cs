@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Instructions;
+using Flame.TypeSystem;
 using Loyc.Syntax;
+using Pixie.Markup;
 
 namespace Flame.Ir
 {
@@ -84,6 +86,71 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for load instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<LoadPrototype, IReadOnlyList<LNode>> Load =
+            new CodecElement<LoadPrototype, IReadOnlyList<LNode>>(
+                "load", EncodeLoad, DecodeLoad);
+
+        private static LoadPrototype DecodeLoad(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return LoadPrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeLoad(LoadPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
+        /// A codec element for reinterpret cast instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<ReinterpretCastPrototype, IReadOnlyList<LNode>> ReinterpretCast =
+            new CodecElement<ReinterpretCastPrototype, IReadOnlyList<LNode>>(
+                "reinterpret_cast", EncodeReinterpretCast, DecodeReinterpretCast);
+
+        private static ReinterpretCastPrototype DecodeReinterpretCast(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            var targetType = state.DecodeType(data[0]);
+            if (targetType is PointerType)
+            {
+                return ReinterpretCastPrototype.Create((PointerType)targetType);
+            }
+            else
+            {
+                state.Log.LogSyntaxError(
+                    data[0],
+                    new Text("expected a pointer type."));
+                return null;
+            }
+        }
+
+        private static IReadOnlyList<LNode> EncodeReinterpretCast(ReinterpretCastPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.TargetType) };
+        }
+
+        /// <summary>
+        /// A codec element for store instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<StorePrototype, IReadOnlyList<LNode>> Store =
+            new CodecElement<StorePrototype, IReadOnlyList<LNode>>(
+                "store", EncodeStore, DecodeStore);
+
+        private static StorePrototype DecodeStore(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return StorePrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeStore(StorePrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
         /// Gets a codec that contains all sub-codecs defined in this class.
         /// </summary>
         /// <returns>A codec.</returns>
@@ -95,7 +162,10 @@ namespace Flame.Ir
                     .Add(AllocaArray)
                     .Add(Alloca)
                     .Add(Constant)
-                    .Add(Copy);
+                    .Add(Copy)
+                    .Add(Load)
+                    .Add(ReinterpretCast)
+                    .Add(Store);
             }
         }
     }
