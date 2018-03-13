@@ -202,7 +202,7 @@ namespace Flame.Constants
 
         public override string ToString()
         {
-            return "{ Size : " + Size + ", IsSigned : " + IsSigned + " }";
+            return (IsSigned ? "i" : "u") + Size.ToString();
         }
 
         static IntegerSpec()
