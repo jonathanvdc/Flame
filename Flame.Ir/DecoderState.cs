@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Flame.Compiler;
 using Flame.Constants;
+using Loyc;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -86,7 +88,47 @@ namespace Flame.Ir
                 return null;
             }
 
-            var value = node.Value;
+            object value;
+            Symbol typeMarker;
+
+            // Custom literals.
+            if (TryDecomposeCustomLiteral(node, out value, out typeMarker))
+            {
+                // Arbitrary-width integer literals.
+                IntegerSpec spec;
+                if (IntegerSpec.TryParse(typeMarker.Name, out spec))
+                {
+                    BigInteger integerVal;
+                    if (BigInteger.TryParse(value.ToString(), out integerVal))
+                    {
+                        return new IntegerConstant(integerVal, spec);
+                    }
+                    else
+                    {
+                        FeedbackHelpers.LogSyntaxError(
+                            Log,
+                            node,
+                            FeedbackHelpers.QuoteEven(
+                                "cannot parse ",
+                                value.ToString(),
+                                " as an integer."));
+                        return null;
+                    }
+                }
+                else
+                {
+                    FeedbackHelpers.LogSyntaxError(
+                        Log,
+                        node,
+                        FeedbackHelpers.QuoteEven(
+                            "unknown custom literal type ",
+                            typeMarker.Name,
+                            "."));
+                    return null;
+                }
+            }
+
+            value = node.Value;
 
             // Miscellaneous constants: null, strings, Booleans.
             if (value == null)
@@ -101,9 +143,17 @@ namespace Flame.Ir
             {
                 return BooleanConstant.Create((bool)value);
             }
-
+            // Floating-point numbers.
+            else if (value is float)
+            {
+                return new Float32Constant((float)value);
+            }
+            else if (value is double)
+            {
+                return new Float64Constant((double)value);
+            }
             // Fixed-width integer constants and characters.
-            if (value is char)
+            else if (value is char)
             {
                 return new IntegerConstant((char)value);
             }
@@ -140,13 +190,32 @@ namespace Flame.Ir
                 return new IntegerConstant((ulong)value);
             }
 
-            // TODO: support arbitrary-width integer constants.
-
             FeedbackHelpers.LogSyntaxError(
                 Log,
                 node,
                 new Text("unknown literal type."));
             return null;
+        }
+
+        private static bool TryDecomposeCustomLiteral(
+            LNode node,
+            out object value,
+            out Symbol typeMarker)
+        {
+            var val = node.Value;
+            if (val is CustomLiteral)
+            {
+                var literal = (CustomLiteral)val;
+                value = literal.Value;
+                typeMarker = literal.TypeMarker;
+                return true;
+            }
+            else
+            {
+                value = null;
+                typeMarker = null;
+                return false;
+            }
         }
     }
 }

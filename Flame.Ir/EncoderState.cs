@@ -4,6 +4,7 @@ using Flame.Compiler;
 using Flame.Constants;
 using Loyc;
 using Loyc.Syntax;
+using Loyc.Syntax.Les;
 
 namespace Flame.Ir
 {
@@ -85,8 +86,25 @@ namespace Flame.Ir
             {
                 return Factory.Literal(((BooleanConstant)value).Value);
             }
+            else if (value is IntegerConstant)
+            {
+                var integerConst = (IntegerConstant)value;
+                return Factory.Literal(
+                    new CustomLiteral(
+                        integerConst.Value.ToString(),
+                        GSymbol.Get(integerConst.Spec.ToString())));
+            }
+            else if (value is Float32Constant)
+            {
+                return Factory.Literal(((Float32Constant)value).Value);
+            }
+            else if (value is Float64Constant)
+            {
+                return Factory.Literal(((Float64Constant)value).Value);
+            }
 
-            throw new NotImplementedException();
+            throw new NotSupportedException(
+                "Cannot encode unknown kind of literal '" + value.ToString() + "'.");
         }
     }
 }
