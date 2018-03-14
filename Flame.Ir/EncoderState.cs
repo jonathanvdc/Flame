@@ -44,15 +44,27 @@ namespace Flame.Ir
         }
 
         /// <summary>
-        /// Encodes a type.
+        /// Encodes a type reference.
         /// </summary>
-        /// <param name="type">The type to encode.</param>
+        /// <param name="type">The type reference to encode.</param>
         /// <returns>
-        /// An encoded type.
+        /// An encoded type reference.
         /// </returns>
         public LNode Encode(IType type)
         {
             return Encode<IType>(type, Codec.TypeCodec);
+        }
+
+        /// <summary>
+        /// Encodes a method reference.
+        /// </summary>
+        /// <param name="method">The method reference to encode.</param>
+        /// <returns>
+        /// An encoded method reference.
+        /// </returns>
+        public LNode Encode(IMethod method)
+        {
+            return Encode<IMethod>(method, Codec.MethodCodec);
         }
 
         /// <summary>

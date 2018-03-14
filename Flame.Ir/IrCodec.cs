@@ -17,10 +17,12 @@ namespace Flame.Ir
         /// <param name="typeCodec">A type codec.</param>
         public IrCodec(
             Codec<InstructionPrototype, IReadOnlyList<LNode>> instructionCodec,
-            Codec<IType, IReadOnlyList<LNode>> typeCodec)
+            Codec<IType, IReadOnlyList<LNode>> typeCodec,
+            Codec<IMethod, IReadOnlyList<LNode>> methodCodec)
         {
             this.InstructionCodec = instructionCodec;
             this.TypeCodec = typeCodec;
+            this.MethodCodec = methodCodec;
         }
 
         /// <summary>
@@ -30,9 +32,15 @@ namespace Flame.Ir
         public Codec<InstructionPrototype, IReadOnlyList<LNode>> InstructionCodec { get; private set; }
 
         /// <summary>
-        /// Gets the encoder/decoder for types.
+        /// Gets the encoder/decoder for type references.
         /// </summary>
-        /// <returns>The type codec.</returns>
+        /// <returns>The type reference codec.</returns>
         public Codec<IType, IReadOnlyList<LNode>> TypeCodec { get; private set; }
+
+        /// <summary>
+        /// Gets the encoder/decoder for method references.
+        /// </summary>
+        /// <returns>The method reference codec.</returns>
+        public Codec<IMethod, IReadOnlyList<LNode>> MethodCodec { get; private set; }
     }
 }

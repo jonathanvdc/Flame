@@ -53,15 +53,27 @@ namespace Flame.Ir
         }
 
         /// <summary>
-        /// Decodes an LNode as a type.
+        /// Decodes an LNode as a type reference.
         /// </summary>
         /// <param name="node">The node to decode.</param>
         /// <returns>
-        /// A decoded type.
+        /// A decoded type reference.
         /// </returns>
         public IType DecodeType(LNode node)
         {
             return Decode<IType>(node, Codec.TypeCodec);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a method reference.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>
+        /// A decoded method reference.
+        /// </returns>
+        public IMethod DecodeMethod(LNode node)
+        {
+            return Decode<IMethod>(node, Codec.MethodCodec);
         }
 
         /// <summary>
