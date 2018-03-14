@@ -68,6 +68,30 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for call instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<CallPrototype, IReadOnlyList<LNode>> Call =
+            new CodecElement<CallPrototype, IReadOnlyList<LNode>>(
+                "call", EncodeCall, DecodeCall);
+
+        private static CallPrototype DecodeCall(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return CallPrototype.Create(
+                state.DecodeMethod(data[0]),
+                state.DecodeMethodLookup(data[1]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeCall(CallPrototype value, EncoderState state)
+        {
+            return new LNode[]
+            {
+                state.Encode(value.Callee),
+                state.Encode(value.Lookup)
+            };
+        }
+
+        /// <summary>
         /// A codec element for copy instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -161,6 +185,7 @@ namespace Flame.Ir
                 return new Codec<InstructionPrototype, IReadOnlyList<LNode>>()
                     .Add(AllocaArray)
                     .Add(Alloca)
+                    .Add(Call)
                     .Add(Constant)
                     .Add(Copy)
                     .Add(Load)

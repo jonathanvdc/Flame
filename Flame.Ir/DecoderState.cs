@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Flame.Compiler;
+using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Loyc;
 using Loyc.Syntax;
@@ -86,6 +87,34 @@ namespace Flame.Ir
         public InstructionPrototype DecodeInstructionProtoype(LNode node)
         {
             return Decode<InstructionPrototype>(node, Codec.InstructionCodec);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a method lookup strategy.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A method lookup strategy.</returns>
+        public MethodLookup DecodeMethodLookup(LNode node)
+        {
+            if (node.IsIdNamed("virtual"))
+            {
+                return MethodLookup.Virtual;
+            }
+            else
+            {
+                Log.LogSyntaxError(
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "unknown method lookup strategy ",
+                        node.Name.Name,
+                        ". Expected either ",
+                        "static",
+                        " or ",
+                        "virtual",
+                        "."));
+
+                return MethodLookup.Static;
+            }
         }
 
         /// <summary>

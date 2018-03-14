@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Flame.Compiler;
+using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Loyc;
 using Loyc.Syntax;
@@ -117,6 +118,27 @@ namespace Flame.Ir
 
             throw new NotSupportedException(
                 "Cannot encode unknown kind of literal '" + value.ToString() + "'.");
+        }
+
+        /// <summary>
+        /// Encodes a method lookup strategy as an LNode.
+        /// </summary>
+        /// <param name="lookup">A method lookup strategy.</param>
+        /// <returns>
+        /// An LNode that represents <paramref name="lookup"/>.
+        /// </returns>
+        public LNode Encode(MethodLookup lookup)
+        {
+            switch (lookup)
+            {
+                case MethodLookup.Static:
+                    return Factory.Id("static");
+                case MethodLookup.Virtual:
+                    return Factory.Id("virtual");
+                default:
+                    throw new NotSupportedException(
+                        "Cannot encode unknown method lookup type '" + lookup.ToString() + "'.");
+            }
         }
     }
 }
