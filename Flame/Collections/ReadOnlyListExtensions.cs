@@ -48,5 +48,46 @@ namespace Flame.Collections
             }
             return results;
         }
+
+        /// <summary>
+        /// Takes a slice of a read-only list.
+        /// </summary>
+        /// <param name="list">The read-only list ot slice.</param>
+        /// <param name="offset">
+        /// The offset in the read-only list at which the slide begins.
+        /// </param>
+        /// <param name="count">
+        /// The number of elements in the slice.
+        /// </param>
+        /// <returns>
+        /// A slice of <paramref name="list"/>
+        /// </returns>
+        public static IReadOnlyList<T> Slice<T>(
+            this IReadOnlyList<T> list,
+            int offset,
+            int count)
+        {
+            // TODO: extend `ReadOnlySlice<T>` to implement `IReadOnlyList<T>`
+            // and then return that instead of copying the entire slice to a
+            // new array.
+            return new ReadOnlySlice<T>(list, offset, count).ToArray();
+        }
+
+        /// <summary>
+        /// Takes a slice of a read-only list.
+        /// </summary>
+        /// <param name="list">The read-only list ot slice.</param>
+        /// <param name="offset">
+        /// The offset in the read-only list at which the slide begins.
+        /// </param>
+        /// <returns>
+        /// A slice of <paramref name="list"/>
+        /// </returns>
+        public static IReadOnlyList<T> Slice<T>(
+            this IReadOnlyList<T> list,
+            int offset)
+        {
+            return list.Slice<T>(offset, list.Count - offset);
+        }
     }
 }
