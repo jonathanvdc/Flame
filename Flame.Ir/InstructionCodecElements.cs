@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Collections;
 using Flame.Compiler;
 using Flame.Compiler.Instructions;
 using Flame.TypeSystem;
@@ -110,6 +111,33 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for indirect call instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<IndirectCallPrototype, IReadOnlyList<LNode>> IndirectCall =
+            new CodecElement<IndirectCallPrototype, IReadOnlyList<LNode>>(
+                "indirect_call", EncodeIndirectCall, DecodeIndirectCall);
+
+        private static IndirectCallPrototype DecodeIndirectCall(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return IndirectCallPrototype.Create(
+                state.DecodeType(data[0]),
+                data.Slice<LNode>(1)
+                    .EagerSelect<LNode, IType>(state.DecodeType));
+        }
+
+        private static IReadOnlyList<LNode> EncodeIndirectCall(IndirectCallPrototype value, EncoderState state)
+        {
+            var results = new List<LNode>();
+            results.Add(state.Encode(value.ResultType));
+            foreach (var paramType in value.ParameterTypes)
+            {
+                results.Add(state.Encode(paramType));
+            }
+            return results;
+        }
+
+        /// <summary>
         /// A codec element for load instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -188,6 +216,7 @@ namespace Flame.Ir
                     .Add(Call)
                     .Add(Constant)
                     .Add(Copy)
+                    .Add(IndirectCall)
                     .Add(Load)
                     .Add(ReinterpretCast)
                     .Add(Store);
