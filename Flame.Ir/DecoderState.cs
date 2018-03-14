@@ -102,18 +102,49 @@ namespace Flame.Ir
             }
             else
             {
-                Log.LogSyntaxError(
-                    node,
-                    FeedbackHelpers.QuoteEven(
-                        "unknown method lookup strategy ",
-                        node.Name.Name,
-                        ". Expected either ",
-                        "static",
-                        " or ",
-                        "virtual",
-                        "."));
+                if (!node.IsIdNamed("static"))
+                {
+                    Log.LogSyntaxError(
+                        node,
+                        FeedbackHelpers.QuoteEven(
+                            "unknown method lookup strategy ",
+                            node.Name.Name,
+                            ". Expected either ",
+                            "static",
+                            " or ",
+                            "virtual",
+                            "."));
+                }
 
                 return MethodLookup.Static;
+            }
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a Boolean constant.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A Boolean constant.</returns>
+        public bool DecodeBoolean(LNode node)
+        {
+            var literal = DecodeConstant(node);
+            if (literal == null)
+            {
+                // Couldn't decode the node, but that's been logged
+                // already.
+                return false;
+            }
+            else if (literal is BooleanConstant)
+            {
+                // Node parsed successfully as a Boolean literal.
+                return ((BooleanConstant)literal).Value;
+            }
+            else
+            {
+                Log.LogSyntaxError(
+                    node,
+                    new Text("expected a Boolean literal."));
+                return false;
             }
         }
 

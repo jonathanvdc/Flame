@@ -156,6 +156,34 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for new-delegate instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<NewDelegatePrototype, IReadOnlyList<LNode>> NewDelegate =
+            new CodecElement<NewDelegatePrototype, IReadOnlyList<LNode>>(
+                "new_delegate", EncodeNewDelegate, DecodeNewDelegate);
+
+        private static NewDelegatePrototype DecodeNewDelegate(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return NewDelegatePrototype.Create(
+                state.DecodeType(data[0]),
+                state.DecodeMethod(data[1]),
+                state.DecodeBoolean(data[2]),
+                state.DecodeMethodLookup(data[3]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeNewDelegate(NewDelegatePrototype value, EncoderState state)
+        {
+            return new LNode[]
+            {
+                state.Encode(value.ResultType),
+                state.Encode(value.Callee),
+                state.Encode(value.HasThisArgument),
+                state.Encode(value.Lookup)
+            };
+        }
+
+        /// <summary>
         /// A codec element for reinterpret cast instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -218,6 +246,7 @@ namespace Flame.Ir
                     .Add(Copy)
                     .Add(IndirectCall)
                     .Add(Load)
+                    .Add(NewDelegate)
                     .Add(ReinterpretCast)
                     .Add(Store);
             }

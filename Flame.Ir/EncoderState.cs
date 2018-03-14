@@ -140,5 +140,17 @@ namespace Flame.Ir
                         "Cannot encode unknown method lookup type '" + lookup.ToString() + "'.");
             }
         }
+
+        /// <summary>
+        /// Encodes a Boolean constant.
+        /// </summary>
+        /// <param name="value">A Boolean constant to encode.</param>
+        /// <returns>
+        /// The encoded Boolean constant.
+        /// </returns>
+        public LNode Encode(bool value)
+        {
+            return Encode(BooleanConstant.Create(value));
+        }
     }
 }
