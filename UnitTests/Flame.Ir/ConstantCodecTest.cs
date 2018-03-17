@@ -40,6 +40,26 @@ namespace UnitTests.Flame.Ir
             AssertRoundTrip(NullConstant.Instance);
         }
 
+        [Test]
+        public void RoundTripFloat32()
+        {
+            const int testCount = 10000;
+            for (int i = 0; i < testCount; i++)
+            {
+                AssertRoundTrip(new Float32Constant((float)rng.NextDouble()));
+            }
+        }
+
+        [Test]
+        public void RoundTripFloat64()
+        {
+            const int testCount = 10000;
+            for (int i = 0; i < testCount; i++)
+            {
+                AssertRoundTrip(new Float64Constant(rng.NextDouble()));
+            }
+        }
+
         private void AssertRoundTrip(Constant constant)
         {
             AssertRoundTrip<Constant, LNode>(
