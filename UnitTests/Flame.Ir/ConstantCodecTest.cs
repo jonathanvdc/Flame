@@ -15,23 +15,29 @@ namespace UnitTests.Flame.Ir
         {
             this.log = log;
             this.rng = rng;
+            this.decoder = new DecoderState(log);
+            this.encoder = new EncoderState();
         }
 
         private ILog log;
 
         private Random rng;
 
+        private DecoderState decoder;
+
+        private EncoderState encoder;
+
         [Test]
         public void RoundTripBooleans()
         {
-            var decoder = new DecoderState(log);
-            var encoder = new EncoderState();
+            AssertRoundTrip(BooleanConstant.True);
+            AssertRoundTrip(BooleanConstant.False);
+        }
+
+        private void AssertRoundTrip(Constant constant)
+        {
             AssertRoundTrip<Constant, LNode>(
-                BooleanConstant.True,
-                encoder.Encode,
-                decoder.DecodeConstant);
-            AssertRoundTrip<Constant, LNode>(
-                BooleanConstant.False,
+                constant,
                 encoder.Encode,
                 decoder.DecodeConstant);
         }
