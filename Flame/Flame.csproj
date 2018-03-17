@@ -82,6 +82,7 @@
     <Compile Include="TypeSystem\DescribedMember.cs" />
     <Compile Include="TypeSystem\DescribedMethod.cs" />
     <Compile Include="TypeSystem\DescribedType.cs" />
+    <Compile Include="TypeSystem\ErrorType.cs" />
     <Compile Include="TypeSystem\IndirectAccessorSpecialization.cs" />
     <Compile Include="TypeSystem\IndirectFieldSpecialization.cs" />
     <Compile Include="TypeSystem\IndirectGenericParameterSpecialization.cs" />
