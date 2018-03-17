@@ -5,6 +5,8 @@ using Loyc.Collections;
 using Loyc.MiniTest;
 using System.Diagnostics;
 using Loyc.Syntax;
+using UnitTests.Flame.Ir;
+using System.Collections.Immutable;
 
 namespace UnitTests
 {
@@ -14,7 +16,8 @@ namespace UnitTests
     {
         public static readonly List<Pair<string, Func<int>>> Menu = new List<Pair<string, Func<int>>>()
         {
-            new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame)
+            new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr)
         };
 
         public static void Main(string[] args)
@@ -77,6 +80,10 @@ namespace UnitTests
 
         private static Random globalRng = new Random();
 
+        private static TestLog globalLog = new TestLog(
+            ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
+            Pixie.Terminal.TerminalLog.Acquire());
+
         public static int Flame()
         {
             return RunTests.RunMany(
@@ -86,6 +93,12 @@ namespace UnitTests
                 new SmallMultiDictionaryTests(),
                 new TypeConstructionTests(globalRng),
                 new ValueListTests());
+        }
+
+        public static int FlameIr()
+        {
+            return RunTests.RunMany(
+                new ConstantCodecTest(globalLog, globalRng));
         }
     }
 }

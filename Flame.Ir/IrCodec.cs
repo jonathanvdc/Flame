@@ -42,5 +42,13 @@ namespace Flame.Ir
         /// </summary>
         /// <returns>The method reference codec.</returns>
         public Codec<IMethod, IReadOnlyList<LNode>> MethodCodec { get; private set; }
+
+        /// <summary>
+        /// The default codec for Flame IR as used by unmodified versions of Flame.
+        /// </summary>
+        public static IrCodec Default = new IrCodec(
+            InstructionCodecElements.All,
+            new Codec<IType, IReadOnlyList<LNode>>(),
+            new Codec<IMethod, IReadOnlyList<LNode>>());
     }
 }

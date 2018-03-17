@@ -48,9 +48,16 @@
     <Reference Include="Loyc.Utilities">
       <HintPath>..\packages\Loyc.Utilities.26.2.0\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
+    <Reference Include="Pixie">
+      <HintPath>..\packages\Pixie.0.1.1\lib\net45\Pixie.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie.Terminal">
+      <HintPath>..\packages\Pixie.0.1.1\lib\net45\Pixie.Terminal.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="TestLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Flame\CacheTests.cs" />
     <Compile Include="Flame\IntegerConstantTests.cs" />
@@ -58,6 +65,7 @@
     <Compile Include="Flame\SmallMultiDictionaryTests.cs" />
     <Compile Include="Flame\TypeConstructionTests.cs" />
     <Compile Include="Flame\ValueListTests.cs" />
+    <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -79,5 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flame\" />
+    <Folder Include="Flame.Ir\" />
   </ItemGroup>
 </Project>

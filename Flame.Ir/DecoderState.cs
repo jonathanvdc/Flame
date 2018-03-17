@@ -29,6 +29,14 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Creates a decoder from a log and the default codec.
+        /// </summary>
+        /// <param name="log">A log to use for error and warning messages.</param>
+        public DecoderState(ILog log)
+            : this(log, IrCodec.Default)
+        { }
+
+        /// <summary>
         /// Gets a log to use for error and warning messages.
         /// </summary>
         /// <returns>A log.</returns>

@@ -26,6 +26,23 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Instantiates a Flame IR encoder.
+        /// </summary>
+        /// <param name="codec">The codec to use for encoding.</param>
+        public EncoderState(IrCodec codec)
+            : this(
+                codec,
+                new LNodeFactory(EmptySourceFile.Default))
+        { }
+
+        /// <summary>
+        /// Instantiates a Flame IR encoder.
+        /// </summary>
+        public EncoderState()
+            : this(IrCodec.Default)
+        { }
+
+        /// <summary>
         /// Gets the codec used by this encoder.
         /// </summary>
         /// <returns>A Flame IR codec.</returns>
