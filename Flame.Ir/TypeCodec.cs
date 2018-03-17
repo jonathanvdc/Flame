@@ -51,12 +51,54 @@ namespace Flame.Ir
                 var kindNode = EncodePointerKind(pointerType.Kind, state);
                 return state.Factory.Call(pointerSymbol, elemNode, kindNode);
             }
-            throw new NotImplementedException();
+            else if (value is DirectTypeSpecialization)
+            {
+                throw new NotImplementedException();
+            }
+            else if (value is IndirectTypeSpecialization)
+            {
+                throw new NotImplementedException();
+            }
+
+            var parent = value.Parent;
+            if (parent.IsType)
+            {
+                var parentNode = state.Encode(parent.Type);
+                var nameNode = EncodeSimpleName(value.Name, state);
+                return state.Factory.Call(CodeSymbols.Dot, parentNode, nameNode);
+            }
+            else
+            {
+                return EncodeSimpleName(value.Name, state);
+            }
         }
 
         private LNode EncodePointerKind(PointerKind kind, EncoderState state)
         {
             return state.Factory.Id(pointerKindEncoding[kind]);
+        }
+
+        private LNode EncodeSimpleName(UnqualifiedName name, EncoderState state)
+        {
+            if (name is SimpleName)
+            {
+                var simple = (SimpleName)name;
+                var simpleNameNode = state.Factory.Id(simple.Name);
+                if (simple.TypeParameterCount == 0)
+                {
+                    return simpleNameNode;
+                }
+                else
+                {
+                    return state.Factory.Call(
+                        simpleNameNode,
+                        state.Factory.Literal(simple.TypeParameterCount));
+                }
+            }
+            else
+            {
+                return state.Factory.Id(name.ToString());
+            }
         }
 
         /// <inheritdoc/>
@@ -71,12 +113,14 @@ namespace Flame.Ir
 
                 var elemType = state.DecodeType(data.Args[0]);
                 PointerKind kind;
-                if (!AssertDecodePointerKind(data.Args[1], state, out kind))
+                if (AssertDecodePointerKind(data.Args[1], state, out kind))
+                {
+                    return elemType.MakePointerType(kind);
+                }
+                else
                 {
                     return ErrorType.Instance;
                 }
-
-                return elemType.MakePointerType(kind);
             }
             throw new NotImplementedException();
         }
