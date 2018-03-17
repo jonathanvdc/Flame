@@ -4,6 +4,7 @@ using Flame.Constants;
 using Flame.Ir;
 using Loyc.MiniTest;
 using Loyc.Syntax;
+using Loyc.Syntax.Les;
 using Pixie;
 
 namespace UnitTests.Flame.Ir
@@ -46,7 +47,7 @@ namespace UnitTests.Flame.Ir
             const int testCount = 10000;
             for (int i = 0; i < testCount; i++)
             {
-                AssertRoundTrip(new Float32Constant((float)rng.NextDouble()));
+                AssertRoundTrip(new Float32Constant((float)rng.NextDouble()), false);
             }
         }
 
@@ -56,16 +57,40 @@ namespace UnitTests.Flame.Ir
             const int testCount = 10000;
             for (int i = 0; i < testCount; i++)
             {
-                AssertRoundTrip(new Float64Constant(rng.NextDouble()));
+                AssertRoundTrip(new Float64Constant(rng.NextDouble()), false);
             }
         }
 
-        private void AssertRoundTrip(Constant constant)
+        [Test]
+        public void RoundTripIntegers()
+        {
+            const int minPowerOfTwo = 5;
+            const int maxPowerOfTwo = 12;
+            const int testsPerPowerOfTwo = 1000;
+            for (int i = minPowerOfTwo; i < maxPowerOfTwo; i++)
+            {
+                for (int j = 0; j < testsPerPowerOfTwo; j++)
+                {
+                    var num = rng.NextIntegerConstant(rng.NextIntegerSpec((1 << i) + 1));
+                    AssertRoundTrip(num);
+                }
+            }
+        }
+
+        private void AssertRoundTrip(Constant constant, bool alsoUseLes = true)
         {
             AssertRoundTrip<Constant, LNode>(
                 constant,
                 encoder.Encode,
                 decoder.DecodeConstant);
+
+            if (alsoUseLes)
+            {
+                AssertRoundTrip<Constant, string>(
+                    constant,
+                    value => Les3LanguageService.Value.Print(encoder.Encode(value)),
+                    node => decoder.DecodeConstant(Les3LanguageService.Value.ParseSingle(node)));
+            }
         }
 
         private static void AssertRoundTrip<TObj, TEnc>(
