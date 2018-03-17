@@ -59,6 +59,8 @@
     <Compile Include="InstructionCodecElements.cs" />
     <Compile Include="IrCodec.cs" />
     <Compile Include="LoycSourceDocument.cs" />
+    <Compile Include="PiecewiseCodec.cs" />
+    <Compile Include="TypeCodec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

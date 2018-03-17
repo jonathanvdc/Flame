@@ -48,19 +48,6 @@ namespace Flame.Ir
         /// <returns>The codec.</returns>
         public IrCodec Codec { get; private set; }
 
-        private T Decode<T>(LNode node, Codec<T, IReadOnlyList<LNode>> codec)
-        {
-            if (!FeedbackHelpers.AssertIsCall(node, Log)
-                && !FeedbackHelpers.AssertIsId(node.Target, Log))
-            {
-                return default(T);
-            }
-
-            var identifier = node.Name;
-            var args = node.Args;
-            return codec.Decode(identifier, args, this);
-        }
-
         /// <summary>
         /// Decodes an LNode as a type reference.
         /// </summary>
@@ -70,7 +57,7 @@ namespace Flame.Ir
         /// </returns>
         public IType DecodeType(LNode node)
         {
-            return Decode<IType>(node, Codec.TypeCodec);
+            return Codec.TypeCodec.Decode(node, this);
         }
 
         /// <summary>
@@ -82,7 +69,7 @@ namespace Flame.Ir
         /// </returns>
         public IMethod DecodeMethod(LNode node)
         {
-            return Decode<IMethod>(node, Codec.MethodCodec);
+            return Codec.MethodCodec.Decode(node, this);
         }
 
         /// <summary>
@@ -94,7 +81,7 @@ namespace Flame.Ir
         /// </returns>
         public InstructionPrototype DecodeInstructionProtoype(LNode node)
         {
-            return Decode<InstructionPrototype>(node, Codec.InstructionCodec);
+            return Codec.InstructionCodec.Decode(node, this);
         }
 
         /// <summary>

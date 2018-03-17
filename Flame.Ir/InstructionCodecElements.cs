@@ -257,11 +257,11 @@ namespace Flame.Ir
         /// Gets a codec that contains all sub-codecs defined in this class.
         /// </summary>
         /// <returns>A codec.</returns>
-        public static Codec<InstructionPrototype, IReadOnlyList<LNode>> All
+        public static Codec<InstructionPrototype, LNode> All
         {
             get
             {
-                return new Codec<InstructionPrototype, IReadOnlyList<LNode>>()
+                return new PiecewiseCodec<InstructionPrototype>()
                     .Add(AllocaArray)
                     .Add(Alloca)
                     .Add(Call)

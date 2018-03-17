@@ -54,13 +54,6 @@ namespace Flame.Ir
         /// <returns>A node factory.</returns>
         public LNodeFactory Factory { get; private set; }
 
-        private LNode Encode<T>(T value, Codec<T, IReadOnlyList<LNode>> codec)
-        {
-            Symbol identifier;
-            var args = codec.Encode(value, this, out identifier);
-            return Factory.Call(Factory.Id(identifier), args);
-        }
-
         /// <summary>
         /// Encodes a type reference.
         /// </summary>
@@ -70,7 +63,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(IType type)
         {
-            return Encode<IType>(type, Codec.TypeCodec);
+            return Codec.TypeCodec.Encode(type, this);
         }
 
         /// <summary>
@@ -82,7 +75,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(IMethod method)
         {
-            return Encode<IMethod>(method, Codec.MethodCodec);
+            return Codec.MethodCodec.Encode(method, this);
         }
 
         /// <summary>
@@ -94,7 +87,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(InstructionPrototype prototype)
         {
-            return Encode<InstructionPrototype>(prototype, Codec.InstructionCodec);
+            return Codec.InstructionCodec.Encode(prototype, this);
         }
 
         /// <summary>
