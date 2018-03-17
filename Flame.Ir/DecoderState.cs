@@ -84,6 +84,13 @@ namespace Flame.Ir
             return Codec.Instructions.Decode(node, this);
         }
 
+        private static readonly Dictionary<Symbol, MethodLookup> methodLookupDecodeMap =
+            new Dictionary<Symbol, MethodLookup>()
+        {
+            { GSymbol.Get("static"), MethodLookup.Static },
+            { GSymbol.Get("virtual"), MethodLookup.Virtual }
+        };
+
         /// <summary>
         /// Decodes an LNode as a method lookup strategy.
         /// </summary>
@@ -91,26 +98,13 @@ namespace Flame.Ir
         /// <returns>A method lookup strategy.</returns>
         public MethodLookup DecodeMethodLookup(LNode node)
         {
-            if (node.IsIdNamed("virtual"))
+            MethodLookup result;
+            if (AssertDecodeEnum(node, methodLookupDecodeMap, "method lookup strategy", out result))
             {
-                return MethodLookup.Virtual;
+                return result;
             }
             else
             {
-                if (!node.IsIdNamed("static"))
-                {
-                    Log.LogSyntaxError(
-                        node,
-                        FeedbackHelpers.QuoteEven(
-                            "unknown method lookup strategy ",
-                            node.Name.Name,
-                            ". Expected either ",
-                            "static",
-                            " or ",
-                            "virtual",
-                            "."));
-                }
-
                 return MethodLookup.Static;
             }
         }
@@ -151,6 +145,88 @@ namespace Flame.Ir
         public Constant DecodeConstant(LNode node)
         {
             return Codec.Constants.Decode(node, this);
+        }
+
+        /// <summary>
+        /// Decodes an id node using a symbol-to-value mapping.
+        /// An error is reported if the node cannot be decoded.
+        /// </summary>
+        /// <param name="node">A node to decode.</param>
+        /// <param name="decodeMap">
+        /// A mapping of symbols to values that is used for
+        /// decoding the node.
+        /// </param>
+        /// <param name="enumDescription">
+        /// A short description of the type of value that is being
+        /// decoded, e.g., "method lookup strategy".
+        /// </param>
+        /// <param name="result">
+        /// The decoded value, if any.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the node could be decoded; otherwise, <c>false</c>.
+        /// </returns>
+        public bool AssertDecodeEnum<T>(
+            LNode node,
+            IReadOnlyDictionary<Symbol, T> decodeMap,
+            string enumDescription,
+            out T result)
+        {
+            if (!node.IsId)
+            {
+                Log.LogSyntaxError(
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "expected " + enumDescription + " (",
+                        FeedbackHelpers.SpellNodeKind(LNodeKind.Id),
+                        " node) but got ",
+                        FeedbackHelpers.SpellNodeKind(node),
+                        " node."));
+                result = default(T);
+                return false;
+            }
+
+            if (decodeMap.TryGetValue(node.Name, out result))
+            {
+                return true;
+            }
+            else
+            {
+                // Create a sorted list of all admissible values.
+                var sortedKeys = new List<string>();
+                foreach (var item in decodeMap.Keys)
+                {
+                    sortedKeys.Add(item.Name);
+                }
+                sortedKeys.Sort();
+
+                // Generate a lengthy message that details exactly what
+                // is admissible.
+                var message = new List<string>();
+                message.Add("unknown " + enumDescription + " ");
+                message.Add(node.Name.Name);
+                message.Add("; expected ");
+                for (int i = 0; i < sortedKeys.Count - 1; i++)
+                {
+                    message.Add(sortedKeys[i]);
+                    if (i < sortedKeys.Count - 2)
+                    {
+                        message.Add(", ");
+                    }
+                    else
+                    {
+                        message.Add(" or ");
+                    }
+                }
+                message.Add(sortedKeys[sortedKeys.Count - 1]);
+                message.Add(".");
+
+                Log.LogSyntaxError(
+                    node,
+                    FeedbackHelpers.QuoteEven(message.ToArray()));
+
+                return false;
+            }
         }
     }
 }
