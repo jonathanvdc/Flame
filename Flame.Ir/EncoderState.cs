@@ -63,7 +63,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(IType type)
         {
-            return Codec.TypeCodec.Encode(type, this);
+            return Codec.Types.Encode(type, this);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(IMethod method)
         {
-            return Codec.MethodCodec.Encode(method, this);
+            return Codec.Methods.Encode(method, this);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(InstructionPrototype prototype)
         {
-            return Codec.InstructionCodec.Encode(prototype, this);
+            return Codec.Instructions.Encode(prototype, this);
         }
 
         /// <summary>
@@ -97,37 +97,7 @@ namespace Flame.Ir
         /// <returns>An encoded constant value.</returns>
         public LNode Encode(Constant value)
         {
-            if (value is NullConstant)
-            {
-                return Factory.Null;
-            }
-            else if (value is StringConstant)
-            {
-                return Factory.Literal(((StringConstant)value).Value);
-            }
-            else if (value is BooleanConstant)
-            {
-                return Factory.Literal(((BooleanConstant)value).Value);
-            }
-            else if (value is IntegerConstant)
-            {
-                var integerConst = (IntegerConstant)value;
-                return Factory.Literal(
-                    new CustomLiteral(
-                        integerConst.Value.ToString(),
-                        GSymbol.Get(integerConst.Spec.ToString())));
-            }
-            else if (value is Float32Constant)
-            {
-                return Factory.Literal(((Float32Constant)value).Value);
-            }
-            else if (value is Float64Constant)
-            {
-                return Factory.Literal(((Float64Constant)value).Value);
-            }
-
-            throw new NotSupportedException(
-                "Cannot encode unknown kind of literal '" + value.ToString() + "'.");
+            return Codec.Constants.Encode(value, this);
         }
 
         /// <summary>

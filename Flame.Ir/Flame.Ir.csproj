@@ -53,6 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Codec.cs" />
     <Compile Include="CodecElement.cs" />
+    <Compile Include="ConstantCodec.cs" />
     <Compile Include="DecoderState.cs" />
     <Compile Include="EncoderState.cs" />
     <Compile Include="FeedbackHelpers.cs" />
