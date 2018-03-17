@@ -34,6 +34,12 @@ namespace UnitTests.Flame.Ir
             AssertRoundTrip(BooleanConstant.False);
         }
 
+        [Test]
+        public void RoundTripNull()
+        {
+            AssertRoundTrip(NullConstant.Instance);
+        }
+
         private void AssertRoundTrip(Constant constant)
         {
             AssertRoundTrip<Constant, LNode>(
