@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Loyc.Syntax;
 using Pixie;
@@ -205,6 +206,37 @@ namespace Flame.Ir
         public static bool AssertIsLiteral(LNode node, ILog log)
         {
             return AssertOfKind(node, LNodeKind.Literal, log);
+        }
+
+        /// <summary>
+        /// Asserts that a node has a particular number of arguments.
+        /// </summary>
+        /// <param name="node">A node to inspect.</param>
+        /// <param name="argCount">The number of arguments to expect.</param>
+        /// <param name="log">
+        /// A log to send error and warning messages to.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the node has the desired number of arguments; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool AssertArgCount(LNode node, int argCount, ILog log)
+        {
+            if (node.ArgCount != argCount)
+            {
+                log.LogSyntaxError(
+                    node,
+                    QuoteEven(
+                        "expected a node with ",
+                        argCount.ToString(),
+                        " arguments, but got one with ",
+                        node.ArgCount.ToString(),
+                        " instead."));
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         /// <summary>
