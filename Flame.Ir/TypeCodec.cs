@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Collections;
 using Flame.TypeSystem;
 using Loyc;
 using Loyc.Syntax;
@@ -69,7 +70,7 @@ namespace Flame.Ir
             }
             else
             {
-                return EncodeSimpleName(value.Name, state);
+                return EncodeQualifiedName(value.FullName, state);
             }
         }
 
@@ -78,7 +79,7 @@ namespace Flame.Ir
             return state.Factory.Id(pointerKindEncoding[kind]);
         }
 
-        private LNode EncodeSimpleName(UnqualifiedName name, EncoderState state)
+        private static LNode EncodeSimpleName(UnqualifiedName name, EncoderState state)
         {
             if (name is SimpleName)
             {
@@ -99,6 +100,19 @@ namespace Flame.Ir
             {
                 return state.Factory.Id(name.ToString());
             }
+        }
+
+        private static LNode EncodeQualifiedName(QualifiedName name, EncoderState state)
+        {
+            var accumulator = EncodeSimpleName(name.Qualifier, state);
+            for (int i = 1; i < name.PathLength; i++)
+            {
+                accumulator = state.Factory.Call(
+                    CodeSymbols.ColonColon,
+                    accumulator,
+                    EncodeSimpleName(name.Path[i], state));
+            }
+            return accumulator;
         }
 
         /// <inheritdoc/>
