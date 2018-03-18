@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 using Flame.TypeSystem;
 using Loyc;
@@ -54,11 +55,12 @@ namespace Flame.Ir
             }
             else if (value is DirectTypeSpecialization)
             {
-                throw new NotImplementedException();
-            }
-            else if (value is IndirectTypeSpecialization)
-            {
-                throw new NotImplementedException();
+                var genericType = (DirectTypeSpecialization)value;
+                var argNodes = new IType[] { genericType.Declaration }
+                    .Concat<IType>(genericType.GenericArguments)
+                    .Select<IType, LNode>(state.Encode);
+
+                return state.Factory.Call(CodeSymbols.Of, argNodes);
             }
 
             var parent = value.Parent;
