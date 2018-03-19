@@ -138,7 +138,87 @@ namespace Flame.Ir
                     return ErrorType.Instance;
                 }
             }
+            else if (data.Calls(CodeSymbols.Dot))
+            {
+                if (!FeedbackHelpers.AssertArgCount(data, 2, state.Log))
+                {
+                    return ErrorType.Instance;
+                }
+
+                SimpleName childName;
+                if (!AssertDecodeSimpleName(data.Args[1], state, out childName))
+                {
+                    return ErrorType.Instance;
+                }
+
+                var parentType = state.DecodeType(data.Args[0]);
+                if (parentType == ErrorType.Instance)
+                {
+                    // Make sure that we don't log an additional error
+                    // just because the parent type was wrong.
+                    return ErrorType.Instance;
+                }
+
+                var childTypes = state.TypeResolver.ResolveNestedTypes(parentType, childName);
+                if (childTypes.Count == 1)
+                {
+                    return childTypes[0];
+                }
+                else if (childTypes.Count == 0)
+                {
+                    FeedbackHelpers.LogSyntaxError(
+                        state.Log,
+                        data,
+                        FeedbackHelpers.QuoteEven(
+                            "type ",
+                            data.Args[0].ToString().TrimEnd(';'),
+                            " does not define a type named ",
+                            data.Args[1].ToString().TrimEnd(';'),
+                            "."));
+                    return ErrorType.Instance;
+                }
+                else
+                {
+                    FeedbackHelpers.LogSyntaxError(
+                        state.Log,
+                        data,
+                        FeedbackHelpers.QuoteEven(
+                            "type ",
+                            data.Args[0].ToString().TrimEnd(';'),
+                            " defines more than one type named ",
+                            data.Args[1].ToString().TrimEnd(';'),
+                            "."));
+                    return ErrorType.Instance;
+                }
+            }
             throw new NotImplementedException();
+        }
+
+        private bool AssertDecodeSimpleName(LNode node, DecoderState state, out SimpleName name)
+        {
+            if (node.IsId)
+            {
+                name = new SimpleName(node.Name.Name);
+                return true;
+            }
+            else if (node.IsCall)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    state.Log,
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "expected a simple name, which can either be a simple id (",
+                        "typename",
+                        ") or a call to an id that specifies the number of generic parameters (",
+                        "typename(generic_arity)",
+                        ")."));
+                name = null;
+                return false;
+            }
         }
 
         private bool AssertDecodePointerKind(
