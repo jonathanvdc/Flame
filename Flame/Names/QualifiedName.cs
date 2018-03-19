@@ -269,8 +269,8 @@ namespace Flame
         }
 
         /// <summary>
-        /// Creates a slice of the path representation of this qualified name,
-        /// and returns that as a new qualified name. Both the offset and
+        /// Creates a slice of the path representation of this qualified name
+        /// and returns that slice as a new qualified name. Both the offset and
         /// length must be greater than zero, and will be clamped to this
         /// qualified name's bounds.
         /// </summary>
@@ -300,6 +300,22 @@ namespace Flame
                 (Array)qualifiers, qualifierIndex + offset,
                 (Array)newPath, 0, length);
             return new QualifiedName(newPath);
+        }
+
+        /// <summary>
+        /// Creates a slice of the path representation of this qualified name
+        /// and returns that slice as a new qualified name. The slice starts
+        /// at a particular offset and ends at the end of this qualified name.
+        /// </summary>
+        /// <param name="offset">
+        /// The offset in the path at which the slice begins.
+        /// </param>
+        /// <returns>
+        /// A qualified name.
+        /// </returns>
+        public QualifiedName Slice(int offset)
+        {
+            return Slice(offset, PathLength - offset);
         }
 
         /// <summary>
