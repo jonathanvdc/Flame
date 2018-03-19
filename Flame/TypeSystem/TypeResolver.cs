@@ -37,6 +37,13 @@ namespace Flame.TypeSystem
         public TypeResolverNamespace RootNamespace { get; private set; }
 
         /// <summary>
+        /// Gets a read-only view of this type resolver.
+        /// </summary>
+        /// <returns>A read-only view of this type resolver.</returns>
+        public ReadOnlyTypeResolver ReadOnlyView =>
+            new ReadOnlyTypeResolver(this);
+
+        /// <summary>
         /// Adds an assembly to this type resolver.
         /// </summary>
         /// <param name="assembly">The assembly to add.</param>

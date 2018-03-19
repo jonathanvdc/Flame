@@ -2,6 +2,7 @@
 using Flame;
 using Flame.Constants;
 using Flame.Ir;
+using Flame.TypeSystem;
 using Loyc.MiniTest;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
@@ -16,7 +17,7 @@ namespace UnitTests.Flame.Ir
         {
             this.log = log;
             this.rng = rng;
-            this.decoder = new DecoderState(log);
+            this.decoder = new DecoderState(log, new TypeResolver().ReadOnlyView);
             this.encoder = new EncoderState();
         }
 

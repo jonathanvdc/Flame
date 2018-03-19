@@ -4,6 +4,7 @@ using System.Numerics;
 using Flame.Compiler;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
+using Flame.TypeSystem;
 using Loyc;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
@@ -21,10 +22,12 @@ namespace Flame.Ir
         /// Creates a decoder from a log and a codec.
         /// </summary>
         /// <param name="log">A log to use for error and warning messages.</param>
+        /// <param name="typeResolver">A read-only type resolver for resolving types.</param>
         /// <param name="codec">A Flame IR codec.</param>
-        public DecoderState(ILog log, IrCodec codec)
+        public DecoderState(ILog log, ReadOnlyTypeResolver typeResolver, IrCodec codec)
         {
             this.Log = log;
+            this.TypeResolver = typeResolver;
             this.Codec = codec;
         }
 
@@ -32,8 +35,9 @@ namespace Flame.Ir
         /// Creates a decoder from a log and the default codec.
         /// </summary>
         /// <param name="log">A log to use for error and warning messages.</param>
-        public DecoderState(ILog log)
-            : this(log, IrCodec.Default)
+        /// <param name="typeResolver">A read-only type resolver for resolving types.</param>
+        public DecoderState(ILog log, ReadOnlyTypeResolver typeResolver)
+            : this(log, typeResolver, IrCodec.Default)
         { }
 
         /// <summary>
@@ -47,6 +51,12 @@ namespace Flame.Ir
         /// </summary>
         /// <returns>The codec.</returns>
         public IrCodec Codec { get; private set; }
+
+        /// <summary>
+        /// Gets the read-only type resolver for this decoder state.
+        /// </summary>
+        /// <returns>A type resolver.</returns>
+        public ReadOnlyTypeResolver TypeResolver { get; private set; }
 
         /// <summary>
         /// Decodes an LNode as a type reference.
