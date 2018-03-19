@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Flame.Collections;
 
@@ -15,10 +16,13 @@ namespace Flame.TypeSystem
         public TypeResolver()
         {
             this.assemblySet = new HashSet<IAssembly>();
+            this.nestedTypeNamespaces = new ConcurrentDictionary<IType, TypeResolverNamespace>();
             this.RootNamespace = new TypeResolverNamespace();
         }
 
         private HashSet<IAssembly> assemblySet;
+
+        private ConcurrentDictionary<IType, TypeResolverNamespace> nestedTypeNamespaces;
 
         /// <summary>
         /// Gets a list of all assemblies that are taken into consideration
@@ -93,6 +97,91 @@ namespace Flame.TypeSystem
             out TypeResolverNamespace result)
         {
             return RootNamespace.TryResolveNamespace(fullName, out result);
+        }
+
+        /// <summary>
+        /// Finds all nested types defined by a particular type that have
+        /// a specific unqualified name.
+        /// </summary>
+        /// <param name="parentType">The type that defines the nested types.</param>
+        /// <param name="name">The unqualified name to look for.</param>
+        /// <returns>
+        /// A list of types that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveNestedTypes(IType parentType, UnqualifiedName name)
+        {
+            return ResolveNestedTypesImpl<UnqualifiedName>(parentType, name, ResolvePrecise);
+        }
+
+        /// <summary>
+        /// Finds all nested types defined by a particular type that have
+        /// a specific imprecise unqualified name.
+        /// </summary>
+        /// <param name="parentType">The type that defines the nested types.</param>
+        /// <param name="name">The imprecise unqualified name to look for.</param>
+        /// <returns>
+        /// A list of types that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>. This includes all simply
+        /// named types with name <paramref name="name"/>, regardless of
+        /// the number of type parameters in the type's name.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveNestedTypes(IType parentType, string name)
+        {
+            return ResolveNestedTypesImpl<string>(parentType, name, ResolveImprecise);
+        }
+
+        private IReadOnlyList<IType> ResolveNestedTypesImpl<T>(
+            IType parentType,
+            T name,
+            Func<TypeResolverNamespace, T, IReadOnlyList<IType>> resolve)
+        {
+            var genericParentType = parentType.GetRecursiveGenericDeclaration();
+
+            var typeNamespace = nestedTypeNamespaces.GetOrAdd(
+                genericParentType,
+                CreateNestedTypeNamespace);
+
+            var resolvedTypes = resolve(typeNamespace, name);
+            if (genericParentType.Equals(parentType))
+            {
+                return resolvedTypes;
+            }
+            else
+            {
+                return resolvedTypes.EagerSelect<IType, IType, IType>(CopyTypeArguments, genericParentType);
+            }
+        }
+
+        private static IReadOnlyList<IType> ResolvePrecise(
+            TypeResolverNamespace ns,
+            UnqualifiedName name)
+        {
+            return ns.ResolveTypes(name);
+        }
+
+        private static IReadOnlyList<IType> ResolveImprecise(
+            TypeResolverNamespace ns,
+            string name)
+        {
+            return ns.ResolveTypes(name);
+        }
+
+        private static TypeResolverNamespace CreateNestedTypeNamespace(IType type)
+        {
+            var originalPathLength = type.FullName.PathLength;
+
+            var result = new TypeResolverNamespace();
+            foreach (var nestedType in type.NestedTypes)
+            {
+                result.Add(nestedType.FullName.Slice(originalPathLength), nestedType);
+            }
+            return result;
+        }
+
+        private static IType CopyTypeArguments(IType genericType, IType instanceType)
+        {
+            return genericType.MakeRecursiveGenericType(instanceType.GetRecursiveGenericArguments());
         }
     }
 
