@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 
@@ -50,6 +51,48 @@ namespace Flame.TypeSystem
                 }
             }
             return isNew;
+        }
+
+        /// <summary>
+        /// Resolves all types with a particular full name.
+        /// </summary>
+        /// <param name="fullName">
+        /// The full name of the types to look for.
+        /// </param>
+        /// <returns>
+        /// A list of types with name <paramref name="fullName"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveTypes(QualifiedName fullName)
+        {
+            TypeResolverNamespace definingNamespace;
+            if (TryResolveNamespace(
+                fullName.Slice(0, fullName.PathLength - 1),
+                out definingNamespace))
+            {
+                return definingNamespace.ResolveTypes(fullName.FullyUnqualifiedName);
+            }
+            else
+            {
+                return EmptyArray<IType>.Value;
+            }
+        }
+
+        /// <summary>
+        /// Tries to find a namespace with a particular full name.
+        /// </summary>
+        /// <param name="fullName">The name to look for.</param>
+        /// <param name="result">
+        /// A namespace with name <paramref name="fullName"/>, if one can be found.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a (non-empty) namespace with name
+        /// <paramref name="fullName"/> can be found; otherwise, <c>false</c>.
+        /// </returns>
+        public bool TryResolveNamespace(
+            QualifiedName fullName,
+            out TypeResolverNamespace result)
+        {
+            return RootNamespace.TryResolveNamespace(fullName, out result);
         }
     }
 
@@ -174,6 +217,40 @@ namespace Flame.TypeSystem
             else
             {
                 return name.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Tries to find a child whose full name corresponds to the concatenation
+        /// of this namespace's full name and a given qualified name.
+        /// </summary>
+        /// <param name="fullName">The name to look for.</param>
+        /// <param name="result">
+        /// A namespace whose name equals the concatenation of this namespace's
+        /// full name and <paramref name="fullName"/>, provided that there is
+        /// such a namespace.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a (non-empty) namespace with name
+        /// <paramref name="fullName"/> can be found; otherwise, <c>false</c>.
+        /// </returns>
+        public bool TryResolveNamespace(QualifiedName fullName, out TypeResolverNamespace result)
+        {
+            if (fullName.IsEmpty)
+            {
+                result = this;
+                return true;
+            }
+
+            TypeResolverNamespace childNamespace;
+            if (namespaceMap.TryGetValue(fullName.Qualifier, out childNamespace))
+            {
+                return childNamespace.TryResolveNamespace(fullName.Name, out result);
+            }
+            else
+            {
+                result = null;
+                return false;
             }
         }
     }
