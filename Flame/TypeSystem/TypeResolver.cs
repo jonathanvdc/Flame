@@ -186,6 +186,102 @@ namespace Flame.TypeSystem
     }
 
     /// <summary>
+    /// A read-only view of a type resolver.
+    /// </summary>
+    public struct ReadOnlyTypeResolver
+    {
+        /// <summary>
+        /// Creates a read-only view of a type resolver from a type
+        /// resolver.
+        /// </summary>
+        /// <param name="resolver">
+        /// The type resolver to create a read-only view of.
+        /// </param>
+        public ReadOnlyTypeResolver(TypeResolver resolver)
+        {
+            this.resolver = resolver;
+        }
+
+        private TypeResolver resolver;
+
+        /// <summary>
+        /// Gets a list of all assemblies that are taken into consideration
+        /// by this type resolver when resolving a type name.
+        /// </summary>
+        public IEnumerable<IAssembly> Assemblies => resolver.Assemblies;
+
+        /// <summary>
+        /// Gets the root namespace for this type resolver.
+        /// </summary>
+        /// <returns>The root namespace.</returns>
+        public TypeResolverNamespace RootNamespace => resolver.RootNamespace;
+
+        /// <summary>
+        /// Resolves all types with a particular full name.
+        /// </summary>
+        /// <param name="fullName">
+        /// The full name of the types to look for.
+        /// </param>
+        /// <returns>
+        /// A list of types with name <paramref name="fullName"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveTypes(QualifiedName fullName)
+        {
+            return resolver.ResolveTypes(fullName);
+        }
+
+        /// <summary>
+        /// Tries to find a namespace with a particular full name.
+        /// </summary>
+        /// <param name="fullName">The name to look for.</param>
+        /// <param name="result">
+        /// A namespace with name <paramref name="fullName"/>, if one can be found.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a (non-empty) namespace with name
+        /// <paramref name="fullName"/> can be found; otherwise, <c>false</c>.
+        /// </returns>
+        public bool TryResolveNamespace(
+            QualifiedName fullName,
+            out TypeResolverNamespace result)
+        {
+            return resolver.TryResolveNamespace(fullName, out result);
+        }
+
+        /// <summary>
+        /// Finds all nested types defined by a particular type that have
+        /// a specific unqualified name.
+        /// </summary>
+        /// <param name="parentType">The type that defines the nested types.</param>
+        /// <param name="name">The unqualified name to look for.</param>
+        /// <returns>
+        /// A list of types that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveNestedTypes(IType parentType, UnqualifiedName name)
+        {
+            return resolver.ResolveNestedTypes(parentType, name);
+        }
+
+        /// <summary>
+        /// Finds all nested types defined by a particular type that have
+        /// a specific imprecise unqualified name.
+        /// </summary>
+        /// <param name="parentType">The type that defines the nested types.</param>
+        /// <param name="name">The imprecise unqualified name to look for.</param>
+        /// <returns>
+        /// A list of types that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>. This includes all simply
+        /// named types with name <paramref name="name"/>, regardless of
+        /// the number of type parameters in the type's name.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveNestedTypes(IType parentType, string name)
+        {
+            return resolver.ResolveNestedTypes(parentType, name);
+        }
+    }
+
+    /// <summary>
     /// An artifical namespace introduced by a type resolver.
     /// </summary>
     public sealed class TypeResolverNamespace
