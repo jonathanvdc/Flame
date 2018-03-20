@@ -189,38 +189,75 @@ namespace Flame.Ir
                 }
 
                 var childTypes = state.TypeResolver.ResolveNestedTypes(parentType, childName);
-                if (childTypes.Count == 1)
+                if (AssertSingleType(childTypes, data, state, "type"))
                 {
                     return childTypes[0];
                 }
-                else if (childTypes.Count == 0)
-                {
-                    FeedbackHelpers.LogSyntaxError(
-                        state.Log,
-                        data,
-                        FeedbackHelpers.QuoteEven(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " does not define a type named ",
-                            FeedbackHelpers.Print(data.Args[1]),
-                            "."));
-                    return ErrorType.Instance;
-                }
                 else
                 {
-                    FeedbackHelpers.LogSyntaxError(
-                        state.Log,
-                        data,
-                        FeedbackHelpers.QuoteEven(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " defines more than one type named ",
-                            FeedbackHelpers.Print(data.Args[1]),
-                            "."));
                     return ErrorType.Instance;
                 }
             }
-            throw new NotImplementedException();
+            else
+            {
+                QualifiedName fullName;
+                if (AssertDecodeQualifiedName(data, state, out fullName))
+                {
+                    var types = state.TypeResolver.ResolveTypes(fullName);
+                    if (AssertSingleType(types, data, state, "namespace"))
+                    {
+                        return types[0];
+                    }
+                    else
+                    {
+                        return ErrorType.Instance;
+                    }
+                }
+                else
+                {
+                    return ErrorType.Instance;
+                }
+            }
+        }
+
+        private static bool AssertSingleType(
+            IReadOnlyList<IType> types,
+            LNode binaryNode,
+            DecoderState state,
+            string parentKindDescription)
+        {
+            if (types.Count == 1)
+            {
+                return true;
+            }
+
+            var parentNode = binaryNode.Args[0];
+            var nameNode = binaryNode.Args[1];
+            if (types.Count == 0)
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    state.Log,
+                    nameNode,
+                    FeedbackHelpers.QuoteEven(
+                        parentKindDescription + " ",
+                        FeedbackHelpers.Print(parentNode),
+                        " does not define a type named ",
+                        FeedbackHelpers.Print(nameNode),
+                        "."));
+            }
+            else
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    state.Log,
+                    nameNode,
+                    FeedbackHelpers.QuoteEven(
+                        parentKindDescription + " ",
+                        FeedbackHelpers.Print(parentNode),
+                        " defines more than one type named ",
+                        FeedbackHelpers.Print(nameNode),
+                        "."));
+            }
+            return false;
         }
 
         private static bool AssertDecodeSimpleName(LNode node, DecoderState state, out SimpleName name)
@@ -257,6 +294,44 @@ namespace Flame.Ir
                         ")."));
                 name = null;
                 return false;
+            }
+        }
+
+        private static bool AssertDecodeQualifiedName(
+            LNode node,
+            DecoderState state,
+            out QualifiedName name)
+        {
+            if (node.Calls(CodeSymbols.ColonColon))
+            {
+                QualifiedName prefix;
+                SimpleName suffix;
+                if (FeedbackHelpers.AssertArgCount(node, 2, state.Log)
+                    && AssertDecodeQualifiedName(node.Args[0], state, out prefix)
+                    && AssertDecodeSimpleName(node.Args[1], state, out suffix))
+                {
+                    name = suffix.Qualify(prefix);
+                    return true;
+                }
+                else
+                {
+                    name = default(QualifiedName);
+                    return false;
+                }
+            }
+            else
+            {
+                SimpleName simple;
+                if (AssertDecodeSimpleName(node, state, out simple))
+                {
+                    name = simple.Qualify();
+                    return true;
+                }
+                else
+                {
+                    name = default(QualifiedName);
+                    return false;
+                }
             }
         }
 
