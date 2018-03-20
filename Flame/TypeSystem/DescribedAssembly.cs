@@ -6,7 +6,7 @@ namespace Flame.TypeSystem
     /// An assembly that can be constructed in piece by piece,
     /// an imperative fashion.
     /// </summary>
-    public sealed class DescribedAssembly : DescribedMember
+    public sealed class DescribedAssembly : DescribedMember, IAssembly
     {
         /// <summary>
         /// Creates an empty assembly with a particular name.
