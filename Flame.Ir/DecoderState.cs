@@ -148,6 +148,56 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes an LNode as a 32-bit signed integer constant.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A 32-bit signed integer.</returns>
+        public int DecodeInt32(LNode node)
+        {
+            int result;
+            AssertDecodeInt32(node, out result);
+            return result;
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a 32-bit signed integer constant and
+        /// returns a Boolean flag telling if the decoding operation
+        /// was successful.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <param name="result">A 32-bit signed integer.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="node"/> was successfully decoded as a
+        /// 32-bit signed integer; otherwise, <c>false</c>
+        /// .</returns>
+        public bool AssertDecodeInt32(LNode node, out int result)
+        {
+            var literal = DecodeConstant(node);
+            if (literal == null)
+            {
+                // Couldn't decode the node, but that's been logged
+                // already.
+                result = 0;
+                return false;
+            }
+            else if (literal is IntegerConstant)
+            {
+                // Node parsed successfully as an integer literal.
+                // Cast it to an int32.
+                result = ((IntegerConstant)literal).ToInt32();
+                return false;
+            }
+            else
+            {
+                Log.LogSyntaxError(
+                    node,
+                    new Text("expected a 32-bit signed integer literal."));
+                result = 0;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Decodes an LNode as a constant value.
         /// </summary>
         /// <param name="node">The node to decode.</param>

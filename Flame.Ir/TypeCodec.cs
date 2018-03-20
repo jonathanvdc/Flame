@@ -203,7 +203,17 @@ namespace Flame.Ir
             }
             else if (node.IsCall)
             {
-                throw new NotImplementedException();
+                var nameNode = node.Target;
+                int arity;
+                if (!FeedbackHelpers.AssertIsId(nameNode, state.Log)
+                    || !state.AssertDecodeInt32(node, out arity))
+                {
+                    name = null;
+                    return false;
+                }
+
+                name = new SimpleName(nameNode.Name.Name, arity);
+                return true;
             }
             else
             {
@@ -211,10 +221,10 @@ namespace Flame.Ir
                     state.Log,
                     node,
                     FeedbackHelpers.QuoteEven(
-                        "expected a simple name, which can either be a simple id (",
-                        "typename",
-                        ") or a call to an id that specifies the number of generic parameters (",
-                        "typename(generic_arity)",
+                        "expected a simple name, which can either be a simple id (e.g., ",
+                        "Type",
+                        ") or a call to an id that specifies the number of generic parameters (e.g., ",
+                        "Type(2)",
                         ")."));
                 name = null;
                 return false;
