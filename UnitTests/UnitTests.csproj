@@ -65,6 +65,7 @@
     <Compile Include="Flame\QualifiedNameTests.cs" />
     <Compile Include="Flame\SmallMultiDictionaryTests.cs" />
     <Compile Include="Flame\TypeConstructionTests.cs" />
+    <Compile Include="Flame\TypeResolverTests.cs" />
     <Compile Include="Flame\ValueListTests.cs" />
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
   </ItemGroup>

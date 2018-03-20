@@ -92,6 +92,7 @@ namespace UnitTests
                 new QualifiedNameTests(),
                 new SmallMultiDictionaryTests(),
                 new TypeConstructionTests(globalRng),
+                new TypeResolverTests(),
                 new ValueListTests());
         }
 
