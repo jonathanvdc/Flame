@@ -44,6 +44,17 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Gets a pretty string representation for a node.
+        /// </summary>
+        /// <param name="node">The node to print.</param>
+        /// <returns>A string representation.</returns>
+        public static string Print(LNode node)
+        {
+            // TODO: maybe figure out a better way to do this?
+            return node.ToString().TrimEnd(';');
+        }
+
+        /// <summary>
         /// Reports a syntax error.
         /// </summary>
         /// <param name="log">
@@ -227,6 +238,37 @@ namespace Flame.Ir
                     node,
                     QuoteEven(
                         "expected a node with ",
+                        argCount.ToString(),
+                        " arguments, but got one with ",
+                        node.ArgCount.ToString(),
+                        " instead."));
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Asserts that a node has at least a particular number of arguments.
+        /// </summary>
+        /// <param name="node">A node to inspect.</param>
+        /// <param name="argCount">The minumum number of arguments to expect.</param>
+        /// <param name="log">
+        /// A log to send error and warning messages to.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the node has at least the desired number of arguments; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool AssertMinArgCount(LNode node, int argCount, ILog log)
+        {
+            if (node.ArgCount < argCount)
+            {
+                log.LogSyntaxError(
+                    node,
+                    QuoteEven(
+                        "expected a node with at least ",
                         argCount.ToString(),
                         " arguments, but got one with ",
                         node.ArgCount.ToString(),

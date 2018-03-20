@@ -138,6 +138,35 @@ namespace Flame.Ir
                     return ErrorType.Instance;
                 }
             }
+            else if (data.Calls(CodeSymbols.Of))
+            {
+                if (!FeedbackHelpers.AssertMinArgCount(data, 2, state.Log))
+                {
+                    return ErrorType.Instance;
+                }
+
+                var genericDecl = state.DecodeType(data.Args[0]);
+                var genericArgs = data.Args.Slice(1).EagerSelect<LNode, IType>(state.DecodeType);
+
+                int count = genericDecl.GenericParameters.Count;
+                if (count != genericArgs.Count)
+                {
+                    FeedbackHelpers.LogSyntaxError(
+                        state.Log,
+                        data,
+                        FeedbackHelpers.QuoteEven(
+                            "type ",
+                            FeedbackHelpers.Print(data.Args[0]),
+                            " is instantiated with ",
+                            genericArgs.Count.ToString(),
+                            " arguments but has only ",
+                            count.ToString(),
+                            " parameters."));
+                    return ErrorType.Instance;
+                }
+
+                return genericDecl.MakeGenericType(genericArgs);
+            }
             else if (data.Calls(CodeSymbols.Dot))
             {
                 if (!FeedbackHelpers.AssertArgCount(data, 2, state.Log))
@@ -171,9 +200,9 @@ namespace Flame.Ir
                         data,
                         FeedbackHelpers.QuoteEven(
                             "type ",
-                            data.Args[0].ToString().TrimEnd(';'),
+                            FeedbackHelpers.Print(data.Args[0]),
                             " does not define a type named ",
-                            data.Args[1].ToString().TrimEnd(';'),
+                            FeedbackHelpers.Print(data.Args[1]),
                             "."));
                     return ErrorType.Instance;
                 }
@@ -184,9 +213,9 @@ namespace Flame.Ir
                         data,
                         FeedbackHelpers.QuoteEven(
                             "type ",
-                            data.Args[0].ToString().TrimEnd(';'),
+                            FeedbackHelpers.Print(data.Args[0]),
                             " defines more than one type named ",
-                            data.Args[1].ToString().TrimEnd(';'),
+                            FeedbackHelpers.Print(data.Args[1]),
                             "."));
                     return ErrorType.Instance;
                 }
