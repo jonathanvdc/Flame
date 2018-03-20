@@ -185,7 +185,7 @@ namespace Flame.Ir
                 // Node parsed successfully as an integer literal.
                 // Cast it to an int32.
                 result = ((IntegerConstant)literal).ToInt32();
-                return false;
+                return true;
             }
             else
             {
