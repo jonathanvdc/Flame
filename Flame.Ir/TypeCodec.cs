@@ -223,7 +223,7 @@ namespace Flame.Ir
             throw new NotImplementedException();
         }
 
-        private bool AssertDecodeSimpleName(LNode node, DecoderState state, out SimpleName name)
+        private static bool AssertDecodeSimpleName(LNode node, DecoderState state, out SimpleName name)
         {
             if (node.IsId)
             {
