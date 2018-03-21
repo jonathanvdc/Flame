@@ -29,10 +29,20 @@ namespace UnitTests
             this.simpleType = simpleType;
         }
 
+        private TypeResolver CreateResolver()
+        {
+            var resolver = new TypeResolver();
+            resolver.AddAssembly(testAssembly);
+            return resolver;
+        }
+
         [Test]
         public void ResolveSimpleType()
         {
-
+            var resolver = CreateResolver();
+            var types = resolver.ResolveTypes(simpleType.FullName);
+            Assert.AreEqual(1, types.Count);
+            Assert.AreEqual(simpleType, types[0]);
         }
     }
 }
