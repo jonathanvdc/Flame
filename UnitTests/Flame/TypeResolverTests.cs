@@ -21,6 +21,7 @@ namespace UnitTests
         private IType nestedType;
         private IType genericType1;
         private IType genericType2;
+        private IType namespaceType;
 
         private void InitializeTestAssembly()
         {
@@ -45,6 +46,12 @@ namespace UnitTests
             genericType2.AddGenericParameter(new DescribedGenericParameter(genericType2, new SimpleName("T2")));
             testAsm.AddType(genericType2);
             this.genericType2 = genericType2;
+
+            var namespaceType = new DescribedType(
+                new SimpleName("NamespaceType").Qualify(new SimpleName("TestNamespace")),
+                testAsm);
+            testAsm.AddType(namespaceType);
+            this.namespaceType = namespaceType;
         }
 
         private TypeResolver CreateResolver()
@@ -90,6 +97,13 @@ namespace UnitTests
             AssertSingleType(genericType2, resolver.ResolveTypes(genericType2.FullName));
             var resultSet = new HashSet<IType>() { genericType1, genericType2 };
             AssertTypeSet(resultSet, resolver.RootNamespace.ResolveTypes("GenericType"));
+        }
+
+        [Test]
+        public void ResolveNamespaceType()
+        {
+            var resolver = CreateResolver();
+            AssertSingleType(namespaceType, resolver.ResolveTypes(namespaceType.FullName));
         }
     }
 }
