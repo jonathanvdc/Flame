@@ -19,6 +19,8 @@ namespace UnitTests
         private IAssembly testAssembly;
         private IType simpleType;
         private IType nestedType;
+        private IType genericType1;
+        private IType genericType2;
 
         private void InitializeTestAssembly()
         {
@@ -32,6 +34,17 @@ namespace UnitTests
             var nestedType = new DescribedType(new SimpleName("NestedType"), simpleType);
             simpleType.AddNestedType(nestedType);
             this.nestedType = nestedType;
+
+            var genericType1 = new DescribedType(new SimpleName("GenericType", 1).Qualify(), testAsm);
+            genericType1.AddGenericParameter(new DescribedGenericParameter(genericType1, new SimpleName("T")));
+            testAsm.AddType(genericType1);
+            this.genericType1 = genericType1;
+
+            var genericType2 = new DescribedType(new SimpleName("GenericType", 2).Qualify(), testAsm);
+            genericType2.AddGenericParameter(new DescribedGenericParameter(genericType2, new SimpleName("T1")));
+            genericType2.AddGenericParameter(new DescribedGenericParameter(genericType2, new SimpleName("T2")));
+            testAsm.AddType(genericType2);
+            this.genericType2 = genericType2;
         }
 
         private TypeResolver CreateResolver()
@@ -62,6 +75,14 @@ namespace UnitTests
             var resolver = CreateResolver();
             AssertSingleType(nestedType, resolver.ResolveNestedTypes(simpleType, nestedType.Name));
             AssertSingleType(nestedType, resolver.ResolveNestedTypes(simpleType, nestedType.Name.ToString()));
+        }
+
+        [Test]
+        public void ResolveGenericTypes()
+        {
+            var resolver = CreateResolver();
+            AssertSingleType(genericType1, resolver.ResolveTypes(genericType1.FullName));
+            AssertSingleType(genericType2, resolver.ResolveTypes(genericType2.FullName));
         }
     }
 }
