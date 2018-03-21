@@ -60,6 +60,11 @@ namespace UnitTests
             Assert.AreEqual(expected, actual[0]);
         }
 
+        private static void AssertTypeSet(HashSet<IType> expected, IEnumerable<IType> actual)
+        {
+            Assert.IsTrue(expected.SetEquals(actual));
+        }
+
         [Test]
         public void ResolveSimpleType()
         {
@@ -83,6 +88,8 @@ namespace UnitTests
             var resolver = CreateResolver();
             AssertSingleType(genericType1, resolver.ResolveTypes(genericType1.FullName));
             AssertSingleType(genericType2, resolver.ResolveTypes(genericType2.FullName));
+            var resultSet = new HashSet<IType>() { genericType1, genericType2 };
+            AssertTypeSet(resultSet, resolver.RootNamespace.ResolveTypes("GenericType"));
         }
     }
 }
