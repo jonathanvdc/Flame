@@ -67,9 +67,9 @@ namespace UnitTests
             Assert.AreEqual(expected, actual[0]);
         }
 
-        private static void AssertTypeSet(HashSet<IType> expected, IEnumerable<IType> actual)
+        private static void AssertTypeSet(IEnumerable<IType> expected, IEnumerable<IType> actual)
         {
-            Assert.IsTrue(expected.SetEquals(actual));
+            Assert.IsTrue(new HashSet<IType>(expected).SetEquals(actual));
         }
 
         [Test]
@@ -95,8 +95,7 @@ namespace UnitTests
             var resolver = CreateResolver();
             AssertSingleType(genericType1, resolver.ResolveTypes(genericType1.FullName));
             AssertSingleType(genericType2, resolver.ResolveTypes(genericType2.FullName));
-            var resultSet = new HashSet<IType>() { genericType1, genericType2 };
-            AssertTypeSet(resultSet, resolver.RootNamespace.ResolveTypes("GenericType"));
+            AssertTypeSet(new IType[] { genericType1, genericType2 }, resolver.RootNamespace.ResolveTypes("GenericType"));
         }
 
         [Test]
@@ -104,6 +103,13 @@ namespace UnitTests
         {
             var resolver = CreateResolver();
             AssertSingleType(namespaceType, resolver.ResolveTypes(namespaceType.FullName));
+        }
+
+        [Test]
+        public void ResolveMissingType()
+        {
+            var resolver = CreateResolver();
+            Assert.AreEqual(0, resolver.ResolveTypes(new SimpleName("MissingType").Qualify()).Count);
         }
     }
 }
