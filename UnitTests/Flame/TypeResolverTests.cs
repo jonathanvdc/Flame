@@ -41,22 +41,24 @@ namespace UnitTests
             return resolver;
         }
 
+        private static void AssertSingleType(IType expected, IReadOnlyList<IType> actual)
+        {
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual(expected, actual[0]);
+        }
+
         [Test]
         public void ResolveSimpleType()
         {
             var resolver = CreateResolver();
-            var types = resolver.ResolveTypes(simpleType.FullName);
-            Assert.AreEqual(1, types.Count);
-            Assert.AreEqual(simpleType, types[0]);
+            AssertSingleType(simpleType, resolver.ResolveTypes(simpleType.FullName));
         }
 
         [Test]
         public void ResolveNestedType()
         {
             var resolver = CreateResolver();
-            var types = resolver.ResolveNestedTypes(simpleType, nestedType.Name);
-            Assert.AreEqual(1, types.Count);
-            Assert.AreEqual(nestedType, types[0]);
+            AssertSingleType(nestedType, resolver.ResolveNestedTypes(simpleType, nestedType.Name));
         }
     }
 }
