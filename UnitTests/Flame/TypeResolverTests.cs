@@ -18,6 +18,7 @@ namespace UnitTests
 
         private IAssembly testAssembly;
         private IType simpleType;
+        private IType nestedType;
 
         private void InitializeTestAssembly()
         {
@@ -27,6 +28,10 @@ namespace UnitTests
             var simpleType = new DescribedType(new SimpleName("SimpleType").Qualify(), testAsm);
             testAsm.AddType(simpleType);
             this.simpleType = simpleType;
+
+            var nestedType = new DescribedType(new SimpleName("NestedType"), simpleType);
+            simpleType.AddNestedType(nestedType);
+            this.nestedType = nestedType;
         }
 
         private TypeResolver CreateResolver()
@@ -43,6 +48,15 @@ namespace UnitTests
             var types = resolver.ResolveTypes(simpleType.FullName);
             Assert.AreEqual(1, types.Count);
             Assert.AreEqual(simpleType, types[0]);
+        }
+
+        [Test]
+        public void ResolveNestedType()
+        {
+            var resolver = CreateResolver();
+            var types = resolver.ResolveNestedTypes(simpleType, nestedType.Name);
+            Assert.AreEqual(1, types.Count);
+            Assert.AreEqual(nestedType, types[0]);
         }
     }
 }
