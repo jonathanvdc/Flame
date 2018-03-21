@@ -52,6 +52,8 @@ namespace UnitTests
         {
             var resolver = CreateResolver();
             AssertSingleType(simpleType, resolver.ResolveTypes(simpleType.FullName));
+            AssertSingleType(simpleType, resolver.RootNamespace.ResolveTypes(simpleType.Name));
+            AssertSingleType(simpleType, resolver.RootNamespace.ResolveTypes(simpleType.Name.ToString()));
         }
 
         [Test]
@@ -59,6 +61,7 @@ namespace UnitTests
         {
             var resolver = CreateResolver();
             AssertSingleType(nestedType, resolver.ResolveNestedTypes(simpleType, nestedType.Name));
+            AssertSingleType(nestedType, resolver.ResolveNestedTypes(simpleType, nestedType.Name.ToString()));
         }
     }
 }
