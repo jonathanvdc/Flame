@@ -27,7 +27,12 @@ namespace Flame.Ir
         /// <inheritdoc/>
         public override int GetLineOffset(int lineIndex)
         {
-            return source.LineToIndex(lineIndex);
+            if (lineIndex <= 0)
+                return 0;
+            else if (lineIndex >= source.IndexToLine(source.Text.Count - 1).Line)
+                return Length;
+            else
+                return source.LineToIndex(lineIndex);
         }
 
         /// <inheritdoc/>
