@@ -272,7 +272,8 @@ namespace Flame.Ir
                 var nameNode = node.Target;
                 int arity;
                 if (!FeedbackHelpers.AssertIsId(nameNode, state.Log)
-                    || !state.AssertDecodeInt32(node, out arity))
+                    || !FeedbackHelpers.AssertArgCount(node, 1, state.Log)
+                    || !state.AssertDecodeInt32(node.Args[0], out arity))
                 {
                     name = null;
                     return false;
