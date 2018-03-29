@@ -7,6 +7,9 @@ using System.Diagnostics;
 using Loyc.Syntax;
 using UnitTests.Flame.Ir;
 using System.Collections.Immutable;
+using Pixie;
+using Pixie.Transforms;
+using Pixie.Markup;
 
 namespace UnitTests
 {
@@ -80,9 +83,11 @@ namespace UnitTests
 
         private static Random globalRng = new Random();
 
-        private static TestLog globalLog = new TestLog(
-            ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
-            Pixie.Terminal.TerminalLog.Acquire());
+        private static ILog globalLog = new TransformLog(
+            new TestLog(
+                ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
+                Pixie.Terminal.TerminalLog.Acquire()),
+            entry => DiagnosticExtractor.Transform(entry, new Text("program")));
 
         public static int Flame()
         {
