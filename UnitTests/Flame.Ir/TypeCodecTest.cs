@@ -13,11 +13,10 @@ namespace UnitTests.Flame.Ir
     [TestFixture]
     public class TypeCodecTest
     {
-        public TypeCodecTest(ILog log, Random rng)
+        public TypeCodecTest(ILog log)
         {
             this.testAssembly = new TestAssemblyContainer();
             this.log = log;
-            this.rng = rng;
             this.decoder = new DecoderState(log, testAssembly.CreateResolver().ReadOnlyView);
             this.encoder = new EncoderState();
         }
@@ -25,8 +24,6 @@ namespace UnitTests.Flame.Ir
         private TestAssemblyContainer testAssembly;
 
         private ILog log;
-
-        private Random rng;
 
         private DecoderState decoder;
 

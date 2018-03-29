@@ -105,7 +105,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new ConstantCodecTest(globalLog, globalRng),
-                new TypeCodecTest(globalLog, globalRng));
+                new TypeCodecTest(globalLog));
         }
     }
 }
