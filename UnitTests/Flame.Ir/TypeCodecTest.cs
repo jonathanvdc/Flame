@@ -34,11 +34,6 @@ namespace UnitTests.Flame.Ir
 
         private void AssertRoundTrip(IType type, bool alsoUseLes = true)
         {
-            ConstantCodecTest.AssertRoundTrip<IType, LNode>(
-                type,
-                encoder.Encode,
-                decoder.DecodeType);
-
             if (alsoUseLes)
             {
                 ConstantCodecTest.AssertRoundTrip<IType, string>(
@@ -46,17 +41,26 @@ namespace UnitTests.Flame.Ir
                     value => Les3LanguageService.Value.Print(encoder.Encode(value)),
                     node => decoder.DecodeType(Les3LanguageService.Value.ParseSingle(node)));
             }
+
+            ConstantCodecTest.AssertRoundTrip<IType, LNode>(
+                type,
+                encoder.Encode,
+                decoder.DecodeType);
         }
 
         [Test]
-        public void RoundTripTypeDefinitions()
+        public void RoundTripSimpleTypeDefinitions()
         {
             AssertRoundTrip(testAssembly.SimpleType);
             AssertRoundTrip(testAssembly.NestedType);
-            // TODO: get these to work
-            // AssertRoundTrip(testAssembly.GenericType1);
-            // AssertRoundTrip(testAssembly.GenericType2);
             AssertRoundTrip(testAssembly.NamespaceType);
+        }
+
+        [Test]
+        public void RoundTripGenericTypeDefinitions()
+        {
+            AssertRoundTrip(testAssembly.GenericType1);
+            AssertRoundTrip(testAssembly.GenericType2);
         }
     }
 }
