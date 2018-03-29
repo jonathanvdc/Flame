@@ -66,6 +66,26 @@ namespace Flame
 
         /// <summary>
         /// Creates a generic specialization of a particular generic
+        /// type declaration
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic type declaration that is specialized into
+        /// a concrete type.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic type is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
+        public static DirectTypeSpecialization MakeGenericType(
+            this IType declaration,
+            params IType[] genericArguments)
+        {
+            return DirectTypeSpecialization.Create(declaration, genericArguments);
+        }
+
+        /// <summary>
+        /// Creates a generic specialization of a particular generic
         /// method declaration
         /// </summary>
         /// <param name="declaration">
@@ -80,6 +100,26 @@ namespace Flame
         public static DirectMethodSpecialization MakeGenericMethod(
             this IMethod declaration,
             IReadOnlyList<IType> genericArguments)
+        {
+            return DirectMethodSpecialization.Create(declaration, genericArguments);
+        }
+
+        /// <summary>
+        /// Creates a generic specialization of a particular generic
+        /// method declaration
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic method declaration that is specialized into
+        /// a concrete method.
+        /// </param>
+        /// <param name="genericArguments">
+        /// The type arguments with which the generic method is
+        /// specialized.
+        /// </param>
+        /// <returns>A generic specialization.</returns>
+        public static DirectMethodSpecialization MakeGenericMethod(
+            this IMethod declaration,
+            params IType[] genericArguments)
         {
             return DirectMethodSpecialization.Create(declaration, genericArguments);
         }
