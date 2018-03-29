@@ -62,5 +62,26 @@ namespace UnitTests.Flame.Ir
             AssertRoundTrip(testAssembly.GenericType1);
             AssertRoundTrip(testAssembly.GenericType2);
         }
+
+        [Test]
+        public void RoundTripPointerTypes()
+        {
+            AssertRoundTrip(testAssembly.SimpleType.MakePointerType(PointerKind.Transient));
+            AssertRoundTrip(testAssembly.NestedType.MakePointerType(PointerKind.Box));
+            AssertRoundTrip(testAssembly.NamespaceType.MakePointerType(PointerKind.Reference));
+        }
+
+        [Test]
+        public void RoundTripTypeSpecializations()
+        {
+            AssertRoundTrip(
+                testAssembly.GenericType1.MakeGenericType(
+                    testAssembly.SimpleType));
+
+            AssertRoundTrip(
+                testAssembly.GenericType2.MakeGenericType(
+                    testAssembly.NamespaceType,
+                    testAssembly.NestedType));
+        }
     }
 }
