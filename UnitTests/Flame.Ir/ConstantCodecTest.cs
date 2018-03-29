@@ -94,7 +94,19 @@ namespace UnitTests.Flame.Ir
             }
         }
 
-        private static void AssertRoundTrip<TObj, TEnc>(
+        /// <summary>
+        /// Asserts that a value is round-tripped correctly.
+        /// </summary>
+        /// <param name="value">
+        /// The value to round-trip.
+        /// </param>
+        /// <param name="encode">
+        /// A function that encodes a value.
+        /// </param>
+        /// <param name="decode">
+        /// A function that decodes a value's encoded version.
+        /// </param>
+        public static void AssertRoundTrip<TObj, TEnc>(
             TObj value,
             Func<TObj, TEnc> encode,
             Func<TEnc, TObj> decode)
