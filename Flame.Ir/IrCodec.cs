@@ -59,7 +59,7 @@ namespace Flame.Ir
         public static IrCodec Default = new IrCodec(
             ConstantCodec.Instance,
             InstructionCodecElements.All,
-            new PiecewiseCodec<IType>(),
+            TypeCodec.Instance,
             new PiecewiseCodec<IMethod>());
     }
 }
