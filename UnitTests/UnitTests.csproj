@@ -69,6 +69,7 @@
     <Compile Include="Flame\TypeResolverTests.cs" />
     <Compile Include="Flame\ValueListTests.cs" />
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
+    <Compile Include="Flame.Ir\TypeCodecTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

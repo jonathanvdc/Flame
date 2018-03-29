@@ -99,7 +99,8 @@ namespace UnitTests
         public static int FlameIr()
         {
             return RunTests.RunMany(
-                new ConstantCodecTest(globalLog, globalRng));
+                new ConstantCodecTest(globalLog, globalRng),
+                new TypeCodecTest(globalLog, globalRng));
         }
     }
 }
