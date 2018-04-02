@@ -50,6 +50,7 @@
     <Compile Include="Parameter.cs" />
     <Compile Include="TypeConstraint.cs" />
     <Compile Include="TypeExtensions.cs" />
+    <Compile Include="Collections\Betterness.cs" />
     <Compile Include="Collections\Cache.cs" />
     <Compile Include="Collections\EmptyArray.cs" />
     <Compile Include="Collections\InterningCache.cs" />
