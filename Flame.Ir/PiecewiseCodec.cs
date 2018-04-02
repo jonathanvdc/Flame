@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
+using Flame.Collections;
 using Loyc;
 using Loyc.Syntax;
 
@@ -18,25 +20,26 @@ namespace Flame.Ir
         public PiecewiseCodec()
             : this(
                 ImmutableDictionary<Symbol, Func<LNode, DecoderState, TObj>>.Empty,
-                ImmutableDictionary<Type, Func<TObj, EncoderState, LNode>>.Empty,
-                ImmutableDictionary<Type, Symbol>.Empty)
+                ImmutableDictionary<Type, Func<TObj, EncoderState, LNode>>.Empty)
         { }
 
         private PiecewiseCodec(
             ImmutableDictionary<Symbol, Func<LNode, DecoderState, TObj>> decoders,
-            ImmutableDictionary<Type, Func<TObj, EncoderState, LNode>> encoders,
-            ImmutableDictionary<Type, Symbol> identifiers)
+            ImmutableDictionary<Type, Func<TObj, EncoderState, LNode>> encoders)
         {
             this.decoders = decoders;
             this.encoders = encoders;
-            this.identifiers = identifiers;
+            this.specializedEncoders = new Dictionary<Type, Func<TObj, EncoderState, LNode>>();
+            this.specializedEncoderLock = new ReaderWriterLockSlim();
         }
 
         private ImmutableDictionary<Symbol, Func<LNode, DecoderState, TObj>> decoders;
 
         private ImmutableDictionary<Type, Func<TObj, EncoderState, LNode>> encoders;
 
-        private ImmutableDictionary<Type, Symbol> identifiers;
+        private Dictionary<Type, Func<TObj, EncoderState, LNode>> specializedEncoders;
+
+        private ReaderWriterLockSlim specializedEncoderLock;
 
         /// <summary>
         /// Adds an encoder for a specific type of element to this more
@@ -57,9 +60,7 @@ namespace Flame.Ir
                 typeof(T),
                 (obj, state) => element.Encode((T)obj, state));
 
-            var newIdentifiers = identifiers.Add(typeof(T), element.Identifier);
-
-            return new PiecewiseCodec<TObj>(newDecoders, newEncoders, newIdentifiers);
+            return new PiecewiseCodec<TObj>(newDecoders, newEncoders);
         }
 
         /// <summary>
@@ -84,9 +85,7 @@ namespace Flame.Ir
                         element.Identifier,
                         element.Encode((T)obj, state)));
 
-            var newIdentifiers = identifiers.Add(typeof(T), element.Identifier);
-
-            return new PiecewiseCodec<TObj>(newDecoders, newEncoders, newIdentifiers);
+            return new PiecewiseCodec<TObj>(newDecoders, newEncoders);
         }
 
         /// <summary>
@@ -142,21 +141,78 @@ namespace Flame.Ir
         /// <returns>The encoded value.</returns>
         public override LNode Encode(TObj value, EncoderState state)
         {
-            return encoders[value.GetType()](value, state);
+            var valType = value.GetType();
+            Func<TObj, EncoderState, LNode> encoder;
+            try
+            {
+                specializedEncoderLock.EnterReadLock();
+                if (!specializedEncoders.TryGetValue(valType, out encoder))
+                {
+                    encoder = null;
+                }
+            }
+            finally
+            {
+                specializedEncoderLock.ExitReadLock();
+            }
+
+            if (encoder == null)
+            {
+                try
+                {
+                    specializedEncoderLock.EnterWriteLock();
+                    Type encoderKey;
+
+                    if (encoders.Keys.TryGetBestElement(
+                        (t1, t2) => PickMostDerivedParent(t1, t2, valType),
+                        out encoderKey)
+                        && encoderKey != null
+                        && encoderKey.IsAssignableFrom(valType))
+                    {
+                        encoder = encoders[encoderKey];
+                        specializedEncoders[valType] = encoder;
+                    }
+                }
+                finally
+                {
+                    specializedEncoderLock.EnterWriteLock();
+                }
+            }
+
+            return encoder(value, state);
         }
 
-        /// <summary>
-        /// Gets the identifier a value would have if it were encoded.
-        /// </summary>
-        /// <param name="value">
-        /// A value to inspect.
-        /// </param>
-        /// <returns>
-        /// An identifier.
-        /// </returns>
-        public Symbol GetIdentifier(TObj value)
+        private static Betterness PickMostDerivedParent(Type parent1, Type parent2, Type child)
         {
-            return identifiers[value.GetType()];
+            bool t1Works = parent1.IsAssignableFrom(child);
+            bool t2Works = parent2.IsAssignableFrom(child);
+            if (t1Works && t2Works)
+            {
+                if (parent1.IsAssignableFrom(parent2))
+                {
+                    return Betterness.Second;
+                }
+                else if (parent2.IsAssignableFrom(parent1))
+                {
+                    return Betterness.First;
+                }
+                else
+                {
+                    return Betterness.Neither;
+                }
+            }
+            else if (t1Works)
+            {
+                return Betterness.First;
+            }
+            else if (t2Works)
+            {
+                return Betterness.Second;
+            }
+            else
+            {
+                return Betterness.Neither;
+            }
         }
     }
 }

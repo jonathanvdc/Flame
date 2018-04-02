@@ -15,7 +15,7 @@ namespace Flame.Collections
         Neither,
 
         /// <summary>
-        /// Both item are equal.
+        /// Both items are equal.
         /// </summary>
         Equal,
 
