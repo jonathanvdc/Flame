@@ -67,54 +67,18 @@ namespace Flame.Ir
             if (parent.IsType)
             {
                 var parentNode = state.Encode(parent.Type);
-                var nameNode = EncodeSimpleName(value.Name, state);
+                var nameNode = state.Encode(value.Name);
                 return state.Factory.Call(CodeSymbols.Dot, parentNode, nameNode);
             }
             else
             {
-                return EncodeQualifiedName(value.FullName, state);
+                return state.Encode(value.FullName);
             }
         }
 
         private LNode EncodePointerKind(PointerKind kind, EncoderState state)
         {
             return state.Factory.Id(pointerKindEncoding[kind]);
-        }
-
-        private static LNode EncodeSimpleName(UnqualifiedName name, EncoderState state)
-        {
-            if (name is SimpleName)
-            {
-                var simple = (SimpleName)name;
-                var simpleNameNode = state.Factory.Id(simple.Name);
-                if (simple.TypeParameterCount == 0)
-                {
-                    return simpleNameNode;
-                }
-                else
-                {
-                    return state.Factory.Call(
-                        simpleNameNode,
-                        state.Factory.Literal(simple.TypeParameterCount));
-                }
-            }
-            else
-            {
-                return state.Factory.Id(name.ToString());
-            }
-        }
-
-        private static LNode EncodeQualifiedName(QualifiedName name, EncoderState state)
-        {
-            var accumulator = EncodeSimpleName(name.Qualifier, state);
-            for (int i = 1; i < name.PathLength; i++)
-            {
-                accumulator = state.Factory.Call(
-                    CodeSymbols.ColonColon,
-                    accumulator,
-                    EncodeSimpleName(name.Path[i], state));
-            }
-            return accumulator;
         }
 
         /// <inheritdoc/>
@@ -175,7 +139,7 @@ namespace Flame.Ir
                 }
 
                 SimpleName childName;
-                if (!AssertDecodeSimpleName(data.Args[1], state, out childName))
+                if (!state.AssertDecodeSimpleName(data.Args[1], out childName))
                 {
                     return ErrorType.Instance;
                 }
@@ -201,7 +165,7 @@ namespace Flame.Ir
             else
             {
                 QualifiedName fullName;
-                if (AssertDecodeQualifiedName(data, state, out fullName))
+                if (state.AssertDecodeQualifiedName(data, out fullName))
                 {
                     var types = state.TypeResolver.ResolveTypes(fullName);
                     if (AssertSingleType(types, data, state, "namespace"))
@@ -258,82 +222,6 @@ namespace Flame.Ir
                         "."));
             }
             return false;
-        }
-
-        private static bool AssertDecodeSimpleName(LNode node, DecoderState state, out SimpleName name)
-        {
-            if (node.IsId)
-            {
-                name = new SimpleName(node.Name.Name);
-                return true;
-            }
-            else if (node.IsCall)
-            {
-                var nameNode = node.Target;
-                int arity;
-                if (!FeedbackHelpers.AssertIsId(nameNode, state.Log)
-                    || !FeedbackHelpers.AssertArgCount(node, 1, state.Log)
-                    || !state.AssertDecodeInt32(node.Args[0], out arity))
-                {
-                    name = null;
-                    return false;
-                }
-
-                name = new SimpleName(nameNode.Name.Name, arity);
-                return true;
-            }
-            else
-            {
-                FeedbackHelpers.LogSyntaxError(
-                    state.Log,
-                    node,
-                    FeedbackHelpers.QuoteEven(
-                        "expected a simple name, which can either be a simple id (e.g., ",
-                        "Type",
-                        ") or a call to an id that specifies the number of generic parameters (e.g., ",
-                        "Type(2)",
-                        ")."));
-                name = null;
-                return false;
-            }
-        }
-
-        private static bool AssertDecodeQualifiedName(
-            LNode node,
-            DecoderState state,
-            out QualifiedName name)
-        {
-            if (node.Calls(CodeSymbols.ColonColon))
-            {
-                QualifiedName prefix;
-                SimpleName suffix;
-                if (FeedbackHelpers.AssertArgCount(node, 2, state.Log)
-                    && AssertDecodeQualifiedName(node.Args[0], state, out prefix)
-                    && AssertDecodeSimpleName(node.Args[1], state, out suffix))
-                {
-                    name = suffix.Qualify(prefix);
-                    return true;
-                }
-                else
-                {
-                    name = default(QualifiedName);
-                    return false;
-                }
-            }
-            else
-            {
-                SimpleName simple;
-                if (AssertDecodeSimpleName(node, state, out simple))
-                {
-                    name = simple.Qualify();
-                    return true;
-                }
-                else
-                {
-                    name = default(QualifiedName);
-                    return false;
-                }
-            }
         }
 
         private bool AssertDecodePointerKind(

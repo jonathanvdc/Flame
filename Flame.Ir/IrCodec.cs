@@ -15,18 +15,24 @@ namespace Flame.Ir
         /// </summary>
         /// <param name="constants">A codec for constants.</param>
         /// <param name="instructionCodec">An instruction prototype codec.</param>
-        /// <param name="typeCodec">A codec for types.</param>
-        /// <param name="methodCodec">A codec for methods.</param>
+        /// <param name="typeCodec">A codec for type references.</param>
+        /// <param name="methodCodec">A codec for method references.</param>
+        /// <param name="typeMemberDefinitionCodec">A codec for type member definitions.</param>
+        /// <param name="typeDefinitionCodec">A codec for method definitions.</param>
         public IrCodec(
             Codec<Constant, LNode> constants,
             Codec<InstructionPrototype, LNode> instructionCodec,
             Codec<IType, LNode> typeCodec,
-            Codec<IMethod, LNode> methodCodec)
+            Codec<IMethod, LNode> methodCodec,
+            Codec<ITypeMember, LNode> typeMemberDefinitionCodec,
+            Codec<IType, LNode> typeDefinitionCodec)
         {
             this.Constants = constants;
             this.Instructions = instructionCodec;
             this.Types = typeCodec;
             this.Methods = methodCodec;
+            this.TypeMemberDefinitions = typeMemberDefinitionCodec;
+            this.TypeDefinitions = typeDefinitionCodec;
         }
 
         /// <summary>
@@ -54,12 +60,26 @@ namespace Flame.Ir
         public Codec<IMethod, LNode> Methods { get; private set; }
 
         /// <summary>
+        /// Gets the encoder/decoder for type member definitions.
+        /// </summary>
+        /// <returns>The type member definition codec.</returns>
+        public Codec<ITypeMember, LNode> TypeMemberDefinitions { get; private set; }
+
+        /// <summary>
+        /// Gets the encoder/decoder for type definitions.
+        /// </summary>
+        /// <returns>The type definition codec.</returns>
+        public Codec<IType, LNode> TypeDefinitions { get; private set; }
+
+        /// <summary>
         /// The default codec for Flame IR as used by unmodified versions of Flame.
         /// </summary>
         public static IrCodec Default = new IrCodec(
             ConstantCodec.Instance,
             InstructionCodecElements.All,
             TypeCodec.Instance,
-            new PiecewiseCodec<IMethod>());
+            new PiecewiseCodec<IMethod>(),
+            TypeMemberCodecElements.All,
+            TypeDefinitionCodec.Instance);
     }
 }

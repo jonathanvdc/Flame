@@ -132,5 +132,59 @@ namespace Flame.Ir
         {
             return Encode(BooleanConstant.Create(value));
         }
+
+        /// <summary>
+        /// Encodes an unqualified name as a simple name.
+        /// </summary>
+        /// <param name="name">
+        /// An unqualified name to encode. Simple names are encoded
+        /// as such. Other names are encoded as simple names by taking
+        /// their string representation.
+        /// </param>
+        /// <returns>An encoded node.</returns>
+        public LNode Encode(UnqualifiedName name)
+        {
+            if (name is SimpleName)
+            {
+                var simple = (SimpleName)name;
+                var simpleNameNode = Factory.Id(simple.Name);
+                if (simple.TypeParameterCount == 0)
+                {
+                    return simpleNameNode;
+                }
+                else
+                {
+                    return Factory.Call(
+                        simpleNameNode,
+                        Factory.Literal(simple.TypeParameterCount));
+                }
+            }
+            else
+            {
+                return Factory.Id(name.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Encodes a qualified name as a sequence of simple names.
+        /// </summary>
+        /// <param name="name">
+        /// A qualified name to encode. Simple names in the qualified
+        /// name are encoded as such. Other names are encoded as simple
+        /// names by taking their string representation.
+        /// </param>
+        /// <returns>An encoded node.</returns>
+        public LNode Encode(QualifiedName name)
+        {
+            var accumulator = Encode(name.Qualifier);
+            for (int i = 1; i < name.PathLength; i++)
+            {
+                accumulator = Factory.Call(
+                    CodeSymbols.ColonColon,
+                    accumulator,
+                    Encode(name.Path[i]));
+            }
+            return accumulator;
+        }
     }
 }

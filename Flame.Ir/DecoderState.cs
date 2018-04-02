@@ -19,20 +19,39 @@ namespace Flame.Ir
     public sealed class DecoderState
     {
         /// <summary>
-        /// Creates a decoder from a log and a codec.
+        /// Creates a decoder.
         /// </summary>
         /// <param name="log">A log to use for error and warning messages.</param>
         /// <param name="typeResolver">A read-only type resolver for resolving types.</param>
         /// <param name="codec">A Flame IR codec.</param>
-        public DecoderState(ILog log, ReadOnlyTypeResolver typeResolver, IrCodec codec)
+        /// <param name="scope">The decoder's scope.</param>
+        private DecoderState(
+            ILog log,
+            ReadOnlyTypeResolver typeResolver,
+            IrCodec codec,
+            TypeParent scope)
         {
             this.Log = log;
             this.TypeResolver = typeResolver;
             this.Codec = codec;
+            this.Scope = scope;
         }
 
         /// <summary>
-        /// Creates a decoder from a log and the default codec.
+        /// Creates a decoder.
+        /// </summary>
+        /// <param name="log">A log to use for error and warning messages.</param>
+        /// <param name="typeResolver">A read-only type resolver for resolving types.</param>
+        /// <param name="codec">A Flame IR codec.</param>
+        public DecoderState(
+            ILog log,
+            ReadOnlyTypeResolver typeResolver,
+            IrCodec codec)
+            : this(log, typeResolver, codec, TypeParent.Nothing)
+        { }
+
+        /// <summary>
+        /// Creates a decoder that relies on the default codec.
         /// </summary>
         /// <param name="log">A log to use for error and warning messages.</param>
         /// <param name="typeResolver">A read-only type resolver for resolving types.</param>
@@ -57,6 +76,36 @@ namespace Flame.Ir
         /// </summary>
         /// <returns>A type resolver.</returns>
         public ReadOnlyTypeResolver TypeResolver { get; private set; }
+
+        /// <summary>
+        /// Gets the scope in which elements are decoded.
+        /// </summary>
+        /// <returns>
+        /// The scope in which elements are decoded, represented as a type parent.
+        /// </returns>
+        public TypeParent Scope { get; private set; }
+
+        /// <summary>
+        /// Gets the type that either is or defines the current
+        /// decoding scope.
+        /// </summary>
+        public IType DefiningType =>
+            Scope.IsType ? Scope.Type : Scope.Method.ParentType;
+
+        /// <summary>
+        /// Creates a new decoder state that is identical to this
+        /// decoder state in every way except for the decoding scope.
+        /// </summary>
+        /// <param name="newScope">
+        /// The decoding scope for the new decoder state.
+        /// </param>
+        /// <returns>
+        /// A new decoder state.
+        /// </returns>
+        public DecoderState WithScope(TypeParent newScope)
+        {
+            return new DecoderState(Log, TypeResolver, Codec, newScope);
+        }
 
         /// <summary>
         /// Decodes an LNode as a type reference.
@@ -286,6 +335,101 @@ namespace Flame.Ir
                     FeedbackHelpers.QuoteEven(message.ToArray()));
 
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a simple name. Logs an error if the decoding
+        /// process fails.
+        /// </summary>
+        /// <param name="node">A node to decode as a simple name.</param>
+        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="node"/> can be decoded as a simple
+        /// name; otherwise, <c>false</c>.
+        /// </returns>
+        public bool AssertDecodeSimpleName(LNode node, out SimpleName name)
+        {
+            if (node.IsId)
+            {
+                name = new SimpleName(node.Name.Name);
+                return true;
+            }
+            else if (node.IsCall)
+            {
+                var nameNode = node.Target;
+                int arity;
+                if (!FeedbackHelpers.AssertIsId(nameNode, Log)
+                    || !FeedbackHelpers.AssertArgCount(node, 1, Log)
+                    || !AssertDecodeInt32(node.Args[0], out arity))
+                {
+                    name = null;
+                    return false;
+                }
+
+                name = new SimpleName(nameNode.Name.Name, arity);
+                return true;
+            }
+            else
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    Log,
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "expected a simple name, which can either be a simple id (e.g., ",
+                        "Name",
+                        ") or a call to an id that specifies the number of generic parameters (e.g., ",
+                        "Name(2)",
+                        ")."));
+                name = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a qualified name. Logs an error if the decoding
+        /// process fails.
+        /// </summary>
+        /// <param name="node">A node to decode as a qualified name.</param>
+        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="node"/> can be decoded as a
+        /// qualified name; otherwise, <c>false</c>.
+        /// </returns>
+        public bool AssertDecodeQualifiedName(
+            LNode node,
+            out QualifiedName name)
+        {
+            if (node.Calls(CodeSymbols.ColonColon))
+            {
+                QualifiedName prefix;
+                SimpleName suffix;
+                if (FeedbackHelpers.AssertArgCount(node, 2, Log)
+                    && AssertDecodeQualifiedName(node.Args[0], out prefix)
+                    && AssertDecodeSimpleName(node.Args[1], out suffix))
+                {
+                    name = suffix.Qualify(prefix);
+                    return true;
+                }
+                else
+                {
+                    name = default(QualifiedName);
+                    return false;
+                }
+            }
+            else
+            {
+                SimpleName simple;
+                if (AssertDecodeSimpleName(node, out simple))
+                {
+                    name = simple.Qualify();
+                    return true;
+                }
+                else
+                {
+                    name = default(QualifiedName);
+                    return false;
+                }
             }
         }
     }
