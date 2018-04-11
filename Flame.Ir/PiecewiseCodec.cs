@@ -175,7 +175,7 @@ namespace Flame.Ir
                 }
                 finally
                 {
-                    specializedEncoderLock.EnterWriteLock();
+                    specializedEncoderLock.ExitWriteLock();
                 }
             }
 
