@@ -25,6 +25,8 @@ namespace UnitTests
 
         public static void Main(string[] args)
         {
+            new PiecewiseCodecTest(globalLog).PickCorrectElement();
+
             // Workaround for MS bug: Assert(false) will not fire in debugger
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new DefaultTraceListener());
@@ -105,6 +107,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new ConstantCodecTest(globalLog, globalRng),
+                new PiecewiseCodecTest(globalLog),
                 new TypeCodecTest(globalLog));
         }
     }
