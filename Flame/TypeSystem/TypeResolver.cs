@@ -17,12 +17,14 @@ namespace Flame.TypeSystem
         {
             this.assemblySet = new HashSet<IAssembly>();
             this.nestedTypeNamespaces = new ConcurrentDictionary<IType, TypeResolverNamespace>();
+            this.genericMemberNamespaces = new ConcurrentDictionary<IGenericMember, TypeResolverNamespace>();
             this.RootNamespace = new TypeResolverNamespace();
         }
 
         private HashSet<IAssembly> assemblySet;
 
         private ConcurrentDictionary<IType, TypeResolverNamespace> nestedTypeNamespaces;
+        private ConcurrentDictionary<IGenericMember, TypeResolverNamespace> genericMemberNamespaces;
 
         /// <summary>
         /// Gets a list of all assemblies that are taken into consideration
@@ -160,6 +162,64 @@ namespace Flame.TypeSystem
             }
         }
 
+        /// <summary>
+        /// Finds all generic parameters defined by a particular member that have
+        /// a specific unqualified name.
+        /// </summary>
+        /// <param name="parentMember">
+        /// The generic member that defines the generic parameters.
+        /// </param>
+        /// <param name="name">The unqualified name to look for.</param>
+        /// <returns>
+        /// A list of generic parameters that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveGenericParameters(
+            IGenericMember parentMember,
+            UnqualifiedName name)
+        {
+            return ResolveGenericParametersImpl<UnqualifiedName>(
+                parentMember,
+                name,
+                ResolvePrecise);
+        }
+
+        /// <summary>
+        /// Finds all generic parameters defined by a particular member that have
+        /// a specific imprecise unqualified name.
+        /// </summary>
+        /// <param name="parentMember">
+        /// The generic member that defines the generic parameters.
+        /// </param>
+        /// <param name="name">The imprecise unqualified name to look for.</param>
+        /// <returns>
+        /// A list of generic parameters that are defined by <paramref name="parentMember"/>
+        /// and have name <paramref name="name"/>. This includes all simply
+        /// named types with name <paramref name="name"/>, regardless of
+        /// the number of type parameters in the type's name.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveGenericParameters(
+            IGenericMember parentMember,
+            string name)
+        {
+            return ResolveGenericParametersImpl<string>(
+                parentMember,
+                name,
+                ResolveImprecise);
+        }
+
+        private IReadOnlyList<IType> ResolveGenericParametersImpl<T>(
+            IGenericMember parentMember,
+            T name,
+            Func<TypeResolverNamespace, T, IReadOnlyList<IType>> resolve)
+        {
+            var typeNamespace = genericMemberNamespaces.GetOrAdd(
+                parentMember,
+                CreateGenericParameterNamespace);
+
+            return resolve(typeNamespace, name);
+        }
+
         private static IReadOnlyList<IType> ResolvePrecise(
             TypeResolverNamespace ns,
             UnqualifiedName name)
@@ -182,6 +242,18 @@ namespace Flame.TypeSystem
             foreach (var nestedType in type.NestedTypes)
             {
                 result.Add(nestedType.FullName.Slice(originalPathLength), nestedType);
+            }
+            return result;
+        }
+
+        private static TypeResolverNamespace CreateGenericParameterNamespace(IGenericMember member)
+        {
+            var originalPathLength = member.FullName.PathLength;
+
+            var result = new TypeResolverNamespace();
+            foreach (var genericParam in member.GenericParameters)
+            {
+                result.Add(genericParam.FullName.Slice(originalPathLength), genericParam);
             }
             return result;
         }
