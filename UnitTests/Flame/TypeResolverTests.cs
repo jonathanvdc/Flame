@@ -72,6 +72,29 @@ namespace UnitTests
         }
 
         [Test]
+        public void ResolveGenericParameters()
+        {
+            var resolver = testAssembly.CreateResolver();
+            AssertSingleType(
+                testAssembly.GenericType1.GenericParameters[0],
+                resolver.ResolveGenericParameters(
+                    testAssembly.GenericType1,
+                    testAssembly.GenericType1.GenericParameters[0].Name));
+
+            AssertSingleType(
+                testAssembly.GenericType2.GenericParameters[0],
+                resolver.ResolveGenericParameters(
+                    testAssembly.GenericType2,
+                    testAssembly.GenericType2.GenericParameters[0].Name));
+
+            AssertSingleType(
+                testAssembly.GenericType2.GenericParameters[1],
+                resolver.ResolveGenericParameters(
+                    testAssembly.GenericType2,
+                    testAssembly.GenericType2.GenericParameters[1].Name));
+        }
+
+        [Test]
         public void ResolveNamespaceType()
         {
             var resolver = testAssembly.CreateResolver();
