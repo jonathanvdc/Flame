@@ -39,6 +39,7 @@ namespace Flame.Ir
         public static readonly TypeCodec Instance = new TypeCodec();
 
         private static readonly Symbol pointerSymbol = GSymbol.Get("#pointer");
+        private static readonly Symbol genericParameterSymbol = GSymbol.Get("#type_param");
 
         private Dictionary<PointerKind, Symbol> pointerKindEncoding;
         private Dictionary<Symbol, PointerKind> pointerKindDecoding;
@@ -61,6 +62,13 @@ namespace Flame.Ir
                     .Select<IType, LNode>(state.Encode);
 
                 return state.Factory.Call(CodeSymbols.Of, argNodes);
+            }
+            else if (value is IGenericParameter)
+            {
+                return state.Factory.Call(
+                    genericParameterSymbol,
+                    state.Encode(((IGenericParameter)value).ParentMember),
+                    state.Encode(value.Name));
             }
 
             var parent = value.Parent;
@@ -101,6 +109,27 @@ namespace Flame.Ir
                 {
                     return ErrorType.Instance;
                 }
+            }
+            else if (data.Calls(genericParameterSymbol))
+            {
+                if (!FeedbackHelpers.AssertArgCount(data, 2, state.Log))
+                {
+                    return ErrorType.Instance;
+                }
+
+                IGenericMember parent;
+                SimpleName name;
+
+                if (state.AssertDecodeGenericMember(data.Args[0], out parent)
+                    && state.AssertDecodeSimpleName(data.Args[1], out name))
+                {
+                    var types = state.TypeResolver.ResolveGenericParameters(parent, name);
+                    if (AssertSingleType(types, data, state, "generic declaration"))
+                    {
+                        return types[0];
+                    }
+                }
+                return ErrorType.Instance;
             }
             else if (data.Calls(CodeSymbols.Of))
             {

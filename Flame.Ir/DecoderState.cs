@@ -432,5 +432,64 @@ namespace Flame.Ir
                 }
             }
         }
+
+        /// <summary>
+        /// Decodes an LNode as a reference to a generic member.
+        /// Logs an error if the decoding process fails.
+        /// </summary>
+        /// <param name="node">A node to decode as a generic member.</param>
+        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="node"/> can be decoded as a
+        /// generic member; otherwise, <c>false</c>.
+        /// </returns>
+        public bool AssertDecodeGenericMember(
+            LNode node,
+            out IGenericMember genericMember)
+        {
+            if (node.Calls(EncoderState.typeHintSymbol))
+            {
+                if (!FeedbackHelpers.AssertArgCount(node, 1, Log))
+                {
+                    genericMember = null;
+                    return false;
+                }
+                else
+                {
+                    var type = DecodeType(node.Args[0]);
+                    genericMember = type;
+                    return !(type == null || type is ErrorType);
+                }
+            }
+            else if (node.Calls(EncoderState.methodHintSymbol))
+            {
+                if (!FeedbackHelpers.AssertArgCount(node, 1, Log))
+                {
+                    genericMember = null;
+                    return false;
+                }
+                else
+                {
+                    var method = DecodeMethod(node.Args[0]);
+                    genericMember = method;
+                    return method != null;
+                }
+            }
+            else
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    Log,
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "unknown kind of generic member; " +
+                        "generic member kinds must be hinted using either ",
+                        EncoderState.methodHintSymbol.ToString(),
+                        " or ",
+                        EncoderState.typeHintSymbol.ToString(),
+                        " nodes."));
+                genericMember = null;
+                return false;
+            }
+        }
     }
 }

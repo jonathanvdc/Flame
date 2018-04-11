@@ -54,6 +54,9 @@ namespace Flame.Ir
         /// <returns>A node factory.</returns>
         public LNodeFactory Factory { get; private set; }
 
+        internal static readonly Symbol typeHintSymbol = GSymbol.Get("#type");
+        internal static readonly Symbol methodHintSymbol = GSymbol.Get("#method");
+
         /// <summary>
         /// Encodes a type reference.
         /// </summary>
@@ -76,6 +79,18 @@ namespace Flame.Ir
         public LNode Encode(IMethod method)
         {
             return Codec.Methods.Encode(method, this);
+        }
+
+        public LNode Encode(IGenericMember genericMember)
+        {
+            if (genericMember is IType)
+            {
+                return Factory.Call(typeHintSymbol, Encode((IType)genericMember));
+            }
+            else
+            {
+                return Factory.Call(methodHintSymbol, Encode((IMethod)genericMember));
+            }
         }
 
         /// <summary>
