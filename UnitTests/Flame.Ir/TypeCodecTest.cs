@@ -61,6 +61,14 @@ namespace UnitTests.Flame.Ir
         }
 
         [Test]
+        public void RoundTripGenericParameters()
+        {
+            AssertRoundTrip(testAssembly.GenericType1.GenericParameters[0]);
+            AssertRoundTrip(testAssembly.GenericType2.GenericParameters[0]);
+            AssertRoundTrip(testAssembly.GenericType2.GenericParameters[1]);
+        }
+
+        [Test]
         public void RoundTripPointerTypes()
         {
             AssertRoundTrip(testAssembly.SimpleType.MakePointerType(PointerKind.Transient));
