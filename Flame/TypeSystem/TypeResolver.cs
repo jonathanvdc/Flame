@@ -358,6 +358,46 @@ namespace Flame.TypeSystem
         {
             return resolver.ResolveNestedTypes(parentType, name);
         }
+
+        /// <summary>
+        /// Finds all generic parameters defined by a particular member that have
+        /// a specific unqualified name.
+        /// </summary>
+        /// <param name="parentMember">
+        /// The generic member that defines the generic parameters.
+        /// </param>
+        /// <param name="name">The unqualified name to look for.</param>
+        /// <returns>
+        /// A list of generic parameters that are defined by <paramref name="parentType"/>
+        /// and have name <paramref name="name"/>.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveGenericParameters(
+            IGenericMember parentMember,
+            UnqualifiedName name)
+        {
+            return resolver.ResolveGenericParameters(parentMember, name);
+        }
+
+        /// <summary>
+        /// Finds all generic parameters defined by a particular member that have
+        /// a specific imprecise unqualified name.
+        /// </summary>
+        /// <param name="parentMember">
+        /// The generic member that defines the generic parameters.
+        /// </param>
+        /// <param name="name">The imprecise unqualified name to look for.</param>
+        /// <returns>
+        /// A list of generic parameters that are defined by <paramref name="parentMember"/>
+        /// and have name <paramref name="name"/>. This includes all simply
+        /// named types with name <paramref name="name"/>, regardless of
+        /// the number of type parameters in the type's name.
+        /// </returns>
+        public IReadOnlyList<IType> ResolveGenericParameters(
+            IGenericMember parentMember,
+            string name)
+        {
+            return resolver.ResolveGenericParameters(parentMember, name);
+        }
     }
 
     /// <summary>
