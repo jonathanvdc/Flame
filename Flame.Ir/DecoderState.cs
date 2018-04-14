@@ -217,8 +217,8 @@ namespace Flame.Ir
         /// <param name="result">A 32-bit signed integer.</param>
         /// <returns>
         /// <c>true</c> if <paramref name="node"/> was successfully decoded as a
-        /// 32-bit signed integer; otherwise, <c>false</c>
-        /// .</returns>
+        /// 32-bit signed integer; otherwise, <c>false</c>.
+        /// </returns>
         public bool AssertDecodeInt32(LNode node, out int result)
         {
             var literal = DecodeConstant(node);
