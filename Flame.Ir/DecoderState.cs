@@ -311,7 +311,7 @@ namespace Flame.Ir
 
                 // Generate a lengthy message that details exactly what
                 // is admissible.
-                var message = new List<string>();
+                var message = new List<MarkupNode>();
                 message.Add("unknown " + enumDescription + " ");
                 message.Add(node.Name.Name);
                 message.Add("; expected ");

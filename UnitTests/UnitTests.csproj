@@ -49,16 +49,18 @@
       <HintPath>..\packages\Loyc.Utilities.26.2.0\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="Pixie">
-      <HintPath>..\packages\Pixie.0.1.2\lib\net45\Pixie.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.dll</HintPath>
     </Reference>
     <Reference Include="Pixie.Terminal">
-      <HintPath>..\packages\Pixie.0.1.2\lib\net45\Pixie.Terminal.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.Terminal.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie.Loyc">
+      <HintPath>..\packages\Pixie.Loyc.0.1.4\lib\net45\Pixie.Loyc.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FuzzHelpers.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="TestLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Flame\CacheTests.cs" />
     <Compile Include="Flame\IntegerConstantTests.cs" />

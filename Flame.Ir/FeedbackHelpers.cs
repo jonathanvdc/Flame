@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Loyc.Syntax;
 using Pixie;
 using Pixie.Code;
+using Pixie.Loyc;
 using Pixie.Markup;
 
 namespace Flame.Ir
@@ -76,7 +77,7 @@ namespace Flame.Ir
                 : new MarkupNode[]
                 {
                     message,
-                    new HighlightedSource(ToSourceRegion(node.Range))
+                    new HighlightedSource(node.Range.ToSourceRegion())
                 };
 
             log.Log(
@@ -94,42 +95,7 @@ namespace Flame.Ir
         /// <returns>A sequence container node.</returns>
         public static Sequence QuoteEven(params MarkupNode[] nodes)
         {
-            var results = new MarkupNode[nodes.Length];
-            for (int i = 0; i < nodes.Length; i++)
-            {
-                if (i % 2 == 1)
-                {
-                    results[i] = Quotation.CreateBoldQuotation(nodes[i]);
-                }
-                else
-                {
-                    results[i] = nodes[i];
-                }
-            }
-            return new Sequence(results);
-        }
-
-        /// <summary>
-        /// Quotes even (second, fourth, sixth, ...) strings in bold
-        /// and wraps the result in a sequence node.
-        /// </summary>
-        /// <param name="strings">The strings to process.</param>
-        /// <returns>A sequence container node.</returns>
-        public static Sequence QuoteEven(params string[] strings)
-        {
-            var results = new MarkupNode[strings.Length];
-            for (int i = 0; i < strings.Length; i++)
-            {
-                if (i % 2 == 1)
-                {
-                    results[i] = Quotation.CreateBoldQuotation(strings[i]);
-                }
-                else
-                {
-                    results[i] = new Text(strings[i]);
-                }
-            }
-            return new Sequence(results);
+            return Quotation.QuoteEvenInBold(nodes);
         }
 
         /// <summary>
@@ -279,41 +245,6 @@ namespace Flame.Ir
             {
                 return true;
             }
-        }
-
-        /// <summary>
-        /// Creates a Pixie source region that is equivalent to a
-        /// Loyc source range.
-        /// </summary>
-        /// <param name="range">A source range.</param>
-        /// <returns>A source region.</returns>
-        public static SourceRegion ToSourceRegion(SourceRange range)
-        {
-            return new SourceRegion(ToSourceSpan(range));
-        }
-
-        /// <summary>
-        /// Creates a Pixie source span that is equivalent to a
-        /// Loyc source range.
-        /// </summary>
-        /// <param name="range">A source range.</param>
-        /// <returns>A source span.</returns>
-        public static SourceSpan ToSourceSpan(SourceRange range)
-        {
-            return new SourceSpan(
-                ToSourceDocument(range.Source),
-                range.StartIndex,
-                range.Length);
-        }
-
-        /// <summary>
-        /// Wraps a Loyc source file in a Pixie source document.
-        /// </summary>
-        /// <param name="sourceFile">A Loyc source file to wrap.</param>
-        /// <returns>A Pixie source document.</returns>
-        public static SourceDocument ToSourceDocument(ISourceFile sourceFile)
-        {
-            return new LoycSourceDocument(sourceFile);
         }
     }
 }

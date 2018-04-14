@@ -43,10 +43,13 @@
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="Pixie">
-      <HintPath>..\packages\Pixie.0.1.2\lib\net45\Pixie.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.dll</HintPath>
     </Reference>
     <Reference Include="Pixie.Terminal">
-      <HintPath>..\packages\Pixie.0.1.2\lib\net45\Pixie.Terminal.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.Terminal.dll</HintPath>
+    </Reference>
+    <Reference Include="Pixie.Loyc">
+      <HintPath>..\packages\Pixie.Loyc.0.1.4\lib\net45\Pixie.Loyc.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +62,6 @@
     <Compile Include="FeedbackHelpers.cs" />
     <Compile Include="InstructionCodecElements.cs" />
     <Compile Include="IrCodec.cs" />
-    <Compile Include="LoycSourceDocument.cs" />
     <Compile Include="PiecewiseCodec.cs" />
     <Compile Include="TypeCodec.cs" />
     <Compile Include="TypeDefinitionCodec.cs" />
