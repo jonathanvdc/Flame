@@ -201,5 +201,33 @@ namespace Flame.Ir
             }
             return accumulator;
         }
+
+        /// <summary>
+        /// Encodes a type definition.
+        /// </summary>
+        /// <param name="typeDefinition">
+        /// The type definition to encode.
+        /// </param>
+        /// <returns>
+        /// An LNode that represents the type definition.
+        /// </returns>
+        public LNode EncodeDefinition(IType typeDefinition)
+        {
+            return Codec.TypeDefinitions.Encode(typeDefinition, this);
+        }
+
+        /// <summary>
+        /// Encodes a type member definition.
+        /// </summary>
+        /// <param name="memberDefinition">
+        /// The type member definition to encode.
+        /// </param>
+        /// <returns>
+        /// An LNode that represents the type member definition.
+        /// </returns>
+        public LNode EncodeDefinition(ITypeMember memberDefinition)
+        {
+            return Codec.TypeMemberDefinitions.Encode(memberDefinition, this);
+        }
     }
 }
