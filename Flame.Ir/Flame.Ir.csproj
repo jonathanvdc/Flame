@@ -62,6 +62,7 @@
     <Compile Include="FeedbackHelpers.cs" />
     <Compile Include="InstructionCodecElements.cs" />
     <Compile Include="IrCodec.cs" />
+    <Compile Include="IrField.cs" />
     <Compile Include="PiecewiseCodec.cs" />
     <Compile Include="TypeCodec.cs" />
     <Compile Include="TypeDefinitionCodec.cs" />

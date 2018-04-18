@@ -387,6 +387,35 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes an LNode as a simple name. Logs an error if the decoding
+        /// process fails.
+        /// </summary>
+        /// <param name="node">A node to decode as a simple name.</param>
+        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <returns>
+        /// The name described by <paramref name="node"/> if <paramref name="node"/> can
+        /// be decoded as a simple name; otherwise, a sensible default simple name.
+        /// </returns>
+        public SimpleName DecodeSimpleName(LNode node)
+        {
+            SimpleName result;
+            if (AssertDecodeSimpleName(node, out result))
+            {
+                return result;
+            }
+            else
+            {
+                // Use the empty string. That's probably the best we can
+                // do. We could have used something like `<error>` but
+                // that might confuse, e.g., the "did you mean" functionality
+                // in language front-ends. We don't want a compiler to
+                // accidentally suggest "did you mean '<error>'?" because
+                // that's a terrible error message.
+                return new SimpleName("");
+            }
+        }
+
+        /// <summary>
         /// Decodes an LNode as a qualified name. Logs an error if the decoding
         /// process fails.
         /// </summary>
