@@ -95,6 +95,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new CacheTests(globalRng),
+                new DeferredInitializerTests(),
                 new IntegerConstantTests(),
                 new QualifiedNameTests(),
                 new SmallMultiDictionaryTests(),
