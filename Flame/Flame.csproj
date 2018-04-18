@@ -52,6 +52,7 @@
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Collections\Betterness.cs" />
     <Compile Include="Collections\Cache.cs" />
+    <Compile Include="Collections\DeferredInitializer.cs" />
     <Compile Include="Collections\EmptyArray.cs" />
     <Compile Include="Collections\InterningCache.cs" />
     <Compile Include="Collections\ReadOnlyListExtensions.cs" />
