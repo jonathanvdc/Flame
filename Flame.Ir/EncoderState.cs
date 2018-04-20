@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
@@ -200,6 +201,30 @@ namespace Flame.Ir
                     Encode(name.Path[i]));
             }
             return accumulator;
+        }
+
+        /// <summary>
+        /// Encodes an attribute as an LNode.
+        /// </summary>
+        /// <param name="attribute">
+        /// The attribute to encode.
+        /// </param>
+        /// <returns>An encoded node.</returns>
+        public LNode Encode(IAttribute attribute)
+        {
+            return Codec.Attributes.Encode(attribute, this);
+        }
+
+        /// <summary>
+        /// Encodes an attribute map as a sequence of LNodes.
+        /// </summary>
+        /// <param name="attributes">
+        /// The attribute map to encode.
+        /// </param>
+        /// <returns>A list of attribute nodes.</returns>
+        public IEnumerable<LNode> Encode(AttributeMap attributes)
+        {
+            return attributes.GetAll().Select(Encode).ToArray();
         }
 
         /// <summary>

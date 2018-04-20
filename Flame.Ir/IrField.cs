@@ -1,5 +1,6 @@
 using System;
 using Flame.Ir;
+using Loyc.Collections;
 using Loyc.Syntax;
 
 namespace Flame
@@ -25,6 +26,8 @@ namespace Flame
                 decoder.DecodeBoolean(node.Args[1]));
             this.fieldTypeCache = new Lazy<IType>(() =>
                 decoder.DecodeType(node.Args[2]));
+            this.attributeMapCache = new Lazy<AttributeMap>(() =>
+                decoder.DecodeAttributeMap(node.Attrs));
         }
 
         /// <summary>
@@ -59,12 +62,14 @@ namespace Flame
         /// <returns>An LNode that represents the field.</returns>
         public static LNode Encode(IField value, EncoderState state)
         {
-            // TODO: encode attributes.
             return state.Factory.Call(
                 CodeSymbols.Var,
                 state.Encode(value.Name),
                 state.Encode(value.IsStatic),
-                state.Encode(value.FieldType));
+                state.Encode(value.FieldType))
+                .WithAttrs(
+                    new VList<LNode>(
+                        state.Encode(value.Attributes)));
         }
 
         /// <summary>
@@ -85,6 +90,7 @@ namespace Flame
         private Lazy<QualifiedName> fullNameCache;
         private Lazy<bool> isStaticCache;
         private Lazy<IType> fieldTypeCache;
+        private Lazy<AttributeMap> attributeMapCache;
 
         /// <inheritdoc/>
         public bool IsStatic => isStaticCache.Value;
@@ -98,10 +104,7 @@ namespace Flame
         /// <inheritdoc/>
         public QualifiedName FullName => fullNameCache.Value;
 
-
         /// <inheritdoc/>
-        public AttributeMap Attributes =>
-            // TODO: support parsing attributes.
-            AttributeMap.Empty;
+        public AttributeMap Attributes => attributeMapCache.Value;
     }
 }

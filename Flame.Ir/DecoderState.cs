@@ -520,5 +520,34 @@ namespace Flame.Ir
                 return false;
             }
         }
+
+        /// <summary>
+        /// Decodes an attribute node.
+        /// </summary>
+        /// <param name="node">The attribute node to decode.</param>
+        /// <returns>An attribute node.</returns>
+        public IAttribute DecodeAttribute(LNode node)
+        {
+            return Codec.Attributes.Decode(node, this);
+        }
+
+        /// <summary>
+        /// Decodes a sequence of attribute nodes as an attribute map.
+        /// </summary>
+        /// <param name="attributeNodes">The nodes to decode.</param>
+        /// <returns>An attribute map.</returns>
+        public AttributeMap DecodeAttributeMap(IEnumerable<LNode> attributeNodes)
+        {
+            var result = new AttributeMapBuilder();
+            foreach (var item in attributeNodes)
+            {
+                var attr = DecodeAttribute(item);
+                if (attr != null)
+                {
+                    result.Add(attr);
+                }
+            }
+            return new AttributeMap(result);
+        }
     }
 }

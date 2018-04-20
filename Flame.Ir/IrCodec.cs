@@ -19,13 +19,15 @@ namespace Flame.Ir
         /// <param name="methodCodec">A codec for method references.</param>
         /// <param name="typeMemberDefinitionCodec">A codec for type member definitions.</param>
         /// <param name="typeDefinitionCodec">A codec for method definitions.</param>
+        /// <param name="attributeCodec">A codec for attributes.</param>
         public IrCodec(
             Codec<Constant, LNode> constants,
             Codec<InstructionPrototype, LNode> instructionCodec,
             Codec<IType, LNode> typeCodec,
             Codec<IMethod, LNode> methodCodec,
             Codec<ITypeMember, LNode> typeMemberDefinitionCodec,
-            Codec<IType, LNode> typeDefinitionCodec)
+            Codec<IType, LNode> typeDefinitionCodec,
+            Codec<IAttribute, LNode> attributeCodec)
         {
             this.Constants = constants;
             this.Instructions = instructionCodec;
@@ -33,6 +35,7 @@ namespace Flame.Ir
             this.Methods = methodCodec;
             this.TypeMemberDefinitions = typeMemberDefinitionCodec;
             this.TypeDefinitions = typeDefinitionCodec;
+            this.Attributes = attributeCodec;
         }
 
         /// <summary>
@@ -72,6 +75,12 @@ namespace Flame.Ir
         public Codec<IType, LNode> TypeDefinitions { get; private set; }
 
         /// <summary>
+        /// Gets the encoder/decoder for attributes.
+        /// </summary>
+        /// <returns>The attribute codec.</returns>
+        public Codec<IAttribute, LNode> Attributes { get; private set; }
+
+        /// <summary>
         /// The default codec for Flame IR as used by unmodified versions of Flame.
         /// </summary>
         public static IrCodec Default = new IrCodec(
@@ -80,6 +89,7 @@ namespace Flame.Ir
             TypeCodec.Instance,
             new PiecewiseCodec<IMethod>(),
             TypeMemberCodecElements.All,
-            TypeDefinitionCodec.Instance);
+            TypeDefinitionCodec.Instance,
+            new PiecewiseCodec<IAttribute>());
     }
 }
