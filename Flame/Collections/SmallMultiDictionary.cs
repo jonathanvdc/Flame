@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Collections
 {
@@ -155,6 +156,17 @@ namespace Flame.Collections
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Gets all values in this dictionary.
+        /// </summary>
+        public IEnumerable<TValue> Values
+        {
+            get
+            {
+                return pairs.Items.Select(pair => pair.Value);
+            }
         }
 
         /// <summary>

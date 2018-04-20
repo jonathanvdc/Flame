@@ -175,7 +175,15 @@ namespace Flame
         internal SmallMultiDictionary<IType, IAttribute> attributeDict;
 
         /// <summary>
-        /// Gets all attributes in this attribute map with the given type.
+        /// Gets all attributes in this attribute map.
+        /// </summary>
+        public IEnumerable<IAttribute> GetAll()
+        {
+            return attributeDict.Values;
+        }
+
+        /// <summary>
+        /// Gets all attributes of a particular type in this attribute map.
         /// </summary>
         public IEnumerable<IAttribute> GetAll(IType Type)
         {
