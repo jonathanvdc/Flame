@@ -132,6 +132,36 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes an LNode as a type definition.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A decoded type definition.</returns>
+        public IType DecodeTypeDefinition(LNode node)
+        {
+            return Codec.TypeDefinitions.Decode(node, this);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a generic parameter definition.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A decoded generic parameter.</returns>
+        public IGenericParameter DecodeGenericParameterDefinition(LNode node)
+        {
+            return (IGenericParameter)DecodeTypeDefinition(node);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a type member definition.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A decoded type member definition.</returns>
+        public ITypeMember DecodeTypeMemberDefinition(LNode node)
+        {
+            return Codec.TypeMemberDefinitions.Decode(node, this);
+        }
+
+        /// <summary>
         /// Decodes an LNode as an instruction prototype.
         /// </summary>
         /// <param name="node">The node to decode.</param>

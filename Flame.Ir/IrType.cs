@@ -1,0 +1,300 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Collections;
+using Loyc;
+using Loyc.Collections;
+using Loyc.Syntax;
+
+namespace Flame.Ir
+{
+    /// <summary>
+    /// A base class for members that are decoded from LNodes.
+    /// </summary>
+    public abstract class IrMember : IMember
+    {
+        /// <summary>
+        /// Creates a member that is the decoded version of a node.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <param name="decoder">The decoder to use.</param>
+        public IrMember(LNode node, DecoderState decoder)
+        {
+            this.Node = node;
+            this.Decoder = decoder;
+            this.attributeCache = new Lazy<AttributeMap>(() =>
+                Decoder.DecodeAttributeMap(Node.Attrs));
+            this.nameCache = new Lazy<QualifiedName>(() =>
+                QualifyName(Decoder.DecodeSimpleName(Node.Args[0])));
+        }
+
+        /// <summary>
+        /// Gets the encoded version of this member.
+        /// </summary>
+        /// <returns>The encoded version.</returns>
+        public LNode Node { get; private set; }
+
+        /// <summary>
+        /// Gets the decoder that is used for decoding this member.
+        /// </summary>
+        /// <returns>The decoder.</returns>
+        public DecoderState Decoder { get; private set; }
+
+        private Lazy<AttributeMap> attributeCache;
+        private Lazy<QualifiedName> nameCache;
+
+        /// <summary>
+        /// Qualifies this member's unqualified name.
+        /// </summary>
+        /// <param name="name">The name to qualify.</param>
+        /// <returns>The qualified name.</returns>
+        protected virtual QualifiedName QualifyName(SimpleName name)
+        {
+            var scope = Decoder.Scope;
+            if (scope.IsType)
+            {
+                return name.Qualify(scope.Type.FullName);
+            }
+            else if (scope.IsMethod)
+            {
+                return name.Qualify(scope.Method.FullName);
+            }
+            else
+            {
+                return name.Qualify();
+            }
+        }
+
+        /// <summary>
+        /// Gets this member's full name.
+        /// </summary>
+        /// <returns>The full name.</returns>
+        public QualifiedName FullName => nameCache.Value;
+
+        /// <summary>
+        /// Gets this member's unqualified name.
+        /// </summary>
+        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
+        /// <summary>
+        /// Gets this member's attributes.
+        /// </summary>
+        public AttributeMap Attributes => attributeCache.Value;
+    }
+
+    /// <summary>
+    /// A type that is decoded from a Flame IR type LNode.
+    /// </summary>
+    public class IrType : IrMember, IType
+    {
+        /// <summary>
+        /// Creates a type that is the decoded version of a node.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <param name="decoder">The decoder to use.</param>
+        internal IrType(LNode node, DecoderState decoder)
+            : base(node, decoder)
+        {
+            this.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(() =>
+                node.Args[1].Args.EagerSelect(decoder.DecodeGenericParameterDefinition));
+            this.baseTypeCache = new Lazy<IReadOnlyList<IType>>(() =>
+                node.Args[2].Args.EagerSelect(decoder.DecodeType));
+            this.initializer = DeferredInitializer.Create(DecodeMembers);
+        }
+
+        private static readonly Symbol TypeDefinitionSymbol = GSymbol.Get("#type");
+        private static readonly Symbol TypeParameterDefinitionSymbol = GSymbol.Get("#type_param");
+
+        private void DecodeMembers()
+        {
+            this.fieldCache = new List<IField>();
+            this.methodCache = new List<IMethod>();
+            this.propertyCache = new List<IProperty>();
+            this.nestedTypeCache = new List<IType>();
+
+            var subDecoder = Decoder.WithScope(new TypeParent(this));
+            foreach (var memberNode in Node.Args[3].Args)
+            {
+                if (memberNode.Calls(TypeDefinitionSymbol))
+                {
+                    nestedTypeCache.Add(subDecoder.DecodeTypeDefinition(memberNode));
+                }
+                else
+                {
+                    var member = subDecoder.DecodeTypeMemberDefinition(memberNode);
+                    if (member is IField)
+                    {
+                        fieldCache.Add((IField)member);
+                    }
+                    else if (member is IMethod)
+                    {
+                        methodCache.Add((IMethod)member);
+                    }
+                    else
+                    {
+                        propertyCache.Add((IProperty)member);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a type definition.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <param name="state">The decoder's state.</param>
+        /// <returns>A decoded type.</returns>
+        public static IrType Decode(LNode node, DecoderState state)
+        {
+            if (!FeedbackHelpers.AssertArgCount(node, 4, state.Log))
+            {
+                return null;
+            }
+            else if (node is IGenericParameter)
+            {
+                return new IrGenericParameter(node, state);
+            }
+            else
+            {
+                return new IrType(node, state);
+            }
+        }
+
+        /// <summary>
+        /// Encodes a type definition as an LNode.
+        /// </summary>
+        /// <param name="value">The type definition to encode.</param>
+        /// <param name="state">The encoder state.</param>
+        /// <returns>An LNode that represents the type definition.</returns>
+        public static LNode Encode(IType value, EncoderState state)
+        {
+            var nameNode = state.Encode(value.Name);
+            var typeParamsNode = state.Factory.Call(
+                CodeSymbols.Tuple,
+                value.GenericParameters
+                    .Select(state.EncodeDefinition)
+                    .ToList());
+
+            var baseTypesNode = state.Factory.Call(
+                CodeSymbols.Tuple,
+                value.BaseTypes.EagerSelect(state.Encode));
+
+            var membersNode = state.Factory.Call(
+                CodeSymbols.Braces,
+                value.NestedTypes
+                    .Select(state.EncodeDefinition)
+                    .Concat(value.Fields.Select(state.EncodeDefinition))
+                    .Concat(value.Methods.Select(state.EncodeDefinition))
+                    .Concat(value.Properties.Select(state.EncodeDefinition))
+                    .ToArray());
+
+            return state.Factory.Call(
+                value is IGenericParameter
+                    ? TypeParameterDefinitionSymbol
+                    : TypeDefinitionSymbol,
+                nameNode,
+                typeParamsNode,
+                baseTypesNode,
+                membersNode)
+                .WithAttrs(
+                    new VList<LNode>(
+                        state.Encode(value.Attributes)));
+        }
+
+        private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
+
+        private Lazy<IReadOnlyList<IType>> baseTypeCache;
+
+        private List<IField> fieldCache;
+
+        private List<IMethod> methodCache;
+
+        private List<IProperty> propertyCache;
+
+        private List<IType> nestedTypeCache;
+
+        private DeferredInitializer initializer;
+
+        /// <inheritdoc/>
+        public TypeParent Parent => Decoder.Scope;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> BaseTypes => baseTypeCache.Value;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IGenericParameter> GenericParameters => genericParameterCache.Value;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IField> Fields
+        {
+            get
+            {
+                initializer.Initialize();
+                return fieldCache;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IMethod> Methods
+        {
+            get
+            {
+                initializer.Initialize();
+                return methodCache;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IProperty> Properties
+        {
+            get
+            {
+                initializer.Initialize();
+                return propertyCache;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> NestedTypes
+        {
+            get
+            {
+                initializer.Initialize();
+                return nestedTypeCache;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A type parameter that is decoded from a Flame IR type LNode.
+    /// </summary>
+    internal sealed class IrGenericParameter : IrType, IGenericParameter
+    {
+        internal IrGenericParameter(LNode node, DecoderState decoder)
+            : base(node, decoder)
+        { }
+
+        /// <inheritdoc/>
+        public IGenericMember ParentMember
+        {
+            get
+            {
+                if (Parent.IsType)
+                {
+                    return Parent.Type;
+                }
+                else if (Parent.IsMethod)
+                {
+                    return Parent.Method;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public TypeConstraint Constraint => AnyTypeConstraint.Instance;
+    }
+}
