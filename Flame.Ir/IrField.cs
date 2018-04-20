@@ -8,7 +8,7 @@ namespace Flame
     /// <summary>
     /// A field that is decoded from a Flame IR field LNode.
     /// </summary>
-    public sealed class IrField : IField
+    public sealed class IrField : IrMember, IField
     {
         /// <summary>
         /// Creates a Flame IR field from an appropriately-encoded
@@ -17,17 +17,12 @@ namespace Flame
         /// <param name="node">The node to decode.</param>
         /// <param name="decoder">The decoder to use.</param>
         private IrField(LNode node, DecoderState decoder)
+            : base(node, decoder)
         {
-            this.Node = node;
-            this.Decoder = decoder;
-            this.fullNameCache = new Lazy<QualifiedName>(() =>
-                decoder.DecodeSimpleName(node.Args[0]).Qualify(ParentType.FullName));
             this.isStaticCache = new Lazy<bool>(() =>
                 decoder.DecodeBoolean(node.Args[1]));
             this.fieldTypeCache = new Lazy<IType>(() =>
                 decoder.DecodeType(node.Args[2]));
-            this.attributeMapCache = new Lazy<AttributeMap>(() =>
-                decoder.DecodeAttributeMap(node.Attrs));
         }
 
         /// <summary>
@@ -72,39 +67,16 @@ namespace Flame
                         state.Encode(value.Attributes)));
         }
 
-        /// <summary>
-        /// Gets the LNode from which this field is decoded.
-        /// </summary>
-        /// <returns>The data LNode.</returns>
-        public LNode Node { get; private set; }
-
-        /// <summary>
-        /// Gets the decoder that decodes this field.
-        /// </summary>
-        /// <returns>The decoder.</returns>
-        public DecoderState Decoder { get; private set; }
-
         /// <inheritdoc/>
         public IType ParentType => Decoder.DefiningType;
 
-        private Lazy<QualifiedName> fullNameCache;
         private Lazy<bool> isStaticCache;
         private Lazy<IType> fieldTypeCache;
-        private Lazy<AttributeMap> attributeMapCache;
 
         /// <inheritdoc/>
         public bool IsStatic => isStaticCache.Value;
 
         /// <inheritdoc/>
         public IType FieldType => fieldTypeCache.Value;
-
-        /// <inheritdoc/>
-        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
-
-        /// <inheritdoc/>
-        public QualifiedName FullName => fullNameCache.Value;
-
-        /// <inheritdoc/>
-        public AttributeMap Attributes => attributeMapCache.Value;
     }
 }
