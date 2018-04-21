@@ -79,13 +79,25 @@ namespace Flame.Ir
             {
                 return null;
             }
-            else if (node is IGenericParameter)
+            else if (node.Calls(TypeParameterDefinitionSymbol))
             {
                 return new IrGenericParameter(node, state);
             }
-            else
+            else if (node.Calls(TypeDefinitionSymbol))
             {
                 return new IrType(node, state);
+            }
+            else
+            {
+                state.Log.LogSyntaxError(
+                    node,
+                    FeedbackHelpers.QuoteEven(
+                        "expected ",
+                        TypeDefinitionSymbol.Name,
+                        " or ",
+                        TypeParameterDefinitionSymbol.Name,
+                        "."));
+                return null;
             }
         }
 
