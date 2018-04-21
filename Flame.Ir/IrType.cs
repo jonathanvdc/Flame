@@ -103,13 +103,13 @@ namespace Flame.Ir
                 : value.FullName);
 
             var typeParamsNode = state.Factory.Call(
-                CodeSymbols.Tuple,
+                CodeSymbols.AltList,
                 value.GenericParameters
                     .Select(state.EncodeDefinition)
                     .ToList());
 
             var baseTypesNode = state.Factory.Call(
-                CodeSymbols.Tuple,
+                CodeSymbols.AltList,
                 value.BaseTypes.EagerSelect(state.Encode));
 
             var membersNode = state.Factory.Call(
