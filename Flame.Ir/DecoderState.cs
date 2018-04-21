@@ -608,5 +608,15 @@ namespace Flame.Ir
             }
             return new AttributeMap(result);
         }
+
+        /// <summary>
+        /// Decodes an assembly.
+        /// </summary>
+        /// <param name="node">The assembly to decode.</param>
+        /// <returns>A decoded assembly.</returns>
+        public IAssembly DecodeAssembly(LNode node)
+        {
+            return IrAssembly.Decode(node, this);
+        }
     }
 }

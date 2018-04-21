@@ -254,5 +254,19 @@ namespace Flame.Ir
         {
             return Codec.TypeMemberDefinitions.Encode(memberDefinition, this);
         }
+
+        /// <summary>
+        /// Encodes an assembly definition.
+        /// </summary>
+        /// <param name="assembly">
+        /// The assembly definition to encode.
+        /// </param>
+        /// <returns>
+        /// An LNode that represents the assembly definition.
+        /// </returns>
+        public LNode EncodeDefinition(IAssembly assembly)
+        {
+            return IrAssembly.Encode(assembly, this);
+        }
     }
 }

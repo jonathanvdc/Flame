@@ -21,8 +21,9 @@ namespace Flame.Ir
         internal IrType(LNode node, DecoderState decoder)
             : base(node, decoder)
         {
+            var typeParamDecoder = decoder.WithScope(new TypeParent(this));
             this.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(() =>
-                node.Args[1].Args.EagerSelect(decoder.DecodeGenericParameterDefinition));
+                node.Args[1].Args.EagerSelect(typeParamDecoder.DecodeGenericParameterDefinition));
             this.baseTypeCache = new Lazy<IReadOnlyList<IType>>(() =>
                 node.Args[2].Args.EagerSelect(decoder.DecodeType));
             this.initializer = DeferredInitializer.Create(DecodeMembers);
@@ -72,9 +73,9 @@ namespace Flame.Ir
         /// <returns>A decoded type.</returns>
         public static IrType Decode(LNode node, DecoderState state)
         {
-            SimpleName name;
+            QualifiedName name;
             if (!FeedbackHelpers.AssertArgCount(node, 4, state.Log)
-                || !state.AssertDecodeSimpleName(node.Args[0], out name))
+                || !state.AssertDecodeQualifiedName(node.Args[0], out name))
             {
                 return null;
             }

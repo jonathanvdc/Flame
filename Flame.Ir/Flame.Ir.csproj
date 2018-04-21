@@ -61,6 +61,7 @@
     <Compile Include="EncoderState.cs" />
     <Compile Include="FeedbackHelpers.cs" />
     <Compile Include="InstructionCodecElements.cs" />
+    <Compile Include="IrAssembly.cs" />
     <Compile Include="IrCodec.cs" />
     <Compile Include="IrField.cs" />
     <Compile Include="IrMember.cs" />
