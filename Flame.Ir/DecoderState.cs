@@ -493,6 +493,35 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes an LNode as a qualified name. Logs an error if the decoding
+        /// process fails.
+        /// </summary>
+        /// <param name="node">A node to decode as a qualified name.</param>
+        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <returns>
+        /// The name described by <paramref name="node"/> if <paramref name="node"/> can
+        /// be decoded as a qualified name; otherwise, a default qualified name.
+        /// </returns>
+        public QualifiedName DecodeQualifiedName(LNode node)
+        {
+            QualifiedName result;
+            if (AssertDecodeQualifiedName(node, out result))
+            {
+                return result;
+            }
+            else
+            {
+                // Use the empty qualified name. That's probably the best
+                // we can do. We could have used something like `<error>` but
+                // that might confuse, e.g., the "did you mean" functionality
+                // in language front-ends. We don't want a compiler to
+                // accidentally suggest "did you mean '<error>'?" because
+                // that's a terrible error message.
+                return new SimpleName("").Qualify();
+            }
+        }
+
+        /// <summary>
         /// Decodes an LNode as a reference to a generic member.
         /// Logs an error if the decoding process fails.
         /// </summary>

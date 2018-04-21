@@ -20,7 +20,7 @@ namespace Flame.Ir
             this.attributeCache = new Lazy<AttributeMap>(() =>
                 Decoder.DecodeAttributeMap(Node.Attrs));
             this.nameCache = new Lazy<QualifiedName>(() =>
-                QualifyName(Decoder.DecodeSimpleName(Node.Args[0])));
+                QualifyName(Decoder.DecodeQualifiedName(Node.Args[0])));
         }
 
         /// <summary>
@@ -39,11 +39,11 @@ namespace Flame.Ir
         private Lazy<QualifiedName> nameCache;
 
         /// <summary>
-        /// Qualifies this member's unqualified name.
+        /// Qualifies this member's name.
         /// </summary>
         /// <param name="name">The name to qualify.</param>
         /// <returns>The qualified name.</returns>
-        protected virtual QualifiedName QualifyName(SimpleName name)
+        protected virtual QualifiedName QualifyName(QualifiedName name)
         {
             var scope = Decoder.Scope;
             if (scope.IsType)
@@ -56,7 +56,7 @@ namespace Flame.Ir
             }
             else
             {
-                return name.Qualify();
+                return name;
             }
         }
 

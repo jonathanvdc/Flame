@@ -96,7 +96,11 @@ namespace Flame.Ir
         /// <returns>An LNode that represents the type definition.</returns>
         public static LNode Encode(IType value, EncoderState state)
         {
-            var nameNode = state.Encode(value.Name);
+            var nameNode = state.Encode(
+                value.Parent.IsType || value.Parent.IsMethod
+                ? value.Name.Qualify()
+                : value.FullName);
+
             var typeParamsNode = state.Factory.Call(
                 CodeSymbols.Tuple,
                 value.GenericParameters
