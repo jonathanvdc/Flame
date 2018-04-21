@@ -124,7 +124,7 @@ namespace Flame.Ir
                     && state.AssertDecodeSimpleName(data.Args[1], out name))
                 {
                     var types = state.TypeResolver.ResolveGenericParameters(parent, name);
-                    if (AssertSingleType(types, data, state, "generic declaration"))
+                    if (AssertSingleChildType(types, data, state, "generic declaration"))
                     {
                         return types[0];
                     }
@@ -182,7 +182,7 @@ namespace Flame.Ir
                 }
 
                 var childTypes = state.TypeResolver.ResolveNestedTypes(parentType, childName);
-                if (AssertSingleType(childTypes, data, state, "type"))
+                if (AssertSingleChildType(childTypes, data, state, "type"))
                 {
                     return childTypes[0];
                 }
@@ -197,7 +197,7 @@ namespace Flame.Ir
                 if (state.AssertDecodeQualifiedName(data, out fullName))
                 {
                     var types = state.TypeResolver.ResolveTypes(fullName);
-                    if (AssertSingleType(types, data, state, "namespace"))
+                    if (AssertSingleGlobalType(types, data, state))
                     {
                         return types[0];
                     }
@@ -213,9 +213,9 @@ namespace Flame.Ir
             }
         }
 
-        private static bool AssertSingleType(
+        private static bool AssertSingleChildType(
             IReadOnlyList<IType> types,
-            LNode binaryNode,
+            LNode parentAndNameNode,
             DecoderState state,
             string parentKindDescription)
         {
@@ -224,8 +224,8 @@ namespace Flame.Ir
                 return true;
             }
 
-            var parentNode = binaryNode.Args[0];
-            var nameNode = binaryNode.Args[1];
+            var parentNode = parentAndNameNode.Args[0];
+            var nameNode = parentAndNameNode.Args[1];
             if (types.Count == 0)
             {
                 FeedbackHelpers.LogSyntaxError(
@@ -247,6 +247,39 @@ namespace Flame.Ir
                         parentKindDescription + " ",
                         FeedbackHelpers.Print(parentNode),
                         " defines more than one type named ",
+                        FeedbackHelpers.Print(nameNode),
+                        "."));
+            }
+            return false;
+        }
+
+        private static bool AssertSingleGlobalType(
+            IReadOnlyList<IType> types,
+            LNode nameNode,
+            DecoderState state)
+        {
+            if (types.Count == 1)
+            {
+                return true;
+            }
+
+            if (types.Count == 0)
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    state.Log,
+                    nameNode,
+                    FeedbackHelpers.QuoteEven(
+                        "there is no type named ",
+                        FeedbackHelpers.Print(nameNode),
+                        "."));
+            }
+            else
+            {
+                FeedbackHelpers.LogSyntaxError(
+                    state.Log,
+                    nameNode,
+                    FeedbackHelpers.QuoteEven(
+                        "there is more than one type named ",
                         FeedbackHelpers.Print(nameNode),
                         "."));
             }
