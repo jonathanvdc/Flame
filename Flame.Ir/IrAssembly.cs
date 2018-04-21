@@ -21,8 +21,17 @@ namespace Flame.Ir
         public IrAssembly(LNode node, DecoderState decoder)
             : base(node, decoder)
         {
-            this.typeCache = new Lazy<IReadOnlyList<IType>>(() =>
-                this.Node.Args[1].Args.EagerSelect(this.Decoder.DecodeType));
+            this.typeInitializer = DeferredInitializer.Create(() => {
+                var newResolver = decoder.TypeResolver.CreateMutableCopy();
+                var newDecoder = new DecoderState(
+                    decoder.Log,
+                    newResolver.ReadOnlyView,
+                    decoder.Codec)
+                    .WithScope(new TypeParent(this));
+
+                this.typeCache = this.Node.Args[1].Args.EagerSelect(this.Decoder.DecodeType);
+                newResolver.AddAssembly(this);
+            });
         }
 
         /// <summary>
@@ -37,7 +46,7 @@ namespace Flame.Ir
         public static IrAssembly Decode(LNode data, DecoderState state)
         {
             QualifiedName name;
-            if (!FeedbackHelpers.AssertArgCount(data, 3, state.Log)
+            if (!FeedbackHelpers.AssertArgCount(data, 2, state.Log)
                 || !state.AssertDecodeQualifiedName(data.Args[0], out name))
             {
                 return null;
@@ -58,19 +67,26 @@ namespace Flame.Ir
         {
             return state.Factory.Call(
                 CodeSymbols.Assembly,
-                new LNode []
-                {
-                    state.Encode(value.FullName)
-                }
-                .Concat(value.Types.EagerSelect(state.EncodeDefinition)))
+                state.Encode(value.FullName),
+                state.Factory.Call(
+                    CodeSymbols.Braces,
+                    value.Types.EagerSelect(state.EncodeDefinition)))
                 .WithAttrs(
                     new VList<LNode>(
                         state.Encode(value.Attributes)));
         }
 
-        private Lazy<IReadOnlyList<IType>> typeCache;
+        private IReadOnlyList<IType> typeCache;
+        private DeferredInitializer typeInitializer;
 
         /// <inheritdoc/>
-        public IReadOnlyList<IType> Types => typeCache.Value;
+        public IReadOnlyList<IType> Types
+        {
+            get
+            {
+                typeInitializer.Initialize();
+                return this.typeCache;
+            }
+        }
     }
 }
