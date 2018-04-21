@@ -29,7 +29,7 @@ namespace Flame.Ir
                     decoder.Codec)
                     .WithScope(new TypeParent(this));
 
-                this.typeCache = this.Node.Args[1].Args.EagerSelect(this.Decoder.DecodeType);
+                this.typeCache = this.Node.Args[1].Args.EagerSelect(newDecoder.DecodeTypeDefinition);
                 newResolver.AddAssembly(this);
             });
         }
