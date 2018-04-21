@@ -21,6 +21,20 @@ namespace Flame.TypeSystem
             this.RootNamespace = new TypeResolverNamespace();
         }
 
+        /// <summary>
+        /// Creates a clone of this type resolver.
+        /// </summary>
+        /// <returns>The cloned type resolver.</returns>
+        public TypeResolver Clone()
+        {
+            var clonedResolver = new TypeResolver();
+            foreach (var asm in assemblySet)
+            {
+                clonedResolver.AddAssembly(asm);
+            }
+            return clonedResolver;
+        }
+
         private HashSet<IAssembly> assemblySet;
 
         private ConcurrentDictionary<IType, TypeResolverNamespace> nestedTypeNamespaces;
@@ -294,6 +308,29 @@ namespace Flame.TypeSystem
         /// </summary>
         /// <returns>The root namespace.</returns>
         public TypeResolverNamespace RootNamespace => resolver.RootNamespace;
+
+        /// <summary>
+        /// Creates a new read-only type resolver that includes a
+        /// particular assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly to include.</param>
+        /// <returns>A new read-only type resolver.</returns>
+        public ReadOnlyTypeResolver WithAssembly(IAssembly assembly)
+        {
+            var result = resolver.Clone();
+            result.AddAssembly(assembly);
+            return result.ReadOnlyView;
+        }
+
+        /// <summary>
+        /// Creates a mutable copy of this read-only view of a type
+        /// resolver.
+        /// </summary>
+        /// <returns>A mutable copy.</returns>
+        public TypeResolver CreateMutableCopy()
+        {
+            return resolver.Clone();
+        }
 
         /// <summary>
         /// Resolves all types with a particular full name.
