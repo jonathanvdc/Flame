@@ -165,7 +165,7 @@ namespace Flame.Collections
         {
             get
             {
-                return pairs.Items.Select(pair => pair.Value);
+                return pairs.ToArray().Select(item => item.Value);
             }
         }
 

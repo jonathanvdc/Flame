@@ -148,5 +148,16 @@ namespace Flame.Collections
             Array.Copy((Array)Items, (Array)newArray, Count);
             Items = newArray;
         }
+
+        /// <summary>
+        /// Copies the contents of this value list to an array.
+        /// </summary>
+        /// <returns>An array.</returns>
+        public T[] ToArray()
+        {
+            var results = new T[Count];
+            Array.Copy((Array)Items, (Array)results, Count);
+            return results;
+        }
     }
 }
