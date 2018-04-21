@@ -79,6 +79,16 @@ namespace UnitTests.Flame.Ir
                 });");
         }
 
+        [Test]
+        public void RoundTripAssemblyWithTypeParameter()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(A, #(#type_param(T, #(), #(), { })), #(), { });
+                    #type(B, #(#type_param(T, #(), #(), { })), #(#of(A, #type(B)->T)), { });
+                });");
+        }
+
         private void AssertRoundTripAssembly(string lesCode)
         {
             AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
