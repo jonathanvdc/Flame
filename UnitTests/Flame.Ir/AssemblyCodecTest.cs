@@ -84,8 +84,31 @@ namespace UnitTests.Flame.Ir
         {
             AssertRoundTripAssembly(@"
                 #assembly(Test, {
-                    #type(A, #(#type_param(T, #(), #(), { })), #(), { });
-                    #type(B, #(#type_param(T, #(), #(), { })), #(#of(A, #type(B)->T)), { });
+                    #type(A(1), #(#type_param(T, #(), #(), { })), #(), { });
+                    #type(B(1), #(#type_param(T, #(), #(), { })), #(#of(A(1), #type(B(1))->T)), { });
+                });");
+        }
+
+        [Test]
+        public void RoundTripAssemblyWithField()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(A, #(), #(), {
+                        #var(Instance, true, A);
+                    });
+                });");
+        }
+
+        [Test]
+        public void RoundTripAssemblyWithNestedTypeAndField()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(A, #(), #(), {
+                        #type(B, #(), #(), { });
+                        #var(Instance, true, A);
+                    });
                 });");
         }
 
