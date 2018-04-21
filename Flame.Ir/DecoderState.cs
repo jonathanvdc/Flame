@@ -600,6 +600,11 @@ namespace Flame.Ir
             var result = new AttributeMapBuilder();
             foreach (var item in attributeNodes)
             {
+                if (item.IsTrivia)
+                {
+                    continue;
+                }
+
                 var attr = DecodeAttribute(item);
                 if (attr != null)
                 {
