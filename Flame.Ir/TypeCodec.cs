@@ -39,7 +39,7 @@ namespace Flame.Ir
         public static readonly TypeCodec Instance = new TypeCodec();
 
         private static readonly Symbol pointerSymbol = GSymbol.Get("#pointer");
-        private static readonly Symbol genericParameterSymbol = GSymbol.Get("#type_param");
+        private static readonly Symbol genericParameterSymbol = CodeSymbols.PtrArrow;
 
         private Dictionary<PointerKind, Symbol> pointerKindEncoding;
         private Dictionary<Symbol, PointerKind> pointerKindDecoding;
