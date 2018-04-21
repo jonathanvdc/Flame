@@ -3,6 +3,7 @@ using Flame;
 using Flame.Constants;
 using Flame.Ir;
 using Flame.TypeSystem;
+using Loyc;
 using Loyc.MiniTest;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
@@ -32,24 +33,59 @@ namespace UnitTests.Flame.Ir
             AssertRoundTripAssembly("#assembly(Test, { });");
         }
 
-        private void AssertRoundTripAssembly(string lesCode, bool alsoUseLes = true)
+        [Test]
+        public void RoundTripTypeAssemblyWithSingleType()
         {
-            AssertRoundTripAssembly(Les3LanguageService.Value.ParseSingle(lesCode));
+            AssertRoundTripAssembly("#assembly(Test, { #type(A, #(), #(), { }); });");
         }
 
-        private void AssertRoundTripAssembly(LNode node, bool alsoUseLes = true)
+        [Test]
+        public void RoundTripAssemblyWithMultipleTypes()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(A, #(), #(), { });
+                    #type(B, #(), #(), { });
+                });");
+        }
+
+        [Test]
+        public void RoundTripAssemblyWithTypeRefs()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(A, #(), #(), { });
+                    #type(B, #(), #(A), { });
+                });");
+        }
+
+        private void AssertRoundTripAssembly(string lesCode)
+        {
+            AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
+        }
+
+        private void AssertRoundTripAssembly(LNode node)
         {
             ConstantCodecTest.AssertRoundTrip<LNode, IAssembly>(
                 node,
                 decoder.DecodeAssembly,
                 encoder.EncodeDefinition);
+        }
 
-            if (alsoUseLes)
+        private LNode StripTrivia(LNode node)
+        {
+            var strippedNode = node.WithAttrs(
+                attr => attr.IsTrivia ? Maybe<LNode>.NoValue : new Maybe<LNode>(attr));
+
+            if (strippedNode.IsCall)
             {
-                ConstantCodecTest.AssertRoundTrip<string, IAssembly>(
-                    Les3LanguageService.Value.Print(node),
-                    text => decoder.DecodeAssembly(Les3LanguageService.Value.ParseSingle(text)),
-                    asm => Les3LanguageService.Value.Print(encoder.EncodeDefinition(asm)));
+                return strippedNode
+                    .WithTarget(StripTrivia(strippedNode.Target))
+                    .WithArgs(arg => new Maybe<LNode>(StripTrivia(arg)));
+            }
+            else
+            {
+                return strippedNode;
             }
         }
     }
