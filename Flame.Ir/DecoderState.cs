@@ -615,6 +615,34 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes a parameter node.
+        /// </summary>
+        /// <param name="node">A parameter node to decode.</param>
+        /// <returns>A decoded parameter.</returns>
+        public Parameter DecodeParameter(LNode node)
+        {
+            var attrs = DecodeAttributeMap(node.Attrs);
+            if (node.Calls(EncoderState.parameterSymbol))
+            {
+                if (!FeedbackHelpers.AssertArgCount(node, 2, Log))
+                {
+                    return new Parameter(ErrorType.Instance).WithAttributes(attrs);
+                }
+                else
+                {
+                    return new Parameter(
+                        DecodeType(node.Args[0]),
+                        DecodeSimpleName(node.Args[1]),
+                        attrs);
+                }
+            }
+            else
+            {
+                return new Parameter(DecodeType(node)).WithAttributes(attrs);
+            }
+        }
+
+        /// <summary>
         /// Decodes an assembly.
         /// </summary>
         /// <param name="node">The assembly to decode.</param>

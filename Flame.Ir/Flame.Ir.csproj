@@ -65,6 +65,7 @@
     <Compile Include="IrCodec.cs" />
     <Compile Include="IrField.cs" />
     <Compile Include="IrMember.cs" />
+    <Compile Include="IrMethod.cs" />
     <Compile Include="IrType.cs" />
     <Compile Include="PiecewiseCodec.cs" />
     <Compile Include="TypeCodec.cs" />

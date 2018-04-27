@@ -57,6 +57,7 @@ namespace Flame.Ir
 
         internal static readonly Symbol typeHintSymbol = GSymbol.Get("#type");
         internal static readonly Symbol methodHintSymbol = GSymbol.Get("#method");
+        internal static readonly Symbol parameterSymbol = GSymbol.Get("param");
 
         /// <summary>
         /// Encodes a type reference.
