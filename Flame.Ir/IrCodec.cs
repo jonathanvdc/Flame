@@ -88,7 +88,7 @@ namespace Flame.Ir
             InstructionCodecElements.All,
             TypeCodec.Instance,
             new PiecewiseCodec<IMethod>(),
-            TypeMemberCodecElements.All,
+            TypeMemberDefinitionCodec.Instance,
             TypeDefinitionCodec.Instance,
             new PiecewiseCodec<IAttribute>());
     }
