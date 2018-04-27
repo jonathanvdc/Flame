@@ -108,6 +108,20 @@ namespace Flame
         }
 
         /// <summary>
+        /// Creates a new parameter that retains all characteristics
+        /// from this parameter except for its attributes, which are replaced
+        /// by a new attribute map.
+        /// </summary>
+        /// <param name="attributes">
+        /// The attribute map for the new parameter.
+        /// </param>
+        /// <returns>The new parameter.</returns>
+        public Parameter WithAttributes(AttributeMap attributes)
+        {
+            return new Parameter(this.Type, this.Name, attributes);
+        }
+
+        /// <summary>
         /// Applies a member mapping to this parameter's type.
         /// The result is returned as a new parameter.
         /// </summary>
