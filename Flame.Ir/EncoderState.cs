@@ -5,6 +5,7 @@ using Flame.Compiler;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Loyc;
+using Loyc.Collections;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 
@@ -214,6 +215,27 @@ namespace Flame.Ir
         public LNode Encode(IAttribute attribute)
         {
             return Codec.Attributes.Encode(attribute, this);
+        }
+
+        /// <summary>
+        /// Encodes a parameter definition as an LNode.
+        /// </summary>
+        /// <param name="parameter">The parameter to encode.</param>
+        /// <returns>An encoded node.</returns>
+        public LNode EncodeDefinition(Parameter parameter)
+        {
+            if (parameter.Name.ToString() == "")
+            {
+                return Encode(parameter.Type)
+                    .WithAttrs(new VList<LNode>(Encode(parameter.Attributes)));
+            }
+            else
+            {
+                return Factory.Call(
+                    Encode(parameter.Type),
+                    Encode(parameter.Name))
+                    .WithAttrs(new VList<LNode>(Encode(parameter.Attributes)));
+            }
         }
 
         /// <summary>

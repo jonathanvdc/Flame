@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 using Loyc;
+using Loyc.Collections;
 using Loyc.Syntax;
 
 namespace Flame.Ir
@@ -17,7 +19,7 @@ namespace Flame.Ir
         /// </summary>
         /// <param name="node">The node to decode.</param>
         /// <param name="decoder">The decoder to use.</param>
-        public IrMethod(LNode node, DecoderState decoder)
+        private IrMethod(LNode node, DecoderState decoder)
             : base(node, decoder)
         {
             this.isStaticCache = new Lazy<bool>(() =>
@@ -32,6 +34,65 @@ namespace Flame.Ir
                 node.Args[4].Args.EagerSelect(methodDecoder.DecodeParameter));
             this.baseMethodCache = new Lazy<IReadOnlyList<IMethod>>(() =>
                 node.Args[5].Args.EagerSelect(methodDecoder.DecodeMethod));
+        }
+
+        /// <summary>
+        /// Decodes a method from an LNode.
+        /// </summary>
+        /// <param name="data">The LNode to decode.</param>
+        /// <param name="state">The decoder to use.</param>
+        /// <returns>
+        /// A decoded method if the node can be decoded;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public static IMethod Decode(LNode data, DecoderState state)
+        {
+            SimpleName name;
+
+            if (!FeedbackHelpers.AssertMinArgCount(data, 6, state.Log)
+                || !state.AssertDecodeSimpleName(data.Args[0], out name))
+            {
+                return null;
+            }
+            else
+            {
+                return new IrMethod(data, state);
+            }
+        }
+
+        /// <summary>
+        /// Encodes a method as an LNode.
+        /// </summary>
+        /// <param name="value">The method to encode.</param>
+        /// <param name="state">The encoder to use.</param>
+        /// <returns>An LNode that represents the method.</returns>
+        public static LNode Encode(IMethod value, EncoderState state)
+        {
+            var typeParamsNode = state.Factory.Call(
+                CodeSymbols.AltList,
+                value.GenericParameters
+                    .Select(state.EncodeDefinition)
+                    .ToList());
+
+            var parameterNodes = state.Factory.Call(
+                CodeSymbols.AltList,
+                value.Parameters.EagerSelect(state.EncodeDefinition));
+
+            var baseMethodNodes = state.Factory.Call(
+                CodeSymbols.AltList,
+                value.BaseMethods.EagerSelect(state.Encode));
+
+            return state.Factory.Call(
+                value.IsConstructor ? CodeSymbols.Constructor : CodeSymbols.Fn,
+                state.Encode(value.Name),
+                state.Encode(value.IsStatic),
+                typeParamsNode,
+                state.EncodeDefinition(value.ReturnParameter),
+                parameterNodes,
+                baseMethodNodes)
+                .WithAttrs(
+                    new VList<LNode>(
+                        state.Encode(value.Attributes)));
         }
 
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;

@@ -15,12 +15,28 @@ namespace Flame.Ir
     public static class TypeMemberCodecElements
     {
         /// <summary>
-        /// A codec element for alloca-array instruction prototypes.
+        /// A codec element for fields.
         /// </summary>
         /// <returns>A codec element.</returns>
         public static readonly CodecElement<IField, LNode> Field =
             new CodecElement<IField, LNode>(
                 CodeSymbols.Var, IrField.Encode, IrField.Decode);
+
+        /// <summary>
+        /// A codec element for constructors.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<IMethod, LNode> Constructor =
+            new CodecElement<IMethod, LNode>(
+                CodeSymbols.Constructor, IrMethod.Encode, IrMethod.Decode);
+
+        /// <summary>
+        /// A codec element for methods.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<IMethod, LNode> Method =
+            new CodecElement<IMethod, LNode>(
+                CodeSymbols.Fn, IrMethod.Encode, IrMethod.Decode);
 
         /// <summary>
         /// Gets a codec that contains all sub-codecs defined in this class.
@@ -31,7 +47,9 @@ namespace Flame.Ir
             get
             {
                 return new PiecewiseCodec<ITypeMember>()
-                    .Add(Field);
+                    .Add(Field)
+                    .Add(Constructor)
+                    .Add(Method);
             }
         }
     }
