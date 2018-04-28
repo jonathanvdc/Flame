@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Numerics;
 using Flame.Compiler;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
@@ -640,6 +643,260 @@ namespace Flame.Ir
             {
                 return new Parameter(DecodeType(node)).WithAttributes(attrs);
             }
+        }
+
+        private static BasicBlockBuilder GetBasicBlock(
+            Symbol name,
+            FlowGraphBuilder graph,
+            Dictionary<Symbol, BasicBlockBuilder> blocks)
+        {
+            BasicBlockBuilder result;
+            if (blocks.TryGetValue(name, out result))
+            {
+                return result;
+            }
+            else
+            {
+                result = graph.AddBasicBlock(name.Name);
+                return result;
+            }
+        }
+
+        private static ValueTag GetValueTag(
+            Symbol name,
+            Dictionary<Symbol, ValueTag> valueTags)
+        {
+            ValueTag result;
+            if (valueTags.TryGetValue(name, out result))
+            {
+                return result;
+            }
+            else
+            {
+                result = new ValueTag(name.Name);
+                return result;
+            }
+        }
+
+        private bool AssertDecodeBranch(
+            LNode node,
+            FlowGraphBuilder graph,
+            Dictionary<Symbol, BasicBlockBuilder> blocks,
+            Dictionary<Symbol, ValueTag> valueTags,
+            out Branch result)
+        {
+            throw new NotImplementedException();
+        }
+
+        private BlockFlow DecodeBlockFlow(
+            LNode node,
+            FlowGraphBuilder graph,
+            Dictionary<Symbol, BasicBlockBuilder> blocks,
+            Dictionary<Symbol, ValueTag> valueTags)
+        {
+            if (node.Calls(CodeSymbols.Goto))
+            {
+                Branch target;
+                if (FeedbackHelpers.AssertArgCount(node, 1, Log)
+                    && AssertDecodeBranch(node.Args[0], graph, blocks, valueTags, out target))
+                {
+                    return new JumpFlow(target);
+                }
+                else
+                {
+                    return UnreachableFlow.Instance;
+                }
+            }
+            else if (node.Calls(CodeSymbols.Switch))
+            {
+                // Decode the value being switched on as well as the default branch.
+                Instruction switchVal;
+                Branch defaultTarget;
+                if (FeedbackHelpers.AssertArgCount(node, 3, Log)
+                    && AssertDecodeInstruction(node.Args[0], valueTags, out switchVal)
+                    && AssertDecodeBranch(node.Args[1], graph, blocks, valueTags, out defaultTarget))
+                {
+                    // Decode the switch cases.
+                    var switchCases = ImmutableList.CreateBuilder<SwitchCase>();
+                    foreach (var caseNode in node.Args[2].Args)
+                    {
+                        if (!FeedbackHelpers.AssertArgCount(caseNode, 2, Log)
+                            || !FeedbackHelpers.AssertIsCall(caseNode.Args[0], Log))
+                        {
+                            continue;
+                        }
+
+                        var constants = ImmutableHashSet.CreateRange<Constant>(
+                            caseNode.Args[0].Args
+                                .Select(DecodeConstant)
+                                .Where(x => x != null));
+
+                        Branch caseTarget;
+                        if (AssertDecodeBranch(caseNode.Args[1], graph, blocks, valueTags, out caseTarget))
+                        {
+                            switchCases.Add(new SwitchCase(constants, caseTarget));
+                        }
+                    }
+                    return new SwitchFlow(switchVal, switchCases.ToImmutable(), defaultTarget);
+                }
+                else
+                {
+                    return UnreachableFlow.Instance;
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private bool AssertDecodeInstruction(
+            LNode insnNode,
+            Dictionary<Symbol, ValueTag> valueTags,
+            out Instruction result)
+        {
+            if (!FeedbackHelpers.AssertIsCall(insnNode, Log))
+            {
+                return false;
+            }
+
+            // Decode the prototype.
+            var prototype = DecodeInstructionProtoype(insnNode.Target);
+
+            // Decode the instruction arguments.
+            var args = new List<ValueTag>();
+            foreach (var argNode in insnNode.Args)
+            {
+                if (!FeedbackHelpers.AssertIsId(argNode, Log))
+                {
+                    return false;
+                }
+
+                args.Add(GetValueTag(argNode.Name, valueTags));
+            }
+
+            // Append the instruction to the basic block.
+            result = prototype.Instantiate(args);
+            return true;
+        }
+
+        private BasicBlockBuilder DecodeBasicBlock(
+            LNode node,
+            FlowGraphBuilder graph,
+            Dictionary<Symbol, BasicBlockBuilder> blocks,
+            Dictionary<Symbol, ValueTag> valueTags)
+        {
+            // Each basic block is essentially a
+            // (name, parameters, instructions, flow) tuple.
+            // We just parse all four elements and call it a day.
+
+            // Parse the block's name and create the block.
+            var name = FeedbackHelpers.AssertIsId(node.Args[0], Log)
+                ? node.Args[0].Name
+                : GSymbol.Empty;
+
+            var blockBuilder = GetBasicBlock(name, graph, blocks);
+
+            // Parse the block's parameter list.
+            foreach (var paramNode in node.Args[1].Args)
+            {
+                if (FeedbackHelpers.AssertArgCount(paramNode, 2, Log))
+                {
+                    blockBuilder.AppendParameter(
+                        new BlockParameter(
+                            DecodeType(paramNode.Args[0]),
+                            FeedbackHelpers.AssertIsId(paramNode.Args[1], Log)
+                                ? GetValueTag(paramNode.Args[1].Name, valueTags)
+                                : new ValueTag()));
+                }
+                else
+                {
+                    blockBuilder.AppendParameter(new BlockParameter(ErrorType.Instance));
+                }
+            }
+
+            // Parse the block's instructions.
+            foreach (var valueNode in node.Args[2].Args)
+            {
+                // Decode the instruction.
+                Instruction insn;
+                if (!FeedbackHelpers.AssertIsCall(valueNode, Log)
+                    || !FeedbackHelpers.AssertArgCount(valueNode, 2, Log)
+                    || !FeedbackHelpers.AssertIsId(valueNode.Args[0], Log)
+                    || !AssertDecodeInstruction(valueNode.Args[1], valueTags, out insn))
+                {
+                    continue;
+                }
+
+                // Append the instruction to the basic block.
+                blockBuilder.AppendInstruction(
+                    insn,
+                    GetValueTag(valueNode.Args[0].Name, valueTags));
+            }
+
+            // Parse the block's flow.
+            blockBuilder.Flow = DecodeBlockFlow(node.Args[0], graph, blocks, valueTags);
+
+            return blockBuilder;
+        }
+
+        /// <summary>
+        /// Decodes a control-flow graph as a method body.
+        /// </summary>
+        /// <param name="node">An encoded control-flow graph.</param>
+        /// <returns>
+        /// A new method body that includes the decoded control-flow graph.
+        /// </returns>
+        public FlowGraph DecodeFlowGraph(LNode node)
+        {
+            // A CFG consists of a list of basic blocks and a specially
+            // marked entry point block.
+
+            var graph = new FlowGraphBuilder();
+
+            var blocks = new Dictionary<Symbol, BasicBlockBuilder>();
+            var valueTags = new Dictionary<Symbol, ValueTag>();
+            var parsedEntryPoint = false;
+
+            foreach (var blockNode in node.Args)
+            {
+                if (!FeedbackHelpers.AssertArgCount(blockNode, 4, Log))
+                {
+                    // Log the error and return an empty flow graph.
+                    return new FlowGraph();
+                }
+
+                // Parse the basic block.
+                var blockBuilder = DecodeBasicBlock(node, graph, blocks, valueTags);
+
+                // Entry points get special treatment.
+                if (blockNode.Calls(EncoderState.entryPointBlockSymbol))
+                {
+                    if (parsedEntryPoint)
+                    {
+                        Log.LogSyntaxError(
+                            blockNode,
+                            "there can be only one entry point block in a control-flow graph.");
+                    }
+
+                    parsedEntryPoint = true;
+
+                    // Update the graph's entry point.
+                    var oldEntryPointTag = graph.EntryPointTag;
+                    graph.EntryPointTag = blockBuilder.Tag;
+                    graph.RemoveBasicBlock(oldEntryPointTag);
+                }
+            }
+
+            if (!parsedEntryPoint)
+            {
+                Log.LogSyntaxError(
+                    node,
+                    "all control-flow graphs must define exactly one " +
+                    "entry point, but this one doesn't.");
+            }
+
+            return graph.ToImmutable();
         }
 
         /// <summary>

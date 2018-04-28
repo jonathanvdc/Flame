@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
+using Flame.Compiler;
 using Loyc;
 using Loyc.Collections;
 using Loyc.Syntax;
@@ -11,7 +12,7 @@ namespace Flame.Ir
     /// <summary>
     /// A method that is decoded from a Flame IR method LNode.
     /// </summary>
-    public class IrMethod : IrMember, IMethod
+    public class IrMethod : IrMember, IBodyMethod
     {
         /// <summary>
         /// Creates a Flame IR method from an appropriately-encoded
@@ -34,6 +35,14 @@ namespace Flame.Ir
                 node.Args[4].Args.EagerSelect(methodDecoder.DecodeParameter));
             this.baseMethodCache = new Lazy<IReadOnlyList<IMethod>>(() =>
                 node.Args[5].Args.EagerSelect(methodDecoder.DecodeMethod));
+            this.methodBodyCache = new Lazy<MethodBody>(() =>
+                node.ArgCount > 6
+                ? new MethodBody(
+                    ReturnParameter,
+                    Parameter.CreateThisParameter(this.ParentType),
+                    Parameters,
+                    methodDecoder.DecodeFlowGraph(node.Args[6]))
+                : null);
         }
 
         /// <summary>
@@ -100,6 +109,7 @@ namespace Flame.Ir
         private Lazy<Parameter> returnParameterCache;
         private Lazy<IReadOnlyList<Parameter>> parameterCache;
         private Lazy<IReadOnlyList<IMethod>> baseMethodCache;
+        private Lazy<MethodBody> methodBodyCache;
 
         /// <inheritdoc/>
         public bool IsConstructor => Node.Calls(CodeSymbols.Constructor);
@@ -121,5 +131,8 @@ namespace Flame.Ir
 
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters => genericParameterCache.Value;
+
+        /// <inheritdoc/>
+        public MethodBody Body => throw new NotImplementedException();
     }
 }
