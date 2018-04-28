@@ -156,5 +156,22 @@ namespace Flame
             return parameters.EagerSelect<Parameter, Parameter, MemberMapping>(
                 MapOne, mapping);
         }
+
+        /// <summary>
+        /// Creates a 'this' parameter for a particular type.
+        /// </summary>
+        /// <param name="parentType">
+        /// The type to create a 'this' parameter for.
+        /// </param>
+        /// <returns>A 'this' parameter.</returns>
+        public static Parameter CreateThisParameter(IType parentType)
+        {
+            return new Parameter(
+                parentType.MakePointerType(
+                    parentType.IsReferenceType()
+                    ? PointerKind.Box
+                    : PointerKind.Reference),
+                "this");
+        }
     }
 }
