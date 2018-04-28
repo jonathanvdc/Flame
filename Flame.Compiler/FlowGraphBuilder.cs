@@ -8,6 +8,14 @@ namespace Flame.Compiler
     public sealed class FlowGraphBuilder
     {
         /// <summary>
+        /// Creates a control-flow graph builder that contains
+        /// only an empty entry point block.
+        /// </summary>
+        public FlowGraphBuilder()
+            : this(new FlowGraph())
+        { }
+
+        /// <summary>
         /// Creates a control-flow graph builder from an
         /// immutable control-flow graph.
         /// </summary>

@@ -97,13 +97,25 @@ namespace Flame.Compiler
         /// Returns the instruction builder for the inserted instruction.
         /// </summary>
         /// <param name="instruction">The instruction to append.</param>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <returns>The appended instruction.</returns>
+        public InstructionBuilder AppendInstruction(Instruction instruction, ValueTag tag)
+        {
+            var selInsn = ImmutableBlock.AppendInstruction(instruction, tag);
+            Graph.ImmutableGraph = selInsn.Block.Graph;
+            return Graph.GetInstruction(selInsn.Tag);
+        }
+
+        /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns the instruction builder for the inserted instruction.
+        /// </summary>
+        /// <param name="instruction">The instruction to append.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The appended instruction.</returns>
         public InstructionBuilder AppendInstruction(Instruction instruction, string name)
         {
-            var selInsn = ImmutableBlock.AppendInstruction(instruction, name);
-            Graph.ImmutableGraph = selInsn.Block.Graph;
-            return Graph.GetInstruction(selInsn.Tag);
+            return AppendInstruction(instruction, new ValueTag(name));
         }
 
         /// <summary>
@@ -114,7 +126,16 @@ namespace Flame.Compiler
         /// <returns>The appended instruction.</returns>
         public InstructionBuilder AppendInstruction(Instruction instruction)
         {
-            return AppendInstruction(instruction, "");
+            return AppendInstruction(instruction, new ValueTag());
+        }
+
+        /// <summary>
+        /// Appends a new parameter to the end of this basic block's parameter list.
+        /// </summary>
+        /// <param name="parameter">The parameter to append.</param>
+        public void AppendParameter(BlockParameter parameter)
+        {
+            Graph.ImmutableGraph = ImmutableBlock.AppendParameter(parameter).Graph;
         }
 
         /// <summary>

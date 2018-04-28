@@ -129,15 +129,27 @@ namespace Flame.Compiler
         /// Returns the new instruction in a new control-flow graph.
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
-        /// <param name="name">The preferred name for the instruction.</param>
+        /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertBefore(Instruction instruction, string name)
+        public SelectedInstruction InsertBefore(Instruction instruction, ValueTag tag)
         {
             return Block.Graph.InsertInstructionInBasicBlock(
                 Block.Tag,
                 instruction,
-                name,
+                tag,
                 InstructionIndex);
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name for the instruction.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertBefore(Instruction instruction, string name)
+        {
+            return InsertBefore(instruction, new ValueTag(name));
         }
 
         /// <summary>
@@ -156,15 +168,27 @@ namespace Flame.Compiler
         /// Returns the new instruction in a new control-flow graph.
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
-        /// <param name="name">The preferred name for the instruction.</param>
+        /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertAfter(Instruction instruction, string name)
+        public SelectedInstruction InsertAfter(Instruction instruction, ValueTag tag)
         {
             return Block.Graph.InsertInstructionInBasicBlock(
                 Block.Tag,
                 instruction,
-                name,
+                tag,
                 InstructionIndex + 1);
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just after this instruction.
+        /// Returns the new instruction in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name for the instruction.</param>
+        /// <returns>The inserted instruction in a new control-flow graph.</returns>
+        public SelectedInstruction InsertAfter(Instruction instruction, string name)
+        {
+            return InsertAfter(instruction, new ValueTag(name));
         }
 
         /// <summary>

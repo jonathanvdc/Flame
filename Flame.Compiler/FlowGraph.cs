@@ -331,6 +331,22 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Asserts that this control-flow graph must not contain an instruction
+        /// or basic block parameter with a particular tag.
+        /// </summary>
+        /// <param name="tag">
+        /// The tag of the value that must not be in the graph.
+        /// </param>
+        /// <param name="message">
+        /// The error message for when a value in this control-flow graph
+        /// has the tag.
+        /// </param>
+        public void AssertNotContainsValue(ValueTag tag, string message)
+        {
+            ContractHelpers.Assert(!ContainsValue(tag), message);
+        }
+
+        /// <summary>
         /// Asserts that this control-flow graph must contain an instruction
         /// or basic block parameter with a particular tag.
         /// </summary>
@@ -340,6 +356,18 @@ namespace Flame.Compiler
         public void AssertContainsValue(ValueTag tag)
         {
             AssertContainsValue(tag, "The graph does not contain the given value.");
+        }
+
+        /// <summary>
+        /// Asserts that this control-flow graph must not contain an instruction
+        /// or basic block parameter with a particular tag.
+        /// </summary>
+        /// <param name="tag">
+        /// The tag of the value that must not be in the graph.
+        /// </param>
+        public void AssertNotContainsValue(ValueTag tag)
+        {
+            AssertNotContainsValue(tag, "The graph already contains a value with the given tag.");
         }
 
         /// <summary>
@@ -483,12 +511,11 @@ namespace Flame.Compiler
         internal SelectedInstruction InsertInstructionInBasicBlock(
             BasicBlockTag blockTag,
             Instruction instruction,
-            string name,
+            ValueTag insnTag,
             int index)
         {
             AssertContainsBasicBlock(blockTag);
-
-            var insnTag = new ValueTag(name);
+            AssertNotContainsValue(insnTag);
 
             var oldBlockData = blocks[blockTag];
             var newBlockData = new BasicBlockData(

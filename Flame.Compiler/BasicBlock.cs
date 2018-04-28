@@ -102,11 +102,23 @@ namespace Flame.Compiler
         /// Returns a new basic block in a new control-flow graph.
         /// </summary>
         /// <param name="instruction">The instruction to append.</param>
+        /// <param name="tag">The tag for the instruction.</param>
+        /// <returns>The appended instruction.</returns>
+        public SelectedInstruction AppendInstruction(Instruction instruction, ValueTag tag)
+        {
+            return Graph.InsertInstructionInBasicBlock(Tag, instruction, tag, InstructionTags.Count);
+        }
+
+        /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="instruction">The instruction to append.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The appended instruction.</returns>
         public SelectedInstruction AppendInstruction(Instruction instruction, string name)
         {
-            return Graph.InsertInstructionInBasicBlock(Tag, instruction, name, InstructionTags.Count);
+            return AppendInstruction(instruction, new ValueTag(name));
         }
 
         /// <summary>
@@ -118,6 +130,17 @@ namespace Flame.Compiler
         public SelectedInstruction AppendInstruction(Instruction instruction)
         {
             return AppendInstruction(instruction, "");
+        }
+
+        /// <summary>
+        /// Appends a new parameter to the end of this basic block's parameter list.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="parameter">The parameter to append.</param>
+        /// <returns>A new basic block in a new control-flow graph.</returns>
+        public BasicBlock AppendParameter(BlockParameter parameter)
+        {
+            return WithParameters(Parameters.Add(parameter));
         }
 
         /// <summary>
