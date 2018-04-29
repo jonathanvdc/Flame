@@ -4,6 +4,7 @@ using Flame.Compiler.Flow;
 using System.Collections.Immutable;
 using System;
 using Flame.TypeSystem;
+using System.Linq;
 
 namespace Flame.Compiler
 {
@@ -55,9 +56,23 @@ namespace Flame.Compiler
         public IEnumerable<BasicBlockTag> BasicBlockTags => blocks.Keys;
 
         /// <summary>
+        /// Gets a sequence of all basic blocks in this control-flow graph.
+        /// </summary>
+        /// <returns>All basic blocks.</returns>
+        public IEnumerable<BasicBlock> BasicBlocks =>
+            BasicBlockTags.Select(GetBasicBlock);
+
+        /// <summary>
         /// Gets a sequence of all instruction tags in this control-flow graph.
         /// </summary>
         public IEnumerable<ValueTag> InstructionTags => instructions.Keys;
+
+        /// <summary>
+        /// Gets a sequence of all instructions in this control-flow graph.
+        /// </summary>
+        /// <returns>All instructions</returns>
+        public IEnumerable<SelectedInstruction> Instructions =>
+            InstructionTags.Select(GetInstruction);
 
         /// <summary>
         /// Creates a new basic block that includes all basic blocks in this

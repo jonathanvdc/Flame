@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler
 {
@@ -53,9 +54,23 @@ namespace Flame.Compiler
         public IEnumerable<BasicBlockTag> BasicBlockTags => ImmutableGraph.BasicBlockTags;
 
         /// <summary>
+        /// Gets a sequence of all basic blocks in this control-flow graph.
+        /// </summary>
+        /// <returns>All basic blocks.</returns>
+        public IEnumerable<BasicBlockBuilder> BasicBlocks =>
+            BasicBlockTags.Select(GetBasicBlock);
+
+        /// <summary>
         /// Gets a sequence of all instruction tags in this control-flow graph.
         /// </summary>
         public IEnumerable<ValueTag> InstructionTags => ImmutableGraph.InstructionTags;
+
+        /// <summary>
+        /// Gets a sequence of all instructions in this control-flow graph.
+        /// </summary>
+        /// <returns>All instructions.</returns>
+        public IEnumerable<InstructionBuilder> Instructions =>
+            InstructionTags.Select(GetInstruction);
 
         /// <summary>
         /// Adds an empty basic block to this flow-graph builder.
