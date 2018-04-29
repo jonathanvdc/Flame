@@ -678,6 +678,58 @@ namespace Flame.Ir
             }
         }
 
+        private bool AssertDecodeValueTags(
+            IEnumerable<LNode> nodes,
+            Dictionary<Symbol, ValueTag> valueTags,
+            out IReadOnlyList<ValueTag> tags)
+        {
+            var results = new List<ValueTag>();
+            foreach (var argNode in nodes)
+            {
+                if (!FeedbackHelpers.AssertIsId(argNode, Log))
+                {
+                    tags = null;
+                    return false;
+                }
+
+                results.Add(GetValueTag(argNode.Name, valueTags));
+            }
+            tags = results;
+            return true;
+        }
+
+        private bool AssertDecodeBranchArguments(
+            IEnumerable<LNode> nodes,
+            Dictionary<Symbol, ValueTag> valueTags,
+            out IReadOnlyList<BranchArgument> args)
+        {
+            var results = new List<BranchArgument>();
+            foreach (var argNode in nodes)
+            {
+                if (!FeedbackHelpers.AssertIsId(argNode, Log))
+                {
+                    args = null;
+                    return false;
+                }
+
+                var name = argNode.Name;
+                if (name == CodeSymbols.Result)
+                {
+                    results.Add(BranchArgument.TryResult);
+                }
+                else if (name == EncoderState.tryFlowExceptionSymbol)
+                {
+                    results.Add(BranchArgument.TryException);
+                }
+                else
+                {
+                    results.Add(BranchArgument.FromValue(GetValueTag(argNode.Name, valueTags)));
+                }
+            }
+            args = results;
+            return true;
+        }
+
         private bool AssertDecodeBranch(
             LNode node,
             FlowGraphBuilder graph,
@@ -685,7 +737,21 @@ namespace Flame.Ir
             Dictionary<Symbol, ValueTag> valueTags,
             out Branch result)
         {
-            throw new NotImplementedException();
+            IReadOnlyList<BranchArgument> args;
+            if (FeedbackHelpers.AssertIsCall(node, Log)
+                && FeedbackHelpers.AssertIsId(node.Target, Log)
+                && AssertDecodeBranchArguments(node.Args, valueTags, out args))
+            {
+                result = new Branch(
+                    GetBasicBlock(node.Target.Name, graph, blocks).Tag,
+                    args);
+                return true;
+            }
+            else
+            {
+                result = default(Branch);
+                return false;
+            }
         }
 
         private BlockFlow DecodeBlockFlow(
@@ -744,9 +810,53 @@ namespace Flame.Ir
                     return UnreachableFlow.Instance;
                 }
             }
+            else if (node.Calls(CodeSymbols.Return))
+            {
+                Instruction retValue;
+                if (FeedbackHelpers.AssertArgCount(node, 1, Log)
+                    && AssertDecodeInstruction(node.Args[0], valueTags, out retValue))
+                {
+                    return new ReturnFlow(retValue);
+                }
+                else
+                {
+                    return UnreachableFlow.Instance;
+                }
+            }
+            else if (node.Calls(CodeSymbols.Try))
+            {
+                Instruction tryValue;
+                Branch successBranch;
+                Branch exceptionBranch;
+                if (FeedbackHelpers.AssertArgCount(node, 3, Log)
+                    && AssertDecodeInstruction(node.Args[0], valueTags, out tryValue)
+                    && AssertDecodeBranch(node.Args[1], graph, blocks, valueTags, out successBranch)
+                    && AssertDecodeBranch(node.Args[2], graph, blocks, valueTags, out exceptionBranch))
+                {
+                    return new TryFlow(tryValue, successBranch, exceptionBranch);
+                }
+                else
+                {
+                    return UnreachableFlow.Instance;
+                }
+            }
+            else if (node.IsIdNamed(EncoderState.unreachableFlowSymbol))
+            {
+                return UnreachableFlow.Instance;
+            }
             else
             {
-                throw new NotImplementedException();
+                FeedbackHelpers.LogSyntaxError(
+                    Log,
+                    node,
+                    Quotation.QuoteEvenInBold(
+                        "unknown type of flow; expected one of ",
+                        CodeSymbols.Goto.Name, ", ",
+                        CodeSymbols.Switch.Name, ", ",
+                        CodeSymbols.Try.Name, ", ",
+                        CodeSymbols.Return.Name, " or ",
+                        EncoderState.unreachableFlowSymbol.Name, "."));
+                return UnreachableFlow.Instance;
             }
         }
 
@@ -757,6 +867,7 @@ namespace Flame.Ir
         {
             if (!FeedbackHelpers.AssertIsCall(insnNode, Log))
             {
+                result = default(Instruction);
                 return false;
             }
 
@@ -764,20 +875,17 @@ namespace Flame.Ir
             var prototype = DecodeInstructionProtoype(insnNode.Target);
 
             // Decode the instruction arguments.
-            var args = new List<ValueTag>();
-            foreach (var argNode in insnNode.Args)
+            IReadOnlyList<ValueTag> args;
+            if (AssertDecodeValueTags(insnNode.Args, valueTags, out args))
             {
-                if (!FeedbackHelpers.AssertIsId(argNode, Log))
-                {
-                    return false;
-                }
-
-                args.Add(GetValueTag(argNode.Name, valueTags));
+                result = prototype.Instantiate(args);
+                return true;
             }
-
-            // Append the instruction to the basic block.
-            result = prototype.Instantiate(args);
-            return true;
+            else
+            {
+                result = default(Instruction);
+                return false;
+            }
         }
 
         private BasicBlockBuilder DecodeBasicBlock(

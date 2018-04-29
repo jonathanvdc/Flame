@@ -61,6 +61,8 @@ namespace Flame.Ir
         internal static readonly Symbol parameterSymbol = GSymbol.Get("param");
         internal static readonly Symbol entryPointBlockSymbol = GSymbol.Get("#entry_point");
         internal static readonly Symbol basicBlockSymbol = GSymbol.Get("#block");
+        internal static readonly Symbol tryFlowExceptionSymbol = GSymbol.Get("#exception");
+        internal static readonly Symbol unreachableFlowSymbol = GSymbol.Get("#unreachable");
 
         /// <summary>
         /// Encodes a type reference.

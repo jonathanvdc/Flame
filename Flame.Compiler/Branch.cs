@@ -131,7 +131,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="value">The value to pass to the target block.</param>
         /// <returns>A branch argument.</returns>
-        public BranchArgument FromValue(ValueTag value)
+        public static BranchArgument FromValue(ValueTag value)
         {
             return new BranchArgument(BranchArgumentKind.Value, value);
         }
