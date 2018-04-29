@@ -133,6 +133,6 @@ namespace Flame.Ir
         public IReadOnlyList<IGenericParameter> GenericParameters => genericParameterCache.Value;
 
         /// <inheritdoc/>
-        public MethodBody Body => throw new NotImplementedException();
+        public MethodBody Body => methodBodyCache.Value;
     }
 }
