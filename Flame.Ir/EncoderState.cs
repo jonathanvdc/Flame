@@ -359,6 +359,42 @@ namespace Flame.Ir
                     CodeSymbols.Goto,
                     Encode(((JumpFlow)flow).Branch, blockNameMap, valueNameMap));
             }
+            else if (flow is ReturnFlow)
+            {
+                return Factory.Call(
+                    CodeSymbols.Return,
+                    Encode(((ReturnFlow)flow).ReturnValue, valueNameMap));
+            }
+            else if (flow is TryFlow)
+            {
+                var tryFlow = (TryFlow)flow;
+
+                return Factory.Call(
+                    CodeSymbols.Try,
+                    Encode(tryFlow.Instruction, valueNameMap),
+                    Encode(tryFlow.SuccessBranch, blockNameMap, valueNameMap),
+                    Encode(tryFlow.ExceptionBranch, blockNameMap, valueNameMap));
+            }
+            else if (flow is SwitchFlow)
+            {
+                var switchFlow = (SwitchFlow)flow;
+
+                var caseNodes = new List<LNode>();
+                foreach (var switchCase in switchFlow.Cases)
+                {
+                    caseNodes.Add(
+                        Factory.Call(
+                            CodeSymbols.Case,
+                            Factory.Call(CodeSymbols.AltList, switchCase.Values.Select(Encode)),
+                            Encode(switchCase.Branch, blockNameMap, valueNameMap)));
+                }
+
+                return Factory.Call(
+                    CodeSymbols.Switch,
+                    Encode(switchFlow.SwitchValue, valueNameMap),
+                    Encode(switchFlow.DefaultBranch, blockNameMap, valueNameMap),
+                    Factory.Call(CodeSymbols.Braces, caseNodes));
+            }
             else
             {
                 throw new NotSupportedException(
