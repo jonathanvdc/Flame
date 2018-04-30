@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Flame.Compiler
 {
@@ -65,6 +67,13 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The list of all instruction tags.</returns>
         public ImmutableList<ValueTag> InstructionTags => ImmutableBlock.InstructionTags;
+
+        /// <summary>
+        /// Gets the list of all instructions in this basic block.
+        /// </summary>
+        /// <returns>The list of all instructions.</returns>
+        public IEnumerable<InstructionBuilder> Instructions =>
+            InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>
         /// Gets or sets the control flow at the end of this basic block.
