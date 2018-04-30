@@ -127,6 +127,23 @@ namespace UnitTests.Flame.Ir
                 });");
         }
 
+        [Test]
+        public void RoundTripAssemblyWithParameterizedMethod()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(Float64, #(), #(), {
+                        #fn(Id, true, #(), Float64, #(#param(Float64, value)), #(), {
+                            #entry_point(ep, #(#param(Float64, value)), {
+                                ptr = alloca(Float64)();
+                                nothing = store(#pointer(Float64, ref))(ptr, value);
+                                result = load(#pointer(Float64, ref))(ptr);
+                            }, #return(copy(Float64)(result)));
+                        });
+                    });
+                });");
+        }
+
         private void AssertRoundTripAssembly(string lesCode)
         {
             AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
