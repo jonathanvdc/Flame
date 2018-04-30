@@ -20,7 +20,7 @@ namespace Flame.Compiler
         /// <param name="name">The tag's name.</param>
         public UniqueTag(string name)
         {
-            this.Name = Name;
+            this.Name = name;
         }
 
         /// <summary>
@@ -28,6 +28,12 @@ namespace Flame.Compiler
         /// </summary>
         /// <returns>The tag's name.</returns>
         public string Name { get; private set; }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     /// <summary>
