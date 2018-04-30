@@ -328,7 +328,11 @@ namespace Flame.Ir
                             EncodeUniqueTag(param.Tag, valueNameMap)));
 
                 var instrNodes = block.Instructions
-                    .Select(instr => Encode(instr.Instruction, valueNameMap))
+                    .Select(instr =>
+                        Factory.Call(
+                            CodeSymbols.Assign,
+                            EncodeUniqueTag(instr.Tag, valueNameMap),
+                            Encode(instr.Instruction, valueNameMap)))
                     .ToArray();
 
                 blockNodes.Add(
