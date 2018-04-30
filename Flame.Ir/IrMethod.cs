@@ -91,14 +91,28 @@ namespace Flame.Ir
                 CodeSymbols.AltList,
                 value.BaseMethods.EagerSelect(state.Encode));
 
-            return state.Factory.Call(
-                value.IsConstructor ? CodeSymbols.Constructor : CodeSymbols.Fn,
+            var argNodes = new List<LNode>()
+            {
                 state.Encode(value.Name),
                 state.Encode(value.IsStatic),
                 typeParamsNode,
                 state.EncodeDefinition(value.ReturnParameter),
                 parameterNodes,
-                baseMethodNodes)
+                baseMethodNodes
+            };
+
+            if (value is IBodyMethod)
+            {
+                var body = ((IBodyMethod)value).Body;
+                if (body != null)
+                {
+                    argNodes.Add(state.Encode(body.Implementation));
+                }
+            }
+
+            return state.Factory.Call(
+                value.IsConstructor ? CodeSymbols.Constructor : CodeSymbols.Fn,
+                argNodes)
                 .WithAttrs(
                     new VList<LNode>(
                         state.Encode(value.Attributes)));
