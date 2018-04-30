@@ -47,7 +47,7 @@ namespace Flame.Ir
 
         private static IReadOnlyList<LNode> EncodeAlloca(AllocaPrototype value, EncoderState state)
         {
-            return new LNode[] { state.Encode(value.ResultType) };
+            return new LNode[] { state.Encode(value.ElementType) };
         }
 
         /// <summary>

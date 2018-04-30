@@ -60,7 +60,7 @@ namespace Flame.Ir
 
         internal static readonly Symbol typeHintSymbol = GSymbol.Get("#type");
         internal static readonly Symbol methodHintSymbol = GSymbol.Get("#method");
-        internal static readonly Symbol parameterSymbol = GSymbol.Get("param");
+        internal static readonly Symbol parameterSymbol = GSymbol.Get("#param");
         internal static readonly Symbol entryPointBlockSymbol = GSymbol.Get("#entry_point");
         internal static readonly Symbol basicBlockSymbol = GSymbol.Get("#block");
         internal static readonly Symbol tryFlowExceptionSymbol = GSymbol.Get("#exception");
@@ -238,6 +238,7 @@ namespace Flame.Ir
             else
             {
                 return Factory.Call(
+                    parameterSymbol,
                     Encode(parameter.Type),
                     Encode(parameter.Name))
                     .WithAttrs(new VList<LNode>(Encode(parameter.Attributes)));
