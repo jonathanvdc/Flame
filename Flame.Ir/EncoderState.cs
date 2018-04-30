@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Loyc;
@@ -294,6 +296,114 @@ namespace Flame.Ir
         public LNode EncodeDefinition(IAssembly assembly)
         {
             return IrAssembly.Encode(assembly, this);
+        }
+
+        /// <summary>
+        /// Encodes a control-flow graph.
+        /// </summary>
+        /// <param name="graph">The control-flow graph to encode.</param>
+        /// <returns>An LNode that represents the control-flow graph.</returns>
+        public LNode Encode(FlowGraph graph)
+        {
+            var blockNameSet = new UniqueNameSet<UniqueTag>(
+                tag => tag.Name, "block_");
+            var valueNameSet = new UniqueNameSet<UniqueTag>(
+                tag => tag.Name, "val_", blockNameSet);
+
+            // Reserve special names.
+            valueNameSet.ReserveName(CodeSymbols.Result.Name);
+            valueNameSet.ReserveName(tryFlowExceptionSymbol.Name);
+
+            var blockNameMap = new UniqueNameMap<UniqueTag>(blockNameSet);
+            var valueNameMap = new UniqueNameMap<UniqueTag>(valueNameSet);
+
+            var blockNodes = new List<LNode>();
+            foreach (var block in graph.BasicBlocks)
+            {
+                var paramNodes = block.Parameters
+                    .EagerSelect(param =>
+                        Factory.Call(
+                            parameterSymbol,
+                            Encode(param.Type),
+                            EncodeUniqueTag(param.Tag, valueNameMap)));
+
+                var instrNodes = block.Instructions
+                    .Select(instr => Encode(instr.Instruction, valueNameMap))
+                    .ToArray();
+
+                blockNodes.Add(
+                    Factory.Call(
+                        block.Tag == graph.EntryPointTag
+                            ? entryPointBlockSymbol
+                            : basicBlockSymbol,
+                        EncodeUniqueTag(block.Tag, blockNameMap),
+                        Factory.Call(CodeSymbols.AltList, paramNodes),
+                        Factory.Call(CodeSymbols.Braces, instrNodes),
+                        Encode(block.Flow, blockNameMap, valueNameMap)));
+            }
+            return Factory.Braces(blockNodes);
+        }
+
+        private LNode Encode(
+            BlockFlow flow,
+            UniqueNameMap<UniqueTag> blockNameMap,
+            UniqueNameMap<UniqueTag> valueNameMap)
+        {
+            if (flow is UnreachableFlow)
+            {
+                return Factory.Id(unreachableFlowSymbol);
+            }
+            else if (flow is JumpFlow)
+            {
+                return Factory.Call(
+                    CodeSymbols.Goto,
+                    Encode(((JumpFlow)flow).Branch, blockNameMap, valueNameMap));
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    "Cannot encode unknown block flow '" + flow + "'.");
+            }
+        }
+
+        private LNode Encode(
+            Instruction instruction,
+            UniqueNameMap<UniqueTag> valueNameMap)
+        {
+            return Factory.Call(
+                Encode(instruction.Prototype),
+                instruction.Arguments.Select(
+                    tag => EncodeUniqueTag(tag, valueNameMap)));
+        }
+
+        private LNode Encode(
+            Branch branch,
+            UniqueNameMap<UniqueTag> blockNameMap,
+            UniqueNameMap<UniqueTag> valueNameMap)
+        {
+            var argNodes = new List<LNode>();
+            foreach (var arg in branch.Arguments)
+            {
+                switch (arg.Kind)
+                {
+                    case BranchArgumentKind.TryException:
+                        argNodes.Add(Factory.Id(tryFlowExceptionSymbol));
+                        break;
+                    case BranchArgumentKind.TryResult:
+                        argNodes.Add(Factory.Id(CodeSymbols.Result));
+                        break;
+                    default:
+                        argNodes.Add(EncodeUniqueTag(arg.ValueOrNull, valueNameMap));
+                        break;
+                }
+            }
+
+            return Factory.Call(EncodeUniqueTag(branch.Target, blockNameMap), argNodes);
+        }
+
+        private LNode EncodeUniqueTag(UniqueTag tag, UniqueNameMap<UniqueTag> nameMap)
+        {
+            return Factory.Id(nameMap[tag]);
         }
     }
 }
