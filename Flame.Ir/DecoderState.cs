@@ -658,6 +658,7 @@ namespace Flame.Ir
             else
             {
                 result = graph.AddBasicBlock(name.Name);
+                blocks[name] = result;
                 return result;
             }
         }
@@ -674,6 +675,7 @@ namespace Flame.Ir
             else
             {
                 result = new ValueTag(name.Name);
+                valueTags[name] = result;
                 return result;
             }
         }
@@ -943,7 +945,7 @@ namespace Flame.Ir
             }
 
             // Parse the block's flow.
-            blockBuilder.Flow = DecodeBlockFlow(node.Args[0], graph, blocks, valueTags);
+            blockBuilder.Flow = DecodeBlockFlow(node.Args[3], graph, blocks, valueTags);
 
             return blockBuilder;
         }
@@ -975,7 +977,7 @@ namespace Flame.Ir
                 }
 
                 // Parse the basic block.
-                var blockBuilder = DecodeBasicBlock(node, graph, blocks, valueTags);
+                var blockBuilder = DecodeBasicBlock(blockNode, graph, blocks, valueTags);
 
                 // Entry points get special treatment.
                 if (blockNode.Calls(EncoderState.entryPointBlockSymbol))
