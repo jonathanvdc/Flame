@@ -166,5 +166,19 @@ namespace Flame.Collections
 
             return name;
         }
+
+        /// <summary>
+        /// Reserves a name, making sure it is never generated
+        /// for any element.
+        /// </summary>
+        /// <param name="name">The name to reserve.</param>
+        /// <returns>
+        /// <c>true</c> if the name is reserved by this call;
+        /// <c>false</c> if it has already been reserved or generated.
+        /// </returns>
+        public bool ReserveName(string name)
+        {
+            return nameSet.Add(name);
+        }
     }
 }
