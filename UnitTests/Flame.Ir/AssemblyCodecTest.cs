@@ -138,7 +138,11 @@ namespace UnitTests.Flame.Ir
                                 ptr = alloca(Float64)();
                                 nothing = store(#pointer(Float64, ref))(ptr, value);
                                 result = load(#pointer(Float64, ref))(ptr);
-                            }, #return(copy(Float64)(result)));
+                            }, #goto(ret_block(result)));
+
+                            #block(ret_block, #(#param(Float64, ret_val)), {
+
+                            }, #return(copy(Float64)(ret_val)));
                         });
                     });
                 });");
