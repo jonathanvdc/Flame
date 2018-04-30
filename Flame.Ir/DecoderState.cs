@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -38,6 +39,7 @@ namespace Flame.Ir
             this.TypeResolver = typeResolver;
             this.Codec = codec;
             this.Scope = scope;
+            this.typeCache = new ConcurrentDictionary<LNode, IType>();
         }
 
         /// <summary>
@@ -88,6 +90,8 @@ namespace Flame.Ir
         /// </returns>
         public TypeParent Scope { get; private set; }
 
+        private ConcurrentDictionary<LNode, IType> typeCache;
+
         /// <summary>
         /// Gets the type that either is or defines the current
         /// decoding scope.
@@ -107,7 +111,9 @@ namespace Flame.Ir
         /// </returns>
         public DecoderState WithScope(TypeParent newScope)
         {
-            return new DecoderState(Log, TypeResolver, Codec, newScope);
+            var result = new DecoderState(Log, TypeResolver, Codec, newScope);
+            result.typeCache = typeCache;
+            return result;
         }
 
         /// <summary>
@@ -119,7 +125,7 @@ namespace Flame.Ir
         /// </returns>
         public IType DecodeType(LNode node)
         {
-            return Codec.Types.Decode(node, this);
+            return typeCache.GetOrAdd(node, n => Codec.Types.Decode(n, this));
         }
 
         /// <summary>
