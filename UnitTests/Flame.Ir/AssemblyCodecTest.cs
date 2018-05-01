@@ -136,8 +136,8 @@ namespace UnitTests.Flame.Ir
                         #fn(Id, true, #(), Float64, #(#param(Float64, value)), #(), {
                             #entry_point(ep, #(#param(Float64, value)), {
                                 ptr = alloca(Float64)();
-                                nothing = store(#pointer(Float64, ref))(ptr, value);
-                                result = load(#pointer(Float64, ref))(ptr);
+                                value_copy = store(Float64)(ptr, value);
+                                result = load(Float64)(ptr);
                             }, #goto(ret_block(result)));
 
                             #block(ret_block, #(#param(Float64, ret_val)), {
