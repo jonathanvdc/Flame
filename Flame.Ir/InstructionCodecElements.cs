@@ -122,19 +122,59 @@ namespace Flame.Ir
         {
             return IndirectCallPrototype.Create(
                 state.DecodeType(data[0]),
-                data.Slice<LNode>(1)
-                    .EagerSelect<LNode, IType>(state.DecodeType));
+                data[1].Args.EagerSelect<LNode, IType>(state.DecodeType));
         }
 
         private static IReadOnlyList<LNode> EncodeIndirectCall(IndirectCallPrototype value, EncoderState state)
         {
-            var results = new List<LNode>();
-            results.Add(state.Encode(value.ResultType));
+            var paramTypeNodes = new List<LNode>();
             foreach (var paramType in value.ParameterTypes)
             {
-                results.Add(state.Encode(paramType));
+                paramTypeNodes.Add(state.Encode(paramType));
             }
-            return results;
+
+            return new LNode[]
+            {
+                state.Encode(value.ResultType),
+                state.Factory.List(paramTypeNodes)
+            };
+        }
+
+        /// <summary>
+        /// A codec element for intrinsic instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<IntrinsicPrototype, IReadOnlyList<LNode>> Intrinsic =
+            new CodecElement<IntrinsicPrototype, IReadOnlyList<LNode>>(
+                "intrinsic", EncodeIntrinsic, DecodeIntrinsic);
+
+        private static IntrinsicPrototype DecodeIntrinsic(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            // TODO: decode exception specifications.
+            return IntrinsicPrototype.Create(
+                FeedbackHelpers.AssertIsId(data[0], state.Log)
+                    ? data[0].Name.Name
+                    : "error",
+                state.DecodeType(data[1]),
+                data[2].Args.EagerSelect<LNode, IType>(state.DecodeType));
+        }
+
+        private static IReadOnlyList<LNode> EncodeIntrinsic(IntrinsicPrototype value, EncoderState state)
+        {
+            // TODO: encode exception specifications.
+
+            var paramTypeNodes = new List<LNode>();
+            foreach (var paramType in value.ParameterTypes)
+            {
+                paramTypeNodes.Add(state.Encode(paramType));
+            }
+
+            return new LNode[]
+            {
+                state.Factory.Id(value.Name),
+                state.Encode(value.ResultType),
+                state.Factory.List(paramTypeNodes)
+            };
         }
 
         /// <summary>
@@ -268,6 +308,7 @@ namespace Flame.Ir
                     .Add(Constant)
                     .Add(Copy)
                     .Add(IndirectCall)
+                    .Add(Intrinsic)
                     .Add(Load)
                     .Add(NewDelegate)
                     .Add(NewObject)
