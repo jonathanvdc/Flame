@@ -974,6 +974,8 @@ namespace Flame.Ir
             var valueTags = new Dictionary<Symbol, ValueTag>();
             var parsedEntryPoint = false;
 
+            // Do a quick pass through all blocks for determinism: we want
+            // to define the blocks in the same order as the original IR.
             foreach (var blockNode in node.Args)
             {
                 if (!FeedbackHelpers.AssertArgCount(blockNode, 4, Log))
@@ -982,6 +984,16 @@ namespace Flame.Ir
                     return new FlowGraph();
                 }
 
+                var name = FeedbackHelpers.AssertIsId(blockNode.Args[0], Log)
+                    ? blockNode.Args[0].Name
+                    : GSymbol.Empty;
+
+                // Define the basic block for determinism.
+                GetBasicBlock(name, graph, blocks);
+            }
+
+            foreach (var blockNode in node.Args)
+            {
                 // Parse the basic block.
                 var blockBuilder = DecodeBasicBlock(blockNode, graph, blocks, valueTags);
 
