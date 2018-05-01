@@ -20,7 +20,7 @@ namespace Flame.Compiler
         public FlowGraph()
         {
             this.instructions = ImmutableDictionary.Create<ValueTag, Instruction>();
-            this.blocks = ImmutableDictionary.Create<BasicBlockTag, BasicBlockData>();
+            this.blocks = ImmutableOrderedDictionary.Create<BasicBlockTag, BasicBlockData>();
             this.blockParamTypes = ImmutableDictionary.Create<ValueTag, IType>();
             this.valueParents = ImmutableDictionary.Create<ValueTag, BasicBlockTag>();
             this.EntryPointTag = new BasicBlockTag("entry-point");
@@ -40,7 +40,7 @@ namespace Flame.Compiler
         }
 
         private ImmutableDictionary<ValueTag, Instruction> instructions;
-        private ImmutableDictionary<BasicBlockTag, BasicBlockData> blocks;
+        private ImmutableOrderedDictionary<BasicBlockTag, BasicBlockData> blocks;
         private ImmutableDictionary<ValueTag, IType> blockParamTypes;
         private ImmutableDictionary<ValueTag, BasicBlockTag> valueParents;
 
@@ -65,7 +65,8 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets a sequence of all instruction tags in this control-flow graph.
         /// </summary>
-        public IEnumerable<ValueTag> InstructionTags => instructions.Keys;
+        public IEnumerable<ValueTag> InstructionTags =>
+            BasicBlocks.SelectMany(block => block.InstructionTags);
 
         /// <summary>
         /// Gets a sequence of all instructions in this control-flow graph.
@@ -431,7 +432,7 @@ namespace Flame.Compiler
             }
 
             // Apply the mapping to all basic blocks.
-            var newBlockMap = ImmutableDictionary
+            var newBlockMap = ImmutableOrderedDictionary
                 .Create<BasicBlockTag, BasicBlockData>()
                 .ToBuilder();
 
