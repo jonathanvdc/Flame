@@ -76,6 +76,7 @@
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Collections\ImmutableOrderedDictionary.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -93,5 +94,6 @@
     <Folder Include="Instructions\" />
     <Folder Include="Pipeline\" />
     <Folder Include="TypeSystem\" />
+    <Folder Include="Collections\" />
   </ItemGroup>
 </Project>
