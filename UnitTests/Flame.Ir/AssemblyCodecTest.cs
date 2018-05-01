@@ -148,6 +148,36 @@ namespace UnitTests.Flame.Ir
                 });");
         }
 
+        // [Test]
+        // public void RoundTripFactorial()
+        // {
+        //     AssertRoundTripAssembly(@"
+        //         #assembly(Test, {
+        //             #type(Int32, #(), #(), {
+        //                 #fn(Factorial, true, #(), Int32, #(#param(Int32, value)), #(), {
+        //                     #entry_point(ep, #(#param(Int32, value)), {
+
+        //                     }, #switch(
+        //                         copy(Int32)(value),
+        //                         recurse(), {
+        //                             #case(#(0, 1), base_case());
+        //                         }));
+
+        //                     #block(base_case, #(), {
+
+        //                     }, #return(const(1, Int32)()));
+
+        //                     #block(recurse, #(), {
+        //                         one = const(1, Int32)();
+        //                         value_minus_one = intrinsic(`int.add`, Int32, #(Int32, Int32))(value, one);
+        //                         prev_fac = call(Int32.Factorial(Int32, Int32), static)(value_minus_one);
+        //                         result = intrinsic(`int.mul`, Int32, #(Int32, Int32))(prev_fac, value);
+        //                     }, #return(copy(Int32)(result)));
+        //                 });
+        //             });
+        //         });");
+        // }
+
         private void AssertRoundTripAssembly(string lesCode)
         {
             AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
