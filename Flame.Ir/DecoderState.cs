@@ -137,7 +137,19 @@ namespace Flame.Ir
         /// </returns>
         public IMethod DecodeMethod(LNode node)
         {
-            return Codec.Methods.Decode(node, this);
+            return (IMethod)Codec.TypeMembers.Decode(node, this);
+        }
+
+        /// <summary>
+        /// Decodes an LNode as a property reference.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>
+        /// A decoded property reference.
+        /// </returns>
+        public IProperty DecodeProperty(LNode node)
+        {
+            return (IProperty)Codec.TypeMembers.Decode(node, this);
         }
 
         /// <summary>

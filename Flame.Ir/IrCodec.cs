@@ -16,7 +16,7 @@ namespace Flame.Ir
         /// <param name="constants">A codec for constants.</param>
         /// <param name="instructionCodec">An instruction prototype codec.</param>
         /// <param name="typeCodec">A codec for type references.</param>
-        /// <param name="methodCodec">A codec for method references.</param>
+        /// <param name="typeMemberCodec">A codec for type member references.</param>
         /// <param name="typeMemberDefinitionCodec">A codec for type member definitions.</param>
         /// <param name="typeDefinitionCodec">A codec for method definitions.</param>
         /// <param name="attributeCodec">A codec for attributes.</param>
@@ -24,7 +24,7 @@ namespace Flame.Ir
             Codec<Constant, LNode> constants,
             Codec<InstructionPrototype, LNode> instructionCodec,
             Codec<IType, LNode> typeCodec,
-            Codec<IMethod, LNode> methodCodec,
+            Codec<ITypeMember, LNode> typeMemberCodec,
             Codec<ITypeMember, LNode> typeMemberDefinitionCodec,
             Codec<IType, LNode> typeDefinitionCodec,
             Codec<IAttribute, LNode> attributeCodec)
@@ -32,7 +32,7 @@ namespace Flame.Ir
             this.Constants = constants;
             this.Instructions = instructionCodec;
             this.Types = typeCodec;
-            this.Methods = methodCodec;
+            this.TypeMembers = typeMemberCodec;
             this.TypeMemberDefinitions = typeMemberDefinitionCodec;
             this.TypeDefinitions = typeDefinitionCodec;
             this.Attributes = attributeCodec;
@@ -57,10 +57,10 @@ namespace Flame.Ir
         public Codec<IType, LNode> Types { get; private set; }
 
         /// <summary>
-        /// Gets the encoder/decoder for method references.
+        /// Gets the encoder/decoder for type member references.
         /// </summary>
-        /// <returns>The method reference codec.</returns>
-        public Codec<IMethod, LNode> Methods { get; private set; }
+        /// <returns>The type member reference codec.</returns>
+        public Codec<ITypeMember, LNode> TypeMembers { get; private set; }
 
         /// <summary>
         /// Gets the encoder/decoder for type member definitions.
@@ -87,7 +87,7 @@ namespace Flame.Ir
             ConstantCodec.Instance,
             InstructionCodecElements.All,
             TypeCodec.Instance,
-            new PiecewiseCodec<IMethod>(),
+            TypeMemberCodec.Instance,
             TypeMemberDefinitionCodec.Instance,
             TypeDefinitionCodec.Instance,
             new PiecewiseCodec<IAttribute>());

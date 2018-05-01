@@ -70,6 +70,7 @@
     <Compile Include="PiecewiseCodec.cs" />
     <Compile Include="TypeCodec.cs" />
     <Compile Include="TypeDefinitionCodec.cs" />
+    <Compile Include="TypeMemberCodec.cs" />
     <Compile Include="TypeMemberDefinitionCodec.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

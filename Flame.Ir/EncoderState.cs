@@ -87,7 +87,19 @@ namespace Flame.Ir
         /// </returns>
         public LNode Encode(IMethod method)
         {
-            return Codec.Methods.Encode(method, this);
+            return Codec.TypeMembers.Encode(method, this);
+        }
+
+        /// <summary>
+        /// Encodes a property reference.
+        /// </summary>
+        /// <param name="property">The property reference to encode.</param>
+        /// <returns>
+        /// An encoded property reference.
+        /// </returns>
+        public LNode Encode(IProperty property)
+        {
+            return Codec.TypeMembers.Encode(property, this);
         }
 
         public LNode Encode(IGenericMember genericMember)
