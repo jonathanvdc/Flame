@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
+using Flame.TypeSystem;
 using Loyc;
 using Loyc.Syntax;
 using Pixie.Markup;
@@ -20,7 +22,7 @@ namespace Flame.Ir
         public static readonly Codec<ITypeMember, LNode> Instance =
             new TypeMemberCodec();
 
-        private readonly Symbol accessorSymbol = GSymbol.Get("#accessor"); 
+        private readonly Symbol accessorSymbol = GSymbol.Get("#accessor");
 
         private readonly Dictionary<AccessorKind, string> accessorKindEncodings =
             new Dictionary<AccessorKind, string>()
@@ -66,8 +68,40 @@ namespace Flame.Ir
                     return accessor;
                 }
             }
+            else if (data.Calls(CodeSymbols.Dot, 2))
+            {
+                // Simple dot indicates a field.
+                var parentType = state.DecodeType(data.Args[0]);
 
-            // TODO: handle methods, fields and properties.
+                if (parentType == ErrorType.Instance)
+                {
+                    return null;
+                }
+
+                var name = state.DecodeSimpleName(data.Args[1]);
+
+                // TODO: improve on this linear search by maintaining a
+                // specialized data structure in the decoder state.
+                foreach (var member in parentType.Fields)
+                {
+                    if (name.Equals(member.Name))
+                    {
+                        return member;
+                    }
+                }
+
+                state.Log.LogSyntaxError(
+                    data,
+                    Quotation.QuoteEvenInBold(
+                        "type ",
+                        FeedbackHelpers.Print(data.Args[0]),
+                        " does not define a field called ",
+                        FeedbackHelpers.Print(data.Args[1]),
+                        "."));
+                return null;
+            }
+
+            // TODO: handle methods and properties.
 
             throw new System.NotImplementedException();
         }
@@ -84,10 +118,35 @@ namespace Flame.Ir
                     state.Encode(acc.ParentProperty),
                     state.Factory.Id(accessorKindEncodings[acc.Kind]));
             }
+            else if (value is IField)
+            {
+                return EncodeTypeAndName(value, state);
+            }
+            else if (value is IProperty)
+            {
+                var property = (IProperty)value;
 
-            // TODO: handle methods, fields and properties.
+                return state.Factory.Call(
+                    CodeSymbols.IndexBracks,
+                    new[]
+                    {
+                        EncodeTypeAndName(property, state)
+                    }.Concat(
+                        property.IndexerParameters.EagerSelect(
+                            p => state.Encode(p.Type))));
+            }
+
+            // TODO: handle methods.
 
             throw new System.NotImplementedException();
+        }
+
+        private LNode EncodeTypeAndName(ITypeMember member, EncoderState state)
+        {
+            return state.Factory.Call(
+                CodeSymbols.Dot,
+                state.Encode(member.ParentType),
+                state.Encode(member.Name));
         }
     }
 }
