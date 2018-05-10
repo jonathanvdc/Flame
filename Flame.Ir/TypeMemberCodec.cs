@@ -31,6 +31,34 @@ namespace Flame.Ir
             { AccessorKind.Set, "set" }
         };
 
+        private static bool TryDecodeParentAndName(
+            LNode parentAndName,
+            DecoderState state,
+            out IType parentType,
+            out SimpleName name)
+        {
+            if (!FeedbackHelpers.AssertArgCount(parentAndName, 2, state.Log))
+            {
+                parentType = null;
+                name = null;
+                return false;
+            }
+
+            parentType = state.DecodeType(parentAndName.Args[0]);
+
+            if (parentType != ErrorType.Instance
+                && state.AssertDecodeSimpleName(parentAndName.Args[1], out name))
+            {
+                return true;
+            }
+            else
+            {
+                parentType = null;
+                name = null;
+                return false;
+            }
+        }
+
         /// <inheritdoc/>
         public override ITypeMember Decode(LNode data, DecoderState state)
         {
@@ -71,14 +99,12 @@ namespace Flame.Ir
             else if (data.Calls(CodeSymbols.Dot, 2))
             {
                 // Simple dot indicates a field.
-                var parentType = state.DecodeType(data.Args[0]);
-
-                if (parentType == ErrorType.Instance)
+                IType parentType;
+                SimpleName name;
+                if (!TryDecodeParentAndName(data, state, out parentType, out name))
                 {
                     return null;
                 }
-
-                var name = state.DecodeSimpleName(data.Args[1]);
 
                 var candidates = state.TypeMemberIndex
                     .GetAll(parentType, name)
