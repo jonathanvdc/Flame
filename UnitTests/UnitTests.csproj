@@ -64,6 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Flame\CacheTests.cs" />
     <Compile Include="Flame\DeferredInitializerTests.cs" />
+    <Compile Include="Flame\IndexTests.cs" />
     <Compile Include="Flame\IntegerConstantTests.cs" />
     <Compile Include="Flame\QualifiedNameTests.cs" />
     <Compile Include="Flame\SmallMultiDictionaryTests.cs" />

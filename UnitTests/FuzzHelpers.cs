@@ -68,5 +68,26 @@ namespace UnitTests
         {
             return random.Next(0, 2) == 0;
         }
+
+        /// <summary>
+        /// Generates an array of random elements.
+        /// </summary>
+        /// <param name="random">A random number generator.</param>
+        /// <param name="length">The length of the array to generate.</param>
+        /// <param name="nextElement">Generates a random element.</param>
+        /// <typeparam name="T">The type of element to generate.</typeparam>
+        /// <returns>An array of randomly generated elements.</returns>
+        public static T[] NextArray<T>(
+            this Random random,
+            int length,
+            Func<Random, T> nextElement)
+        {
+            var arr = new T[length];
+            for (int i = 0; i < length; i++)
+            {
+                arr[i] = nextElement(random);
+            }
+            return arr;
+        }
     }
 }
