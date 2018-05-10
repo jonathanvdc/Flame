@@ -30,7 +30,7 @@ namespace UnitTests
         public void IntSeqDictionaryComparison()
         {
             DictionaryComparison<IEnumerable<int>, int>(
-                EnumerableComparer<int>.Instance,
+                EnumerableComparer<int>.Default,
                 () => rng.NextArray<int>(rng.Next(0, 20), r => r.Next()),
                 rng.Next,
                 10000);
