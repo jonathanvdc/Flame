@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Loyc.MiniTest;
-using Flame;
 using Flame.Collections;
-using Loyc;
-using System.Threading;
 
 namespace UnitTests
 {
