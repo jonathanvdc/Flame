@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
+using Flame.Collections;
 using Flame.Compiler;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
@@ -40,6 +41,15 @@ namespace Flame.Ir
             this.Codec = codec;
             this.Scope = scope;
             this.typeCache = new ConcurrentDictionary<LNode, IType>();
+            this.TypeMemberIndex = new Index<IType, UnqualifiedName, ITypeMember>(
+                type =>
+                    type.Fields
+                    .Concat<ITypeMember>(type.Properties)
+                    .Concat<ITypeMember>(type.Methods)
+                    .Select(member =>
+                        new KeyValuePair<UnqualifiedName, ITypeMember>(
+                            member.Name,
+                            member)));
         }
 
         /// <summary>
@@ -81,6 +91,12 @@ namespace Flame.Ir
         /// </summary>
         /// <returns>A type resolver.</returns>
         public ReadOnlyTypeResolver TypeResolver { get; private set; }
+
+        /// <summary>
+        /// Gets an index that allows for quick type member lookup.
+        /// </summary>
+        /// <returns>A type member lookup index.</returns>
+        public Index<IType, UnqualifiedName, ITypeMember> TypeMemberIndex { get; private set; }
 
         /// <summary>
         /// Gets the scope in which elements are decoded.
