@@ -216,11 +216,12 @@ namespace Flame.Compiler.Instructions
 
         public int GetHashCode(NewDelegatePrototype obj)
         {
-            int result = obj.ResultType.GetHashCode();
-            result = (result << 3) ^ obj.Callee.GetHashCode();
-            result = (result << 1) ^ obj.HasThisArgument.GetHashCode();
-            result = (result << 1) ^ obj.Lookup.GetHashCode();
-            return result;
+            int hashCode = EnumerableComparer.EmptyHash;
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.ResultType);
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Callee);
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.HasThisArgument);
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Lookup);
+            return hashCode;
         }
     }
 }

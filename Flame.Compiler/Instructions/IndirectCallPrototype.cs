@@ -152,12 +152,13 @@ namespace Flame.Compiler.Instructions
 
         public int GetHashCode(IndirectCallPrototype obj)
         {
-            int hashCode = obj.ResultType.GetHashCode();
+            int hashCode = EnumerableComparer.EmptyHash;
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.ResultType);
             var paramTypes = obj.ParameterTypes;
             var paramTypeCount = paramTypes.Count;
             for (int i = 0; i < paramTypeCount; i++)
             {
-                hashCode = (hashCode << 3) ^ paramTypes[i].GetHashCode();
+                hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, paramTypes[i]);
             }
             return hashCode;
         }

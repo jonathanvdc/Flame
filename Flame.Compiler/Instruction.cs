@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler
@@ -85,13 +86,14 @@ namespace Flame.Compiler
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            int result = Prototype.GetHashCode();
+            int hashCode = EnumerableComparer.EmptyHash;
             int argCount = Arguments.Count;
             for (int i = 0; i < argCount; i++)
             {
-                result = (result << 3) ^ Arguments[i].GetHashCode();
+                hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, Arguments[i]);
             }
-            return result;
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, Prototype);
+            return hashCode;
         }
 
         /// <summary>
