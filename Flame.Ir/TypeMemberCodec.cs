@@ -31,34 +31,6 @@ namespace Flame.Ir
             { AccessorKind.Set, "set" }
         };
 
-        private static bool TryDecodeParentAndName(
-            LNode parentAndName,
-            DecoderState state,
-            out IType parentType,
-            out SimpleName name)
-        {
-            if (!FeedbackHelpers.AssertArgCount(parentAndName, 2, state.Log))
-            {
-                parentType = null;
-                name = null;
-                return false;
-            }
-
-            parentType = state.DecodeType(parentAndName.Args[0]);
-
-            if (parentType != ErrorType.Instance
-                && state.AssertDecodeSimpleName(parentAndName.Args[1], out name))
-            {
-                return true;
-            }
-            else
-            {
-                parentType = null;
-                name = null;
-                return false;
-            }
-        }
-
         /// <inheritdoc/>
         public override ITypeMember Decode(LNode data, DecoderState state)
         {
@@ -96,12 +68,12 @@ namespace Flame.Ir
                     return accessor;
                 }
             }
-            else if (data.Calls(CodeSymbols.Dot, 2))
+            else if (data.Calls(CodeSymbols.Dot))
             {
                 // Simple dot indicates a field.
                 IType parentType;
                 SimpleName name;
-                if (!TryDecodeParentAndName(data, state, out parentType, out name))
+                if (!AssertDecodeTypeAndName(data, state, out parentType, out name))
                 {
                     return null;
                 }
@@ -132,6 +104,57 @@ namespace Flame.Ir
                             FeedbackHelpers.Print(data.Args[0]),
                             " defines more than one field called ",
                             FeedbackHelpers.Print(data.Args[1]),
+                            "."));
+                    return null;
+                }
+                else
+                {
+                    return candidates[0];
+                }
+            }
+            else if (data.CallsMin(CodeSymbols.IndexBracks, 1))
+            {
+                IType parentType;
+                SimpleName name;
+                if (!AssertDecodeTypeAndName(data.Args[0], state, out parentType, out name))
+                {
+                    return null;
+                }
+
+                var indexTypes = data.Args
+                    .Slice(1)
+                    .EagerSelect(state.DecodeType);
+
+                var candidates = state.TypeMemberIndex
+                    .GetAll(parentType, name)
+                    .OfType<IProperty>()
+                    .Where(prop =>
+                        prop.IndexerParameters
+                            .Select(p => p.Type)
+                            .SequenceEqual(indexTypes))
+                    .ToArray();
+
+                if (candidates.Length == 0)
+                {
+                    state.Log.LogSyntaxError(
+                        data,
+                        Quotation.QuoteEvenInBold(
+                            "type ",
+                            FeedbackHelpers.Print(data.Args[0]),
+                            " does not define a property with signature ",
+                            FeedbackHelpers.Print(data),
+                            "."));
+                    return null;
+                }
+                else if (candidates.Length > 1)
+                {
+                    state.Log.LogSyntaxError(
+                        data,
+                        Quotation.QuoteEvenInBold(
+                            "type ",
+                            FeedbackHelpers.Print(data.Args[0]),
+                            " defines more than one property with signature ",
+                            FeedbackHelpers.Print(data),
                             "."));
                     return null;
                 }
@@ -181,7 +204,35 @@ namespace Flame.Ir
             throw new System.NotImplementedException();
         }
 
-        private LNode EncodeTypeAndName(ITypeMember member, EncoderState state)
+        private static bool AssertDecodeTypeAndName(
+            LNode parentAndName,
+            DecoderState state,
+            out IType parentType,
+            out SimpleName name)
+        {
+            if (!FeedbackHelpers.AssertArgCount(parentAndName, 2, state.Log))
+            {
+                parentType = null;
+                name = null;
+                return false;
+            }
+
+            parentType = state.DecodeType(parentAndName.Args[0]);
+
+            if (parentType != ErrorType.Instance
+                && state.AssertDecodeSimpleName(parentAndName.Args[1], out name))
+            {
+                return true;
+            }
+            else
+            {
+                parentType = null;
+                name = null;
+                return false;
+            }
+        }
+
+        private static LNode EncodeTypeAndName(ITypeMember member, EncoderState state)
         {
             return state.Factory.Call(
                 CodeSymbols.Dot,
