@@ -80,25 +80,39 @@ namespace Flame.Ir
 
                 var name = state.DecodeSimpleName(data.Args[1]);
 
-                // TODO: improve on this linear search by maintaining a
-                // specialized data structure in the decoder state.
-                foreach (var member in parentType.Fields)
-                {
-                    if (name.Equals(member.Name))
-                    {
-                        return member;
-                    }
-                }
+                var candidates = state.TypeMemberIndex
+                    .GetAll(parentType, name)
+                    .OfType<IField>()
+                    .ToArray();
 
-                state.Log.LogSyntaxError(
-                    data,
-                    Quotation.QuoteEvenInBold(
-                        "type ",
-                        FeedbackHelpers.Print(data.Args[0]),
-                        " does not define a field called ",
-                        FeedbackHelpers.Print(data.Args[1]),
-                        "."));
-                return null;
+                if (candidates.Length == 0)
+                {
+                    state.Log.LogSyntaxError(
+                        data,
+                        Quotation.QuoteEvenInBold(
+                            "type ",
+                            FeedbackHelpers.Print(data.Args[0]),
+                            " does not define a field called ",
+                            FeedbackHelpers.Print(data.Args[1]),
+                            "."));
+                    return null;
+                }
+                else if (candidates.Length > 1)
+                {
+                    state.Log.LogSyntaxError(
+                        data,
+                        Quotation.QuoteEvenInBold(
+                            "type ",
+                            FeedbackHelpers.Print(data.Args[0]),
+                            " defines more than one field called ",
+                            FeedbackHelpers.Print(data.Args[1]),
+                            "."));
+                    return null;
+                }
+                else
+                {
+                    return candidates[0];
+                }
             }
 
             // TODO: handle methods and properties.
