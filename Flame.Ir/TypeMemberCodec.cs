@@ -155,6 +155,33 @@ namespace Flame.Ir
                     "method",
                     state);
             }
+            else if (data.Calls(CodeSymbols.Of))
+            {
+                if (!FeedbackHelpers.AssertMinArgCount(data, 1, state.Log))
+                {
+                    return null;
+                }
+
+                var func = state.DecodeMethod(data.Args[0]);
+                var args = data.Args.Slice(1).EagerSelect(state.DecodeType);
+
+                if (func.GenericParameters.Count == args.Count)
+                {
+                    return func.MakeGenericMethod(args);
+                }
+                else
+                {
+                    state.Log.LogSyntaxError(
+                        data,
+                        Quotation.QuoteEvenInBold(
+                            "generic arity mismatch; expected ",
+                            func.GenericParameters.Count.ToString(),
+                            " parameters but got ",
+                            args.Count.ToString(),
+                            "."));
+                    return null;
+                }
+            }
             else
             {
                 state.Log.LogSyntaxError(
@@ -165,7 +192,8 @@ namespace Flame.Ir
                         " as a type member; expected a call to one of ",
                         accessorSymbol.Name, ", ",
                         CodeSymbols.Dot.Name, ", ",
-                        CodeSymbols.IndexBracks.Name, " or ",
+                        CodeSymbols.IndexBracks.Name, ", ",
+                        CodeSymbols.Of.Name, " or ",
                         CodeSymbols.Lambda.Name));
                 return null;
             }
@@ -199,6 +227,18 @@ namespace Flame.Ir
                     }.Concat(
                         property.IndexerParameters.EagerSelect(
                             p => state.Encode(p.Type))));
+            }
+            else if (value is DirectMethodSpecialization)
+            {
+                var spec = (DirectMethodSpecialization)value;
+
+                return state.Factory.Call(
+                    CodeSymbols.Of,
+                    new[]
+                    {
+                        state.Encode(spec.Declaration)
+                    }.Concat(
+                        spec.GenericArguments.EagerSelect(state.Encode)));
             }
             else if (value is IMethod)
             {
