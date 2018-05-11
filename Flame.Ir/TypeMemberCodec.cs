@@ -84,34 +84,12 @@ namespace Flame.Ir
                     .OfType<IField>()
                     .ToArray();
 
-                if (candidates.Length == 0)
-                {
-                    state.Log.LogSyntaxError(
-                        data,
-                        Quotation.QuoteEvenInBold(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " does not define a field called ",
-                            FeedbackHelpers.Print(data.Args[1]),
-                            "."));
-                    return null;
-                }
-                else if (candidates.Length > 1)
-                {
-                    state.Log.LogSyntaxError(
-                        data,
-                        Quotation.QuoteEvenInBold(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " defines more than one field called ",
-                            FeedbackHelpers.Print(data.Args[1]),
-                            "."));
-                    return null;
-                }
-                else
-                {
-                    return candidates[0];
-                }
+                return CheckSingleCandidate(
+                    candidates,
+                    data.Args[0],
+                    data.Args[1],
+                    "field",
+                    state);
             }
             else if (data.CallsMin(CodeSymbols.IndexBracks, 1))
             {
@@ -135,39 +113,62 @@ namespace Flame.Ir
                             .SequenceEqual(indexTypes))
                     .ToArray();
 
-                if (candidates.Length == 0)
-                {
-                    state.Log.LogSyntaxError(
-                        data,
-                        Quotation.QuoteEvenInBold(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " does not define a property with signature ",
-                            FeedbackHelpers.Print(data),
-                            "."));
-                    return null;
-                }
-                else if (candidates.Length > 1)
-                {
-                    state.Log.LogSyntaxError(
-                        data,
-                        Quotation.QuoteEvenInBold(
-                            "type ",
-                            FeedbackHelpers.Print(data.Args[0]),
-                            " defines more than one property with signature ",
-                            FeedbackHelpers.Print(data),
-                            "."));
-                    return null;
-                }
-                else
-                {
-                    return candidates[0];
-                }
+                return CheckSingleCandidate(
+                    candidates,
+                    data.Args[0].Args[0],
+                    data,
+                    "property",
+                    state);
             }
+            else if (data.Calls(CodeSymbols.Lambda))
+            {
+                IType parentType;
+                SimpleName name;
+                if (!FeedbackHelpers.AssertArgCount(data, 2, state.Log)
+                    || !FeedbackHelpers.AssertIsCall(data.Args[0], state.Log)
+                    || !AssertDecodeTypeAndName(data.Args[0].Target, state, out parentType, out name))
+                {
+                    return null;
+                }
 
-            // TODO: handle methods.
+                var paramTypes = data.Args[0].Args
+                    .EagerSelect(state.DecodeType);
 
-            throw new System.NotImplementedException();
+                var retType = state.DecodeType(data.Args[1]);
+
+                var candidates = state.TypeMemberIndex
+                    .GetAll(parentType, name)
+                    .OfType<IMethod>()
+                    .Where(method =>
+                        method.Parameters
+                            .Select(p => p.Type)
+                            .SequenceEqual(paramTypes)
+                        && object.Equals(
+                            method.ReturnParameter.Type,
+                            retType))
+                    .ToArray();
+
+                return CheckSingleCandidate(
+                    candidates,
+                    data.Args[0].Target.Args[0],
+                    data,
+                    "method",
+                    state);
+            }
+            else
+            {
+                state.Log.LogSyntaxError(
+                    data,
+                    Quotation.QuoteEvenInBold(
+                        "cannot interpret ",
+                        FeedbackHelpers.Print(data),
+                        " as a type member; expected a call to one of ",
+                        accessorSymbol.Name, ", ",
+                        CodeSymbols.Dot.Name, ", ",
+                        CodeSymbols.IndexBracks.Name, " or ",
+                        CodeSymbols.Lambda.Name));
+                return null;
+            }
         }
 
         /// <inheritdoc/>
@@ -243,6 +244,44 @@ namespace Flame.Ir
                 parentType = null;
                 name = null;
                 return false;
+            }
+        }
+
+        private static T CheckSingleCandidate<T>(
+            T[] candidates,
+            LNode parentType,
+            LNode signature,
+            string memberKind,
+            DecoderState state)
+            where T : class
+        {
+            if (candidates.Length == 0)
+            {
+                state.Log.LogSyntaxError(
+                    signature,
+                    Quotation.QuoteEvenInBold(
+                        "type ",
+                        FeedbackHelpers.Print(parentType),
+                        " does not define a " + memberKind + " ",
+                        FeedbackHelpers.Print(signature),
+                        "."));
+                return null;
+            }
+            else if (candidates.Length > 1)
+            {
+                state.Log.LogSyntaxError(
+                    signature,
+                    Quotation.QuoteEvenInBold(
+                        "type ",
+                        FeedbackHelpers.Print(parentType),
+                        " defines more than one " + memberKind + " ",
+                        FeedbackHelpers.Print(signature),
+                        "."));
+                return null;
+            }
+            else
+            {
+                return candidates[0];
             }
         }
 
