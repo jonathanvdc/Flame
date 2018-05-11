@@ -45,10 +45,33 @@ namespace Flame.Ir
             else if (value is IntegerConstant)
             {
                 var integerConst = (IntegerConstant)value;
-                return state.Factory.Literal(
-                    new CustomLiteral(
-                        integerConst.Value.ToString(),
-                        GSymbol.Get(integerConst.Spec.ToString())));
+
+                // Try to encode integer types supported natively by
+                // Loyc as integer literals instead of custom literals.
+                if (integerConst.Spec.Equals(IntegerSpec.UInt32))
+                {
+                    return state.Factory.Literal(integerConst.ToUInt32());
+                }
+                else if (integerConst.Spec.Equals(IntegerSpec.UInt64))
+                {
+                    return state.Factory.Literal(integerConst.ToUInt64());
+                }
+                else if (integerConst.Spec.Equals(IntegerSpec.Int32))
+                {
+                    return state.Factory.Literal(integerConst.ToInt32());
+                }
+                else if (integerConst.Spec.Equals(IntegerSpec.Int64))
+                {
+                    return state.Factory.Literal(integerConst.ToInt64());
+                }
+                else
+                {
+                    // Encode other integer constants as custom literals.
+                    return state.Factory.Literal(
+                        new CustomLiteral(
+                            integerConst.Value.ToString(),
+                            GSymbol.Get(integerConst.Spec.ToString())));
+                }
             }
             else if (value is Float32Constant)
             {
