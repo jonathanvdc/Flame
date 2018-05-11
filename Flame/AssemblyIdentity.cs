@@ -45,7 +45,7 @@ namespace Flame
 
         /// <summary>
         /// Gets the value of the 'version' annotation if it
-        /// is present; otherwise, <c>false</c>.
+        /// is present; otherwise, <c>null</c>.
         /// </summary>
         /// <returns>
         /// The value of the 'version' annotation.
