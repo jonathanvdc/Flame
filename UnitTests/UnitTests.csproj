@@ -49,13 +49,13 @@
       <HintPath>..\packages\Loyc.Utilities.26.2.0\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="Pixie">
-      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.5\lib\net45\Pixie.dll</HintPath>
     </Reference>
     <Reference Include="Pixie.Terminal">
-      <HintPath>..\packages\Pixie.0.1.4\lib\net45\Pixie.Terminal.dll</HintPath>
+      <HintPath>..\packages\Pixie.0.1.5\lib\net45\Pixie.Terminal.dll</HintPath>
     </Reference>
     <Reference Include="Pixie.Loyc">
-      <HintPath>..\packages\Pixie.Loyc.0.1.4\lib\net45\Pixie.Loyc.dll</HintPath>
+      <HintPath>..\packages\Pixie.Loyc.0.1.5\lib\net45\Pixie.Loyc.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

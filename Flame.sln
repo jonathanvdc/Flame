@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Compiler", "Flame.Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Ir", "Flame.Ir\Flame.Ir.csproj", "{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Clr", "Flame.Clr\Flame.Clr.csproj", "{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

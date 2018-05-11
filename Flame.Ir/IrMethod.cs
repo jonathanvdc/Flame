@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
 using Flame.Compiler;
-using Loyc;
 using Loyc.Collections;
 using Loyc.Syntax;
 
