@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
@@ -164,7 +165,7 @@ namespace Flame.Ir
                 }
             }
 
-            // TODO: handle methods and properties.
+            // TODO: handle methods.
 
             throw new System.NotImplementedException();
         }
@@ -198,10 +199,23 @@ namespace Flame.Ir
                         property.IndexerParameters.EagerSelect(
                             p => state.Encode(p.Type))));
             }
+            else if (value is IMethod)
+            {
+                var method = (IMethod)value;
 
-            // TODO: handle methods.
-
-            throw new System.NotImplementedException();
+                return state.Factory.Call(
+                    CodeSymbols.Lambda,
+                    state.Factory.Call(
+                        EncodeTypeAndName(method, state),
+                        method.Parameters.EagerSelect(
+                            p => state.Encode(p.Type))),
+                    state.Encode(method.ReturnParameter.Type));
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    "Unknown kind of type member '" + value + "'.");
+            }
         }
 
         private static bool AssertDecodeTypeAndName(
