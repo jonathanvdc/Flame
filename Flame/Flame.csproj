@@ -33,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessorKind.cs" />
+    <Compile Include="AssemblyIdentity.cs" />
     <Compile Include="AttributeMap.cs" />
     <Compile Include="Constant.cs" />
     <Compile Include="ContractHelpers.cs" />
