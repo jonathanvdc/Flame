@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Flame
 {
@@ -171,6 +172,48 @@ namespace Flame
                 value = null;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Creates a derived assembly identity that includes a
+        /// particular annotation.
+        /// </summary>
+        /// <param name="key">The annotation's key.</param>
+        /// <param name="value">The annotation's value.</param>
+        /// <returns>A derived assembly identity.</returns>
+        public AssemblyIdentity WithAnnotation(string key, string value)
+        {
+            var newAnnotations = new Dictionary<string, string>();
+            foreach (var pair in Annotations)
+            {
+                newAnnotations[pair.Key] = pair.Value;
+            }
+            newAnnotations[key] = value;
+            return new AssemblyIdentity(Name, newAnnotations);
+        }
+
+        /// <summary>
+        /// Creates a derived assembly identity that includes a
+        /// particular annotation.
+        /// </summary>
+        /// <param name="key">The annotation's key.</param>
+        /// <param name="value">The annotation's value.</param>
+        /// <returns>A derived assembly identity.</returns>
+        public AssemblyIdentity WithAnnotation(string key, bool value)
+        {
+            return WithAnnotation(key, value.ToString());
+        }
+
+        /// <summary>
+        /// Creates a derived assembly identity that includes a
+        /// particular annotation.
+        /// </summary>
+        /// <param name="key">The annotation's key.</param>
+        /// <param name="value">The annotation's value.</param>
+        /// <returns>A derived assembly identity.</returns>
+        public AssemblyIdentity WithAnnotation(string key, Version value)
+        {
+            return WithAnnotation(key, value.ToString());
         }
 
         /// <summary>
