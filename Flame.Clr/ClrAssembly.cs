@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Flame.TypeSystem;
 using Mono.Cecil;
 
 namespace Flame.Clr
@@ -15,9 +16,15 @@ namespace Flame.Clr
         /// <param name="definition">
         /// The assembly definition to wrap.
         /// </param>
-        public ClrAssembly(AssemblyDefinition definition)
+        /// <param name="resolver">
+        /// The assembly resolver to use.
+        /// </param>
+        public ClrAssembly(
+            AssemblyDefinition definition,
+            AssemblyResolver resolver)
         {
             this.Definition = definition;
+            this.Resolver = new ReferenceResolver(resolver);
             this.FullName = new SimpleName(definition.Name.Name).Qualify();
         }
 
@@ -26,6 +33,12 @@ namespace Flame.Clr
         /// </summary>
         /// <returns>A Cecil assembly definition.</returns>
         public AssemblyDefinition Definition { get; private set; }
+
+        /// <summary>
+        /// Gets the reference resolver used by this assembly.
+        /// </summary>
+        /// <returns>The reference resolver.</returns>
+        public ReferenceResolver Resolver { get; private set; }
 
         /// <inheritdoc/>
         public UnqualifiedName Name => FullName.FullyUnqualifiedName;
