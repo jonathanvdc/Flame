@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Flame.Collections;
 using Mono.Cecil;
 
 namespace Flame.Clr
@@ -19,11 +21,11 @@ namespace Flame.Clr
         public ClrTypeDefinition(
             TypeDefinition definition,
             ClrAssembly assembly)
-        {
-            this.Definition = definition;
-            this.Assembly = assembly;
-            this.Parent = new TypeParent(assembly);
-        }
+            : this(
+                definition,
+                assembly,
+                new TypeParent(assembly))
+        { }
 
         /// <summary>
         /// Creates a Flame type that wraps a particular nested type
@@ -36,10 +38,21 @@ namespace Flame.Clr
         public ClrTypeDefinition(
             TypeDefinition definition,
             ClrTypeDefinition parentType)
+            : this(
+                definition,
+                parentType.Assembly,
+                new TypeParent(parentType))
+        { }
+
+        private ClrTypeDefinition(
+            TypeDefinition definition,
+            ClrAssembly assembly,
+            TypeParent parent)
         {
             this.Definition = definition;
-            this.Assembly = parentType.Assembly;
-            this.Parent = new TypeParent(parentType);
+            this.Assembly = assembly;
+            this.Parent = parent;
+            this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
         }
 
         /// <summary>
@@ -58,7 +71,18 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public TypeParent Parent { get; private set; }
 
-        public IReadOnlyList<IType> BaseTypes => throw new System.NotImplementedException();
+        private DeferredInitializer contentsInitializer;
+        private IReadOnlyList<IType> baseTypeList;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> BaseTypes
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return baseTypeList;
+            }
+        }
 
         public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
 
@@ -75,5 +99,17 @@ namespace Flame.Clr
         public QualifiedName FullName => throw new System.NotImplementedException();
 
         public AttributeMap Attributes => throw new System.NotImplementedException();
+
+        private void AnalyzeContents()
+        {
+            Assembly.RunSynchronized(() =>
+            {
+                // Analyze base types and interface implementations.
+                baseTypeList = new[] { Definition.BaseType }
+                    .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
+                    .Select(Assembly.Resolve)
+                    .ToArray();
+            });
+        }
     }
 }
