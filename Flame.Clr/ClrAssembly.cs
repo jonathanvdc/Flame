@@ -108,5 +108,25 @@ namespace Flame.Clr
                 func();
             }
         }
+
+        /// <summary>
+        /// Resolves an assembly name reference as an assembly.
+        /// </summary>
+        /// <param name="assemblyRef">An assembly name reference to resolve.</param>
+        /// <returns>The assembly referenced by <paramref name="assemblyRef"/>.</returns>
+        public IAssembly Resolve(AssemblyNameReference assemblyRef)
+        {
+            return Resolver.Resolve(assemblyRef);
+        }
+
+        /// <summary>
+        /// Resolves a type reference declared in this assembly.
+        /// </summary>
+        /// <param name="typeRef">The type reference to resolve.</param>
+        /// <returns>A type referred to by the reference.</returns>
+        public IType Resolve(TypeReference typeRef)
+        {
+            return Resolver.Resolve(typeRef, this);
+        }
     }
 }
