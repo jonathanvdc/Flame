@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.TypeSystem;
 using Mono.Cecil;
@@ -26,6 +27,8 @@ namespace Flame.Clr
             this.Definition = definition;
             this.Resolver = new ReferenceResolver(resolver);
             this.FullName = new SimpleName(definition.Name.Name).Qualify();
+            this.SyncRoot = new object();
+            this.typeCache = new Lazy<IReadOnlyList<IType>>(() => RunSynchronized(AnalyzeTypes));
         }
 
         /// <summary>
@@ -40,6 +43,13 @@ namespace Flame.Clr
         /// <returns>The reference resolver.</returns>
         public ReferenceResolver Resolver { get; private set; }
 
+        /// <summary>
+        /// Gets the object that is used for synchronizing access to
+        /// the IL assembly wrapped by this Flame assembly.
+        /// </summary>
+        /// <returns>A synchronization object.</returns>
+        public object SyncRoot { get; private set; }
+
         /// <inheritdoc/>
         public UnqualifiedName Name => FullName.FullyUnqualifiedName;
 
@@ -50,6 +60,53 @@ namespace Flame.Clr
         public AttributeMap Attributes => throw new System.NotImplementedException();
 
         /// <inheritdoc/>
-        public IReadOnlyList<IType> Types => throw new System.NotImplementedException();
+        public IReadOnlyList<IType> Types => typeCache.Value;
+
+        private Lazy<IReadOnlyList<IType>> typeCache;
+
+        private IReadOnlyList<IType> AnalyzeTypes()
+        {
+            var results = new List<IType>();
+            foreach (var module in Definition.Modules)
+            {
+                foreach (var typeDef in module.Types)
+                {
+                    results.Add(new ClrTypeDefinition(typeDef, this));
+                }
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Runs a function in a single-threaded fashion with respect
+        /// to other functions operating on this assembly.
+        /// </summary>
+        /// <param name="func">The function to run.</param>
+        /// <typeparam name="T">
+        /// The type of value produced by the function.
+        /// </typeparam>
+        /// <returns>
+        /// The function's return value.
+        /// </returns>
+        public T RunSynchronized<T>(Func<T> func)
+        {
+            lock (SyncRoot)
+            {
+                return func();
+            }
+        }
+
+        /// <summary>
+        /// Runs a function in a single-threaded fashion with respect
+        /// to other functions operating on this assembly.
+        /// </summary>
+        /// <param name="func">The function to run.</param>
+        public void RunSynchronized(Action func)
+        {
+            lock (SyncRoot)
+            {
+                func();
+            }
+        }
     }
 }
