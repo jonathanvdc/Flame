@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Flame.Collections;
+using System.Threading;
 using Flame.TypeSystem;
 using Mono.Cecil;
 
@@ -22,7 +22,9 @@ namespace Flame.Clr
         public ReferenceResolver(AssemblyResolver resolver)
         {
             this.AssemblyResolver = resolver;
-            this.assemblyCache = new WeakCache<AssemblyNameReference, IAssembly>();
+            this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
+            this.typeResolver = new TypeResolver();
+            this.cacheLock = new ReaderWriterLockSlim();
         }
 
         /// <summary>
@@ -31,7 +33,21 @@ namespace Flame.Clr
         /// <returns>An assembly resolver.</returns>
         public AssemblyResolver AssemblyResolver { get; private set; }
 
-        private WeakCache<AssemblyNameReference, IAssembly> assemblyCache;
+        /// <summary>
+        /// A cache of all assemblies that have been resolved so far.
+        /// </summary>
+        private Dictionary<AssemblyNameReference, IAssembly> assemblyCache;
+
+        /// <summary>
+        /// A type resolver, which allows us to look up types efficiently.
+        /// </summary>
+        private TypeResolver typeResolver;
+
+        /// <summary>
+        /// A lock for synchronizing access to the assembly cache and
+        /// type resolver data structures.
+        /// </summary>
+        private ReaderWriterLockSlim cacheLock;
 
         /// <summary>
         /// Resolves an assembly name reference as an assembly.
@@ -40,7 +56,38 @@ namespace Flame.Clr
         /// <returns>The assembly referenced by <paramref name="assemblyRef"/>.</returns>
         public IAssembly Resolve(AssemblyNameReference assemblyRef)
         {
-            return assemblyCache.Get(assemblyRef, ResolveImpl);
+            IAssembly result;
+
+            // Try to resolve assembly from cache first.
+            try
+            {
+                cacheLock.EnterReadLock();
+                if (assemblyCache.TryGetValue(assemblyRef, out result))
+                {
+                    return result;
+                }
+            }
+            finally
+            {
+                cacheLock.ExitReadLock();
+            }
+
+            // If the assembly has not been resolved yet, acquire
+            // a write lock, resolve the assembly and update the assembly
+            // cache. Also index the assembly's types so we can resolve
+            // them by name.
+            try
+            {
+                cacheLock.EnterWriteLock();
+                result = ResolveImpl(assemblyRef);
+                assemblyCache[assemblyRef] = result;
+                typeResolver.AddAssembly(result);
+                return result;
+            }
+            finally
+            {
+                cacheLock.ExitWriteLock();
+            }
         }
 
         private IAssembly ResolveImpl(AssemblyNameReference assemblyRef)
@@ -97,6 +144,14 @@ namespace Flame.Clr
             }
             else
             {
+                if (typeRef.DeclaringType != null)
+                {
+                    var declType = Resolve(typeRef.DeclaringType, assembly);
+                    var nestedTypes = typeResolver.ResolveNestedTypes(
+                        declType,
+                        NameConversion.ParseSimpleName(typeRef.Name));
+                }
+
                 var scope = typeRef.Scope;
 
                 if (scope == null)
