@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="ClrAssembly.cs" />
     <Compile Include="ClrTypeDefinition.cs" />
+    <Compile Include="NameConversion.cs" />
     <Compile Include="ReferenceResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
