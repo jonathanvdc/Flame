@@ -150,6 +150,7 @@ namespace Flame.Clr
                     var nestedTypes = typeResolver.ResolveNestedTypes(
                         declType,
                         NameConversion.ParseSimpleName(typeRef.Name));
+                    return PickSingleResolvedType(typeRef, nestedTypes);
                 }
 
                 var scope = typeRef.Scope;
@@ -174,7 +175,23 @@ namespace Flame.Clr
 
         private IType FindInAssembly(TypeReference typeRef, IAssembly assembly)
         {
-            throw new NotImplementedException();
+            var qualName = NameConversion.ParseSimpleName(typeRef.Name)
+                .Qualify(NameConversion.ParseNamespace(typeRef.Namespace));
+            return PickSingleResolvedType(typeRef, typeResolver.ResolveTypes(qualName));
+        }
+
+        private static IType PickSingleResolvedType(
+            TypeReference typeRef,
+            IReadOnlyList<IType> resolvedTypes)
+        {
+            if (resolvedTypes.Count == 1)
+            {
+                return resolvedTypes[0];
+            }
+            else
+            {
+                throw new ResolutionException(typeRef);
+            }
         }
     }
 }

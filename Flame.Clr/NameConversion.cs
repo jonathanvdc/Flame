@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 
 namespace Flame.Clr
 {
@@ -29,6 +30,27 @@ namespace Flame.Clr
             else
             {
                 return new SimpleName(name);
+            }
+        }
+
+        /// <summary>
+        /// Parses an IL namespace as a Flame qualified name.
+        /// </summary>
+        /// <param name="ns">The namespace to parse.</param>
+        /// <returns>A qualified name.</returns>
+        public static QualifiedName ParseNamespace(string ns)
+        {
+            if (string.IsNullOrEmpty(ns))
+            {
+                return new QualifiedName();
+            }
+            else
+            {
+                return new QualifiedName(
+                    ns
+                        .Split('.')
+                        .Select(ParseSimpleName)
+                        .ToArray());
             }
         }
     }
