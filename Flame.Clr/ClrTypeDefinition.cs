@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
@@ -63,6 +64,12 @@ namespace Flame.Clr
             this.Parent = parent;
             this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
             this.FullName = fullName;
+            this.nestedTypeCache = new Lazy<IReadOnlyList<IType>>(() =>
+            {
+                return definition.NestedTypes
+                    .Select(t => new ClrTypeDefinition(t, this))
+                    .ToArray();
+            });
         }
 
         /// <summary>
@@ -83,6 +90,7 @@ namespace Flame.Clr
 
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
+        private Lazy<IReadOnlyList<IType>> nestedTypeCache;
 
         /// <inheritdoc/>
         public QualifiedName FullName { get; private set; }
@@ -107,7 +115,8 @@ namespace Flame.Clr
 
         public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
 
-        public IReadOnlyList<IType> NestedTypes => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IType> NestedTypes => nestedTypeCache.Value;
 
         public IReadOnlyList<IGenericParameter> GenericParameters => throw new System.NotImplementedException();
 
