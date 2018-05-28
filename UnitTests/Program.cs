@@ -10,6 +10,7 @@ using System.Collections.Immutable;
 using Pixie;
 using Pixie.Transforms;
 using Pixie.Markup;
+using UnitTests.Flame.Clr;
 
 namespace UnitTests
 {
@@ -20,6 +21,7 @@ namespace UnitTests
         public static readonly List<Pair<string, Func<int>>> Menu = new List<Pair<string, Func<int>>>()
         {
             new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Clr.dll", FlameClr),
             new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr)
         };
 
@@ -101,6 +103,12 @@ namespace UnitTests
                 new TypeConstructionTests(globalRng),
                 new TypeResolverTests(),
                 new ValueListTests());
+        }
+
+        public static int FlameClr()
+        {
+            return RunTests.RunMany(
+                new LocalTypeResolutionTests());
         }
 
         public static int FlameIr()

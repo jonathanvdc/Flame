@@ -66,9 +66,10 @@ namespace Flame.Clr
             this.FullName = fullName;
             this.nestedTypeCache = new Lazy<IReadOnlyList<IType>>(() =>
             {
-                return definition.NestedTypes
-                    .Select(t => new ClrTypeDefinition(t, this))
-                    .ToArray();
+                return Assembly.RunSynchronized(() =>
+                    definition.NestedTypes
+                        .Select(t => new ClrTypeDefinition(t, this))
+                        .ToArray());
             });
         }
 

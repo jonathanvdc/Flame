@@ -84,6 +84,7 @@
     <Compile Include="Flame\TypeConstructionTests.cs" />
     <Compile Include="Flame\TypeResolverTests.cs" />
     <Compile Include="Flame\ValueListTests.cs" />
+    <Compile Include="Flame.Clr\LocalTypeResolutionTests.cs" />
     <Compile Include="Flame.Ir\AssemblyCodecTest.cs" />
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
     <Compile Include="Flame.Ir\PiecewiseCodecTest.cs" />
@@ -114,5 +115,6 @@
   <ItemGroup>
     <Folder Include="Flame\" />
     <Folder Include="Flame.Ir\" />
+    <Folder Include="Flame.Clr\" />
   </ItemGroup>
 </Project>
