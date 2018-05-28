@@ -108,7 +108,8 @@ namespace UnitTests
         public static int FlameClr()
         {
             return RunTests.RunMany(
-                new LocalTypeResolutionTests());
+                new LocalTypeResolutionTests(),
+                new TypeAttributeTests());
         }
 
         public static int FlameIr()
