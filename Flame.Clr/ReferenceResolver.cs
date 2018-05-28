@@ -11,7 +11,7 @@ namespace Flame.Clr
     /// A data structure that resolves IL references as
     /// Flame members.
     /// </summary>
-    public sealed class ReferenceResolver
+    internal sealed class ReferenceResolver
     {
         /// <summary>
         /// Creates a reference resolver.
@@ -19,7 +19,7 @@ namespace Flame.Clr
         /// <param name="resolver">
         /// The assembly resolver to use.
         /// </param>
-        public ReferenceResolver(AssemblyResolver resolver)
+        internal ReferenceResolver(AssemblyResolver resolver)
         {
             this.AssemblyResolver = resolver;
             this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
@@ -113,7 +113,7 @@ namespace Flame.Clr
         /// <param name="typeRef">The type reference to resolve.</param>
         /// <param name="assembly">The assembly in which the reference occurs.</param>
         /// <returns>A type referred to by the reference.</returns>
-        internal IType Resolve(TypeReference typeRef, ClrAssembly assembly)
+        public IType Resolve(TypeReference typeRef, ClrAssembly assembly)
         {
             if (typeRef is TypeSpecification)
             {
