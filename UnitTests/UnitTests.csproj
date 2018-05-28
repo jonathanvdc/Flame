@@ -57,6 +57,18 @@
     <Reference Include="Pixie.Loyc">
       <HintPath>..\packages\Pixie.Loyc.0.1.5\lib\net45\Pixie.Loyc.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\packages\Mono.Cecil.0.10.0\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FuzzHelpers.cs" />
@@ -93,6 +105,10 @@
     <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj">
       <Project>{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}</Project>
       <Name>Flame.Ir</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Clr\Flame.Clr.csproj">
+      <Project>{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}</Project>
+      <Name>Flame.Clr</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
