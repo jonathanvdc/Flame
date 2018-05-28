@@ -113,7 +113,7 @@ namespace Flame.Clr
         /// <param name="typeRef">The type reference to resolve.</param>
         /// <param name="assembly">The assembly in which the reference occurs.</param>
         /// <returns>A type referred to by the reference.</returns>
-        public IType Resolve(TypeReference typeRef, ClrAssembly assembly)
+        internal IType Resolve(TypeReference typeRef, ClrAssembly assembly)
         {
             if (typeRef is TypeSpecification)
             {
