@@ -24,7 +24,12 @@ namespace Flame.Clr
             : this(
                 definition,
                 assembly,
-                new TypeParent(assembly))
+                new TypeParent(assembly),
+                NameConversion
+                    .ParseSimpleName(definition.Name)
+                    .Qualify(
+                        NameConversion.ParseNamespace(
+                            definition.Namespace)))
         { }
 
         /// <summary>
@@ -41,18 +46,23 @@ namespace Flame.Clr
             : this(
                 definition,
                 parentType.Assembly,
-                new TypeParent(parentType))
+                new TypeParent(parentType),
+                NameConversion
+                    .ParseSimpleName(definition.Name)
+                    .Qualify(parentType.FullName))
         { }
 
         private ClrTypeDefinition(
             TypeDefinition definition,
             ClrAssembly assembly,
-            TypeParent parent)
+            TypeParent parent,
+            QualifiedName fullName)
         {
             this.Definition = definition;
             this.Assembly = assembly;
             this.Parent = parent;
             this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
+            this.FullName = fullName;
         }
 
         /// <summary>
@@ -75,6 +85,13 @@ namespace Flame.Clr
         private IReadOnlyList<IType> baseTypeList;
 
         /// <inheritdoc/>
+        public QualifiedName FullName { get; private set; }
+
+        /// <inheritdoc/>
+        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
+
+        /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes
         {
             get
@@ -93,10 +110,6 @@ namespace Flame.Clr
         public IReadOnlyList<IType> NestedTypes => throw new System.NotImplementedException();
 
         public IReadOnlyList<IGenericParameter> GenericParameters => throw new System.NotImplementedException();
-
-        public UnqualifiedName Name => throw new System.NotImplementedException();
-
-        public QualifiedName FullName => throw new System.NotImplementedException();
 
         public AttributeMap Attributes => throw new System.NotImplementedException();
 
