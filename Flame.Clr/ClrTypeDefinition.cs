@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
+using Flame.TypeSystem;
 using Mono.Cecil;
 
 namespace Flame.Clr
@@ -92,12 +93,23 @@ namespace Flame.Clr
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
         private Lazy<IReadOnlyList<IType>> nestedTypeCache;
+        private AttributeMap attributeMap;
 
         /// <inheritdoc/>
         public QualifiedName FullName { get; private set; }
 
         /// <inheritdoc/>
         public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
+        /// <inheritdoc/>
+        public AttributeMap Attributes
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return attributeMap;
+            }
+        }
 
 
         /// <inheritdoc/>
@@ -121,8 +133,6 @@ namespace Flame.Clr
 
         public IReadOnlyList<IGenericParameter> GenericParameters => throw new System.NotImplementedException();
 
-        public AttributeMap Attributes => throw new System.NotImplementedException();
-
         private void AnalyzeContents()
         {
             Assembly.RunSynchronized(() =>
@@ -132,6 +142,15 @@ namespace Flame.Clr
                     .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
                     .Select(Assembly.Resolve)
                     .ToArray();
+
+                // Analyze attributes.
+                var attrBuilder = new AttributeMapBuilder();
+                if (!Definition.IsValueType)
+                {
+                    attrBuilder.Add(FlagAttribute.ReferenceType);
+                }
+                // TODO: support more attributes.
+                attributeMap = new AttributeMap(attrBuilder);
             });
         }
     }
