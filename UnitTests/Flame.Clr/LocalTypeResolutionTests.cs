@@ -38,4 +38,3 @@ namespace UnitTests.Flame.Clr
         }
     }
 }
-
