@@ -137,12 +137,6 @@ namespace Flame.Clr
         {
             Assembly.RunSynchronized(() =>
             {
-                // Analyze base types and interface implementations.
-                baseTypeList = new[] { Definition.BaseType }
-                    .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
-                    .Select(Assembly.Resolve)
-                    .ToArray();
-
                 // Analyze attributes.
                 var attrBuilder = new AttributeMapBuilder();
                 if (!Definition.IsValueType)
@@ -151,7 +145,21 @@ namespace Flame.Clr
                 }
                 // TODO: support more attributes.
                 attributeMap = new AttributeMap(attrBuilder);
+
+                // Analyze base types and interface implementations.
+                baseTypeList = (Definition.BaseType == null
+                    ? new TypeReference[] { }
+                    : new[] { Definition.BaseType })
+                    .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
+                    .Select(Assembly.Resolve)
+                    .ToArray();
             });
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return FullName.ToString();
         }
     }
 }
