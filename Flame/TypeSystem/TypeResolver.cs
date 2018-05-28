@@ -22,6 +22,19 @@ namespace Flame.TypeSystem
         }
 
         /// <summary>
+        /// Creates a type resolver and immediately adds
+        /// an assembly to it.
+        /// </summary>
+        /// <param name="assembly">
+        /// The assembly to add to the type resolver.
+        /// </param>
+        public TypeResolver(IAssembly assembly)
+            : this()
+        {
+            AddAssembly(assembly);
+        }
+
+        /// <summary>
         /// Creates a clone of this type resolver.
         /// </summary>
         /// <returns>The cloned type resolver.</returns>
