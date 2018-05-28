@@ -73,7 +73,7 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         protected override IType VisitInteresting(IType type)
         {
-            return MapType(type);
+            return VisitUninteresting(MapType(type));
         }
     }
 }
