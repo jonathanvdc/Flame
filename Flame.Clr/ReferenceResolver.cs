@@ -147,16 +147,19 @@ namespace Flame.Clr
                     var genInstType = (GenericInstanceType)typeSpec;
                     return elemType.MakeGenericType(
                         genInstType.GenericArguments.Select(
-                            arg => Resolve(arg, assembly))
+                            arg => TypeHelpers.BoxIfReferenceType(
+                                Resolve(arg, assembly)))
                         .ToArray());
                 }
                 else if (typeSpec is Mono.Cecil.PointerType)
                 {
-                    return elemType.MakePointerType(PointerKind.Transient);
+                    return TypeHelpers.BoxIfReferenceType(elemType)
+                        .MakePointerType(PointerKind.Transient);
                 }
                 else if (typeSpec is ByReferenceType)
                 {
-                    return elemType.MakePointerType(PointerKind.Reference);
+                    return TypeHelpers.BoxIfReferenceType(elemType)
+                        .MakePointerType(PointerKind.Reference);
                 }
                 else
                 {
