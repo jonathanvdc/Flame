@@ -23,12 +23,29 @@ namespace Flame.Clr
         public ClrAssembly(
             AssemblyDefinition definition,
             AssemblyResolver resolver)
+            : this(definition, new ReferenceResolver(resolver))
+        { }
+
+        /// <summary>
+        /// Creates a Flame assembly that wraps a Cecil assembly
+        /// definition.
+        /// </summary>
+        /// <param name="definition">
+        /// The assembly definition to wrap.
+        /// </param>
+        /// <param name="resolver">
+        /// The reference resolver to use.
+        /// </param>
+        public ClrAssembly(
+            AssemblyDefinition definition,
+            ReferenceResolver resolver)
         {
             this.Definition = definition;
-            this.Resolver = new ReferenceResolver(resolver);
+            this.Resolver = resolver;
             this.FullName = new SimpleName(definition.Name.Name).Qualify();
             this.SyncRoot = new object();
-            this.typeCache = new Lazy<IReadOnlyList<IType>>(() => RunSynchronized(AnalyzeTypes));
+            this.typeCache = new Lazy<IReadOnlyList<IType>>(
+                () => RunSynchronized(AnalyzeTypes));
         }
 
         /// <summary>

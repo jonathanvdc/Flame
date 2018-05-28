@@ -11,7 +11,7 @@ namespace Flame.Clr
     /// A data structure that resolves IL references as
     /// Flame members.
     /// </summary>
-    internal sealed class ReferenceResolver
+    public sealed class ReferenceResolver
     {
         /// <summary>
         /// Creates a reference resolver.
@@ -19,11 +19,11 @@ namespace Flame.Clr
         /// <param name="resolver">
         /// The assembly resolver to use.
         /// </param>
-        internal ReferenceResolver(AssemblyResolver resolver)
+        public ReferenceResolver(AssemblyResolver resolver)
         {
             this.AssemblyResolver = resolver;
             this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
-            this.typeResolver = new TypeResolver();
+            this.typeResolvers = new Dictionary<IAssembly, TypeResolver>();
             this.cacheLock = new ReaderWriterLockSlim();
         }
 
@@ -39,9 +39,9 @@ namespace Flame.Clr
         private Dictionary<AssemblyNameReference, IAssembly> assemblyCache;
 
         /// <summary>
-        /// A type resolver, which allows us to look up types efficiently.
+        /// A dictionary of type resolvers, which allow us to look up types efficiently.
         /// </summary>
-        private TypeResolver typeResolver;
+        private Dictionary<IAssembly, TypeResolver> typeResolvers;
 
         /// <summary>
         /// A lock for synchronizing access to the assembly cache and
@@ -56,13 +56,29 @@ namespace Flame.Clr
         /// <returns>The assembly referenced by <paramref name="assemblyRef"/>.</returns>
         public IAssembly Resolve(AssemblyNameReference assemblyRef)
         {
-            IAssembly result;
+            return GetOrCreate(assemblyRef, assemblyCache, ResolveImpl);
+        }
 
-            // Try to resolve assembly from cache first.
+        private TypeResolver GetTypeResolver(IAssembly assembly)
+        {
+            return GetOrCreate(
+                assembly,
+                typeResolvers,
+                asm => new TypeResolver(asm));
+        }
+
+        private TValue GetOrCreate<TKey, TValue>(
+            TKey key,
+            Dictionary<TKey, TValue> dictionary,
+            Func<TKey, TValue> create)
+        {
+            TValue result;
+
+            // Try to retrieve the element from the dictionary first.
             try
             {
                 cacheLock.EnterReadLock();
-                if (assemblyCache.TryGetValue(assemblyRef, out result))
+                if (dictionary.TryGetValue(key, out result))
                 {
                     return result;
                 }
@@ -72,17 +88,24 @@ namespace Flame.Clr
                 cacheLock.ExitReadLock();
             }
 
-            // If the assembly has not been resolved yet, acquire
-            // a write lock, resolve the assembly and update the assembly
-            // cache. Also index the assembly's types so we can resolve
-            // them by name.
+            // If the element if not in the dictionary yet, then we'll
+            // create it anew.
             try
             {
                 cacheLock.EnterWriteLock();
-                result = ResolveImpl(assemblyRef);
-                assemblyCache[assemblyRef] = result;
-                typeResolver.AddAssembly(result);
-                return result;
+
+                // Check that the element has not been created yet before
+                // actually creating it.
+                if (dictionary.TryGetValue(key, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    result = create(key);
+                    dictionary[key] = result;
+                    return result;
+                }
             }
             finally
             {
@@ -113,7 +136,7 @@ namespace Flame.Clr
         /// <param name="typeRef">The type reference to resolve.</param>
         /// <param name="assembly">The assembly in which the reference occurs.</param>
         /// <returns>A type referred to by the reference.</returns>
-        public IType Resolve(TypeReference typeRef, ClrAssembly assembly)
+        internal IType Resolve(TypeReference typeRef, ClrAssembly assembly)
         {
             if (typeRef is TypeSpecification)
             {
@@ -147,7 +170,7 @@ namespace Flame.Clr
                 if (typeRef.DeclaringType != null)
                 {
                     var declType = Resolve(typeRef.DeclaringType, assembly);
-                    var nestedTypes = typeResolver.ResolveNestedTypes(
+                    var nestedTypes = GetTypeResolver(assembly).ResolveNestedTypes(
                         declType,
                         NameConversion.ParseSimpleName(typeRef.Name));
                     return PickSingleResolvedType(typeRef, nestedTypes);
@@ -177,7 +200,9 @@ namespace Flame.Clr
         {
             var qualName = NameConversion.ParseSimpleName(typeRef.Name)
                 .Qualify(NameConversion.ParseNamespace(typeRef.Namespace));
-            return PickSingleResolvedType(typeRef, typeResolver.ResolveTypes(qualName));
+            return PickSingleResolvedType(
+                typeRef,
+                GetTypeResolver(assembly).ResolveTypes(qualName));
         }
 
         private static IType PickSingleResolvedType(
