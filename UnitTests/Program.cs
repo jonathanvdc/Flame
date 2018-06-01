@@ -94,6 +94,7 @@ namespace UnitTests
         public static int Flame()
         {
             return RunTests.RunMany(
+                new AssemblyIdentityTests(globalRng),
                 new CacheTests(globalRng),
                 new DeferredInitializerTests(),
                 new IndexTests(globalRng),
