@@ -92,6 +92,7 @@ namespace Flame.Clr
 
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
+        private IReadOnlyList<IField> fieldDefList;
         private Lazy<IReadOnlyList<IType>> nestedTypeCache;
         private AttributeMap attributeMap;
 
@@ -122,7 +123,8 @@ namespace Flame.Clr
             }
         }
 
-        public IReadOnlyList<IField> Fields => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IField> Fields => fieldDefList;
 
         public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
 
@@ -152,6 +154,11 @@ namespace Flame.Clr
                     : new[] { Definition.BaseType })
                     .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
                     .Select(Assembly.Resolve)
+                    .ToArray();
+
+                // Analyze fields.
+                fieldDefList = Definition.Fields
+                    .Select(field => new ClrFieldDefinition(field, this))
                     .ToArray();
             });
         }
