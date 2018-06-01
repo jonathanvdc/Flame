@@ -50,5 +50,28 @@ namespace UnitTests
                 }
             }
         }
+
+        [Test]
+        public void StringRepresentation()
+        {
+            var name = "path/to/file";
+
+            var identity = new AssemblyIdentity(name);
+            Assert.AreEqual(identity.ToString(), name);
+
+            identity = identity.WithAnnotation(
+                AssemblyIdentity.IsRetargetableKey,
+                true);
+            Assert.AreEqual(
+                identity.ToString(),
+                name + " { isRetargetable: 'True' }");
+
+            identity = identity.WithAnnotation(
+                AssemblyIdentity.VersionAnnotationKey,
+                new Version(1, 2, 3, 4));
+            Assert.AreEqual(
+                identity.ToString(),
+                name + " { isRetargetable: 'True', version: '1.2.3.4' }");
+        }
     }
 }
