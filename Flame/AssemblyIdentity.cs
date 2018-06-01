@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Flame.Collections;
 
 namespace Flame
@@ -266,6 +267,39 @@ namespace Flame
                 hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, kvPair.Value);
             }
             return hashCode;
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            if (Annotations.Count == 0)
+            {
+                return Name;
+            }
+            else
+            {
+                var builder = new StringBuilder();
+                builder.Append(Name);
+                builder.Append(" { ");
+                var isFirst = true;
+                foreach (var kvPair in Annotations.OrderBy(pair => pair.Key))
+                {
+                    if (isFirst)
+                    {
+                        isFirst = false;
+                    }
+                    else
+                    {
+                        builder.Append(", ");
+                    }
+                    builder.Append(kvPair.Key);
+                    builder.Append(": '");
+                    builder.Append(kvPair.Value.Replace("'", "\\'"));
+                    builder.Append("'");
+                }
+                builder.Append(" }");
+                return builder.ToString();
+            }
         }
 
         /// <summary>
