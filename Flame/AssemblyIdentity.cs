@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Flame.Collections;
 
 namespace Flame
 {
     /// <summary>
     /// A reference to a particular assembly.
     /// </summary>
-    public sealed class AssemblyIdentity
+    public sealed class AssemblyIdentity : IEquatable<AssemblyIdentity>
     {
         /// <summary>
         /// Creates an assembly identity from a name.
@@ -214,6 +216,56 @@ namespace Flame
         public AssemblyIdentity WithAnnotation(string key, Version value)
         {
             return WithAnnotation(key, value.ToString());
+        }
+
+        /// <summary>
+        /// Checks if two assembly identities are equal.
+        /// </summary>
+        /// <param name="other">
+        /// The assembly identity to compare with.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the assembly identities are equal;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(AssemblyIdentity other)
+        {
+            if (Name != other.Name
+                || Annotations.Count != other.Annotations.Count)
+            {
+                return false;
+            }
+
+            foreach (var kvPair in Annotations)
+            {
+                string otherValue;
+                if (!other.Annotations.TryGetValue(kvPair.Key, out otherValue)
+                    || kvPair.Value != otherValue)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is AssemblyIdentity && Equals((AssemblyIdentity)obj);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            var hashCode = EnumerableComparer.EmptyHash;
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, Name);
+            foreach (var kvPair in Annotations.OrderBy(pair => pair.Key))
+            {
+                hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, kvPair.Key);
+                hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, kvPair.Value);
+            }
+            return hashCode;
         }
 
         /// <summary>
