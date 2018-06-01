@@ -89,5 +89,31 @@ namespace UnitTests
             }
             return arr;
         }
+
+        /// <summary>
+        /// Generates a random ASCII string.
+        /// </summary>
+        /// <param name="random">A random number generator.</param>
+        /// <param name="length">The length of the string.</param>
+        /// <returns>An ASCII character string.</returns>
+        public static string NextAsciiString(this Random random, int length)
+        {
+            return new string(
+                random.NextArray(
+                    length,
+                    rng =>
+                    {
+                        switch (rng.Next(0, 3))
+                        {
+                            case 0:
+                                return (char)rng.Next('0', '9' + 1);
+                            case 1:
+                                return (char)rng.Next('a', 'z' + 1);
+                            case 2:
+                            default:
+                                return (char)rng.Next('A', 'Z' + 1);
+                        }
+                    }));
+        }
     }
 }
