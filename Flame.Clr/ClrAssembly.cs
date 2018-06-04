@@ -145,5 +145,15 @@ namespace Flame.Clr
         {
             return Resolver.Resolve(typeRef, this);
         }
+
+        /// <summary>
+        /// Resolves a field reference declared in this assembly.
+        /// </summary>
+        /// <param name="fieldRef">The field reference to resolve.</param>
+        /// <returns>A field referred to by the reference.</returns>
+        public IField Resolve(FieldReference fieldRef)
+        {
+            return Resolver.Resolve(fieldRef, this);
+        }
     }
 }

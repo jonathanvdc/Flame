@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Flame.Collections;
 using Flame.TypeSystem;
 using Mono.Cecil;
 
@@ -42,6 +43,8 @@ namespace Flame.Clr
         /// A dictionary of type resolvers, which allow us to look up types efficiently.
         /// </summary>
         private Dictionary<IAssembly, TypeResolver> typeResolvers;
+
+        private Index<IType, KeyValuePair<string, IType>, IField> fieldCache;
 
         /// <summary>
         /// A lock for synchronizing access to the assembly cache and
@@ -135,7 +138,7 @@ namespace Flame.Clr
         /// </summary>
         /// <param name="typeRef">The type reference to resolve.</param>
         /// <param name="assembly">The assembly in which the reference occurs.</param>
-        /// <returns>A type referred to by the reference.</returns>
+        /// <returns>The type referred to by the reference.</returns>
         internal IType Resolve(TypeReference typeRef, ClrAssembly assembly)
         {
             if (typeRef is TypeSpecification)
@@ -219,6 +222,37 @@ namespace Flame.Clr
             else
             {
                 throw new ResolutionException(typeRef);
+            }
+        }
+
+        /// <summary>
+        /// Resolves a field reference.
+        /// </summary>
+        /// <param name="fieldRef">The field reference to resolve.</param>
+        /// <param name="assembly">The assembly that declares the reference.</param>
+        /// <returns>The field referred to by the reference.</returns>
+        internal IField Resolve(FieldReference fieldRef, ClrAssembly assembly)
+        {
+            return PickSingleResolvedMember(
+                fieldRef,
+                fieldCache.GetAll(
+                    Resolve(fieldRef.DeclaringType, assembly),
+                    new KeyValuePair<string, IType>(
+                        fieldRef.Name,
+                        Resolve(fieldRef.FieldType, assembly))));
+        }
+
+        private static T PickSingleResolvedMember<T>(
+            MemberReference memberRef,
+            IReadOnlyList<T> resolvedMembers)
+        {
+            if (resolvedMembers.Count == 1)
+            {
+                return resolvedMembers[0];
+            }
+            else
+            {
+                throw new ResolutionException(memberRef);
             }
         }
     }
