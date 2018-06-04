@@ -2,6 +2,7 @@
 using Loyc.MiniTest;
 using Flame.Clr;
 using Flame.TypeSystem;
+using System.Linq;
 
 namespace UnitTests.Flame.Clr
 {
@@ -35,6 +36,34 @@ namespace UnitTests.Flame.Clr
             {
                 Assert.IsNotNull(mscorlib.Resolve(item));
             }
+        }
+
+        [Test]
+        public void ResolveListT()
+        {
+            var listRef = mscorlib.Definition.MainModule.Types.Single(
+                t => t.FullName == "System.Collections.Generic.List`1");
+
+            var listEnumeratorRef = listRef.NestedTypes.Single(
+                t => t.Name == "Enumerator");
+
+            // Resolve List<T>.
+            var list = mscorlib.Resolve(listRef);
+            Assert.IsNotNull(list);
+
+            // Inspect generic parameter T.
+            Assert.AreEqual(list.GenericParameters.Count, 1);
+            var genParam = list.GenericParameters[0];
+            Assert.IsNotNull(genParam);
+            Assert.AreEqual(genParam.Name.ToString(), "T");
+
+            // Resolve list enumerator.
+            var listEnumerator = mscorlib.Resolve(listEnumeratorRef);
+            Assert.IsNotNull(listEnumerator);
+
+            // Verify that list enumerator doesn't have any generic parameters
+            // of its own. (Even though its IL representation does.)
+            Assert.AreEqual(listEnumerator.GenericParameters.Count, 0);
         }
     }
 }
