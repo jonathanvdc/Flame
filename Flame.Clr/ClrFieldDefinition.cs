@@ -26,6 +26,7 @@ namespace Flame.Clr
             this.ParentType = parentType;
             this.FullName = new SimpleName(definition.Name)
                 .Qualify(parentType.FullName);
+            this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
         }
 
         /// <summary>
