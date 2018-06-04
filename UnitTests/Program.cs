@@ -110,6 +110,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new LocalTypeResolutionTests(),
+                new MemberResolutionTests(),
                 new TypeAttributeTests());
         }
 
