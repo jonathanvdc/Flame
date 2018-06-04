@@ -124,7 +124,14 @@ namespace Flame.Clr
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IField> Fields => fieldDefList;
+        public IReadOnlyList<IField> Fields
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return fieldDefList;
+            }
+        }
 
         public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
 
