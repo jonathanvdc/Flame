@@ -116,6 +116,15 @@ namespace Flame
         public IMethod MethodOrNull { get; private set; }
 
         /// <summary>
+        /// Gets the assembly, type or method that is this type parent
+        /// as a member. If this type parent is nothing, then <c>null</c>
+        /// is returned.
+        /// </summary>
+        /// <returns>A member or <c>null</c>.</returns>
+        public IMember MemberOrNull =>
+            TypeOrNull ?? MethodOrNull ?? (IMember)AssemblyOrNull;
+
+        /// <summary>
         /// Checks if this type parent is an assembly.
         /// </summary>
         public bool IsAssembly => AssemblyOrNull != null;
@@ -181,6 +190,26 @@ namespace Flame
                     throw new InvalidOperationException("Type parent is not a method.");
 
                 return MethodOrNull;
+            }
+        }
+
+        /// <summary>
+        /// Gets the assembly, type or method that is this type parent.
+        /// Throws if this type parent is not an assembly, type or method.
+        /// </summary>
+        /// <returns>A member.</returns>
+        public IMember Member
+        {
+            get
+            {
+                var result = MemberOrNull;
+                if (result == null)
+                {
+                    throw new InvalidOperationException(
+                        "Type parent is not an assembly, type or method.");
+                }
+
+                return result;
             }
         }
     }

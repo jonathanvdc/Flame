@@ -72,6 +72,17 @@ namespace Flame.Clr
                         .Select(t => new ClrTypeDefinition(t, this))
                         .ToArray());
             });
+            this.genericParamCache = new Lazy<IReadOnlyList<IGenericParameter>>(() =>
+            {
+                return Assembly.RunSynchronized(() =>
+                    definition.GenericParameters
+                        .Skip(
+                            parent.IsType
+                                ? parent.TypeOrNull.GenericParameters.Count
+                                : 0)
+                        .Select(param => new ClrGenericParameter(param, this))
+                        .ToArray());
+            });
         }
 
         /// <summary>
@@ -93,6 +104,7 @@ namespace Flame.Clr
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
         private IReadOnlyList<IField> fieldDefList;
+        private Lazy<IReadOnlyList<IGenericParameter>> genericParamCache;
         private Lazy<IReadOnlyList<IType>> nestedTypeCache;
         private AttributeMap attributeMap;
 
@@ -133,14 +145,17 @@ namespace Flame.Clr
             }
         }
 
+        /// <inheritdoc/>
         public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
 
+        /// <inheritdoc/>
         public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => nestedTypeCache.Value;
 
-        public IReadOnlyList<IGenericParameter> GenericParameters => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public IReadOnlyList<IGenericParameter> GenericParameters => genericParamCache.Value;
 
         private void AnalyzeContents()
         {
