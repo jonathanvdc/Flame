@@ -28,5 +28,17 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(emptyField.Name.ToString(), emptyFieldRef.Name);
             Assert.AreEqual(emptyField.FieldType.FullName.ToString(), "System.String box*");
         }
+
+        [Test]
+        public void ResolveInt32MinValue()
+        {
+            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var minValueRef = ts.Int32.Resolve().Fields.Single(f => f.Name == "MinValue");
+
+            var minValue = mscorlib.Resolve(minValueRef);
+            Assert.IsNotNull(minValue);
+            Assert.AreEqual(minValue.Name.ToString(), minValueRef.Name);
+            Assert.AreEqual(minValue.FieldType.FullName.ToString(), "System.Int32");
+        }
     }
 }
