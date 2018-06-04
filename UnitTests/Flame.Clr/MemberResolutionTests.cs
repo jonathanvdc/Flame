@@ -26,6 +26,7 @@ namespace UnitTests.Flame.Clr
             var emptyField = mscorlib.Resolve(emptyFieldRef);
             Assert.IsNotNull(emptyField);
             Assert.AreEqual(emptyField.Name.ToString(), emptyFieldRef.Name);
+            Assert.IsTrue(emptyField.IsStatic);
             Assert.AreEqual(emptyField.FieldType.FullName.ToString(), "System.String box*");
         }
 
@@ -38,6 +39,7 @@ namespace UnitTests.Flame.Clr
             var minValue = mscorlib.Resolve(minValueRef);
             Assert.IsNotNull(minValue);
             Assert.AreEqual(minValue.Name.ToString(), minValueRef.Name);
+            Assert.IsTrue(minValue.IsStatic);
             Assert.AreEqual(minValue.FieldType.FullName.ToString(), "System.Int32");
         }
     }
