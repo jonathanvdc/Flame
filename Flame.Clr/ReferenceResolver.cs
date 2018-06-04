@@ -26,6 +26,17 @@ namespace Flame.Clr
             this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
             this.typeResolvers = new Dictionary<IAssembly, TypeResolver>();
             this.cacheLock = new ReaderWriterLockSlim();
+
+            this.fieldIndex = new Index<IType, KeyValuePair<string, IType>, IField>(
+                type =>
+                    type.Fields
+                        .Select(field =>
+                            new KeyValuePair<KeyValuePair<string, IType>, IField>(
+                                new KeyValuePair<string, IType>(
+                                    field.Name.ToString(),
+                                    field.FieldType),
+                                field))
+                        .ToArray());
         }
 
         /// <summary>
@@ -44,7 +55,7 @@ namespace Flame.Clr
         /// </summary>
         private Dictionary<IAssembly, TypeResolver> typeResolvers;
 
-        private Index<IType, KeyValuePair<string, IType>, IField> fieldCache;
+        private Index<IType, KeyValuePair<string, IType>, IField> fieldIndex;
 
         /// <summary>
         /// A lock for synchronizing access to the assembly cache and
@@ -233,13 +244,16 @@ namespace Flame.Clr
         /// <returns>The field referred to by the reference.</returns>
         internal IField Resolve(FieldReference fieldRef, ClrAssembly assembly)
         {
+            var declaringType = Resolve(fieldRef.DeclaringType, assembly);
+            var fieldType = TypeHelpers.BoxIfReferenceType(
+                Resolve(fieldRef.FieldType, assembly));
             return PickSingleResolvedMember(
                 fieldRef,
-                fieldCache.GetAll(
-                    Resolve(fieldRef.DeclaringType, assembly),
+                fieldIndex.GetAll(
+                    declaringType,
                     new KeyValuePair<string, IType>(
                         fieldRef.Name,
-                        Resolve(fieldRef.FieldType, assembly))));
+                        fieldType)));
         }
 
         private static T PickSingleResolvedMember<T>(
