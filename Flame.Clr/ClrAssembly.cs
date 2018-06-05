@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.Collections;
 using Flame.TypeSystem;
 using Mono.Cecil;
 
@@ -143,6 +144,22 @@ namespace Flame.Clr
         public Lazy<T> CreateSynchronizedLazy<T>(Func<T> func)
         {
             return new Lazy<T>(() => RunSynchronized<T>(func));
+        }
+
+        /// <summary>
+        /// Creates a deferred initializer object from an initializer
+        /// function that is run in a single-threaded fashion with
+        /// respect to other functions operating on this assembly.
+        /// </summary>
+        /// <param name="func">
+        /// The initialization function to run synchronously.
+        /// </param>
+        /// <returns>
+        /// A deferred initializer object.
+        /// </returns>
+        public DeferredInitializer CreateSynchronizedInitializer(Action func)
+        {
+            return DeferredInitializer.Create(() => RunSynchronized(func));
         }
 
         /// <summary>
