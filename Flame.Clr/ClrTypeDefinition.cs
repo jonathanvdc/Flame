@@ -63,7 +63,9 @@ namespace Flame.Clr
             this.Definition = definition;
             this.Assembly = assembly;
             this.Parent = parent;
-            this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
+            this.contentsInitializer = Assembly
+                .CreateSynchronizedInitializer(AnalyzeContents);
+
             this.FullName = fullName;
             this.nestedTypeCache = Assembly
                 .CreateSynchronizedLazy<IReadOnlyList<IType>>(() =>
@@ -159,30 +161,27 @@ namespace Flame.Clr
 
         private void AnalyzeContents()
         {
-            Assembly.RunSynchronized(() =>
+            // Analyze attributes.
+            var attrBuilder = new AttributeMapBuilder();
+            if (!Definition.IsValueType)
             {
-                // Analyze attributes.
-                var attrBuilder = new AttributeMapBuilder();
-                if (!Definition.IsValueType)
-                {
-                    attrBuilder.Add(FlagAttribute.ReferenceType);
-                }
-                // TODO: support more attributes.
-                attributeMap = new AttributeMap(attrBuilder);
+                attrBuilder.Add(FlagAttribute.ReferenceType);
+            }
+            // TODO: support more attributes.
+            attributeMap = new AttributeMap(attrBuilder);
 
-                // Analyze base types and interface implementations.
-                baseTypeList = (Definition.BaseType == null
-                    ? new TypeReference[] { }
-                    : new[] { Definition.BaseType })
-                    .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
-                    .Select(Assembly.Resolve)
-                    .ToArray();
+            // Analyze base types and interface implementations.
+            baseTypeList = (Definition.BaseType == null
+                ? new TypeReference[] { }
+                : new[] { Definition.BaseType })
+                .Concat(Definition.Interfaces.Select(impl => impl.InterfaceType))
+                .Select(Assembly.Resolve)
+                .ToArray();
 
-                // Analyze fields.
-                fieldDefList = Definition.Fields
-                    .Select(field => new ClrFieldDefinition(field, this))
-                    .ToArray();
-            });
+            // Analyze fields.
+            fieldDefList = Definition.Fields
+                .Select(field => new ClrFieldDefinition(field, this))
+                .ToArray();
         }
 
         /// <inheritdoc/>

@@ -26,7 +26,9 @@ namespace Flame.Clr
             this.ParentType = parentType;
             this.FullName = new SimpleName(definition.Name)
                 .Qualify(parentType.FullName);
-            this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
+            this.IsStatic = definition.IsStatic;
+            this.contentsInitializer = parentType.Assembly
+                .CreateSynchronizedInitializer(AnalyzeContents);
         }
 
         /// <summary>
@@ -43,19 +45,11 @@ namespace Flame.Clr
         public ClrTypeDefinition ParentType { get; private set; }
 
         private DeferredInitializer contentsInitializer;
-        private bool isStaticValue;
         private IType fieldTypeValue;
         private AttributeMap attributeMap;
 
         /// <inheritdoc/>
-        public bool IsStatic
-        {
-            get
-            {
-                contentsInitializer.Initialize();
-                return isStaticValue;
-            }
-        }
+        public bool IsStatic { get; private set; }
 
         /// <inheritdoc/>
         public IType FieldType
@@ -88,16 +82,12 @@ namespace Flame.Clr
 
         private void AnalyzeContents()
         {
-            ParentType.Assembly.RunSynchronized(() =>
-            {
-                isStaticValue = Definition.IsStatic;
-                fieldTypeValue = TypeHelpers.BoxIfReferenceType(
-                    ParentType.Assembly.Resolve(Definition.FieldType));
+            fieldTypeValue = TypeHelpers.BoxIfReferenceType(
+                ParentType.Assembly.Resolve(Definition.FieldType));
 
-                var attrBuilder = new AttributeMapBuilder();
-                // TODO: analyze attributes.
-                attributeMap = new AttributeMap(attrBuilder);
-            });
+            var attrBuilder = new AttributeMapBuilder();
+            // TODO: analyze attributes.
+            attributeMap = new AttributeMap(attrBuilder);
         }
     }
 }

@@ -78,7 +78,8 @@ namespace Flame.Clr
             this.Parent = parent;
             this.FullName = new SimpleName(definition.Name)
                 .Qualify(parent.Member.FullName);
-            this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
+            this.contentsInitializer = Assembly.CreateSynchronizedInitializer(
+                AnalyzeContents);
         }
 
         /// <summary>
@@ -155,25 +156,22 @@ namespace Flame.Clr
 
         private void AnalyzeContents()
         {
-            Assembly.RunSynchronized(() =>
+            baseTypeList = Definition.Constraints
+                .Select(Assembly.Resolve)
+                .ToArray();
+
+            genericParameterList = Definition.GenericParameters
+                .Skip(ParentMember.GenericParameters.Count)
+                .Select(param => new ClrGenericParameter(param, this))
+                .ToArray();
+
+            var attrBuilder = new AttributeMapBuilder();
+            // TODO: analyze other constraints, custom attributes.
+            if (Definition.HasReferenceTypeConstraint)
             {
-                baseTypeList = Definition.Constraints
-                    .Select(Assembly.Resolve)
-                    .ToArray();
-
-                genericParameterList = Definition.GenericParameters
-                    .Skip(ParentMember.GenericParameters.Count)
-                    .Select(param => new ClrGenericParameter(param, this))
-                    .ToArray();
-
-                var attrBuilder = new AttributeMapBuilder();
-                // TODO: analyze other constraints, custom attributes.
-                if (Definition.HasReferenceTypeConstraint)
-                {
-                    attrBuilder.Add(FlagAttribute.ReferenceType);
-                }
-                attributeMap = new AttributeMap(attrBuilder);
-            });
+                attrBuilder.Add(FlagAttribute.ReferenceType);
+            }
+            attributeMap = new AttributeMap(attrBuilder);
         }
     }
 }
