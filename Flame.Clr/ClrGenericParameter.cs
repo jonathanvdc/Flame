@@ -124,6 +124,7 @@ namespace Flame.Clr
             }
         }
 
+        /// <inheritdoc/>
         public AttributeMap Attributes
         {
             get
@@ -133,7 +134,8 @@ namespace Flame.Clr
             }
         }
 
-        public TypeConstraint Constraint => throw new System.NotImplementedException();
+        /// <inheritdoc/>
+        public TypeConstraint Constraint => AnyTypeConstraint.Instance;
 
         private void AnalyzeContents()
         {
