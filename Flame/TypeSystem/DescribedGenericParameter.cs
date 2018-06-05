@@ -25,7 +25,6 @@ namespace Flame.TypeSystem
             : base(name.Qualify(parentMember.FullName))
         {
             this.ParentMember = parentMember;
-            this.Constraint = AnyTypeConstraint.Instance;
         }
 
         /// <summary>
@@ -47,22 +46,6 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public IGenericMember ParentMember { get; private set; }
 
-        private TypeConstraint constraintValue;
-
-        /// <inheritdoc/>
-        public TypeConstraint Constraint
-        {
-            get
-            {
-                return constraintValue;
-            }
-            set
-            {
-                constraintValue = value;
-                BaseTypes = value.BaseTypes;
-            }
-        }
-
         /// <inheritdoc/>
         public TypeParent Parent
         {
@@ -80,7 +63,7 @@ namespace Flame.TypeSystem
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IType> BaseTypes { get; private set; }
+        public IReadOnlyList<IType> BaseTypes { get; set; }
 
         /// <inheritdoc/>
         public IReadOnlyList<IField> Fields => EmptyArray<IField>.Value;

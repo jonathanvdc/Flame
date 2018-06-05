@@ -9,10 +9,5 @@ namespace Flame
         /// Gets the generic member that defines this generic parameter.
         /// </summary>
         IGenericMember ParentMember { get; }
-
-        /// <summary>
-        /// Gets the constraint this generic parameter places on arguments.
-        /// </summary>
-        TypeConstraint Constraint { get; }
     }
 }

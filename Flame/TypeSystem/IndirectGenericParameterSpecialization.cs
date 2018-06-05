@@ -22,7 +22,6 @@ namespace Flame.TypeSystem
             IndirectGenericParameterSpecialization instance)
         {
             instance.qualName = instance.Declaration.Name.Qualify(instance.ParentMember.FullName);
-            instance.constraintCache = new Lazy<TypeConstraint>(instance.CreateConstraint);
             instance.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(
                 instance.CreateGenericParameters);
 
@@ -30,7 +29,6 @@ namespace Flame.TypeSystem
         }
 
         private QualifiedName qualName;
-        private Lazy<TypeConstraint> constraintCache;
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
 
         /// <inheritdoc/>
@@ -59,20 +57,11 @@ namespace Flame.TypeSystem
         public override QualifiedName FullName => qualName;
 
         /// <inheritdoc/>
-        public TypeConstraint Constraint => constraintCache.Value;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<IGenericParameter> GenericParameters => genericParameterCache.Value;
 
         private IReadOnlyList<IGenericParameter> CreateGenericParameters()
         {
             return CreateAll(Declaration, this);
-        }
-
-        private TypeConstraint CreateConstraint()
-        {
-            return ((IGenericParameter)Declaration).Constraint.Map(
-                InstantiatingVisitor.Visit);
         }
 
         private static InterningCache<IndirectGenericParameterSpecialization> instanceCache =

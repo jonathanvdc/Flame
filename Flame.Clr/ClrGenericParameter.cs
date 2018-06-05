@@ -134,9 +134,6 @@ namespace Flame.Clr
             }
         }
 
-        /// <inheritdoc/>
-        public TypeConstraint Constraint => AnyTypeConstraint.Instance;
-
         private void AnalyzeContents()
         {
             Assembly.RunSynchronized(() =>

@@ -238,8 +238,5 @@ namespace Flame.Ir
                 }
             }
         }
-
-        /// <inheritdoc/>
-        public TypeConstraint Constraint => AnyTypeConstraint.Instance;
     }
 }
