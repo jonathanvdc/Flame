@@ -48,6 +48,7 @@
     <Compile Include="ClrAssembly.cs" />
     <Compile Include="ClrFieldDefinition.cs" />
     <Compile Include="ClrGenericParameter.cs" />
+    <Compile Include="ClrMethodDefinition.cs" />
     <Compile Include="ClrTypeDefinition.cs" />
     <Compile Include="NameConversion.cs" />
     <Compile Include="ReferenceResolver.cs" />

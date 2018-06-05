@@ -37,6 +37,25 @@ namespace Flame.Clr
         /// <param name="definition">
         /// The IL type definition to wrap.
         /// </param>
+        /// <param name="parentMethod">
+        /// The parent method that defines the generic parameter.
+        /// </param>
+        public ClrGenericParameter(
+            GenericParameter definition,
+            ClrMethodDefinition parentMethod)
+            : this(
+                definition,
+                parentMethod.ParentType.Assembly,
+                new TypeParent(parentMethod))
+        { }
+
+        /// <summary>
+        /// Creates a Flame type definition that wraps
+        /// around an IL generic parameter.
+        /// </summary>
+        /// <param name="definition">
+        /// The IL type definition to wrap.
+        /// </param>
         /// <param name="parentType">
         /// The parent type that defines the generic parameter.
         /// </param>
