@@ -28,9 +28,13 @@ namespace Flame.Clr
             this.IsConstructor = Definition.IsConstructor;
             this.IsStatic = Definition.IsStatic;
 
+            this.FullName = NameConversion
+                .ParseSimpleName(definition.Name)
+                .Qualify(parentType.FullName);
+
             this.genericParameterCache = parentType.Assembly
                 .CreateSynchronizedLazy<IReadOnlyList<IGenericParameter>>(() =>
-                    Definition.GenericParameters
+                    definition.GenericParameters
                         .Select(param => new ClrGenericParameter(param, this))
                         .ToArray());
         }
@@ -54,6 +58,12 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public bool IsStatic { get; private set; }
 
+        /// <inheritdoc/>
+        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
+        /// <inheritdoc/>
+        public QualifiedName FullName { get; private set; }
+
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
 
         public Parameter ReturnParameter => throw new System.NotImplementedException();
@@ -65,11 +75,6 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters =>
             genericParameterCache.Value;
-
-        public UnqualifiedName Name => throw new System.NotImplementedException();
-
-        public QualifiedName FullName => throw new System.NotImplementedException();
-
         public AttributeMap Attributes => throw new System.NotImplementedException();
 
         /// <inheritdoc/>
