@@ -49,7 +49,6 @@
     <Compile Include="IType.cs" />
     <Compile Include="ITypeMember.cs" />
     <Compile Include="Parameter.cs" />
-    <Compile Include="TypeConstraint.cs" />
     <Compile Include="TypeExtensions.cs" />
     <Compile Include="Collections\Betterness.cs" />
     <Compile Include="Collections\Cache.cs" />
