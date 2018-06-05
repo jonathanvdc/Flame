@@ -106,6 +106,7 @@ namespace Flame.Clr
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
         private IReadOnlyList<IField> fieldDefList;
+        private IReadOnlyList<IMethod> methodDefList;
         private Lazy<IReadOnlyList<IGenericParameter>> genericParamCache;
         private Lazy<IReadOnlyList<IType>> nestedTypeCache;
         private AttributeMap attributeMap;
@@ -148,7 +149,14 @@ namespace Flame.Clr
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IMethod> Methods => throw new System.NotImplementedException();
+        public IReadOnlyList<IMethod> Methods
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return methodDefList;
+            }
+        }
 
         /// <inheritdoc/>
         public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
@@ -181,6 +189,13 @@ namespace Flame.Clr
             // Analyze fields.
             fieldDefList = Definition.Fields
                 .Select(field => new ClrFieldDefinition(field, this))
+                .ToArray();
+
+            // Analyze methods. Exclude methods that have semantics (property
+            // and event accessors). Those will be analyzed elsewhere.
+            methodDefList = Definition.Methods
+                .Where(method => method.SemanticsAttributes == MethodSemanticsAttributes.None)
+                .Select(method => new ClrMethodDefinition(method, this))
                 .ToArray();
         }
 
