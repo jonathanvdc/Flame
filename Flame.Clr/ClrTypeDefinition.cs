@@ -65,23 +65,23 @@ namespace Flame.Clr
             this.Parent = parent;
             this.contentsInitializer = DeferredInitializer.Create(AnalyzeContents);
             this.FullName = fullName;
-            this.nestedTypeCache = new Lazy<IReadOnlyList<IType>>(() =>
+            this.nestedTypeCache = Assembly
+                .CreateSynchronizedLazy<IReadOnlyList<IType>>(() =>
             {
-                return Assembly.RunSynchronized(() =>
-                    definition.NestedTypes
-                        .Select(t => new ClrTypeDefinition(t, this))
-                        .ToArray());
+                return definition.NestedTypes
+                    .Select(t => new ClrTypeDefinition(t, this))
+                    .ToArray();
             });
-            this.genericParamCache = new Lazy<IReadOnlyList<IGenericParameter>>(() =>
+            this.genericParamCache = Assembly
+                .CreateSynchronizedLazy<IReadOnlyList<IGenericParameter>>(() =>
             {
-                return Assembly.RunSynchronized(() =>
-                    definition.GenericParameters
-                        .Skip(
-                            parent.IsType
-                                ? parent.TypeOrNull.GenericParameters.Count
-                                : 0)
-                        .Select(param => new ClrGenericParameter(param, this))
-                        .ToArray());
+                return definition.GenericParameters
+                    .Skip(
+                        parent.IsType
+                            ? parent.TypeOrNull.GenericParameters.Count
+                            : 0)
+                    .Select(param => new ClrGenericParameter(param, this))
+                    .ToArray();
             });
         }
 
