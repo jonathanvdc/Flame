@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Mono.Cecil;
+using Mono.Cecil.Rocks;
 
 namespace Flame.Clr
 {
@@ -37,6 +39,9 @@ namespace Flame.Clr
                     definition.GenericParameters
                         .Select(param => new ClrGenericParameter(param, this))
                         .ToArray());
+
+            this.contentsInitializer = parentType.Assembly
+                .CreateSynchronizedInitializer(AnalyzeContents);
         }
 
         /// <summary>
@@ -65,19 +70,94 @@ namespace Flame.Clr
         public QualifiedName FullName { get; private set; }
 
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
-
-        public Parameter ReturnParameter => throw new System.NotImplementedException();
-
-        public IReadOnlyList<Parameter> Parameters => throw new System.NotImplementedException();
-
-        public IReadOnlyList<IMethod> BaseMethods => throw new System.NotImplementedException();
+        private DeferredInitializer contentsInitializer;
+        private Parameter returnParam;
+        private IReadOnlyList<Parameter> formalParams;
+        private IReadOnlyList<IMethod> baseMethods;
+        private AttributeMap attributeMap;
 
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters =>
             genericParameterCache.Value;
-        public AttributeMap Attributes => throw new System.NotImplementedException();
+
+        /// <inheritdoc/>
+        public Parameter ReturnParameter
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return returnParam;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<Parameter> Parameters
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return formalParams;
+            }
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IMethod> BaseMethods => throw new System.NotImplementedException();
+
+        /// <inheritdoc/>
+        public AttributeMap Attributes
+        {
+            get
+            {
+                contentsInitializer.Initialize();
+                return attributeMap;
+            }
+        }
 
         /// <inheritdoc/>
         IType ITypeMember.ParentType => ParentType;
+
+        private void AnalyzeContents()
+        {
+            var assembly = ParentType.Assembly;
+
+            // Analyze the return parameter.
+            returnParam = WrapReturnParameter(
+                Definition.MethodReturnType,
+                assembly);
+
+            // Analyze the parameter list.
+            formalParams = Definition.Parameters
+                .Select(param => WrapParameter(param, assembly))
+                .ToArray();
+
+            // Analyze the method definition's attributes.
+            var attrBuilder = new AttributeMapBuilder();
+            // TODO: actually analyze attributes.
+            attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        internal static Parameter WrapParameter(
+            ParameterDefinition parameter,
+            ClrAssembly assembly)
+        {
+            var attrBuilder = new AttributeMapBuilder();
+            // TODO: actually analyze the parameter's attributes.
+            return new Parameter(
+                assembly.Resolve(parameter.ParameterType),
+                parameter.Name,
+                new AttributeMap(attrBuilder));
+        }
+
+        internal static Parameter WrapReturnParameter(
+            MethodReturnType returnParameter,
+            ClrAssembly assembly)
+        {
+            var attrBuilder = new AttributeMapBuilder();
+            // TODO: actually analyze the parameter's attributes.
+            return new Parameter(
+                assembly.Resolve(returnParameter.ReturnType),
+                returnParameter.Name,
+                new AttributeMap(attrBuilder));
+        }
     }
 }
