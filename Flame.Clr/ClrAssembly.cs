@@ -127,6 +127,25 @@ namespace Flame.Clr
         }
 
         /// <summary>
+        /// Creates a lazily initialized object from an initializer
+        /// function that is run in a single-threaded fashion with
+        /// respect to other functions operating on this assembly.
+        /// </summary>
+        /// <param name="func">
+        /// The initialization function to run synchronously.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of value to create.
+        /// </typeparam>
+        /// <returns>
+        /// A lazily initialized object.
+        /// </returns>
+        public Lazy<T> CreateSynchronizedLazy<T>(Func<T> func)
+        {
+            return new Lazy<T>(() => RunSynchronized<T>(func));
+        }
+
+        /// <summary>
         /// Resolves an assembly name reference as an assembly.
         /// </summary>
         /// <param name="assemblyRef">An assembly name reference to resolve.</param>
