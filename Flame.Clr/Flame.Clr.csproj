@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClrAssembly.cs" />
+    <Compile Include="ClrArrayType.cs" />
     <Compile Include="ClrFieldDefinition.cs" />
     <Compile Include="ClrGenericParameter.cs" />
     <Compile Include="ClrMethodDefinition.cs" />
