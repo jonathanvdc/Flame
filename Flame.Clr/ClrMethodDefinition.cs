@@ -143,7 +143,8 @@ namespace Flame.Clr
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
             return new Parameter(
-                assembly.Resolve(parameter.ParameterType),
+                TypeHelpers.BoxIfReferenceType(
+                    assembly.Resolve(parameter.ParameterType)),
                 parameter.Name,
                 new AttributeMap(attrBuilder));
         }
@@ -155,9 +156,23 @@ namespace Flame.Clr
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
             return new Parameter(
-                assembly.Resolve(returnParameter.ReturnType),
+                TypeHelpers.BoxIfReferenceType(
+                    assembly.Resolve(returnParameter.ReturnType)),
                 returnParameter.Name,
                 new AttributeMap(attrBuilder));
+        }
+
+        /// <summary>
+        /// Returns a <see cref="T:System.String"/> that represents
+        /// the current <see cref="T:Flame.Clr.ClrMethodDefinition"/>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="T:System.String"/> that represents
+        /// the current <see cref="T:Flame.Clr.ClrMethodDefinition"/>.
+        /// </returns>
+        public override string ToString ()
+        {
+            return Definition.ToString();
         }
     }
 }
