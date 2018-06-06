@@ -82,7 +82,16 @@ namespace Flame.Clr
             return GetOrCreate(assemblyRef, assemblyCache, ResolveImpl);
         }
 
-        private TypeResolver GetTypeResolver(IAssembly assembly)
+        /// <summary>
+        /// Gets the type resolver for a particular assembly.
+        /// </summary>
+        /// <param name="assembly">
+        /// The assembly to get a type resolver for.
+        /// </param>
+        /// <returns>
+        /// A type resolver.
+        /// </returns>
+        internal TypeResolver GetTypeResolver(IAssembly assembly)
         {
             return GetOrCreate(
                 assembly,
