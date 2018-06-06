@@ -126,6 +126,26 @@ namespace Flame.Clr
                 .ToImmutableArray();
             return result;
         }
+
+        /// <summary>
+        /// Creates a method signature for a method.
+        /// </summary>
+        /// <param name="method">
+        /// The method to describe using a signature.
+        /// </param>
+        /// <returns>
+        /// A method signature.
+        /// </returns>
+        public static ClrMethodSignature Create(IMethod method)
+        {
+            return Create(
+                method.Name,
+                method.GenericParameters.Count,
+                method.ReturnParameter.Type,
+                method.Parameters
+                    .Select(param => param.Type)
+                    .ToArray());
+        }
     }
 
     /// <summary>

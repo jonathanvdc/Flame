@@ -191,5 +191,15 @@ namespace Flame.Clr
         {
             return Resolver.Resolve(fieldRef, this);
         }
+
+        /// <summary>
+        /// Resolves a method reference declared in this assembly.
+        /// </summary>
+        /// <param name="methodRef">The method reference to resolve.</param>
+        /// <returns>A method referred to by the reference.</returns>
+        public IMethod Resolve(MethodReference methodRef)
+        {
+            return Resolver.Resolve(methodRef, this);
+        }
     }
 }

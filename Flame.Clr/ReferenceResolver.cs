@@ -37,6 +37,14 @@ namespace Flame.Clr
                                     field.FieldType),
                                 field))
                         .ToArray());
+            this.methodIndex = new Index<IType, ClrMethodSignature, IMethod>(
+                type =>
+                    type.Methods
+                        .Select(method =>
+                            new KeyValuePair<ClrMethodSignature, IMethod>(
+                                ClrMethodSignature.Create(method),
+                                method))
+                        .ToArray());
         }
 
         /// <summary>
@@ -56,6 +64,7 @@ namespace Flame.Clr
         private Dictionary<IAssembly, TypeResolver> typeResolvers;
 
         private Index<IType, KeyValuePair<string, IType>, IField> fieldIndex;
+        private Index<IType, ClrMethodSignature, IMethod> methodIndex;
 
         /// <summary>
         /// A lock for synchronizing access to the assembly cache and
@@ -254,6 +263,37 @@ namespace Flame.Clr
                     new KeyValuePair<string, IType>(
                         fieldRef.Name,
                         fieldType)));
+        }
+
+        /// <summary>
+        /// Resolves a method reference.
+        /// </summary>
+        /// <param name="methodRef">The method reference to resolve.</param>
+        /// <param name="assembly">The assembly that declares the reference.</param>
+        /// <returns>The method referred to by the reference.</returns>
+        internal IMethod Resolve(MethodReference methodRef, ClrAssembly assembly)
+        {
+            var declaringType = Resolve(methodRef.DeclaringType, assembly);
+            var name = NameConversion.ParseSimpleName(methodRef.Name);
+
+            var returnType = TypeHelpers.BoxIfReferenceType(
+                Resolve(methodRef.ReturnType, assembly));
+
+            var parameterTypes = methodRef.Parameters
+                .Select(param =>
+                    TypeHelpers.BoxIfReferenceType(
+                        Resolve(param.ParameterType, assembly)))
+                .ToArray();
+
+            return PickSingleResolvedMember(
+                methodRef,
+                methodIndex.GetAll(
+                    declaringType,
+                    ClrMethodSignature.Create(
+                        name,
+                        methodRef.GenericParameters.Count,
+                        returnType,
+                        parameterTypes)));
         }
 
         private static T PickSingleResolvedMember<T>(
