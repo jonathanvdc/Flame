@@ -308,6 +308,17 @@ namespace Flame.TypeSystem
             this.resolver = resolver;
         }
 
+        /// <summary>
+        /// Creates a read-only type resolver that resolves types
+        /// from a particular assembly.
+        /// </summary>
+        /// <param name="assembly">
+        /// The assembly to resolve types from.
+        /// </param>
+        public ReadOnlyTypeResolver(IAssembly assembly)
+            : this(new TypeResolver(assembly))
+        { }
+
         private TypeResolver resolver;
 
         /// <summary>
