@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -14,15 +15,17 @@ namespace Flame.Clr
         /// a particular list of base types.
         /// </summary>
         /// <param name="rank">The array type's rank.</param>
-        /// <param name="baseTypes">The array type's base types.</param>
-        internal ClrArrayType(int rank, IReadOnlyList<IType> baseTypes)
+        /// <param name="createBaseTypes">
+        /// Creates the array type's base types based on a
+        /// generic parameter that represents the array's element
+        /// type.
+        /// </param>
+        internal ClrArrayType(int rank, Func<IGenericParameter, IReadOnlyList<IType>> createBaseTypes)
         {
             this.Rank = rank;
-            this.BaseTypes = baseTypes;
-            this.genericParamList = new IGenericParameter[]
-            {
-                new DescribedGenericParameter(this, "T")
-            };
+            var genericParam = new DescribedGenericParameter(this, "T");
+            this.BaseTypes = createBaseTypes(genericParam);
+            this.genericParamList = new IGenericParameter[] { genericParam };
             this.FullName = new SimpleName("array!" + Rank, 1).Qualify();
             this.Attributes = new AttributeMap(new[] { FlagAttribute.ReferenceType });
         }
@@ -64,5 +67,21 @@ namespace Flame.Clr
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => EmptyArray<IType>.Value;
+    }
+
+    /// <summary>
+    /// A CLR array type comparer based on rank.
+    /// </summary>
+    internal sealed class RankClrArrayTypeComparer : IEqualityComparer<ClrArrayType>
+    {
+        public bool Equals(ClrArrayType x, ClrArrayType y)
+        {
+            return x.Rank == y.Rank;
+        }
+
+        public int GetHashCode(ClrArrayType obj)
+        {
+            return obj.Rank;
+        }
     }
 }
