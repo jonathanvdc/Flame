@@ -205,6 +205,26 @@ namespace Flame.Clr
                     return TypeHelpers.BoxIfReferenceType(elemType)
                         .MakePointerType(PointerKind.Reference);
                 }
+                else if (typeSpec is Mono.Cecil.ArrayType)
+                {
+                    var arraySpec = (Mono.Cecil.ArrayType)typeSpec;
+                    var boxedElem = TypeHelpers.BoxIfReferenceType(elemType);
+                    IType arrayType;
+                    if (TypeEnvironment.TryMakeArrayType(
+                        boxedElem,
+                        arraySpec.Rank,
+                        out arrayType))
+                    {
+                        return TypeHelpers.BoxIfReferenceType(arrayType);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(
+                            "Cannot resolve array specification '" +
+                            typeSpec.ToString() + "' because the type environment " +
+                            "does not support arrays with that element type and rank.");
+                    }
+                }
                 else
                 {
                     throw new NotSupportedException(
