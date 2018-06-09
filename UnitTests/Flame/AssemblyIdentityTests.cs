@@ -36,7 +36,7 @@ namespace UnitTests
                 int annotationCount = rng.Next(0, 20);
                 for (int j = 0; j < annotationCount; j++)
                 {
-                    var key = rng.NextAsciiString(rng.Next(0, 20));
+                    var key = rng.NextAsciiString(rng.Next(1, 20));
                     var value = rng.NextAsciiString(rng.Next(0, 100));
 
                     first = first.WithAnnotation(key, value);
@@ -49,6 +49,25 @@ namespace UnitTests
                     Assert.AreEqual(first.GetHashCode(), second.GetHashCode());
                 }
             }
+        }
+
+        [Test]
+        public void EmptyAnnotationEquality()
+        {
+            // Generate identical assembly identities. Check that they are
+            // indeed the same.
+            var first = new AssemblyIdentity("path/to/file")
+                .WithAnnotation("", "")
+                .WithAnnotation("a", "b")
+                .WithAnnotation("a", "c");
+            var second = new AssemblyIdentity("path/to/file")
+                .WithAnnotation("a", "b")
+                .WithAnnotation("a", "c")
+                .WithAnnotation(
+                    new string(new char[] { }),
+                    new string(new char[] { }));
+            Assert.AreEqual(first, second);
+            Assert.AreEqual(first.GetHashCode(), second.GetHashCode());
         }
 
         [Test]
