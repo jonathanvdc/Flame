@@ -215,7 +215,7 @@ namespace Flame.Clr
                         arraySpec.Rank,
                         out arrayType))
                     {
-                        return TypeHelpers.BoxIfReferenceType(arrayType);
+                        return arrayType;
                     }
                     else
                     {
