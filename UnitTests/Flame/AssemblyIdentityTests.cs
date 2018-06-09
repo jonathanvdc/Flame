@@ -36,12 +36,21 @@ namespace UnitTests
                 int annotationCount = rng.Next(0, 20);
                 for (int j = 0; j < annotationCount; j++)
                 {
-                    var key = rng.NextAsciiString(rng.Next(1, 20));
+                    var key = rng.NextAsciiString(rng.Next(0, 20));
                     var value = rng.NextAsciiString(rng.Next(0, 100));
+
+                    string oldValue;
+                    if (!first.TryGetAnnotation(key, out oldValue))
+                    {
+                        oldValue = null;
+                    }
 
                     first = first.WithAnnotation(key, value);
 
-                    Assert.AreNotEqual(first, second);
+                    if (oldValue != value)
+                    {
+                        Assert.AreNotEqual(first, second);
+                    }
 
                     second = second.WithAnnotation(key, value);
 
