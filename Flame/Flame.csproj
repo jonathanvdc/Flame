@@ -101,7 +101,7 @@
     <Compile Include="TypeSystem\MethodSpecialization.cs" />
     <Compile Include="TypeSystem\NullAssemblyResolver.cs" />
     <Compile Include="TypeSystem\PointerType.cs" />
-    <Compile Include="TypeSystem\PrimitiveTypes.cs" />
+    <Compile Include="TypeSystem\TypeEnvironment.cs" />
     <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
     <Compile Include="TypeSystem\TypeResolver.cs" />
     <Compile Include="TypeSystem\TypeSpecialization.cs" />
