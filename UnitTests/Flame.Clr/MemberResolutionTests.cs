@@ -66,13 +66,13 @@ namespace UnitTests.Flame.Clr
         // [Test]
         // public void ResolveStringIsNullOrEmpty()
         // {
-        //     var ts = mscorlib.Definition.MainModule.TypeSystem;
+        //     var ts = corlib.Definition.MainModule.TypeSystem;
         //     var isNullOrEmptyRef = ts.String
         //         .Resolve()
         //         .Methods
         //         .Single(m => m.Name == "IsNullOrEmpty");
 
-        //     var isNullOrEmpty = mscorlib.Resolve(isNullOrEmptyRef);
+        //     var isNullOrEmpty = corlib.Resolve(isNullOrEmptyRef);
         //     Assert.IsNotNull(isNullOrEmpty);
         //     Assert.AreEqual(isNullOrEmpty.Name.ToString(), isNullOrEmpty.Name);
         //     Assert.IsTrue(isNullOrEmpty.IsStatic);
