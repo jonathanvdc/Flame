@@ -232,6 +232,23 @@ namespace Flame.Clr
                         typeSpec.ToString() + "'.");
                 }
             }
+            else if (typeRef is GenericParameter)
+            {
+                var genericParam = (GenericParameter)typeRef;
+                if (genericParam.DeclaringMethod == null)
+                {
+                    var declType = Resolve(genericParam.DeclaringType, assembly);
+                    int offset = declType.Parent.IsType
+                        ? declType.Parent.TypeOrNull.GenericParameters.Count
+                        : 0;
+                    return declType.GenericParameters[offset + genericParam.Position];
+                }
+                else
+                {
+                    var declMethod = Resolve(genericParam.DeclaringMethod, assembly);
+                    return declMethod.GenericParameters[genericParam.Position];
+                }
+            }
             else
             {
                 if (typeRef.DeclaringType != null)
