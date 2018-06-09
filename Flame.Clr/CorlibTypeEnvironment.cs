@@ -62,10 +62,11 @@ namespace Flame.Clr
 
         private ClrArrayType GetGenericArrayType(int rank)
         {
+            var createBaseTypes = createArrayBaseTypes.Value;
             return arrayTypeCache.Intern(
                 new ClrArrayType(
                     rank,
-                    param => createArrayBaseTypes.Value(rank, param)));
+                    param => createBaseTypes(rank, param)));
         }
 
         private Func<int, IGenericParameter, IReadOnlyList<IType>> ResolveArrayBaseTypes()

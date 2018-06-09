@@ -20,9 +20,15 @@ namespace Flame.Clr
         /// <param name="resolver">
         /// The assembly resolver to use.
         /// </param>
-        public ReferenceResolver(AssemblyResolver resolver)
+        /// <param name="typeEnvironment">
+        /// The reference resolver's type environment.
+        /// </param>
+        public ReferenceResolver(
+            AssemblyResolver resolver,
+            TypeEnvironment typeEnvironment)
         {
             this.AssemblyResolver = resolver;
+            this.TypeEnvironment = typeEnvironment;
             this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
             this.typeResolvers = new Dictionary<IAssembly, TypeResolver>();
             this.cacheLock = new ReaderWriterLockSlim();
@@ -52,6 +58,12 @@ namespace Flame.Clr
         /// </summary>
         /// <returns>An assembly resolver.</returns>
         public AssemblyResolver AssemblyResolver { get; private set; }
+
+        /// <summary>
+        /// Gets the type environment for this reference resolver.
+        /// </summary>
+        /// <returns>The type environment.</returns>
+        public TypeEnvironment TypeEnvironment { get; private set; }
 
         /// <summary>
         /// A cache of all assemblies that have been resolved so far.

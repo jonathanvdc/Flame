@@ -13,9 +13,7 @@ namespace UnitTests.Flame.Clr
     [TestFixture]
     public class MemberResolutionTests
     {
-        private ClrAssembly mscorlib = new ClrAssembly(
-            Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName).Assembly,
-            NullAssemblyResolver.Instance);
+        private ClrAssembly corlib = LocalTypeResolutionTests.Corlib;
 
         private const string StringBoxName = "System.String box*";
         private const string Int32Name = "System.Int32";
@@ -23,10 +21,10 @@ namespace UnitTests.Flame.Clr
         [Test]
         public void ResolveStringEmpty()
         {
-            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var ts = corlib.Definition.MainModule.TypeSystem;
             var emptyFieldRef = ts.String.Resolve().Fields.Single(f => f.Name == "Empty");
 
-            var emptyField = mscorlib.Resolve(emptyFieldRef);
+            var emptyField = corlib.Resolve(emptyFieldRef);
             Assert.IsNotNull(emptyField);
             Assert.AreEqual(emptyField.Name.ToString(), emptyFieldRef.Name);
             Assert.IsTrue(emptyField.IsStatic);
@@ -36,10 +34,10 @@ namespace UnitTests.Flame.Clr
         [Test]
         public void ResolveInt32MinValue()
         {
-            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var ts = corlib.Definition.MainModule.TypeSystem;
             var minValueRef = ts.Int32.Resolve().Fields.Single(f => f.Name == "MinValue");
 
-            var minValue = mscorlib.Resolve(minValueRef);
+            var minValue = corlib.Resolve(minValueRef);
             Assert.IsNotNull(minValue);
             Assert.AreEqual(minValue.Name.ToString(), minValueRef.Name);
             Assert.IsTrue(minValue.IsStatic);
@@ -49,13 +47,13 @@ namespace UnitTests.Flame.Clr
         [Test]
         public void ResolveInt32Parse()
         {
-            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var ts = corlib.Definition.MainModule.TypeSystem;
             var parseRef = ts.Int32
                 .Resolve()
                 .Methods
                 .Single(m => m.Name == "Parse" && m.Parameters.Count == 1);
 
-            var parse = mscorlib.Resolve(parseRef);
+            var parse = corlib.Resolve(parseRef);
             Assert.IsNotNull(parse);
             Assert.AreEqual(parse.Name.ToString(), parseRef.Name);
             Assert.IsTrue(parse.IsStatic);

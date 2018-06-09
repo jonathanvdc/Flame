@@ -13,15 +13,26 @@ namespace UnitTests.Flame.Clr
     [TestFixture]
     public class LocalTypeResolutionTests
     {
-        private ClrAssembly mscorlib = new ClrAssembly(
-            Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName).Assembly,
-            NullAssemblyResolver.Instance);
+        private static ClrAssembly ResolveCorlib()
+        {
+            var env = new MutableTypeEnvironment(null);
+            var asm = new ClrAssembly(
+                Mono.Cecil.ModuleDefinition
+                    .ReadModule(typeof(object).Module.FullyQualifiedName)
+                    .Assembly,
+                NullAssemblyResolver.Instance,
+                env);
+            env.InnerEnvironment = new CorlibTypeEnvironment(asm);
+            return asm;
+        }
+
+        public static readonly ClrAssembly Corlib = ResolveCorlib();
 
         [Test]
         public void ResolveTypeSystem()
         {
             // Grab all references from TypeSystem.
-            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var ts = Corlib.Definition.MainModule.TypeSystem;
             var refs = new[]
             {
                 ts.Object, ts.String, ts.Void, ts.Char, ts.Boolean,
@@ -34,21 +45,21 @@ namespace UnitTests.Flame.Clr
             // Resolve all references in TypeSystem.
             foreach (var item in refs)
             {
-                Assert.IsNotNull(mscorlib.Resolve(item));
+                Assert.IsNotNull(Corlib.Resolve(item));
             }
         }
 
         [Test]
         public void ResolveListT()
         {
-            var listRef = mscorlib.Definition.MainModule.Types.Single(
+            var listRef = Corlib.Definition.MainModule.Types.Single(
                 t => t.FullName == "System.Collections.Generic.List`1");
 
             var listEnumeratorRef = listRef.NestedTypes.Single(
                 t => t.Name == "Enumerator");
 
             // Resolve List<T>.
-            var list = mscorlib.Resolve(listRef);
+            var list = Corlib.Resolve(listRef);
             Assert.IsNotNull(list);
 
             // Inspect generic parameter T.
@@ -58,7 +69,7 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(genParam.Name.ToString(), "T");
 
             // Resolve list enumerator.
-            var listEnumerator = mscorlib.Resolve(listEnumeratorRef);
+            var listEnumerator = Corlib.Resolve(listEnumeratorRef);
             Assert.IsNotNull(listEnumerator);
 
             // Verify that list enumerator doesn't have any generic parameters

@@ -21,10 +21,14 @@ namespace Flame.Clr
         /// <param name="resolver">
         /// The assembly resolver to use.
         /// </param>
+        /// <param name="typeEnvironment">
+        /// The type environment to use.
+        /// </param>
         public ClrAssembly(
             AssemblyDefinition definition,
-            AssemblyResolver resolver)
-            : this(definition, new ReferenceResolver(resolver))
+            AssemblyResolver resolver,
+            TypeEnvironment typeEnvironment)
+            : this(definition, new ReferenceResolver(resolver, typeEnvironment))
         { }
 
         /// <summary>

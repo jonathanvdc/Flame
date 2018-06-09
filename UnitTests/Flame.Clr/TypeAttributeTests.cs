@@ -12,15 +12,13 @@ namespace UnitTests.Flame.Clr
     [TestFixture]
     public class TypeAttributeTests
     {
-        private ClrAssembly mscorlib = new ClrAssembly(
-            Mono.Cecil.ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName).Assembly,
-            NullAssemblyResolver.Instance);
+        private ClrAssembly corlib = LocalTypeResolutionTests.Corlib;
 
         [Test]
         public void ReferenceTypeAttributes()
         {
             // Grab all references from TypeSystem.
-            var ts = mscorlib.Definition.MainModule.TypeSystem;
+            var ts = corlib.Definition.MainModule.TypeSystem;
             var refTypes = new[]
             {
                 ts.Object, ts.String
@@ -36,11 +34,11 @@ namespace UnitTests.Flame.Clr
 
             foreach (var item in refTypes)
             {
-                Assert.IsTrue(mscorlib.Resolve(item).IsReferenceType());
+                Assert.IsTrue(corlib.Resolve(item).IsReferenceType());
             }
             foreach (var item in valTypes)
             {
-                Assert.IsFalse(mscorlib.Resolve(item).IsReferenceType());
+                Assert.IsFalse(corlib.Resolve(item).IsReferenceType());
             }
         }
     }
