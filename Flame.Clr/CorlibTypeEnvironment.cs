@@ -7,10 +7,10 @@ using Flame.TypeSystem;
 namespace Flame.Clr
 {
     /// <summary>
-    /// A type system that extracts all relevant types from a single
-    /// core library.
+    /// A type environment that extracts relevant BCL types from a single
+    /// core library based on their names.
     /// </summary>
-    public sealed class CorlibTypeSystem
+    public sealed class CorlibTypeEnvironment : TypeEnvironment
     {
         /// <summary>
         /// Creates a type system based on a core library assembly.
@@ -19,7 +19,7 @@ namespace Flame.Clr
         /// The core library, which supplies the types in the type
         /// system.
         /// </param>
-        public CorlibTypeSystem(IAssembly corlib)
+        public CorlibTypeEnvironment(IAssembly corlib)
             : this(new ReadOnlyTypeResolver(corlib))
         { }
 
@@ -30,7 +30,7 @@ namespace Flame.Clr
         /// A type resolver for the core library, which supplies the
         /// types in the type system.
         /// </param>
-        public CorlibTypeSystem(ReadOnlyTypeResolver corlibTypeResolver)
+        public CorlibTypeEnvironment(ReadOnlyTypeResolver corlibTypeResolver)
         {
             this.CorlibTypeResolver = corlibTypeResolver;
             this.arrayTypeCache = new InterningCache<ClrArrayType>(
@@ -49,7 +49,8 @@ namespace Flame.Clr
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
 
-        public bool TryMakeArrayType(
+        /// <inheritdoc/>
+        public override bool TryMakeArrayType(
             IType elementType,
             int rank,
             out IType arrayType)
