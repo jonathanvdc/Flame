@@ -3,6 +3,7 @@ using Loyc.MiniTest;
 using Flame.Clr;
 using Flame.TypeSystem;
 using System.Linq;
+using Mono.Cecil.Rocks;
 
 namespace UnitTests.Flame.Clr
 {
@@ -75,6 +76,23 @@ namespace UnitTests.Flame.Clr
             // Verify that list enumerator doesn't have any generic parameters
             // of its own. (Even though its IL representation does.)
             Assert.AreEqual(listEnumerator.GenericParameters.Count, 0);
+        }
+
+        [Test]
+        public void ResolveArrayType()
+        {
+            var intRef = Corlib.Definition.MainModule.TypeSystem.Int32;
+            var intArrayRef = intRef.MakeArrayType();
+
+            // Resolve T[].
+            var intArray = Corlib.Resolve(intArrayRef);
+            Assert.IsNotNull(intArray);
+
+            // Test that T[] inherits from System.Array.
+            Assert.GreaterOrEqual(intArray.BaseTypes.Count, 1);
+            Assert.AreEqual(
+                intArray.BaseTypes[0].FullName.ToString(),
+                "System.Array");
         }
     }
 }
