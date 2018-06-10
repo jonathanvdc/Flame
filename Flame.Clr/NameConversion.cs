@@ -25,7 +25,9 @@ namespace Flame.Clr
                     CultureInfo.InstalledUICulture,
                     out genericParamCount))
             {
-                return new SimpleName(name, genericParamCount);
+                return new SimpleName(
+                    name.Substring(0, backtickIndex),
+                    genericParamCount);
             }
             else
             {
