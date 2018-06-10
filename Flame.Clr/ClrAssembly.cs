@@ -187,6 +187,20 @@ namespace Flame.Clr
         }
 
         /// <summary>
+        /// Resolves a type reference declared in this assembly.
+        /// </summary>
+        /// <param name="typeRef">The type reference to resolve.</param>
+        /// <param name="enclosingMember">
+        /// The generic member that references a particular type. If non-null, type
+        /// parameters are resolved from this member.
+        /// </param>
+        /// <returns>A type referred to by the reference.</returns>
+        internal IType Resolve(TypeReference typeRef, IGenericMember enclosingMember)
+        {
+            return Resolver.Resolve(typeRef, this, enclosingMember);
+        }
+
+        /// <summary>
         /// Resolves a field reference declared in this assembly.
         /// </summary>
         /// <param name="fieldRef">The field reference to resolve.</param>

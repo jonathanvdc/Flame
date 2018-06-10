@@ -123,11 +123,12 @@ namespace Flame.Clr
             // Analyze the return parameter.
             returnParam = WrapReturnParameter(
                 Definition.MethodReturnType,
-                assembly);
+                assembly,
+                this);
 
             // Analyze the parameter list.
             formalParams = Definition.Parameters
-                .Select(param => WrapParameter(param, assembly))
+                .Select(param => WrapParameter(param, assembly, this))
                 .ToArray();
 
             // Analyze the method definition's attributes.
@@ -138,26 +139,32 @@ namespace Flame.Clr
 
         internal static Parameter WrapParameter(
             ParameterDefinition parameter,
-            ClrAssembly assembly)
+            ClrAssembly assembly,
+            IGenericMember enclosingMember)
         {
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
             return new Parameter(
                 TypeHelpers.BoxIfReferenceType(
-                    assembly.Resolve(parameter.ParameterType)),
+                    assembly.Resolve(
+                        parameter.ParameterType,
+                        enclosingMember)),
                 parameter.Name,
                 new AttributeMap(attrBuilder));
         }
 
         internal static Parameter WrapReturnParameter(
             MethodReturnType returnParameter,
-            ClrAssembly assembly)
+            ClrAssembly assembly,
+            IGenericMember enclosingMember)
         {
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
             return new Parameter(
                 TypeHelpers.BoxIfReferenceType(
-                    assembly.Resolve(returnParameter.ReturnType)),
+                    assembly.Resolve(
+                        returnParameter.ReturnType,
+                        enclosingMember)),
                 returnParameter.Name,
                 new AttributeMap(attrBuilder));
         }

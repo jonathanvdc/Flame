@@ -156,10 +156,12 @@ namespace Flame.Clr
     {
         private ClrGenericParameterStandin(
             GenericParameterType kind,
-            int position)
+            int position,
+            bool isReferenceType)
         {
             this.Kind = kind;
             this.Position = position;
+            this.IsReferenceType = isReferenceType;
         }
 
         /// <summary>
@@ -176,28 +178,69 @@ namespace Flame.Clr
         /// <returns>The generic parameter's position.</returns>
         public int Position { get; private set; }
 
+        /// <summary>
+        /// Tells if this generic parameter stand-in is always a reference type.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the generic parameter represented by this stand-in is
+        /// always a reference type; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsReferenceType { get; private set; }
+
+        /// <inheritdoc/>
+        public AttributeMap Attributes { get; private set; }
+
+        /// <inheritdoc/>
+        public QualifiedName FullName { get; private set; }
+
+        /// <inheritdoc/>
+        public UnqualifiedName Name => FullName.FullyUnqualifiedName;
+
         // This cache interns all generic parameter standins.
         private static InterningCache<ClrGenericParameterStandin> instanceCache
             = new InterningCache<ClrGenericParameterStandin>(
-                new ClrGenericParameterStandinComparer());
+                new ClrGenericParameterStandinComparer(),
+                InitializeInstance);
+
+        private static ClrGenericParameterStandin InitializeInstance(
+            ClrGenericParameterStandin standin)
+        {
+            standin.Attributes = standin.IsReferenceType
+                ? new AttributeMap(FlagAttribute.ReferenceType)
+                : AttributeMap.Empty;
+            standin.FullName = new SimpleName(
+                (standin.Kind == GenericParameterType.Method
+                    ? "!!"
+                    : "!")
+                + standin.Position)
+                .Qualify();
+            return standin;
+        }
 
         /// <summary>
-        /// Creates a pointer type of a particular kind that has a
-        /// type as element.
+        /// Creates a generic parameter stand-in.
         /// </summary>
-        /// <param name="type">
-        /// The type of values referred to by the pointer type.
-        /// </param>
         /// <param name="kind">
-        /// The kind of the pointer type.
+        /// The kind of generic parameter to create a stand-in for.
         /// </param>
-        /// <returns>A pointer type.</returns>
+        /// <param name="position">
+        /// The position of the generic parameter in the generic
+        /// parameter list.
+        /// </param>
+        /// <param name="isReferenceType">
+        /// Tells if the generic parameter is always a reference type.
+        /// </param>
+        /// <returns>A generic parameter stand-in.</returns>
         internal static ClrGenericParameterStandin Create(
             GenericParameterType kind,
-            int position)
+            int position,
+            bool isReferenceType)
         {
             return instanceCache.Intern(
-                new ClrGenericParameterStandin(kind, position));
+                new ClrGenericParameterStandin(
+                    kind,
+                    position,
+                    isReferenceType));
         }
 
         public TypeParent Parent
@@ -255,42 +298,22 @@ namespace Flame.Clr
                 throw new InvalidOperationException();
             }
         }
-
-        public UnqualifiedName Name
-        {
-            get
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public QualifiedName FullName
-        {
-            get
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public AttributeMap Attributes
-        {
-            get
-            {
-                throw new InvalidOperationException();
-            }
-        }
     }
 
     internal sealed class ClrGenericParameterStandinComparer : IEqualityComparer<ClrGenericParameterStandin>
     {
         public bool Equals(ClrGenericParameterStandin x, ClrGenericParameterStandin y)
         {
-            return x.Kind == y.Kind && x.Position == y.Position;
+            return x.Kind == y.Kind
+                && x.Position == y.Position
+                && x.IsReferenceType == y.IsReferenceType;;
         }
 
         public int GetHashCode(ClrGenericParameterStandin obj)
         {
-            return (obj.Position << 1) ^ obj.Kind.GetHashCode();
+            return (obj.Position << 2)
+                ^ (obj.Kind.GetHashCode() << 1)
+                ^ obj.IsReferenceType.GetHashCode();
         }
     }
 
@@ -338,7 +361,8 @@ namespace Flame.Clr
                     memoizedStandins[genParams[i]] =
                         ClrGenericParameterStandin.Create(
                             GenericParameterType.Type,
-                            i);
+                            i,
+                            genParams[i].IsReferenceType());
                 }
             }
         }
@@ -354,7 +378,8 @@ namespace Flame.Clr
                     memoizedStandins[genParams[i]] =
                         ClrGenericParameterStandin.Create(
                             GenericParameterType.Method,
-                            i);
+                            i,
+                            genParams[i].IsReferenceType());
                 }
             }
         }

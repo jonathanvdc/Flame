@@ -182,17 +182,57 @@ namespace Flame.Clr
         /// <returns>The type referred to by the reference.</returns>
         internal IType Resolve(TypeReference typeRef, ClrAssembly assembly)
         {
+            return Resolve(typeRef, assembly, null);
+        }
+
+        /// <summary>
+        /// Resolves a type reference.
+        /// </summary>
+        /// <param name="typeRef">The type reference to resolve.</param>
+        /// <param name="assembly">The assembly in which the reference occurs.</param>
+        /// <param name="enclosingMember">
+        /// The generic member that references a particular type. If non-null, type
+        /// parameters are resolved from this member.
+        /// </param>
+        /// <returns>The type referred to by the reference.</returns>
+        internal IType Resolve(
+            TypeReference typeRef,
+            ClrAssembly assembly,
+            IGenericMember enclosingMember)
+        {
+            return Resolve(typeRef, assembly, enclosingMember, false);
+        }
+
+        /// <summary>
+        /// Resolves a type reference.
+        /// </summary>
+        /// <param name="typeRef">The type reference to resolve.</param>
+        /// <param name="assembly">The assembly in which the reference occurs.</param>
+        /// <param name="enclosingMember">
+        /// The generic member that references a particular type. If non-null, type
+        /// parameters are resolved from this member.
+        /// </param>
+        /// <param name="useStandins">
+        /// A Boolean that specifies if stand-ins should be used for generic parameters.
+        /// </param>
+        /// <returns>The type referred to by the reference.</returns>
+        private IType Resolve(
+            TypeReference typeRef,
+            ClrAssembly assembly,
+            IGenericMember enclosingMember,
+            bool useStandins)
+        {
             if (typeRef is TypeSpecification)
             {
                 var typeSpec = (TypeSpecification)typeRef;
-                var elemType = Resolve(typeSpec.ElementType, assembly);
+                var elemType = Resolve(typeSpec.ElementType, assembly, enclosingMember, useStandins);
                 if (typeSpec is GenericInstanceType)
                 {
                     var genInstType = (GenericInstanceType)typeSpec;
                     return elemType.MakeGenericType(
                         genInstType.GenericArguments.Select(
                             arg => TypeHelpers.BoxIfReferenceType(
-                                Resolve(arg, assembly)))
+                                Resolve(arg, assembly, enclosingMember, useStandins)))
                         .ToArray());
                 }
                 else if (typeSpec is Mono.Cecil.PointerType)
@@ -235,9 +275,25 @@ namespace Flame.Clr
             else if (typeRef is GenericParameter)
             {
                 var genericParam = (GenericParameter)typeRef;
-                if (genericParam.DeclaringMethod == null)
+                if (useStandins)
                 {
-                    var declType = Resolve(genericParam.DeclaringType, assembly);
+                    return ClrGenericParameterStandin.Create(
+                        genericParam.Type,
+                        genericParam.Position,
+                        genericParam.HasReferenceTypeConstraint);
+                }
+                else if (genericParam.DeclaringMethod == null)
+                {
+                    var declType = enclosingMember is IType
+                        ? (IType)enclosingMember
+                        : enclosingMember is IMethod
+                            ? ((IMethod)enclosingMember).ParentType
+                            : Resolve(
+                                genericParam.DeclaringType,
+                                assembly,
+                                enclosingMember,
+                                useStandins);
+
                     int offset = declType.Parent.IsType
                         ? declType.Parent.TypeOrNull.GenericParameters.Count
                         : 0;
@@ -245,7 +301,9 @@ namespace Flame.Clr
                 }
                 else
                 {
-                    var declMethod = Resolve(genericParam.DeclaringMethod, assembly);
+                    var declMethod = enclosingMember is IMethod
+                        ? (IMethod)enclosingMember
+                        : Resolve(genericParam.DeclaringMethod, assembly);
                     return declMethod.GenericParameters[genericParam.Position];
                 }
             }
@@ -253,7 +311,12 @@ namespace Flame.Clr
             {
                 if (typeRef.DeclaringType != null)
                 {
-                    var declType = Resolve(typeRef.DeclaringType, assembly);
+                    var declType = Resolve(
+                        typeRef.DeclaringType,
+                        assembly,
+                        enclosingMember,
+                        useStandins);
+
                     var nestedTypes = GetTypeResolver(assembly).ResolveNestedTypes(
                         declType,
                         NameConversion.ParseSimpleName(typeRef.Name));
@@ -335,12 +398,12 @@ namespace Flame.Clr
             var name = NameConversion.ParseSimpleName(methodRef.Name);
 
             var returnType = TypeHelpers.BoxIfReferenceType(
-                Resolve(methodRef.ReturnType, assembly));
+                Resolve(methodRef.ReturnType, assembly, declaringType, true));
 
             var parameterTypes = methodRef.Parameters
                 .Select(param =>
                     TypeHelpers.BoxIfReferenceType(
-                        Resolve(param.ParameterType, assembly)))
+                        Resolve(param.ParameterType, assembly, declaringType, true)))
                 .ToArray();
 
             return PickSingleResolvedMember(
