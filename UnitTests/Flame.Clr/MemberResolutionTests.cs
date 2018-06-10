@@ -17,6 +17,7 @@ namespace UnitTests.Flame.Clr
 
         private const string StringBoxName = "System.String box*";
         private const string Int32Name = "System.Int32";
+        private const string BooleanName = "System.Boolean";
 
         [Test]
         public void ResolveStringEmpty()
@@ -63,23 +64,23 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(parse.Parameters[0].Type.FullName.ToString(), StringBoxName);
         }
 
-        // [Test]
-        // public void ResolveStringIsNullOrEmpty()
-        // {
-        //     var ts = corlib.Definition.MainModule.TypeSystem;
-        //     var isNullOrEmptyRef = ts.String
-        //         .Resolve()
-        //         .Methods
-        //         .Single(m => m.Name == "IsNullOrEmpty");
+        [Test]
+        public void ResolveStringIsNullOrEmpty()
+        {
+            var ts = corlib.Definition.MainModule.TypeSystem;
+            var isNullOrEmptyRef = ts.String
+                .Resolve()
+                .Methods
+                .Single(m => m.Name == "IsNullOrEmpty");
 
-        //     var isNullOrEmpty = corlib.Resolve(isNullOrEmptyRef);
-        //     Assert.IsNotNull(isNullOrEmpty);
-        //     Assert.AreEqual(isNullOrEmpty.Name.ToString(), isNullOrEmpty.Name);
-        //     Assert.IsTrue(isNullOrEmpty.IsStatic);
-        //     Assert.AreEqual(isNullOrEmpty.ReturnParameter.Type.FullName.ToString(), StringBoxName);
-        //     Assert.AreEqual(isNullOrEmpty.GenericParameters.Count, 0);
-        //     Assert.AreEqual(isNullOrEmpty.Parameters.Count, 1);
-        //     Assert.AreEqual(isNullOrEmpty.Parameters[0].Type.FullName.ToString(), StringBoxName);
-        // }
+            var isNullOrEmpty = corlib.Resolve(isNullOrEmptyRef);
+            Assert.IsNotNull(isNullOrEmpty);
+            Assert.AreEqual(isNullOrEmpty.Name.ToString(), isNullOrEmptyRef.Name);
+            Assert.IsTrue(isNullOrEmpty.IsStatic);
+            Assert.AreEqual(isNullOrEmpty.ReturnParameter.Type.FullName.ToString(), BooleanName);
+            Assert.AreEqual(isNullOrEmpty.GenericParameters.Count, 0);
+            Assert.AreEqual(isNullOrEmpty.Parameters.Count, 1);
+            Assert.AreEqual(isNullOrEmpty.Parameters[0].Type.FullName.ToString(), StringBoxName);
+        }
     }
 }
