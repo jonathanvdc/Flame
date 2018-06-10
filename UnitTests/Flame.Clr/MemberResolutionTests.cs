@@ -82,5 +82,28 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(isNullOrEmpty.Parameters.Count, 1);
             Assert.AreEqual(isNullOrEmpty.Parameters[0].Type.FullName.ToString(), StringBoxName);
         }
+
+        [Test]
+        public void ResolveStringGenericJoin()
+        {
+            var ts = corlib.Definition.MainModule.TypeSystem;
+            var joinRef = ts.String
+                .Resolve()
+                .Methods
+                .Single(m => m.Name == "Join" && m.HasGenericParameters);
+
+            var join = corlib.Resolve(joinRef);
+            Assert.IsNotNull(join);
+            Assert.AreEqual(join.Name.ToString(), joinRef.Name);
+            Assert.IsTrue(join.IsStatic);
+            Assert.AreEqual(join.ReturnParameter.Type.FullName.ToString(), StringBoxName);
+            Assert.AreEqual(join.GenericParameters.Count, 1);
+            Assert.AreEqual(join.GenericParameters[0].Name.ToString(), "T");
+            Assert.AreEqual(join.Parameters.Count, 2);
+            Assert.AreEqual(join.Parameters[0].Type.FullName.ToString(), StringBoxName);
+            Assert.AreEqual(
+                join.Parameters[1].Type.FullName.ToString(),
+                "System.Collections.Generic.IEnumerable`1<System.String.Join.T> box*");
+        }
     }
 }
