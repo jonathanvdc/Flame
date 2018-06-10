@@ -158,7 +158,7 @@ namespace Flame
         /// <summary>
         /// Creates a new attribute map from the given sequence of attributes.
         /// </summary>
-        public AttributeMap(IAttribute[] attributes)
+        public AttributeMap(params IAttribute[] attributes)
         {
             this.attributeDict = new AttributeMapBuilder(attributes).attributeDict;
         }
