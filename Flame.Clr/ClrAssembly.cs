@@ -49,8 +49,8 @@ namespace Flame.Clr
             this.Resolver = resolver;
             this.FullName = new SimpleName(definition.Name.Name).Qualify();
             this.SyncRoot = new object();
-            this.typeCache = new Lazy<IReadOnlyList<IType>>(
-                () => RunSynchronized(AnalyzeTypes));
+            this.typeCache = CreateSynchronizedLazy(AnalyzeTypes);
+            this.attributeCache = CreateSynchronizedLazy(AnalyzeAttributes);
         }
 
         /// <summary>
@@ -79,7 +79,9 @@ namespace Flame.Clr
         public QualifiedName FullName { get; private set; }
 
         /// <inheritdoc/>
-        public AttributeMap Attributes => throw new System.NotImplementedException();
+        public AttributeMap Attributes => attributeCache.Value;
+
+        private Lazy<AttributeMap> attributeCache;
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> Types => typeCache.Value;
@@ -97,6 +99,12 @@ namespace Flame.Clr
                 }
             }
             return results;
+        }
+
+        private AttributeMap AnalyzeAttributes()
+        {
+            // TODO: actually analyze assembly attributes.
+            return AttributeMap.Empty;
         }
 
         /// <summary>
