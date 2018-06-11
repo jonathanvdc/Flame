@@ -169,7 +169,13 @@ namespace Flame.Clr
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IProperty> Properties => throw new System.NotImplementedException();
+        public IReadOnlyList<IProperty> Properties
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+        }
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => nestedTypeCache.Value;
