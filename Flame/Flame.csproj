@@ -78,6 +78,7 @@
     <Compile Include="Names\SimpleName.cs" />
     <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeSystem\AbstractMethodSetExtensions.cs" />
     <Compile Include="TypeSystem\ArrayType.cs" />
     <Compile Include="TypeSystem\AssemblyResolver.cs" />
     <Compile Include="TypeSystem\ContainerType.cs" />
