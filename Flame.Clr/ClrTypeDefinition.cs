@@ -65,19 +65,19 @@ namespace Flame.Clr
             this.Parent = parent;
             this.contentsInitializer = Assembly
                 .CreateSynchronizedInitializer(AnalyzeContents);
-            this.OverrideInitializer = DeferredInitializer
-                .Create(AnalyzeOverrides);
+            this.OverrideInitializer = Assembly
+                .CreateSynchronizedInitializer(AnalyzeOverrides);
 
             this.FullName = fullName;
             this.nestedTypeCache = Assembly
-                .CreateSynchronizedLazy<IReadOnlyList<IType>>(() =>
+                .CreateSynchronizedLazy<IReadOnlyList<ClrTypeDefinition>>(() =>
             {
                 return definition.NestedTypes
                     .Select(t => new ClrTypeDefinition(t, this))
                     .ToArray();
             });
             this.genericParamCache = Assembly
-                .CreateSynchronizedLazy<IReadOnlyList<IGenericParameter>>(() =>
+                .CreateSynchronizedLazy<IReadOnlyList<ClrGenericParameter>>(() =>
             {
                 return definition.GenericParameters
                     .Skip(
@@ -114,10 +114,11 @@ namespace Flame.Clr
 
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
-        private IReadOnlyList<IField> fieldDefList;
-        private IReadOnlyList<IMethod> methodDefList;
-        private Lazy<IReadOnlyList<IGenericParameter>> genericParamCache;
-        private Lazy<IReadOnlyList<IType>> nestedTypeCache;
+        private IReadOnlyList<ClrFieldDefinition> fieldDefList;
+        private IReadOnlyList<ClrMethodDefinition> methodDefList;
+        private Lazy<IReadOnlyList<ClrGenericParameter>> genericParamCache;
+        private Lazy<IReadOnlyList<ClrTypeDefinition>> nestedTypeCache;
+        private HashSet<IMethod> virtualMethodSet;
         private AttributeMap attributeMap;
 
         /// <inheritdoc/>
@@ -184,6 +185,14 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.ReferenceType);
             }
+            if (Definition.IsAbstract)
+            {
+                attrBuilder.Add(FlagAttribute.Abstract);
+            }
+            if (!Definition.IsSealed)
+            {
+                attrBuilder.Add(FlagAttribute.Virtual);
+            }
             // TODO: support more attributes.
             attributeMap = new AttributeMap(attrBuilder);
 
@@ -210,7 +219,128 @@ namespace Flame.Clr
 
         private void AnalyzeOverrides()
         {
-            throw new NotImplementedException();
+            // A method's base methods consist of its implicit
+            // and explicit overrides. (Flame doesn't distinguish
+            // between these two.)
+            //
+            //   * Explicit overrides are extracted directly from
+            //     the method definition.
+            //
+            //   * Implicit overrides are derived by inspecting
+            //     the base types of the type declaring the method:
+            //     a method declared/defined in one of the base types
+            //     is an implicit override candidate if it is not
+            //     already overridden either by a method in another
+            //     base type or (explicitly) in the declaring type.
+            //
+            // The ugly bit is that *all* virtual methods in
+            // a type participate in override resolution: explicit
+            // overrides can be resolved individually, but implicit
+            // overrides always depend on other methods.
+            //
+            // We know that the (type) inheritance graph is a DAG, so
+            // we can safely derive overrides by walking the inheritance
+            // graph. Specifically, we'll construct a set of virtual
+            // methods for each type:
+            //
+            //   * Initialize the virtual method set as the union of
+            //     the virtual method sets of the base types.
+            //
+            //   * Remove all explicit overrides from the set and add
+            //     them to the overriding methods.
+            //
+            //   * Remove all implicit overrides from the set and add
+            //     them to the overriding methods.
+            //
+
+            virtualMethodSet = new HashSet<IMethod>();
+
+            contentsInitializer.Initialize();
+            foreach (var baseType in baseTypeList)
+            {
+                if (baseType is ClrTypeDefinition)
+                {
+                    // Optimization for ClrTypeDefinition instances.
+                    var clrBaseType = (ClrTypeDefinition)baseType;
+                    clrBaseType.OverrideInitializer.Initialize();
+                    virtualMethodSet.UnionWith(clrBaseType.virtualMethodSet);
+                }
+                else
+                {
+                    // General case.
+                    virtualMethodSet.UnionWith(baseType.GetVirtualMethodSet());
+                }
+            }
+
+            // Special case: interfaces. These guys never override anything,
+            // so we can skip the regular override resolution process and skip
+            // right to the part where we add all methods to the virtual
+            // method set.
+            if (Definition.IsInterface)
+            {
+                virtualMethodSet.UnionWith(methodDefList);
+                return;
+            }
+
+            // Handle explicit overrides.
+            foreach (var method in methodDefList)
+            {
+                method.BaseMethodStore = new List<IMethod>();
+                foreach (var overrideRef in method.Definition.Overrides)
+                {
+                    var overrideMethod = Assembly.Resolve(overrideRef);
+                    method.BaseMethodStore.Add(overrideMethod);
+                    virtualMethodSet.Remove(overrideMethod);
+                }
+            }
+
+            // Populate a mapping of method signatures to lists of methods
+            // so we can efficiently match methods to overrides.
+            var virtualMethodSignatures = new Dictionary<ClrMethodSignature, List<IMethod>>();
+            foreach (var virtualMethod in virtualMethodSet)
+            {
+                var signature = ClrMethodSignature.Create(virtualMethod);
+                List<IMethod> virtualMethodList;
+                if (!virtualMethodSignatures.TryGetValue(
+                    signature,
+                    out virtualMethodList))
+                {
+                    virtualMethodList = new List<IMethod>();
+                    virtualMethodSignatures[signature] = virtualMethodList;
+                }
+                virtualMethodList.Add(virtualMethod);
+            }
+
+            // Handle implicit overrides.
+            foreach (var method in methodDefList)
+            {
+                if (method.Definition.IsVirtual)
+                {
+                    var signature = ClrMethodSignature.Create(method);
+                    List<IMethod> virtualMethodList;
+                    if (virtualMethodSignatures.TryGetValue(
+                        signature, out virtualMethodList))
+                    {
+                        foreach (var overrideMethod in virtualMethodList)
+                        {
+                            if (virtualMethodSet.Contains(overrideMethod))
+                            {
+                                method.BaseMethodStore.Add(overrideMethod);
+                                virtualMethodSet.Remove(overrideMethod);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add virtual methods to virtual method set.
+            foreach (var method in methodDefList)
+            {
+                if (method.Definition.IsVirtual && !method.Definition.IsFinal)
+                {
+                    virtualMethodSet.Add(method);
+                }
+            }
         }
 
         /// <inheritdoc/>

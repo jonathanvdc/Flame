@@ -5,27 +5,27 @@ using Flame.Collections;
 namespace Flame.TypeSystem
 {
     /// <summary>
-    /// Defines an extension for finding the abstract method set of
-    /// a type: the set of all abstract methods defined in the type
+    /// Defines an extension for finding the virtual method set of
+    /// a type: the set of all virtual methods defined in the type
     /// itself or any of its (recursive) base types that are not
     /// (yet) implemented in the type.
     /// </summary>
-    public static class AbstractMethodSetExtensions
+    public static class VirtualMethodSetExtensions
     {
-        private static WeakCache<IType, HashSet<IMethod>> abstractMethodSets =
+        private static WeakCache<IType, HashSet<IMethod>> virtualMethodSets =
             new WeakCache<IType, HashSet<IMethod>>();
 
         /// <summary>
-        /// Gets the abstract method set of a particular type: the set of
-        /// all abstract methods defined in the type itself or any of
+        /// Gets the virtual method set of a particular type: the set of
+        /// all virtual methods defined in the type itself or any of
         /// its (recursive) base types that are not (yet) implemented
         /// in the type.
         /// </summary>
         /// <param name="type">The type to query.</param>
-        /// <returns>A set of abstract methods.</returns>
-        public static IEnumerable<IMethod> GetAbstractMethodSet(this IType type)
+        /// <returns>A set of virtual methods.</returns>
+        public static IEnumerable<IMethod> GetVirtualMethodSet(this IType type)
         {
-            return abstractMethodSets.Get(type, BuildAbstractMethodSet);
+            return virtualMethodSets.Get(type, BuildVirtualMethodSet);
         }
 
         /// <summary>
@@ -39,19 +39,19 @@ namespace Flame.TypeSystem
                 .Concat(type.Properties.SelectMany(prop => prop.Accessors));
         }
 
-        private static HashSet<IMethod> BuildAbstractMethodSet(IType type)
+        private static HashSet<IMethod> BuildVirtualMethodSet(IType type)
         {
             var results = new HashSet<IMethod>();
             foreach (var baseType in type.BaseTypes)
             {
-                results.UnionWith(baseType.GetAbstractMethodSet());
+                results.UnionWith(baseType.GetVirtualMethodSet());
             }
             foreach (var method in type.GetMethodsAndAccessors())
             {
                 if (!method.IsStatic)
                 {
                     results.ExceptWith(method.BaseMethods);
-                    if (method.IsAbstract())
+                    if (method.IsVirtual())
                     {
                         results.Add(method);
                     }

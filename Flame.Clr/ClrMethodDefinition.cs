@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
+using Flame.TypeSystem;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
 
@@ -73,7 +74,7 @@ namespace Flame.Clr
         /// Gets or sets the backing store for the base method list.
         /// </summary>
         /// <returns>The list of base methods.</returns>
-        internal IReadOnlyList<IMethod> BaseMethodStore { get; set; }
+        internal List<IMethod> BaseMethodStore { get; set; }
 
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
         private DeferredInitializer contentsInitializer;
@@ -145,48 +146,17 @@ namespace Flame.Clr
 
             // Analyze the method definition's attributes.
             var attrBuilder = new AttributeMapBuilder();
-            // TODO: actually analyze attributes.
+            if (Definition.IsAbstract || Definition.DeclaringType.IsInterface)
+            {
+                attrBuilder.Add(FlagAttribute.Abstract);
+                attrBuilder.Add(FlagAttribute.Virtual);
+            }
+            else if (Definition.IsVirtual)
+            {
+                attrBuilder.Add(FlagAttribute.Virtual);
+            }
+            // TODO: analyze more attributes.
             attributeMap = new AttributeMap(attrBuilder);
-        }
-
-        private IReadOnlyList<IMethod> DeriveOverrides()
-        {
-            // A method's base methods consist of its implicit
-            // and explicit overrides. (Flame doesn't distinguish
-            // between these two.)
-            //
-            //   * Explicit overrides are extracted directly from
-            //     the method definition.
-            //
-            //   * Implicit overrides are derived by inspecting
-            //     the base types of the type declaring the method:
-            //     a method declared/defined in one of the base types
-            //     is an implicit override candidate if it is not
-            //     already overridden either by a method in another
-            //     base type or (explicitly) in the declaring type.
-            //
-            // The ugly bit is that *all* virtual methods in
-            // a type participate in override resolution: explicit
-            // overrides can be resolved individually, but implicit
-            // overrides always depend on other methods.
-            //
-            // We know that the (type) inheritance graph is a DAG, so
-            // we can safely derive overrides by walking the inheritance
-            // graph. Specifically, we'll construct a set of abstract
-            // methods for each type:
-            //
-            //   * Initialize the abstract method set as the union of
-            //     the abstract method sets of the base types.
-            //
-            //   * Remove all explicit overrides from the set and add
-            //     them to the overriding methods.
-            //
-            //   * Remove all implicit overrides from the set and add
-            //     them to the overriding methods.
-            //
-
-            // TODO: actually implement this.
-            return null;
         }
 
         internal static Parameter WrapParameter(

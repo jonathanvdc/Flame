@@ -21,6 +21,14 @@ namespace Flame.TypeSystem
             new IntrinsicAttribute("Abstract");
 
         /// <summary>
+        /// An attribute that identifies a type or method as virtual,
+        /// that is, eligible for inheritance and overriding, respectively.
+        /// </summary>
+        /// <returns>An intrinsic attribute.</returns>
+        public static readonly IntrinsicAttribute Virtual =
+            new IntrinsicAttribute("Virtual");
+
+        /// <summary>
         /// Tests if a particular type is definitely a reference type.
         /// </summary>
         /// <param name="type">The type to test.</param>
@@ -54,6 +62,30 @@ namespace Flame.TypeSystem
         public static bool IsAbstract(this IMethod method)
         {
             return method.Attributes.Contains(Abstract.AttributeType);
+        }
+
+        /// <summary>
+        /// Tests if a particular type is virtual.
+        /// </summary>
+        /// <param name="type">The type to test.</param>
+        /// <returns>
+        /// <c>true</c> if the type is virtual; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsVirtual(this IType type)
+        {
+            return type.Attributes.Contains(Virtual.AttributeType);
+        }
+
+        /// <summary>
+        /// Tests if a particular method is virtual.
+        /// </summary>
+        /// <param name="method">The method to test.</param>
+        /// <returns>
+        /// <c>true</c> if the method is virtual; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsVirtual(this IMethod method)
+        {
+            return method.Attributes.Contains(Virtual.AttributeType);
         }
     }
 }
