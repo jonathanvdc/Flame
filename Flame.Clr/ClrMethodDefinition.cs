@@ -69,11 +69,16 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public QualifiedName FullName { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the backing store for the base method list.
+        /// </summary>
+        /// <returns>The list of base methods.</returns>
+        internal IReadOnlyList<IMethod> BaseMethodStore { get; set; }
+
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
         private DeferredInitializer contentsInitializer;
         private Parameter returnParam;
         private IReadOnlyList<Parameter> formalParams;
-        private IReadOnlyList<IMethod> baseMethods;
         private AttributeMap attributeMap;
 
         /// <inheritdoc/>
@@ -101,7 +106,14 @@ namespace Flame.Clr
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<IMethod> BaseMethods => throw new System.NotImplementedException();
+        public IReadOnlyList<IMethod> BaseMethods
+        {
+            get
+            {
+                ParentType.OverrideInitializer.Initialize();
+                return BaseMethodStore;
+            }
+        }
 
         /// <inheritdoc/>
         public AttributeMap Attributes
@@ -135,9 +147,6 @@ namespace Flame.Clr
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze attributes.
             attributeMap = new AttributeMap(attrBuilder);
-
-            // Analyze base methods.
-            baseMethods = DeriveOverrides();
         }
 
         private IReadOnlyList<IMethod> DeriveOverrides()

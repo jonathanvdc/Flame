@@ -65,6 +65,8 @@ namespace Flame.Clr
             this.Parent = parent;
             this.contentsInitializer = Assembly
                 .CreateSynchronizedInitializer(AnalyzeContents);
+            this.OverrideInitializer = DeferredInitializer
+                .Create(AnalyzeOverrides);
 
             this.FullName = fullName;
             this.nestedTypeCache = Assembly
@@ -102,6 +104,13 @@ namespace Flame.Clr
 
         /// <inheritdoc/>
         public TypeParent Parent { get; private set; }
+
+        /// <summary>
+        /// Gets the deferred initializer for analyzing method
+        /// overrides.
+        /// </summary>
+        /// <returns>The override analysis initializer.</returns>
+        internal DeferredInitializer OverrideInitializer { get; private set; }
 
         private DeferredInitializer contentsInitializer;
         private IReadOnlyList<IType> baseTypeList;
@@ -197,6 +206,11 @@ namespace Flame.Clr
                 .Where(method => method.SemanticsAttributes == MethodSemanticsAttributes.None)
                 .Select(method => new ClrMethodDefinition(method, this))
                 .ToArray();
+        }
+
+        private void AnalyzeOverrides()
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
