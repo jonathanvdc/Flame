@@ -135,6 +135,49 @@ namespace Flame.Clr
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze attributes.
             attributeMap = new AttributeMap(attrBuilder);
+
+            // Analyze base methods.
+            baseMethods = DeriveOverrides();
+        }
+
+        private IReadOnlyList<IMethod> DeriveOverrides()
+        {
+            // A method's base methods consist of its implicit
+            // and explicit overrides. (Flame doesn't distinguish
+            // between these two.)
+            //
+            //   * Explicit overrides are extracted directly from
+            //     the method definition.
+            //
+            //   * Implicit overrides are derived by inspecting
+            //     the base types of the type declaring the method:
+            //     a method declared/defined in one of the base types
+            //     is an implicit override candidate if it is not
+            //     already overridden either by a method in another
+            //     base type or (explicitly) in the declaring type.
+            //
+            // The ugly bit is that *all* virtual methods in
+            // a type participate in override resolution: explicit
+            // overrides can be resolved individually, but implicit
+            // overrides always depend on other methods.
+            //
+            // We know that the (type) inheritance graph is a DAG, so
+            // we can safely derive overrides by walking the inheritance
+            // graph. Specifically, we'll construct a set of abstract
+            // methods for each type:
+            //
+            //   * Initialize the abstract method set as the union of
+            //     the abstract method sets of the base types.
+            //
+            //   * Remove all explicit overrides from the set and add
+            //     them to the overriding methods.
+            //
+            //   * Remove all implicit overrides from the set and add
+            //     them to the overriding methods.
+            //
+
+            // TODO: actually implement this.
+            return null;
         }
 
         internal static Parameter WrapParameter(
