@@ -173,7 +173,8 @@ namespace Flame.Clr
         {
             get
             {
-                throw new System.NotImplementedException();
+                // TODO: actually implement this!
+                return EmptyArray<IProperty>.Value;
             }
         }
 
@@ -285,6 +286,10 @@ namespace Flame.Clr
             if (Definition.IsInterface)
             {
                 virtualMethodSet.UnionWith(methodDefList);
+                foreach (var method in methodDefList)
+                {
+                    method.BaseMethodStore = new List<IMethod>();
+                }
                 return;
             }
 
