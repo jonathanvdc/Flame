@@ -105,5 +105,29 @@ namespace UnitTests.Flame.Clr
                 join.Parameters[1].Type.FullName.ToString(),
                 "System.Collections.Generic.IEnumerable`1<System.String.Join.T> box*");
         }
+
+        [Test]
+        public void ResolveInt32ToString()
+        {
+            var ts = corlib.Definition.MainModule.TypeSystem;
+            var intToStringRef = ts.Int32
+                .Resolve()
+                .Methods
+                .Single(m => m.Name == "ToString" && m.Parameters.Count == 0);
+
+            var intToString = corlib.Resolve(intToStringRef);
+            Assert.IsNotNull(intToString);
+
+            // Check that the signature looks right.
+            Assert.AreEqual(intToString.Name.ToString(), intToStringRef.Name);
+            Assert.IsFalse(intToString.IsStatic);
+            Assert.AreEqual(intToString.ReturnParameter.Type.FullName.ToString(), StringBoxName);
+            Assert.AreEqual(intToString.GenericParameters.Count, 0);
+            Assert.AreEqual(intToString.Parameters.Count, 0);
+
+            // Check that the `Int32.ToString` overrides some other `ToString` method.
+            Assert.AreEqual(intToString.BaseMethods.Count, 1);
+            Assert.AreEqual(intToString.BaseMethods[0].Name, intToString.Name);
+        }
     }
 }
