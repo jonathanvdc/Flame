@@ -121,11 +121,12 @@ namespace Flame.TypeSystem
 
         private static IndirectMethodSpecialization InitializeInstance(IndirectMethodSpecialization instance)
         {
+            instance.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(
+                instance.CreateGenericParameters);
+
             MethodSpecialization.InitializeInstance(instance);
             instance.qualName = instance.Declaration.Name.Qualify(
                 instance.parentTy.FullName);
-            instance.genericParameterCache = new Lazy<IReadOnlyList<IGenericParameter>>(
-                instance.CreateGenericParameters);
 
             return instance;
         }
