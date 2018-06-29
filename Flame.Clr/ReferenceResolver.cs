@@ -46,6 +46,8 @@ namespace Flame.Clr
             this.methodIndex = new Index<IType, ClrMethodSignature, IMethod>(
                 type =>
                     type.Methods
+                        .Concat(
+                            type.Properties.SelectMany(prop => prop.Accessors))
                         .Select(method =>
                             new KeyValuePair<ClrMethodSignature, IMethod>(
                                 ClrMethodSignature.Create(method),
