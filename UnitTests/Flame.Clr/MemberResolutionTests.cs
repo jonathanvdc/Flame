@@ -3,6 +3,8 @@ using Loyc.MiniTest;
 using Flame.Clr;
 using Flame.TypeSystem;
 using System.Linq;
+using Mono.Cecil.Rocks;
+using Flame;
 
 namespace UnitTests.Flame.Clr
 {
@@ -128,6 +130,30 @@ namespace UnitTests.Flame.Clr
             // Check that the `Int32.ToString` overrides some other `ToString` method.
             Assert.AreEqual(intToString.BaseMethods.Count, 1);
             Assert.AreEqual(intToString.BaseMethods[0].Name, intToString.Name);
+        }
+
+        [Test]
+        public void ResolveArrayLength()
+        {
+            var intRef = corlib.Definition.MainModule.TypeSystem.Int32;
+            var intArrayRef = intRef.MakeArrayType();
+
+            // Resolve 'int[]'.
+            var intArray = corlib.Resolve(intArrayRef);
+            Assert.IsNotNull(intArray);
+
+            // Grab 'System.Array' as the base type of 'int[]'.
+            Assert.GreaterOrEqual(intArray.BaseTypes.Count, 1);
+            var arrayType = intArray.BaseTypes[0];
+
+            // Obtain the 'Length' property.
+            var lengthProp = arrayType.Properties
+                .Single(prop => prop.Name.ToString() == "Length");
+
+            // Check that there is exactly one 'get' accessor.
+            Assert.IsNotNull(
+                lengthProp.Accessors
+                .SingleOrDefault(accessor => accessor.Kind == AccessorKind.Get));
         }
     }
 }
