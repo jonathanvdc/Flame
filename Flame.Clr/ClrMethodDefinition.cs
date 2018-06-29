@@ -17,7 +17,7 @@ namespace Flame.Clr
         /// Creates a wrapper around an IL method definition.
         /// </summary>
         /// <param name="definition">
-        /// The definition to wrap in a Flame type.
+        /// The definition to wrap in a Flame method.
         /// </param>
         /// <param name="parentType">
         /// The definition's declaring type.
