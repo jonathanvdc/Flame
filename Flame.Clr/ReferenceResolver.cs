@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Flame.Collections;
@@ -41,8 +42,7 @@ namespace Flame.Clr
                                 new KeyValuePair<string, IType>(
                                     field.Name.ToString(),
                                     field.FieldType),
-                                field))
-                        .ToArray());
+                                field)));
             this.methodIndex = new Index<IType, ClrMethodSignature, IMethod>(
                 type =>
                     type.Methods
@@ -51,8 +51,13 @@ namespace Flame.Clr
                         .Select(method =>
                             new KeyValuePair<ClrMethodSignature, IMethod>(
                                 ClrMethodSignature.Create(method),
-                                method))
-                        .ToArray());
+                                method)));
+            this.propertyIndex = new Index<IType, ClrPropertySignature, IProperty>(
+                type =>
+                    type.Properties.Select(prop =>
+                        new KeyValuePair<ClrPropertySignature, IProperty>(
+                            ClrPropertySignature.Create(prop),
+                            prop)));
         }
 
         /// <summary>
@@ -79,6 +84,7 @@ namespace Flame.Clr
 
         private Index<IType, KeyValuePair<string, IType>, IField> fieldIndex;
         private Index<IType, ClrMethodSignature, IMethod> methodIndex;
+        private Index<IType, ClrPropertySignature, IProperty> propertyIndex;
 
         /// <summary>
         /// A lock for synchronizing access to the assembly cache and
@@ -416,6 +422,34 @@ namespace Flame.Clr
                         name,
                         methodRef.GenericParameters.Count,
                         returnType,
+                        parameterTypes)));
+        }
+
+        /// <summary>
+        /// Resolves a property reference.
+        /// </summary>
+        /// <param name="propertyRef">The property reference to resolve.</param>
+        /// <param name="assembly">The assembly that declares the reference.</param>
+        /// <returns>The property referred to by the reference.</returns>
+        internal IProperty Resolve(
+            PropertyReference propertyRef,
+            ClrAssembly assembly)
+        {
+            var declaringType = Resolve(propertyRef.DeclaringType, assembly);
+            var propertyType = TypeHelpers.BoxIfReferenceType(
+                Resolve(propertyRef.PropertyType, assembly));
+            var parameterTypes = propertyRef.Parameters
+                .Select(param =>
+                    TypeHelpers.BoxIfReferenceType(
+                        Resolve(param.ParameterType, assembly, declaringType, true)))
+                .ToImmutableArray();
+            return PickSingleResolvedMember(
+                propertyRef,
+                propertyIndex.GetAll(
+                    declaringType,
+                    ClrPropertySignature.Create(
+                        propertyRef.Name,
+                        propertyType,
                         parameterTypes)));
         }
 

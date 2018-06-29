@@ -227,5 +227,15 @@ namespace Flame.Clr
         {
             return Resolver.Resolve(methodRef, this);
         }
+
+        /// <summary>
+        /// Resolves a property reference declared in this assembly.
+        /// </summary>
+        /// <param name="propertyRef">The property reference to resolve.</param>
+        /// <returns>A property referred to by the reference.</returns>
+        public IProperty Resolve(PropertyReference propertyRef)
+        {
+            return Resolver.Resolve(propertyRef, this);
+        }
     }
 }
