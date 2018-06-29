@@ -11,7 +11,7 @@ namespace Flame.Clr
     /// <summary>
     /// A Flame method that wraps an IL method definition.
     /// </summary>
-    public sealed class ClrMethodDefinition : IMethod
+    public class ClrMethodDefinition : IMethod
     {
         /// <summary>
         /// Creates a wrapper around an IL method definition.

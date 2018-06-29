@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
@@ -29,6 +30,8 @@ namespace Flame.Clr
                 .Qualify(parentType.FullName);
             this.contentsInitializer = parentType.Assembly
                 .CreateSynchronizedInitializer(AnalyzeContents);
+            this.accessorDefs = parentType.Assembly
+                .CreateSynchronizedLazy(AnalyzeAccessors);
         }
 
         /// <summary>
@@ -47,6 +50,7 @@ namespace Flame.Clr
         private IType propertyTypeValue;
         private AttributeMap attributeMap;
         private IReadOnlyList<Parameter> indexerParams;
+        private Lazy<IReadOnlyList<ClrAccessorDefinition>> accessorDefs;
 
         /// <inheritdoc/>
         public QualifiedName FullName { get; private set; }
@@ -84,17 +88,24 @@ namespace Flame.Clr
             }
         }
 
-        /// <inheritdoc/>
-        public IReadOnlyList<IAccessor> Accessors
+        /// <summary>
+        /// Gets a list of all accessors defined by this
+        /// property.
+        /// </summary>
+        /// <returns>All accessors defined by this property.</returns>
+        public IReadOnlyList<ClrAccessorDefinition> Accessors
         {
             get
             {
-                throw new System.NotImplementedException();
+                return accessorDefs.Value;
             }
         }
 
         /// <inheritdoc/>
         IType ITypeMember.ParentType => ParentType;
+
+        /// <inheritdoc/>
+        IReadOnlyList<IAccessor> IProperty.Accessors => Accessors;
 
         private void AnalyzeContents()
         {
@@ -115,6 +126,36 @@ namespace Flame.Clr
             var attrBuilder = new AttributeMapBuilder();
             // TODO: analyze attributes.
             attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        private IReadOnlyList<ClrAccessorDefinition> AnalyzeAccessors()
+        {
+            var results = new List<ClrAccessorDefinition>();
+            if (Definition.GetMethod != null)
+            {
+                results.Add(
+                    new ClrAccessorDefinition(
+                        Definition.GetMethod,
+                        AccessorKind.Get,
+                        this));
+            }
+            if (Definition.SetMethod != null)
+            {
+                results.Add(
+                    new ClrAccessorDefinition(
+                        Definition.SetMethod,
+                        AccessorKind.Set,
+                        this));
+            }
+            foreach (var accessor in Definition.OtherMethods)
+            {
+                results.Add(
+                    new ClrAccessorDefinition(
+                        accessor,
+                        AccessorKind.Other,
+                        this));
+            }
+            return results;
         }
     }
 }

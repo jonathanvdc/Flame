@@ -116,6 +116,7 @@ namespace Flame.Clr
         private IReadOnlyList<IType> baseTypeList;
         private IReadOnlyList<ClrFieldDefinition> fieldDefList;
         private IReadOnlyList<ClrMethodDefinition> methodDefList;
+        private IReadOnlyList<ClrPropertyDefinition> propertyDefList;
         private Lazy<IReadOnlyList<ClrGenericParameter>> genericParamCache;
         private Lazy<IReadOnlyList<ClrTypeDefinition>> nestedTypeCache;
         private HashSet<IMethod> virtualMethodSet;
@@ -173,8 +174,8 @@ namespace Flame.Clr
         {
             get
             {
-                // TODO: actually implement this!
-                return EmptyArray<IProperty>.Value;
+                contentsInitializer.Initialize();
+                return propertyDefList;
             }
         }
 
@@ -222,6 +223,13 @@ namespace Flame.Clr
                 .Where(method => method.SemanticsAttributes == MethodSemanticsAttributes.None)
                 .Select(method => new ClrMethodDefinition(method, this))
                 .ToArray();
+
+            // Analyze properties.
+            propertyDefList = Definition.Properties
+                .Select(property => new ClrPropertyDefinition(property, this))
+                .ToArray();
+
+            // TODO: analyze fields.
         }
 
         private void AnalyzeOverrides()
@@ -279,14 +287,18 @@ namespace Flame.Clr
                 }
             }
 
+            var allMethodDefs = methodDefList
+                .Concat(propertyDefList.SelectMany(prop => prop.Accessors))
+                .ToArray();
+
             // Special case: interfaces. These guys never override anything,
             // so we can skip the regular override resolution process and skip
             // right to the part where we add all methods to the virtual
             // method set.
             if (Definition.IsInterface)
             {
-                virtualMethodSet.UnionWith(methodDefList);
-                foreach (var method in methodDefList)
+                virtualMethodSet.UnionWith(allMethodDefs);
+                foreach (var method in allMethodDefs)
                 {
                     method.BaseMethodStore = new List<IMethod>();
                 }
@@ -294,7 +306,7 @@ namespace Flame.Clr
             }
 
             // Handle explicit overrides.
-            foreach (var method in methodDefList)
+            foreach (var method in allMethodDefs)
             {
                 method.BaseMethodStore = new List<IMethod>();
                 foreach (var overrideRef in method.Definition.Overrides)
@@ -323,7 +335,7 @@ namespace Flame.Clr
             }
 
             // Handle implicit overrides.
-            foreach (var method in methodDefList)
+            foreach (var method in allMethodDefs)
             {
                 if (method.Definition.IsVirtual)
                 {
@@ -345,7 +357,7 @@ namespace Flame.Clr
             }
 
             // Add virtual methods to virtual method set.
-            foreach (var method in methodDefList)
+            foreach (var method in allMethodDefs)
             {
                 if (method.Definition.IsVirtual && !method.Definition.IsFinal)
                 {
