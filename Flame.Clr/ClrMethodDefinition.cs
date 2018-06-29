@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
+using Flame.Compiler;
 using Flame.TypeSystem;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
@@ -11,7 +12,7 @@ namespace Flame.Clr
     /// <summary>
     /// A Flame method that wraps an IL method definition.
     /// </summary>
-    public class ClrMethodDefinition : IMethod
+    public class ClrMethodDefinition : IBodyMethod
     {
         /// <summary>
         /// Creates a wrapper around an IL method definition.
@@ -41,8 +42,11 @@ namespace Flame.Clr
                         .Select(param => new ClrGenericParameter(param, this))
                         .ToArray());
 
-            this.contentsInitializer = parentType.Assembly
-                .CreateSynchronizedInitializer(AnalyzeContents);
+            this.signatureInitializer = parentType.Assembly
+                .CreateSynchronizedInitializer(AnalyzeSignature);
+
+            this.methodBody = parentType.Assembly
+                .CreateSynchronizedLazy(AnalyzeBody);
         }
 
         /// <summary>
@@ -77,10 +81,11 @@ namespace Flame.Clr
         internal List<IMethod> BaseMethodStore { get; set; }
 
         private Lazy<IReadOnlyList<IGenericParameter>> genericParameterCache;
-        private DeferredInitializer contentsInitializer;
+        private DeferredInitializer signatureInitializer;
         private Parameter returnParam;
         private IReadOnlyList<Parameter> formalParams;
         private AttributeMap attributeMap;
+        private Lazy<MethodBody> methodBody;
 
         /// <inheritdoc/>
         public IReadOnlyList<IGenericParameter> GenericParameters =>
@@ -91,7 +96,7 @@ namespace Flame.Clr
         {
             get
             {
-                contentsInitializer.Initialize();
+                signatureInitializer.Initialize();
                 return returnParam;
             }
         }
@@ -101,7 +106,7 @@ namespace Flame.Clr
         {
             get
             {
-                contentsInitializer.Initialize();
+                signatureInitializer.Initialize();
                 return formalParams;
             }
         }
@@ -121,7 +126,7 @@ namespace Flame.Clr
         {
             get
             {
-                contentsInitializer.Initialize();
+                signatureInitializer.Initialize();
                 return attributeMap;
             }
         }
@@ -129,7 +134,16 @@ namespace Flame.Clr
         /// <inheritdoc/>
         IType ITypeMember.ParentType => ParentType;
 
-        private void AnalyzeContents()
+        /// <inheritdoc/>
+        public MethodBody Body
+        {
+            get
+            {
+                return methodBody.Value;
+            }
+        }
+
+        private void AnalyzeSignature()
         {
             var assembly = ParentType.Assembly;
 
@@ -157,6 +171,20 @@ namespace Flame.Clr
             }
             // TODO: analyze more attributes.
             attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        private MethodBody AnalyzeBody()
+        {
+            if (Definition.HasBody)
+            {
+                return ClrMethodBodyAnalyzer.Analyze(
+                    Definition.Body,
+                    this);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         internal static Parameter WrapParameter(
