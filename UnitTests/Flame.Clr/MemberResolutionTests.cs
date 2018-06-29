@@ -132,8 +132,56 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(intToString.BaseMethods[0].Name, intToString.Name);
         }
 
+        // [Test]
+        // public void ResolveArrayLength()
+        // {
+        //     var arrayRef = corlib.Definition.MainModule.ExportedTypes
+        //         .Single(type => type.FullName == "System.Array")
+        //         .Resolve();
+
+        //     var lengthPropRef = arrayRef.Properties
+        //         .Single(prop => prop.Name == "Length");
+
+        //     // Resolve 'System.Array.Length'.
+        //     var lengthProp = corlib.Resolve(lengthPropRef);
+        //     Assert.IsNotNull(lengthProp);
+
+        //     // Grab 'System.Array' as the base type of 'int[]'.
+        //     Assert.GreaterOrEqual(intArray.BaseTypes.Count, 1);
+        //     var arrayType = intArray.BaseTypes[0];
+
+        //     // Obtain the 'Length' property.
+        //     var lengthProp = arrayType.Properties
+        //         .Single(prop => prop.Name.ToString() == "Length");
+
+        //     // Check that there is exactly one 'get' accessor.
+        //     Assert.IsNotNull(
+        //         lengthProp.Accessors
+        //         .SingleOrDefault(accessor => accessor.Kind == AccessorKind.Get));
+        // }
+
         [Test]
-        public void ResolveArrayLength()
+        public void ResolveArrayLengthGet()
+        {
+            var arrayRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.Array")
+                .Resolve();
+
+            var lengthPropRef = arrayRef.Properties
+                .Single(prop => prop.Name == "Length");
+
+            var lengthGetterRef = lengthPropRef.GetMethod;
+
+            // Resolve 'System.Array.Length'.
+            var lengthGetter = corlib.Resolve(lengthGetterRef);
+            Assert.IsNotNull(lengthGetter);
+
+            // Check that the signature looks right.
+            Assert.AreEqual(lengthGetter.Name.ToString(), lengthGetterRef.Name);
+        }
+
+        [Test]
+        public void ResolveArrayLengthGetIndirectly()
         {
             var intRef = corlib.Definition.MainModule.TypeSystem.Int32;
             var intArrayRef = intRef.MakeArrayType();
