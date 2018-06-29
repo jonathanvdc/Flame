@@ -95,6 +95,7 @@ namespace Flame.Clr
             if (cilInstruction.Operand is Mono.Cecil.Cil.Instruction)
             {
                 FlagBranchTarget((Mono.Cecil.Cil.Instruction)cilInstruction.Operand);
+                FlagBranchTarget(cilInstruction.Next);
             }
             else if (cilInstruction.Operand is Mono.Cecil.Cil.Instruction[])
             {
@@ -102,13 +103,14 @@ namespace Flame.Clr
                 {
                     FlagBranchTarget(target);
                 }
+                FlagBranchTarget(cilInstruction.Next);
             }
         }
 
         private void FlagBranchTarget(
             Mono.Cecil.Cil.Instruction target)
         {
-            if (!branchTargets.ContainsKey(target))
+            if (target != null && !branchTargets.ContainsKey(target))
             {
                 branchTargets[target] = graph.AddBasicBlock(
                     "IL_" + target.Offset.ToString("X4"));
