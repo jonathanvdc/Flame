@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 using Mono.Cecil;
 
@@ -45,6 +46,7 @@ namespace Flame.Clr
         private DeferredInitializer contentsInitializer;
         private IType propertyTypeValue;
         private AttributeMap attributeMap;
+        private IReadOnlyList<Parameter> indexerParams;
 
         /// <inheritdoc/>
         public QualifiedName FullName { get; private set; }
@@ -77,7 +79,8 @@ namespace Flame.Clr
         {
             get
             {
-                throw new System.NotImplementedException();
+                contentsInitializer.Initialize();
+                return indexerParams;
             }
         }
 
@@ -95,8 +98,19 @@ namespace Flame.Clr
 
         private void AnalyzeContents()
         {
+            var assembly = ParentType.Assembly;
+
             propertyTypeValue = TypeHelpers.BoxIfReferenceType(
-                ParentType.Assembly.Resolve(Definition.PropertyType));
+                assembly.Resolve(Definition.PropertyType));
+
+            // Analyze the parameter list.
+            indexerParams = Definition.Parameters
+                .Select(param =>
+                    ClrMethodDefinition.WrapParameter(
+                        param,
+                        assembly,
+                        ParentType))
+                .ToArray();
 
             var attrBuilder = new AttributeMapBuilder();
             // TODO: analyze attributes.
