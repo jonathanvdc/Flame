@@ -28,6 +28,11 @@ namespace Flame
         /// The accessor kind for 'set' accessors.
         /// </summary>
         public static readonly AccessorKind Set = new SetAccessorKind();
+
+        /// <summary>
+        /// The accessor kind for 'other' accessors.
+        /// </summary>
+        public static readonly AccessorKind Other = new OtherAccessorKind();
     }
 
     internal sealed class GetAccessorKind : AccessorKind
@@ -56,6 +61,15 @@ namespace Flame
                 {
                     new Parameter(accessor.ParentProperty.PropertyType, "value")
                 }));
+        }
+    }
+
+    internal sealed class OtherAccessorKind : AccessorKind
+    {
+        /// <inheritdoc/>
+        public override bool IsLegalAccessor(IAccessor accessor)
+        {
+            return true;
         }
     }
 }
