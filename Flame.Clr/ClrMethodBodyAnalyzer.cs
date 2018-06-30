@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Flame.Collections;
 using Flame.Compiler;
 
 namespace Flame.Clr
@@ -68,9 +71,36 @@ namespace Flame.Clr
         private FlowGraphBuilder graph;
 
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
+        private HashSet<BasicBlockBuilder> analyzedBlocks;
+
+        private void AnalyzeBlock(
+            Mono.Cecil.Cil.Instruction firstInstruction,
+            IReadOnlyList<IType> argumentTypes)
+        {
+            var block = branchTargets[firstInstruction];
+            if (analyzedBlocks.Contains(block))
+            {
+                var parameterTypes = block.Parameters
+                    .Select(param => param.Type);
+                bool sameParameters = parameterTypes
+                    .SequenceEqual(argumentTypes);
+                if (sameParameters)
+                {
+                    return;
+                }
+                else
+                {
+                    throw new InvalidProgramException(
+                        "Different paths to instruction '" + firstInstruction.ToString() +
+                        "' have incompatible stack contents.");
+                }
+            }
+
+            throw new NotImplementedException();
+        }
 
         private void AnalyzeInstruction(
-            Mono.Cecil.Cil.Instruction cilInstruction)
+            Mono.Cecil.Cil.Instruction instruction)
         {
 
         }
@@ -79,6 +109,7 @@ namespace Flame.Clr
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             branchTargets = new Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder>();
+            analyzedBlocks = new HashSet<BasicBlockBuilder>();
             if (branchTargets.Count > 0)
             {
                 branchTargets[cilMethodBody.Instructions[0]] = graph.GetBasicBlock(graph.EntryPointTag);
@@ -146,7 +177,18 @@ namespace Flame.Clr
 
             analyzer.AnalyzeBranchTargets(cilMethodBody);
 
-            throw new System.NotImplementedException();
+            if (cilMethodBody.Instructions.Count > 0)
+            {
+                analyzer.AnalyzeBlock(
+                    cilMethodBody.Instructions[0],
+                    EmptyArray<IType>.Value);
+            }
+
+            return new MethodBody(
+                analyzer.ReturnParameter,
+                analyzer.ThisParameter,
+                analyzer.Parameters,
+                analyzer.graph.ToImmutable());
         }
     }
 }
