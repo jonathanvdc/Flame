@@ -37,6 +37,7 @@ namespace Flame.Clr
                 new RankClrArrayTypeComparer());
             this.createArrayBaseTypes = new Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>>(
                 ResolveArrayBaseTypes);
+            this.signedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveSignedIntegerTypes);
         }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace Flame.Clr
 
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
+        private Lazy<Dictionary<int, IType>> signedIntegerTypes;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(
@@ -71,10 +73,7 @@ namespace Flame.Clr
 
         private Func<int, IGenericParameter, IReadOnlyList<IType>> ResolveArrayBaseTypes()
         {
-            var arrayClass = CorlibTypeResolver.ResolveTypes(
-                new SimpleName("Array")
-                .Qualify("System"))
-                .FirstOrDefault();
+            var arrayClass = ResolveSystemType("Array");
 
             var listType = CorlibTypeResolver.ResolveTypes(
                 new SimpleName("IList", 1)
@@ -94,6 +93,31 @@ namespace Flame.Clr
                     return new[] { arrayClass, listType.MakeGenericType(param) };
                 }
             };
+        }
+
+        /// <inheritdoc/>
+        public override bool TryMakeSignedIntegerType(int sizeInBits, out IType integerType)
+        {
+            return signedIntegerTypes.Value.TryGetValue(sizeInBits, out integerType);
+        }
+
+        private Dictionary<int, IType> ResolveSignedIntegerTypes()
+        {
+            return new Dictionary<int, IType>
+            {
+                { 8, ResolveSystemType("SByte") },
+                { 16, ResolveSystemType("Int16") },
+                { 32, ResolveSystemType("Int32") },
+                { 64, ResolveSystemType("Int64") }
+            };
+        }
+
+        private IType ResolveSystemType(string name)
+        {
+            return CorlibTypeResolver.ResolveTypes(
+                new SimpleName(name)
+                    .Qualify("System"))
+                    .FirstOrDefault();
         }
     }
 }
