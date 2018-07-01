@@ -17,6 +17,18 @@ namespace Flame.Compiler
         { }
 
         /// <summary>
+        /// Creates a block parameter from a type and a name.
+        /// </summary>
+        /// <param name="type">The block parameter's type.</param>
+        /// <param name="name">
+        /// The name to assign to an automatically-created
+        /// block parameter tag.
+        /// </param>
+        public BlockParameter(IType type, string name)
+            : this(type, new ValueTag(name))
+        { }
+
+        /// <summary>
         /// Creates a block parameter from a type and a tag.
         /// </summary>
         /// <param name="type">The block parameter's type.</param>
