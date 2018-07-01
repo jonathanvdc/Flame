@@ -109,6 +109,7 @@ namespace UnitTests
         public static int FlameClr()
         {
             return RunTests.RunMany(
+                new CilAnalysisTests(),
                 new LocalTypeResolutionTests(),
                 new MemberResolutionTests(),
                 new NameConversionTests(),

@@ -85,6 +85,7 @@
     <Compile Include="Flame\TypeConstructionTests.cs" />
     <Compile Include="Flame\TypeResolverTests.cs" />
     <Compile Include="Flame\ValueListTests.cs" />
+    <Compile Include="Flame.Clr\CilAnalysisTests.cs" />
     <Compile Include="Flame.Clr\LocalTypeResolutionTests.cs" />
     <Compile Include="Flame.Clr\MemberResolutionTests.cs" />
     <Compile Include="Flame.Clr\NameConversionTests.cs" />
