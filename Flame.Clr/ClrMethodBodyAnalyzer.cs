@@ -78,7 +78,7 @@ namespace Flame.Clr
             IReadOnlyList<IType> argumentTypes)
         {
             var block = branchTargets[firstInstruction];
-            if (analyzedBlocks.Contains(block))
+            if (!analyzedBlocks.Add(block))
             {
                 var parameterTypes = block.Parameters
                     .Select(param => param.Type);
@@ -96,13 +96,30 @@ namespace Flame.Clr
                 }
             }
 
-            throw new NotImplementedException();
+            var currentInstruction = firstInstruction;
+            while (true)
+            {
+                // Analyze the current instruction.
+                AnalyzeInstruction(currentInstruction, block);
+                if (branchTargets.ContainsKey(currentInstruction.Next))
+                {
+                    // Current instruction is the last instruction of the block.
+                    return;
+                }
+                else
+                {
+                    // Current instruction is not the last instruction of the
+                    // block. Proceed to the next instruction.
+                    firstInstruction = currentInstruction.Next;
+                }
+            }
         }
 
         private void AnalyzeInstruction(
-            Mono.Cecil.Cil.Instruction instruction)
+            Mono.Cecil.Cil.Instruction instruction,
+            BasicBlockBuilder block)
         {
-
+            throw new NotImplementedException();
         }
 
         private void AnalyzeBranchTargets(
