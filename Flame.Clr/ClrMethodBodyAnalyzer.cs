@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Instructions;
+using Flame.Constants;
 
 namespace Flame.Clr
 {
@@ -96,11 +99,21 @@ namespace Flame.Clr
                 }
             }
 
+            block.Parameters = argumentTypes
+                .Select((type, index) =>
+                    new BlockParameter(type, block.Tag.Name + "_stackarg_" + index))
+                .ToImmutableList();
+
             var currentInstruction = firstInstruction;
+            var stackContents = new Stack<UniqueTag>(
+                block.Parameters
+                    .Select(param => param.Tag)
+                    .Reverse());
+
             while (true)
             {
                 // Analyze the current instruction.
-                AnalyzeInstruction(currentInstruction, block);
+                AnalyzeInstruction(currentInstruction, block, stackContents);
                 if (branchTargets.ContainsKey(currentInstruction.Next))
                 {
                     // Current instruction is the last instruction of the block.
@@ -115,11 +128,34 @@ namespace Flame.Clr
             }
         }
 
+        private static void PushValue(
+            Instruction value,
+            BasicBlockBuilder block,
+            Stack<UniqueTag> stackContents)
+        {
+            var instruction = block.AppendInstruction(value);
+            stackContents.Push(instruction.Tag);
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
-            BasicBlockBuilder block)
+            BasicBlockBuilder block,
+            Stack<UniqueTag> stackContents)
         {
-            throw new NotImplementedException();
+            if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
+            {
+                PushValue(
+                    ConstantPrototype.Create(
+                        new IntegerConstant((int)instruction.Operand),
+                        Assembly.Resolver.TypeEnvironment.Int32)
+                        .Instantiate(),
+                    block,
+                    stackContents);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private void AnalyzeBranchTargets(
