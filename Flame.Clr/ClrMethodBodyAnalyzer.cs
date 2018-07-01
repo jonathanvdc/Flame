@@ -115,7 +115,8 @@ namespace Flame.Clr
             {
                 // Analyze the current instruction.
                 AnalyzeInstruction(currentInstruction, block, stackContents);
-                if (branchTargets.ContainsKey(currentInstruction.Next))
+                if (currentInstruction.Next == null ||
+                    branchTargets.ContainsKey(currentInstruction.Next))
                 {
                     // Current instruction is the last instruction of the block.
                     return;
@@ -124,7 +125,7 @@ namespace Flame.Clr
                 {
                     // Current instruction is not the last instruction of the
                     // block. Proceed to the next instruction.
-                    firstInstruction = currentInstruction.Next;
+                    currentInstruction = currentInstruction.Next;
                 }
             }
         }
@@ -171,7 +172,7 @@ namespace Flame.Clr
         {
             branchTargets = new Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder>();
             analyzedBlocks = new HashSet<BasicBlockBuilder>();
-            if (branchTargets.Count > 0)
+            if (cilMethodBody.Instructions.Count > 0)
             {
                 branchTargets[cilMethodBody.Instructions[0]] = graph.GetBasicBlock(graph.EntryPointTag);
                 foreach (var instruction in cilMethodBody.Instructions)
