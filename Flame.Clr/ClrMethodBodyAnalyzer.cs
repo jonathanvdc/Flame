@@ -14,7 +14,7 @@ namespace Flame.Clr
     /// A data structure that analyzes CIL instructions
     /// and translates them to Flame IR.
     /// </summary>
-    internal sealed class ClrMethodBodyAnalyzer
+    public sealed class ClrMethodBodyAnalyzer
     {
         /// <summary>
         /// Creates a method body analyzer.
@@ -233,7 +233,8 @@ namespace Flame.Clr
             Mono.Cecil.Cil.MethodBody cilMethodBody,
             ClrMethodDefinition method)
         {
-            var analyzer = new ClrMethodBodyAnalyzer(
+            return Analyze(
+                cilMethodBody,
                 method.ReturnParameter,
                 cilMethodBody.ThisParameter == null
                     ? default(Parameter)
@@ -243,6 +244,42 @@ namespace Flame.Clr
                         method),
                 method.Parameters,
                 method.ParentType.Assembly);
+        }
+
+        /// <summary>
+        /// Analyzes a particular method body.
+        /// </summary>
+        /// <param name="cilMethodBody">
+        /// The CIL method body to analyze.
+        /// </param>
+        /// <param name="returnParameter">
+        /// The 'return' parameter of the method body.
+        /// </param>
+        /// <param name="thisParameter">
+        /// The 'this' parameter of the method body.
+        /// </param>
+        /// <param name="parameters">
+        /// The parameter list of the method body.
+        /// </param>
+        /// <param name="assembly">
+        /// A reference to the assembly that defines the
+        /// method body.
+        /// </param>
+        /// <returns>
+        /// A Flame IR method body.
+        /// </returns>
+        public static MethodBody Analyze(
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            Parameter returnParameter,
+            Parameter thisParameter,
+            IReadOnlyList<Parameter> parameters,
+            ClrAssembly assembly)
+        {
+            var analyzer = new ClrMethodBodyAnalyzer(
+                returnParameter,
+                thisParameter,
+                parameters,
+                assembly);
 
             analyzer.AnalyzeBranchTargets(cilMethodBody);
 
