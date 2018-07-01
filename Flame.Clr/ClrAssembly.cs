@@ -63,7 +63,7 @@ namespace Flame.Clr
         /// Gets the reference resolver used by this assembly.
         /// </summary>
         /// <returns>The reference resolver.</returns>
-        internal ReferenceResolver Resolver { get; private set; }
+        public ReferenceResolver Resolver { get; private set; }
 
         /// <summary>
         /// Gets the object that is used for synchronizing access to
