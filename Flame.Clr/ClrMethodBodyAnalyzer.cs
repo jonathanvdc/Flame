@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 
@@ -105,7 +106,7 @@ namespace Flame.Clr
                 .ToImmutableList();
 
             var currentInstruction = firstInstruction;
-            var stackContents = new Stack<UniqueTag>(
+            var stackContents = new Stack<ValueTag>(
                 block.Parameters
                     .Select(param => param.Tag)
                     .Reverse());
@@ -131,7 +132,7 @@ namespace Flame.Clr
         private static void PushValue(
             Instruction value,
             BasicBlockBuilder block,
-            Stack<UniqueTag> stackContents)
+            Stack<ValueTag> stackContents)
         {
             var instruction = block.AppendInstruction(value);
             stackContents.Push(instruction.Tag);
@@ -140,7 +141,7 @@ namespace Flame.Clr
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             BasicBlockBuilder block,
-            Stack<UniqueTag> stackContents)
+            Stack<ValueTag> stackContents)
         {
             if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
@@ -151,6 +152,13 @@ namespace Flame.Clr
                         .Instantiate(),
                     block,
                     stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
+            {
+                var value = stackContents.Pop();
+                block.Flow = new ReturnFlow(
+                    CopyPrototype.Create(graph.GetValueType(value))
+                    .Instantiate(value));
             }
             else
             {
@@ -187,6 +195,14 @@ namespace Flame.Clr
                 {
                     FlagBranchTarget(target);
                 }
+                FlagBranchTarget(cilInstruction.Next);
+            }
+            else if (cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret
+                || cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Throw
+                || cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Rethrow)
+            {
+                // Terminate the block defining the 'ret', 'throw' or 'rethrow'
+                // by flagging the next block as a branch target.
                 FlagBranchTarget(cilInstruction.Next);
             }
         }
