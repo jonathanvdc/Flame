@@ -241,6 +241,32 @@ namespace Flame.Clr
             stackContents.Push(instruction.Tag);
         }
 
+        private static void LoadValue(
+            ValueTag pointer,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            PushValue(
+                LoadPrototype.Create(
+                    ((PointerType)block.Graph.GetValueType(pointer)).ElementType)
+                    .Instantiate(pointer),
+                block,
+                stackContents);
+        }
+
+        private static void StoreValue(
+            ValueTag pointer,
+            ValueTag value,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            PushValue(
+                StorePrototype.Create(block.Graph.GetValueType(value))
+                    .Instantiate(pointer, value),
+                block,
+                stackContents);
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             BasicBlockBuilder block,
@@ -264,12 +290,27 @@ namespace Flame.Clr
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarg)
             {
                 var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
-                PushValue(
-                    LoadPrototype.Create(
-                        ((PointerType)alloca.Instruction.ResultType).ElementType)
-                        .Instantiate(alloca.Tag),
-                    block,
-                    stackContents);
+                LoadValue(alloca.Tag, block, stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Starg)
+            {
+                var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
+                StoreValue(alloca.Tag, stackContents.Pop(), block, stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloca)
+            {
+                stackContents.Push(
+                    localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index].Tag);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloc)
+            {
+                var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
+                LoadValue(alloca.Tag, block, stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stloc)
+            {
+                var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
+                StoreValue(alloca.Tag, stackContents.Pop(), block, stackContents);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
@@ -376,8 +417,8 @@ namespace Flame.Clr
                 entryPoint.AppendInstruction(
                     StorePrototype.Create(param.Type)
                         .Instantiate(
-                            entryPoint.Parameters[i].Tag,
-                            alloca.Tag),
+                            alloca.Tag,
+                            entryPoint.Parameters[i].Tag),
                     new ValueTag(param.Name.ToString()));
 
                 this.parameterStackSlots.Add(alloca);
