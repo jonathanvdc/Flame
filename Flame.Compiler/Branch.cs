@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Flame.Collections;
 
 namespace Flame.Compiler
 {
@@ -8,6 +9,15 @@ namespace Flame.Compiler
     /// </summary>
     public sealed class Branch
     {
+        /// <summary>
+        /// Creates a branch that targets a particular block and
+        /// passes no arguments.
+        /// </summary>
+        /// <param name="target">The target block.</param>
+        public Branch(BasicBlockTag target)
+            : this(target, EmptyArray<BranchArgument>.Value)
+        { }
+
         /// <summary>
         /// Creates a branch that targets a particular block and
         /// passes a list of arguments.
