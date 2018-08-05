@@ -7,6 +7,7 @@ using Flame.Compiler;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
+using Flame.TypeSystem;
 
 namespace Flame.Clr
 {
@@ -76,8 +77,8 @@ namespace Flame.Clr
 
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
         private HashSet<BasicBlockBuilder> analyzedBlocks;
-        private List<ValueTag> parameterStackSlots;
-        private List<ValueTag> localStackSlots;
+        private List<InstructionBuilder> parameterStackSlots;
+        private List<InstructionBuilder> localStackSlots;
 
         /// <summary>
         /// Analyzes a particular method body.
@@ -142,6 +143,12 @@ namespace Flame.Clr
                 thisParameter,
                 parameters,
                 assembly);
+
+            // Simplify macros so we don't have to deal with as many
+            // instructions.
+            // FIXME: this modifies `cilMethodBody` in place, which is
+            // arguably bad.
+            Mono.Cecil.Rocks.MethodBodyRocks.SimplifyMacros(cilMethodBody);
 
             // Analyze branch targets so we'll know which instructions
             // belong to which basic blocks.
@@ -249,6 +256,21 @@ namespace Flame.Clr
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
+            {
+                stackContents.Push(
+                    parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index].Tag);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarg)
+            {
+                var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
+                PushValue(
+                    LoadPrototype.Create(
+                        ((PointerType)alloca.Instruction.ResultType).ElementType)
+                        .Instantiate(alloca.Tag),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
                 var value = stackContents.Pop();
@@ -341,7 +363,7 @@ namespace Flame.Clr
 
             // For each parameter, allocate a stack slot and store the
             // value of the parameter in the stack slot.
-            this.parameterStackSlots = new List<ValueTag>();
+            this.parameterStackSlots = new List<InstructionBuilder>();
             for (int i = 0; i < extParameters.Count; i++)
             {
                 var param = extParameters[i];
@@ -358,11 +380,11 @@ namespace Flame.Clr
                             alloca.Tag),
                     new ValueTag(param.Name.ToString()));
 
-                this.parameterStackSlots.Add(alloca.Tag);
+                this.parameterStackSlots.Add(alloca);
             }
 
             // For each local, allocate an empty stack slot.
-            this.localStackSlots = new List<ValueTag>();
+            this.localStackSlots = new List<InstructionBuilder>();
             foreach (var local in cilMethodBody.Variables)
             {
                 var alloca = entryPoint.AppendInstruction(
@@ -370,7 +392,7 @@ namespace Flame.Clr
                         .Instantiate(),
                     new ValueTag("local_" + local.Index + "_slot"));
 
-                this.localStackSlots.Add(alloca.Tag);
+                this.localStackSlots.Add(alloca);
             }
 
             // Jump to the entry point instruction.
