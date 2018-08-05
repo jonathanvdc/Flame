@@ -25,7 +25,8 @@ namespace UnitTests.Flame.Clr
         {
             const string oracle = @"
 {
-    #entry_point(@entry-point, #(), {
+    #entry_point(@entry-point, #(), { }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
         val_0 = const(42, System::Int32)();
     }, #return(copy(System::Int32)(val_0)));
 };";

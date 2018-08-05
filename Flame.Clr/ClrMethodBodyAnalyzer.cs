@@ -76,11 +76,105 @@ namespace Flame.Clr
 
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
         private HashSet<BasicBlockBuilder> analyzedBlocks;
+        private List<ValueTag> parameterStackSlots;
+        private List<ValueTag> localStackSlots;
+
+        /// <summary>
+        /// Analyzes a particular method body.
+        /// </summary>
+        /// <param name="cilMethodBody">
+        /// The CIL method body to analyze.
+        /// </param>
+        /// <param name="method">
+        /// The method that defines the method body.
+        /// </param>
+        /// <returns>
+        /// A Flame IR method body.
+        /// </returns>
+        public static MethodBody Analyze(
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            ClrMethodDefinition method)
+        {
+            return Analyze(
+                cilMethodBody,
+                method.ReturnParameter,
+                cilMethodBody.ThisParameter == null
+                    ? default(Parameter)
+                    : ClrMethodDefinition.WrapParameter(
+                        cilMethodBody.ThisParameter,
+                        method.ParentType.Assembly,
+                        method),
+                method.Parameters,
+                method.ParentType.Assembly);
+        }
+
+        /// <summary>
+        /// Analyzes a particular method body.
+        /// </summary>
+        /// <param name="cilMethodBody">
+        /// The CIL method body to analyze.
+        /// </param>
+        /// <param name="returnParameter">
+        /// The 'return' parameter of the method body.
+        /// </param>
+        /// <param name="thisParameter">
+        /// The 'this' parameter of the method body.
+        /// </param>
+        /// <param name="parameters">
+        /// The parameter list of the method body.
+        /// </param>
+        /// <param name="assembly">
+        /// A reference to the assembly that defines the
+        /// method body.
+        /// </param>
+        /// <returns>
+        /// A Flame IR method body.
+        /// </returns>
+        public static MethodBody Analyze(
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            Parameter returnParameter,
+            Parameter thisParameter,
+            IReadOnlyList<Parameter> parameters,
+            ClrAssembly assembly)
+        {
+            var analyzer = new ClrMethodBodyAnalyzer(
+                returnParameter,
+                thisParameter,
+                parameters,
+                assembly);
+
+            // Analyze branch targets so we'll know which instructions
+            // belong to which basic blocks.
+            analyzer.AnalyzeBranchTargets(cilMethodBody);
+
+            if (cilMethodBody.Instructions.Count > 0)
+            {
+                // Create an entry point that sets up stack slots
+                // for the method body's parameters and locals.
+                analyzer.CreateEntryPoint(cilMethodBody);
+
+                // Analyze the entire flow graph by starting at the
+                // entry point block.
+                analyzer.AnalyzeBlock(
+                    cilMethodBody.Instructions[0],
+                    EmptyArray<IType>.Value);
+            }
+
+            return new MethodBody(
+                analyzer.ReturnParameter,
+                analyzer.ThisParameter,
+                analyzer.Parameters,
+                analyzer.graph.ToImmutable());
+        }
 
         private void AnalyzeBlock(
             Mono.Cecil.Cil.Instruction firstInstruction,
             IReadOnlyList<IType> argumentTypes)
         {
+            // Mark the block as analyzed so we don't analyze it
+            // ever again. Be sure to check that the types of
+            // the arguments the block receives are the same if
+            // the block is already analyzed.
             var block = branchTargets[firstInstruction];
             if (!analyzedBlocks.Add(block))
             {
@@ -100,6 +194,7 @@ namespace Flame.Clr
                 }
             }
 
+            // Set up block parameters.
             block.Parameters = argumentTypes
                 .Select((type, index) =>
                     new BlockParameter(type, block.Tag.Name + "_stackarg_" + index))
@@ -174,7 +269,7 @@ namespace Flame.Clr
             analyzedBlocks = new HashSet<BasicBlockBuilder>();
             if (cilMethodBody.Instructions.Count > 0)
             {
-                branchTargets[cilMethodBody.Instructions[0]] = graph.GetBasicBlock(graph.EntryPointTag);
+                FlagBranchTarget(cilMethodBody.Instructions[0]);
                 foreach (var instruction in cilMethodBody.Instructions)
                 {
                     AnalyzeBranchTargets(instruction);
@@ -219,83 +314,68 @@ namespace Flame.Clr
         }
 
         /// <summary>
-        /// Analyzes a particular method body.
+        /// Creates an entry point block that sets up stack
+        /// slots for the method body's parameters and locals.
         /// </summary>
         /// <param name="cilMethodBody">
-        /// The CIL method body to analyze.
+        /// The method body to create stack slots for.
         /// </param>
-        /// <param name="method">
-        /// The method that defines the method body.
-        /// </param>
-        /// <returns>
-        /// A Flame IR method body.
-        /// </returns>
-        public static MethodBody Analyze(
-            Mono.Cecil.Cil.MethodBody cilMethodBody,
-            ClrMethodDefinition method)
+        private void CreateEntryPoint(Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
-            return Analyze(
-                cilMethodBody,
-                method.ReturnParameter,
-                cilMethodBody.ThisParameter == null
-                    ? default(Parameter)
-                    : ClrMethodDefinition.WrapParameter(
-                        cilMethodBody.ThisParameter,
-                        method.ParentType.Assembly,
-                        method),
-                method.Parameters,
-                method.ParentType.Assembly);
-        }
+            // Compose an extended parameter list by prepending the 'this'
+            // parameter to the regular parameter list, provided that there
+            // is a 'this' parameter.
+            var extParameters = cilMethodBody.Method.HasThis
+                ? new[] { ThisParameter }.Concat(Parameters).ToArray()
+                : Parameters;
 
-        /// <summary>
-        /// Analyzes a particular method body.
-        /// </summary>
-        /// <param name="cilMethodBody">
-        /// The CIL method body to analyze.
-        /// </param>
-        /// <param name="returnParameter">
-        /// The 'return' parameter of the method body.
-        /// </param>
-        /// <param name="thisParameter">
-        /// The 'this' parameter of the method body.
-        /// </param>
-        /// <param name="parameters">
-        /// The parameter list of the method body.
-        /// </param>
-        /// <param name="assembly">
-        /// A reference to the assembly that defines the
-        /// method body.
-        /// </param>
-        /// <returns>
-        /// A Flame IR method body.
-        /// </returns>
-        public static MethodBody Analyze(
-            Mono.Cecil.Cil.MethodBody cilMethodBody,
-            Parameter returnParameter,
-            Parameter thisParameter,
-            IReadOnlyList<Parameter> parameters,
-            ClrAssembly assembly)
-        {
-            var analyzer = new ClrMethodBodyAnalyzer(
-                returnParameter,
-                thisParameter,
-                parameters,
-                assembly);
+            // Grab the entry point block.
+            var entryPoint = graph.GetBasicBlock(graph.EntryPointTag);
 
-            analyzer.AnalyzeBranchTargets(cilMethodBody);
+            // Create a block parameter in the entry point for each
+            // actual parameter in the method.
+            entryPoint.Parameters = extParameters
+                .Select((param, index) =>
+                    new BlockParameter(param.Type, param.Name.ToString()))
+                .ToImmutableList();
 
-            if (cilMethodBody.Instructions.Count > 0)
+            // For each parameter, allocate a stack slot and store the
+            // value of the parameter in the stack slot.
+            this.parameterStackSlots = new List<ValueTag>();
+            for (int i = 0; i < extParameters.Count; i++)
             {
-                analyzer.AnalyzeBlock(
-                    cilMethodBody.Instructions[0],
-                    EmptyArray<IType>.Value);
+                var param = extParameters[i];
+
+                var alloca = entryPoint.AppendInstruction(
+                    AllocaPrototype.Create(param.Type)
+                        .Instantiate(),
+                    new ValueTag(param.Name.ToString() + "_slot"));
+
+                entryPoint.AppendInstruction(
+                    StorePrototype.Create(param.Type)
+                        .Instantiate(
+                            entryPoint.Parameters[i].Tag,
+                            alloca.Tag),
+                    new ValueTag(param.Name.ToString()));
+
+                this.parameterStackSlots.Add(alloca.Tag);
             }
 
-            return new MethodBody(
-                analyzer.ReturnParameter,
-                analyzer.ThisParameter,
-                analyzer.Parameters,
-                analyzer.graph.ToImmutable());
+            // For each local, allocate an empty stack slot.
+            this.localStackSlots = new List<ValueTag>();
+            foreach (var local in cilMethodBody.Variables)
+            {
+                var alloca = entryPoint.AppendInstruction(
+                    AllocaPrototype.Create(Assembly.Resolve(local.VariableType))
+                        .Instantiate(),
+                    new ValueTag("local_" + local.Index + "_slot"));
+
+                this.localStackSlots.Add(alloca.Tag);
+            }
+
+            // Jump to the entry point instruction.
+            entryPoint.Flow = new JumpFlow(
+                branchTargets[cilMethodBody.Instructions[0]].Tag);
         }
     }
 }
