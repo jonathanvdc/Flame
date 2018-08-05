@@ -42,6 +42,31 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeReturnArgument()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0, param_0_slot);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_1 = load(System::Int32)(param_0_slot);
+    }, #return(copy(System::Int32)(val_1)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] { corlib.Definition.MainModule.TypeSystem.Int32 },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
@@ -72,6 +97,8 @@ namespace UnitTests.Flame.Clr
             foreach (var type in parameterTypes)
             {
                 methodDef.Parameters.Add(new ParameterDefinition(type));
+                int index = methodDef.Parameters.Count - 1;
+                methodDef.Parameters[index].Name = "param_" + index;
             }
 
             var cilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
@@ -82,7 +109,7 @@ namespace UnitTests.Flame.Clr
                 new Parameter(corlib.Resolve(returnType)),
                 default(Parameter),
                 parameterTypes
-                    .Select(type => new Parameter(corlib.Resolve(type)))
+                    .Select((type, i) => new Parameter(corlib.Resolve(type), "param_" + i))
                     .ToArray(),
                 corlib);
 
