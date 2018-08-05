@@ -34,6 +34,7 @@ namespace UnitTests.Flame.Clr
             AnalyzeStaticMethodBody(
                 corlib.Definition.MainModule.TypeSystem.Int32,
                 EmptyArray<TypeReference>.Value,
+                EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4, 42);
@@ -49,7 +50,7 @@ namespace UnitTests.Flame.Clr
 {
     #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
         param_0_slot = alloca(System::Int32)();
-        val_0 = store(System::Int32)(param_0, param_0_slot);
+        val_0 = store(System::Int32)(param_0_slot, param_0);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
         val_1 = load(System::Int32)(param_0_slot);
@@ -59,9 +60,41 @@ namespace UnitTests.Flame.Clr
             AnalyzeStaticMethodBody(
                 corlib.Definition.MainModule.TypeSystem.Int32,
                 new[] { corlib.Definition.MainModule.TypeSystem.Int32 },
+                EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
+        [Test]
+        public void AnalyzeStloc()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+        local_0_slot = alloca(System::Int32)();
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_1 = load(System::Int32)(param_0_slot);
+        val_2 = store(System::Int32)(local_0_slot, val_1);
+        val_3 = load(System::Int32)(local_0_slot);
+    }, #return(copy(System::Int32)(val_3)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] { corlib.Definition.MainModule.TypeSystem.Int32 },
+                new[] { corlib.Definition.MainModule.TypeSystem.Int32 },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                 },
                 oracle);
@@ -86,6 +119,7 @@ namespace UnitTests.Flame.Clr
         private void AnalyzeStaticMethodBody(
             TypeReference returnType,
             IReadOnlyList<TypeReference> parameterTypes,
+            IReadOnlyList<TypeReference> localTypes,
             Action<Mono.Cecil.Cil.ILProcessor> emitBody,
             string oracle)
         {
@@ -102,6 +136,12 @@ namespace UnitTests.Flame.Clr
             }
 
             var cilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
+
+            foreach (var localType in localTypes)
+            {
+                cilBody.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(localType));
+            }
+
             emitBody(cilBody.GetILProcessor());
 
             var irBody = ClrMethodBodyAnalyzer.Analyze(
