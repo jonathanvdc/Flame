@@ -58,6 +58,7 @@
     <Compile Include="Flow\UnreachableFlow.cs" />
     <Compile Include="Instructions\AllocaArrayPrototype.cs" />
     <Compile Include="Instructions\AllocaPrototype.cs" />
+    <Compile Include="Instructions\ArithmeticIntrinsics.cs" />
     <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\ConstantPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
