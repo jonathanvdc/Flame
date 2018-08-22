@@ -92,7 +92,11 @@ namespace UnitTests.Flame.Clr
             var joinRef = ts.String
                 .Resolve()
                 .Methods
-                .Single(m => m.Name == "Join" && m.HasGenericParameters);
+                .Single(m =>
+                    m.Name == "Join"
+                        && m.HasGenericParameters
+                        && m.Parameters.Count == 2
+                        && m.Parameters[0].ParameterType == ts.String);
 
             var join = corlib.Resolve(joinRef);
             Assert.IsNotNull(join);
