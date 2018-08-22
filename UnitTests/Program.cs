@@ -11,6 +11,7 @@ using Pixie;
 using Pixie.Transforms;
 using Pixie.Markup;
 using UnitTests.Flame.Clr;
+using UnitTests.Flame.Compiler;
 
 namespace UnitTests
 {
@@ -22,11 +23,14 @@ namespace UnitTests
         {
             new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame),
             new Pair<string,Func<int>>("Run unit tests of Flame.Clr.dll", FlameClr),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", FlameCompiler),
             new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr)
         };
 
         public static void Main(string[] args)
         {
+            new MemberResolutionTests().ResolveStringGenericJoin();
+
             // Workaround for MS bug: Assert(false) will not fire in debugger
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new DefaultTraceListener());
@@ -114,6 +118,12 @@ namespace UnitTests
                 new MemberResolutionTests(),
                 new NameConversionTests(),
                 new TypeAttributeTests());
+        }
+
+        public static int FlameCompiler()
+        {
+            return RunTests.RunMany(
+                new ArithmeticIntrinsicsTest());
         }
 
         public static int FlameIr()
