@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 
 namespace Flame.Compiler.Instructions
@@ -42,6 +43,33 @@ namespace Flame.Compiler.Instructions
             {
                 operatorName = splitName[1];
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Parses an intrinsic name as an arithmetic intrinsic name,
+        /// assuming that the intrinsic name is an arithmetic intrinsic
+        /// name. Returns the name of the operator wrapped by the
+        /// arithmetic intrinsic name.
+        /// </summary>
+        /// <param name="intrinsicName">
+        /// The arithmetic intrinsic name to parse.
+        /// </param>
+        /// <returns>
+        /// The operator name wrapped by the arithmetic intrinsic name.
+        /// </returns>
+        public static string ParseArithmeticIntrinsicName(
+            string intrinsicName)
+        {
+            string result;
+            if (TryParseArithmeticIntrinsicName(intrinsicName, out result))
+            {
+                return result;
+            }
+            else
+            {
+                throw new ArgumentException(
+                    $"Name '{intrinsicName}' is not an arithmetic intrinsic name.");
             }
         }
 
