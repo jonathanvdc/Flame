@@ -105,6 +105,33 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
+        /// Creates an arithmetic intrinsic prototype.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the operator represented by the arithmetic intrinsic.
+        /// </param>
+        /// <param name="resultType">
+        /// The type of value produced by the intrinsic to create.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The types of the values the intrinsic takes as arguments.
+        /// </param>
+        /// <returns>
+        /// An arithmetic intrinsic prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreatePrototype(
+            string operatorName,
+            IType resultType,
+            params IType[] parameterTypes)
+        {
+            // TODO: exception specification?
+            return IntrinsicPrototype.Create(
+                GetArithmeticIntrinsicName(operatorName),
+                resultType,
+                parameterTypes);
+        }
+
+        /// <summary>
         /// A collection of names for arithmetic operations.
         /// </summary>
         public static class Operators
