@@ -267,12 +267,41 @@ namespace Flame.Clr
                 stackContents);
         }
 
+        /// <summary>
+        /// Emits a binary arithmetic intrinsic operation that
+        /// has its first argument type as result type.
+        /// </summary>
+        /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="block">The block to update.</param>
+        /// <param name="stackContents">The stack contents.</param>
+        private static void EmitSignedArithmeticBinary(
+            string operatorName,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var first = stackContents.Pop();
+            var second = stackContents.Pop();
+            var firstType = block.Graph.GetValueType(first);
+            var secondType = block.Graph.GetValueType(second);
+
+            PushValue(
+                ArithmeticIntrinsics.CreatePrototype(operatorName, firstType, firstType, secondType)
+                    .Instantiate(new[] { first, second }),
+                block,
+                stackContents);
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
-            if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
+            string opName;
+            if (signedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
+            {
+                EmitSignedArithmeticBinary(opName, block, stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
                 PushValue(
                     ConstantPrototype.Create(
@@ -440,5 +469,23 @@ namespace Flame.Clr
             entryPoint.Flow = new JumpFlow(
                 branchTargets[cilMethodBody.Instructions[0]].Tag);
         }
+
+        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> signedBinaryOperators =
+            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        {
+            { Mono.Cecil.Cil.OpCodes.Add, ArithmeticIntrinsics.Operators.Add },
+            { Mono.Cecil.Cil.OpCodes.Sub, ArithmeticIntrinsics.Operators.Subtract },
+            { Mono.Cecil.Cil.OpCodes.Mul, ArithmeticIntrinsics.Operators.Multiply },
+            { Mono.Cecil.Cil.OpCodes.Div, ArithmeticIntrinsics.Operators.Divide },
+            { Mono.Cecil.Cil.OpCodes.Rem, ArithmeticIntrinsics.Operators.Remainder },
+            { Mono.Cecil.Cil.OpCodes.Cgt, ArithmeticIntrinsics.Operators.IsGreaterThan },
+            { Mono.Cecil.Cil.OpCodes.Ceq, ArithmeticIntrinsics.Operators.IsEqualTo },
+            { Mono.Cecil.Cil.OpCodes.Clt, ArithmeticIntrinsics.Operators.IsLessThan },
+            { Mono.Cecil.Cil.OpCodes.Not, ArithmeticIntrinsics.Operators.Not },
+            { Mono.Cecil.Cil.OpCodes.Neg, ArithmeticIntrinsics.Operators.Not },
+            { Mono.Cecil.Cil.OpCodes.And, ArithmeticIntrinsics.Operators.And },
+            { Mono.Cecil.Cil.OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
+            { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor }
+        };
     }
 }
