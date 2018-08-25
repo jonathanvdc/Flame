@@ -42,5 +42,26 @@ namespace Flame.TypeSystem
                     BooleanConstant.Create(specification.IsSigned)
                 });
         }
+
+        /// <summary>
+        /// Gets a type's integer spec if it has one.
+        /// </summary>
+        /// <param name="type">The type to examine.</param>
+        /// <returns>
+        /// An integer spec if <paramref name="type"/> has one; otherwise, <c>null</c>.
+        /// </returns>
+        public static IntegerSpec GetIntegerSpecOrNull(this IType type)
+        {
+            var attr = type.Attributes.Get(
+                IntrinsicAttribute.GetIntrinsicAttributeType(AttributeName));
+            if (attr == null)
+            {
+                return null;
+            }
+            else
+            {
+                return Read((IntrinsicAttribute)attr);
+            }
+        }
     }
 }

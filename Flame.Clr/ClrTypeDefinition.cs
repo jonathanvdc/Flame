@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
+using Flame.Constants;
 using Flame.TypeSystem;
 using Mono.Cecil;
 
@@ -201,6 +202,13 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.Virtual);
             }
+
+            IntegerSpec iSpec;
+            if (Definition.Namespace == "System"
+                && integerSpecMap.TryGetValue(Definition.Name, out iSpec))
+            {
+                attrBuilder.Add(IntegerSpecAttribute.Create(iSpec));
+            }
             // TODO: support more attributes.
             attributeMap = new AttributeMap(attrBuilder);
 
@@ -371,5 +379,18 @@ namespace Flame.Clr
         {
             return FullName.ToString();
         }
+
+        private static readonly IReadOnlyDictionary<string, IntegerSpec> integerSpecMap =
+            new Dictionary<string, IntegerSpec>()
+        {
+            { nameof(SByte), IntegerSpec.Int8 },
+            { nameof(Int16), IntegerSpec.Int16 },
+            { nameof(Int32), IntegerSpec.Int32 },
+            { nameof(Int64), IntegerSpec.Int64 },
+            { nameof(Byte), IntegerSpec.UInt8 },
+            { nameof(UInt16), IntegerSpec.UInt16 },
+            { nameof(UInt32), IntegerSpec.UInt32 },
+            { nameof(UInt64), IntegerSpec.UInt64 }
+        };
     }
 }

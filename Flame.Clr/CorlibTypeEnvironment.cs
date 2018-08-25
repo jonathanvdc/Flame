@@ -38,6 +38,7 @@ namespace Flame.Clr
             this.createArrayBaseTypes = new Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>>(
                 ResolveArrayBaseTypes);
             this.signedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveSignedIntegerTypes);
+            this.unsignedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveUnsignedIntegerTypes);
             this.booleanType = new Lazy<IType>(() => ResolveSystemType("Boolean"));
         }
 
@@ -56,6 +57,7 @@ namespace Flame.Clr
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
         private Lazy<Dictionary<int, IType>> signedIntegerTypes;
+        private Lazy<Dictionary<int, IType>> unsignedIntegerTypes;
         private Lazy<IType> booleanType;
 
         /// <inheritdoc/>
@@ -108,16 +110,34 @@ namespace Flame.Clr
             return signedIntegerTypes.Value.TryGetValue(sizeInBits, out integerType);
         }
 
+        /// <inheritdoc/>
+        public override bool TryMakeUnsignedIntegerType(int sizeInBits, out IType integerType)
+        {
+            return unsignedIntegerTypes.Value.TryGetValue(sizeInBits, out integerType);
+        }
+
         private Dictionary<int, IType> ResolveSignedIntegerTypes()
         {
             return new Dictionary<int, IType>
             {
-                { 8, ResolveSystemType("SByte") },
-                { 16, ResolveSystemType("Int16") },
-                { 32, ResolveSystemType("Int32") },
-                { 64, ResolveSystemType("Int64") }
+                { 8, ResolveSystemType(nameof(SByte)) },
+                { 16, ResolveSystemType(nameof(Int16)) },
+                { 32, ResolveSystemType(nameof(Int32)) },
+                { 64, ResolveSystemType(nameof(Int64)) }
             };
         }
+
+        private Dictionary<int, IType> ResolveUnsignedIntegerTypes()
+        {
+            return new Dictionary<int, IType>
+            {
+                { 8, ResolveSystemType(nameof(Byte)) },
+                { 16, ResolveSystemType(nameof(UInt16)) },
+                { 32, ResolveSystemType(nameof(UInt32)) },
+                { 64, ResolveSystemType(nameof(UInt64)) }
+            };
+        }
+
 
         private IType ResolveSystemType(string name)
         {

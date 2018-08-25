@@ -26,7 +26,7 @@ namespace Flame.TypeSystem
         {
             this.Name = name;
             this.Arguments = arguments;
-            this.AttributeType = attrTypes.GetOrAdd(name, SynthesizeAttributeType);
+            this.AttributeType = GetIntrinsicAttributeType(name);
         }
 
         /// <summary>
@@ -52,6 +52,21 @@ namespace Flame.TypeSystem
         private static IType SynthesizeAttributeType(string name)
         {
             return new DescribedType(new SimpleName(name).Qualify(), null);
+        }
+
+        /// <summary>
+        /// Gets the intrinsic attribute type for a particular
+        /// intrinsic attribute name.
+        /// </summary>
+        /// <param name="name">
+        /// The name to find an intrinsic attribute type for.
+        /// </param>
+        /// <returns>
+        /// An intrinsic attribute type.
+        /// </returns>
+        public static IType GetIntrinsicAttributeType(string name)
+        {
+            return attrTypes.GetOrAdd(name, SynthesizeAttributeType);
         }
     }
 }

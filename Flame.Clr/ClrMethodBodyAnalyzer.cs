@@ -268,19 +268,20 @@ namespace Flame.Clr
         }
 
         /// <summary>
-        /// Emits a binary arithmetic intrinsic operation
-        /// for signed integer or floating-point values.
+        /// Emits a binary arithmetic intrinsic operation.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="first">The first argument to the intrinsic operation.</param>
+        /// <param name="second">The second argument to the intrinsic operation.</param>
         /// <param name="block">The block to update.</param>
         /// <param name="stackContents">The stack contents.</param>
-        private void EmitSignedArithmeticBinary(
+        private void EmitArithmeticBinary(
             string operatorName,
+            ValueTag first,
+            ValueTag second,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
-            var first = stackContents.Pop();
-            var second = stackContents.Pop();
             var firstType = block.Graph.GetValueType(first);
             var secondType = block.Graph.GetValueType(second);
 
@@ -299,6 +300,62 @@ namespace Flame.Clr
             {
                 EmitConvertTo(
                     Assembly.Resolver.TypeEnvironment.Int32,
+                    block,
+                    stackContents);
+            }
+        }
+
+        /// <summary>
+        /// Emits a binary arithmetic intrinsic operation
+        /// for signed integer or floating-point values.
+        /// </summary>
+        /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="block">The block to update.</param>
+        /// <param name="stackContents">The stack contents.</param>
+        private void EmitSignedArithmeticBinary(
+            string operatorName,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var second = stackContents.Pop();
+            var first = stackContents.Pop();
+            EmitArithmeticBinary(operatorName, first, second, block, stackContents);
+        }
+
+        /// <summary>
+        /// Emits a binary arithmetic intrinsic operation
+        /// for unsigned integer values.
+        /// </summary>
+        /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="block">The block to update.</param>
+        /// <param name="stackContents">The stack contents.</param>
+        private void EmitUnsignedArithmeticBinary(
+            string operatorName,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            EmitConvertToUnsigned(block, stackContents);
+            var second = stackContents.Pop();
+            EmitConvertToUnsigned(block, stackContents);
+            var first = stackContents.Pop();
+            EmitArithmeticBinary(operatorName, first, second, block, stackContents);
+        }
+
+        private void EmitConvertToUnsigned(
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var value = stackContents.Peek();
+            var type = block.Graph.GetValueType(value);
+            var spec = type.GetIntegerSpecOrNull();
+            // TODO: throw useful exception if `spec == null`.
+            if (spec.IsSigned)
+            {
+                EmitConvertTo(
+                    Assembly
+                        .Resolver
+                        .TypeEnvironment
+                        .MakeUnsignedIntegerType(spec.Size),
                     block,
                     stackContents);
             }
@@ -329,6 +386,10 @@ namespace Flame.Clr
             if (signedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
                 EmitSignedArithmeticBinary(opName, block, stackContents);
+            }
+            else if (unsignedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
+            {
+                EmitUnsignedArithmeticBinary(opName, block, stackContents);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
@@ -515,6 +576,15 @@ namespace Flame.Clr
             { Mono.Cecil.Cil.OpCodes.And, ArithmeticIntrinsics.Operators.And },
             { Mono.Cecil.Cil.OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
             { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor }
+        };
+
+        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> unsignedBinaryOperators =
+            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        {
+            { Mono.Cecil.Cil.OpCodes.Div_Un, ArithmeticIntrinsics.Operators.Divide },
+            { Mono.Cecil.Cil.OpCodes.Rem_Un, ArithmeticIntrinsics.Operators.Remainder },
+            { Mono.Cecil.Cil.OpCodes.Cgt_Un, ArithmeticIntrinsics.Operators.IsGreaterThan },
+            { Mono.Cecil.Cil.OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan }
         };
     }
 }

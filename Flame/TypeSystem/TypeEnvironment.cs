@@ -1,3 +1,5 @@
+using System;
+
 namespace Flame.TypeSystem
 {
     /// <summary>
@@ -23,6 +25,25 @@ namespace Flame.TypeSystem
         /// </returns>
 
         public abstract bool TryMakeSignedIntegerType(
+            int sizeInBits,
+            out IType integerType);
+
+        /// <summary>
+        /// Tries to create an unsigned integer type with
+        /// a particular number of bits of storage.
+        /// </summary>
+        /// <param name="sizeInBits">
+        /// The size in bits of the integer type to create.
+        /// </param>
+        /// <param name="integerType">
+        /// The integer type.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the environment can create such an
+        /// integer type; otherwise, <c>false</c>.
+        /// </returns>
+
+        public abstract bool TryMakeUnsignedIntegerType(
             int sizeInBits,
             out IType integerType);
 
@@ -85,6 +106,28 @@ namespace Flame.TypeSystem
                 return null;
             }
         }
+
+        /// <summary>
+        /// Creates an unsigned integer type with a particular number
+        /// of bits of storage.
+        /// </summary>
+        /// <param name="sizeInBits">The integer type's size in bits.</param>
+        /// <returns>
+        /// An unsigned integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType MakeUnsignedIntegerType(int sizeInBits)
+        {
+            IType result;
+            if (TryMakeUnsignedIntegerType(sizeInBits, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>
@@ -117,10 +160,7 @@ namespace Flame.TypeSystem
         /// <returns>The inner type environment.</returns>
         public TypeEnvironment InnerEnvironment { get; set; }
 
-        /// <summary>
-        /// Gets the Boolean type in this type environment.
-        /// </summary>
-        /// <value>The Boolean type.</value>
+        /// <inheritdoc/>
         public override IType Boolean => InnerEnvironment.Boolean;
 
         /// <inheritdoc/>
@@ -141,6 +181,16 @@ namespace Flame.TypeSystem
             out IType integerType)
         {
             return InnerEnvironment.TryMakeSignedIntegerType(
+                sizeInBits,
+                out integerType);
+        }
+
+        /// <inheritdoc/>
+        public override bool TryMakeUnsignedIntegerType(
+            int sizeInBits,
+            out IType integerType)
+        {
+            return InnerEnvironment.TryMakeUnsignedIntegerType(
                 sizeInBits,
                 out integerType);
         }
