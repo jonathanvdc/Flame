@@ -29,8 +29,6 @@ namespace UnitTests
 
         public static void Main(string[] args)
         {
-            new MemberResolutionTests().ResolveStringGenericJoin();
-
             // Workaround for MS bug: Assert(false) will not fire in debugger
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new DefaultTraceListener());

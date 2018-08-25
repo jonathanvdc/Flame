@@ -100,6 +100,41 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeAdd()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0), #param(System::Int32, param_1)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+        param_1_slot = alloca(System::Int32)();
+        val_1 = store(System::Int32)(param_1_slot, param_1);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_2 = load(System::Int32)(param_0_slot);
+        val_3 = load(System::Int32)(param_1_slot);
+        val_4 = intrinsic(@arith.add, System::Int32, #(System::Int32, System::Int32))(val_3, val_2);
+    }, #return(copy(System::Int32)(val_4)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32,
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Add);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
