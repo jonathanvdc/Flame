@@ -38,6 +38,7 @@ namespace Flame.Clr
             this.createArrayBaseTypes = new Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>>(
                 ResolveArrayBaseTypes);
             this.signedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveSignedIntegerTypes);
+            this.booleanType = new Lazy<IType>(() => ResolveSystemType("Boolean"));
         }
 
         /// <summary>
@@ -47,9 +48,15 @@ namespace Flame.Clr
         /// <returns>The core library type resolver.</returns>
         public ReadOnlyTypeResolver CorlibTypeResolver { get; private set; }
 
+        /// <summary>
+        /// Gets the Boolean type for this type environment.
+        /// </summary>
+        public override IType Boolean => booleanType.Value;
+
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
         private Lazy<Dictionary<int, IType>> signedIntegerTypes;
+        private Lazy<IType> booleanType;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

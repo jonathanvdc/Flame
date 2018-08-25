@@ -268,13 +268,13 @@ namespace Flame.Clr
         }
 
         /// <summary>
-        /// Emits a binary arithmetic intrinsic operation that
-        /// has its first argument type as result type.
+        /// Emits a binary arithmetic intrinsic operation
+        /// for signed integer or floating-point values.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
         /// <param name="block">The block to update.</param>
         /// <param name="stackContents">The stack contents.</param>
-        private static void EmitSignedArithmeticBinary(
+        private void EmitSignedArithmeticBinary(
             string operatorName,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
@@ -284,9 +284,38 @@ namespace Flame.Clr
             var firstType = block.Graph.GetValueType(first);
             var secondType = block.Graph.GetValueType(second);
 
+            bool isRelational = ArithmeticIntrinsics.Operators
+                .IsRelationalOperator(operatorName);
+
+            var resultType = isRelational ? Assembly.Resolver.TypeEnvironment.Boolean : firstType;
+
             PushValue(
-                ArithmeticIntrinsics.CreatePrototype(operatorName, firstType, firstType, secondType)
+                ArithmeticIntrinsics.CreatePrototype(operatorName, resultType, firstType, secondType)
                     .Instantiate(new[] { first, second }),
+                block,
+                stackContents);
+
+            if (isRelational)
+            {
+                EmitConvertTo(
+                    Assembly.Resolver.TypeEnvironment.Int32,
+                    block,
+                    stackContents);
+            }
+        }
+
+        private void EmitConvertTo(
+            IType targetType,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var value = stackContents.Pop();
+            PushValue(
+                ArithmeticIntrinsics.CreatePrototype(
+                    ArithmeticIntrinsics.Operators.Convert,
+                    targetType,
+                    block.Graph.GetValueType(value))
+                    .Instantiate(new[] { value }),
                 block,
                 stackContents);
         }

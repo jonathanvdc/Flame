@@ -50,6 +50,12 @@ namespace Flame.TypeSystem
             out IType arrayType);
 
         /// <summary>
+        /// Gets the Boolean type in this type environment.
+        /// </summary>
+        /// <value>The Boolean type.</value>
+        public abstract IType Boolean { get; }
+
+        /// <summary>
         /// Gets a 32-bit signed integer type.
         /// </summary>
         /// <returns>
@@ -110,6 +116,12 @@ namespace Flame.TypeSystem
         /// </summary>
         /// <returns>The inner type environment.</returns>
         public TypeEnvironment InnerEnvironment { get; set; }
+
+        /// <summary>
+        /// Gets the Boolean type in this type environment.
+        /// </summary>
+        /// <value>The Boolean type.</value>
+        public override IType Boolean => InnerEnvironment.Boolean;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

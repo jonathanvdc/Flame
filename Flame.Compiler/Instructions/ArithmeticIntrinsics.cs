@@ -212,6 +212,11 @@ namespace Flame.Compiler.Instructions
             public const string Xor = "xor";
 
             /// <summary>
+            /// The unary conversion operator.
+            /// </summary>
+            public const string Convert = "convert";
+
+            /// <summary>
             /// An immutable array containing all standard arithmetic
             /// intrinsic operator names.
             /// </summary>
@@ -233,8 +238,36 @@ namespace Flame.Compiler.Instructions
                         Not,
                         And,
                         Or,
-                        Xor
+                        Xor,
+
+                        Convert
                     });
+
+            /// <summary>
+            /// Tells if a particular operator name refers to a standard
+            /// relational operator.
+            /// </summary>
+            /// <param name="operatorName">The operator name to examine.</param>
+            /// <returns>
+            /// <c>true</c> if <paramref name="operatorName"/>
+            /// is a standard relational operator;
+            /// otherwise, <c>false</c>.
+            /// </returns>
+            public static bool IsRelationalOperator(string operatorName)
+            {
+                switch (operatorName)
+                {
+                    case IsGreaterThan:
+                    case IsGreaterThanOrEqualTo:
+                    case IsEqualTo:
+                    case IsNotEqualTo:
+                    case IsLessThan:
+                    case IsLessThanOrEqualTo:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
         }
     }
 }
