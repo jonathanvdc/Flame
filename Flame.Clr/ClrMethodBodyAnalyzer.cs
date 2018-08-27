@@ -376,6 +376,58 @@ namespace Flame.Clr
                 stackContents);
         }
 
+        /// <summary>
+        /// Emits a conditional branch.
+        /// </summary>
+        /// <param name="condition">
+        /// The condition to branch on.
+        /// </param>
+        /// <param name="ifInstruction">
+        /// The instruction to branch to if the condition is true/nonzero.
+        /// </param>
+        /// <param name="falseInstruction">
+        /// The instruction to branch to if the condition is false/zero.
+        /// </param>
+        /// <param name="block">
+        /// The current basic block.
+        /// </param>
+        /// <param name="stackContents">
+        /// The stack contents.
+        /// </param>
+        private void EmitConditionalBranch(
+            ValueTag condition,
+            Mono.Cecil.Cil.Instruction ifInstruction,
+            Mono.Cecil.Cil.Instruction falseInstruction,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var args = stackContents.Reverse().ToArray();
+            var branchTypes = args.EagerSelect(arg => block.Graph.GetValueType(arg));
+
+            var conditionISpec = block.Graph.GetValueType(condition).GetIntegerSpecOrNull();
+            Constant falseConstant;
+            if (conditionISpec == null)
+            {
+                falseConstant = BooleanConstant.False;
+            }
+            else
+            {
+                falseConstant = new IntegerConstant(0).Cast(conditionISpec);
+            }
+
+            block.Flow = new SwitchFlow(
+                CopyPrototype.Create(block.Graph.GetValueType(condition)).Instantiate(condition),
+                ImmutableList.Create(
+                    new SwitchCase(
+                        ImmutableHashSet.Create<Constant>(falseConstant),
+                        new Branch(
+                            AnalyzeBlock(falseInstruction, branchTypes),
+                            args))),
+                new Branch(
+                    AnalyzeBlock(ifInstruction, branchTypes),
+                    args));
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             BasicBlockBuilder block,
@@ -453,6 +505,24 @@ namespace Flame.Clr
                         (Mono.Cecil.Cil.Instruction)instruction.Operand,
                         args.EagerSelect(arg => block.Graph.GetValueType(arg))),
                     args);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
+            {
+                EmitConditionalBranch(
+                    stackContents.Pop(),
+                    (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                    instruction.Next,
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brfalse)
+            {
+                EmitConditionalBranch(
+                    stackContents.Pop(),
+                    instruction.Next,
+                    (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                    block,
+                    stackContents);
             }
             else
             {
