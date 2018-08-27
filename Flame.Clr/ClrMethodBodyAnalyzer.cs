@@ -174,7 +174,7 @@ namespace Flame.Clr
                 analyzer.graph.ToImmutable());
         }
 
-        private void AnalyzeBlock(
+        private BasicBlockTag AnalyzeBlock(
             Mono.Cecil.Cil.Instruction firstInstruction,
             IReadOnlyList<IType> argumentTypes)
         {
@@ -191,7 +191,7 @@ namespace Flame.Clr
                     .SequenceEqual(argumentTypes);
                 if (sameParameters)
                 {
-                    return;
+                    return block.Tag;
                 }
                 else
                 {
@@ -221,7 +221,7 @@ namespace Flame.Clr
                     branchTargets.ContainsKey(currentInstruction.Next))
                 {
                     // Current instruction is the last instruction of the block.
-                    return;
+                    return block.Tag;
                 }
                 else
                 {
@@ -437,6 +437,23 @@ namespace Flame.Clr
                 block.Flow = new ReturnFlow(
                     CopyPrototype.Create(graph.GetValueType(value))
                     .Instantiate(value));
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
+            {
+                stackContents.Pop();
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Dup)
+            {
+                stackContents.Push(stackContents.Peek());
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Br)
+            {
+                var args = stackContents.Reverse().ToArray();
+                block.Flow = new JumpFlow(
+                    AnalyzeBlock(
+                        (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                        args.EagerSelect(arg => block.Graph.GetValueType(arg))),
+                    args);
             }
             else
             {
