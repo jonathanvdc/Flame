@@ -210,8 +210,7 @@ namespace Flame.Clr
             var currentInstruction = firstInstruction;
             var stackContents = new Stack<ValueTag>(
                 block.Parameters
-                    .Select(param => param.Tag)
-                    .Reverse());
+                    .Select(param => param.Tag));
 
             while (true)
             {
