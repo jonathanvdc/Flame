@@ -416,7 +416,7 @@ namespace Flame.Clr
             }
 
             block.Flow = new SwitchFlow(
-                CopyPrototype.Create(block.Graph.GetValueType(condition)).Instantiate(condition),
+                Instruction.CreateCopy(block.Graph.GetValueType(condition), condition),
                 ImmutableList.Create(
                     new SwitchCase(
                         ImmutableHashSet.Create<Constant>(falseConstant),
