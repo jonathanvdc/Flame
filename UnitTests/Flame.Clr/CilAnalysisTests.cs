@@ -219,42 +219,45 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
-        public void AnalyzeBrPopDup()
+        public void AnalyzeBrPop()
         {
             const string oracle = @"
 {
-    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+    #entry_point(@entry-point, #(#param(System::Int32, param_0), #param(System::Int32, param_1)), {
         param_0_slot = alloca(System::Int32)();
         val_0 = store(System::Int32)(param_0_slot, param_0);
+        param_1_slot = alloca(System::Int32)();
+        val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), { }, #goto(block_0()));
     #block(block_0, #(), { }, #goto(block_1()));
     #block(block_1, #(), {
-        val_1 = load(System::Int32)(param_0_slot);
-    }, #goto(block_2(val_1, val_1)));
-    #block(block_2, #(#param(System::Int32, IL_0000_stackarg_0), #param(System::Int32, IL_0000_stackarg_1)), { }, #goto(block_3(IL_0000_stackarg_1, IL_0000_stackarg_0)));
-    #block(block_4, #(), { }, #unreachable);
-    #block(block_3, #(#param(System::Int32, val_2), #param(System::Int32, val_3)), { }, #return(copy(System::Int32)(val_2)));
+        val_2 = load(System::Int32)(param_0_slot);
+        val_3 = load(System::Int32)(param_1_slot);
+    }, #goto(block_2(val_2, val_3)));
+    #block(block_2, #(#param(System::Int32, IL_0000_stackarg_0), #param(System::Int32, IL_0000_stackarg_1)), { }, #goto(block_3(IL_0000_stackarg_0, IL_0000_stackarg_1)));
+    #block(block_3, #(#param(System::Int32, val_4), #param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_4)));
 };";
 
             AnalyzeStaticMethodBody(
                 corlib.Definition.MainModule.TypeSystem.Int32,
                 new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32,
                     corlib.Definition.MainModule.TypeSystem.Int32
                 },
                 new TypeReference[] { },
                 ilProc =>
                 {
                     var firstInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    var secondInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ret);
+                    var secondInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
                     var firstThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, firstInstr);
                     var secondThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, secondInstr);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, firstThunk);
                     ilProc.Append(firstInstr);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Dup);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, secondThunk);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Pop);
                     ilProc.Append(secondInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                     ilProc.Append(firstThunk);
                     ilProc.Append(secondThunk);
                 },
