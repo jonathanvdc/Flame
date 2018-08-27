@@ -9,6 +9,8 @@ using Flame.Ir;
 using System.Collections.Generic;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
+using Pixie;
+using Pixie.Markup;
 
 namespace UnitTests.Flame.Clr
 {
@@ -18,6 +20,13 @@ namespace UnitTests.Flame.Clr
     [TestFixture]
     public class CilAnalysisTests
     {
+        public CilAnalysisTests(ILog log)
+        {
+            this.log = log;
+        }
+
+        private ILog log;
+
         private ClrAssembly corlib = LocalTypeResolutionTests.Corlib;
 
         [Test]
@@ -209,6 +218,49 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeBrPopDup()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), { }, #goto(block_0()));
+    #block(block_0, #(), { }, #goto(block_1()));
+    #block(block_1, #(), {
+        val_1 = load(System::Int32)(param_0_slot);
+    }, #goto(block_2(val_1, val_1)));
+    #block(block_2, #(#param(System::Int32, IL_0000_stackarg_0), #param(System::Int32, IL_0000_stackarg_1)), { }, #goto(block_3(IL_0000_stackarg_1, IL_0000_stackarg_0)));
+    #block(block_4, #(), { }, #unreachable);
+    #block(block_3, #(#param(System::Int32, val_2), #param(System::Int32, val_3)), { }, #return(copy(System::Int32)(val_2)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    var firstInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    var secondInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ret);
+                    var firstThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, firstInstr);
+                    var secondThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, secondInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, firstThunk);
+                    ilProc.Append(firstInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Dup);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, secondThunk);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Pop);
+                    ilProc.Append(secondInstr);
+                    ilProc.Append(firstThunk);
+                    ilProc.Append(secondThunk);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
@@ -265,13 +317,26 @@ namespace UnitTests.Flame.Clr
             var encoder = new EncoderState();
             var encodedImpl = encoder.Encode(irBody.Implementation);
 
+            var actual = Les2LanguageService.Value.Print(
+                encodedImpl,
+                options: new LNodePrinterOptions
+                {
+                    IndentString = new string(' ', 4)
+                });
+
+            if (actual.Trim() != oracle.Trim())
+            {
+                log.Log(
+                    new LogEntry(
+                        Severity.Message,
+                        "CIL analysis-oracle mismatch",
+                        "analyzed CIL does not match the oracle. CIL analysis output:"));
+                // TODO: ugly hack to work around wrapping.
+                Console.Error.WriteLine(actual.Trim());
+            }
+
             Assert.AreEqual(
-                Les2LanguageService.Value.Print(
-                    encodedImpl,
-                    options: new LNodePrinterOptions
-                    {
-                        IndentString = new string(' ', 4)
-                    }).Trim(),
+                actual.Trim(),
                 oracle.Trim());
         }
     }
