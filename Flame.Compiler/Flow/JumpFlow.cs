@@ -40,6 +40,18 @@ namespace Flame.Compiler.Flow
         { }
 
         /// <summary>
+        /// Creates control flow that unconditionally jumps
+        /// to a particular block, passing a list of arguments.
+        /// </summary>
+        /// <param name="target">The target block.</param>
+        /// <param name="arguments">
+        /// A list of arguments to pass to the target block.
+        /// </param>
+        public JumpFlow(BasicBlockTag target, IReadOnlyList<ValueTag> arguments)
+            : this(new Branch(target, arguments))
+        { }
+
+        /// <summary>
         /// Gets the branch that is unconditionally taken by
         /// this flow.
         /// </summary>

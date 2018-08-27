@@ -26,6 +26,18 @@ namespace Flame.Compiler
         /// <param name="arguments">
         /// A list of arguments to pass to the target block.
         /// </param>
+        public Branch(BasicBlockTag target, IReadOnlyList<ValueTag> arguments)
+            : this(target, arguments.EagerSelect(BranchArgument.FromValue))
+        { }
+
+        /// <summary>
+        /// Creates a branch that targets a particular block and
+        /// passes a list of arguments.
+        /// </summary>
+        /// <param name="target">The target block.</param>
+        /// <param name="arguments">
+        /// A list of arguments to pass to the target block.
+        /// </param>
         public Branch(BasicBlockTag target, IReadOnlyList<BranchArgument> arguments)
         {
             this.Target = target;
