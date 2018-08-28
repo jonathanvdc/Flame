@@ -497,6 +497,10 @@ namespace Flame.Clr
             {
                 stackContents.Push(stackContents.Peek());
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Nop)
+            {
+                // Do nothing I guess.
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Br)
             {
                 var args = stackContents.Reverse().ToArray();
