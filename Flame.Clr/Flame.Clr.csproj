@@ -50,6 +50,7 @@
     <Compile Include="ClrAssembly.cs" />
     <Compile Include="ClrFieldDefinition.cs" />
     <Compile Include="ClrGenericParameter.cs" />
+    <Compile Include="ClrInstructionSimplifier.cs" />
     <Compile Include="ClrMethodBodyAnalyzer.cs" />
     <Compile Include="ClrMethodDefinition.cs" />
     <Compile Include="ClrMethodSignature.cs" />

@@ -404,7 +404,8 @@ namespace Flame.Clr
             var args = stackContents.Reverse().ToArray();
             var branchTypes = args.EagerSelect(arg => block.Graph.GetValueType(arg));
 
-            var conditionISpec = block.Graph.GetValueType(condition).GetIntegerSpecOrNull();
+            var conditionType = block.Graph.GetValueType(condition);
+            var conditionISpec = conditionType.GetIntegerSpecOrNull();
             Constant falseConstant;
             if (conditionISpec == null)
             {
@@ -416,7 +417,7 @@ namespace Flame.Clr
             }
 
             block.Flow = new SwitchFlow(
-                Instruction.CreateCopy(block.Graph.GetValueType(condition), condition),
+                Instruction.CreateCopy(conditionType, condition),
                 ImmutableList.Create(
                     new SwitchCase(
                         ImmutableHashSet.Create<Constant>(falseConstant),
@@ -527,6 +528,15 @@ namespace Flame.Clr
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
                     block,
                     stackContents);
+            }
+
+            IEnumerable<Mono.Cecil.Cil.Instruction> simplifiedSeq;
+            if (ClrInstructionSimplifier.TrySimplify(instruction, out simplifiedSeq))
+            {
+                foreach (var instr in simplifiedSeq)
+                {
+                    AnalyzeInstruction(instr, block, stackContents);
+                }
             }
             else
             {
