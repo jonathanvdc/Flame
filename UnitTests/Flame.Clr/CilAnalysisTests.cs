@@ -264,6 +264,94 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeBrtrue()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0), #param(System::Int32, param_1)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+        param_1_slot = alloca(System::Int32)();
+        val_1 = store(System::Int32)(param_1_slot, param_1);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_2 = load(System::Int32)(param_0_slot);
+        val_3 = load(System::Int32)(param_1_slot);
+    }, #switch(copy(System::Int32)(val_3), block_1(val_2), {
+        #case(#(0), block_0(val_2));
+    }));
+    #block(block_1, #(#param(System::Int32, IL_0000_stackarg_0)), {
+        val_4 = load(System::Int32)(param_1_slot);
+    }, #return(copy(System::Int32)(val_4)));
+    #block(block_0, #(#param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_5)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32,
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Nop);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brtrue, target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
+        [Test]
+        public void AnalyzeBrfalse()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0), #param(System::Int32, param_1)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+        param_1_slot = alloca(System::Int32)();
+        val_1 = store(System::Int32)(param_1_slot, param_1);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_2 = load(System::Int32)(param_0_slot);
+        val_3 = load(System::Int32)(param_1_slot);
+    }, #switch(copy(System::Int32)(val_3), block_1(val_2), {
+        #case(#(0), block_0(val_2));
+    }));
+    #block(block_0, #(#param(System::Int32, IL_0000_stackarg_0)), {
+        val_4 = load(System::Int32)(param_1_slot);
+    }, #return(copy(System::Int32)(val_4)));
+    #block(block_1, #(#param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_5)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32,
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Nop);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
