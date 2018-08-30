@@ -531,6 +531,31 @@ namespace Flame.Clr
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Call
+                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt)
+            {
+                var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
+                var method = Assembly.Resolve(methodRef);
+                var args = new List<ValueTag>();
+                if (!method.IsStatic)
+                {
+                    args.Add(stackContents.Pop());
+                }
+                for (int i = 0; i < method.Parameters.Count; i++)
+                {
+                    args.Add(stackContents.Pop());
+                }
+                args.Reverse();
+                PushValue(
+                    Instruction.CreateCall(
+                        method,
+                        instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
+                            ? MethodLookup.Virtual
+                            : MethodLookup.Static,
+                        args),
+                    block,
+                    stackContents);
+            }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, out simplifiedSeq))
             {
                 foreach (var instr in simplifiedSeq)
@@ -648,7 +673,8 @@ namespace Flame.Clr
             foreach (var local in cilMethodBody.Variables)
             {
                 var alloca = entryPoint.AppendInstruction(
-                    AllocaPrototype.Create(Assembly.Resolve(local.VariableType))
+                    AllocaPrototype.Create(
+                        TypeHelpers.BoxIfReferenceType(Assembly.Resolve(local.VariableType)))
                         .Instantiate(),
                     new ValueTag("local_" + local.Index + "_slot"));
 
