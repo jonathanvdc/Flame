@@ -215,7 +215,7 @@ namespace Flame.Clr
             while (true)
             {
                 // Analyze the current instruction.
-                AnalyzeInstruction(currentInstruction, block, stackContents);
+                AnalyzeInstruction(currentInstruction, currentInstruction.Next, block, stackContents);
                 if (currentInstruction.Next == null ||
                     branchTargets.ContainsKey(currentInstruction.Next))
                 {
@@ -431,10 +431,12 @@ namespace Flame.Clr
 
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
+            Mono.Cecil.Cil.Instruction nextInstruction,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
             string opName;
+            IEnumerable<Mono.Cecil.Cil.Instruction> simplifiedSeq;
             if (signedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
                 EmitSignedArithmeticBinary(opName, block, stackContents);
@@ -516,7 +518,7 @@ namespace Flame.Clr
                 EmitConditionalBranch(
                     stackContents.Pop(),
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
-                    instruction.Next,
+                    nextInstruction,
                     block,
                     stackContents);
             }
@@ -524,18 +526,16 @@ namespace Flame.Clr
             {
                 EmitConditionalBranch(
                     stackContents.Pop(),
-                    instruction.Next,
+                    nextInstruction,
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
                     block,
                     stackContents);
             }
-
-            IEnumerable<Mono.Cecil.Cil.Instruction> simplifiedSeq;
-            if (ClrInstructionSimplifier.TrySimplify(instruction, out simplifiedSeq))
+            else if (ClrInstructionSimplifier.TrySimplify(instruction, out simplifiedSeq))
             {
                 foreach (var instr in simplifiedSeq)
                 {
-                    AnalyzeInstruction(instr, block, stackContents);
+                    AnalyzeInstruction(instr, nextInstruction, block, stackContents);
                 }
             }
             else
