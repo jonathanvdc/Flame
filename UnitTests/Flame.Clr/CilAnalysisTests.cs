@@ -401,6 +401,47 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeCall()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(#pointer(System::String, box), param_0), #param(#pointer(System::String, box), param_1)), {
+        param_0_slot = alloca(#pointer(System::String, box))();
+        val_0 = store(#pointer(System::String, box))(param_0_slot, param_0);
+        param_1_slot = alloca(#pointer(System::String, box))();
+        val_1 = store(#pointer(System::String, box))(param_1_slot, param_1);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_2 = load(#pointer(System::String, box))(param_0_slot);
+        val_3 = load(#pointer(System::String, box))(param_1_slot);
+        val_4 = call(@'::(System, String).Concat(#pointer(System::String, box), #pointer(System::String, box)) => #pointer(System::String, box), static)(val_2, val_3);
+    }, #return(copy(#pointer(System::String, box))(val_4)));
+};";
+            var stringType = corlib.Definition.MainModule.TypeSystem.String;
+
+            AnalyzeStaticMethodBody(
+                stringType,
+                new[] { stringType, stringType },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(
+                        Mono.Cecil.Cil.OpCodes.Call,
+                        stringType
+                            .Resolve()
+                            .Methods
+                            .First(method =>
+                                method.Parameters.Count == 2
+                                && method.Parameters[0].ParameterType == stringType
+                                && method.Parameters[1].ParameterType == stringType));
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
@@ -447,10 +488,10 @@ namespace UnitTests.Flame.Clr
 
             var irBody = ClrMethodBodyAnalyzer.Analyze(
                 cilBody,
-                new Parameter(corlib.Resolve(returnType)),
+                new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(returnType))),
                 default(Parameter),
                 parameterTypes
-                    .Select((type, i) => new Parameter(corlib.Resolve(type), "param_" + i))
+                    .Select((type, i) => new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(type)), "param_" + i))
                     .ToArray(),
                 corlib);
 
