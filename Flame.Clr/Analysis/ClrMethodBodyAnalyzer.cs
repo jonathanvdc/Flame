@@ -144,12 +144,6 @@ namespace Flame.Clr.Analysis
                 parameters,
                 assembly);
 
-            // Simplify macros so we don't have to deal with as many
-            // instructions.
-            // FIXME: this modifies `cilMethodBody` in place, which is
-            // arguably bad.
-            Mono.Cecil.Rocks.MethodBodyRocks.SimplifyMacros(cilMethodBody);
-
             // Analyze branch targets so we'll know which instructions
             // belong to which basic blocks.
             analyzer.AnalyzeBranchTargets(cilMethodBody);
@@ -164,7 +158,8 @@ namespace Flame.Clr.Analysis
                 // entry point block.
                 analyzer.AnalyzeBlock(
                     cilMethodBody.Instructions[0],
-                    EmptyArray<IType>.Value);
+                    EmptyArray<IType>.Value,
+                    cilMethodBody);
             }
 
             return new MethodBody(
@@ -176,7 +171,8 @@ namespace Flame.Clr.Analysis
 
         private BasicBlockTag AnalyzeBlock(
             Mono.Cecil.Cil.Instruction firstInstruction,
-            IReadOnlyList<IType> argumentTypes)
+            IReadOnlyList<IType> argumentTypes,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             // Mark the block as analyzed so we don't analyze it
             // ever again. Be sure to check that the types of
@@ -215,7 +211,12 @@ namespace Flame.Clr.Analysis
             while (true)
             {
                 // Analyze the current instruction.
-                AnalyzeInstruction(currentInstruction, currentInstruction.Next, block, stackContents);
+                AnalyzeInstruction(
+                    currentInstruction,
+                    currentInstruction.Next,
+                    cilMethodBody,
+                    block,
+                    stackContents);
                 if (currentInstruction.Next == null ||
                     branchTargets.ContainsKey(currentInstruction.Next))
                 {
@@ -398,6 +399,7 @@ namespace Flame.Clr.Analysis
             ValueTag condition,
             Mono.Cecil.Cil.Instruction ifInstruction,
             Mono.Cecil.Cil.Instruction falseInstruction,
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
@@ -422,16 +424,17 @@ namespace Flame.Clr.Analysis
                     new SwitchCase(
                         ImmutableHashSet.Create<Constant>(falseConstant),
                         new Branch(
-                            AnalyzeBlock(falseInstruction, branchTypes),
+                            AnalyzeBlock(falseInstruction, branchTypes, cilMethodBody),
                             args))),
                 new Branch(
-                    AnalyzeBlock(ifInstruction, branchTypes),
+                    AnalyzeBlock(ifInstruction, branchTypes, cilMethodBody),
                     args));
         }
 
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             Mono.Cecil.Cil.Instruction nextInstruction,
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
@@ -510,7 +513,8 @@ namespace Flame.Clr.Analysis
                 block.Flow = new JumpFlow(
                     AnalyzeBlock(
                         (Mono.Cecil.Cil.Instruction)instruction.Operand,
-                        args.EagerSelect(arg => block.Graph.GetValueType(arg))),
+                        args.EagerSelect(arg => block.Graph.GetValueType(arg)),
+                        cilMethodBody),
                     args);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
@@ -519,6 +523,7 @@ namespace Flame.Clr.Analysis
                     stackContents.Pop(),
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
                     nextInstruction,
+                    cilMethodBody,
                     block,
                     stackContents);
             }
@@ -528,6 +533,7 @@ namespace Flame.Clr.Analysis
                     stackContents.Pop(),
                     nextInstruction,
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                    cilMethodBody,
                     block,
                     stackContents);
             }
@@ -556,11 +562,11 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
-            else if (ClrInstructionSimplifier.TrySimplify(instruction, out simplifiedSeq))
+            else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
                 foreach (var instr in simplifiedSeq)
                 {
-                    AnalyzeInstruction(instr, nextInstruction, block, stackContents);
+                    AnalyzeInstruction(instr, nextInstruction, cilMethodBody, block, stackContents);
                 }
             }
             else
