@@ -51,6 +51,10 @@
     <Compile Include="MethodBody.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
+    <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
+    <Compile Include="Analysis\FlowGraphUpdate.cs" />
+    <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
+    <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />
@@ -91,6 +95,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Analysis\" />
     <Folder Include="Constants\" />
     <Folder Include="Flow\" />
     <Folder Include="Instructions\" />

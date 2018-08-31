@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System;
 using Flame.TypeSystem;
 using System.Linq;
+using Flame.Compiler.Analysis;
 
 namespace Flame.Compiler
 {
@@ -23,6 +24,7 @@ namespace Flame.Compiler
             this.blocks = ImmutableOrderedDictionary.Create<BasicBlockTag, BasicBlockData>();
             this.blockParamTypes = ImmutableDictionary.Create<ValueTag, IType>();
             this.valueParents = ImmutableDictionary.Create<ValueTag, BasicBlockTag>();
+            this.analysisCache = new MacroAnalysisCache();
             this.EntryPointTag = new BasicBlockTag("entry-point");
             this.blocks = this.blocks.SetItem(
                 this.EntryPointTag,
@@ -37,12 +39,14 @@ namespace Flame.Compiler
             this.blockParamTypes = other.blockParamTypes;
             this.valueParents = other.valueParents;
             this.EntryPointTag = other.EntryPointTag;
+            this.analysisCache = other.analysisCache;
         }
 
         private ImmutableDictionary<ValueTag, Instruction> instructions;
         private ImmutableOrderedDictionary<BasicBlockTag, BasicBlockData> blocks;
         private ImmutableDictionary<ValueTag, IType> blockParamTypes;
         private ImmutableDictionary<ValueTag, BasicBlockTag> valueParents;
+        private MacroAnalysisCache analysisCache;
 
         /// <summary>
         /// Gets the tag of the entry point block.
