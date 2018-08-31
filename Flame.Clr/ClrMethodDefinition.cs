@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Clr.Analysis;
 using Flame.Collections;
 using Flame.Compiler;
 using Flame.TypeSystem;

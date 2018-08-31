@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Mono.Cecil.Cil;
 
-namespace Flame.Clr
+namespace Flame.Clr.Analysis
 {
     using Rewriter = Func<Instruction, IEnumerable<Instruction>>;
 

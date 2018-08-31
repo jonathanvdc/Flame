@@ -50,8 +50,6 @@
     <Compile Include="ClrAssembly.cs" />
     <Compile Include="ClrFieldDefinition.cs" />
     <Compile Include="ClrGenericParameter.cs" />
-    <Compile Include="ClrInstructionSimplifier.cs" />
-    <Compile Include="ClrMethodBodyAnalyzer.cs" />
     <Compile Include="ClrMethodDefinition.cs" />
     <Compile Include="ClrMethodSignature.cs" />
     <Compile Include="ClrPropertyDefinition.cs" />
@@ -61,6 +59,8 @@
     <Compile Include="NameConversion.cs" />
     <Compile Include="ReferenceResolver.cs" />
     <Compile Include="TypeHelpers.cs" />
+    <Compile Include="Analysis\ClrInstructionSimplifier.cs" />
+    <Compile Include="Analysis\ClrMethodBodyAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

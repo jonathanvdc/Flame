@@ -9,7 +9,7 @@ using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
 
-namespace Flame.Clr
+namespace Flame.Clr.Analysis
 {
     /// <summary>
     /// A data structure that analyzes CIL instructions

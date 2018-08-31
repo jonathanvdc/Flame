@@ -11,6 +11,7 @@ using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
 using Pixie.Markup;
+using Flame.Clr.Analysis;
 
 namespace UnitTests.Flame.Clr
 {
