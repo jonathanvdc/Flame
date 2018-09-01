@@ -70,6 +70,125 @@ namespace Flame.Compiler.Analysis
             return new MacroAnalysisCache(newCaches, cacheIndices, cacheRefCounts);
         }
 
+        /// <summary>
+        /// Creates a new analysis cache that incorporates a particular
+        /// analysis.
+        /// </summary>
+        /// <param name="analysis">
+        /// The analysis to include in the new analysis cache.
+        /// </param>
+        /// <typeparam name="T">
+        /// The result type of the analysis.
+        /// </typeparam>
+        /// <returns>
+        /// A new analysis cache.
+        /// </returns>
+        public MacroAnalysisCache WithAnalysis<T>(IFlowGraphAnalysis<T> analysis)
+        {
+            // Figure out which types the analysis is assignable to.
+            var resultTypes = GetAssignableTypes(typeof(T));
+
+            // Decrement reference counts for those types and maintain
+            // a list of all cache indices with a reference count of zero.
+            var cacheRefCountsBuilder = cacheRefCounts.ToBuilder();
+
+            var danglingCaches = new List<int>();
+            foreach (var type in resultTypes)
+            {
+                int cacheIndex;
+                if (cacheIndices.TryGetValue(type, out cacheIndex))
+                {
+                    int refCount = cacheRefCountsBuilder[cacheIndex];
+                    refCount--;
+                    cacheRefCountsBuilder[cacheIndex] = refCount;
+                    if (refCount == 0)
+                    {
+                        danglingCaches.Add(cacheIndex);
+                    }
+                }
+            }
+
+            // The next thing we want to do is insert the new analysis cache
+            // and maybe do some cleanup if we really have to.
+            int newCacheIndex;
+            var newCaches = new List<FlowGraphAnalysisCache>(distinctCaches);
+            var cache = new FlowGraphAnalysisCache<T>(analysis);
+
+            var cacheIndicesBuilder = cacheIndices.ToBuilder();
+
+            int danglingCacheCount = danglingCaches.Count;
+            if (danglingCacheCount > 0)
+            {
+                // If at least one cache has become a dangling cache, then
+                // we can replace it with the new analysis' cache.
+                newCacheIndex = danglingCaches[danglingCacheCount - 1];
+                newCaches[newCacheIndex] = cache;
+                danglingCaches.RemoveAt(danglingCacheCount - 1);
+                danglingCacheCount--;
+
+                // If we have more than one dangling cache, then we'll have to
+                // delete all but one of them (one gets overwritten) and rewrite
+                // all indices into the cache list.
+                //
+                // That's pretty expensive, but it should also be very rare.
+                if (danglingCacheCount > 0)
+                {
+                    // Efficiently delete all dangling caches from the list
+                    // of caches and also construct a mapping of old indices
+                    // to new indices.
+                    var indexRemapping = new int[newCaches.Count];
+                    var newCacheList = new List<FlowGraphAnalysisCache>();
+                    var danglingCacheSet = new HashSet<int>(danglingCaches);
+                    int newIndex = 0;
+                    for (int i = 0; i < newCaches.Count; i++)
+                    {
+                        indexRemapping[i] = newIndex;
+                        if (!danglingCacheSet.Contains(i))
+                        {
+                            newIndex++;
+                            newCacheList.Add(newCaches[i]);
+                        }
+                    }
+                    newCaches = newCacheList;
+
+                    // Rewrite indices into the cache list.
+                    foreach (var pair in cacheIndices)
+                    {
+                        cacheIndicesBuilder[pair.Key] = indexRemapping[pair.Value];
+                    }
+
+                    // Rewrite reference counts.
+                    var newRefCountsBuilder = cacheRefCountsBuilder.ToImmutable().ToBuilder();
+                    foreach (var pair in cacheRefCountsBuilder)
+                    {
+                        if (!danglingCacheSet.Contains(pair.Key))
+                        {
+                            newRefCountsBuilder[indexRemapping[pair.Key]] = pair.Value;
+                        }
+                    }
+                    cacheRefCountsBuilder = newRefCountsBuilder;
+                }
+            }
+            else
+            {
+                // Otherwise, just add the new cache to the list.
+                newCacheIndex = newCaches.Count;
+                newCaches.Add(cache);
+            }
+
+            // Update the type-to-cache-index dictionary and increment
+            // the new cache's reference count.
+            foreach (var type in resultTypes)
+            {
+                cacheIndicesBuilder[type] = newCacheIndex;
+            }
+            cacheRefCountsBuilder[newCacheIndex] = resultTypes.Count;
+
+            return new MacroAnalysisCache(
+                newCaches,
+                cacheIndicesBuilder.ToImmutable(),
+                cacheRefCountsBuilder.ToImmutable());
+        }
 
         /// <summary>
         /// Tries to get an analysis result of a particular type.
@@ -143,6 +262,36 @@ namespace Flame.Compiler.Analysis
         public bool HasAnalysisFor<T>()
         {
             return cacheIndices.ContainsKey(typeof(T));
+        }
+
+        /// <summary>
+        /// Gets the set of all types to which a particular type is assignable.
+        /// </summary>
+        /// <param name="rootType">The root type to start at.</param>
+        /// <returns>A set of types.</returns>
+        private static HashSet<Type> GetAssignableTypes(Type rootType)
+        {
+            // Construct the set of all types inherited from and implemented by
+            // the root type using a worklist-driven algorithm.
+            var resultTypes = new HashSet<Type>();
+            var typeWorklist = new Queue<Type>();
+            typeWorklist.Enqueue(rootType);
+            while (typeWorklist.Count > 0)
+            {
+                var type = typeWorklist.Dequeue();
+                if (resultTypes.Add(type))
+                {
+                    if (type.BaseType != null)
+                    {
+                        typeWorklist.Enqueue(type.BaseType);
+                    }
+                    foreach (var item in type.GetInterfaces())
+                    {
+                        typeWorklist.Enqueue(item);
+                    }
+                }
+            }
+            return resultTypes;
         }
     }
 }
