@@ -121,7 +121,8 @@ namespace UnitTests
         public static int FlameCompiler()
         {
             return RunTests.RunMany(
-                new ArithmeticIntrinsicsTest());
+                new ArithmeticIntrinsicsTests(),
+                new FlowGraphAnalysisTests());
         }
 
         public static int FlameIr()

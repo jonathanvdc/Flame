@@ -4,7 +4,7 @@ using static Flame.Compiler.Instructions.ArithmeticIntrinsics;
 namespace UnitTests.Flame.Compiler
 {
     [TestFixture]
-    public class ArithmeticIntrinsicsTest
+    public class ArithmeticIntrinsicsTests
     {
         [Test]
         public void FormatArithmeticIntrinsicNames()
