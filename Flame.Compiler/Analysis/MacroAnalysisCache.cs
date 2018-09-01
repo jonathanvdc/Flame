@@ -63,7 +63,7 @@ namespace Flame.Compiler.Analysis
         public MacroAnalysisCache Update(FlowGraphUpdate update)
         {
             var newCaches = new List<FlowGraphAnalysisCache>();
-            foreach (var cache in newCaches)
+            foreach (var cache in distinctCaches)
             {
                 newCaches.Add(cache.Update(update));
             }
