@@ -100,6 +100,40 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Tries to get an analysis result of a particular type.
+        /// </summary>
+        /// <param name="result">
+        /// The analysis result, if one can be fetched or computed.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of analysis result to fetch or compute.
+        /// </typeparam>
+        /// <returns>
+        /// <c>true</c> if there is an analyzer to compute the result;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool TryGetAnalysisResult<T>(out T result)
+        {
+            return ImmutableGraph.TryGetAnalysisResult<T>(out result);
+        }
+
+        /// <summary>
+        /// Tells if this flow graph has an analysis that produces
+        /// a particular type of result.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result that is sought.
+        /// </typeparam>
+        /// <returns>
+        /// <c>true</c> if a registered analysis produces a result of type <c>T</c>;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public bool HasAnalysisFor<T>()
+        {
+            return ImmutableGraph.HasAnalysisFor<T>();
+        }
+
+        /// <summary>
         /// Adds an empty basic block to this flow-graph builder.
         /// </summary>
         /// <param name="name">The (preferred) name of the basic block's tag.</param>
