@@ -88,5 +88,21 @@ namespace UnitTests.Flame.Compiler
             Assert.AreEqual(graph.GetAnalysisResult<int>(), 42);
             Assert.AreEqual((string)graph.GetAnalysisResult<object>(), "Oh hi Mark");
         }
+
+        [Test]
+        public void AnalysisWithUpdates()
+        {
+            // Create a graph.
+            var graph = new FlowGraphBuilder();
+            // Register analyses.
+            graph.AddAnalysis(new ConstantAnalysis<int>(42));
+            graph.AddAnalysis(new ConstantAnalysis<object>("Oh hi Mark"));
+            // Update the graph.
+            var block = graph.AddBasicBlock();
+            graph.EntryPointTag = block.Tag;
+            // Get analysis results.
+            Assert.AreEqual(graph.GetAnalysisResult<int>(), 42);
+            Assert.AreEqual((string)graph.GetAnalysisResult<object>(), "Oh hi Mark");
+        }
     }
 }
