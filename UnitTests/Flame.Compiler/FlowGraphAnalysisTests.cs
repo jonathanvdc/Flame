@@ -59,7 +59,7 @@ namespace UnitTests.Flame.Compiler
         }
 
         [Test]
-        public void AnalysisDisjointTypes()
+        public void AnalysisWithDisjointTypes()
         {
             var graph = new FlowGraph();
             graph = graph.WithAnalysis(new ConstantAnalysis<int>(42));
@@ -77,6 +77,16 @@ namespace UnitTests.Flame.Compiler
             graph = graph.WithAnalysis(new ConstantAnalysis<int>(7));
             Assert.AreEqual(graph.GetAnalysisResult<int>(), 7);
             Assert.AreEqual((int)graph.GetAnalysisResult<object>(), 7);
+        }
+
+        [Test]
+        public void AnalysisWithOverlappingTypes()
+        {
+            var graph = new FlowGraph();
+            graph = graph.WithAnalysis(new ConstantAnalysis<int>(42));
+            graph = graph.WithAnalysis(new ConstantAnalysis<object>("Oh hi Mark"));
+            Assert.AreEqual(graph.GetAnalysisResult<int>(), 42);
+            Assert.AreEqual((string)graph.GetAnalysisResult<object>(), "Oh hi Mark");
         }
     }
 }
