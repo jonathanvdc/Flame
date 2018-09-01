@@ -148,9 +148,11 @@ namespace Flame.Compiler.Analysis
                 }
 
                 // Okay, guess we'll compute it ourselves then.
-                cachedResult = new Box<T>();
                 var result = ComputeResult(graph);
-                cachedResult.value = result;
+                cachedResult = new Box<T>
+                {
+                    value = result
+                };
 
                 // Set the parent cache to `null` so we don't create
                 // a memory leak for no good reason.
