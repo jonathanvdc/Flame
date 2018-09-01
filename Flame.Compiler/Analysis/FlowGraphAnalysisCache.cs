@@ -151,6 +151,10 @@ namespace Flame.Compiler.Analysis
                 cachedResult = new Box<T>();
                 var result = ComputeResult(graph);
                 cachedResult.value = result;
+
+                // Set the parent cache to `null` so we don't create
+                // a memory leak for no good reason.
+                parentCache = null;
                 return result;
             }
             finally
@@ -194,7 +198,7 @@ namespace Flame.Compiler.Analysis
                 updatesSinceResult.Add(ancestor.update);
                 ancestor = ancestor.parentCache;
             }
-            
+
             if (oldResult == null)
             {
                 // No parent cache has computed a result yet.
@@ -208,7 +212,7 @@ namespace Flame.Compiler.Analysis
                 updatesSinceResult.Reverse();
 
                 // We have a stale result. Maybe the analysis can
-                // update it. Or maybe it'll just compute the analyis
+                // update it. Or maybe it'll just compute the analysis
                 // from scratch. Either way, our job here is done.
                 // A simple call to `AnalyzeWithUpdates` will suffice.
                 return analysis.AnalyzeWithUpdates(graph, oldResult.value, updatesSinceResult);

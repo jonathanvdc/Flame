@@ -42,6 +42,14 @@ namespace Flame.Compiler
             this.analysisCache = other.analysisCache;
         }
 
+        private FlowGraph(
+            FlowGraph other,
+            FlowGraphUpdate update)
+            : this(other)
+        {
+            this.analysisCache = other.analysisCache.Update(update);
+        }
+
         private ImmutableDictionary<ValueTag, Instruction> instructions;
         private ImmutableOrderedDictionary<BasicBlockTag, BasicBlockData> blocks;
         private ImmutableDictionary<ValueTag, IType> blockParamTypes;
@@ -80,6 +88,37 @@ namespace Flame.Compiler
             InstructionTags.Select(GetInstruction);
 
         /// <summary>
+        /// Registers an analysis on this flow graph.
+        /// </summary>
+        /// <param name="analysis">The analysis to register.</param>
+        /// <typeparam name="T">
+        /// The type of result produced by the analysis.
+        /// </typeparam>
+        /// <returns>
+        /// A new flow graph that includes the analysis.
+        /// </returns>
+        public FlowGraph WithAnalysis<T>(IFlowGraphAnalysis<T> analysis)
+        {
+            var newGraph = new FlowGraph(this);
+            newGraph.analysisCache = analysisCache.WithAnalysis<T>(analysis);
+            return newGraph;
+        }
+
+        /// <summary>
+        /// Gets an analysis result based on its type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result to fetch or compute.
+        /// </typeparam>
+        /// <returns>
+        /// An analysis result.
+        /// </returns>
+        public T GetAnalysisResult<T>()
+        {
+            return analysisCache.GetResultAs<T>(this);
+        }
+
+        /// <summary>
         /// Creates a new basic block that includes all basic blocks in this
         /// graph plus an empty basic block. The latter basic block is returned.
         /// </summary>
@@ -90,7 +129,7 @@ namespace Flame.Compiler
             var tag = new BasicBlockTag(name);
             var data = new BasicBlockData();
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new AddBasicBlockUpdate(tag));
             newGraph.blocks = newGraph.blocks.Add(tag, data);
             return new BasicBlock(newGraph, tag, data);
         }
@@ -117,7 +156,7 @@ namespace Flame.Compiler
         {
             AssertContainsBasicBlock(tag);
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new RemoveBasicBlockUpdate(tag));
 
             var oldData = blocks[tag];
             var oldParams = oldData.Parameters;
@@ -162,7 +201,7 @@ namespace Flame.Compiler
                 oldBlockData.InstructionTags.Remove(instructionTag),
                 oldBlockData.Flow);
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new RemoveInstructionUpdate(instructionTag));
             newGraph.blocks = newGraph.blocks.SetItem(parentTag, newBlockData);
             newGraph.instructions = newGraph.instructions.Remove(instructionTag);
             newGraph.valueParents = newGraph.valueParents.Remove(instructionTag);
@@ -178,7 +217,7 @@ namespace Flame.Compiler
         public FlowGraph WithEntryPoint(BasicBlockTag tag)
         {
             AssertContainsBasicBlock(tag);
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new SetEntryPointUpdate(tag));
             newGraph.EntryPointTag = tag;
             return newGraph;
         }
@@ -454,7 +493,7 @@ namespace Flame.Compiler
                 }
             }
 
-            var result = new FlowGraph(this);
+            var result = new FlowGraph(this, new MapMembersUpdate(mapping));
             result.instructions = newInstructionMap.ToImmutable();
             result.blocks = newBlockMap.ToImmutable();
             result.blockParamTypes = newParamTypeMap.ToImmutable();
@@ -471,7 +510,7 @@ namespace Flame.Compiler
                 oldBlock.InstructionTags,
                 flow);
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new BasicBlockFlowUpdate(tag));
             newGraph.blocks = newGraph.blocks.SetItem(tag, newData);
 
             return new BasicBlock(newGraph, tag, newData);
@@ -492,7 +531,7 @@ namespace Flame.Compiler
             var oldData = blocks[tag];
             var oldParams = oldData.Parameters;
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new BasicBlockParametersUpdate(tag));
 
             var paramTypeBuilder = newGraph.blockParamTypes.ToBuilder();
             var valueParentBuilder = newGraph.valueParents.ToBuilder();
@@ -543,7 +582,7 @@ namespace Flame.Compiler
                 oldBlockData.InstructionTags.Insert(index, insnTag),
                 oldBlockData.Flow);
 
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new AddInstructionUpdate(insnTag));
             newGraph.blocks = newGraph.blocks.SetItem(blockTag, newBlockData);
             newGraph.instructions = newGraph.instructions.Add(insnTag, instruction);
             newGraph.valueParents = newGraph.valueParents.Add(insnTag, blockTag);
@@ -556,7 +595,7 @@ namespace Flame.Compiler
 
         internal SelectedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)
         {
-            var newGraph = new FlowGraph(this);
+            var newGraph = new FlowGraph(this, new ReplaceInstructionUpdate(tag));
             newGraph.instructions = newGraph.instructions.Add(tag, instruction);
             return new SelectedInstruction(
                 newGraph.GetValueParent(tag),

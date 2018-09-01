@@ -36,7 +36,7 @@ namespace Flame.Compiler.Analysis
 
         /// <summary>
         /// A mapping of types to the analysis caches that
-        /// perform analyses for those types. The analyis
+        /// perform analyses for those types. The analysis
         /// caches are encoded as indices into the
         /// `distinctCaches` list.
         /// </summary>
