@@ -55,6 +55,7 @@
     <Compile Include="Analysis\FlowGraphUpdate.cs" />
     <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
+    <Compile Include="Analysis\PredecessorAnalysis.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />
