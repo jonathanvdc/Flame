@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Compiler.Analysis;
 
 namespace Flame.Compiler
 {
@@ -71,6 +72,32 @@ namespace Flame.Compiler
         /// <returns>All instructions.</returns>
         public IEnumerable<InstructionBuilder> Instructions =>
             InstructionTags.Select(GetInstruction);
+
+        /// <summary>
+        /// Registers a flow graph analysis with this graph.
+        /// </summary>
+        /// <param name="analysis">The analysis to register.</param>
+        /// <typeparam name="T">
+        /// The type of result produced by the analysis.
+        /// </typeparam>
+        public void AddAnalysis<T>(IFlowGraphAnalysis<T> analysis)
+        {
+            ImmutableGraph = ImmutableGraph.WithAnalysis<T>(analysis);
+        }
+
+        /// <summary>
+        /// Gets an analysis result based on its type.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result to fetch or compute.
+        /// </typeparam>
+        /// <returns>
+        /// An analysis result.
+        /// </returns>
+        public T GetAnalysisResult<T>()
+        {
+            return ImmutableGraph.GetAnalysisResult<T>();
+        }
 
         /// <summary>
         /// Adds an empty basic block to this flow-graph builder.
