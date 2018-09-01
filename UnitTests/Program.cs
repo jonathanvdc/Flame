@@ -122,7 +122,8 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new ArithmeticIntrinsicsTests(),
-                new FlowGraphAnalysisTests());
+                new FlowGraphAnalysisTests(),
+                new PredecessorAnalysisTests());
         }
 
         public static int FlameIr()

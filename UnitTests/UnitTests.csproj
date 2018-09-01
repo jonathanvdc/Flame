@@ -92,6 +92,7 @@
     <Compile Include="Flame.Clr\TypeAttributeTests.cs" />
     <Compile Include="Flame.Compiler\ArithmeticIntrinsicsTests.cs" />
     <Compile Include="Flame.Compiler\FlowGraphAnalysisTests.cs" />
+    <Compile Include="Flame.Compiler\PredecessorAnalysisTests.cs" />
     <Compile Include="Flame.Ir\AssemblyCodecTest.cs" />
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
     <Compile Include="Flame.Ir\PiecewiseCodecTest.cs" />
