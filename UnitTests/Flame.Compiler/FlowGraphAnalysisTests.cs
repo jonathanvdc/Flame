@@ -25,7 +25,7 @@ namespace UnitTests.Flame.Compiler
 
             public T AnalyzeWithUpdates(FlowGraph graph, T previousResult, IReadOnlyList<FlowGraphUpdate> updates)
             {
-                return Result;
+                return previousResult;
             }
         }
 
@@ -97,10 +97,13 @@ namespace UnitTests.Flame.Compiler
             // Register analyses.
             graph.AddAnalysis(new ConstantAnalysis<int>(42));
             graph.AddAnalysis(new ConstantAnalysis<object>("Oh hi Mark"));
+            // Get analysis results.
+            Assert.AreEqual(graph.GetAnalysisResult<int>(), 42);
+            Assert.AreEqual((string)graph.GetAnalysisResult<object>(), "Oh hi Mark");
             // Update the graph.
             var block = graph.AddBasicBlock();
             graph.EntryPointTag = block.Tag;
-            // Get analysis results.
+            // Get analysis results again.
             Assert.AreEqual(graph.GetAnalysisResult<int>(), 42);
             Assert.AreEqual((string)graph.GetAnalysisResult<object>(), "Oh hi Mark");
         }
