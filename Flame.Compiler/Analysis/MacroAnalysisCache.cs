@@ -150,6 +150,7 @@ namespace Flame.Compiler.Analysis
                         }
                     }
                     newCaches = newCacheList;
+                    newCacheIndex = indexRemapping [newCacheIndex];
 
                     // Rewrite indices into the cache list.
                     foreach (var pair in cacheIndices)
@@ -158,7 +159,7 @@ namespace Flame.Compiler.Analysis
                     }
 
                     // Rewrite reference counts.
-                    var newRefCountsBuilder = cacheRefCountsBuilder.ToImmutable().ToBuilder();
+                    var newRefCountsBuilder = ImmutableDictionary.CreateBuilder<int, int>();
                     foreach (var pair in cacheRefCountsBuilder)
                     {
                         if (!danglingCacheSet.Contains(pair.Key))
