@@ -436,6 +436,7 @@ namespace UnitTests.Flame.Clr
                             .Methods
                             .First(method =>
                                 method.Parameters.Count == 2
+                                && method.Name == "Concat"
                                 && method.Parameters[0].ParameterType == stringType
                                 && method.Parameters[1].ParameterType == stringType));
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
