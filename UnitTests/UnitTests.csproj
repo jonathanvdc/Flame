@@ -81,6 +81,7 @@
     <Compile Include="Flame\IntegerConstantTests.cs" />
     <Compile Include="Flame\QualifiedNameTests.cs" />
     <Compile Include="Flame\SmallMultiDictionaryTests.cs" />
+    <Compile Include="Flame\SymmetricRelationTests.cs" />
     <Compile Include="Flame\TestAssemblyContainer.cs" />
     <Compile Include="Flame\TypeConstructionTests.cs" />
     <Compile Include="Flame\TypeResolverTests.cs" />

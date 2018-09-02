@@ -103,6 +103,7 @@ namespace UnitTests
                 new IntegerConstantTests(),
                 new QualifiedNameTests(),
                 new SmallMultiDictionaryTests(),
+                new SymmetricRelationTests(),
                 new TypeConstructionTests(globalRng),
                 new TypeResolverTests(),
                 new ValueListTests());
