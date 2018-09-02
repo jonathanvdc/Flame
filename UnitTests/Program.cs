@@ -124,7 +124,8 @@ namespace UnitTests
             return RunTests.RunMany(
                 new ArithmeticIntrinsicsTests(),
                 new FlowGraphAnalysisTests(),
-                new PredecessorAnalysisTests());
+                new PredecessorAnalysisTests(),
+                new RelatedValueAnalysisTests());
         }
 
         public static int FlameIr()

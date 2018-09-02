@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Flame;
@@ -45,7 +43,7 @@ namespace UnitTests.Flame.Compiler
             // Re-analyze.
             preds = graph.GetAnalysisResult<BasicBlockPredecessors>();
 
-            // Check that new analysis looks alright.
+            // Check that the new analysis looks alright.
             Assert.IsTrue(preds.IsPredecessorOf(graph.EntryPointTag, block1.Tag));
             Assert.IsTrue(preds.IsPredecessorOf(graph.EntryPointTag, block2.Tag));
             Assert.IsTrue(preds.IsPredecessorOf(block2.Tag, block1.Tag));
