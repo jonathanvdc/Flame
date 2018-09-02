@@ -33,7 +33,7 @@ namespace Flame.Compiler.Instructions
             Instruction instance,
             MethodBody body)
         {
-            var inputType = body.Implementation.GetValueType(instance.Arguments[0]);
+            var inputType = body.Implementation.GetValueType(GetCopiedValue(instance));
             if (inputType.Equals(ResultType))
             {
                 return ImmutableList<string>.Empty;
@@ -60,6 +60,19 @@ namespace Flame.Compiler.Instructions
             {
                 return Create(newType);
             }
+        }
+
+        /// <summary>
+        /// Gets the value copied by an instance of this prototype.
+        /// </summary>
+        /// <param name="instruction">
+        /// An instruction that conforms to this prototype.
+        /// </param>
+        /// <returns>The copied value.</returns>
+        public ValueTag GetCopiedValue(Instruction instruction)
+        {
+            AssertIsPrototypeOf(instruction);
+            return instruction.Arguments[0];
         }
 
         /// <summary>
