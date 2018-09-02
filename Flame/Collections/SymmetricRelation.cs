@@ -94,6 +94,16 @@ namespace Flame.Collections
             }
         }
 
+        /// <summary>
+        /// Gets the set of all values related to a particular value.
+        /// </summary>
+        /// <param name="value">The value to examine.</param>
+        /// <returns>The set of all related values.</returns>
+        public IEnumerable<T> GetAll(T value)
+        {
+            return GetSetFor(value);
+        }
+
         private HashSet<T> GetSetFor(T value)
         {
             HashSet<T> valueSet;
