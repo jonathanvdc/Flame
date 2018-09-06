@@ -57,6 +57,7 @@
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
+    <Compile Include="Analysis\ValueUseAnalysis.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />
