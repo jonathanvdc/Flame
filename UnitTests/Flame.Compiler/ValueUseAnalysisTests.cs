@@ -41,6 +41,7 @@ namespace UnitTests.Flame.Compiler
             // Check that the analysis looks alright.
             Assert.IsFalse(uses.GetInstructionUses(zeroConstant.Tag).Contains(exitParam.Tag));
             Assert.IsFalse(uses.GetInstructionUses(exitParam.Tag).Contains(zeroConstant.Tag));
+            Assert.IsTrue(uses.GetFlowUses(zeroConstant.Tag).Contains(entryBlock.Tag));
             Assert.IsFalse(uses.GetFlowUses(zeroConstant.Tag).Contains(exitBlock.Tag));
             Assert.IsTrue(uses.GetInstructionUses(zeroConstant.Tag).Contains(copyInstruction.Tag));
             Assert.IsFalse(uses.GetInstructionUses(copyInstruction.Tag).Contains(zeroConstant.Tag));
