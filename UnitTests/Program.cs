@@ -125,7 +125,8 @@ namespace UnitTests
                 new ArithmeticIntrinsicsTests(),
                 new FlowGraphAnalysisTests(),
                 new PredecessorAnalysisTests(),
-                new RelatedValueAnalysisTests());
+                new RelatedValueAnalysisTests(),
+                new ValueUseAnalysisTests());
         }
 
         public static int FlameIr()
