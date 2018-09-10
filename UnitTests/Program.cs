@@ -124,6 +124,7 @@ namespace UnitTests
             return RunTests.RunMany(
                 new ArithmeticIntrinsicsTests(),
                 new FlowGraphAnalysisTests(),
+                new InterferenceGraphAnalysisTests(),
                 new LivenessAnalysisTests(),
                 new PredecessorAnalysisTests(),
                 new RelatedValueAnalysisTests(),
