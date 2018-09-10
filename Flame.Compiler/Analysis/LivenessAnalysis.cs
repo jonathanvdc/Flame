@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,6 +22,9 @@ namespace Flame.Compiler.Analysis
             this.blockInstructions = new HashSet<ValueTag>(block.InstructionTags);
             this.livePositions = new Dictionary<ValueTag, int>();
             this.deadPositions = new Dictionary<ValueTag, int>();
+            this.ExportIndex = block.InstructionTags.Count
+                + block.Flow.Instructions.Count
+                + block.Flow.Branches.Count;
         }
 
         private BasicBlock block;
@@ -38,7 +42,7 @@ namespace Flame.Compiler.Analysis
         /// <summary>
         /// The index of exported values in the virtual instruction list.
         /// </summary>
-        public const int ExportIndex = int.MaxValue;
+        public int ExportIndex { get; private set; }
 
         /// <summary>
         /// The set of all instruction tags in the block.
@@ -135,6 +139,41 @@ namespace Flame.Compiler.Analysis
         public bool IsDefinedOrImported(ValueTag value)
         {
             return livePositions.ContainsKey(value);
+        }
+
+        /// <summary>
+        /// Gets a mapping of virtual instruction indices to the values that are
+        /// live at those indices.
+        /// </summary>
+        /// <returns>A mapping of virtual instruction indices to live values.</returns>
+        public IReadOnlyDictionary<int, ImmutableHashSet<ValueTag>> GetLiveValuesByIndex()
+        {
+            var liveByIndex = GroupByValue(livePositions);
+            var deadByIndex = GroupByValue(deadPositions);
+
+            var results = new Dictionary<int, ImmutableHashSet<ValueTag>>();
+            var liveSet = ImmutableHashSet.Create<ValueTag>();
+            for (int i = ImportIndex; i <= ExportIndex; i++)
+            {
+                if (liveByIndex.ContainsKey(i))
+                {
+                    liveSet = liveSet.Union(liveByIndex[i]);
+                }
+                if (deadByIndex.ContainsKey(i))
+                {
+                    liveSet = liveSet.Except(deadByIndex[i]);
+                }
+                results[i] = liveSet;
+            }
+            return results;
+        }
+
+        private static Dictionary<TValue, HashSet<TKey>> GroupByValue<TKey, TValue>(
+            IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+        {
+            return pairs
+                .GroupBy(pair => pair.Value, pair => pair.Key)
+                .ToDictionary(group => group.Key, group => new HashSet<TKey>(group));
         }
 
         /// <summary>

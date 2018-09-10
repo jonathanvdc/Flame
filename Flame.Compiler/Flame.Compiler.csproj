@@ -54,6 +54,7 @@
     <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
     <Compile Include="Analysis\FlowGraphUpdate.cs" />
     <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
+    <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />
