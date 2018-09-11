@@ -60,7 +60,7 @@ namespace Flame.Compiler.Analysis
         /// The type of value to create a register for.
         /// </param>
         /// <returns>A register suitable for the value.</returns>
-        public abstract TRegister CreateRegister(IType type);
+        protected abstract TRegister CreateRegister(IType type);
 
         /// <summary>
         /// Tries to recycle a register from a set of registers.
@@ -78,10 +78,37 @@ namespace Flame.Compiler.Analysis
         /// <c>true</c> if a register has been selected for recyling;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public abstract bool TryRecycleRegister(
+        protected abstract bool TryRecycleRegister(
             IType type,
             IEnumerable<TRegister> registers,
             out TRegister result);
+
+        /// <summary>
+        /// Tells if a register should be allocated for a
+        /// particular value.
+        /// </summary>
+        /// <param name="value">
+        /// The value for which register allocation may or may
+        /// not be necessary.
+        /// </param>
+        /// <param name="graph">
+        /// The control flow graph that defines <paramref name="value"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a register must be allocated to
+        /// <paramref name="value"/>; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// Implementations may override this method to suppress
+        /// register allocation for values that are, e.g., stored
+        /// on an evaluation stack.
+        /// </remarks>
+        protected virtual bool RequiresRegister(
+            ValueTag value,
+            FlowGraph graph)
+        {
+            return true;
+        }
 
         /// <inheritdoc/>
         public RegisterAllocation<TRegister> Analyze(
@@ -102,6 +129,11 @@ namespace Flame.Compiler.Analysis
             // Iterate over all values in the graph.
             foreach (var value in graph.ValueTags)
             {
+                if (!RequiresRegister(value, graph))
+                {
+                    continue;
+                }
+
                 // Compose a set of registers we might be able to recycle.
                 // Specifically, we'll look for all registers that are not
                 // allocated to values that interfere with the current value.
