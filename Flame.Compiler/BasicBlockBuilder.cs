@@ -63,6 +63,12 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets a sequence of all parameter tags defined by this basic block.
+        /// </summary>
+        /// <returns>The basic block's parameter tags.</returns>
+        public IEnumerable<ValueTag> ParameterTags => ImmutableBlock.ParameterTags;
+
+        /// <summary>
         /// Gets the list of all instruction tags in this basic block.
         /// </summary>
         /// <returns>The list of all instruction tags.</returns>

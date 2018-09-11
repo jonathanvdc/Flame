@@ -81,6 +81,21 @@ namespace Flame.Compiler
             BasicBlocks.SelectMany(block => block.InstructionTags);
 
         /// <summary>
+        /// Gets a sequence of all parameter tags in this control-flow graph.
+        /// </summary>
+        public IEnumerable<ValueTag> ParameterTags =>
+            BasicBlocks.SelectMany(block => block.ParameterTags);
+
+        /// <summary>
+        /// Gets a sequence of all value tags in this control-flow graph.
+        /// This sequence includes both instruction values and
+        /// basic block parameter values.
+        /// </summary>
+        public IEnumerable<ValueTag> ValueTags =>
+            InstructionTags
+            .Concat(ParameterTags);
+
+        /// <summary>
         /// Gets a sequence of all instructions in this control-flow graph.
         /// </summary>
         /// <returns>All instructions</returns>
