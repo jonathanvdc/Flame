@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler
 {
@@ -33,5 +34,17 @@ namespace Flame.Compiler
         /// <param name="branches">The new branches.</param>
         /// <returns>A new flow.</returns>
         public abstract BlockFlow WithBranches(IReadOnlyList<Branch> branches);
+
+        /// <summary>
+        /// Gets a list of each branch's target.
+        /// </summary>
+        /// <value>A list of branch targets.</value>
+        public IEnumerable<BasicBlockTag> BranchTargets
+        {
+            get
+            {
+                return Branches.Select(branch => branch.Target);
+            }
+        }
     }
 }

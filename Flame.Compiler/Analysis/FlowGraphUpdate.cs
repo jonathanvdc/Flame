@@ -35,9 +35,19 @@ namespace Flame.Compiler.Analysis
     /// </summary>
     public sealed class AddInstructionUpdate : InstructionUpdate
     {
-        internal AddInstructionUpdate(ValueTag tag)
+        internal AddInstructionUpdate(
+            ValueTag tag,
+            Instruction instruction)
             : base(tag)
-        { }
+        {
+            this.Instruction = instruction;
+        }
+
+        /// <summary>
+        /// Gets the instruction that is added to the graph.
+        /// </summary>
+        /// <value>The instruction.</value>
+        public Instruction Instruction { get; private set; }
     }
 
     /// <summary>
@@ -45,9 +55,19 @@ namespace Flame.Compiler.Analysis
     /// </summary>
     public sealed class ReplaceInstructionUpdate : InstructionUpdate
     {
-        internal ReplaceInstructionUpdate(ValueTag tag)
+        internal ReplaceInstructionUpdate(
+            ValueTag tag,
+            Instruction instruction)
             : base(tag)
-        { }
+        {
+            this.Instruction = instruction;
+        }
+
+        /// <summary>
+        /// Gets the new instruction that replaces the old one.
+        /// </summary>
+        /// <value>The new instruction.</value>
+        public Instruction Instruction { get; private set; }
     }
 
     /// <summary>

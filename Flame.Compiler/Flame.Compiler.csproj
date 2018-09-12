@@ -51,6 +51,8 @@
     <Compile Include="MethodBody.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
+    <Compile Include="Analysis\BlockReachability.cs" />
+    <Compile Include="Analysis\EffectfulInstructions.cs" />
     <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
     <Compile Include="Analysis\FlowGraphUpdate.cs" />
     <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
@@ -61,6 +63,9 @@
     <Compile Include="Analysis\RegisterAllocation.cs" />
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
     <Compile Include="Analysis\ValueUseAnalysis.cs" />
+    <Compile Include="Target\IInstructionSelector.cs" />
+    <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
+    <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />
@@ -103,6 +108,7 @@
   <ItemGroup>
     <Folder Include="Analysis\" />
     <Folder Include="Constants\" />
+    <Folder Include="Emit\" />
     <Folder Include="Flow\" />
     <Folder Include="Instructions\" />
     <Folder Include="Pipeline\" />

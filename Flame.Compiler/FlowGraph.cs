@@ -631,7 +631,7 @@ namespace Flame.Compiler
                 oldBlockData.InstructionTags.Insert(index, insnTag),
                 oldBlockData.Flow);
 
-            var newGraph = new FlowGraph(this, new AddInstructionUpdate(insnTag));
+            var newGraph = new FlowGraph(this, new AddInstructionUpdate(insnTag, instruction));
             newGraph.blocks = newGraph.blocks.SetItem(blockTag, newBlockData);
             newGraph.instructions = newGraph.instructions.Add(insnTag, instruction);
             newGraph.valueParents = newGraph.valueParents.Add(insnTag, blockTag);
@@ -644,8 +644,8 @@ namespace Flame.Compiler
 
         internal SelectedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)
         {
-            var newGraph = new FlowGraph(this, new ReplaceInstructionUpdate(tag));
-            newGraph.instructions = newGraph.instructions.Add(tag, instruction);
+            var newGraph = new FlowGraph(this, new ReplaceInstructionUpdate(tag, instruction));
+            newGraph.instructions = newGraph.instructions.SetItem(tag, instruction);
             return new SelectedInstruction(
                 newGraph.GetValueParent(tag),
                 tag,
