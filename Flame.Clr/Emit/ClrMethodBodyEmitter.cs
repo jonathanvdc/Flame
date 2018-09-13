@@ -5,6 +5,7 @@ using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Target;
 using Flame.TypeSystem;
+using Mono.Cecil.Rocks;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 
@@ -15,7 +16,7 @@ namespace Flame.Clr.Emit
     /// </summary>
     public sealed class ClrMethodBodyEmitter
     {
-        private ClrMethodBodyEmitter(
+        public ClrMethodBodyEmitter(
             Mono.Cecil.MethodDefinition method,
             Flame.Compiler.MethodBody sourceBody,
             TypeEnvironment typeEnvironment)
@@ -43,7 +44,11 @@ namespace Flame.Clr.Emit
         /// <value>A type environment.</value>
         public TypeEnvironment TypeEnvironment { get; private set; }
 
-        private Mono.Cecil.Cil.MethodBody Compile()
+        /// <summary>
+        /// Compiles the source body to a CIL method body.
+        /// </summary>
+        /// <returns>A CIL method body.</returns>
+        public Mono.Cecil.Cil.MethodBody Compile()
         {
             // Create a method body.
             var result = new Mono.Cecil.Cil.MethodBody(Method);
@@ -73,6 +78,14 @@ namespace Flame.Clr.Emit
 
             var emitter = new CodegenEmitter(processor, regAllocation);
             emitter.Emit(codegenInsns);
+
+            // Add local variables to method body in 
+            foreach (var pair in emitter.RegisterUseCounts.OrderByDescending(pair => pair.Value))
+            {
+                result.Variables.Add(pair.Key);
+            }
+
+            MethodBodyRocks.Optimize(result);
 
             return result;
         }
@@ -158,15 +171,18 @@ namespace Flame.Clr.Emit
                     else
                     {
                         var storeInsn = (CilStoreRegisterInstruction)instruction;
-                        var reg = RegisterAllocation.GetRegister(storeInsn.Value);
-                        if (reg.IsParameter)
+                        if (RegisterAllocation.Allocation.ContainsKey(storeInsn.Value))
                         {
-                            Emit(CilInstruction.Create(OpCodes.Starg, reg.ParameterOrNull));
-                        }
-                        else
-                        {
-                            IncrementUseCount(reg.VariableOrNull);
-                            Emit(CilInstruction.Create(OpCodes.Stloc, reg.VariableOrNull));
+                            var reg = RegisterAllocation.GetRegister(storeInsn.Value);
+                            if (reg.IsParameter)
+                            {
+                                Emit(CilInstruction.Create(OpCodes.Starg, reg.ParameterOrNull));
+                            }
+                            else
+                            {
+                                IncrementUseCount(reg.VariableOrNull);
+                                Emit(CilInstruction.Create(OpCodes.Stloc, reg.VariableOrNull));
+                            }
                         }
                     }
                 }
