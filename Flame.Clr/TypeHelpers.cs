@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Flame.TypeSystem;
 
 namespace Flame.Clr
@@ -87,6 +89,48 @@ namespace Flame.Clr
                     return type.MakePointerType(PointerKind.Box);
                 }
             }
+        }
+
+        /// <summary>
+        /// Takes a Flame type and converts it to a Cecil type reference.
+        /// For this to work, <paramref name="type"/> cannot reference
+        /// non-Cecil types.
+        /// </summary>
+        /// <param name="type">
+        /// The type to convert to a type reference.
+        /// </param>
+        /// <returns>
+        /// A type reference.
+        /// </returns>
+        public static Mono.Cecil.TypeReference ToTypeReference(IType type)
+        {
+            if (type is ClrTypeDefinition)
+            {
+                return ((ClrTypeDefinition)type).Definition;
+            }
+            else
+            {
+                // TODO: support arrays, pointers, boxes, etc.
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Gets a method's extended parameter list, consists of the method's
+        /// parameter list and an optional 'this' parameter as a prefix.
+        /// </summary>
+        /// <param name="method">
+        /// The method to examine.
+        /// </param>
+        /// <returns>
+        /// A list of parameters.
+        /// </returns>
+        public static IReadOnlyList<Mono.Cecil.ParameterDefinition> GetExtendedParameters(
+            Mono.Cecil.MethodDefinition method)
+        {
+            return method.HasThis
+                ? new[] { method.Body.ThisParameter }.Concat(method.Parameters).ToArray()
+                : (IReadOnlyList<Mono.Cecil.ParameterDefinition>)method.Parameters;
         }
     }
 }

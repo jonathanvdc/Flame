@@ -40,6 +40,7 @@ namespace Flame.Clr
             this.signedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveSignedIntegerTypes);
             this.unsignedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveUnsignedIntegerTypes);
             this.booleanType = new Lazy<IType>(() => ResolveSystemType("Boolean"));
+            this.voidType = new Lazy<IType>(() => ResolveSystemType("Void"));
         }
 
         /// <summary>
@@ -54,11 +55,17 @@ namespace Flame.Clr
         /// </summary>
         public override IType Boolean => booleanType.Value;
 
+        /// <summary>
+        /// Gets the Void type for this type environment.
+        /// </summary>
+        public override IType Void => voidType.Value;
+
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
         private Lazy<Dictionary<int, IType>> signedIntegerTypes;
         private Lazy<Dictionary<int, IType>> unsignedIntegerTypes;
         private Lazy<IType> booleanType;
+        private Lazy<IType> voidType;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

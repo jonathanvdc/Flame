@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Flame.Compiler.Target
 {
     /// <summary>
@@ -60,15 +62,15 @@ namespace Flame.Compiler.Target
             out BasicBlockTag fallthrough);
 
         /// <summary>
-        /// Creates an instruction that declares a branch target.
+        /// Creates a sequence of instructions that declare the start of a basic block.
         /// </summary>
-        /// <param name="tag">
-        /// A basic block tag that uniquely identifies the branch target.
+        /// <param name="block">
+        /// The basic block to mark.
         /// </param>
         /// <returns>
-        /// A branch-target marking instruction.
+        /// A sequence of instructions that mark a block.
         /// </returns>
-        TInstruction CreateBranchTargetInstruction(BasicBlockTag tag);
+        IReadOnlyList<TInstruction> CreateBlockMarker(BasicBlock block);
 
         /// <summary>
         /// Creates an unconditional jump to a particular branch target.
@@ -79,6 +81,6 @@ namespace Flame.Compiler.Target
         /// <returns>
         /// An unconditional jump.
         /// </returns>
-        TInstruction CreateJumpTo(BasicBlockTag target);
+        IReadOnlyList<TInstruction> CreateJumpTo(BasicBlockTag target);
     }
 }

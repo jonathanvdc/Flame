@@ -133,7 +133,7 @@ namespace Flame.Compiler.Target
                         // We found a fallthrough block that has already been selected.
                         // This is quite unfortunate; we'll have to introduce a branch.
                         var insns = new List<TInstruction>(selInstructions);
-                        insns.Add(InstructionSelector.CreateJumpTo(fallthrough));
+                        insns.AddRange(InstructionSelector.CreateJumpTo(fallthrough));
                         selInstructions = insns;
                     }
                     else
@@ -179,6 +179,7 @@ namespace Flame.Compiler.Target
             var instructionStream = new List<TInstruction>();
             foreach (var blockTag in flowLayout)
             {
+                instructionStream.AddRange(InstructionSelector.CreateBlockMarker(graph.GetBasicBlock(blockTag)));
                 foreach (var insnTag in graph.GetBasicBlock(blockTag).InstructionTags)
                 {
                     IReadOnlyList<TInstruction> selection;

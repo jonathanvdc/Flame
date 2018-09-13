@@ -77,6 +77,12 @@ namespace Flame.TypeSystem
         public abstract IType Boolean { get; }
 
         /// <summary>
+        /// Gets the Void type in this type environment.
+        /// </summary>
+        /// <value>The Void type.</value>
+        public abstract IType Void { get; }
+
+        /// <summary>
         /// Gets a 32-bit signed integer type.
         /// </summary>
         /// <returns>
@@ -162,6 +168,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType Boolean => InnerEnvironment.Boolean;
+
+        /// <inheritdoc/>
+        public override IType Void => InnerEnvironment.Void;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

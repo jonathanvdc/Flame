@@ -61,6 +61,10 @@
     <Compile Include="TypeHelpers.cs" />
     <Compile Include="Analysis\ClrInstructionSimplifier.cs" />
     <Compile Include="Analysis\ClrMethodBodyAnalyzer.cs" />
+    <Compile Include="Emit\CilCodegenInstruction.cs" />
+    <Compile Include="Emit\CilInstructionSelector.cs" />
+    <Compile Include="Emit\CilRegisterAllocator.cs" />
+    <Compile Include="Emit\ClrMethodBodyEmitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
