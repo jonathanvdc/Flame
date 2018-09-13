@@ -67,7 +67,7 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                 },
-                new[] { new ByReferenceType(int32Type), int32Type },
+                new[] { new ByReferenceType(int32Type) },
                 ilProc =>
                 {
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sizeof, int32Type);
@@ -78,8 +78,8 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stobj, int32Type);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldobj, int32Type);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Starg, 0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                 });
         }
