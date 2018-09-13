@@ -73,11 +73,9 @@ namespace UnitTests.Flame.Clr
                     var local = new VariableDefinition(int32Type);
                     ilProc.Body.Variables.Add(local);
 
-                    ilProc.Emit(OpCodes.Ldloca_S, local);
                     ilProc.Emit(OpCodes.Ldarg_0);
-                    ilProc.Emit(OpCodes.Stobj, int32Type);
-                    ilProc.Emit(OpCodes.Ldloca_S, local);
-                    ilProc.Emit(OpCodes.Ldobj, int32Type);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Ldloc_0);
                     ilProc.Emit(OpCodes.Starg, 0);
                     ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Ret);

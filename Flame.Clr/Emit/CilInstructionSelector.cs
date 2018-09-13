@@ -176,7 +176,7 @@ namespace Flame.Clr.Emit
             }
         }
 
-        private static SelectedInstructions<CilCodegenInstruction> SelectInstructionsImpl(
+        private SelectedInstructions<CilCodegenInstruction> SelectInstructionsImpl(
             Instruction instruction,
             FlowGraph graph)
         {
@@ -224,23 +224,41 @@ namespace Flame.Clr.Emit
             {
                 var loadProto = (LoadPrototype)proto;
                 var pointer = loadProto.GetPointer(instruction);
-                return CreateSelection(
-                    CilInstruction.Create(
-                        OpCodes.Ldobj,
-                        TypeHelpers.ToTypeReference(loadProto.ResultType)),
-                    pointer);
+                VariableDefinition allocaVarDef;
+                if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
+                {
+                    return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, allocaVarDef));
+                }
+                else
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Ldobj,
+                            TypeHelpers.ToTypeReference(loadProto.ResultType)),
+                        pointer);
+                }
             }
             else if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
                 var pointer = storeProto.GetPointer(instruction);
                 var value = storeProto.GetValue(instruction);
-                return CreateSelection(
-                    CilInstruction.Create(
-                        OpCodes.Stobj,
-                        TypeHelpers.ToTypeReference(storeProto.ResultType)),
-                    pointer,
-                    value);
+                VariableDefinition allocaVarDef;
+                if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(OpCodes.Stloc, allocaVarDef),
+                        value);
+                }
+                else
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Stobj,
+                            TypeHelpers.ToTypeReference(storeProto.ResultType)),
+                        pointer,
+                        value);
+                }
             }
             else
             {
