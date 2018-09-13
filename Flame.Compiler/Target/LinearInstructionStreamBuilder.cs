@@ -157,9 +157,11 @@ namespace Flame.Compiler.Target
             while (selectionWorklist.Count > 0)
             {
                 var tag = selectionWorklist.Dequeue();
-                if (instructionSelection.ContainsKey(tag))
+                if (instructionSelection.ContainsKey(tag)
+                    || graph.ContainsBlockParameter(tag))
                 {
-                    // Never select instructions twice.
+                    // Never select instructions twice. Also, don't try
+                    // to "select" block parameters.
                     continue;
                 }
 
