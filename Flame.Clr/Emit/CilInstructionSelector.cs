@@ -207,9 +207,6 @@ namespace Flame.Clr.Emit
             }
             else if (proto is AllocaPrototype)
             {
-                // TODO: turn `alloca` instructions that are not strictly
-                // reachable from themselves into local variables.
-                //
                 // TODO: constant-fold `sizeof` whenever possible.
                 var allocaProto = (AllocaPrototype)proto;
                 return SelectedInstructions.Create<CilCodegenInstruction>(
