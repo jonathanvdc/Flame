@@ -16,6 +16,7 @@ using Flame.Clr.Emit;
 using Flame.Compiler.Analysis;
 using System.Text;
 using Mono.Cecil.Rocks;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace UnitTests.Flame.Clr
 {
@@ -43,14 +44,14 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4, 42);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldc_I4, 42);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_S, (sbyte)42);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldc_I4_S, (sbyte)42);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -64,23 +65,23 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 new[] { new ByReferenceType(int32Type) },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sizeof, int32Type);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Localloc);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stobj, int32Type);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldobj, int32Type);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Starg, 0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Sizeof, int32Type);
+                    ilProc.Emit(OpCodes.Localloc);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Ldloc_0);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Stobj, int32Type);
+                    ilProc.Emit(OpCodes.Ldloc_0);
+                    ilProc.Emit(OpCodes.Ldobj, int32Type);
+                    ilProc.Emit(OpCodes.Starg, 0);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
