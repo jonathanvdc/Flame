@@ -9,9 +9,9 @@ namespace Flame.Compiler.Analysis
     public abstract class BlockReachability
     {
         /// <summary>
-        /// Tests if there exists a path through the control-flow graph
-        /// that starts at <paramref name="source"/> and ends at
-        /// <paramref name="target"/>.
+        /// Tests if there exists a nonempty path through the
+        /// control-flow graph that starts at <paramref name="source"/>
+        /// and ends at <paramref name="target"/>.
         /// </summary>
         /// <param name="source">
         /// The block tag of the start of the path.
@@ -22,10 +22,29 @@ namespace Flame.Compiler.Analysis
         /// <returns>
         /// <c>true</c> if there is such a path; otherwise, <c>false</c>.
         /// </returns>
-        public abstract bool IsReachableFrom(BasicBlockTag source, BasicBlockTag target);
+        public abstract bool IsStrictlyReachableFrom(BasicBlockTag source, BasicBlockTag target);
 
         /// <summary>
-        /// Gets the set of all basic blocks that are reachable from a
+        /// Tests if there exists a (possibly empty) path through the
+        /// control-flow graph that starts at <paramref name="source"/>
+        /// and ends at <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">
+        /// The block tag of the start of the path.
+        /// </param>
+        /// <param name="target">
+        /// The block tag of the end of the path.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if there is such a path; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsReachableFrom(BasicBlockTag source, BasicBlockTag target)
+        {
+            return source == target || IsStrictlyReachableFrom(source, target);
+        }
+
+        /// <summary>
+        /// Gets the set of all basic blocks that are strictly reachable from a
         /// particular basic block.
         /// </summary>
         /// <param name="source">The source block to start at.</param>
@@ -33,7 +52,7 @@ namespace Flame.Compiler.Analysis
         /// A set of basic block tags referring to basic blocks that
         /// are reachable from <paramref name="source"/>.
         /// </returns>
-        public abstract IEnumerable<BasicBlockTag> GetReachableBlocks(BasicBlockTag source);
+        public abstract IEnumerable<BasicBlockTag> GetStrictlyReachableBlocks(BasicBlockTag source);
     }
 
     /// <summary>
@@ -61,13 +80,13 @@ namespace Flame.Compiler.Analysis
         private Dictionary<BasicBlockTag, HashSet<BasicBlockTag>> results;
 
         /// <inheritdoc/>
-        public override IEnumerable<BasicBlockTag> GetReachableBlocks(BasicBlockTag source)
+        public override IEnumerable<BasicBlockTag> GetStrictlyReachableBlocks(BasicBlockTag source)
         {
             return GetReachableBlocksImpl(source);
         }
 
         /// <inheritdoc/>
-        public override bool IsReachableFrom(BasicBlockTag source, BasicBlockTag target)
+        public override bool IsStrictlyReachableFrom(BasicBlockTag source, BasicBlockTag target)
         {
             return GetReachableBlocksImpl(source).Contains(target);
         }
