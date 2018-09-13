@@ -110,6 +110,34 @@ namespace Flame.Compiler.Analysis
             return true;
         }
 
+        /// <summary>
+        /// Tries to get a preallocated register for a particular value.
+        /// If it exists, then the preallocated register will be used
+        /// for the value, no questions asked. The preallocated register
+        /// may be reused.
+        /// </summary>
+        /// <param name="value">
+        /// The value that may have a preallocated register.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that defines the value.
+        /// </param>
+        /// <param name="register">
+        /// A preallocated register, if any.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if there is a preallocated register for
+        /// <paramref name="value"/>; otherwise, <c>false</c>.
+        /// </returns>
+        protected virtual bool TryGetPreallocatedRegister(
+            ValueTag value,
+            FlowGraph graph,
+            out TRegister register)
+        {
+            register = default(TRegister);
+            return false;
+        }
+
         /// <inheritdoc/>
         public RegisterAllocation<TRegister> Analyze(
             FlowGraph graph)
@@ -131,52 +159,62 @@ namespace Flame.Compiler.Analysis
             {
                 if (!RequiresRegister(value, graph))
                 {
+                    // The value may not need a register. If so, then we shouldn't
+                    // allocate one.
                     continue;
                 }
 
-                // Compose a set of registers we might be able to recycle.
-                // Specifically, we'll look for all registers that are not
-                // allocated to values that interfere with the current value.
-                var recyclable = new HashSet<TRegister>();
-                foreach (var pair in registerInterference)
+                TRegister assignedRegister;
+                if (TryGetPreallocatedRegister(value, graph, out assignedRegister))
                 {
-                    if (!pair.Value.Contains(value))
-                    {
-                        // If the value is not in the interference set of
-                        // the register, then we're good to go.
-                        recyclable.Add(pair.Key);
-                    }
+                    // If we have a preallocated register, then we should just accept it.
+                    registerInterference[assignedRegister] = new HashSet<ValueTag>();
                 }
-
-                // We would like to recycle a register that has been
-                // allocated to a related but non-interfering value.
-                // To do so, we'll build a set of candidate registers.
-                var relatedRegisters = new HashSet<TRegister>();
-                foreach (var relatedValue in related.GetRelatedValues(value))
+                else
                 {
-                    TRegister reg;
-                    if (allocation.TryGetValue(relatedValue, out reg)
-                        && recyclable.Contains(reg))
+                    // Compose a set of registers we might be able to recycle.
+                    // Specifically, we'll look for all registers that are not
+                    // allocated to values that interfere with the current value.
+                    var recyclable = new HashSet<TRegister>();
+                    foreach (var pair in registerInterference)
                     {
-                        relatedRegisters.Add(reg);
+                        if (!pair.Value.Contains(value))
+                        {
+                            // If the value is not in the interference set of
+                            // the register, then we're good to go.
+                            recyclable.Add(pair.Key);
+                        }
                     }
-                }
 
-                // If at all possible, try to recycle a related register. If that
-                // doesn't work out, try to recycle a non-related register. If
-                // that fails as well, then we'll create a new register.
-                var valueType = graph.GetValueType(value);
-                TRegister recycledReg;
-                if (!TryRecycleRegister(valueType, relatedRegisters, out recycledReg)
-                    && !TryRecycleRegister(valueType, recyclable, out recycledReg))
-                {
-                    recycledReg = CreateRegister(valueType);
-                    registerInterference[recycledReg] = new HashSet<ValueTag>();
+                    // We would like to recycle a register that has been
+                    // allocated to a related but non-interfering value.
+                    // To do so, we'll build a set of candidate registers.
+                    var relatedRegisters = new HashSet<TRegister>();
+                    foreach (var relatedValue in related.GetRelatedValues(value))
+                    {
+                        TRegister reg;
+                        if (allocation.TryGetValue(relatedValue, out reg)
+                            && recyclable.Contains(reg))
+                        {
+                            relatedRegisters.Add(reg);
+                        }
+                    }
+
+                    // If at all possible, try to recycle a related register. If that
+                    // doesn't work out, try to recycle a non-related register. If
+                    // that fails as well, then we'll create a new register.
+                    var valueType = graph.GetValueType(value);
+                    if (!TryRecycleRegister(valueType, relatedRegisters, out assignedRegister)
+                        && !TryRecycleRegister(valueType, recyclable, out assignedRegister))
+                    {
+                        assignedRegister = CreateRegister(valueType);
+                        registerInterference[assignedRegister] = new HashSet<ValueTag>();
+                    }
                 }
 
                 // Allocate the register we recycled or created to the value.
-                allocation[value] = recycledReg;
-                registerInterference[recycledReg].UnionWith(
+                allocation[value] = assignedRegister;
+                registerInterference[assignedRegister].UnionWith(
                     interference.GetInterferingValues(value));
             }
 
