@@ -65,6 +65,11 @@ namespace Flame.Compiler
         public BlockFlow Flow => data.Flow;
 
         /// <summary>
+        /// Tells if this block is the graph's entry point.
+        /// </summary>
+        public bool IsEntryPoint => Tag == Graph.EntryPointTag;
+
+        /// <summary>
         /// Creates a new basic block in a new control-flow graph that
         /// has a particular flow.
         /// </summary>

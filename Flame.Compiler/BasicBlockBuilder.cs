@@ -82,6 +82,11 @@ namespace Flame.Compiler
             InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>
+        /// Tells if this block is the graph's entry point.
+        /// </summary>
+        public bool IsEntryPoint => ImmutableBlock.IsEntryPoint;
+
+        /// <summary>
         /// Gets or sets the control flow at the end of this basic block.
         /// </summary>
         /// <returns>The end-of-block control flow.</returns>
