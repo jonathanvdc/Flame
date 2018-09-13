@@ -178,7 +178,6 @@ namespace UnitTests.Flame.Clr
 
             // Check that the resulting CIL matches the expected CIL.
             Assert.AreEqual(FormatMethodBody(expectedCilBody), FormatMethodBody(newCilBody));
-            Console.WriteLine(FormatMethodBody(newCilBody));
         }
 
         private string FormatMethodBody(Mono.Cecil.Cil.MethodBody body)
