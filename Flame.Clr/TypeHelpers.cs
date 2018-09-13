@@ -108,9 +108,34 @@ namespace Flame.Clr
             {
                 return ((ClrTypeDefinition)type).Definition;
             }
+            else if (type is PointerType)
+            {
+                var pointerType = (PointerType)type;
+                var elemType = pointerType.ElementType;
+                var elemTypeRef = ToTypeReference(elemType);
+                if (pointerType.Kind == PointerKind.Reference)
+                {
+                    return new Mono.Cecil.ByReferenceType(elemTypeRef);
+                }
+                else if (pointerType.Kind == PointerKind.Box)
+                {
+                    if (elemType.IsReferenceType())
+                    {
+                        return elemTypeRef;
+                    }
+                    else
+                    {
+                        return elemTypeRef.Module.TypeSystem.Object;
+                    }
+                }
+                else
+                {
+                    return new Mono.Cecil.PointerType(elemTypeRef);
+                }
+            }
             else
             {
-                // TODO: support arrays, pointers, boxes, etc.
+                // TODO: support arrays, generics.
                 throw new NotImplementedException();
             }
         }
@@ -130,7 +155,7 @@ namespace Flame.Clr
         {
             return method.HasThis
                 ? new[] { method.Body.ThisParameter }.Concat(method.Parameters).ToArray()
-                : (IReadOnlyList<Mono.Cecil.ParameterDefinition>)method.Parameters;
+                : method.Parameters.ToArray();
         }
     }
 }
