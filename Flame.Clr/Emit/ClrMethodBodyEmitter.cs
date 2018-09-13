@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Instructions;
 using Flame.Compiler.Target;
 using Flame.TypeSystem;
 using Mono.Cecil.Rocks;
@@ -53,12 +54,16 @@ namespace Flame.Clr.Emit
             // Create a method body.
             var result = new Mono.Cecil.Cil.MethodBody(Method);
 
+            // Figure out which 'alloca' values can be replaced
+            // by local variables. Usually, that's all of them.
+            var sourceGraph = SourceBody.Implementation;
+            var allocaToVarMap = AllocasToVariables(sourceGraph);
+
             // Select instructions.
-            var selector = new CilInstructionSelector(TypeEnvironment);
+            var selector = new CilInstructionSelector(TypeEnvironment, allocaToVarMap);
             var streamBuilder = new LinearInstructionStreamBuilder<CilCodegenInstruction>(
                 selector);
 
-            var sourceGraph = SourceBody.Implementation;
             var codegenInsns = streamBuilder.ToInstructionStream(sourceGraph);
 
             // Find the set of loaded values so we can allocate registers to them.
@@ -79,10 +84,16 @@ namespace Flame.Clr.Emit
             var emitter = new CodegenEmitter(processor, regAllocation);
             emitter.Emit(codegenInsns);
 
-            // Add local variables to method body in 
+            // Add local variables to method body. Put most popular
+            // locals first to minimize the number of long-form ldloc/stloc
+            // instructions.
             foreach (var pair in emitter.RegisterUseCounts.OrderByDescending(pair => pair.Value))
             {
                 result.Variables.Add(pair.Key);
+            }
+            foreach (var local in allocaToVarMap.Values)
+            {
+                result.Variables.Add(local);
             }
 
             MethodBodyRocks.Optimize(result);
@@ -103,6 +114,40 @@ namespace Flame.Clr.Emit
                 preallocRegisters[entryPoint.Parameters[i].Tag] = extendedParams[i];
             }
             return preallocRegisters;
+        }
+
+        /// <summary>
+        /// Creates a mapping of 'alloca' values to local variables.
+        /// This mapping contains only 'alloca' values that can safely be
+        /// replaced by references to local variables.
+        /// </summary>
+        /// <param name="graph">
+        /// The graph to analyze.
+        /// </param>
+        /// <returns>
+        /// A mapping of 'alloca' values to local variables.
+        /// </returns>
+        private Dictionary<ValueTag, Mono.Cecil.Cil.VariableDefinition> AllocasToVariables(
+            FlowGraph graph)
+        {
+            var reachability = graph.GetAnalysisResult<BlockReachability>();
+            var results = new Dictionary<ValueTag, Mono.Cecil.Cil.VariableDefinition>();
+
+            foreach (var insn in graph.Instructions)
+            {
+                var proto = insn.Instruction.Prototype;
+                if (proto is AllocaPrototype
+                    && !reachability.IsStrictlyReachableFrom(insn.Block.Tag, insn.Block.Tag))
+                {
+                    // 'alloca' instructions that are not stricly reachable from themselves
+                    // will never be executed twice. Hence, they can be safely replaced
+                    // by a local variable reference.
+                    results[insn.Tag] = new Mono.Cecil.Cil.VariableDefinition(
+                        TypeHelpers.ToTypeReference(((AllocaPrototype)proto).ElementType));
+                }
+            }
+
+            return results;
         }
 
         /// <summary>

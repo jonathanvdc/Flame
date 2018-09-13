@@ -12,6 +12,7 @@ using Flame.TypeSystem;
 using Mono.Cecil;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
+using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
 
 namespace Flame.Clr.Emit
 {
@@ -23,9 +24,16 @@ namespace Flame.Clr.Emit
         /// <param name="typeEnvironment">
         /// The type environment to use when selecting instructions.
         /// </param>
-        public CilInstructionSelector(TypeEnvironment typeEnvironment)
+        /// <param name="allocaToVariableMapping">
+        /// A mapping of `alloca` values to the local variables that
+        /// are used as backing store for the `alloca`s.
+        /// </param>
+        public CilInstructionSelector(
+            TypeEnvironment typeEnvironment,
+            IReadOnlyDictionary<ValueTag, VariableDefinition> allocaToVariableMapping)
         {
             this.TypeEnvironment = typeEnvironment;
+            this.AllocaToVariableMapping = allocaToVariableMapping;
         }
 
         /// <summary>
@@ -33,6 +41,13 @@ namespace Flame.Clr.Emit
         /// </summary>
         /// <value>The type environment.</value>
         public TypeEnvironment TypeEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets a mapping of `alloca` values to the local variables that
+        /// are used as backing store for the `alloca`s.
+        /// </summary>
+        /// <value>A mapping of value tags to variable definitions.</value>
+        public IReadOnlyDictionary<ValueTag, VariableDefinition> AllocaToVariableMapping { get; private set; }
 
         /// <inheritdoc/>
         public IReadOnlyList<CilCodegenInstruction> CreateBlockMarker(BasicBlock block)
@@ -147,10 +162,18 @@ namespace Flame.Clr.Emit
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             SelectedInstruction instruction)
         {
-            return SelectInstructionsAndWrap(
-                instruction.Instruction,
-                instruction.Tag,
-                instruction.Block.Graph);
+            VariableDefinition allocaVarDef;
+            if (AllocaToVariableMapping.TryGetValue(instruction.Tag, out allocaVarDef))
+            {
+                return CreateSelection(CilInstruction.Create(OpCodes.Ldloca, allocaVarDef));
+            }
+            else
+            {
+                return SelectInstructionsAndWrap(
+                    instruction.Instruction,
+                    instruction.Tag,
+                    instruction.Block.Graph);
+            }
         }
 
         private static SelectedInstructions<CilCodegenInstruction> SelectInstructionsImpl(
@@ -170,7 +193,8 @@ namespace Flame.Clr.Emit
                 if (graph.ContainsInstruction(copiedVal))
                 {
                     var copiedInstruction = graph.GetInstruction(copiedVal).Instruction;
-                    if (copiedInstruction.Prototype is ConstantPrototype)
+                    if (copiedInstruction.Prototype is ConstantPrototype
+                        || copiedInstruction.Prototype is CopyPrototype)
                     {
                         // Always duplicate copies of constants to avoid
                         // wasting local variables on them.
@@ -235,10 +259,23 @@ namespace Flame.Clr.Emit
             var impl = SelectInstructionsImpl(instruction, graph);
 
             var updatedInsns = new List<CilCodegenInstruction>();
+            var updatedDependencies = new List<ValueTag>();
             // Load each dependency.
             foreach (var dependency in impl.Dependencies)
             {
-                updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
+                VariableDefinition allocaVarDef;
+                if (AllocaToVariableMapping.TryGetValue(dependency, out allocaVarDef))
+                {
+                    updatedInsns.Add(
+                        new CilOpInstruction(
+                            CilInstruction.Create(OpCodes.Ldloca,
+                            allocaVarDef)));
+                }
+                else
+                {
+                    updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
+                    updatedDependencies.Add(dependency);
+                }
             }
             // Actually run the instructions.
             updatedInsns.AddRange(impl.Instructions);
@@ -247,7 +284,7 @@ namespace Flame.Clr.Emit
             {
                 updatedInsns.Add(new CilStoreRegisterInstruction(tag));
             }
-            return SelectedInstructions.Create(updatedInsns, impl.Dependencies);
+            return SelectedInstructions.Create(updatedInsns, updatedDependencies);
         }
 
         private static CilInstruction CreatePushConstant(

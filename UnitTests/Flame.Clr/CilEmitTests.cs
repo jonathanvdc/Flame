@@ -17,6 +17,7 @@ using Flame.Compiler.Analysis;
 using System.Text;
 using Mono.Cecil.Rocks;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
+using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
 
 namespace UnitTests.Flame.Clr
 {
@@ -47,7 +48,6 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(OpCodes.Ldc_I4, 42);
                     ilProc.Emit(OpCodes.Ret);
                 },
-                EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
                     ilProc.Emit(OpCodes.Ldc_I4_S, (sbyte)42);
@@ -68,16 +68,15 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Ret);
                 },
-                new[] { new ByReferenceType(int32Type) },
                 ilProc =>
                 {
-                    ilProc.Emit(OpCodes.Sizeof, int32Type);
-                    ilProc.Emit(OpCodes.Localloc);
-                    ilProc.Emit(OpCodes.Stloc_0);
-                    ilProc.Emit(OpCodes.Ldloc_0);
+                    var local = new VariableDefinition(int32Type);
+                    ilProc.Body.Variables.Add(local);
+
+                    ilProc.Emit(OpCodes.Ldloca_S, local);
                     ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Stobj, int32Type);
-                    ilProc.Emit(OpCodes.Ldloc_0);
+                    ilProc.Emit(OpCodes.Ldloca_S, local);
                     ilProc.Emit(OpCodes.Ldobj, int32Type);
                     ilProc.Emit(OpCodes.Starg, 0);
                     ilProc.Emit(OpCodes.Ldarg_0);
@@ -102,9 +101,6 @@ namespace UnitTests.Flame.Clr
         /// <param name="emitBody">
         /// A function that writes the method body.
         /// </param>
-        /// <param name="oracleLocalTypes">
-        /// The local variable types of the expected method body.
-        /// </param>
         /// <param name="emitOracle">
         /// A function that writes the expected method body.
         /// </param>
@@ -113,7 +109,6 @@ namespace UnitTests.Flame.Clr
             IReadOnlyList<TypeReference> parameterTypes,
             IReadOnlyList<TypeReference> localTypes,
             Action<Mono.Cecil.Cil.ILProcessor> emitBody,
-            IReadOnlyList<TypeReference> oracleLocalTypes,
             Action<Mono.Cecil.Cil.ILProcessor> emitOracle)
         {
             // Define a method.
@@ -168,12 +163,6 @@ namespace UnitTests.Flame.Clr
 
             // Synthesize the expected CIL.
             var expectedCilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
-
-            foreach (var localType in oracleLocalTypes)
-            {
-                expectedCilBody.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(localType));
-            }
-
             emitOracle(expectedCilBody.GetILProcessor());
             expectedCilBody.Optimize();
 
