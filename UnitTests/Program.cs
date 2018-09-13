@@ -113,6 +113,7 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new CilAnalysisTests(globalLog),
+                new CilEmitTests(globalLog),
                 new LocalTypeResolutionTests(),
                 new MemberResolutionTests(),
                 new NameConversionTests(),
