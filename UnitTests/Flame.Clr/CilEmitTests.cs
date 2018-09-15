@@ -76,8 +76,6 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Stloc_0);
                     ilProc.Emit(OpCodes.Ldloc_0);
-                    ilProc.Emit(OpCodes.Starg, 0);
-                    ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Ret);
                 });
         }
@@ -149,11 +147,14 @@ namespace UnitTests.Flame.Clr
                 irBody.Parameters,
                 irBody.Implementation
                     .WithAnalysis(LazyBlockReachabilityAnalysis.Instance)
+                    .WithAnalysis(NullabilityAnalysis.Instance)
                     .WithAnalysis(new EffectfulInstructionAnalysis())
                     .WithAnalysis(PredecessorAnalysis.Instance)
                     .WithAnalysis(RelatedValueAnalysis.Instance)
                     .WithAnalysis(LivenessAnalysis.Instance)
-                    .WithAnalysis(InterferenceGraphAnalysis.Instance));
+                    .WithAnalysis(InterferenceGraphAnalysis.Instance)
+                    .WithAnalysis(ValueUseAnalysis.Instance)
+                    .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance));
 
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
@@ -165,7 +166,19 @@ namespace UnitTests.Flame.Clr
             expectedCilBody.Optimize();
 
             // Check that the resulting CIL matches the expected CIL.
-            Assert.AreEqual(FormatMethodBody(expectedCilBody), FormatMethodBody(newCilBody));
+            var actual = FormatMethodBody(newCilBody);
+            var oracle = FormatMethodBody(expectedCilBody);
+            if (actual.Trim() != oracle.Trim())
+            {
+                log.Log(
+                    new LogEntry(
+                        Severity.Message,
+                        "emitted CIL-oracle mismatch",
+                        "round-tripped CIL does not match the oracle. CIL emit output:"));
+                // TODO: ugly hack to work around wrapping.
+                Console.Error.WriteLine(actual.Trim());
+            }
+            Assert.AreEqual(oracle, actual);
         }
 
         private string FormatMethodBody(Mono.Cecil.Cil.MethodBody body)

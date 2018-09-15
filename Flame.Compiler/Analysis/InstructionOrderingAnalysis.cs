@@ -105,6 +105,19 @@ namespace Flame.Compiler.Analysis
                 foreach (var selection in block.Instructions)
                 {
                     var insnDependencies = new HashSet<ValueTag>();
+
+                    var instruction = selection.Instruction;
+                    if (instruction.Prototype is LoadPrototype
+                        && lastEffectfulTag != null)
+                    {
+                        // Rule #2: `load` instructions depend on the last effectful
+                        // instruction.
+                        if (lastEffectfulTag != null)
+                        {
+                            insnDependencies.Add(lastEffectfulTag);
+                        }
+                    }
+
                     if (effectfuls.Instructions.Contains(selection.Tag))
                     {
                         // Rule #1: every effectful instruction depends on the previous
@@ -114,15 +127,6 @@ namespace Flame.Compiler.Analysis
                             insnDependencies.Add(lastEffectfulTag);
                         }
                         lastEffectfulTag = selection.Tag;
-                    }
-
-                    var instruction = selection.Instruction;
-                    if (instruction.Prototype is LoadPrototype
-                        && lastEffectfulTag != null)
-                    {
-                        // Rule #2: `load` instructions depend on the last effectful
-                        // instruction.
-                        insnDependencies.Add(lastEffectfulTag);
                     }
 
                     // Rule #3: all instructions depend on their arguments, provided
@@ -138,10 +142,12 @@ namespace Flame.Compiler.Analysis
                     }
 
                     // Rule #4: dependencies are transitive.
-                    var worklist = insnDependencies.ToArray();
-                    foreach (var item in worklist)
+                    foreach (var item in insnDependencies.ToArray())
                     {
-                        insnDependencies.UnionWith(dependencies[item]);
+                        if (dependencies.ContainsKey(item))
+                        {
+                            insnDependencies.UnionWith(dependencies[item]);
+                        }
                     }
                     dependencies[selection.Tag] = insnDependencies;
                 }

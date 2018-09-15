@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Flame.Compiler.Instructions;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Analysis
 {
@@ -51,7 +52,7 @@ namespace Flame.Compiler.Analysis
         /// effectful or not.
         /// </param>
         public EffectfulInstructionAnalysis(
-            Predicate<Instruction> isEffectful)
+            Predicate<SelectedInstruction> isEffectful)
         {
             this.IsEffectful = isEffectful;
         }
@@ -63,7 +64,7 @@ namespace Flame.Compiler.Analysis
         /// A predicate that takes an instruction and tells if it is
         /// effectful or not.
         /// </value>
-        public Predicate<Instruction> IsEffectful { get; private set; }
+        public Predicate<SelectedInstruction> IsEffectful { get; private set; }
 
         /// <inheritdoc/>
         public EffectfulInstructions Analyze(FlowGraph graph)
@@ -71,7 +72,7 @@ namespace Flame.Compiler.Analysis
             var results = ImmutableHashSet.CreateBuilder<ValueTag>();
             foreach (var instruction in graph.Instructions)
             {
-                if (IsEffectful(instruction.Instruction))
+                if (IsEffectful(instruction))
                 {
                     results.Add(instruction.Tag);
                 }
@@ -96,30 +97,10 @@ namespace Flame.Compiler.Analysis
                     // so we can just ignore them.
                     continue;
                 }
-                else if (item is AddInstructionUpdate)
-                {
-                    var addUpdate = (AddInstructionUpdate)item;
-                    if (IsEffectful(addUpdate.Instruction))
-                    {
-                        effectfulSet.Add(addUpdate.Tag);
-                    }
-                }
                 else if (item is RemoveInstructionUpdate)
                 {
                     var removeUpdate = (AddInstructionUpdate)item;
                     effectfulSet.Remove(removeUpdate.Tag);
-                }
-                else if (item is ReplaceInstructionUpdate)
-                {
-                    var replaceUpdate = (ReplaceInstructionUpdate)item;
-                    if (IsEffectful(replaceUpdate.Instruction))
-                    {
-                        effectfulSet.Add(replaceUpdate.Tag);
-                    }
-                    else
-                    {
-                        effectfulSet.Remove(replaceUpdate.Tag);
-                    }
                 }
                 else
                 {
@@ -131,10 +112,17 @@ namespace Flame.Compiler.Analysis
             return new EffectfulInstructions(effectfulSet.ToImmutable());
         }
 
-        private static bool DefaultIsEffectfulImpl(Instruction instruction)
+        private static bool DefaultIsEffectfulImpl(SelectedInstruction selection)
         {
+            var instruction = selection.Instruction;
             var proto = instruction.Prototype;
-            if (proto.ExceptionSpecification.CanThrowSomething
+            if (proto is LoadPrototype)
+            {
+                // Load instructions are effectful if they may not be dereferenceable.
+                var nullAnalysis = selection.Block.Graph.GetAnalysisResult<ValueNullability>();
+                return !nullAnalysis.IsDereferenceable(((LoadPrototype)proto).GetPointer(instruction));
+            }
+            else if (proto.ExceptionSpecification.CanThrowSomething
                 || proto is StorePrototype
                 || proto is CallPrototype
                 || proto is NewObjectPrototype)

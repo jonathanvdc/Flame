@@ -60,13 +60,11 @@
     <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
+    <Compile Include="Analysis\NullabilityAnalysis.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />
     <Compile Include="Analysis\RegisterAllocation.cs" />
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
     <Compile Include="Analysis\ValueUseAnalysis.cs" />
-    <Compile Include="Target\IInstructionSelector.cs" />
-    <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
-    <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />
@@ -91,6 +89,10 @@
     <Compile Include="Pipeline\ITargetAssembly.cs" />
     <Compile Include="Pipeline\MethodBodyHolder.cs" />
     <Compile Include="Pipeline\Optimizer.cs" />
+    <Compile Include="Target\IInstructionSelector.cs" />
+    <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
+    <Compile Include="Target\PeepholeOptimizer.cs" />
+    <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

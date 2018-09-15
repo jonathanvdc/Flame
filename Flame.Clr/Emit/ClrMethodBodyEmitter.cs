@@ -78,7 +78,7 @@ namespace Flame.Clr.Emit
                 GetPreallocatedRegisters(sourceGraph));
             var regAllocation = regAllocator.Analyze(sourceGraph);
 
-            // Synthesize actual method body.
+            // Synthesize the actual method body.
             var processor = result.GetILProcessor();
 
             var emitter = new CodegenEmitter(processor, regAllocation);
@@ -96,6 +96,15 @@ namespace Flame.Clr.Emit
                 result.Variables.Add(local);
             }
 
+            // Apply peephole optimizations to the generated method body.
+            var optInstructions = CilPeepholeOptimizer.Instance.Optimize(processor.Body.Instructions);
+            result.Instructions.Clear();
+            foreach (var instruction in optInstructions)
+            {
+                result.Instructions.Add(instruction);
+            }
+
+            // Apply Cecil's macro optimizations to the generated method body.
             MethodBodyRocks.Optimize(result);
 
             return result;
@@ -228,6 +237,10 @@ namespace Flame.Clr.Emit
                                 IncrementUseCount(reg.VariableOrNull);
                                 Emit(CilInstruction.Create(OpCodes.Stloc, reg.VariableOrNull));
                             }
+                        }
+                        else
+                        {
+                            Emit(CilInstruction.Create(OpCodes.Pop));
                         }
                     }
                 }

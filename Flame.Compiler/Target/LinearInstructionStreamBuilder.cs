@@ -109,12 +109,14 @@ namespace Flame.Compiler.Target
                 flowLayout.Add(tag);
 
                 // Fetch the block's flow from the graph.
-                var flow = graph.GetBasicBlock(tag).Flow;
+                var block = graph.GetBasicBlock(tag);
+                var flow = block.Flow;
 
                 // Select instructions for the flow.
                 BasicBlockTag fallthrough;
                 var selection = InstructionSelector.SelectInstructions(
                     flow,
+                    block.Tag,
                     graph,
                     flow.BranchTargets.FirstOrDefault(target => !flowSelection.ContainsKey(target)),
                     out fallthrough);

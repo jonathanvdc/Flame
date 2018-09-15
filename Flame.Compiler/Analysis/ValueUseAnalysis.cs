@@ -45,6 +45,22 @@ namespace Flame.Compiler.Analysis
         {
             return flow[tag];
         }
+
+        /// <summary>
+        /// Gets the number of distinct instructions and block flows
+        /// that use a particular tag.
+        /// </summary>
+        /// <param name="tag">
+        /// The tag to find a use count for.
+        /// </param>
+        /// <returns>
+        /// The number of distinct instructions and block flows
+        /// that use <paramref name="tag"/>.
+        /// </returns>
+        public int GetUseCount(ValueTag tag)
+        {
+            return GetInstructionUses(tag).Count + GetFlowUses(tag).Count;
+        }
     }
 
     /// <summary>

@@ -41,6 +41,9 @@ namespace Flame.Compiler.Target
         /// <param name="flow">
         /// The IR block flow to translate to target-specific instructions.
         /// </param>
+        /// <param name="blockTag">
+        /// The tag of the basic block that defines the flow.
+        /// </param>
         /// <param name="graph">
         /// The IR graph that defines the flow.
         /// </param>
@@ -57,6 +60,7 @@ namespace Flame.Compiler.Target
         /// </returns>
         SelectedInstructions<TInstruction> SelectInstructions(
             BlockFlow flow,
+            BasicBlockTag blockTag,
             FlowGraph graph,
             BasicBlockTag preferredFallthrough,
             out BasicBlockTag fallthrough);

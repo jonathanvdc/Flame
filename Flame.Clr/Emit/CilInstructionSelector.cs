@@ -16,6 +16,9 @@ using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
 
 namespace Flame.Clr.Emit
 {
+    /// <summary>
+    /// An instruction selector for CIL codegen instructions.
+    /// </summary>
     public sealed class CilInstructionSelector : ILinearInstructionSelector<CilCodegenInstruction>
     {
         /// <summary>
@@ -34,6 +37,8 @@ namespace Flame.Clr.Emit
         {
             this.TypeEnvironment = typeEnvironment;
             this.AllocaToVariableMapping = allocaToVariableMapping;
+            this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
+            this.inlineSelectedInstructions = new HashSet<ValueTag>();
         }
 
         /// <summary>
@@ -48,6 +53,9 @@ namespace Flame.Clr.Emit
         /// </summary>
         /// <value>A mapping of value tags to variable definitions.</value>
         public IReadOnlyDictionary<ValueTag, VariableDefinition> AllocaToVariableMapping { get; private set; }
+
+        private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
+        private HashSet<ValueTag> inlineSelectedInstructions;
 
         /// <inheritdoc/>
         public IReadOnlyList<CilCodegenInstruction> CreateBlockMarker(BasicBlock block)
@@ -97,6 +105,7 @@ namespace Flame.Clr.Emit
         /// <inheritdoc/>
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             BlockFlow flow,
+            BasicBlockTag blockTag,
             FlowGraph graph,
             BasicBlockTag preferredFallthrough,
             out BasicBlockTag fallthrough)
@@ -107,6 +116,8 @@ namespace Flame.Clr.Emit
                 var retValSelection = SelectInstructionsAndWrap(
                     retFlow.ReturnValue,
                     null,
+                    blockTag,
+                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
                     graph);
                 var insns = new List<CilCodegenInstruction>(retValSelection.Instructions);
                 insns.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Ret)));
@@ -149,7 +160,7 @@ namespace Flame.Clr.Emit
                     graph.GetValueType(arg.ValueOrNull),
                     arg.ValueOrNull);
 
-                var insnSelection = SelectInstructionsAndWrap(argInsn, null, graph);
+                var insnSelection = SelectInstructionsAndWrap(argInsn, null, null, null, graph);
                 instructions.AddRange(insnSelection.Instructions);
                 dependencies.UnionWith(insnSelection.Dependencies);
             }
@@ -162,6 +173,14 @@ namespace Flame.Clr.Emit
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             SelectedInstruction instruction)
         {
+            if (inlineSelectedInstructions.Contains(instruction.Tag))
+            {
+                // Never ever re-select instructions that have already
+                // been selected inline.
+                return new SelectedInstructions<CilCodegenInstruction>(
+                    EmptyArray<CilCodegenInstruction>.Value,
+                    EmptyArray<ValueTag>.Value);
+            }
             VariableDefinition allocaVarDef;
             if (AllocaToVariableMapping.TryGetValue(instruction.Tag, out allocaVarDef))
             {
@@ -169,10 +188,13 @@ namespace Flame.Clr.Emit
             }
             else
             {
+                var block = instruction.Block;
                 return SelectInstructionsAndWrap(
                     instruction.Instruction,
                     instruction.Tag,
-                    instruction.Block.Graph);
+                    block.Tag,
+                    GetInstructionNode(instruction.Tag, block.Graph),
+                    block.Graph);
             }
         }
 
@@ -188,22 +210,9 @@ namespace Flame.Clr.Emit
             }
             else if (proto is CopyPrototype)
             {
-                var copyProto = (CopyPrototype)proto;
-                var copiedVal = copyProto.GetCopiedValue(instruction);
-                if (graph.ContainsInstruction(copiedVal))
-                {
-                    var copiedInstruction = graph.GetInstruction(copiedVal).Instruction;
-                    if (copiedInstruction.Prototype is ConstantPrototype
-                        || copiedInstruction.Prototype is CopyPrototype)
-                    {
-                        // Always duplicate copies of constants to avoid
-                        // wasting local variables on them.
-                        return SelectInstructionsImpl(copiedInstruction, graph);
-                    }
-                }
                 return SelectedInstructions.Create<CilCodegenInstruction>(
                     new CilCodegenInstruction[0],
-                    new[] { copiedVal });
+                    instruction.Arguments);
             }
             else if (proto is AllocaPrototype)
             {
@@ -246,18 +255,27 @@ namespace Flame.Clr.Emit
                 VariableDefinition allocaVarDef;
                 if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
                 {
-                    return CreateSelection(
-                        CilInstruction.Create(OpCodes.Stloc, allocaVarDef),
-                        value);
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                            new CilOpInstruction(
+                                CilInstruction.Create(OpCodes.Stloc, allocaVarDef))
+                        },
+                        new[] { value });
                 }
                 else
                 {
-                    return CreateSelection(
-                        CilInstruction.Create(
-                            OpCodes.Stobj,
-                            TypeHelpers.ToTypeReference(storeProto.ResultType)),
-                        pointer,
-                        value);
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                            new CilOpInstruction(
+                                CilInstruction.Create(
+                                    OpCodes.Stobj,
+                                    TypeHelpers.ToTypeReference(storeProto.ResultType)))
+                        },
+                        new[] { pointer, value });
                 }
             }
             else
@@ -268,38 +286,119 @@ namespace Flame.Clr.Emit
 
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
             Instruction instruction,
-            ValueTag tag,
+            ValueTag instructionTag,
+            BasicBlockTag blockTag,
+            LinkedListNode<ValueTag> insertionPoint,
             FlowGraph graph)
         {
-            var impl = SelectInstructionsImpl(instruction, graph);
+            var wrapper = new InstructionWrapper(
+                this,
+                instruction,
+                instructionTag,
+                blockTag,
+                insertionPoint,
+                graph);
 
-            var updatedInsns = new List<CilCodegenInstruction>();
-            var updatedDependencies = new List<ValueTag>();
-            // Load each dependency.
-            foreach (var dependency in impl.Dependencies)
+            return wrapper.SelectAndWrap();
+        }
+
+        /// <summary>
+        /// Tries to move an instruction from its
+        /// current location to just before another instruction.
+        /// </summary>
+        /// <param name="instruction">
+        /// The instruction to try and move.
+        /// </param>
+        /// <param name="insertionPoint">
+        /// An instruction to which the instruction should
+        /// be moved. It must be defined in the same basic
+        /// block as <paramref name="instruction"/>.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that defines both instructions.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="instruction"/> was
+        /// successfully reordered; otherwise, <c>false</c>.
+        /// </returns>
+        private bool TryReorder(
+            ValueTag instruction,
+            LinkedListNode<ValueTag> insertionPoint,
+            FlowGraph graph)
+        {
+            // Grab the ordering to which we should adhere.
+            var ordering = graph.GetAnalysisResult<InstructionOrdering>();
+
+            // Start at the linked list node belonging to the instruction
+            // to move and work our way toward the insertion point.
+            // Check the must-run-before relation as we traverse the list.
+            var instructionNode = GetInstructionNode(instruction, graph);
+            var currentNode = instructionNode;
+            while (currentNode != insertionPoint)
             {
-                VariableDefinition allocaVarDef;
-                if (AllocaToVariableMapping.TryGetValue(dependency, out allocaVarDef))
+                if (ordering.MustRunBefore(instruction, currentNode.Value))
                 {
-                    updatedInsns.Add(
-                        new CilOpInstruction(
-                            CilInstruction.Create(OpCodes.Ldloca,
-                            allocaVarDef)));
+                    // Aw snap, we encountered a dependency.
+                    // Time to abandon ship.
+                    return false;
                 }
-                else
-                {
-                    updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
-                    updatedDependencies.Add(dependency);
-                }
+
+                currentNode = currentNode.Next;
             }
-            // Actually run the instructions.
-            updatedInsns.AddRange(impl.Instructions);
-            // Store the result if it's not a 'void' value.
-            if (instruction.ResultType != TypeEnvironment.Void && tag != null)
+
+            // Looks like we can reorder the instruction!
+            insertionPoint.List.Remove(instructionNode);
+            insertionPoint.List.AddBefore(insertionPoint, instructionNode);
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the linked list node of an instruction in
+        /// the instruction list of the instruction's block.
+        /// </summary>
+        /// <param name="instruction">
+        /// The tag of the instruction whose node should be found.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that defines the instruction.
+        /// </param>
+        /// <returns>
+        /// A linked list node.
+        /// </returns>
+        private LinkedListNode<ValueTag> GetInstructionNode(
+            ValueTag instruction,
+            FlowGraph graph)
+        {
+            var block = graph.GetInstruction(instruction).Block;
+            return GetInstructionList(block).Find(instruction);
+        }
+
+        /// <summary>
+        /// Gets the linked list of (reordered) instructions
+        /// in a basic block.
+        /// </summary>
+        /// <param name="block">
+        /// The block to find a list of (reordered) instructions for.
+        /// </param>
+        /// <returns>
+        /// A linked list of value tags referring to instructions.
+        /// </returns>
+        private LinkedList<ValueTag> GetInstructionList(
+            BasicBlock block)
+        {
+            LinkedList<ValueTag> blockInstructionList;
+            if (!instructionOrder.TryGetValue(block.Tag, out blockInstructionList))
             {
-                updatedInsns.Add(new CilStoreRegisterInstruction(tag));
+                blockInstructionList = new LinkedList<ValueTag>(block.InstructionTags);
+                foreach (var flowInsn in block.Flow.Instructions)
+                {
+                    blockInstructionList.AddAfter(
+                        blockInstructionList.Last,
+                        new LinkedListNode<ValueTag>(null));
+                }
+                instructionOrder[block.Tag] = blockInstructionList;
             }
-            return SelectedInstructions.Create(updatedInsns, updatedDependencies);
+            return blockInstructionList;
         }
 
         private static CilInstruction CreatePushConstant(
@@ -360,6 +459,172 @@ namespace Flame.Clr.Emit
             return SelectedInstructions.Create<CilCodegenInstruction>(
                 new CilOpInstruction(instruction),
                 dependencies);
+        }
+
+        /// <summary>
+        /// A data structure that helps with wrapping selected instructions.
+        /// </summary>
+        private struct InstructionWrapper
+        {
+            public InstructionWrapper(
+                CilInstructionSelector instructionSelector,
+                Instruction instruction,
+                ValueTag instructionTag,
+                BasicBlockTag blockTag,
+                LinkedListNode<ValueTag> insertionPoint,
+                FlowGraph graph)
+            {
+                this.InstructionSelector = instructionSelector;
+                this.instruction = instruction;
+                this.instructionTag = instructionTag;
+                this.blockTag = blockTag;
+                this.insertionPoint = insertionPoint;
+                this.graph = graph;
+                this.dependencyWorklist = null;
+                this.dependencyArities = null;
+                this.updatedInsns = null;
+                this.updatedDependencies = null;
+                this.uses = graph.GetAnalysisResult<ValueUses>();
+            }
+
+            public CilInstructionSelector InstructionSelector { get; private set; }
+
+            private Instruction instruction;
+            private ValueTag instructionTag;
+            private BasicBlockTag blockTag;
+            private LinkedListNode<ValueTag> insertionPoint;
+            private FlowGraph graph;
+            private Stack<ValueTag> dependencyWorklist;
+            private Dictionary<ValueTag, int> dependencyArities;
+            private ValueUses uses;
+            private List<CilCodegenInstruction> updatedInsns;
+            private List<ValueTag> updatedDependencies;
+
+            /// <summary>
+            /// Selects instructions and wraps them in dependency-loading +
+            /// result-saving instructions.
+            /// </summary>
+            /// <returns>Selected and wrapped instructions.</returns>
+            public SelectedInstructions<CilCodegenInstruction> SelectAndWrap()
+            {
+                var impl = InstructionSelector.SelectInstructionsImpl(instruction, graph);
+
+                updatedInsns = new List<CilCodegenInstruction>();
+                updatedDependencies = new List<ValueTag>();
+
+                // Load or select each dependency.
+                dependencyWorklist = new Stack<ValueTag>(impl.Dependencies);
+                dependencyArities = impl.Dependencies
+                    .GroupBy(tag => tag)
+                    .ToDictionary(group => group.Key, group => group.Count());
+
+                while (dependencyWorklist.Count > 0)
+                {
+                    LoadDependency(dependencyWorklist.Pop());
+                }
+                updatedInsns.Reverse();
+                updatedDependencies.Reverse();
+
+                // Actually run the instructions.
+                updatedInsns.AddRange(impl.Instructions);
+
+                // Store the result if it's not a `void` value.
+                if (instruction.ResultType != InstructionSelector.TypeEnvironment.Void
+                    && instructionTag != null)
+                {
+                    updatedInsns.Add(new CilStoreRegisterInstruction(instructionTag));
+                }
+                return SelectedInstructions.Create(updatedInsns, updatedDependencies);
+            }
+
+            private void LoadDependency(ValueTag dependency)
+            {
+                VariableDefinition allocaVarDef;
+                if (InstructionSelector.AllocaToVariableMapping.TryGetValue(dependency, out allocaVarDef))
+                {
+                    // Replace references to `alloca` instructions that use
+                    // local variables as backing storage with `ldloca` opcodes.
+                    updatedInsns.Add(
+                        new CilOpInstruction(
+                            CilInstruction.Create(OpCodes.Ldloca,
+                            allocaVarDef)));
+                    return;
+                }
+
+                if (graph.ContainsInstruction(dependency))
+                {
+                    var dependencyImpl = graph.GetInstruction(dependency);
+                    if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
+                    {
+                        // Some instructions should always be selected inline.
+                        SelectDependencyInline(dependencyImpl);
+                        return;
+                    }
+                    else if (insertionPoint != null
+                        && uses.GetUseCount(dependency) == 1
+                        && dependencyArities[dependency] == 1
+                        && blockTag == dependencyImpl.Block.Tag
+                        && InstructionSelector.TryReorder(dependency, insertionPoint, graph))
+                    {
+                        // Selecting instructions inline allows us to keep values
+                        // on the stack instead of pushing them into variables.
+                        //
+                        // However, we need to be really careful when doing so
+                        // because it's easy to accidentally reorder instructions
+                        // in a way that produces a non-equivalent program.
+                        //
+                        // These are the rules we'll adhere to:
+                        //
+                        //   1. Only same-block instructions that are used exactly
+                        //      once are candidates for inline selection.
+                        //
+                        //   2. An instruction can only be selected inline if doing
+                        //      so respects the must-run-before relation on instructions.
+                        //      Specifically, a dependency can only be selected inline
+                        //      if there is no instruction between the dependent instruction
+                        //      and the new insertion point such that the dependency
+                        //      must run before that instruction.
+                        //
+                        // We got this far, which means that the conditions above hold for
+                        // the dependency. We can (actually, we kind of have to now) select
+                        // the dependency inline.
+
+                        SelectDependencyInline(dependencyImpl);
+                        return;
+                    }
+                }
+
+                // If all else fails, just insert a `load` instruction.
+                updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
+                updatedDependencies.Add(dependency);
+            }
+
+            private void SelectDependencyInline(SelectedInstruction dependency)
+            {
+                var dependencySelection = InstructionSelector.SelectInstructionsImpl(
+                    dependency.Instruction,
+                    graph);
+
+                InstructionSelector.inlineSelectedInstructions.Add(dependency.Tag);
+                updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
+                foreach (var subdependency in dependencySelection.Dependencies)
+                {
+                    dependencyWorklist.Push(subdependency);
+                    int arity;
+                    if (!dependencyArities.TryGetValue(subdependency, out arity))
+                    {
+                        arity = 0;
+                    }
+                    arity++;
+                    dependencyArities[subdependency] = arity;
+                }
+                insertionPoint = insertionPoint.Previous;
+            }
+
+            private static bool ShouldAlwaysInlineInstruction(Instruction instruction)
+            {
+                return instruction.Prototype is ConstantPrototype;
+            }
         }
     }
 }
