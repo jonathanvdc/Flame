@@ -18,6 +18,7 @@ using System.Text;
 using Mono.Cecil.Rocks;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
+using Flame.Compiler.Transforms;
 
 namespace UnitTests.Flame.Clr
 {
@@ -70,12 +71,7 @@ namespace UnitTests.Flame.Clr
                 },
                 ilProc =>
                 {
-                    var local = new VariableDefinition(int32Type);
-                    ilProc.Body.Variables.Add(local);
-
                     ilProc.Emit(OpCodes.Ldarg_0);
-                    ilProc.Emit(OpCodes.Stloc_0);
-                    ilProc.Emit(OpCodes.Ldloc_0);
                     ilProc.Emit(OpCodes.Ret);
                 });
         }
@@ -156,6 +152,10 @@ namespace UnitTests.Flame.Clr
                     .WithAnalysis(ValueUseAnalysis.Instance)
                     .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance));
 
+            // Optimize the IR a tiny bit.
+            irBody = irBody.WithImplementation(
+                AllocaToRegister.Apply(irBody.Implementation));
+
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
             var newCilBody = emitter.Compile();
@@ -170,13 +170,24 @@ namespace UnitTests.Flame.Clr
             var oracle = FormatMethodBody(expectedCilBody);
             if (actual.Trim() != oracle.Trim())
             {
+                var encoder = new EncoderState();
+                var encodedImpl = encoder.Encode(irBody.Implementation);
+
+                var actualIr = Les2LanguageService.Value.Print(
+                    encodedImpl,
+                    options: new LNodePrinterOptions
+                    {
+                        IndentString = new string(' ', 4)
+                    });
+
                 log.Log(
                     new LogEntry(
                         Severity.Message,
                         "emitted CIL-oracle mismatch",
-                        "round-tripped CIL does not match the oracle. CIL emit output:"));
-                // TODO: ugly hack to work around wrapping.
-                Console.Error.WriteLine(actual.Trim());
+                        "round-tripped CIL does not match the oracle. CIL emit output:",
+                        new Paragraph(new WrapBox(actual.Trim(), 0, -actual.Length)),
+                        DecorationSpan.MakeBold("remark: Flame IR:"),
+                        new Paragraph(new WrapBox(actualIr.Trim(), 0, -actualIr.Length))));
             }
             Assert.AreEqual(oracle, actual);
         }
