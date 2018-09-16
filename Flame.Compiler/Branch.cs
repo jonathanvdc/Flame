@@ -77,6 +77,35 @@ namespace Flame.Compiler
         {
             return new Branch(Target, arguments);
         }
+
+        /// <summary>
+        /// Creates a branch that is the result of appending
+        /// an argument at the end of this branch's argument list.
+        /// </summary>
+        /// <param name="argument">The argument to add.</param>
+        /// <returns>A new branch.</returns>
+        public Branch AddArgument(BranchArgument argument)
+        {
+            var oldArgCount = Arguments.Count;
+            var newArgs = new BranchArgument[oldArgCount + 1];
+            for (int i = 0; i < oldArgCount; i++)
+            {
+                newArgs[i] = Arguments[i];
+            }
+            newArgs[oldArgCount] = argument;
+            return WithArguments(newArgs);
+        }
+
+        /// <summary>
+        /// Creates a branch that is the result of appending
+        /// an argument at the end of this branch's argument list.
+        /// </summary>
+        /// <param name="argument">The argument to add.</param>
+        /// <returns>A new branch.</returns>
+        public Branch AddArgument(ValueTag argument)
+        {
+            return AddArgument(BranchArgument.FromValue(argument));
+        }
     }
 
     /// <summary>
