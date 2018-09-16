@@ -84,6 +84,25 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a method body based on this method body, but
+        /// with a different implementation.
+        /// </summary>
+        /// <param name="newImplementation">
+        /// The implementation of the method body to create.
+        /// </param>
+        /// <returns>
+        /// A new method body.
+        /// </returns>
+        public MethodBody WithImplementation(FlowGraph newImplementation)
+        {
+            return new MethodBody(
+                ReturnParameter,
+                ThisParameter,
+                Parameters,
+                newImplementation);
+        }
+
+        /// <summary>
         /// Validates this method body and returns a list of error messages.
         /// </summary>
         /// <returns>A list of error messages.</returns>
