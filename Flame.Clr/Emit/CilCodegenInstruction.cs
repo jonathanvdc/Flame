@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flame.Compiler;
+using OpCode = Mono.Cecil.Cil.OpCode;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
 
 namespace Flame.Clr.Emit
@@ -19,6 +20,14 @@ namespace Flame.Clr.Emit
     /// </summary>
     public sealed class CilOpInstruction : CilCodegenInstruction
     {
+        /// <summary>
+        /// Creates a CIL instruction that is emitted as-is.
+        /// </summary>
+        /// <param name="op">The opcode to emit.</param>
+        public CilOpInstruction(OpCode op)
+            : this(CilInstruction.Create(op), null)
+        { }
+
         /// <summary>
         /// Creates a CIL instruction that is emitted as-is.
         /// </summary>

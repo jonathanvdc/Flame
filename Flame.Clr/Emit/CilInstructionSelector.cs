@@ -11,6 +11,7 @@ using Flame.Constants;
 using Flame.TypeSystem;
 using Mono.Cecil;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
+using OpCode = Mono.Cecil.Cil.OpCode;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
 
@@ -278,11 +279,97 @@ namespace Flame.Clr.Emit
                         new[] { pointer, value });
                 }
             }
+            else if (proto is IntrinsicPrototype)
+            {
+                var intrinsicProto = (IntrinsicPrototype)proto;
+                return SelectForIntrinsic(intrinsicProto, instruction.Arguments);
+            }
             else
             {
                 throw new System.NotImplementedException();
             }
         }
+
+        /// <summary>
+        /// Selects instructions for an intrinsic.
+        /// </summary>
+        /// <param name="prototype">
+        /// The intrinsic prototype to select instructions for.
+        /// </param>
+        /// <param name="arguments">
+        /// The intrinsic's list of arguments.
+        /// </param>
+        /// <returns>
+        /// A batch of selected instructions for the intrinsic.
+        /// </returns>
+        private SelectedInstructions<CilCodegenInstruction> SelectForIntrinsic(
+            IntrinsicPrototype prototype,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            string opName;
+            if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (prototype.ParameterCount == 2)
+                {
+                    OpCode[] cilOps;
+                    if ((prototype.ParameterTypes[0].IsUnsignedIntegerType()
+                            && unsignedArithmeticBinaries.TryGetValue(opName, out cilOps))
+                        || signedArithmeticBinaries.TryGetValue(opName, out cilOps))
+                    {
+                        return SelectedInstructions.Create<CilCodegenInstruction>(
+                            cilOps.EagerSelect(op => new CilOpInstruction(op)),
+                            arguments);
+                    }
+                }
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown arithmetic intrinsic '{prototype.Name}'.");
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown intrinsic '{prototype.Name}'.");
+            }
+        }
+
+        private static Dictionary<string, OpCode[]> signedArithmeticBinaries =
+            new Dictionary<string, OpCode[]>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, new[] { OpCodes.Add } },
+            { ArithmeticIntrinsics.Operators.Subtract, new[] { OpCodes.Sub } },
+            { ArithmeticIntrinsics.Operators.Multiply, new[] { OpCodes.Mul } },
+            { ArithmeticIntrinsics.Operators.Divide, new[] { OpCodes.Div } },
+            { ArithmeticIntrinsics.Operators.Remainder, new[] { OpCodes.Rem } },
+            { ArithmeticIntrinsics.Operators.IsEqualTo, new[] { OpCodes.Ceq } },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsLessThan, new[] { OpCodes.Clt } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThan, new[] { OpCodes.Cgt } },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
+            { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
+            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
+        };
+
+        private static Dictionary<string, OpCode[]> unsignedArithmeticBinaries =
+            new Dictionary<string, OpCode[]>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, new[] { OpCodes.Add } },
+            { ArithmeticIntrinsics.Operators.Subtract, new[] { OpCodes.Sub } },
+            { ArithmeticIntrinsics.Operators.Multiply, new[] { OpCodes.Mul } },
+            { ArithmeticIntrinsics.Operators.Divide, new[] { OpCodes.Div_Un } },
+            { ArithmeticIntrinsics.Operators.Remainder, new[] { OpCodes.Rem_Un } },
+            { ArithmeticIntrinsics.Operators.IsEqualTo, new[] { OpCodes.Ceq } },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsLessThan, new[] { OpCodes.Clt_Un } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt_Un, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThan, new[] { OpCodes.Cgt_Un } },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt_Un, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
+            { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
+            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
+        };
 
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
             Instruction instruction,
@@ -456,8 +543,15 @@ namespace Flame.Clr.Emit
             CilInstruction instruction,
             params ValueTag[] dependencies)
         {
+            return CreateSelection(instruction, (IReadOnlyList<ValueTag>)dependencies);
+        }
+
+        private static SelectedInstructions<CilCodegenInstruction> CreateSelection(
+            CilInstruction instruction,
+            IReadOnlyList<ValueTag> dependencies)
+        {
             return SelectedInstructions.Create<CilCodegenInstruction>(
-                new CilOpInstruction(instruction),
+                new CilCodegenInstruction[] { new CilOpInstruction(instruction) },
                 dependencies);
         }
 
