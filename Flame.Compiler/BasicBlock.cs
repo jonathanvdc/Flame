@@ -153,6 +153,50 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Inserts a new instruction into this basic block's list of instructions.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="index">
+        /// The index at which the instruction is to be inserted.
+        /// </param>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="tag">The tag for the instruction.</param>
+        /// <returns>The inserted instruction.</returns>
+        public SelectedInstruction InsertInstruction(int index, Instruction instruction, ValueTag tag)
+        {
+            return Graph.InsertInstructionInBasicBlock(Tag, instruction, tag, index);
+        }
+
+        /// <summary>
+        /// Inserts a new instruction into this basic block's list of instructions.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="index">
+        /// The index at which the instruction is to be inserted.
+        /// </param>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name of the instruction's tag.</param>
+        /// <returns>The inserted instruction.</returns>
+        public SelectedInstruction InsertInstruction(int index, Instruction instruction, string name)
+        {
+            return InsertInstruction(index, instruction, new ValueTag(name));
+        }
+
+        /// <summary>
+        /// Inserts a new instruction into this basic block's list of instructions.
+        /// Returns a new basic block in a new control-flow graph.
+        /// </summary>
+        /// <param name="index">
+        /// The index at which the instruction is to be inserted.
+        /// </param>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction.</returns>
+        public SelectedInstruction InsertInstruction(int index, Instruction instruction)
+        {
+            return InsertInstruction(index, instruction, "");
+        }
+
+        /// <summary>
         /// Appends a new parameter to the end of this basic block's parameter list.
         /// Returns a new basic block in a new control-flow graph.
         /// </summary>

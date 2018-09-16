@@ -150,6 +150,43 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Inserts a new instruction into this basic block's list of instructions.
+        /// Returns the instruction builder for the inserted instruction.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <returns>The inserted instruction.</returns>
+        public InstructionBuilder InsertInstruction(int index, Instruction instruction, ValueTag tag)
+        {
+            var selInsn = ImmutableBlock.InsertInstruction(index, instruction, tag);
+            Graph.ImmutableGraph = selInsn.Block.Graph;
+            return Graph.GetInstruction(selInsn.Tag);
+        }
+
+        /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns the instruction builder for the inserted instruction.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name of the instruction's tag.</param>
+        /// <returns>The inserted instruction.</returns>
+        public InstructionBuilder InsertInstruction(int index, Instruction instruction, string name)
+        {
+            return InsertInstruction(index, instruction, new ValueTag(name));
+        }
+
+        /// <summary>
+        /// Appends a new instruction to the end of this basic block.
+        /// Returns the instruction builder for the inserted instruction.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction.</returns>
+        public InstructionBuilder InsertInstruction(int index, Instruction instruction)
+        {
+            return InsertInstruction(index, instruction, new ValueTag());
+        }
+
+        /// <summary>
         /// Appends a new parameter to the end of this basic block's parameter list.
         /// </summary>
         /// <param name="parameter">The parameter to append.</param>
