@@ -63,5 +63,48 @@ namespace Flame.TypeSystem
                 return Read((IntrinsicAttribute)attr);
             }
         }
+
+        /// <summary>
+        /// Tests if a particular type is an integer type.
+        /// </summary>
+        /// <param name="type">The type to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="type"/> has an integer spec;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsIntegerType(this IType type)
+        {
+            var attr = type.Attributes.Get(
+                IntrinsicAttribute.GetIntrinsicAttributeType(AttributeName));
+            return attr != null;
+        }
+
+        /// <summary>
+        /// Tests if a particular type is a signed integer type.
+        /// </summary>
+        /// <param name="type">The type to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="type"/> has a signed integer spec;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsSignedIntegerType(this IType type)
+        {
+            var spec = type.GetIntegerSpecOrNull();
+            return spec != null && spec.IsSigned;
+        }
+
+        /// <summary>
+        /// Tests if a particular type is an unsigned integer type.
+        /// </summary>
+        /// <param name="type">The type to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="type"/> has an unsigned integer spec;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsUnsignedIntegerType(this IType type)
+        {
+            var spec = type.GetIntegerSpecOrNull();
+            return spec != null && !spec.IsSigned;
+        }
     }
 }
