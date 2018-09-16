@@ -99,7 +99,7 @@ namespace Flame.Compiler.Analysis
                 }
                 else if (item is RemoveInstructionUpdate)
                 {
-                    var removeUpdate = (AddInstructionUpdate)item;
+                    var removeUpdate = (RemoveInstructionUpdate)item;
                     effectfulSet.Remove(removeUpdate.Tag);
                 }
                 else
