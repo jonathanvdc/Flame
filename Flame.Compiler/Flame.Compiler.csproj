@@ -93,6 +93,7 @@
     <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
     <Compile Include="Target\PeepholeOptimizer.cs" />
     <Compile Include="Target\SelectedInstructions.cs" />
+    <Compile Include="Transforms\AllocaToRegister.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -115,6 +116,7 @@
     <Folder Include="Flow\" />
     <Folder Include="Instructions\" />
     <Folder Include="Pipeline\" />
+    <Folder Include="Transforms\" />
     <Folder Include="TypeSystem\" />
     <Folder Include="Collections\" />
   </ItemGroup>
