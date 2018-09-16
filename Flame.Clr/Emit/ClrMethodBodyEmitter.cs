@@ -19,7 +19,7 @@ namespace Flame.Clr.Emit
     {
         public ClrMethodBodyEmitter(
             Mono.Cecil.MethodDefinition method,
-            Flame.Compiler.MethodBody sourceBody,
+            MethodBody sourceBody,
             TypeEnvironment typeEnvironment)
         {
             this.Method = method;
@@ -37,7 +37,7 @@ namespace Flame.Clr.Emit
         /// Gets the source method body that is emitted as a CLR method body.
         /// </summary>
         /// <value>The source method body.</value>
-        public Flame.Compiler.MethodBody SourceBody { get; private set; }
+        public MethodBody SourceBody { get; private set; }
 
         /// <summary>
         /// Gets the type environment to use.

@@ -76,6 +76,28 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripStloc()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type },
+                new[] { int32Type },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
@@ -154,7 +176,8 @@ namespace UnitTests.Flame.Clr
 
             // Optimize the IR a tiny bit.
             irBody = irBody.WithImplementation(
-                AllocaToRegister.Apply(irBody.Implementation));
+                DeadValueElimination.Apply(
+                    AllocaToRegister.Apply(irBody.Implementation)));
 
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
