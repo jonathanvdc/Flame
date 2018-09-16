@@ -34,6 +34,10 @@ namespace Flame.Ir
             {
                 return state.Factory.Null;
             }
+            else if (value is DefaultConstant)
+            {
+                return state.Factory.Id(CodeSymbols.Default);
+            }
             else if (value is StringConstant)
             {
                 return state.Factory.Literal(((StringConstant)value).Value);
@@ -94,6 +98,12 @@ namespace Flame.Ir
         /// <returns>A decoded constant.</returns>
         public override Constant Decode(LNode node, DecoderState state)
         {
+            // Default-value constants.
+            if (node.IsIdNamed(CodeSymbols.Default))
+            {
+                return DefaultConstant.Instance;
+            }
+
             if (!FeedbackHelpers.AssertIsLiteral(node, state.Log))
             {
                 return null;
