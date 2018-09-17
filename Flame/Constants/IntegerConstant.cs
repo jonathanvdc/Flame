@@ -543,6 +543,14 @@ namespace Flame.Constants
         }
 
         /// <summary>
+        /// Converts this integer value to a Boolean.
+        /// </summary>
+        public bool ToBoolean()
+        {
+            return Value != 0;
+        }
+
+        /// <summary>
         /// Converts this integer value to an 8-bit unsigned integer.
         /// </summary>
         public byte ToUInt8()

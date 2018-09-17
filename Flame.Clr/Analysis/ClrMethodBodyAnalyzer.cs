@@ -408,15 +408,7 @@ namespace Flame.Clr.Analysis
 
             var conditionType = block.Graph.GetValueType(condition);
             var conditionISpec = conditionType.GetIntegerSpecOrNull();
-            Constant falseConstant;
-            if (conditionISpec == null)
-            {
-                falseConstant = BooleanConstant.False;
-            }
-            else
-            {
-                falseConstant = new IntegerConstant(0).Cast(conditionISpec);
-            }
+            var falseConstant = new IntegerConstant(0).Cast(conditionISpec);
 
             block.Flow = new SwitchFlow(
                 Instruction.CreateCopy(conditionType, condition),

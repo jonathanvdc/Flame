@@ -249,10 +249,11 @@ namespace Flame.Ir
                 // already.
                 return false;
             }
-            else if (literal is BooleanConstant)
+            else if (literal is IntegerConstant
+                && ((IntegerConstant)literal).Spec.Equals(IntegerSpec.UInt1))
             {
                 // Node parsed successfully as a Boolean literal.
-                return ((BooleanConstant)literal).Value;
+                return ((IntegerConstant)literal).Value != 0;
             }
             else
             {

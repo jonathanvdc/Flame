@@ -387,6 +387,7 @@ namespace Flame.Clr
             { nameof(Int16), IntegerSpec.Int16 },
             { nameof(Int32), IntegerSpec.Int32 },
             { nameof(Int64), IntegerSpec.Int64 },
+            { nameof(Boolean), IntegerSpec.UInt1 },
             { nameof(Byte), IntegerSpec.UInt8 },
             { nameof(UInt16), IntegerSpec.UInt16 },
             { nameof(UInt32), IntegerSpec.UInt32 },

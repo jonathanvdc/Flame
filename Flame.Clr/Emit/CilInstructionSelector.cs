@@ -211,9 +211,7 @@ namespace Flame.Clr.Emit
             }
             else if (proto is CopyPrototype)
             {
-                return SelectedInstructions.Create<CilCodegenInstruction>(
-                    new CilCodegenInstruction[0],
-                    instruction.Arguments);
+                return CreateNopSelection(instruction.Arguments);
             }
             else if (proto is AllocaPrototype)
             {
@@ -311,7 +309,176 @@ namespace Flame.Clr.Emit
                 prototype.Name,
                 out opName))
             {
-                if (prototype.ParameterCount == 2)
+                if (prototype.ParameterCount == 1)
+                {
+                    // There are only a few unary arithmetic intrinsics and
+                    // they're all special.
+                    var paramType = prototype.ParameterTypes[0];
+                    if (opName == ArithmeticIntrinsics.Operators.Not)
+                    {
+                        // The 'arith.not' intrinsic can be implemented in one
+                        // of three ways:
+                        //
+                        //   1. As an actual `not` instruction. This works for
+                        //      signed integers, UInt32 and UInt64.
+                        //
+                        //   2. As a `ldc.i4.0; ceq` sequence. This works for
+                        //      Booleans only.
+                        //
+                        //   3. As a `xor` with the all-ones pattern for the
+                        //      integer type. This works for all unsigned integers.
+                        //
+                        var intSpec = paramType.GetIntegerSpecOrNull();
+                        if (intSpec.Size == 32 || intSpec.Size == 64 || intSpec.IsSigned)
+                        {
+                            return CreateSelection(
+                                CilInstruction.Create(OpCodes.Not),
+                                arguments);
+                        }
+                        else if (intSpec.Size == 1)
+                        {
+                            return SelectedInstructions.Create<CilCodegenInstruction>(
+                                new[]
+                                {
+                                    new CilOpInstruction(OpCodes.Ldc_I4_0),
+                                    new CilOpInstruction(OpCodes.Ceq)
+                                },
+                                arguments);
+                        }
+                        else
+                        {
+                            var allOnes = intSpec.UnsignedModulus - 1;
+                            var allOnesConst = new IntegerConstant(
+                                allOnes,
+                                intSpec.UnsignedVariant);
+                            return SelectedInstructions.Create<CilCodegenInstruction>(
+                                new[]
+                                {
+                                    new CilOpInstruction(CreatePushConstant(allOnesConst)),
+                                    new CilOpInstruction(OpCodes.Xor)
+                                },
+                                arguments);
+                        }
+                    }
+                    else if (opName == ArithmeticIntrinsics.Operators.Convert)
+                    {
+                        // Conversions are interesting because Flame IR has a much
+                        // richer type system than the CIL stack type system. Hence,
+                        // integer zext/sext is typically unnecessary. The code
+                        // below takes advantage of that fact to reduce the number
+                        // of instructions emitted.
+
+                        if (paramType == prototype.ResultType)
+                        {
+                            // Do nothing.
+                            return CreateNopSelection(arguments);
+                        }
+                        else if (paramType == TypeEnvironment.Float32 || paramType == TypeEnvironment.Float64)
+                        {
+                            var instructions = new List<CilCodegenInstruction>();
+                            if (paramType.IsUnsignedIntegerType())
+                            {
+                                instructions.Add(new CilOpInstruction(OpCodes.Conv_R_Un));
+                            }
+                            instructions.Add(
+                                new CilOpInstruction(
+                                    paramType == TypeEnvironment.Float32
+                                    ? OpCodes.Conv_R4
+                                    : OpCodes.Conv_R8));
+                            return SelectedInstructions.Create<CilCodegenInstruction>(
+                                instructions,
+                                arguments);
+                        }
+
+                        var targetSpec = prototype.ResultType.GetIntegerSpecOrNull();
+
+                        if (targetSpec != null)
+                        {
+                            var sourceSpec = paramType.GetIntegerSpecOrNull();
+                            if (sourceSpec != null)
+                            {
+                                if (sourceSpec.Size == targetSpec.Size)
+                                {
+                                    // Sign conversions are really just no-ops.
+                                    return CreateNopSelection(arguments);
+                                }
+                                else if (sourceSpec.Size <= targetSpec.Size
+                                    && targetSpec.Size <= 32)
+                                {
+                                    // Integers smaller than 32 bits are represented as
+                                    // 32-bit integers on the stack, so we can just do
+                                    // nothing here.
+                                    return CreateNopSelection(arguments);
+                                }
+                            }
+
+                            // Use dedicated opcodes for conversion to common
+                            // integer types.
+                            if (targetSpec.IsSigned)
+                            {
+                                if (targetSpec.Size == 8)
+                                {
+                                    return CreateSelection(OpCodes.Conv_I1, arguments);
+                                }
+                                else if (targetSpec.Size == 16)
+                                {
+                                    return CreateSelection(OpCodes.Conv_I2, arguments);
+                                }
+                                else if (targetSpec.Size == 32)
+                                {
+                                    return CreateSelection(OpCodes.Conv_I4, arguments);
+                                }
+                                else if (targetSpec.Size == 64)
+                                {
+                                    return CreateSelection(OpCodes.Conv_I8, arguments);
+                                }
+                            }
+                            else
+                            {
+                                if (targetSpec.Size == 8)
+                                {
+                                    return CreateSelection(OpCodes.Conv_U1, arguments);
+                                }
+                                else if (targetSpec.Size == 16)
+                                {
+                                    return CreateSelection(OpCodes.Conv_U2, arguments);
+                                }
+                                else if (targetSpec.Size == 32)
+                                {
+                                    return CreateSelection(OpCodes.Conv_U4, arguments);
+                                }
+                                else if (targetSpec.Size == 64)
+                                {
+                                    return CreateSelection(OpCodes.Conv_U8, arguments);
+                                }
+                            }
+
+                            if (targetSpec.Size == 1)
+                            {
+                                // There's no dedicated opcode for converting values
+                                // to 1-bit integers (Booleans), so we'll just extract
+                                // the least significant bit.
+                                var instructions = new List<CilCodegenInstruction>();
+                                if (sourceSpec == null)
+                                {
+                                    instructions.Add(new CilOpInstruction(OpCodes.Conv_I4));
+                                }
+                                instructions.AddRange(new[]
+                                {
+                                    new CilOpInstruction(OpCodes.Ldc_I4_1),
+                                    new CilOpInstruction(OpCodes.And)
+                                });
+                                return SelectedInstructions.Create<CilCodegenInstruction>(
+                                    instructions,
+                                    arguments);
+                            }
+                        }
+
+                        throw new NotSupportedException(
+                            $"Unsupported primitive conversion of '{paramType}' to '{prototype.ResultType}'.");
+                    }
+                }
+                else if (prototype.ParameterCount == 2)
                 {
                     OpCode[] cilOps;
                     if ((prototype.ParameterTypes[0].IsUnsignedIntegerType()
@@ -342,11 +509,11 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.Divide, new[] { OpCodes.Div } },
             { ArithmeticIntrinsics.Operators.Remainder, new[] { OpCodes.Rem } },
             { ArithmeticIntrinsics.Operators.IsEqualTo, new[] { OpCodes.Ceq } },
-            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.IsLessThan, new[] { OpCodes.Clt } },
-            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.IsGreaterThan, new[] { OpCodes.Cgt } },
-            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
             { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
             { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
@@ -361,11 +528,11 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.Divide, new[] { OpCodes.Div_Un } },
             { ArithmeticIntrinsics.Operators.Remainder, new[] { OpCodes.Rem_Un } },
             { ArithmeticIntrinsics.Operators.IsEqualTo, new[] { OpCodes.Ceq } },
-            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, new[] { OpCodes.Ceq, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.IsLessThan, new[] { OpCodes.Clt_Un } },
-            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt_Un, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, new[] { OpCodes.Clt_Un, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.IsGreaterThan, new[] { OpCodes.Cgt_Un } },
-            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt_Un, OpCodes.Not } },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt_Un, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
             { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
             { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
@@ -509,11 +676,6 @@ namespace Flame.Clr.Emit
                         "too large to fit in a 64-bit integer.");
                 }
             }
-            else if (constant is BooleanConstant)
-            {
-                var bconst = (BooleanConstant)constant;
-                return CilInstruction.Create(bconst.Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            }
             else if (constant is NullConstant)
             {
                 return CilInstruction.Create(OpCodes.Ldnull);
@@ -552,6 +714,21 @@ namespace Flame.Clr.Emit
         {
             return SelectedInstructions.Create<CilCodegenInstruction>(
                 new CilCodegenInstruction[] { new CilOpInstruction(instruction) },
+                dependencies);
+        }
+
+        private static SelectedInstructions<CilCodegenInstruction> CreateSelection(
+            OpCode instruction,
+            IReadOnlyList<ValueTag> dependencies)
+        {
+            return CreateSelection(CilInstruction.Create(instruction), dependencies);
+        }
+
+        private static SelectedInstructions<CilCodegenInstruction> CreateNopSelection(
+            IReadOnlyList<ValueTag> dependencies)
+        {
+            return SelectedInstructions.Create<CilCodegenInstruction>(
+                EmptyArray<CilCodegenInstruction>.Value,
                 dependencies);
         }
 

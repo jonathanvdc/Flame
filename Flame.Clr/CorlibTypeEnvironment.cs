@@ -39,8 +39,9 @@ namespace Flame.Clr
                 ResolveArrayBaseTypes);
             this.signedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveSignedIntegerTypes);
             this.unsignedIntegerTypes = new Lazy<Dictionary<int, IType>>(ResolveUnsignedIntegerTypes);
-            this.booleanType = new Lazy<IType>(() => ResolveSystemType("Boolean"));
-            this.voidType = new Lazy<IType>(() => ResolveSystemType("Void"));
+            this.voidType = new Lazy<IType>(() => ResolveSystemType(nameof(Void)));
+            this.float32Type = new Lazy<IType>(() => ResolveSystemType(nameof(Single)));
+            this.float64Type = new Lazy<IType>(() => ResolveSystemType(nameof(Double)));
         }
 
         /// <summary>
@@ -50,22 +51,22 @@ namespace Flame.Clr
         /// <returns>The core library type resolver.</returns>
         public ReadOnlyTypeResolver CorlibTypeResolver { get; private set; }
 
-        /// <summary>
-        /// Gets the Boolean type for this type environment.
-        /// </summary>
-        public override IType Boolean => booleanType.Value;
-
-        /// <summary>
-        /// Gets the Void type for this type environment.
-        /// </summary>
+        /// <inheritdoc/>
         public override IType Void => voidType.Value;
+
+        /// <inheritdoc/>
+        public override IType Float32 => float32Type.Value;
+
+        /// <inheritdoc/>
+        public override IType Float64 => float64Type.Value;
 
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
         private Lazy<Dictionary<int, IType>> signedIntegerTypes;
         private Lazy<Dictionary<int, IType>> unsignedIntegerTypes;
-        private Lazy<IType> booleanType;
         private Lazy<IType> voidType;
+        private Lazy<IType> float32Type;
+        private Lazy<IType> float64Type;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(
@@ -138,6 +139,7 @@ namespace Flame.Clr
         {
             return new Dictionary<int, IType>
             {
+                { 1, ResolveSystemType(nameof(Boolean)) },
                 { 8, ResolveSystemType(nameof(Byte)) },
                 { 16, ResolveSystemType(nameof(UInt16)) },
                 { 32, ResolveSystemType(nameof(UInt32)) },

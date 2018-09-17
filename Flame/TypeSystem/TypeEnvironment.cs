@@ -71,16 +71,29 @@ namespace Flame.TypeSystem
             out IType arrayType);
 
         /// <summary>
-        /// Gets the Boolean type in this type environment.
-        /// </summary>
-        /// <value>The Boolean type.</value>
-        public abstract IType Boolean { get; }
-
-        /// <summary>
         /// Gets the Void type in this type environment.
         /// </summary>
         /// <value>The Void type.</value>
         public abstract IType Void { get; }
+
+        /// <summary>
+        /// Gets the 32-bit floating point type in this type environment.
+        /// </summary>
+        /// <value>A 32-bit floating point type.</value>
+        public abstract IType Float32 { get; }
+
+        /// <summary>
+        /// Gets the 64-bit floating point type in this type environment.
+        /// </summary>
+        /// <value>A 64-bit floating point type.</value>
+        public abstract IType Float64 { get; }
+
+        /// <summary>
+        /// Gets the Boolean type in this type environment.
+        /// Booleans are represented by the UInt1 type.
+        /// </summary>
+        /// <value>The Boolean type aka UInt1.</value>
+        public IType Boolean => MakeUnsignedIntegerType(1);
 
         /// <summary>
         /// Gets a 32-bit signed integer type.
@@ -167,10 +180,13 @@ namespace Flame.TypeSystem
         public TypeEnvironment InnerEnvironment { get; set; }
 
         /// <inheritdoc/>
-        public override IType Boolean => InnerEnvironment.Boolean;
+        public override IType Void => InnerEnvironment.Void;
 
         /// <inheritdoc/>
-        public override IType Void => InnerEnvironment.Void;
+        public override IType Float32 => InnerEnvironment.Float32;
+
+        /// <inheritdoc/>
+        public override IType Float64 => InnerEnvironment.Float64;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

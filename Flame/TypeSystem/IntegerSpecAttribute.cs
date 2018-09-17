@@ -24,7 +24,7 @@ namespace Flame.TypeSystem
             ContractHelpers.Assert(attribute.Arguments.Count == 2);
             return new IntegerSpec(
                 ((IntegerConstant)attribute.Arguments[0]).ToInt32(),
-                ((BooleanConstant)attribute.Arguments[1]).Value);
+                ((IntegerConstant)attribute.Arguments[1]).ToBoolean());
         }
 
         /// <summary>

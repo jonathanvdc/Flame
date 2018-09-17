@@ -42,17 +42,17 @@ namespace Flame.Ir
             {
                 return state.Factory.Literal(((StringConstant)value).Value);
             }
-            else if (value is BooleanConstant)
-            {
-                return state.Factory.Literal(((BooleanConstant)value).Value);
-            }
             else if (value is IntegerConstant)
             {
                 var integerConst = (IntegerConstant)value;
 
                 // Try to encode integer types supported natively by
                 // Loyc as integer literals instead of custom literals.
-                if (integerConst.Spec.Equals(IntegerSpec.UInt32))
+                if (integerConst.Spec.Equals(IntegerSpec.UInt1))
+                {
+                    return state.Factory.Literal(((IntegerConstant)value).Value != 0);
+                }
+                else if (integerConst.Spec.Equals(IntegerSpec.UInt32))
                 {
                     return state.Factory.Literal(integerConst.ToUInt32());
                 }
