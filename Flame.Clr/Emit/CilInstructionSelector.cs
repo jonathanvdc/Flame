@@ -646,9 +646,7 @@ namespace Flame.Clr.Emit
                 blockInstructionList = new LinkedList<ValueTag>(block.InstructionTags);
                 foreach (var flowInsn in block.Flow.Instructions)
                 {
-                    blockInstructionList.AddAfter(
-                        blockInstructionList.Last,
-                        new LinkedListNode<ValueTag>(null));
+                    blockInstructionList.AddLast(new LinkedListNode<ValueTag>(null));
                 }
                 instructionOrder[block.Tag] = blockInstructionList;
             }
