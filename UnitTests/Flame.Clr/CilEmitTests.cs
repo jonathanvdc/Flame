@@ -122,6 +122,30 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripCgt()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type, int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Cgt);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Cgt);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
