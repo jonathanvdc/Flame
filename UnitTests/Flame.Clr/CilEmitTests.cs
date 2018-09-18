@@ -146,6 +146,36 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripBrPop()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type, int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var firstInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    var secondInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+                    var firstThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, firstInstr);
+                    var secondThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, secondInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, firstThunk);
+                    ilProc.Append(firstInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, secondThunk);
+                    ilProc.Append(secondInstr);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(firstThunk);
+                    ilProc.Append(secondThunk);
+                },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
@@ -195,6 +225,7 @@ namespace UnitTests.Flame.Clr
             }
 
             emitBody(cilBody.GetILProcessor());
+            cilBody.Optimize();
 
             // Analyze it as Flame IR.
             var irBody = ClrMethodBodyAnalyzer.Analyze(
@@ -225,7 +256,8 @@ namespace UnitTests.Flame.Clr
             // Optimize the IR a tiny bit.
             irBody = irBody.WithImplementation(
                 DeadValueElimination.Apply(
-                    AllocaToRegister.Apply(irBody.Implementation)));
+                    CopyPropagation.Apply(
+                        AllocaToRegister.Apply(irBody.Implementation))));
 
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
