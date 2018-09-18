@@ -191,6 +191,21 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Replaces all uses of values with other values.
+        /// The values to replace are encoded as keys in a
+        /// dictionary and the values to replace them with as
+        /// values in that same dictionary.
+        /// </summary>
+        /// <param name="replacementMap">
+        /// A mapping of values to replacement values.
+        /// </param>
+        public void ReplaceUses(
+            IReadOnlyDictionary<ValueTag, ValueTag> replacementMap)
+        {
+            ImmutableGraph = ImmutableGraph.ReplaceUses(replacementMap);
+        }
+
+        /// <summary>
         /// Gets the basic block with a particular tag.
         /// </summary>
         /// <param name="tag">The basic block's tag.</param>

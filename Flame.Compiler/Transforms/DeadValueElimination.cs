@@ -137,7 +137,21 @@ namespace Flame.Compiler.Transforms
             return liveValues;
         }
 
-        private static IEnumerable<KeyValuePair<ValueTag, BranchArgument>> ZipArgumentsAndParameters(
+        /// <summary>
+        /// Creates a zipped sequence of branch arguments and the
+        /// basic block parameters they correspond to.
+        /// </summary>
+        /// <param name="branch">
+        /// A branch.
+        /// </param>
+        /// <param name="graph">
+        /// The flow graph that defines the branch.
+        /// </param>
+        /// <returns>
+        /// A zipped sequence of basic block parameter tags and
+        /// branch arguments.
+        /// </returns>
+        public static IEnumerable<KeyValuePair<ValueTag, BranchArgument>> ZipArgumentsAndParameters(
             Branch branch,
             FlowGraph graph)
         {

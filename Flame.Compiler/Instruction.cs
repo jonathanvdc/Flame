@@ -53,6 +53,20 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a new instruction that copies everything
+        /// from this instruction but uses a different argument
+        /// list.
+        /// </summary>
+        /// <param name="newArguments">
+        /// The new argument list.
+        /// </param>
+        /// <returns>A new instruction.</returns>
+        public Instruction WithArguments(IReadOnlyList<ValueTag> newArguments)
+        {
+            return Prototype.Instantiate(newArguments);
+        }
+
+        /// <summary>
         /// Applies a member mapping to this instruction.
         /// </summary>
         /// <param name="mapping">A member mapping.</param>

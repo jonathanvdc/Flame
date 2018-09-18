@@ -549,6 +549,142 @@ namespace Flame.Compiler
             return result;
         }
 
+        /// <summary>
+        /// Replaces all uses of values with other values.
+        /// The values to replace are encoded as keys in a
+        /// dictionary and the values to replace them with as
+        /// values in that same dictionary.
+        /// </summary>
+        /// <param name="replacementMap">
+        /// A mapping of values to replacement values.
+        /// </param>
+        /// <returns>
+        /// A new flow graph.
+        /// </returns>
+        public FlowGraph ReplaceUses(
+            IReadOnlyDictionary<ValueTag, ValueTag> replacementMap)
+        {
+            var builder = ToBuilder();
+
+            // Replace uses in instructions.
+            foreach (var selection in builder.Instructions)
+            {
+                Instruction newInstruction;
+                if (TryReplaceUsesInInstruction(
+                    selection.Instruction,
+                    replacementMap,
+                    out newInstruction))
+                {
+                    selection.Instruction = newInstruction;
+                }
+            }
+
+            // Replace uses in flows.
+            foreach (var block in builder.BasicBlocks)
+            {
+                var flow = block.Flow;
+                BlockFlow newFlow;
+                if (TryReplaceUsesInFlow(flow, replacementMap, out newFlow))
+                {
+                    block.Flow = newFlow;
+                }
+            }
+
+            return builder.ToImmutable();
+        }
+
+        private static bool TryReplaceUsesInInstruction(
+            Instruction instruction,
+            IReadOnlyDictionary<ValueTag, ValueTag> replacementMap,
+            out Instruction newInstruction)
+        {
+            var argCount = instruction.Arguments.Count;
+            var newArgs = new ValueTag[argCount];
+            bool replacedAny = false;
+            for (int i = 0; i < argCount; i++)
+            {
+                var key = instruction.Arguments[i];
+                ValueTag value;
+                if (replacementMap.TryGetValue(key, out value)
+                    && value != key)
+                {
+                    newArgs[i] = value;
+                    replacedAny = true;
+                }
+                else
+                {
+                    newArgs[i] = key;
+                }
+            }
+            if (replacedAny)
+            {
+                newInstruction = instruction.WithArguments(newArgs);
+            }
+            else
+            {
+                newInstruction = instruction;
+            }
+            return replacedAny;
+        }
+
+        private static bool TryReplaceUsesInFlow(
+            BlockFlow flow,
+            IReadOnlyDictionary<ValueTag, ValueTag> replacementMap,
+            out BlockFlow newFlow)
+        {
+            bool replacedAny = false;
+            var instructions = flow.Instructions;
+            var newInstructions = new Instruction[instructions.Count];
+            for (int i = 0; i < newInstructions.Length; i++)
+            {
+                Instruction newInsn;
+                if (TryReplaceUsesInInstruction(instructions[i], replacementMap, out newInsn))
+                {
+                    newInstructions[i] = newInsn;
+                    replacedAny = true;
+                }
+                else
+                {
+                    newInstructions[i] = instructions[i];
+                }
+            }
+
+            var branches = flow.Branches;
+            var newBranches = new Branch[branches.Count];
+            for (int i = 0; i < newBranches.Length; i++)
+            {
+                var branch = branches[i];
+                var newArgs = new BranchArgument[branch.Arguments.Count];
+                for (int j = 0; j < newArgs.Length; j++)
+                {
+                    var arg = branch.Arguments[j];
+                    ValueTag value;
+                    if (arg.IsValue
+                        && replacementMap.TryGetValue(arg.ValueOrNull, out value)
+                        && value != arg.ValueOrNull)
+                    {
+                        newArgs[j] = BranchArgument.FromValue(value);
+                        replacedAny = true;
+                    }
+                    else
+                    {
+                        newArgs[j] = arg;
+                    }
+                }
+                newBranches[i] = branch.WithArguments(newArgs);
+            }
+
+            if (replacedAny)
+            {
+                newFlow = flow.WithBranches(newBranches).WithInstructions(newInstructions);
+            }
+            else
+            {
+                newFlow = flow;
+            }
+            return replacedAny;
+        }
+
         internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)
         {
             AssertContainsBasicBlock(tag);
