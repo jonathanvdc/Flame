@@ -130,4 +130,25 @@ namespace Flame.Clr.Emit
         /// <value>A value tag.</value>
         public ValueTag Value { get; private set; }
     }
+
+    /// <summary>
+    /// An instruction that computes the address of a virtual register.
+    /// </summary>
+    public sealed class CilAddressOfRegisterInstruction : CilCodegenInstruction
+    {
+        /// <summary>
+        /// Creates an instruction that computes the address of a virtual register.
+        /// </summary>
+        /// <param name="value">The virtual register.</param>
+        public CilAddressOfRegisterInstruction(ValueTag value)
+        {
+            this.Value = value;
+        }
+
+        /// <summary>
+        /// Gets the virtual register manipulated by this instruction.
+        /// </summary>
+        /// <value>A value tag.</value>
+        public ValueTag Value { get; private set; }
+    }
 }

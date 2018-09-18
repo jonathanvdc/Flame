@@ -187,6 +187,20 @@ namespace Flame.Clr.Emit
             {
                 return CreateSelection(CilInstruction.Create(OpCodes.Ldloca, allocaVarDef));
             }
+            else if (IsDefaultConstant(instruction.Instruction))
+            {
+                // 'Default' constants are special.
+                return new SelectedInstructions<CilCodegenInstruction>(
+                    new CilCodegenInstruction[]
+                    {
+                        new CilAddressOfRegisterInstruction(instruction.Tag),
+                        new CilOpInstruction(
+                            CilInstruction.Create(
+                                OpCodes.Initobj,
+                                TypeHelpers.ToTypeReference(instruction.Instruction.ResultType)))
+                    },
+                    EmptyArray<ValueTag>.Value);
+            }
             else
             {
                 var block = instruction.Block;
@@ -823,7 +837,11 @@ namespace Flame.Clr.Emit
                 if (graph.ContainsInstruction(dependency))
                 {
                     var dependencyImpl = graph.GetInstruction(dependency);
-                    if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
+                    if (IsDefaultConstant(dependencyImpl.Instruction))
+                    {
+                        // Fall through to the default implementation.
+                    }
+                    else if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
                     {
                         // Some instructions should always be selected inline.
                         SelectDependencyInline(dependencyImpl);
@@ -892,8 +910,17 @@ namespace Flame.Clr.Emit
 
             private static bool ShouldAlwaysInlineInstruction(Instruction instruction)
             {
-                return instruction.Prototype is ConstantPrototype;
+                var proto = instruction.Prototype;
+                return proto is ConstantPrototype
+                    && ((ConstantPrototype)proto).Value != DefaultConstant.Instance;
             }
+        }
+
+        private static bool IsDefaultConstant(Instruction instruction)
+        {
+            var proto = instruction.Prototype;
+            return proto is ConstantPrototype
+                && ((ConstantPrototype)proto).Value == DefaultConstant.Instance;
         }
     }
 }

@@ -57,19 +57,19 @@ namespace Flame.Clr.Analysis
             { OpCodes.Ble_Un, CreateConditionalBranchRewriter(OpCodes.Cgt_Un, OpCodes.Brfalse) },
 
             // Short branch opcodes.
-            { OpCodes.Br_S, CreateShortInstructionRewriter(OpCodes.Br) },
-            { OpCodes.Brtrue_S, CreateShortInstructionRewriter(OpCodes.Brtrue) },
-            { OpCodes.Brfalse_S, CreateShortInstructionRewriter(OpCodes.Brfalse) },
-            { OpCodes.Beq_S, CreateShortInstructionRewriter(OpCodes.Beq) },
-            { OpCodes.Blt_S, CreateShortInstructionRewriter(OpCodes.Blt) },
-            { OpCodes.Bgt_S, CreateShortInstructionRewriter(OpCodes.Bgt) },
-            { OpCodes.Bgt_Un_S, CreateShortInstructionRewriter(OpCodes.Bgt_Un) },
-            { OpCodes.Bne_Un_S, CreateShortInstructionRewriter(OpCodes.Bne_Un) },
-            { OpCodes.Bge_S, CreateShortInstructionRewriter(OpCodes.Bge) },
-            { OpCodes.Bge_Un_S, CreateShortInstructionRewriter(OpCodes.Bge_Un) },
-            { OpCodes.Ble_S, CreateShortInstructionRewriter(OpCodes.Ble) },
-            { OpCodes.Ble_Un_S, CreateShortInstructionRewriter(OpCodes.Ble_Un) },
-            { OpCodes.Leave_S, CreateShortInstructionRewriter(OpCodes.Leave) },
+            { OpCodes.Br_S, CreateShortBranchInstructionRewriter(OpCodes.Br) },
+            { OpCodes.Brtrue_S, CreateShortBranchInstructionRewriter(OpCodes.Brtrue) },
+            { OpCodes.Brfalse_S, CreateShortBranchInstructionRewriter(OpCodes.Brfalse) },
+            { OpCodes.Beq_S, CreateShortBranchInstructionRewriter(OpCodes.Beq) },
+            { OpCodes.Blt_S, CreateShortBranchInstructionRewriter(OpCodes.Blt) },
+            { OpCodes.Bgt_S, CreateShortBranchInstructionRewriter(OpCodes.Bgt) },
+            { OpCodes.Bgt_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Bgt_Un) },
+            { OpCodes.Bne_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Bne_Un) },
+            { OpCodes.Bge_S, CreateShortBranchInstructionRewriter(OpCodes.Bge) },
+            { OpCodes.Bge_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Bge_Un) },
+            { OpCodes.Ble_S, CreateShortBranchInstructionRewriter(OpCodes.Ble) },
+            { OpCodes.Ble_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Ble_Un) },
+            { OpCodes.Leave_S, CreateShortBranchInstructionRewriter(OpCodes.Leave) },
 
             // Short integer constants.
             { OpCodes.Ldc_I4_0, CreateConstantRewriter(Instruction.Create(OpCodes.Ldc_I4, 0)) },
@@ -95,22 +95,22 @@ namespace Flame.Clr.Analysis
             { OpCodes.Ldarg_1, CreateArgumentAccessRewriter(OpCodes.Ldarg, 1) },
             { OpCodes.Ldarg_2, CreateArgumentAccessRewriter(OpCodes.Ldarg, 2) },
             { OpCodes.Ldarg_3, CreateArgumentAccessRewriter(OpCodes.Ldarg, 3) },
-            { OpCodes.Ldarg_S, CreateShortInstructionRewriter(OpCodes.Ldarg) },
-            { OpCodes.Ldarga_S, CreateShortInstructionRewriter(OpCodes.Ldarga) },
-            { OpCodes.Starg_S, CreateShortInstructionRewriter(OpCodes.Starg) },
+            { OpCodes.Ldarg_S, CreateShortArgInstructionRewriter(OpCodes.Ldarg) },
+            { OpCodes.Ldarga_S, CreateShortArgInstructionRewriter(OpCodes.Ldarga) },
+            { OpCodes.Starg_S, CreateShortArgInstructionRewriter(OpCodes.Starg) },
 
             // Local variable access.
             { OpCodes.Ldloc_0, CreateLocalAccessRewriter(OpCodes.Ldloc, 0) },
             { OpCodes.Ldloc_1, CreateLocalAccessRewriter(OpCodes.Ldloc, 1) },
             { OpCodes.Ldloc_2, CreateLocalAccessRewriter(OpCodes.Ldloc, 2) },
             { OpCodes.Ldloc_3, CreateLocalAccessRewriter(OpCodes.Ldloc, 3) },
-            { OpCodes.Ldloc_S, CreateShortInstructionRewriter(OpCodes.Ldloc) },
-            { OpCodes.Ldloca_S, CreateShortInstructionRewriter(OpCodes.Ldloca) },
+            { OpCodes.Ldloc_S, CreateShortLocalInstructionRewriter(OpCodes.Ldloc) },
+            { OpCodes.Ldloca_S, CreateShortLocalInstructionRewriter(OpCodes.Ldloca) },
             { OpCodes.Stloc_0, CreateLocalAccessRewriter(OpCodes.Stloc, 0) },
             { OpCodes.Stloc_1, CreateLocalAccessRewriter(OpCodes.Stloc, 1) },
             { OpCodes.Stloc_2, CreateLocalAccessRewriter(OpCodes.Stloc, 2) },
             { OpCodes.Stloc_3, CreateLocalAccessRewriter(OpCodes.Stloc, 3) },
-            { OpCodes.Stloc_S, CreateShortInstructionRewriter(OpCodes.Stloc) }
+            { OpCodes.Stloc_S, CreateShortLocalInstructionRewriter(OpCodes.Stloc) }
         };
 
         private static Rewriter CreateConditionalBranchRewriter(
@@ -126,13 +126,33 @@ namespace Flame.Clr.Analysis
             };
         }
 
-        private static Rewriter CreateShortInstructionRewriter(
+        private static Rewriter CreateShortBranchInstructionRewriter(
             OpCode longOpCode)
         {
-            return (instruction, body) => {
-                var result = Instruction.Create(longOpCode);
-                result.Operand = instruction.Operand;
+            return (instruction, body) =>
+            {
+                var result = Instruction.Create(longOpCode, (Instruction)instruction.Operand);
                 return new[] { result };
+            };
+        }
+
+        private static Rewriter CreateShortArgInstructionRewriter(
+            OpCode longOpCode)
+        {
+            return (instruction, body) =>
+            {
+                var result = Instruction.Create(longOpCode, (ParameterDefinition)instruction.Operand);
+                return new [] { result };
+            };
+        }
+
+        private static Rewriter CreateShortLocalInstructionRewriter(
+            OpCode longOpCode)
+        {
+            return (instruction, body) =>
+            {
+                var result = Instruction.Create(longOpCode, (VariableDefinition)instruction.Operand);
+                return new [] { result };
             };
         }
 

@@ -71,6 +71,9 @@ namespace Flame.Clr.Emit
                 codegenInsns
                     .OfType<CilLoadRegisterInstruction>()
                     .Select(insn => insn.Value));
+            loadedValues.UnionWith(
+                codegenInsns.OfType<CilAddressOfRegisterInstruction>()
+                .Select(insn => insn.Value));
 
             // Allocate registers to values.
             var regAllocator = new CilRegisterAllocator(
@@ -220,6 +223,20 @@ namespace Flame.Clr.Emit
                         {
                             IncrementUseCount(reg.VariableOrNull);
                             Emit(CilInstruction.Create(OpCodes.Ldloc, reg.VariableOrNull));
+                        }
+                    }
+                    else if (instruction is CilAddressOfRegisterInstruction)
+                    {
+                        var addressOfInsn = (CilAddressOfRegisterInstruction)instruction;
+                        var reg = RegisterAllocation.GetRegister(addressOfInsn.Value);
+                        if (reg.IsParameter)
+                        {
+                            Emit(CilInstruction.Create(OpCodes.Ldarga, reg.ParameterOrNull));
+                        }
+                        else
+                        {
+                            IncrementUseCount(reg.VariableOrNull);
+                            Emit(CilInstruction.Create(OpCodes.Ldloca, reg.VariableOrNull));
                         }
                     }
                     else
