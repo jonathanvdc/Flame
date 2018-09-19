@@ -116,8 +116,7 @@ namespace Flame.Compiler.Transforms
             {
                 foreach (var branch in block.Flow.Branches)
                 {
-                    foreach (var pair in DeadValueElimination
-                        .ZipArgumentsAndParameters(branch, graph))
+                    foreach (var pair in branch.ZipArgumentsWithParameters(graph))
                     {
                         if (pair.Value.IsValue)
                         {
