@@ -56,7 +56,15 @@ namespace Flame.Clr.Emit
             new PeepholeRewriteRule<Instruction>[]
         {
             DupUse1PopToUse1,
-            LdcZeroBeqToBrfalse
+            LdcZeroBeqToBrfalse,
+            CltBrfalseToBge,
+            CltUnBrfalseToBgeUn,
+            CltBrtrueToBlt,
+            CltUnBrtrueToBltUn,
+            CgtBrfalseToBle,
+            CgtUnBrfalseToBleUn,
+            CgtBrtrueToBgt,
+            CgtUnBrtrueToBgtUn
         };
 
         /// <summary>
@@ -99,6 +107,166 @@ namespace Flame.Clr.Emit
                     insns => new[]
                     {
                         Instruction.Create(OpCodes.Brfalse, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `clt; brfalse target` pattern to `bge target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CltBrfalseToBge
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Clt),
+                        HasOpCode(OpCodes.Brfalse)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Bge, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `clt_un; brfalse target` pattern to `bge_un target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CltUnBrfalseToBgeUn
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Clt_Un),
+                        HasOpCode(OpCodes.Brfalse)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Bge_Un, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `cgt; brfalse target` pattern to `ble target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CgtBrfalseToBle
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Cgt),
+                        HasOpCode(OpCodes.Brfalse)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Ble, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `cgt_un; brfalse target` pattern to `ble_un target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CgtUnBrfalseToBleUn
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Cgt_Un),
+                        HasOpCode(OpCodes.Brfalse)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Ble_Un, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `clt; brtrue target` pattern to `blt target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CltBrtrueToBlt
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Clt),
+                        HasOpCode(OpCodes.Brtrue)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Blt, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `clt_un; brtrue target` pattern to `blt_un target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CltUnBrtrueToBltUn
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Clt_Un),
+                        HasOpCode(OpCodes.Brtrue)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Blt_Un, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `cgt; brtrue target` pattern to `bgt target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CgtBrtrueToBgt
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Cgt),
+                        HasOpCode(OpCodes.Brtrue)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Bgt, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `cgt_un; brtrue target` pattern to `bgt_un target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CgtUnBrtrueToBgtUn
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Cgt_Un),
+                        HasOpCode(OpCodes.Brtrue)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Bgt_Un, (Instruction)insns[1].Operand)
                     });
             }
         }
