@@ -60,6 +60,12 @@ namespace Flame.Compiler.Flow
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => cachedBranchList;
 
+        /// <summary>
+        /// Tells if this switch flow represents if-else flow,
+        /// that is, if it has a single case matching on a single value.
+        /// </summary>
+        public bool IsIfElseFlow => Cases.Count == 1 && Cases[0].Values.Count == 1;
+
         private IReadOnlyList<Branch> cachedBranchList;
 
         private IReadOnlyList<Branch> CreateBranchList()
