@@ -63,32 +63,73 @@ namespace Flame.Compiler.Transforms
         {
             var allocaInstructions = new HashSet<ValueTag>();
             var blacklistedAllocas = new HashSet<ValueTag>();
+
+            // We will first look for instructions that *do* have the
+            // identity property if they are allocas. Also, we will
+            // compose a list of all alloca instructions.
             foreach (var selection in graph.Instructions)
             {
-                var instruction = selection.Instruction;
-                var prototype = instruction.Prototype;
-                if (prototype is LoadPrototype)
-                {
-                    continue;
-                }
-                else if (prototype is StorePrototype)
-                {
-                    var storeProto = (StorePrototype)prototype;
-                    blacklistedAllocas.Add(storeProto.GetValue(instruction));
-                }
-                else
-                {
-                    if (prototype is AllocaPrototype)
-                    {
-                        allocaInstructions.Add(selection.Tag);
-                    }
+                VisitForIdentityProperty(
+                    selection.Instruction,
+                    selection.Tag,
+                    allocaInstructions,
+                    blacklistedAllocas);
+            }
 
-                    blacklistedAllocas.UnionWith(instruction.Arguments);
+            // Branch arguments always have the identity property.
+            foreach (var block in graph.BasicBlocks)
+            {
+                var flow = block.Flow;
+                foreach (var instruction in flow.Instructions)
+                {
+                    VisitForIdentityProperty(
+                        instruction,
+                        null,
+                        allocaInstructions,
+                        blacklistedAllocas);
+                }
+
+                foreach (var branch in flow.Branches)
+                {
+                    foreach (var arg in branch.Arguments)
+                    {
+                        if (arg.IsValue)
+                        {
+                            blacklistedAllocas.Add(arg.ValueOrNull);
+                        }
+                    }
                 }
             }
 
             allocaInstructions.ExceptWith(blacklistedAllocas);
             return allocaInstructions;
+        }
+
+        private static void VisitForIdentityProperty(
+            Instruction instruction,
+            ValueTag tag,
+            HashSet<ValueTag> allocaInstructions,
+            HashSet<ValueTag> blacklistedAllocas)
+        {
+            var prototype = instruction.Prototype;
+            if (prototype is LoadPrototype)
+            {
+                return;
+            }
+            else if (prototype is StorePrototype)
+            {
+                var storeProto = (StorePrototype)prototype;
+                blacklistedAllocas.Add(storeProto.GetValue(instruction));
+            }
+            else
+            {
+                if (tag != null && prototype is AllocaPrototype)
+                {
+                    allocaInstructions.Add(tag);
+                }
+
+                blacklistedAllocas.UnionWith(instruction.Arguments);
+            }
         }
 
         private struct SSAConstructionAlgorithm
