@@ -206,6 +206,20 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Removes the definitions for a set of values
+        /// from this flow graph.
+        /// </summary>
+        /// <param name="valuesToRemove">
+        /// A set of values whose definitions are to be eliminated
+        /// from the flow graph. These values can refer to instructions
+        /// and basic block parameters.
+        /// </param>
+        public void RemoveDefinitions(IEnumerable<ValueTag> valuesToRemove)
+        {
+            ImmutableGraph = ImmutableGraph.RemoveDefinitions(valuesToRemove);
+        }
+
+        /// <summary>
         /// Gets the basic block with a particular tag.
         /// </summary>
         /// <param name="tag">The basic block's tag.</param>
