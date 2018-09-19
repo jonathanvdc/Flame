@@ -270,6 +270,38 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripCall()
+        {
+            var stringType = corlib.Definition.MainModule.TypeSystem.String;
+            var concatMethod = stringType
+                .Resolve()
+                .Methods
+                .First(method =>
+                    method.Parameters.Count == 2
+                    && method.Name == "Concat"
+                    && method.Parameters[0].ParameterType == stringType
+                    && method.Parameters[1].ParameterType == stringType);
+            RoundtripStaticMethodBody(
+                stringType,
+                new[] { stringType, stringType },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Call, concatMethod);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Call, concatMethod);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
