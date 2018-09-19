@@ -40,6 +40,8 @@ namespace Flame.Clr.Emit
             this.AllocaToVariableMapping = allocaToVariableMapping;
             this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
             this.inlineSelectedInstructions = new HashSet<ValueTag>();
+            this.tempDefs = new List<VariableDefinition>();
+            this.tempsByType = new Dictionary<IType, ValueTag>();
         }
 
         /// <summary>
@@ -55,8 +57,16 @@ namespace Flame.Clr.Emit
         /// <value>A mapping of value tags to variable definitions.</value>
         public IReadOnlyDictionary<ValueTag, VariableDefinition> AllocaToVariableMapping { get; private set; }
 
+        /// <summary>
+        /// Gets a list of all temporaries defines by this instruction
+        /// selector.
+        /// </summary>
+        public IReadOnlyList<VariableDefinition> Temporaries => tempDefs;
+
         private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
         private HashSet<ValueTag> inlineSelectedInstructions;
+        private List<VariableDefinition> tempDefs;
+        private Dictionary<IType, ValueTag> tempsByType;
 
         /// <inheritdoc/>
         public IReadOnlyList<CilCodegenInstruction> CreateBlockMarker(BasicBlock block)
@@ -139,6 +149,73 @@ namespace Flame.Clr.Emit
                 var branch = ((JumpFlow)flow).Branch;
                 fallthrough = branch.Target;
                 return SelectBranchArguments(branch, graph);
+            }
+            else if (flow is SwitchFlow)
+            {
+                var switchFlow = (SwitchFlow)flow;
+
+                var argValues = new HashSet<ValueTag>(
+                    switchFlow.Branches
+                    .SelectMany(branch => branch.Arguments)
+                    .Where(arg => arg.IsValue)
+                    .Select(arg => arg.ValueOrNull));
+
+                var switchArgSelection = SelectInstructionsAndWrap(
+                    switchFlow.SwitchValue,
+                    null,
+                    blockTag,
+                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
+                    graph,
+                    argValues);
+
+                var instructions = new List<CilCodegenInstruction>(switchArgSelection.Instructions);
+                var dependencies = new List<ValueTag>(switchArgSelection.Dependencies);
+
+                if (switchFlow.IsIfElseFlow)
+                {
+                    // If-else flow is fairly easy to handle.
+                    var ifBranch = switchFlow.Cases[0].Branch;
+                    var ifValue = switchFlow.Cases[0].Values.Single();
+
+                    bool hasArgs = ifBranch.Arguments.Count > 0;
+                    var ifTarget = hasArgs ? new BasicBlockTag() : ifBranch.Target;
+
+                    // Emit equality test.
+                    instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
+                    instructions.Add(
+                        new CilOpInstruction(
+                            CilInstruction.Create(
+                                OpCodes.Beq,
+                                CilInstruction.Create(OpCodes.Nop)),
+                            (insn, branchTargets) => insn.Operand = branchTargets[ifTarget]));
+
+                    // If the if-branch takes one or more arguments, then we need to
+                    // build a little thunk that selects instructions for those arguments.
+                    if (hasArgs)
+                    {
+                        instructions.Add(new CilMarkTargetInstruction(ifTarget));
+                        var ifArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
+                        instructions.AddRange(ifArgs.Instructions);
+                        dependencies.AddRange(ifArgs.Dependencies);
+                        instructions.Add(
+                            new CilOpInstruction(
+                                CilInstruction.Create(
+                                    OpCodes.Br,
+                                    CilInstruction.Create(OpCodes.Nop)),
+                                (insn, branchTargets) => insn.Operand = branchTargets[ifBranch.Target]));
+                    }
+
+                    // Emit branch arguments for fallthrough branch.
+                    var defaultArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
+                    instructions.AddRange(defaultArgs.Instructions);
+                    dependencies.AddRange(defaultArgs.Dependencies);
+                    fallthrough = switchFlow.DefaultBranch.Target;
+                    return SelectedInstructions.Create(instructions, dependencies);
+                }
+                else
+                {
+                    throw new NotImplementedException("Non if-else switches are not supported yet.");
+                }
             }
             throw new System.NotImplementedException();
         }
@@ -557,7 +634,8 @@ namespace Flame.Clr.Emit
             ValueTag instructionTag,
             BasicBlockTag blockTag,
             LinkedListNode<ValueTag> insertionPoint,
-            FlowGraph graph)
+            FlowGraph graph,
+            HashSet<ValueTag> uninlineableValues = null)
         {
             var wrapper = new InstructionWrapper(
                 this,
@@ -565,7 +643,8 @@ namespace Flame.Clr.Emit
                 instructionTag,
                 blockTag,
                 insertionPoint,
-                graph);
+                graph,
+                uninlineableValues ?? new HashSet<ValueTag>());
 
             return wrapper.SelectAndWrap();
         }
@@ -755,7 +834,8 @@ namespace Flame.Clr.Emit
                 ValueTag instructionTag,
                 BasicBlockTag blockTag,
                 LinkedListNode<ValueTag> insertionPoint,
-                FlowGraph graph)
+                FlowGraph graph,
+                HashSet<ValueTag> uninlineableValues)
             {
                 this.InstructionSelector = instructionSelector;
                 this.instruction = instruction;
@@ -763,6 +843,7 @@ namespace Flame.Clr.Emit
                 this.blockTag = blockTag;
                 this.insertionPoint = insertionPoint;
                 this.graph = graph;
+                this.uninlineableValues = uninlineableValues;
                 this.dependencyWorklist = null;
                 this.dependencyArities = null;
                 this.updatedInsns = null;
@@ -777,6 +858,7 @@ namespace Flame.Clr.Emit
             private BasicBlockTag blockTag;
             private LinkedListNode<ValueTag> insertionPoint;
             private FlowGraph graph;
+            private HashSet<ValueTag> uninlineableValues;
             private Stack<ValueTag> dependencyWorklist;
             private Dictionary<ValueTag, int> dependencyArities;
             private ValueUses uses;
@@ -851,6 +933,7 @@ namespace Flame.Clr.Emit
                         && uses.GetUseCount(dependency) == 1
                         && dependencyArities[dependency] == 1
                         && blockTag == dependencyImpl.Block.Tag
+                        && !uninlineableValues.Contains(dependency)
                         && InstructionSelector.TryReorder(dependency, insertionPoint, graph))
                     {
                         // Selecting instructions inline allows us to keep values

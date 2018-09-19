@@ -98,6 +98,10 @@ namespace Flame.Clr.Emit
             {
                 result.Variables.Add(local);
             }
+            foreach (var temp in selector.Temporaries)
+            {
+                result.Variables.Add(temp);
+            }
 
             // Apply peephole optimizations to the generated method body.
             var optInstructions = CilPeepholeOptimizer.Instance.Optimize(processor.Body.Instructions);
@@ -279,7 +283,7 @@ namespace Flame.Clr.Emit
                 {
                     branchTargets[tag] = instruction;
                 }
-                branchTargets.Clear();
+                pendingTargets.Clear();
             }
 
             private void IncrementUseCount(Mono.Cecil.Cil.VariableDefinition register)
