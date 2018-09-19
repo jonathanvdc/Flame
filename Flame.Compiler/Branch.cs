@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 
 namespace Flame.Compiler
@@ -105,6 +106,26 @@ namespace Flame.Compiler
         public Branch AddArgument(ValueTag argument)
         {
             return AddArgument(BranchArgument.FromValue(argument));
+        }
+
+        /// <summary>
+        /// Zips this branch's arguments with their corresponding
+        /// parameters.
+        /// </summary>
+        /// <param name="graph">
+        /// The graph that defines the branch.
+        /// </param>
+        /// <returns>
+        /// A sequence of key-value pairs where the keys are basic
+        /// block parameters and the values are branch arguments.
+        /// </returns>
+        public IEnumerable<KeyValuePair<ValueTag, BranchArgument>> ZipArgumentsWithParameters(
+            FlowGraph graph)
+        {
+            var targetParams = graph.GetBasicBlock(Target).ParameterTags;
+            return targetParams.Zip(
+                Arguments,
+                (x, y) => new KeyValuePair<ValueTag, BranchArgument>(x, y));
         }
     }
 
