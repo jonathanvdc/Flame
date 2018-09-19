@@ -55,7 +55,8 @@ namespace Flame.Clr.Emit
         private static readonly PeepholeRewriteRule<Instruction>[] rules =
             new PeepholeRewriteRule<Instruction>[]
         {
-            DupUse1PopToUse1
+            DupUse1PopToUse1,
+            LdcZeroBeqToBrfalse
         };
 
         /// <summary>
@@ -79,6 +80,57 @@ namespace Flame.Clr.Emit
                         HasOpCode(OpCodes.Pop)
                     },
                     insns => new[] { insns[1] });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ldc.* 0; beq target` pattern to `brfalse target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdcZeroBeqToBrfalse
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        IsZeroConstant,
+                        HasOpCode(OpCodes.Beq)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brfalse, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Tests if a particular instruction is a zero constant.
+        /// </summary>
+        /// <param name="instruction">An instruction.</param>
+        /// <returns>
+        /// <c>true</c> if the instruction is a zero constant; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsZeroConstant(Instruction instruction)
+        {
+            if (instruction.OpCode == OpCodes.Ldc_I4_0)
+            {
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4)
+            {
+                return (int)instruction.Operand == 0;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_S)
+            {
+                return (sbyte)instruction.Operand == 0;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I8)
+            {
+                return (long)instruction.Operand == 0;
+            }
+            else
+            {
+                return false;
             }
         }
 
