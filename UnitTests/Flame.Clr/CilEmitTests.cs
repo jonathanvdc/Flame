@@ -176,6 +176,37 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripBrtrue()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type, int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Nop);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brtrue, target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(target);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
