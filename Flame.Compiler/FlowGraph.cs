@@ -685,6 +685,57 @@ namespace Flame.Compiler
             return replacedAny;
         }
 
+        /// <summary>
+        /// Removes the definitions for a set of values
+        /// from this flow graph.
+        /// </summary>
+        /// <param name="valuesToRemove">
+        /// A set of values whose definitions are to be eliminated
+        /// from the flow graph. These values can refer to instructions
+        /// and basic block parameters.
+        /// </param>
+        /// <returns>
+        /// A flow graph that does not define any of the values.
+        /// </returns>
+        public FlowGraph RemoveDefinitions(IEnumerable<ValueTag> valuesToRemove)
+        {
+            var valuesToRemoveSet = new HashSet<ValueTag>(valuesToRemove);
+            var graphBuilder = ToBuilder();
+            foreach (var block in graphBuilder.BasicBlocks)
+            {
+                // Remove dead basic block parameters.
+                block.Parameters = ImmutableList.CreateRange(
+                    block.Parameters.Where(param => !valuesToRemoveSet.Contains(param.Tag)));
+
+                // Remove arguments to deleted parameters.
+                block.Flow = block.Flow.WithBranches(
+                    block.Flow.Branches.Select(
+                        branch =>
+                        {
+                            var newArgs = new List<BranchArgument>();
+                            foreach (var pair in branch.ZipArgumentsWithParameters(graphBuilder.ImmutableGraph))
+                            {
+                                if (!pair.Value.IsValue || !valuesToRemoveSet.Contains(pair.Key))
+                                {
+                                    newArgs.Add(pair.Value);
+                                }
+                            }
+                            return branch.WithArguments(newArgs);
+                        }).ToArray());
+            }
+
+            // Remove all dead instructions.
+            foreach (var tag in graphBuilder.InstructionTags)
+            {
+                if (valuesToRemoveSet.Contains(tag))
+                {
+                    graphBuilder.RemoveInstruction(tag);
+                }
+            }
+
+            return graphBuilder.ToImmutable();
+        }
+
         internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)
         {
             AssertContainsBasicBlock(tag);
