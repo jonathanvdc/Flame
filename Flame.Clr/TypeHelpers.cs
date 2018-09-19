@@ -157,5 +157,29 @@ namespace Flame.Clr
                 ? new[] { method.Body.ThisParameter }.Concat(method.Parameters).ToArray()
                 : method.Parameters.ToArray();
         }
+
+        /// <summary>
+        /// Takes a Flame type and converts it to a Cecil method reference.
+        /// For this to work, <paramref name="method"/> cannot reference
+        /// non-Cecil types or methods.
+        /// </summary>
+        /// <param name="method">
+        /// The method to convert to a method reference.
+        /// </param>
+        /// <returns>
+        /// A method reference.
+        /// </returns>
+        public static Mono.Cecil.MethodReference ToMethodReference(IMethod method)
+        {
+            if (method is ClrMethodDefinition)
+            {
+                return ((ClrMethodDefinition)method).Definition;
+            }
+            else
+            {
+                // TODO: support generics.
+                throw new NotImplementedException();
+            }
+        }
     }
 }

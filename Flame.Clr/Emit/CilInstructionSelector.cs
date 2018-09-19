@@ -373,6 +373,26 @@ namespace Flame.Clr.Emit
                 var intrinsicProto = (IntrinsicPrototype)proto;
                 return SelectForIntrinsic(intrinsicProto, instruction.Arguments);
             }
+            else if (proto is CallPrototype)
+            {
+                var callProto = (CallPrototype)proto;
+                var dependencies = new List<ValueTag>();
+                if (!callProto.Callee.IsStatic)
+                {
+                    dependencies.Add(callProto.GetThisArgument(instruction));
+                }
+                dependencies.AddRange(callProto.GetArgumentList(instruction).ToArray());
+                var instructions = new[]
+                {
+                    new CilOpInstruction(
+                        CilInstruction.Create(
+                            callProto.Lookup == MethodLookup.Virtual
+                            ? OpCodes.Callvirt
+                            : OpCodes.Call,
+                            TypeHelpers.ToMethodReference(callProto.Callee)))
+                };
+                return new SelectedInstructions<CilCodegenInstruction>(instructions, dependencies);
+            }
             else
             {
                 throw new System.NotImplementedException();
