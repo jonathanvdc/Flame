@@ -25,41 +25,12 @@ namespace Flame.Compiler.Transforms
             // Compute the live values.
             var liveValues = ComputeLiveValues(graph);
 
+            // Compute the set of dead values.
+            var deadValues = new HashSet<ValueTag>(graph.ValueTags);
+            deadValues.ExceptWith(liveValues);
+
             // Delete everything that's not live.
-            var graphBuilder = graph.ToBuilder();
-            foreach (var block in graphBuilder.BasicBlocks)
-            {
-                // Remove dead basic block parameters.
-                block.Parameters = ImmutableList.CreateRange(
-                    block.Parameters.Where(param => liveValues.Contains(param.Tag)));
-
-                // Remove arguments to deleted parameters.
-                block.Flow = block.Flow.WithBranches(
-                    block.Flow.Branches.Select(
-                        branch =>
-                        {
-                            var newArgs = new List<BranchArgument>();
-                            foreach (var pair in ZipArgumentsAndParameters(branch, graphBuilder.ImmutableGraph))
-                            {
-                                if (!pair.Value.IsValue || liveValues.Contains(pair.Key))
-                                {
-                                    newArgs.Add(pair.Value);
-                                }
-                            }
-                            return branch.WithArguments(newArgs);
-                        }).ToArray());
-            }
-
-            // Remove all dead instructions.
-            foreach (var tag in graphBuilder.InstructionTags)
-            {
-                if (!liveValues.Contains(tag))
-                {
-                    graphBuilder.RemoveInstruction(tag);
-                }
-            }
-
-            return graphBuilder.ToImmutable();
+            return graph.RemoveDefinitions(deadValues);
         }
 
         /// <summary>
@@ -97,7 +68,7 @@ namespace Flame.Compiler.Transforms
                 // While we're at it, we might as well populate `phiArgs`.
                 foreach (var branch in flow.Branches)
                 {
-                    foreach (var pair in ZipArgumentsAndParameters(branch, graph))
+                    foreach (var pair in branch.ZipArgumentsWithParameters(graph))
                     {
                         if (pair.Value.IsValue)
                         {
@@ -135,30 +106,6 @@ namespace Flame.Compiler.Transforms
             }
 
             return liveValues;
-        }
-
-        /// <summary>
-        /// Creates a zipped sequence of branch arguments and the
-        /// basic block parameters they correspond to.
-        /// </summary>
-        /// <param name="branch">
-        /// A branch.
-        /// </param>
-        /// <param name="graph">
-        /// The flow graph that defines the branch.
-        /// </param>
-        /// <returns>
-        /// A zipped sequence of basic block parameter tags and
-        /// branch arguments.
-        /// </returns>
-        public static IEnumerable<KeyValuePair<ValueTag, BranchArgument>> ZipArgumentsAndParameters(
-            Branch branch,
-            FlowGraph graph)
-        {
-            var targetParams = graph.GetBasicBlock(branch.Target).ParameterTags;
-            return targetParams.Zip(
-                branch.Arguments,
-                (x, y) => new KeyValuePair<ValueTag, BranchArgument>(x, y));
         }
     }
 }
