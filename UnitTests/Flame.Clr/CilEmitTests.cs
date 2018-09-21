@@ -302,6 +302,44 @@ namespace UnitTests.Flame.Clr
                 });
         }
 
+        [Test]
+        public void RoundtripJumpTable()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
