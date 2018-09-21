@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Flame.Constants;
 
 namespace Flame.Compiler.Flow
@@ -65,6 +66,16 @@ namespace Flame.Compiler.Flow
         /// that is, if it has a single case matching on a single value.
         /// </summary>
         public bool IsIfElseFlow => Cases.Count == 1 && Cases[0].Values.Count == 1;
+
+        /// <summary>
+        /// Tells if the switch flow can be implemented as a jump table,
+        /// that is, its cases do not have any branches with arguments and all
+        /// of its case values are integer constants.
+        /// </summary>
+        public bool IsJumpTable =>
+            Cases.TrueForAll(item =>
+                item.Branch.Arguments.Count == 0
+                && item.Values.All(val => val is IntegerConstant));
 
         private IReadOnlyList<Branch> cachedBranchList;
 

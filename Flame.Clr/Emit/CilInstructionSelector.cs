@@ -152,72 +152,160 @@ namespace Flame.Clr.Emit
             }
             else if (flow is SwitchFlow)
             {
-                var switchFlow = (SwitchFlow)flow;
-
-                var argValues = new HashSet<ValueTag>(
-                    switchFlow.Branches
-                    .SelectMany(branch => branch.Arguments)
-                    .Where(arg => arg.IsValue)
-                    .Select(arg => arg.ValueOrNull));
-
-                var switchArgSelection = SelectInstructionsAndWrap(
-                    switchFlow.SwitchValue,
-                    null,
+                return SelectForSwitchFlow(
+                    (SwitchFlow)flow,
                     blockTag,
-                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
                     graph,
-                    argValues);
+                    preferredFallthrough,
+                    out fallthrough);
+            }
+            throw new System.NotImplementedException();
+        }
 
-                var instructions = new List<CilCodegenInstruction>(switchArgSelection.Instructions);
-                var dependencies = new List<ValueTag>(switchArgSelection.Dependencies);
+        private SelectedInstructions<CilCodegenInstruction> SelectForSwitchFlow(
+            SwitchFlow flow,
+            BasicBlockTag blockTag,
+            FlowGraph graph,
+            BasicBlockTag preferredFallthrough,
+            out BasicBlockTag fallthrough)
+        {
+            var switchFlow = (SwitchFlow)flow;
 
-                if (switchFlow.IsIfElseFlow)
+            var argValues = new HashSet<ValueTag>(
+                switchFlow.Branches
+                .SelectMany(branch => branch.Arguments)
+                .Where(arg => arg.IsValue)
+                .Select(arg => arg.ValueOrNull));
+
+            var switchArgSelection = SelectInstructionsAndWrap(
+                switchFlow.SwitchValue,
+                null,
+                blockTag,
+                GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
+                graph,
+                argValues);
+
+            var instructions = new List<CilCodegenInstruction>(switchArgSelection.Instructions);
+            var dependencies = new List<ValueTag>(switchArgSelection.Dependencies);
+
+            if (switchFlow.IsIfElseFlow)
+            {
+                // If-else flow is fairly easy to handle.
+                var ifBranch = switchFlow.Cases[0].Branch;
+                var ifValue = switchFlow.Cases[0].Values.Single();
+
+                bool hasArgs = ifBranch.Arguments.Count > 0;
+                var ifTarget = hasArgs ? new BasicBlockTag() : ifBranch.Target;
+
+                // Emit equality test.
+                instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
+                instructions.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(
+                            OpCodes.Beq,
+                            CilInstruction.Create(OpCodes.Nop)),
+                        (insn, branchTargets) => insn.Operand = branchTargets[ifTarget]));
+
+                // If the if-branch takes one or more arguments, then we need to
+                // build a little thunk that selects instructions for those arguments.
+                if (hasArgs)
                 {
-                    // If-else flow is fairly easy to handle.
-                    var ifBranch = switchFlow.Cases[0].Branch;
-                    var ifValue = switchFlow.Cases[0].Values.Single();
-
-                    bool hasArgs = ifBranch.Arguments.Count > 0;
-                    var ifTarget = hasArgs ? new BasicBlockTag() : ifBranch.Target;
-
-                    // Emit equality test.
-                    instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
+                    instructions.Add(new CilMarkTargetInstruction(ifTarget));
+                    var ifArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
+                    instructions.AddRange(ifArgs.Instructions);
+                    dependencies.AddRange(ifArgs.Dependencies);
                     instructions.Add(
                         new CilOpInstruction(
                             CilInstruction.Create(
-                                OpCodes.Beq,
+                                OpCodes.Br,
                                 CilInstruction.Create(OpCodes.Nop)),
-                            (insn, branchTargets) => insn.Operand = branchTargets[ifTarget]));
-
-                    // If the if-branch takes one or more arguments, then we need to
-                    // build a little thunk that selects instructions for those arguments.
-                    if (hasArgs)
-                    {
-                        instructions.Add(new CilMarkTargetInstruction(ifTarget));
-                        var ifArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
-                        instructions.AddRange(ifArgs.Instructions);
-                        dependencies.AddRange(ifArgs.Dependencies);
-                        instructions.Add(
-                            new CilOpInstruction(
-                                CilInstruction.Create(
-                                    OpCodes.Br,
-                                    CilInstruction.Create(OpCodes.Nop)),
-                                (insn, branchTargets) => insn.Operand = branchTargets[ifBranch.Target]));
-                    }
-
-                    // Emit branch arguments for fallthrough branch.
-                    var defaultArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
-                    instructions.AddRange(defaultArgs.Instructions);
-                    dependencies.AddRange(defaultArgs.Dependencies);
-                    fallthrough = switchFlow.DefaultBranch.Target;
-                    return SelectedInstructions.Create(instructions, dependencies);
+                            (insn, branchTargets) => insn.Operand = branchTargets[ifBranch.Target]));
                 }
-                else
-                {
-                    throw new NotImplementedException("Non if-else switches are not supported yet.");
-                }
+
+                // Emit branch arguments for fallthrough branch.
+                var defaultArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
+                instructions.AddRange(defaultArgs.Instructions);
+                dependencies.AddRange(defaultArgs.Dependencies);
+                fallthrough = switchFlow.DefaultBranch.Target;
+                return SelectedInstructions.Create(instructions, dependencies);
             }
-            throw new System.NotImplementedException();
+            else if (flow.IsJumpTable)
+            {
+                bool defaultHasArguments = switchFlow.DefaultBranch.Arguments.Count != 0;
+                var defaultTarget = defaultHasArguments
+                    ? new BasicBlockTag()
+                    : switchFlow.DefaultBranch.Target;
+
+                // Create a sorted list of (value, switch target) pairs.
+                var switchTargets = new List<KeyValuePair<IntegerConstant, BasicBlockTag>>();
+                foreach (var switchCase in flow.Cases)
+                {
+                    foreach (var value in switchCase.Values)
+                    {
+                        switchTargets.Add(
+                            new KeyValuePair<IntegerConstant, BasicBlockTag>(
+                                (IntegerConstant)value,
+                                switchCase.Branch.Target));
+                    }
+                }
+                switchTargets.Sort((first, second) => first.Key.CompareTo(second.Key));
+
+                // Figure out what the min and max switch target values are.
+                var minValue = switchTargets.Count == 0
+                    ? new IntegerConstant(0)
+                    : switchTargets[0].Key;
+
+                var maxValue = switchTargets.Count == 0
+                    ? new IntegerConstant(0)
+                    : switchTargets[switchTargets.Count - 1].Key;
+
+                // Compose a list of switch targets.
+                var targetList = new BasicBlockTag[maxValue.Subtract(minValue).ToInt32() + 1];
+                foreach (var pair in switchTargets)
+                {
+                    targetList[pair.Key.Subtract(minValue).ToInt32()] = pair.Value;
+                }
+                for (int i = 0; i < targetList.Length; i++)
+                {
+                    if (targetList[i] == null)
+                    {
+                        targetList[i] = defaultTarget;
+                    }
+                }
+
+                // Tweak the value being switched on if necessary.
+                if (!minValue.IsZero)
+                {
+                    instructions.Add(new CilOpInstruction(CreatePushConstant(minValue)));
+                    instructions.Add(new CilOpInstruction(OpCodes.Sub));
+                }
+
+                // Generate the actual switch instruction.
+                instructions.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(OpCodes.Switch, new CilInstruction[0]),
+                        (insn, branchTargets) =>
+                            insn.Operand = targetList.Select(target => branchTargets[target]).ToArray()));
+
+                // Select branch arguments if the default branch has any.
+                if (defaultHasArguments)
+                {
+                    instructions.Add(new CilMarkTargetInstruction(defaultTarget));
+                    var defaultBranchSelection = SelectBranchArguments(
+                        switchFlow.DefaultBranch,
+                        graph);
+                    instructions.AddRange(defaultBranchSelection.Instructions);
+                    dependencies.AddRange(defaultBranchSelection.Dependencies);
+                }
+                fallthrough = switchFlow.DefaultBranch.Target;
+                return SelectedInstructions.Create(instructions, dependencies);
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    "Only if-else and jump table switches are supported. " +
+                    "Rewrite other switches prior to instruction selection.");
+            }
         }
 
         private SelectedInstructions<CilCodegenInstruction> SelectBranchArguments(
