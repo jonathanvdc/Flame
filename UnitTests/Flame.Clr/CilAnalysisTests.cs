@@ -444,6 +444,56 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeJumpTable()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        val_1 = load(System::Int32)(param_0_slot);
+    }, #switch(copy(System::Int32)(val_1), block_0(), {
+        #case(#(0), block_0());
+        #case(#(1), block_1());
+        #case(#(2), block_2());
+    }));
+    #block(block_0, #(), {
+        val_2 = const(1, System::Int32)();
+    }, #return(copy(System::Int32)(val_2)));
+    #block(block_1, #(), {
+        val_3 = const(2, System::Int32)();
+    }, #return(copy(System::Int32)(val_3)));
+    #block(block_2, #(), {
+        val_4 = const(4, System::Int32)();
+    }, #return(copy(System::Int32)(val_4)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Int32,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
