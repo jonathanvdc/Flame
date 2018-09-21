@@ -423,6 +423,39 @@ namespace Flame.Clr.Analysis
                     args));
         }
 
+        private void EmitJumpTable(
+            ValueTag condition,
+            IReadOnlyList<Mono.Cecil.Cil.Instruction> labels,
+            Mono.Cecil.Cil.Instruction defaultLabel,
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var args = stackContents.Reverse().ToArray();
+            var branchTypes = args.EagerSelect(arg => block.Graph.GetValueType(arg));
+            var conditionType = block.Graph.GetValueType(condition);
+            var conditionSpec = conditionType.GetIntegerSpecOrNull();
+
+            var cases = ImmutableList.CreateBuilder<SwitchCase>();
+            int labelCount = labels.Count;
+            for (int i = 0; i < labelCount; i++)
+            {
+                cases.Add(
+                    new SwitchCase(
+                        ImmutableHashSet.Create<Constant>(
+                            new IntegerConstant(i, conditionSpec)),
+                        new Branch(
+                            AnalyzeBlock(labels[i], branchTypes, cilMethodBody),
+                            args)));
+            }
+            block.Flow = new SwitchFlow(
+                Instruction.CreateCopy(conditionType, condition),
+                cases.ToImmutable(),
+                new Branch(
+                    AnalyzeBlock(defaultLabel, branchTypes, cilMethodBody),
+                    args));
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             Mono.Cecil.Cil.Instruction nextInstruction,
@@ -525,6 +558,16 @@ namespace Flame.Clr.Analysis
                     stackContents.Pop(),
                     nextInstruction,
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                    cilMethodBody,
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Switch)
+            {
+                EmitJumpTable(
+                    stackContents.Pop(),
+                    (Mono.Cecil.Cil.Instruction[])instruction.Operand,
+                    nextInstruction,
                     cilMethodBody,
                     block,
                     stackContents);
