@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
@@ -8,7 +9,7 @@ namespace Flame.Compiler
     /// A branch to a particular block that passes a list
     /// of values as arguments.
     /// </summary>
-    public sealed class Branch
+    public sealed class Branch : IEquatable<Branch>
     {
         /// <summary>
         /// Creates a branch that targets a particular block and
@@ -126,6 +127,69 @@ namespace Flame.Compiler
             return targetParams.Zip(
                 Arguments,
                 (x, y) => new KeyValuePair<ValueTag, BranchArgument>(x, y));
+        }
+
+        /// <summary>
+        /// Tests if this branch equals another branch.
+        /// </summary>
+        /// <param name="other">The branch to compare with.</param>
+        /// <returns>
+        /// <c>true</c> if this branch equals the other branch; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(Branch other)
+        {
+            return Target == other.Target
+                && Arguments.SequenceEqual(other.Arguments);
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is Branch && Equals((Branch)obj);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            var hashCode = EnumerableComparer.HashEnumerable(Arguments);
+            hashCode = EnumerableComparer.FoldIntoHashCode(
+                hashCode,
+                Target.GetHashCode());
+            return hashCode;
+        }
+
+        /// <summary>
+        /// Tests if two branches are equal.
+        /// </summary>
+        /// <param name="left">
+        /// The first branch to compare.
+        /// </param>
+        /// <param name="right">
+        /// The second branch to compare.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the branches are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator==(Branch left, Branch right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Tests if two branches are not equal.
+        /// </summary>
+        /// <param name="left">
+        /// The first branch to compare.
+        /// </param>
+        /// <param name="right">
+        /// The second branch to compare.
+        /// </param>
+        /// <returns>
+        /// <c>false</c> if the branches are equal; otherwise, <c>true</c>.
+        /// </returns>
+        public static bool operator!=(Branch left, Branch right)
+        {
+            return !left.Equals(right);
         }
     }
 
