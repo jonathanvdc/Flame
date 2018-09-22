@@ -330,7 +330,9 @@ namespace UnitTests.Flame.Clr
                     var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
                     var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four });
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sub);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { two, four });
                     ilProc.Append(one);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                     ilProc.Append(four);

@@ -455,18 +455,17 @@ namespace UnitTests.Flame.Clr
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
         val_1 = load(System::Int32)(param_0_slot);
-    }, #switch(copy(System::Int32)(val_1), block_0(), {
-        #case(#(0), block_0());
-        #case(#(1), block_1());
-        #case(#(2), block_2());
+    }, #switch(copy(System::Int32)(val_1), block_2(), {
+        #case(#(1), block_0());
+        #case(#(2), block_1());
     }));
-    #block(block_0, #(), {
+    #block(block_2, #(), {
         val_2 = const(1, System::Int32)();
     }, #return(copy(System::Int32)(val_2)));
-    #block(block_1, #(), {
+    #block(block_0, #(), {
         val_3 = const(2, System::Int32)();
     }, #return(copy(System::Int32)(val_3)));
-    #block(block_2, #(), {
+    #block(block_1, #(), {
         val_4 = const(4, System::Int32)();
     }, #return(copy(System::Int32)(val_4)));
 };";

@@ -25,15 +25,60 @@ namespace Flame.Compiler.Flow
         /// A branch to take if none of the switch cases match
         /// the value being switched on.
         /// </param>
+        /// <remarks>
+        /// This constructor will simplify <paramref name="cases"/>
+        /// by unifying cases that point to the same branch and
+        /// eliminate cases that are associated with no constants
+        /// or point to the default branch.
+        /// </remarks>
         public SwitchFlow(
             Instruction switchValue,
-            ImmutableList<SwitchCase> cases,
+            IReadOnlyList<SwitchCase> cases,
             Branch defaultBranch)
         {
             this.SwitchValue = switchValue;
-            this.Cases = cases;
             this.DefaultBranch = defaultBranch;
-            this.cachedBranchList = CreateBranchList();
+
+            // Iterate through the switch cases. Eliminate cases
+            // that take the default branch and cases that have an
+            // empty pattern. Create a list of branches and a case
+            // list.
+            var branchList = new List<Branch>();
+            var branchPatterns = new Dictionary<Branch, ImmutableHashSet<Constant>>();
+
+            foreach (var switchCase in cases)
+            {
+                if (switchCase.Values.Count == 0 || switchCase.Branch == DefaultBranch)
+                {
+                    // Eliminate trivial cases.
+                    continue;
+                }
+
+                ImmutableHashSet<Constant> pattern;
+                if (!branchPatterns.TryGetValue(switchCase.Branch, out pattern))
+                {
+                    pattern = ImmutableHashSet.Create<Constant>();
+                    branchList.Add(switchCase.Branch);
+                }
+                // Unify constants from different cases that point
+                // to the same branch.
+                branchPatterns[switchCase.Branch] = pattern.Union(switchCase.Values);
+            }
+
+            var caseList = new List<SwitchCase>();
+            foreach (var branch in branchList)
+            {
+                ImmutableHashSet<Constant> pattern;
+                if (branchPatterns.TryGetValue(branch, out pattern))
+                {
+                    caseList.Add(new SwitchCase(pattern, branch));
+                }
+            }
+
+            branchList.Add(DefaultBranch);
+
+            this.Cases = caseList;
+            this.cachedBranchList = branchList;
         }
 
         /// <summary>
@@ -46,7 +91,7 @@ namespace Flame.Compiler.Flow
         /// Gets the list of switch cases in this switch flow.
         /// </summary>
         /// <returns>A list of switch cases.</returns>
-        public ImmutableList<SwitchCase> Cases { get; private set; }
+        public IReadOnlyList<SwitchCase> Cases { get; private set; }
 
         /// <summary>
         /// Gets the default branch, which is only taken when no case matches.
@@ -73,22 +118,11 @@ namespace Flame.Compiler.Flow
         /// of its case values are integer constants.
         /// </summary>
         public bool IsJumpTable =>
-            Cases.TrueForAll(item =>
+            Cases.All(item =>
                 item.Branch.Arguments.Count == 0
                 && item.Values.All(val => val is IntegerConstant));
 
         private IReadOnlyList<Branch> cachedBranchList;
-
-        private IReadOnlyList<Branch> CreateBranchList()
-        {
-            var results = new List<Branch>();
-            foreach (var item in Cases)
-            {
-                results.Add(item.Branch);
-            }
-            results.Add(DefaultBranch);
-            return results;
-        }
 
         /// <inheritdoc/>
         public override BlockFlow WithBranches(IReadOnlyList<Branch> branches)
@@ -102,16 +136,16 @@ namespace Flame.Compiler.Flow
                 "' branches when re-creating a switch statement, but expected '" +
                 (caseCount + 1) + "'.");
 
-            var newCases = ImmutableList<SwitchCase>.Empty.ToBuilder();
+            var newCases = new SwitchCase[caseCount];
 
             for (int i = 0; i < caseCount; i++)
             {
-                newCases.Add(new SwitchCase(Cases[i].Values, branches[i]));
+                newCases[i] = new SwitchCase(Cases[i].Values, branches[i]);
             }
             
             return new SwitchFlow(
                 SwitchValue,
-                newCases.ToImmutable(),
+                newCases,
                 branches[caseCount]);
         }
 
