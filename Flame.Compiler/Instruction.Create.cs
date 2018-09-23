@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Compiler.Instructions;
 using Flame.TypeSystem;
@@ -253,6 +254,131 @@ namespace Flame.Compiler
             ValueTag value)
         {
             return StorePrototype.Create(pointeeType).Instantiate(pointer, value);
+        }
+
+        /// <summary>
+        /// Creates an arithmetic intrinsic.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the arithmetic operator to apply.
+        /// </param>
+        /// <param name="resultType">
+        /// The type of value produced by the intrinsic.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The parameter types taken by the intrinsic.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list to pass to the instruction.
+        /// </param>
+        /// <returns>
+        /// An arithmetic intrinsic.
+        /// </returns>
+        public static Instruction CreateArithmeticIntrinsic(
+            string operatorName,
+            IType resultType,
+            IReadOnlyList<IType> parameterTypes,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return ArithmeticIntrinsics.CreatePrototype(
+                operatorName,
+                resultType,
+                parameterTypes).Instantiate(arguments);
+        }
+
+        /// <summary>
+        /// Creates a binary arithmetic intrinsic that is closed
+        /// under the type of its arguments.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the binary arithmetic operator to apply.
+        /// </param>
+        /// <param name="elementType">
+        /// The type of both parameter types and the result type
+        /// of the intrinsic.
+        /// </param>
+        /// <param name="left">
+        /// The first argument to the intrinsic.
+        /// </param>
+        /// <param name="right">
+        /// The second argument to the intrinsic.
+        /// </param>
+        /// <returns>
+        /// An arithmetic intrinsic.
+        /// </returns>
+        public static Instruction CreateBinaryArithmeticIntrinsic(
+            string operatorName,
+            IType elementType,
+            ValueTag left,
+            ValueTag right)
+        {
+            return CreateArithmeticIntrinsic(
+                operatorName,
+                elementType,
+                new[] { elementType, elementType },
+                new[] { left, right });
+        }
+
+        /// <summary>
+        /// Creates a binary arithmetic intrinsic that produces
+        /// a Boolean value.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the binary arithmetic operator to apply.
+        /// </param>
+        /// <param name="booleanType">
+        /// The type of value returned by the relational operator.
+        /// </param>
+        /// <param name="elementType">
+        /// The type of both parameter types.
+        /// </param>
+        /// <param name="left">
+        /// The first argument to the intrinsic.
+        /// </param>
+        /// <param name="right">
+        /// The second argument to the intrinsic.
+        /// </param>
+        /// <returns>
+        /// A relational arithmetic intrinsic.
+        /// </returns>
+        public static Instruction CreateRelationalIntrinsic(
+            string operatorName,
+            IType booleanType,
+            IType elementType,
+            ValueTag left,
+            ValueTag right)
+        {
+            return CreateArithmeticIntrinsic(
+                operatorName,
+                booleanType,
+                new[] { elementType, elementType },
+                new[] { left, right });
+        }
+
+        /// <summary>
+        /// Creates an intrinsic that converts one primitive
+        /// type to another.
+        /// </summary>
+        /// <param name="targetType">
+        /// The target primitive type: the type to convert
+        /// the value to.
+        /// </param>
+        /// <param name="sourceType">
+        /// The source primitive type: the type of the value
+        /// to convert.
+        /// </param>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>A conversion instruction.</returns>
+        public static Instruction CreateConvertIntrinsic(
+            IType targetType,
+            IType sourceType,
+            ValueTag value)
+        {
+            return CreateArithmeticIntrinsic(
+                ArithmeticIntrinsics.Operators.Convert,
+                targetType,
+                new[] { sourceType },
+                new[] { value });
         }
     }
 }
