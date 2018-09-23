@@ -111,6 +111,43 @@ namespace Flame.Collections
         }
 
         /// <summary>
+        /// Hashes an unordered set of elements.
+        /// </summary>
+        /// <param name="sequence">The unordered set to hash.</param>
+        /// <param name="elementComparer">
+        /// An equality comparer for elements of the set.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of element in the set.
+        /// </typeparam>
+        /// <returns>
+        /// An ordering-independent hash code for the entire set.
+        /// </returns>
+        public static int HashUnorderedSet<T>(
+            IEnumerable<T> sequence,
+            IEqualityComparer<T> elementComparer)
+        {
+            var set = new HashSet<T>(sequence, elementComparer);
+            return HashSet<T>.CreateSetComparer().GetHashCode(set);
+        }
+
+        /// <summary>
+        /// Hashes an unordered set of elements.
+        /// </summary>
+        /// <param name="sequence">The unordered set to hash.</param>
+        /// <typeparam name="T">
+        /// The type of element in the set.
+        /// </typeparam>
+        /// <returns>
+        /// An ordering-independent hash code for the entire set.
+        /// </returns>
+        public static int HashUnorderedSet<T>(
+            IEnumerable<T> sequence)
+        {
+            return HashUnorderedSet<T>(sequence, EqualityComparer<T>.Default);
+        }
+
+        /// <summary>
         /// The hash code for an empty sequence.
         /// </summary>
         public const int EmptyHash = unchecked((int)2166136261);
