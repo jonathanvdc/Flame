@@ -105,6 +105,33 @@ namespace Flame.TypeSystem
         public IType Int32 => MakeSignedIntegerType(32);
 
         /// <summary>
+        /// Gets a 32-bit unsigned integer type.
+        /// </summary>
+        /// <returns>
+        /// A 32-bit unsigned integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType UInt32 => MakeUnsignedIntegerType(32);
+
+        /// <summary>
+        /// Gets a 64-bit signed integer type.
+        /// </summary>
+        /// <returns>
+        /// A 64-bit signed integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType Int64 => MakeSignedIntegerType(64);
+
+        /// <summary>
+        /// Gets a 64-bit unsigned integer type.
+        /// </summary>
+        /// <returns>
+        /// A 64-bit unsigned integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType UInt64 => MakeUnsignedIntegerType(64);
+
+        /// <summary>
         /// Creates a signed integer type with a particular number
         /// of bits of storage.
         /// </summary>
