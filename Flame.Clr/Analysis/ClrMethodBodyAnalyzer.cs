@@ -247,9 +247,9 @@ namespace Flame.Clr.Analysis
             Stack<ValueTag> stackContents)
         {
             PushValue(
-                LoadPrototype.Create(
-                    ((PointerType)block.Graph.GetValueType(pointer)).ElementType)
-                    .Instantiate(pointer),
+                Instruction.CreateLoad(
+                    ((PointerType)block.Graph.GetValueType(pointer)).ElementType,
+                    pointer),
                 block,
                 stackContents);
         }
@@ -261,8 +261,10 @@ namespace Flame.Clr.Analysis
             Stack<ValueTag> stackContents)
         {
             PushValue(
-                StorePrototype.Create(block.Graph.GetValueType(value))
-                    .Instantiate(pointer, value),
+                Instruction.CreateStore(
+                    block.Graph.GetValueType(value),
+                    pointer,
+                    value),
                 block,
                 stackContents);
         }
@@ -476,10 +478,9 @@ namespace Flame.Clr.Analysis
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
                 PushValue(
-                    ConstantPrototype.Create(
+                    Instruction.CreateConstant(
                         new IntegerConstant((int)instruction.Operand),
-                        Assembly.Resolver.TypeEnvironment.Int32)
-                        .Instantiate(),
+                        Assembly.Resolver.TypeEnvironment.Int32),
                     block,
                     stackContents);
             }
@@ -517,8 +518,9 @@ namespace Flame.Clr.Analysis
             {
                 var value = stackContents.Pop();
                 block.Flow = new ReturnFlow(
-                    CopyPrototype.Create(graph.GetValueType(value))
-                    .Instantiate(value));
+                    Instruction.CreateCopy(
+                        graph.GetValueType(value),
+                        value));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
             {
@@ -695,15 +697,14 @@ namespace Flame.Clr.Analysis
                 var param = extParameters[i];
 
                 var alloca = entryPoint.AppendInstruction(
-                    AllocaPrototype.Create(param.Type)
-                        .Instantiate(),
+                    Instruction.CreateAlloca(param.Type),
                     new ValueTag(param.Name.ToString() + "_slot"));
 
                 entryPoint.AppendInstruction(
-                    StorePrototype.Create(param.Type)
-                        .Instantiate(
-                            alloca.Tag,
-                            entryPoint.Parameters[i].Tag),
+                    Instruction.CreateStore(
+                        param.Type,
+                        alloca.Tag,
+                        entryPoint.Parameters[i].Tag),
                     new ValueTag(param.Name.ToString()));
 
                 this.parameterStackSlots.Add(alloca);
@@ -714,9 +715,8 @@ namespace Flame.Clr.Analysis
             foreach (var local in cilMethodBody.Variables)
             {
                 var alloca = entryPoint.AppendInstruction(
-                    AllocaPrototype.Create(
-                        TypeHelpers.BoxIfReferenceType(Assembly.Resolve(local.VariableType)))
-                        .Instantiate(),
+                    Instruction.CreateAlloca(
+                        TypeHelpers.BoxIfReferenceType(Assembly.Resolve(local.VariableType))),
                     new ValueTag("local_" + local.Index + "_slot"));
 
                 this.localStackSlots.Add(alloca);
