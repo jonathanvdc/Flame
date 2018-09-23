@@ -426,16 +426,16 @@ IL_000e: stloc.1
 IL_000f: ldloc.1
 IL_0010: ldc.i4 4161
 IL_0015: and
-IL_0016: brfalse.s IL_0025
-IL_0018: ldloc.1
-IL_0019: ldc.i4 3074
-IL_001e: and
-IL_001f: brfalse.s IL_0023
-IL_0021: br.s IL_0009
+IL_0016: brfalse.s IL_001a
+IL_0018: ldc.i4.2
+IL_0019: ret
+IL_001a: ldloc.1
+IL_001b: ldc.i4 3074
+IL_0020: and
+IL_0021: brfalse.s IL_0025
 IL_0023: ldc.i4.4
 IL_0024: ret
-IL_0025: ldc.i4.2
-IL_0026: ret");
+IL_0025: br.s IL_0009");
         }
 
         /// <summary>

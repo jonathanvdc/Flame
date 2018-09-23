@@ -496,8 +496,8 @@ namespace Flame.Compiler.Transforms
                             caseBlock.AppendInstruction(
                                 Instruction.CreateConstant(mask, valueType),
                                 "bitmask" + i)),
-                        new Branch(nextCase),
-                        switchCase.Branch);
+                        switchCase.Branch,
+                        new Branch(nextCase));
 
                     caseBlock = nextCase;
                     nextCase = graph.AddBasicBlock("bitswitch.case" + (i + 2));
