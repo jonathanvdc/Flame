@@ -303,7 +303,7 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
-        public void RoundtripJumpTable()
+        public void RoundtripJumpTableAsTestCascade()
         {
             var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
             RoundtripStaticMethodBody(
@@ -331,8 +331,10 @@ namespace UnitTests.Flame.Clr
                     var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sub);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { two, four });
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Beq_S, two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Beq_S, four);
                     ilProc.Append(one);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                     ilProc.Append(four);
@@ -340,6 +342,100 @@ namespace UnitTests.Flame.Clr
                     ilProc.Append(two);
                     ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
                 });
+        }
+
+        [Test]
+        public void RoundtripJumpTableAsSuch()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four, one, two, four });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sub);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { two, four, one, two, four });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                });
+        }
+
+        [Test]
+        public void RoundtripJumpTableAsBitTests()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(
+                        Mono.Cecil.Cil.OpCodes.Switch,
+                        new[] { one, two, four, one, one, one, one, two, one, one, one, four, four, two });
+                    ilProc.Append(one);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(two);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Append(four);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                @"
+Locals: [ System.UInt32, System.UInt32 ]
+IL_0000: ldarg.0
+IL_0001: ldc.i4.1
+IL_0002: sub
+IL_0003: stloc.0
+IL_0004: ldloc.0
+IL_0005: ldc.i4.s 12
+IL_0007: ble.un.s IL_000b
+IL_0009: ldc.i4.1
+IL_000a: ret
+IL_000b: ldc.i4.1
+IL_000c: ldloc.0
+IL_000d: shl
+IL_000e: stloc.1
+IL_000f: ldloc.1
+IL_0010: ldc.i4 4161
+IL_0015: and
+IL_0016: brfalse.s IL_0025
+IL_0018: ldloc.1
+IL_0019: ldc.i4 3074
+IL_001e: and
+IL_001f: brfalse.s IL_0023
+IL_0021: br.s IL_0009
+IL_0023: ldc.i4.4
+IL_0024: ret
+IL_0025: ldc.i4.2
+IL_0026: ret");
         }
 
         /// <summary>
@@ -369,7 +465,25 @@ namespace UnitTests.Flame.Clr
             Action<Mono.Cecil.Cil.ILProcessor> emitBody,
             Action<Mono.Cecil.Cil.ILProcessor> emitOracle)
         {
-            // Define a method.
+            // Synthesize the expected CIL.
+            var expectedCilBody = new Mono.Cecil.Cil.MethodBody(
+                CreateStaticMethodDef(returnType, parameterTypes));
+            emitOracle(expectedCilBody.GetILProcessor());
+            expectedCilBody.Optimize();
+
+            // Format the synthesized CIL.
+            RoundtripStaticMethodBody(
+                returnType,
+                parameterTypes,
+                localTypes,
+                emitBody,
+                FormatMethodBody(expectedCilBody));
+        }
+
+        private MethodDefinition CreateStaticMethodDef(
+            TypeReference returnType,
+            IReadOnlyList<TypeReference> parameterTypes)
+        {
             var methodDef = new MethodDefinition(
                 "f",
                 MethodAttributes.Public | MethodAttributes.Static,
@@ -381,6 +495,38 @@ namespace UnitTests.Flame.Clr
                 int index = methodDef.Parameters.Count - 1;
                 methodDef.Parameters[index].Name = "param_" + index;
             }
+            return methodDef;
+        }
+
+        /// <summary>
+        /// Writes a CIL method body, analyzes it as Flame IR,
+        /// emits that as CIL and checks that the outcome matches
+        /// what we'd expect.
+        /// </summary>
+        /// <param name="returnType">
+        /// The return type of the method body.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The parameter types of the method body.
+        /// </param>
+        /// <param name="localTypes">
+        /// The local variable types of the method body.
+        /// </param>
+        /// <param name="emitBody">
+        /// A function that writes the method body.
+        /// </param>
+        /// <param name="oracle">
+        /// A printed version of the expected method body.
+        /// </param>
+        private void RoundtripStaticMethodBody(
+            TypeReference returnType,
+            IReadOnlyList<TypeReference> parameterTypes,
+            IReadOnlyList<TypeReference> localTypes,
+            Action<Mono.Cecil.Cil.ILProcessor> emitBody,
+            string oracle)
+        {
+            // Define a method.
+            var methodDef = CreateStaticMethodDef(returnType, parameterTypes);
 
             // Emit the source CIL.
             var cilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
@@ -423,21 +569,18 @@ namespace UnitTests.Flame.Clr
             irBody = irBody.WithImplementation(
                 DeadValueElimination.Apply(
                     CopyPropagation.Apply(
-                        AllocaToRegister.Apply(irBody.Implementation))));
+                        new SwitchLowering(corlib.Resolver.TypeEnvironment).Apply(
+                            AllocaToRegister.Apply(irBody.Implementation)))));
 
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
             var newCilBody = emitter.Compile();
 
-            // Synthesize the expected CIL.
-            var expectedCilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
-            emitOracle(expectedCilBody.GetILProcessor());
-            expectedCilBody.Optimize();
-
             // Check that the resulting CIL matches the expected CIL.
             var actual = FormatMethodBody(newCilBody);
-            var oracle = FormatMethodBody(expectedCilBody);
-            if (actual.Trim() != oracle.Trim())
+            actual = actual.Trim();
+            oracle = oracle.Trim();
+            if (actual != oracle)
             {
                 var encoder = new EncoderState();
                 var encodedImpl = encoder.Encode(irBody.Implementation);
@@ -454,9 +597,9 @@ namespace UnitTests.Flame.Clr
                         Severity.Message,
                         "emitted CIL-oracle mismatch",
                         "round-tripped CIL does not match the oracle. CIL emit output:",
-                        new Paragraph(new WrapBox(actual.Trim(), 0, -actual.Length)),
+                        new Paragraph(new WrapBox(actual, 0, -actual.Length)),
                         DecorationSpan.MakeBold("remark: Flame IR:"),
-                        new Paragraph(new WrapBox(actualIr.Trim(), 0, -actualIr.Length))));
+                        new Paragraph(new WrapBox(actualIr, 0, -actualIr.Length))));
             }
             Assert.AreEqual(oracle, actual);
         }

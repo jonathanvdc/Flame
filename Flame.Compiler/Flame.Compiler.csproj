@@ -96,6 +96,7 @@
     <Compile Include="Transforms\AllocaToRegister.cs" />
     <Compile Include="Transforms\CopyPropagation.cs" />
     <Compile Include="Transforms\DeadValueElimination.cs" />
+    <Compile Include="Transforms\SwitchLowering.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
