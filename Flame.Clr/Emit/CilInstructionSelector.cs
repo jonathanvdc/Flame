@@ -108,7 +108,7 @@ namespace Flame.Clr.Emit
             return new CilCodegenInstruction[]
             {
                 new CilOpInstruction(
-                    CilInstruction.Create(OpCodes.Br),
+                    CilInstruction.Create(OpCodes.Br, CilInstruction.Create(OpCodes.Nop)),
                     (insn, mapping) => insn.Operand = mapping[target])
             };
         }
@@ -715,7 +715,9 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
             { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
-            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
+            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } },
+            { ArithmeticIntrinsics.Operators.LeftShift, new[] { OpCodes.Shl } },
+            { ArithmeticIntrinsics.Operators.RightShift, new[] { OpCodes.Shr } }
         };
 
         private static Dictionary<string, OpCode[]> unsignedArithmeticBinaries =
@@ -734,7 +736,9 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, new[] { OpCodes.Cgt_Un, OpCodes.Ldc_I4_0, OpCodes.Ceq } },
             { ArithmeticIntrinsics.Operators.And, new[] { OpCodes.And } },
             { ArithmeticIntrinsics.Operators.Or, new[] { OpCodes.Or } },
-            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } }
+            { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } },
+            { ArithmeticIntrinsics.Operators.LeftShift, new[] { OpCodes.Shl } },
+            { ArithmeticIntrinsics.Operators.RightShift, new[] { OpCodes.Shr_Un } }
         };
 
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
