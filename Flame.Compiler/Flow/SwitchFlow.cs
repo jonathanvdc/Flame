@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Flame.Collections;
 using Flame.Constants;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Flow
 {
@@ -122,6 +125,13 @@ namespace Flame.Compiler.Flow
                 item.Branch.Arguments.Count == 0
                 && item.Values.All(val => val is IntegerConstant));
 
+        /// <summary>
+        /// Tells if this switch flow contains only integer constants.
+        /// </summary>
+        public bool IsIntegerSwitch =>
+            Cases.All(item =>
+                item.Values.All(val => val is IntegerConstant));
+
         private IReadOnlyList<Branch> cachedBranchList;
 
         /// <inheritdoc/>
@@ -187,12 +197,15 @@ namespace Flame.Compiler.Flow
             Branch ifBranch,
             Branch elseBranch)
         {
+            var booleanSpec = condition.ResultType.GetIntegerSpecOrNull();
             return new SwitchFlow(
                 condition,
                 ImmutableList<SwitchCase>.Empty.Add(
                     new SwitchCase(
                         ImmutableHashSet<Constant>.Empty.Add(
-                            BooleanConstant.False),
+                            booleanSpec == null
+                            ? BooleanConstant.False
+                            : new IntegerConstant(0, booleanSpec)),
                         elseBranch)),
                 ifBranch);
         }
@@ -201,7 +214,7 @@ namespace Flame.Compiler.Flow
     /// <summary>
     /// A case in switch flow.
     /// </summary>
-    public struct SwitchCase
+    public struct SwitchCase : IEquatable<SwitchCase>
     {
         /// <summary>
         /// Creates a switch case from a set of values and a branch.
@@ -230,5 +243,124 @@ namespace Flame.Compiler.Flow
         /// </summary>
         /// <returns>The switch case's branch.</returns>
         public Branch Branch { get; private set; }
+
+        /// <summary>
+        /// Tests if this switch case equals another switch case.
+        /// </summary>
+        /// <param name="other">
+        /// A switch case to compare with this switch case.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the switch cases are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(SwitchCase other)
+        {
+            return Branch == other.Branch
+                && Values.SetEquals(Values);
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return obj is SwitchCase && Equals((SwitchCase)obj);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            int hashCode = EnumerableComparer.HashUnorderedSet(Values);
+            return EnumerableComparer.FoldIntoHashCode(hashCode, Branch.GetHashCode());
+        }
+
+        /// <summary>
+        /// Tests if two switch cases are equal.
+        /// </summary>
+        /// <param name="left">
+        /// The first switch cases to compare.
+        /// </param>
+        /// <param name="right">
+        /// The second switch cases to compare.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the switch cases are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator==(SwitchCase left, SwitchCase right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Tests if two switch cases are not equal.
+        /// </summary>
+        /// <param name="left">
+        /// The first switch cases to compare.
+        /// </param>
+        /// <param name="right">
+        /// The second switch cases to compare.
+        /// </param>
+        /// <returns>
+        /// <c>false</c> if the switch cases are equal; otherwise, <c>true</c>.
+        /// </returns>
+        public static bool operator!=(SwitchCase left, SwitchCase right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    /// <summary>
+    /// An equality comparer that for structural switch flow equality.
+    /// </summary>
+    public sealed class StructuralSwitchFlowComparer : IEqualityComparer<SwitchFlow>
+    {
+        /// <summary>
+        /// Tests if two switch flows are structurally equal.
+        /// </summary>
+        /// <param name="x">A first switch flow.</param>
+        /// <param name="y">A second switch flow.</param>
+        /// <returns>
+        /// <c>true</c> if the switch flows are structurally equal; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(SwitchFlow x, SwitchFlow y)
+        {
+            if (x.SwitchValue != y.SwitchValue
+                || x.DefaultBranch != y.DefaultBranch
+                || x.Cases.Count != y.Cases.Count)
+            {
+                return false;
+            }
+
+            var branchPatternsForY = y.Cases.ToDictionary(
+                item => item.Branch,
+                item => item.Values);
+
+            foreach (var item in x.Cases)
+            {
+                ImmutableHashSet<Constant> pattern;
+                if (!branchPatternsForY.TryGetValue(item.Branch, out pattern)
+                    || !pattern.SetEquals(item.Values))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Computes the hash code for a particular switch flow.
+        /// </summary>
+        /// <param name="obj">The switch flow to compute a hash code for.</param>
+        /// <returns>A hash code.</returns>
+        public int GetHashCode(SwitchFlow obj)
+        {
+            int hashCode = EnumerableComparer.HashUnorderedSet(obj.Cases);
+            hashCode = EnumerableComparer.FoldIntoHashCode(
+                hashCode,
+                obj.DefaultBranch.GetHashCode());
+            hashCode = EnumerableComparer.FoldIntoHashCode(
+                hashCode,
+                obj.SwitchValue.GetHashCode());
+            return hashCode;
+        }
     }
 }
