@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Flame.Compiler.Instructions
@@ -125,6 +126,33 @@ namespace Flame.Compiler.Instructions
             params IType[] parameterTypes)
         {
             // TODO: exception specification?
+            return CreatePrototype(
+                operatorName,
+                resultType,
+                (IReadOnlyList<IType>)parameterTypes);
+        }
+
+        /// <summary>
+        /// Creates an arithmetic intrinsic prototype.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the operator represented by the arithmetic intrinsic.
+        /// </param>
+        /// <param name="resultType">
+        /// The type of value produced by the intrinsic to create.
+        /// </param>
+        /// <param name="parameterTypes">
+        /// The types of the values the intrinsic takes as arguments.
+        /// </param>
+        /// <returns>
+        /// An arithmetic intrinsic prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreatePrototype(
+            string operatorName,
+            IType resultType,
+            IReadOnlyList<IType> parameterTypes)
+        {
+            // TODO: exception specification?
             return IntrinsicPrototype.Create(
                 GetArithmeticIntrinsicName(operatorName),
                 resultType,
@@ -212,6 +240,16 @@ namespace Flame.Compiler.Instructions
             public const string Xor = "xor";
 
             /// <summary>
+            /// The left shift operator.
+            /// </summary>
+            public const string LeftShift = "shl";
+
+            /// <summary>
+            /// The right shift operator.
+            /// </summary>
+            public const string RightShift = "shr";
+
+            /// <summary>
             /// The unary conversion operator.
             /// </summary>
             public const string Convert = "convert";
@@ -239,6 +277,8 @@ namespace Flame.Compiler.Instructions
                         And,
                         Or,
                         Xor,
+                        LeftShift,
+                        RightShift,
 
                         Convert
                     });
