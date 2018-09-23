@@ -231,5 +231,16 @@ namespace Flame.Compiler
         {
             return (Graph.GetHashCode() << 16) ^ Tag.GetHashCode();
         }
+
+        /// <summary>
+        /// Implicitly converts a block to its tag.
+        /// </summary>
+        /// <param name="block">
+        /// The block to convert.
+        /// </param>
+        public static implicit operator BasicBlockTag(BasicBlock block)
+        {
+            return block.Tag;
+        }
     }
 }

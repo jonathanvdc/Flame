@@ -228,5 +228,16 @@ namespace Flame.Compiler
         {
             return (Block.Graph.GetHashCode() << 16) ^ Tag.GetHashCode();
         }
+
+        /// <summary>
+        /// Implicitly converts an instruction to its tag.
+        /// </summary>
+        /// <param name="instruction">
+        /// The instruction to convert.
+        /// </param>
+        public static implicit operator ValueTag(SelectedInstruction instruction)
+        {
+            return instruction.Tag;
+        }
     }
 }
