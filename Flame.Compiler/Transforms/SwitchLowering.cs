@@ -13,7 +13,7 @@ namespace Flame.Compiler.Transforms
     /// A switch lowering transform, which rewrites general switch
     /// flow as if-else switch flow and jump table switch flow.
     /// </summary>
-    public sealed class SwitchLowering
+    public sealed class SwitchLowering : IntraproceduralOptimization
     {
         /// <summary>
         /// Creates a switch lowering transform.
@@ -64,7 +64,7 @@ namespace Flame.Compiler.Transforms
         /// </summary>
         /// <param name="graph">The flow graph to rewrite.</param>
         /// <returns>A rewritten flow graph.</returns>
-        public FlowGraph Apply(FlowGraph graph)
+        public override FlowGraph Apply(FlowGraph graph)
         {
             var graphBuilder = graph.ToBuilder();
             foreach (var block in graphBuilder.BasicBlocks)

@@ -88,6 +88,7 @@
     <Compile Include="Pipeline\ITarget.cs" />
     <Compile Include="Pipeline\ITargetAssembly.cs" />
     <Compile Include="Pipeline\MethodBodyHolder.cs" />
+    <Compile Include="Pipeline\Optimization.cs" />
     <Compile Include="Pipeline\Optimizer.cs" />
     <Compile Include="Target\IInstructionSelector.cs" />
     <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
@@ -96,6 +97,8 @@
     <Compile Include="Transforms\AllocaToRegister.cs" />
     <Compile Include="Transforms\CopyPropagation.cs" />
     <Compile Include="Transforms\DeadValueElimination.cs" />
+    <Compile Include="Transforms\IntraproceduralOptimization.cs" />
+    <Compile Include="Transforms\JumpThreading.cs" />
     <Compile Include="Transforms\SwitchLowering.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />

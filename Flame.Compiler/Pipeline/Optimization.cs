@@ -18,12 +18,15 @@ namespace Flame.Compiler.Pipeline
         /// Applies the optimization to a method body.
         /// </summary>
         /// <param name="body">A method body holder to optimize.</param>
-        /// <param name="state"></param>
+        /// <param name="state">State associated with optimizations.</param>
         public abstract MethodBody Apply(
             MethodBody body,
             OptimizationState state);
     }
 
+    /// <summary>
+    /// A container for shared optimization state.
+    /// </summary>
     public sealed class OptimizationState
     {
         /// <summary>
