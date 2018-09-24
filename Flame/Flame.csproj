@@ -61,6 +61,7 @@
     <Compile Include="Collections\ReadOnlySlice.cs" />
     <Compile Include="Collections\SmallMultiDictionary.cs" />
     <Compile Include="Collections\SymmetricRelation.cs" />
+    <Compile Include="Collections\TreeSearchAlgorithm.cs" />
     <Compile Include="Collections\UniqueNameMap.cs" />
     <Compile Include="Collections\UniqueNameSet.cs" />
     <Compile Include="Collections\ValueList.cs" />
