@@ -106,6 +106,22 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
+        /// Tests if an instruction prototype is an arithmetic intrinsic prototype.
+        /// </summary>
+        /// <param name="prototype">
+        /// The prototype to examine.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the prototype is an arithmetic intrinsic prototype;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsArithmeticIntrinsicPrototype(InstructionPrototype prototype)
+        {
+            return prototype is IntrinsicPrototype
+                && IsArithmeticIntrinsicName(((IntrinsicPrototype)prototype).Name);
+        }
+
+        /// <summary>
         /// Creates an arithmetic intrinsic prototype.
         /// </summary>
         /// <param name="operatorName">

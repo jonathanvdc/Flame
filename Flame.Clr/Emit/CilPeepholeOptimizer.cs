@@ -64,7 +64,8 @@ namespace Flame.Clr.Emit
             CgtBrfalseToBle,
             CgtUnBrfalseToBleUn,
             CgtBrtrueToBgt,
-            CgtUnBrtrueToBgtUn
+            CgtUnBrtrueToBgtUn,
+            CeqBrfalseToBneUn
         };
 
         /// <summary>
@@ -267,6 +268,26 @@ namespace Flame.Clr.Emit
                     insns => new[]
                     {
                         Instruction.Create(OpCodes.Bgt_Un, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ceq; brfalse target` pattern to `bne_un target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CeqBrfalseToBneUn
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Ceq),
+                        HasOpCode(OpCodes.Brfalse)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Bne_Un, (Instruction)insns[1].Operand)
                     });
             }
         }

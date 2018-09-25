@@ -86,10 +86,10 @@ namespace UnitTests.Flame.Clr
                 new[] { int32Type },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldloc_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Ldloc_0);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
@@ -108,17 +108,17 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Add);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Add);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Add);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Add);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -132,17 +132,17 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Cgt);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Cgt);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Cgt);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Cgt);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -156,23 +156,23 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var firstInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    var secondInstr = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
-                    var firstThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, firstInstr);
-                    var secondThunk = ilProc.Create(Mono.Cecil.Cil.OpCodes.Br, secondInstr);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, firstThunk);
+                    var firstInstr = ilProc.Create(OpCodes.Ldarg_0);
+                    var secondInstr = ilProc.Create(OpCodes.Pop);
+                    var firstThunk = ilProc.Create(OpCodes.Br, firstInstr);
+                    var secondThunk = ilProc.Create(OpCodes.Br, secondInstr);
+                    ilProc.Emit(OpCodes.Br, firstThunk);
                     ilProc.Append(firstInstr);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Br, secondThunk);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Br, secondThunk);
                     ilProc.Append(secondInstr);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(firstThunk);
                     ilProc.Append(secondThunk);
                 },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -186,24 +186,24 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Nop);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brtrue, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Nop);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Brtrue, target);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Brfalse, target);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -217,24 +217,24 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Nop);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Nop);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Brfalse, target);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Brfalse, target);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -248,25 +248,25 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Bge, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_7);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Bge, target);
+                    ilProc.Emit(OpCodes.Ldc_I4_7);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    var target = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Bge, target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_7);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    var target = ilProc.Create(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Bge, target);
+                    ilProc.Emit(OpCodes.Ldc_I4_7);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(target);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -288,17 +288,17 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Call, concatMethod);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Call, concatMethod);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Call, concatMethod);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Call, concatMethod);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -312,35 +312,35 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four });
+                    var one = ilProc.Create(OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Switch, new[] { one, two, four });
                     ilProc.Append(one);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(four);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Beq_S, two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Beq_S, four);
+                    var one = ilProc.Create(OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Beq_S, two);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldc_I4_2);
+                    ilProc.Emit(OpCodes.Beq_S, four);
                     ilProc.Append(one);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(four);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -354,33 +354,33 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { one, two, four, one, two, four });
+                    var one = ilProc.Create(OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Switch, new[] { one, two, four, one, two, four });
                     ilProc.Append(one);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(four);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 ilProc =>
                 {
-                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Sub);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Switch, new[] { two, four, one, two, four });
+                    var one = ilProc.Create(OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Sub);
+                    ilProc.Emit(OpCodes.Switch, new[] { two, four, one, two, four });
                     ilProc.Append(one);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(four);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 });
         }
 
@@ -394,19 +394,19 @@ namespace UnitTests.Flame.Clr
                 EmptyArray<TypeReference>.Value,
                 ilProc =>
                 {
-                    var one = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-                    var two = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
-                    var four = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_4);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    var one = ilProc.Create(OpCodes.Ldc_I4_1);
+                    var two = ilProc.Create(OpCodes.Ldc_I4_2);
+                    var four = ilProc.Create(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(
-                        Mono.Cecil.Cil.OpCodes.Switch,
+                        OpCodes.Switch,
                         new[] { one, two, four, one, one, one, one, two, one, one, one, four, four, two });
                     ilProc.Append(one);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(two);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(four);
-                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ret);
                 },
                 @"
 Locals: [ System.UInt32, System.UInt32 ]
@@ -436,6 +436,119 @@ IL_0021: brfalse.s IL_0025
 IL_0023: ldc.i4.4
 IL_0024: ret
 IL_0025: br.s IL_0009");
+        }
+
+        [Test]
+        public void RoundBranchesAsJumpTable()
+        {
+            // IL_0000:  ldarg.0 
+            // IL_0001:  ldc.i4.2 
+            // IL_0002:  bne.un.s IL_0006
+
+            // IL_0004:  ldc.i4.2 
+            // IL_0005:  ret 
+            // IL_0006:  ldarg.0 
+            // IL_0007:  ldc.i4.3 
+            // IL_0008:  bne.un.s IL_000c
+
+            // IL_000a:  ldc.i4.4 
+            // IL_000b:  ret 
+            // IL_000c:  ldarg.0 
+            // IL_000d:  ldc.i4.4 
+            // IL_000e:  bne.un.s IL_0012
+
+            // IL_0010:  ldc.i4.8 
+            // IL_0011:  ret 
+            // IL_0012:  ldarg.0 
+            // IL_0013:  ldc.i4.5 
+            // IL_0014:  bne.un.s IL_0019
+
+            // IL_0016:  ldc.i4.s 0x10
+            // IL_0018:  ret 
+            // IL_0019:  ldarg.0 
+            // IL_001a:  ldc.i4.6 
+            // IL_001b:  bne.un.s IL_0020
+
+            // IL_001d:  ldc.i4.s 0x20
+            // IL_001f:  ret 
+            // IL_0020:  ldc.i4.1 
+            // IL_0021:  ret 
+
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                new[] { int32Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var testThree = ilProc.Create(OpCodes.Ldarg_0);
+                    var testFour = ilProc.Create(OpCodes.Ldarg_0);
+                    var testFive = ilProc.Create(OpCodes.Ldarg_0);
+                    var testSix = ilProc.Create(OpCodes.Ldarg_0);
+                    var retOne = ilProc.Create(OpCodes.Ldc_I4_1);
+
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Ldc_I4_2);
+                    ilProc.Emit(OpCodes.Bne_Un_S, testThree);
+                    ilProc.Emit(OpCodes.Ldc_I4_2);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Append(testThree);
+                    ilProc.Emit(OpCodes.Ldc_I4_3);
+                    ilProc.Emit(OpCodes.Bne_Un_S, testFour);
+                    ilProc.Emit(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Append(testFour);
+                    ilProc.Emit(OpCodes.Ldc_I4_4);
+                    ilProc.Emit(OpCodes.Bne_Un_S, testFive);
+                    ilProc.Emit(OpCodes.Ldc_I4_8);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Append(testFive);
+                    ilProc.Emit(OpCodes.Ldc_I4_5);
+                    ilProc.Emit(OpCodes.Bne_Un_S, testSix);
+                    ilProc.Emit(OpCodes.Ldc_I4_S, (sbyte)16);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Append(testSix);
+                    ilProc.Emit(OpCodes.Ldc_I4_6);
+                    ilProc.Emit(OpCodes.Bne_Un_S, retOne);
+                    ilProc.Emit(OpCodes.Ldc_I4_S, (sbyte)32);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Append(retOne);
+                    ilProc.Emit(OpCodes.Ret);
+                },
+                @"
+Locals: [  ]
+IL_0000: ldarg.0
+IL_0001: ldc.i4.2
+IL_0002: bne.un.s IL_0006
+IL_0004: ldc.i4.2
+IL_0005: ret
+IL_0006: ldarg.0
+IL_0007: ldc.i4.3
+IL_0008: bne.un.s IL_000c
+IL_000a: ldc.i4.4
+IL_000b: ret
+IL_000c: ldarg.0
+IL_000d: ldc.i4.4
+IL_000e: bne.un.s IL_0012
+IL_0010: ldc.i4.8
+IL_0011: ret
+IL_0012: ldarg.0
+IL_0013: ldc.i4.5
+IL_0014: bne.un.s IL_0019
+IL_0016: ldc.i4.s 16
+IL_0018: ret
+IL_0019: ldarg.0
+IL_001a: ldc.i4.6
+IL_001b: bne.un.s IL_0020
+IL_001d: ldc.i4.s 32
+IL_001f: ret
+IL_0020: ldc.i4.1
+IL_0021: ret");
         }
 
         /// <summary>
@@ -569,6 +682,7 @@ IL_0025: br.s IL_0009");
             irBody = irBody.WithImplementation(
                 irBody.Implementation.Transform(
                     AllocaToRegister.Instance,
+                    CopyPropagation.Instance,
                     new JumpThreading(true),
                     new SwitchLowering(corlib.Resolver.TypeEnvironment),
                     CopyPropagation.Instance,
