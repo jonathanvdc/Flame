@@ -13,8 +13,16 @@ namespace Flame.Compiler.Transforms
     /// to eliminate alloca instructions whose addresses do not
     /// escape.
     /// </summary>
-    public static class AllocaToRegister
+    public sealed class AllocaToRegister : IntraproceduralOptimization
     {
+        private AllocaToRegister()
+        { }
+
+        /// <summary>
+        /// An instance of the alloca-to-register transform.
+        /// </summary>
+        public static readonly AllocaToRegister Instance = new AllocaToRegister();
+
         // This transform is based on the algorithm described by M. Braun et al
         // in Simple and Efficient Construction of Static Single Assignment Form
         // (https://pp.info.uni-karlsruhe.de/uploads/publikationen/braun13cc.pdf).
@@ -28,7 +36,7 @@ namespace Flame.Compiler.Transforms
         /// <returns>
         /// A transformed flow graph.
         /// </returns>
-        public static FlowGraph Apply(FlowGraph graph)
+        public override FlowGraph Apply(FlowGraph graph)
         {
             // Our first order of business is to identify
             // all `alloca` instructions that we *cannot*

@@ -567,12 +567,13 @@ IL_0025: br.s IL_0009");
 
             // Optimize the IR a tiny bit.
             irBody = irBody.WithImplementation(
-                new JumpThreading(false).Apply(
-                    DeadValueElimination.Apply(
-                        CopyPropagation.Apply(
-                            new SwitchLowering(corlib.Resolver.TypeEnvironment).Apply(
-                                new JumpThreading(true).Apply(
-                                    AllocaToRegister.Apply(irBody.Implementation)))))));
+                irBody.Implementation.Transform(
+                    AllocaToRegister.Instance,
+                    new JumpThreading(true),
+                    new SwitchLowering(corlib.Resolver.TypeEnvironment),
+                    CopyPropagation.Instance,
+                    DeadValueElimination.Instance,
+                    new JumpThreading(false)));
 
             // Turn Flame IR back into CIL.
             var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);

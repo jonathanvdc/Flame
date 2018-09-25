@@ -9,15 +9,23 @@ namespace Flame.Compiler.Transforms
     /// Removes unused, non-effectful instructions and basic block
     /// parameters from flow graphs.
     /// </summary>
-    public static class DeadValueElimination
+    public sealed class DeadValueElimination : IntraproceduralOptimization
     {
+        private DeadValueElimination()
+        { }
+
+        /// <summary>
+        /// An instance of the dead value elimination transform.
+        /// </summary>
+        public static readonly DeadValueElimination Instance = new DeadValueElimination();
+
         /// <summary>
         /// Removes unused, non-effectful instructions and basic block
         /// parameters from a flow graph.
         /// </summary>
         /// <param name="graph">The flow graph to transform.</param>
         /// <returns>A transformed flow graph.</returns>
-        public static FlowGraph Apply(FlowGraph graph)
+        public override FlowGraph Apply(FlowGraph graph)
         {
             // This transform simply builds a set of live values and
             // then delete everything that's not.

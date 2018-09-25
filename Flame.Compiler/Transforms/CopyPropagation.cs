@@ -10,8 +10,16 @@ namespace Flame.Compiler.Transforms
     /// to values that are merely copies of values with the
     /// copied values themselves.
     /// </summary>
-    public static class CopyPropagation
+    public sealed class CopyPropagation : IntraproceduralOptimization
     {
+        private CopyPropagation()
+        { }
+
+        /// <summary>
+        /// An instance of the copy propagation transform.
+        /// </summary>
+        public static readonly CopyPropagation Instance = new CopyPropagation();
+
         /// <summary>
         /// Propagates copies in a flow graph.
         /// </summary>
@@ -21,7 +29,7 @@ namespace Flame.Compiler.Transforms
         /// <returns>
         /// A transformed graph.
         /// </returns>
-        public static FlowGraph Apply(FlowGraph graph)
+        public override FlowGraph Apply(FlowGraph graph)
         {
             // We'll first create a mapping of values to the
             // values they copy. Then we'll use that to
