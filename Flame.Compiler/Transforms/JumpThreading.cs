@@ -48,12 +48,12 @@ namespace Flame.Compiler.Transforms
             {
                 ThreadJumps(block);
             }
-            throw new System.NotImplementedException();
+            return graphBuilder.ToImmutable();
         }
 
         private void ThreadJumps(BasicBlockBuilder block)
         {
-            bool changed = false;
+            bool changed = true;
             while (changed)
             {
                 changed = false;
@@ -163,7 +163,7 @@ namespace Flame.Compiler.Transforms
             }
 
             var target = graph.GetBasicBlock(branch.Target);
-            if (target.Parameters.Count > 0 && target.InstructionTags.Count > 0)
+            if (target.Parameters.Count > 0 || target.InstructionTags.Count > 0)
             {
                 return null;
             }
