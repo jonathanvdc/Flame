@@ -132,6 +132,27 @@ namespace Flame.Compiler.Flow
             Cases.All(item =>
                 item.Values.All(val => val is IntegerConstant));
 
+        /// <summary>
+        /// Gets a mapping of values to branches for this switch.
+        /// This mapping does not include the default branch.
+        /// </summary>
+        /// <value>A mapping of values to branches.</value>
+        public IReadOnlyDictionary<Constant, Branch> ValueToBranchMap
+        {
+            get
+            {
+                var results = new Dictionary<Constant, Branch>();
+                foreach (var switchCase in Cases)
+                {
+                    foreach (var value in switchCase.Values)
+                    {
+                        results[value] = switchCase.Branch;
+                    }
+                }
+                return results;
+            }
+        }
+
         private IReadOnlyList<Branch> cachedBranchList;
 
         /// <inheritdoc/>
