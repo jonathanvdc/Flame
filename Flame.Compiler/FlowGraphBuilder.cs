@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Transforms;
 
 namespace Flame.Compiler
 {
@@ -217,6 +218,39 @@ namespace Flame.Compiler
         public void RemoveDefinitions(IEnumerable<ValueTag> valuesToRemove)
         {
             ImmutableGraph = ImmutableGraph.RemoveDefinitions(valuesToRemove);
+        }
+
+        /// <summary>
+        /// Applies an intraprocedural optimization to this flow graph.
+        /// </summary>
+        /// <param name="optimization">
+        /// The transform to apply.
+        /// </param>
+        public void Transform(IntraproceduralOptimization optimization)
+        {
+            ImmutableGraph = ImmutableGraph.Transform(optimization);
+        }
+
+        /// <summary>
+        /// Applies a sequence of intraprocedural optimizations to this flow graph.
+        /// </summary>
+        /// <param name="optimizations">
+        /// The transforms to apply.
+        /// </param>
+        public void Transform(IEnumerable<IntraproceduralOptimization> optimizations)
+        {
+            ImmutableGraph = ImmutableGraph.Transform(optimizations);
+        }
+
+        /// <summary>
+        /// Applies a sequence of intraprocedural optimizations to this flow graph.
+        /// </summary>
+        /// <param name="optimizations">
+        /// The transforms to apply.
+        /// </param>
+        public void Transform(params IntraproceduralOptimization[] optimizations)
+        {
+            ImmutableGraph = ImmutableGraph.Transform(optimizations);
         }
 
         /// <summary>

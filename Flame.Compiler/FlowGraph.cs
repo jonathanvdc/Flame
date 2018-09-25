@@ -6,6 +6,7 @@ using System;
 using Flame.TypeSystem;
 using System.Linq;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Transforms;
 
 namespace Flame.Compiler
 {
@@ -734,6 +735,53 @@ namespace Flame.Compiler
             }
 
             return graphBuilder.ToImmutable();
+        }
+
+        /// <summary>
+        /// Applies an intraprocedural optimization to this flow graph.
+        /// </summary>
+        /// <param name="optimization">
+        /// The transform to apply.
+        /// </param>
+        /// <returns>
+        /// A transformed flow graph.
+        /// </returns>
+        public FlowGraph Transform(IntraproceduralOptimization optimization)
+        {
+            return optimization.Apply(this);
+        }
+
+        /// <summary>
+        /// Applies a sequence of intraprocedural optimizations to this flow graph.
+        /// </summary>
+        /// <param name="optimizations">
+        /// The transforms to apply.
+        /// </param>
+        /// <returns>
+        /// A transformed flow graph.
+        /// </returns>
+        public FlowGraph Transform(IEnumerable<IntraproceduralOptimization> optimizations)
+        {
+            var result = this;
+            foreach (var item in optimizations)
+            {
+                result = item.Apply(result);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Applies a sequence of intraprocedural optimizations to this flow graph.
+        /// </summary>
+        /// <param name="optimizations">
+        /// The transforms to apply.
+        /// </param>
+        /// <returns>
+        /// A transformed flow graph.
+        /// </returns>
+        public FlowGraph Transform(params IntraproceduralOptimization[] optimizations)
+        {
+            return Transform((IEnumerable<IntraproceduralOptimization>)optimizations);
         }
 
         internal BasicBlock UpdateBasicBlockFlow(BasicBlockTag tag, BlockFlow flow)
