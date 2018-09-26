@@ -135,7 +135,7 @@ namespace Flame.Compiler.Transforms
                                 {
                                     cases.Add(
                                         new SwitchCase(
-                                            switchCase.Values.Intersect(valueSet),
+                                            switchCase.Values.Except(valueSet),
                                             switchCase.Branch));
                                 }
                                 defaultBranch = threadedSwitch.DefaultBranch;
