@@ -92,9 +92,10 @@ namespace Flame.Compiler.Transforms
                         var values = ImmutableHashSet.CreateBuilder<Constant>();
                         foreach (var val in switchCase.Values.Cast<IntegerConstant>())
                         {
-                            if (val.Cast(operandSpec).Cast(convSpec).Equals(val))
+                            var opVal = val.Cast(operandSpec);
+                            if (opVal.Cast(convSpec).Equals(val))
                             {
-                                values.Add(val);
+                                values.Add(opVal);
                             }
                         }
                         if (values.Count > 0)
@@ -111,8 +112,96 @@ namespace Flame.Compiler.Transforms
                             flow.DefaultBranch),
                         graph);
                 }
+                else if (intrinsicName == ArithmeticIntrinsics.Operators.IsEqualTo
+                    && proto.ParameterCount == 2
+                    && proto.ResultType.IsIntegerType())
+                {
+                    var args = proto.GetArgumentList(value);
+                    var lhs = args[0];
+                    var rhs = args[1];
+                    Constant constant;
+                    ValueTag operand;
+                    if (TryExtractConstantAndValue(lhs, rhs, graph, out constant, out operand))
+                    {
+                        // The 'arith.eq' intrinsic always either produces '0' or '1'.
+                        // Because of that property, we can safely rewrite switches
+                        // like so:
+                        //
+                        // switch arith.eq(value, constant)
+                        //   0 -> zeroBranch
+                        //   1 -> oneBranch
+                        //   default -> defaultBranch
+                        //
+                        // -->
+                        //
+                        // switch value
+                        //   constant -> oneBranch ?? defaultBranch
+                        //   default -> zeroBranch ?? defaultBranch
+                        //
+                        var resultSpec = proto.ResultType.GetIntegerSpecOrNull();
+                        var zeroVal = new IntegerConstant(0, resultSpec);
+                        var oneVal = new IntegerConstant(1, resultSpec);
+
+                        var valuesToBranches = flow.ValueToBranchMap;
+                        var zeroBranch = valuesToBranches.ContainsKey(zeroVal)
+                            ? valuesToBranches[zeroVal]
+                            : flow.DefaultBranch;
+                        var oneBranch = valuesToBranches.ContainsKey(oneVal)
+                            ? valuesToBranches[oneVal]
+                            : flow.DefaultBranch;
+
+                        return SimplifySwitchFlow(
+                            new SwitchFlow(
+                                Instruction.CreateCopy(
+                                    graph.GetValueType(operand),
+                                    operand),
+                                new[] { new SwitchCase(ImmutableHashSet.Create(constant), oneBranch) },
+                                zeroBranch),
+                            graph);
+                    }
+                }
             }
             return flow;
+        }
+
+        private static bool TryExtractConstantAndValue(
+            ValueTag leftHandSide,
+            ValueTag rightHandSide,
+            FlowGraphBuilder graph,
+            out Constant constant,
+            out ValueTag value)
+        {
+            var lhsInstruction = SimplifyInstruction(
+                Instruction.CreateCopy(
+                    graph.GetValueType(leftHandSide),
+                    leftHandSide),
+                graph);
+
+            if (lhsInstruction.Prototype is ConstantPrototype)
+            {
+                constant = ((ConstantPrototype)lhsInstruction.Prototype).Value;
+                value = rightHandSide;
+                return true;
+            }
+
+            var rhsInstruction = SimplifyInstruction(
+                Instruction.CreateCopy(
+                    graph.GetValueType(rightHandSide),
+                    rightHandSide),
+                graph);
+
+            if (rhsInstruction.Prototype is ConstantPrototype)
+            {
+                constant = ((ConstantPrototype)rhsInstruction.Prototype).Value;
+                value = leftHandSide;
+                return true;
+            }
+            else
+            {
+                constant = null;
+                value = null;
+                return false;
+            }
         }
 
         /// <summary>

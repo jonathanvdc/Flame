@@ -524,31 +524,20 @@ IL_0025: br.s IL_0009");
 Locals: [  ]
 IL_0000: ldarg.0
 IL_0001: ldc.i4.2
-IL_0002: bne.un.s IL_0006
-IL_0004: ldc.i4.2
-IL_0005: ret
-IL_0006: ldarg.0
-IL_0007: ldc.i4.3
-IL_0008: bne.un.s IL_000c
-IL_000a: ldc.i4.4
-IL_000b: ret
-IL_000c: ldarg.0
-IL_000d: ldc.i4.4
-IL_000e: bne.un.s IL_0012
-IL_0010: ldc.i4.8
-IL_0011: ret
-IL_0012: ldarg.0
-IL_0013: ldc.i4.5
-IL_0014: bne.un.s IL_0019
-IL_0016: ldc.i4.s 16
-IL_0018: ret
-IL_0019: ldarg.0
-IL_001a: ldc.i4.6
-IL_001b: bne.un.s IL_0020
-IL_001d: ldc.i4.s 32
-IL_001f: ret
-IL_0020: ldc.i4.1
-IL_0021: ret");
+IL_0002: sub
+IL_0003: switch IL_0028,IL_0026,IL_0024,IL_0021,IL_001e
+IL_001c: ldc.i4.1
+IL_001d: ret
+IL_001e: ldc.i4.s 32
+IL_0020: ret
+IL_0021: ldc.i4.s 16
+IL_0023: ret
+IL_0024: ldc.i4.8
+IL_0025: ret
+IL_0026: ldc.i4.4
+IL_0027: ret
+IL_0028: ldc.i4.2
+IL_0029: ret");
         }
 
         /// <summary>
@@ -683,6 +672,8 @@ IL_0021: ret");
                 irBody.Implementation.Transform(
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
+                    SwitchSimplification.Instance,
+                    DeadValueElimination.Instance,
                     new JumpThreading(true),
                     new SwitchLowering(corlib.Resolver.TypeEnvironment),
                     CopyPropagation.Instance,
