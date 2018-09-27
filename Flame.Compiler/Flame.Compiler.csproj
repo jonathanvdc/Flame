@@ -96,6 +96,7 @@
     <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="Transforms\AllocaToRegister.cs" />
     <Compile Include="Transforms\CopyPropagation.cs" />
+    <Compile Include="Transforms\DeadBlockElimination.cs" />
     <Compile Include="Transforms\DeadValueElimination.cs" />
     <Compile Include="Transforms\IntraproceduralOptimization.cs" />
     <Compile Include="Transforms\JumpThreading.cs" />

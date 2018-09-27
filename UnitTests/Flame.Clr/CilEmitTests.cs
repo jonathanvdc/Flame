@@ -675,6 +675,7 @@ IL_0029: ret");
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
+                    DeadBlockElimination.Instance,
                     new SwitchLowering(corlib.Resolver.TypeEnvironment),
                     CopyPropagation.Instance,
                     DeadValueElimination.Instance,
