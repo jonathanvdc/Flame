@@ -40,6 +40,13 @@ namespace Flame.Compiler.Transforms
                     var simpleFlow = SimplifySwitchFlow(flow, graphBuilder);
                     if (flow != simpleFlow)
                     {
+                        if (simpleFlow is JumpFlow)
+                        {
+                            // If a switch flow gets simplified to a jump
+                            // flow, then we should still ensure that the
+                            // switch value is evaluated.
+                            block.AppendInstruction(flow.SwitchValue);
+                        }
                         block.Flow = simpleFlow;
                     }
                 }
