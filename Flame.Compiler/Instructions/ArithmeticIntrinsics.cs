@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using Flame.Constants;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Instructions
 {
@@ -173,6 +176,165 @@ namespace Flame.Compiler.Instructions
                 GetArithmeticIntrinsicName(operatorName),
                 resultType,
                 parameterTypes);
+        }
+
+        /// <summary>
+        /// Tries to evaluate an application of a standard
+        /// arithmetic operator.
+        /// </summary>
+        /// <param name="operatorName">
+        /// The name of the operator to evaluate.
+        /// </param>
+        /// <param name="resultType">
+        /// The result type of the operator.
+        /// </param>
+        /// <param name="arguments">
+        /// The operator application's arguments.
+        /// </param>
+        /// <param name="result">
+        /// The operator application's result, if it
+        /// can be computed.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the operator application can be
+        /// evaluated; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryEvaluate(
+            string operatorName,
+            IType resultType,
+            IReadOnlyList<Constant> arguments,
+            out Constant result)
+        {
+            if (arguments.Count == 2)
+            {
+                var lhs = arguments[0];
+                var rhs = arguments[1];
+                if (resultType.IsIntegerType()
+                    && lhs is IntegerConstant
+                    && rhs is IntegerConstant)
+                {
+                    var resultSpec = resultType.GetIntegerSpecOrNull();
+                    var intLhs = (IntegerConstant)lhs;
+                    var intRhs = (IntegerConstant)rhs;
+                    var maxIntSpec = UnionIntSpecs(
+                        resultSpec,
+                        intLhs.Spec,
+                        intRhs.Spec);
+
+                    Func<IntegerConstant, IntegerConstant, IntegerConstant> impl;
+                    if (intBinaryOps.TryGetValue(operatorName, out impl))
+                    {
+                        result = impl(
+                            ((IntegerConstant)arguments[0]).Cast(maxIntSpec),
+                            ((IntegerConstant)arguments[1]).Cast(maxIntSpec)).Cast(resultSpec);
+                        return true;
+                    }
+                }
+            }
+            result = null;
+            return false;
+        }
+
+        private static Dictionary<string, Func<IntegerConstant, IntegerConstant, IntegerConstant>> intBinaryOps =
+            new Dictionary<string, Func<IntegerConstant, IntegerConstant, IntegerConstant>>()
+        {
+            { Operators.Add, (x, y) => x.Add(y) },
+            { Operators.Subtract, (x, y) => x.Subtract(y) },
+            { Operators.Multiply, (x, y) => x.Multiply(y) },
+            { Operators.Divide, (x, y) => x.Divide(y) },
+            { Operators.Remainder, (x, y) => x.Remainder(y) },
+            { Operators.And, (x, y) => x.BitwiseAnd(y) },
+            { Operators.Or, (x, y) => x.BitwiseOr(y) },
+            { Operators.Xor, (x, y) => x.BitwiseXor(y) },
+            { Operators.LeftShift, (x, y) => x.ShiftLeft(y) },
+            { Operators.RightShift, (x, y) => x.ShiftRight(y) },
+            { Operators.IsEqualTo, (x, y) => BooleanConstant.Create(x.Equals(y)) },
+            { Operators.IsNotEqualTo, (x, y) => BooleanConstant.Create(!x.Equals(y)) },
+            { Operators.IsLessThan, (x, y) => BooleanConstant.Create(x.CompareTo(y) < 0) },
+            { Operators.IsGreaterThan, (x, y) => BooleanConstant.Create(x.CompareTo(y) > 0) },
+            { Operators.IsLessThanOrEqualTo, (x, y) => BooleanConstant.Create(x.CompareTo(y) <= 0) },
+            { Operators.IsGreaterThanOrEqualTo, (x, y) => BooleanConstant.Create(x.CompareTo(y) >= 0) },
+        };
+
+        private static IntegerSpec UnionIntSpecs(
+            IntegerSpec firstSpec,
+            params IntegerSpec[] otherSpecs)
+        {
+            var spec = firstSpec;
+            foreach (var other in otherSpecs)
+            {
+                if (other.IsSigned != spec.IsSigned)
+                {
+                    IntegerSpec signed;
+                    IntegerSpec unsigned;
+                    if (other.IsSigned)
+                    {
+                        signed = other;
+                        unsigned = spec;
+                    }
+                    else
+                    {
+                        signed = spec;
+                        unsigned = other;
+                    }
+
+                    if (signed.Size <= unsigned.Size)
+                    {
+                        spec = new IntegerSpec(unsigned.Size + 1, true);
+                    }
+                    else
+                    {
+                        spec = signed;
+                    }
+                }
+                else if (other.Size > spec.Size)
+                {
+                    spec = other;
+                }
+            }
+            return spec;
+        }
+
+        private static bool AreCompatibleIntegers(
+            IReadOnlyList<Constant> arguments,
+            IntegerSpec initialSpec = null)
+        {
+            var spec = initialSpec;
+            foreach (var arg in arguments)
+            {
+                if (arg is IntegerConstant)
+                {
+                    var constant = (IntegerConstant)arg;
+                    if (spec == null)
+                    {
+                        spec = constant.Spec;
+                    }
+                    else if (!spec.Equals(constant.Spec))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool IsClosedIntOpApplication(
+            IType resultType,
+            IReadOnlyList<Constant> arguments)
+        {
+            var spec = resultType.GetIntegerSpecOrNull();
+            if (spec == null)
+            {
+                return false;
+            }
+            else
+            {
+                return AreCompatibleIntegers(arguments, spec);
+            }
         }
 
         /// <summary>
