@@ -17,5 +17,5 @@ build_script:
   # Build Flame with csc
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
   # Run the tests
-  - UnitTests\bin\Release\UnitTests.exe 12345
+  - UnitTests\bin\Release\UnitTests.exe 1234
 
