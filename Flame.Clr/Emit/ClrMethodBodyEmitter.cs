@@ -60,7 +60,7 @@ namespace Flame.Clr.Emit
             var allocaToVarMap = AllocasToVariables(sourceGraph);
 
             // Select instructions.
-            var selector = new CilInstructionSelector(TypeEnvironment, allocaToVarMap);
+            var selector = new CilInstructionSelector(Method, TypeEnvironment, allocaToVarMap);
             var streamBuilder = new LinearInstructionStreamBuilder<CilCodegenInstruction>(
                 selector);
 
@@ -78,7 +78,8 @@ namespace Flame.Clr.Emit
             // Allocate registers to values.
             var regAllocator = new CilRegisterAllocator(
                 loadedValues,
-                GetPreallocatedRegisters(sourceGraph));
+                GetPreallocatedRegisters(sourceGraph),
+                Method.Module);
             var regAllocation = regAllocator.Analyze(sourceGraph);
 
             // Synthesize the actual method body.
@@ -90,6 +91,7 @@ namespace Flame.Clr.Emit
             // Add local variables to method body. Put most popular
             // locals first to minimize the number of long-form ldloc/stloc
             // instructions.
+            result.InitLocals = true;
             foreach (var pair in emitter.RegisterUseCounts.OrderByDescending(pair => pair.Value))
             {
                 result.Variables.Add(pair.Key);
@@ -159,7 +161,7 @@ namespace Flame.Clr.Emit
                     // will never be executed twice. Hence, they can be safely replaced
                     // by a local variable reference.
                     results[insn.Tag] = new Mono.Cecil.Cil.VariableDefinition(
-                        TypeHelpers.ToTypeReference(((AllocaPrototype)proto).ElementType));
+                        Method.Module.ImportReference(((AllocaPrototype)proto).ElementType));
                 }
             }
 

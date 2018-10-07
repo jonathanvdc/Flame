@@ -25,6 +25,9 @@ namespace Flame.Clr.Emit
         /// <summary>
         /// Creates a CIL instruction selector.
         /// </summary>
+        /// <param name="method">
+        /// The method definition to select instructions for.
+        /// </param>
         /// <param name="typeEnvironment">
         /// The type environment to use when selecting instructions.
         /// </param>
@@ -33,9 +36,11 @@ namespace Flame.Clr.Emit
         /// are used as backing store for the `alloca`s.
         /// </param>
         public CilInstructionSelector(
+            MethodDefinition method,
             TypeEnvironment typeEnvironment,
             IReadOnlyDictionary<ValueTag, VariableDefinition> allocaToVariableMapping)
         {
+            this.Method = method;
             this.TypeEnvironment = typeEnvironment;
             this.AllocaToVariableMapping = allocaToVariableMapping;
             this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
@@ -43,6 +48,12 @@ namespace Flame.Clr.Emit
             this.tempDefs = new List<VariableDefinition>();
             this.tempsByType = new Dictionary<IType, ValueTag>();
         }
+
+        /// <summary>
+        /// Gets the method definition to select instructions for.
+        /// </summary>
+        /// <value>A method definition.</value>
+        public MethodDefinition Method { get; private set; }
 
         /// <summary>
         /// Gets the type environment used by this CIL instruction selector.
@@ -148,7 +159,11 @@ namespace Flame.Clr.Emit
             {
                 var branch = ((JumpFlow)flow).Branch;
                 fallthrough = branch.Target;
-                return SelectBranchArguments(branch, graph);
+                return SelectBranchArguments(
+                    branch,
+                    graph,
+                    blockTag,
+                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last);
             }
             else if (flow is SwitchFlow)
             {
@@ -310,7 +325,9 @@ namespace Flame.Clr.Emit
 
         private SelectedInstructions<CilCodegenInstruction> SelectBranchArguments(
             Branch branch,
-            FlowGraph graph)
+            FlowGraph graph,
+            BasicBlockTag blockTag = null,
+            LinkedListNode<ValueTag> insertionPoint = null)
         {
             var instructions = new List<CilCodegenInstruction>();
             var dependencies = new HashSet<ValueTag>();
@@ -326,7 +343,7 @@ namespace Flame.Clr.Emit
                     graph.GetValueType(arg.ValueOrNull),
                     arg.ValueOrNull);
 
-                var insnSelection = SelectInstructionsAndWrap(argInsn, null, null, null, graph);
+                var insnSelection = SelectInstructionsAndWrap(argInsn, null, blockTag, insertionPoint, graph);
                 instructions.AddRange(insnSelection.Instructions);
                 dependencies.UnionWith(insnSelection.Dependencies);
             }
@@ -355,16 +372,27 @@ namespace Flame.Clr.Emit
             else if (IsDefaultConstant(instruction.Instruction))
             {
                 // 'Default' constants are special.
-                return new SelectedInstructions<CilCodegenInstruction>(
-                    new CilCodegenInstruction[]
-                    {
-                        new CilAddressOfRegisterInstruction(instruction.Tag),
-                        new CilOpInstruction(
-                            CilInstruction.Create(
-                                OpCodes.Initobj,
-                                TypeHelpers.ToTypeReference(instruction.Instruction.ResultType)))
-                    },
-                    EmptyArray<ValueTag>.Value);
+                var resultType = instruction.Instruction.ResultType;
+                if (resultType.Equals(TypeEnvironment.Void))
+                {
+                    return new SelectedInstructions<CilCodegenInstruction>(
+                        EmptyArray<CilCodegenInstruction>.Value,
+                        EmptyArray<ValueTag>.Value);
+                }
+                else
+                {
+                    var importedType = Method.Module.ImportReference(resultType);
+                    return new SelectedInstructions<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilAddressOfRegisterInstruction(instruction.Tag),
+                            new CilOpInstruction(
+                                CilInstruction.Create(
+                                    OpCodes.Initobj,
+                                    importedType))
+                        },
+                        EmptyArray<ValueTag>.Value);
+                }
             }
             else
             {
@@ -402,7 +430,7 @@ namespace Flame.Clr.Emit
                         new CilOpInstruction(
                             CilInstruction.Create(
                                 OpCodes.Sizeof,
-                                TypeHelpers.ToTypeReference(allocaProto.ElementType))),
+                                Method.Module.ImportReference(allocaProto.ElementType))),
                         new CilOpInstruction(CilInstruction.Create(OpCodes.Localloc))
                     },
                     new ValueTag[0]);
@@ -421,7 +449,7 @@ namespace Flame.Clr.Emit
                     return CreateSelection(
                         CilInstruction.Create(
                             OpCodes.Ldobj,
-                            TypeHelpers.ToTypeReference(loadProto.ResultType)),
+                            Method.Module.ImportReference(loadProto.ResultType)),
                         pointer);
                 }
             }
@@ -451,7 +479,7 @@ namespace Flame.Clr.Emit
                             new CilOpInstruction(
                                 CilInstruction.Create(
                                     OpCodes.Stobj,
-                                    TypeHelpers.ToTypeReference(storeProto.ResultType)))
+                                    Method.Module.ImportReference(storeProto.ResultType)))
                         },
                         new[] { pointer, value });
                 }
@@ -477,7 +505,7 @@ namespace Flame.Clr.Emit
                             callProto.Lookup == MethodLookup.Virtual
                             ? OpCodes.Callvirt
                             : OpCodes.Call,
-                            TypeHelpers.ToMethodReference(callProto.Callee)))
+                            Method.Module.ImportReference(callProto.Callee)))
                 };
                 return new SelectedInstructions<CilCodegenInstruction>(instructions, dependencies);
             }
@@ -849,10 +877,7 @@ namespace Flame.Clr.Emit
             if (!instructionOrder.TryGetValue(block.Tag, out blockInstructionList))
             {
                 blockInstructionList = new LinkedList<ValueTag>(block.InstructionTags);
-                foreach (var flowInsn in block.Flow.Instructions)
-                {
-                    blockInstructionList.AddLast(new LinkedListNode<ValueTag>(null));
-                }
+                blockInstructionList.AddLast(new LinkedListNode<ValueTag>(null));
                 instructionOrder[block.Tag] = blockInstructionList;
             }
             return blockInstructionList;
@@ -1035,7 +1060,8 @@ namespace Flame.Clr.Emit
                     {
                         // Fall through to the default implementation.
                     }
-                    else if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
+                    else if (insertionPoint != null
+                        && ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
                     {
                         // Some instructions should always be selected inline.
                         SelectDependencyInline(dependencyImpl);
@@ -1077,7 +1103,10 @@ namespace Flame.Clr.Emit
                 }
 
                 // If all else fails, just insert a `load` instruction.
-                updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
+                if (graph.GetValueType(dependency) != InstructionSelector.TypeEnvironment.Void)
+                {
+                    updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
+                }
                 updatedDependencies.Add(dependency);
             }
 
@@ -1105,17 +1134,15 @@ namespace Flame.Clr.Emit
 
             private static bool ShouldAlwaysInlineInstruction(Instruction instruction)
             {
-                var proto = instruction.Prototype;
-                return proto is ConstantPrototype
-                    && ((ConstantPrototype)proto).Value != DefaultConstant.Instance;
+                var proto = instruction.Prototype as ConstantPrototype;
+                return proto != null && proto.Value != DefaultConstant.Instance;
             }
         }
 
         private static bool IsDefaultConstant(Instruction instruction)
         {
-            var proto = instruction.Prototype;
-            return proto is ConstantPrototype
-                && ((ConstantPrototype)proto).Value == DefaultConstant.Instance;
+            var proto = instruction.Prototype as ConstantPrototype;
+            return proto != null && proto.Value == DefaultConstant.Instance;
         }
     }
 }

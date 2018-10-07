@@ -22,14 +22,20 @@ namespace Flame.Clr.Emit
         /// <param name="paramRegisters">
         /// The registers assigned to the method's parameters.
         /// </param>
+        /// <param name="module">
+        /// The module to use for importing CLR types.
+        /// </param>
         public CilRegisterAllocator(
             HashSet<ValueTag> usedValues,
-            Dictionary<ValueTag, ParameterDefinition> paramRegisters)
+            Dictionary<ValueTag, ParameterDefinition> paramRegisters,
+            ModuleDefinition module)
         {
             this.usedValues = usedValues;
             this.paramRegisters = paramRegisters;
+            this.module = module;
         }
 
+        private ModuleDefinition module;
         private HashSet<ValueTag> usedValues;
         private Dictionary<ValueTag, ParameterDefinition> paramRegisters;
 
@@ -64,7 +70,7 @@ namespace Flame.Clr.Emit
         protected override CilCodegenRegister CreateRegister(IType type)
         {
             return new CilCodegenRegister(
-                new VariableDefinition(TypeHelpers.ToTypeReference(type)));
+                new VariableDefinition(module.ImportReference(type)));
         }
 
         /// <inheritdoc/>
@@ -73,7 +79,7 @@ namespace Flame.Clr.Emit
             IEnumerable<CilCodegenRegister> registers,
             out CilCodegenRegister result)
         {
-            var typeRef = TypeHelpers.ToTypeReference(type);
+            var typeRef = module.ImportReference(type);
             result = registers.FirstOrDefault(reg => reg.Type == typeRef);
             return result.IsParameter || result.IsVariable;
         }

@@ -102,7 +102,9 @@ namespace Flame.Clr
         /// <returns>
         /// A type reference.
         /// </returns>
-        public static Mono.Cecil.TypeReference ToTypeReference(IType type)
+        public static Mono.Cecil.TypeReference ImportReference(
+            this Mono.Cecil.ModuleDefinition module,
+            IType type)
         {
             if (type is ClrTypeDefinition)
             {
@@ -112,7 +114,7 @@ namespace Flame.Clr
             {
                 var pointerType = (PointerType)type;
                 var elemType = pointerType.ElementType;
-                var elemTypeRef = ToTypeReference(elemType);
+                var elemTypeRef = module.ImportReference(elemType);
                 if (pointerType.Kind == PointerKind.Reference)
                 {
                     return new Mono.Cecil.ByReferenceType(elemTypeRef);
@@ -121,7 +123,8 @@ namespace Flame.Clr
                 {
                     if (elemType.IsReferenceType())
                     {
-                        return elemTypeRef;
+                        var def = module.ImportReference(elemTypeRef);
+                        return module == null ? def : module.ImportReference(def);
                     }
                     else
                     {
@@ -169,11 +172,14 @@ namespace Flame.Clr
         /// <returns>
         /// A method reference.
         /// </returns>
-        public static Mono.Cecil.MethodReference ToMethodReference(IMethod method)
+        public static Mono.Cecil.MethodReference ImportReference(
+            this Mono.Cecil.ModuleDefinition module,
+            IMethod method)
         {
             if (method is ClrMethodDefinition)
             {
-                return ((ClrMethodDefinition)method).Definition;
+                var def = ((ClrMethodDefinition)method).Definition;
+                return module == null ? def : module.ImportReference(def);
             }
             else
             {

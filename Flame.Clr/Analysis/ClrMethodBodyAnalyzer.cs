@@ -192,8 +192,10 @@ namespace Flame.Clr.Analysis
                 else
                 {
                     throw new InvalidProgramException(
-                        "Different paths to instruction '" + firstInstruction.ToString() +
-                        "' have incompatible stack contents.");
+                        $"Different paths to instruction '{firstInstruction.ToString()}' have " +
+                        "incompatible stack contents. Stack contents on first path: [" +
+                        $"{string.Join(", ", parameterTypes.Select(x => x.FullName))}]. Stack contents " +
+                        $"on second path [{string.Join(", ", argumentTypes.Select(x => x.FullName))}].");
                 }
             }
 
@@ -221,6 +223,18 @@ namespace Flame.Clr.Analysis
                     branchTargets.ContainsKey(currentInstruction.Next))
                 {
                     // Current instruction is the last instruction of the block.
+                    // Handle fallthrough.
+                    if (block.Flow is UnreachableFlow
+                        && branchTargets.ContainsKey(currentInstruction.Next))
+                    {
+                        var args = stackContents.Reverse().ToArray();
+                        block.Flow = new JumpFlow(
+                            AnalyzeBlock(
+                                currentInstruction.Next,
+                                args.EagerSelect(arg => block.Graph.GetValueType(arg)),
+                                cilMethodBody),
+                            args);
+                    }
                     return block.Tag;
                 }
                 else
@@ -232,16 +246,19 @@ namespace Flame.Clr.Analysis
             }
         }
 
-        private static void PushValue(
+        private void PushValue(
             Instruction value,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
             var instruction = block.AppendInstruction(value);
-            stackContents.Push(instruction.Tag);
+            if (instruction.Instruction.ResultType != Assembly.Resolver.TypeEnvironment.Void)
+            {
+                stackContents.Push(instruction.Tag);
+            }
         }
 
-        private static void LoadValue(
+        private void LoadValue(
             ValueTag pointer,
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
@@ -260,13 +277,11 @@ namespace Flame.Clr.Analysis
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
-            PushValue(
+            block.AppendInstruction(
                 Instruction.CreateStore(
                     block.Graph.GetValueType(value),
                     pointer,
-                    value),
-                block,
-                stackContents);
+                    value));
         }
 
         /// <summary>
@@ -458,6 +473,30 @@ namespace Flame.Clr.Analysis
                     args));
         }
 
+        /// <summary>
+        /// Pops a value of a particular type off the stack.
+        /// </summary>
+        /// <param name="type">The type of the top-of-stack value.</param>
+        /// <param name="block">The block that pops the value off the stack.</param>
+        /// <param name="stackContents">The stack contents.</param>
+        private ValueTag PopTyped(
+            IType type,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            if (type == Assembly.Resolver.TypeEnvironment.Void)
+            {
+                return block.AppendInstruction(
+                    Instruction.CreateConstant(DefaultConstant.Instance,
+                    type));
+            }
+            else
+            {
+                // TODO: convert the top-of-stack value if necessary.
+                return stackContents.Pop();
+            }
+        }
+
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
             Mono.Cecil.Cil.Instruction nextInstruction,
@@ -516,7 +555,7 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
-                var value = stackContents.Pop();
+                var value = PopTyped(ReturnParameter.Type, block, stackContents);
                 block.Flow = new ReturnFlow(
                     Instruction.CreateCopy(
                         graph.GetValueType(value),
@@ -608,7 +647,7 @@ namespace Flame.Clr.Analysis
             }
             else
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException($"Unimplemented opcode: {instruction}");
             }
         }
 
