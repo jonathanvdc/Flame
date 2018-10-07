@@ -44,119 +44,124 @@ namespace Flame.Compiler.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var graphBuilder = graph.ToBuilder();
+            var finished = new HashSet<BasicBlockTag>();
             foreach (var block in graphBuilder.BasicBlocks)
             {
-                ThreadJumps(block);
+                ThreadJumps(block, finished);
             }
             return graphBuilder.ToImmutable();
         }
 
-        private void ThreadJumps(BasicBlockBuilder block)
+        private void ThreadJumps(BasicBlockBuilder block, HashSet<BasicBlockTag> processedBlocks)
         {
-            bool changed = true;
-            while (changed)
+            if (!processedBlocks.Add(block))
             {
-                changed = false;
-                var flow = block.Flow;
-                if (flow is JumpFlow)
-                {
-                    var jumpFlow = (JumpFlow)flow;
-                    var threadFlow = AsThreadableFlow(jumpFlow.Branch, block.Graph);
-                    if (threadFlow != null && jumpFlow.Branch.Target != block.Tag)
-                    {
-                        block.Flow = threadFlow;
-                        changed = true;
-                    }
-                }
-                else if (flow is SwitchFlow && IncludeSwitches)
-                {
-                    var switchFlow = (SwitchFlow)flow;
+                return;
+            }
 
-                    // Rewrite switch cases.
-                    var cases = new List<SwitchCase>();
-                    foreach (var switchCase in switchFlow.Cases)
+            var flow = block.Flow;
+            if (flow is JumpFlow)
+            {
+                var jumpFlow = (JumpFlow)flow;
+                var threadFlow = AsThreadableFlow(jumpFlow.Branch, block.Graph, processedBlocks);
+                if (threadFlow != null && jumpFlow.Branch.Target != block.Tag)
+                {
+                    block.Flow = threadFlow;
+                }
+            }
+
+            flow = block.Flow;
+            bool changed = false;
+            if (flow is SwitchFlow && IncludeSwitches)
+            {
+                var switchFlow = (SwitchFlow)flow;
+
+                // Rewrite switch cases.
+                var cases = new List<SwitchCase>();
+                foreach (var switchCase in switchFlow.Cases)
+                {
+                    var caseFlow = AsThreadableFlow(switchCase.Branch, block.Graph, processedBlocks);
+                    if (caseFlow != null
+                        && switchCase.Branch.Target != block.Tag)
                     {
-                        var caseFlow = AsThreadableFlow(switchCase.Branch, block.Graph);
-                        if (caseFlow != null
-                            && switchCase.Branch.Target != block.Tag)
+                        if (caseFlow is JumpFlow)
                         {
-                            if (caseFlow is JumpFlow)
+                            cases.Add(
+                                new SwitchCase(
+                                    switchCase.Values,
+                                    ((JumpFlow)caseFlow).Branch));
+                            changed = true;
+                            continue;
+                        }
+                        else if (caseFlow is SwitchFlow)
+                        {
+                            var threadedSwitch = (SwitchFlow)caseFlow;
+                            if (threadedSwitch.SwitchValue == switchFlow.SwitchValue)
                             {
-                                cases.Add(
-                                    new SwitchCase(
-                                        switchCase.Values,
-                                        ((JumpFlow)caseFlow).Branch));
+                                var valuesToBranches = threadedSwitch.ValueToBranchMap;
+                                foreach (var value in switchCase.Values)
+                                {
+                                    Branch branchForValue;
+                                    if (!valuesToBranches.TryGetValue(value, out branchForValue))
+                                    {
+                                        branchForValue = threadedSwitch.DefaultBranch;
+                                    }
+                                    cases.Add(
+                                        new SwitchCase(
+                                            ImmutableHashSet.Create(value),
+                                            branchForValue));
+                                }
                                 changed = true;
                                 continue;
                             }
-                            else if (caseFlow is SwitchFlow)
-                            {
-                                var threadedSwitch = (SwitchFlow)caseFlow;
-                                if (threadedSwitch.SwitchValue == switchFlow.SwitchValue)
-                                {
-                                    var valuesToBranches = threadedSwitch.ValueToBranchMap;
-                                    foreach (var value in switchCase.Values)
-                                    {
-                                        Branch branchForValue;
-                                        if (!valuesToBranches.TryGetValue(value, out branchForValue))
-                                        {
-                                            branchForValue = threadedSwitch.DefaultBranch;
-                                        }
-                                        cases.Add(
-                                            new SwitchCase(
-                                                ImmutableHashSet.Create(value),
-                                                branchForValue));
-                                    }
-                                    changed = true;
-                                    continue;
-                                }
-                            }
                         }
-                        cases.Add(switchCase);
                     }
+                    cases.Add(switchCase);
+                }
 
-                    // Rewrite default branch if possible.
-                    var defaultBranch = switchFlow.DefaultBranch;
-                    if (defaultBranch.Target != block.Tag)
+                // Rewrite default branch if possible.
+                var defaultBranch = switchFlow.DefaultBranch;
+                if (defaultBranch.Target != block.Tag)
+                {
+                    var defaultFlow = AsThreadableFlow(defaultBranch, block.Graph, processedBlocks);
+                    if (defaultFlow is JumpFlow)
                     {
-                        var defaultFlow = AsThreadableFlow(defaultBranch, block.Graph);
-                        if (defaultFlow is JumpFlow)
+                        defaultBranch = ((JumpFlow)defaultFlow).Branch;
+                        changed = true;
+                    }
+                    else if (defaultFlow is SwitchFlow)
+                    {
+                        var threadedSwitch = (SwitchFlow)defaultFlow;
+                        if (threadedSwitch.SwitchValue == switchFlow.SwitchValue)
                         {
-                            defaultBranch = ((JumpFlow)defaultFlow).Branch;
+                            var valueSet = ImmutableHashSet.CreateRange(switchFlow.ValueToBranchMap.Keys);
+                            foreach (var switchCase in threadedSwitch.Cases)
+                            {
+                                cases.Add(
+                                    new SwitchCase(
+                                        switchCase.Values.Except(valueSet),
+                                        switchCase.Branch));
+                            }
+                            defaultBranch = threadedSwitch.DefaultBranch;
                             changed = true;
                         }
-                        else if (defaultFlow is SwitchFlow)
-                        {
-                            var threadedSwitch = (SwitchFlow)defaultFlow;
-                            if (threadedSwitch.SwitchValue == switchFlow.SwitchValue)
-                            {
-                                var valueSet = ImmutableHashSet.CreateRange(switchFlow.ValueToBranchMap.Keys);
-                                foreach (var switchCase in threadedSwitch.Cases)
-                                {
-                                    cases.Add(
-                                        new SwitchCase(
-                                            switchCase.Values.Except(valueSet),
-                                            switchCase.Branch));
-                                }
-                                defaultBranch = threadedSwitch.DefaultBranch;
-                                changed = true;
-                            }
-                        }
                     }
+                }
 
-                    if (changed)
-                    {
-                        block.Flow = new SwitchFlow(
-                            switchFlow.SwitchValue,
-                            cases,
-                            defaultBranch);
-                    }
+                if (changed)
+                {
+                    block.Flow = new SwitchFlow(
+                        switchFlow.SwitchValue,
+                        cases,
+                        defaultBranch);
                 }
             }
         }
 
-        private BlockFlow AsThreadableFlow(Branch branch, FlowGraphBuilder graph)
+        private BlockFlow AsThreadableFlow(Branch branch, FlowGraphBuilder graph, HashSet<BasicBlockTag> processedBlocks)
         {
+            ThreadJumps(graph.GetBasicBlock(branch.Target), processedBlocks);
+
             if (branch.Arguments.Count > 0)
             {
                 return null;
