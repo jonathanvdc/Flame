@@ -104,6 +104,8 @@
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
     <Compile Include="Flame.Ir\PiecewiseCodecTest.cs" />
     <Compile Include="Flame.Ir\TypeCodecTest.cs" />
+    <Compile Include="Tools\ILOptTests.cs" />
+    <Compile Include="Tools\ToolCommand.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -131,5 +133,6 @@
     <Folder Include="Flame\" />
     <Folder Include="Flame.Ir\" />
     <Folder Include="Flame.Clr\" />
+    <Folder Include="Tools\" />
   </ItemGroup>
 </Project>

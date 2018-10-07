@@ -16,4 +16,4 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	mono ./UnitTests/bin/Debug/UnitTests.exe 1234
+	mono ./UnitTests/bin/Debug/UnitTests.exe 12345

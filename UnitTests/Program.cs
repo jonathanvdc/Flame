@@ -24,7 +24,8 @@ namespace UnitTests
             new Pair<string,Func<int>>("Run unit tests of Flame.dll", Flame),
             new Pair<string,Func<int>>("Run unit tests of Flame.Clr.dll", FlameClr),
             new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", FlameCompiler),
-            new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr)
+            new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr),
+            new Pair<string,Func<int>>("Run Flame tool tests", FlameTools)
         };
 
         public static void Main(string[] args)
@@ -139,6 +140,12 @@ namespace UnitTests
                 new ConstantCodecTest(globalLog, globalRng),
                 new PiecewiseCodecTest(globalLog),
                 new TypeCodecTest(globalLog));
+        }
+
+        public static int FlameTools()
+        {
+            return RunTests.RunMany(
+                new ILOptTests());
         }
     }
 }
