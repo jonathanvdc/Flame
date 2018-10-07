@@ -540,6 +540,27 @@ IL_0028: ldc.i4.2
 IL_0029: ret");
         }
 
+        [Test]
+        public void FoldAddInt32()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            RoundtripStaticMethodBody(
+                int32Type,
+                EmptyArray<TypeReference>.Value,
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    ilProc.Emit(OpCodes.Ldc_I4_2);
+                    ilProc.Emit(OpCodes.Ldc_I4, 30);
+                    ilProc.Emit(OpCodes.Add);
+                    ilProc.Emit(OpCodes.Ret);
+                },
+                @"
+Locals: [  ]
+IL_0000: ldc.i4.s 32
+IL_0002: ret");
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR,
         /// emits that as CIL and checks that the outcome matches
@@ -672,6 +693,7 @@ IL_0029: ret");
                 irBody.Implementation.Transform(
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
+                    new ConstantPropagation(),
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
