@@ -121,8 +121,10 @@ namespace Flame.Compiler.Analysis
             {
                 foreach (var branch in Graph.GetBasicBlock(source).Flow.Branches)
                 {
-                    reachable.Add(branch.Target);
-                    AddReachableBlocks(branch.Target, reachable);
+                    if (reachable.Add(branch.Target))
+                    {
+                        AddReachableBlocks(branch.Target, reachable);
+                    }
                 }
             }
         }
