@@ -709,8 +709,8 @@ IL_0002: ret");
 
             // Check that the resulting CIL matches the expected CIL.
             var actual = FormatMethodBody(newCilBody);
-            actual = actual.Trim();
-            oracle = oracle.Trim();
+            actual = actual.Trim().Replace("\r", "");
+            oracle = oracle.Trim().Replace("\r", "");
             if (actual != oracle)
             {
                 var encoder = new EncoderState();
