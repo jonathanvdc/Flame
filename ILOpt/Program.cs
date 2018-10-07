@@ -196,6 +196,8 @@ namespace ILOpt
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
+                    new TailRecursionElimination(method),
+                    JumpToEntryRemoval.Instance,
                     DeadBlockElimination.Instance,
                     new SwitchLowering(typeSystem),
                     CopyPropagation.Instance,
