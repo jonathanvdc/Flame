@@ -479,6 +479,7 @@ namespace Flame.Compiler.Transforms
                     // the list of incomplete phis.
                     var val = new ValueTag(variable.Name + ".phi");
                     incompletePhis[block][variable] = new BlockParameter(type, val);
+                    WriteVariable(variable, block, val);
                     return val;
                 }
 
