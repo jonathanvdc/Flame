@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Flame.Collections;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Instructions;
+using Flame.Constants;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Transforms
 {
@@ -14,6 +17,30 @@ namespace Flame.Compiler.Transforms
     /// </summary>
     public sealed class ConstantPropagation : IntraproceduralOptimization
     {
+        /// <summary>
+        /// Creates a constant propagation transform that uses the default
+        /// evaluation function.
+        /// </summary>
+        /// <param name="evaluate">
+        /// The evaluation function to use. It valuates an instruction that
+        /// takes a list of constant arguments. It returns <c>null</c> if the
+        /// instruction cannot be evaluated; otherwise, it returns the constant
+        /// to which it was evaluated.
+        /// </param>
+        public ConstantPropagation()
+            : this(EvaluateDefault)
+        { }
+
+        /// <summary>
+        /// Creates a constant propagation transform that uses a particular
+        /// evaluation function.
+        /// </summary>
+        /// <param name="evaluate">
+        /// The evaluation function to use. It valuates an instruction that
+        /// takes a list of constant arguments. It returns <c>null</c> if the
+        /// instruction cannot be evaluated; otherwise, it returns the constant
+        /// to which it was evaluated.
+        /// </param>
         public ConstantPropagation(
             Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> evaluate)
         {
@@ -26,6 +53,60 @@ namespace Flame.Compiler.Transforms
         /// </summary>
         public Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> Evaluate { get; private set; }
 
+        /// <summary>
+        /// The default constant instruction evaluation function.
+        /// </summary>
+        /// <param name="prototype">
+        /// The prorotype of the instruction to evaluate.
+        /// </param>
+        /// <param name="arguments">
+        /// A list of arguments to the instruction, all of which
+        /// must be constants.
+        /// </param>
+        /// <returns></returns>
+        public static Constant EvaluateDefault(
+            InstructionPrototype prototype,
+            IReadOnlyList<Constant> arguments)
+        {
+            if (prototype is CopyPrototype)
+            {
+                return arguments[0];
+            }
+            else if (prototype is ConstantPrototype)
+            {
+                var constProto = (ConstantPrototype)prototype;
+                if (constProto.Value is DefaultConstant)
+                {
+                    // Try to specialize 'default' constants.
+                    var intSpec = constProto.ResultType.GetIntegerSpecOrNull();
+                    if (intSpec != null)
+                    {
+                        return new IntegerConstant(0, intSpec);
+                    }
+                }
+                return constProto.Value;
+            }
+            else if (prototype is IntrinsicPrototype)
+            {
+                string arithOp;
+                Constant result;
+
+                if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
+                    ((IntrinsicPrototype)prototype).Name,
+                    out arithOp)
+                    && ArithmeticIntrinsics.TryEvaluate(
+                        arithOp,
+                        prototype.ResultType,
+                        arguments,
+                        out result))
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
         {
             // Do the fancy analysis.
@@ -200,7 +281,7 @@ namespace Flame.Compiler.Transforms
                     // Process the selected branches.
                     foreach (var branch in branches)
                     {
-                        if (!visitedBlocks.Contains(block))
+                        if (!visitedBlocks.Contains(branch.Target))
                         {
                             flowWorklist.Enqueue(branch.Target);
                         }
