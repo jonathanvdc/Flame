@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CecilAssemblyResolver.cs" />
     <Compile Include="ClrAccessorDefinition.cs" />
     <Compile Include="ClrArrayType.cs" />
     <Compile Include="ClrAssembly.cs" />
