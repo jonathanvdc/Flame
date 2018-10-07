@@ -5,7 +5,10 @@ using Flame.Clr.Emit;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Transforms;
+using Flame.Ir;
 using Flame.TypeSystem;
+using Loyc.Syntax;
+using Loyc.Syntax.Les;
 using Pixie;
 using Pixie.Markup;
 using Pixie.Options;
@@ -16,11 +19,13 @@ namespace ILOpt
 {
     public static class Program
     {
+        private static ILog log;
+
         public static int Main(string[] args)
         {
             // Acquire a log.
             var rawLog = TerminalLog.Acquire();
-            var log = new TransformLog(
+            log = new TransformLog(
                 rawLog,
                 new Func<LogEntry, LogEntry>[]
                 {
@@ -63,6 +68,8 @@ namespace ILOpt
                 outputPath = Path.GetFileNameWithoutExtension(inputPath) + ".opt" + Path.GetExtension(inputPath);
             }
 
+            var printIr = parsedOptions.GetValue<bool>(Options.PrintIr);
+
             // Read the assembly from disk.
             Mono.Cecil.AssemblyDefinition cecilAsm;
             try
@@ -95,7 +102,7 @@ namespace ILOpt
             typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
 
             // Optimize the assembly.
-            OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem));
+            OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem, printIr));
 
             // Write the optimized assembly to disk.
             cecilAsm.Write(outputPath);
@@ -159,7 +166,8 @@ namespace ILOpt
 
         private static MethodBody OptimizeBody(
             ClrMethodDefinition method,
-            TypeEnvironment typeSystem)
+            TypeEnvironment typeSystem,
+            bool printIr)
         {
             var irBody = method.Body;
 
@@ -194,7 +202,46 @@ namespace ILOpt
                     DeadValueElimination.Instance,
                     new JumpThreading(false)));
 
+            if (printIr)
+            {
+                PrintIr(method, method.Body, irBody);
+            }
+
             return irBody;
+        }
+
+        private static void PrintIr(
+            ClrMethodDefinition method,
+            MethodBody sourceBody,
+            MethodBody optBody)
+        {
+            var sourceIr = FormatIr(sourceBody);
+            var optIr = FormatIr(optBody);
+
+            log.Log(
+                new LogEntry(
+                    Severity.Message,
+                    "method body IR",
+                    "optimized Flame IR for ",
+                    Quotation.CreateBoldQuotation(method.FullName.ToString()),
+                    ": ",
+                    new Paragraph(new WrapBox(optIr, 0, -optIr.Length)),
+                    DecorationSpan.MakeBold("remark: "),
+                    "unoptimized Flame IR:",
+                    new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length))));
+        }
+
+        private static string FormatIr(MethodBody methodBody)
+        {
+            var encoder = new EncoderState();
+            var encodedImpl = encoder.Encode(methodBody.Implementation);
+
+            return Les2LanguageService.Value.Print(
+                encodedImpl,
+                options: new LNodePrinterOptions
+                {
+                    IndentString = new string(' ', 4)
+                });
         }
     }
 }

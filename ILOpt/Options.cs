@@ -42,13 +42,22 @@ namespace ILOpt
                 .WithParameter(new SymbolicOptionParameter("path"));
 
         /// <summary>
+        /// The 'print-ir' option, which prints method body IR.
+        /// </summary>
+        public static readonly FlagOption PrintIr =
+            FlagOption.CreateFlagOption(OptionForm.Long("print-ir"))
+                .WithDescription("Prints method bodies as Flame IR. Useful for debugging ilopt.")
+                .WithCategory("Debugging");
+
+        /// <summary>
         /// A list of all named options understood by ilopt.
         /// </summary>
         public static readonly IReadOnlyList<Option> All =
             new Option[]
         {
             Help,
-            Output
+            Output,
+            PrintIr
         };
     }
 }

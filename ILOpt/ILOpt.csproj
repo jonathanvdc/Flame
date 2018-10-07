@@ -49,6 +49,15 @@
     <Reference Include="Pixie.Terminal">
       <HintPath>..\packages\Pixie.0.1.5\lib\net45\Pixie.Terminal.dll</HintPath>
     </Reference>
+    <Reference Include="Loyc.Essentials">
+      <HintPath>..\packages\Loyc.Essentials.26.4.0\lib\net45\Loyc.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Collections">
+      <HintPath>..\packages\Loyc.Collections.26.4.0\lib\net45\Loyc.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Loyc.Syntax">
+      <HintPath>..\packages\Loyc.Syntax.26.4.0\lib\net45\Loyc.Syntax.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Options.cs" />
@@ -67,6 +76,10 @@
     <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj">
       <Project>{7042BE93-0037-4506-B3D6-7C28774F8AD5}</Project>
       <Name>Flame.Compiler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj">
+      <Project>{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}</Project>
+      <Name>Flame.Ir</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
