@@ -32,7 +32,7 @@ namespace Flame.Compiler
         /// <inheritdoc/>
         public override string ToString()
         {
-            return Name;
+            return Name + "(" + GetHashCode() + ")";
         }
     }
 
