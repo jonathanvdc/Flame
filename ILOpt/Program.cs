@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Flame.Clr;
 using Flame.Clr.Emit;
 using Flame.Compiler;
@@ -154,6 +155,31 @@ namespace ILOpt
             if (methodDefinition.HasBody)
             {
                 var flameMethod = (ClrMethodDefinition)parentAssembly.Resolve(methodDefinition);
+                var irBody = flameMethod.Body;
+
+                var errors = irBody.Validate();
+                if (errors.Count > 0)
+                {
+                    var sourceIr = FormatIr(irBody);
+                    log.Log(
+                        new LogEntry(
+                            Severity.Warning,
+                            "invalid IR",
+                            Quotation.QuoteEvenInBold(
+                                "the Flame IR produced by the CIL analyzer for ",
+                                flameMethod.FullName.ToString(),
+                                " is erroneous; skipping it."),
+
+                            CreateRemark(
+                                "errors in IR:",
+                                new BulletedList(errors.Select(x => new Text(x)).ToArray())),
+
+                            CreateRemark(
+                                "generated Flame IR:",
+                                new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length)))));
+                    return;
+                }
+
                 var optBody = optimizeBody(flameMethod);
                 var emitter = new ClrMethodBodyEmitter(
                     methodDefinition,
@@ -228,9 +254,9 @@ namespace ILOpt
                     Quotation.CreateBoldQuotation(method.FullName.ToString()),
                     ": ",
                     new Paragraph(new WrapBox(optIr, 0, -optIr.Length)),
-                    DecorationSpan.MakeBold("remark: "),
-                    "unoptimized Flame IR:",
-                    new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length))));
+                    CreateRemark(
+                        "unoptimized Flame IR:",
+                        new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length)))));
         }
 
         private static string FormatIr(MethodBody methodBody)
@@ -244,6 +270,15 @@ namespace ILOpt
                 {
                     IndentString = new string(' ', 4)
                 });
+        }
+
+        private static MarkupNode CreateRemark(
+            params MarkupNode[] contents)
+        {
+            return new Paragraph(
+                new MarkupNode[] { DecorationSpan.MakeBold(new ColorSpan("remark: ", Colors.Gray)) }
+                .Concat(contents)
+                .ToArray());
         }
     }
 }
