@@ -383,15 +383,21 @@ namespace Flame.Clr.Analysis
             BasicBlockBuilder block,
             Stack<ValueTag> stackContents)
         {
-            var value = stackContents.Pop();
-            PushValue(
+            stackContents.Push(
+                EmitConvertTo(stackContents.Pop(), targetType, block));
+        }
+
+        private ValueTag EmitConvertTo(
+            ValueTag operand,
+            IType targetType,
+            BasicBlockBuilder block)
+        {
+            return block.AppendInstruction(
                 ArithmeticIntrinsics.CreatePrototype(
                     ArithmeticIntrinsics.Operators.Convert,
                     targetType,
-                    block.Graph.GetValueType(value))
-                    .Instantiate(new[] { value }),
-                block,
-                stackContents);
+                    block.Graph.GetValueType(operand))
+                    .Instantiate(new[] { operand }));
         }
 
         /// <summary>
@@ -492,9 +498,31 @@ namespace Flame.Clr.Analysis
             }
             else
             {
-                // TODO: convert the top-of-stack value if necessary.
-                return stackContents.Pop();
+                var value = stackContents.Pop();
+                var valueType = block.Graph.GetValueType(value);
+                if (valueType.Equals(type))
+                {
+                    // No need to emit a conversion.
+                    return value;
+                }
+                else if (valueType is PointerType && type is PointerType)
+                {
+                    // Emit a reinterpret cast to convert between pointers.
+                    return block.AppendInstruction(
+                        Instruction.CreateReinterpretCast((PointerType)type, value));
+                }
+                else
+                {
+                    // Emit an 'arith.convert' intrinsic to convert between
+                    // primitive types.
+                    return EmitConvertTo(value, type, block);
+                }
             }
+        }
+
+        private static IType GetAllocaElementType(Instruction alloca)
+        {
+            return ((AllocaPrototype)alloca.Prototype).ElementType;
         }
 
         private void AnalyzeInstruction(
@@ -536,7 +564,11 @@ namespace Flame.Clr.Analysis
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Starg)
             {
                 var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
-                StoreValue(alloca.Tag, stackContents.Pop(), block, stackContents);
+                StoreValue(
+                    alloca.Tag,
+                    PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
+                    block,
+                    stackContents);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloca)
             {
@@ -551,7 +583,11 @@ namespace Flame.Clr.Analysis
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stloc)
             {
                 var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
-                StoreValue(alloca.Tag, stackContents.Pop(), block, stackContents);
+                StoreValue(
+                    alloca.Tag,
+                    PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
+                    block,
+                    stackContents);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
@@ -621,11 +657,11 @@ namespace Flame.Clr.Analysis
                 var args = new List<ValueTag>();
                 if (!method.IsStatic)
                 {
-                    args.Add(stackContents.Pop());
+                    args.Add(PopTyped(method.ParentType, block, stackContents));
                 }
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
-                    args.Add(stackContents.Pop());
+                    args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
                 }
                 args.Reverse();
                 PushValue(
