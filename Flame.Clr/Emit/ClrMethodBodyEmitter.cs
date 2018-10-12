@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections.Target;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
@@ -65,6 +66,7 @@ namespace Flame.Clr.Emit
                 selector);
 
             var codegenInsns = streamBuilder.ToInstructionStream(sourceGraph);
+            codegenInsns = OptimizeRegisterAccesses(codegenInsns);
 
             // Find the set of loaded values so we can allocate registers to them.
             var loadedValues = new HashSet<ValueTag>(
@@ -117,6 +119,40 @@ namespace Flame.Clr.Emit
             MethodBodyRocks.Optimize(result);
 
             return result;
+        }
+
+        private IReadOnlyList<CilCodegenInstruction> OptimizeRegisterAccesses(
+            IReadOnlyList<CilCodegenInstruction> codegenInsns)
+        {
+            int count = codegenInsns.Count;
+            var newInsns = new List<CilCodegenInstruction>();
+
+            int i = 0;
+            while (i < count)
+            {
+                var store = codegenInsns[i] as CilStoreRegisterInstruction;
+                var load = i + 1 < count
+                    ? codegenInsns[i + 1] as CilLoadRegisterInstruction
+                    : null;
+
+                if (store != null && load != null && store.Value == load.Value)
+                {
+                    // Replace the `stloc; ldloc` pattern with `dup; stloc`.
+                    // The latter sequence is never longer than the former
+                    // but may be shorter. This also eliminates a value
+                    // load, which may result in the whole sequence getting
+                    // optimized away after register allocation.
+                    newInsns.Add(new CilOpInstruction(OpCodes.Dup));
+                    newInsns.Add(store);
+                    i += 2;
+                }
+                else
+                {
+                    newInsns.Add(codegenInsns[i]);
+                    i++;
+                }
+            }
+            return newInsns;
         }
 
         private Dictionary<ValueTag, Mono.Cecil.ParameterDefinition> GetPreallocatedRegisters(

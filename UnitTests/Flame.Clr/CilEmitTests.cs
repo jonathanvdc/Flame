@@ -413,8 +413,8 @@ Locals: [ System.UInt32, System.UInt32 ]
 IL_0000: ldarg.0
 IL_0001: ldc.i4.1
 IL_0002: sub
-IL_0003: stloc.0
-IL_0004: ldloc.0
+IL_0003: dup
+IL_0004: stloc.0
 IL_0005: ldc.i4.s 12
 IL_0007: ble.un.s IL_000b
 IL_0009: ldc.i4.1
@@ -422,8 +422,8 @@ IL_000a: ret
 IL_000b: ldc.i4.1
 IL_000c: ldloc.0
 IL_000d: shl
-IL_000e: stloc.1
-IL_000f: ldloc.1
+IL_000e: dup
+IL_000f: stloc.1
 IL_0010: ldc.i4 4161
 IL_0015: and
 IL_0016: brfalse.s IL_001a
