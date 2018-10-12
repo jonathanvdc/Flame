@@ -222,6 +222,7 @@ namespace ILOpt
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
+                    DuplicateReturns.Instance,
                     new TailRecursionElimination(method),
                     JumpToEntryRemoval.Instance,
                     DeadBlockElimination.Instance,
