@@ -17,20 +17,24 @@ namespace UnitTests
                 "*.cs",
                 SearchOption.TopDirectoryOnly))
             {
-                Console.WriteLine(" - " + Path.GetFileName(file));
-                CompileOptimizeAndRun(file, (cmd, exe) =>
-                {
-                    if (cmd.Command == "run")
-                    {
-                        string stdout, stderr;
-                        Assert.AreEqual(0, RunExe(exe, cmd.Argument, out stdout, out stderr));
-                        return stdout;
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                });
+                Console.WriteLine($" - {Path.GetFileName(file)} (optimized)");
+                CompileOptimizeAndRun(file, "/optimize+", RunCommand);
+                Console.WriteLine($" - {Path.GetFileName(file)} (not optimized)");
+                CompileOptimizeAndRun(file, "/optimize-", RunCommand);
+            }
+        }
+
+        private string RunCommand(ToolCommand command, string exePath)
+        {
+            if (command.Command == "run")
+            {
+                string stdout, stderr;
+                Assert.AreEqual(0, RunExe(exePath, command.Argument, out stdout, out stderr));
+                return stdout;
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -40,12 +44,16 @@ namespace UnitTests
         /// <param name="fileName">
         /// The name of the file to compile, optimize and run.
         /// </param>
+        /// <param name="csharpFlags">
+        /// Additional flags to pass to C# compiler.
+        /// </param>
         /// <param name="runCommand">
         /// Runs a command, taking the command itself and a
         /// path to an executable as arguments.
         /// </param>
         public static void CompileOptimizeAndRun(
             string fileName,
+            string csharpFlags,
             Func<ToolCommand, string, string> runCommand)
         {
             var prefix = Path.GetTempPath() + Guid.NewGuid().ToString();
@@ -53,7 +61,7 @@ namespace UnitTests
             var optExePath = prefix + ".opt.exe";
             try
             {
-                CompileCSharp(fileName, exePath);
+                CompileCSharp(fileName, exePath, csharpFlags);
                 OptimizeIL(exePath, optExePath);
                 var commands = ReadCommands(fileName);
                 foreach (var command in commands)
@@ -76,22 +84,24 @@ namespace UnitTests
         /// </summary>
         /// <param name="inputPath">The file to compile.</param>
         /// <param name="outputPath">The path to store the exe at.</param>
+        /// <param name="flags">Additional flags to pass to the compiler.</param>
         /// <param name="compilerName">The name of the compiler to use.</param>
         public static void CompileCSharp(
             string inputPath,
             string outputPath,
+            string flags,
             string compilerName = "csc")
         {
             string stdout, stderr;
             int exitCode = RunProcess(
                 compilerName,
-                $"\"{inputPath}\" \"/out:{outputPath}\" /optimize+",
+                $"\"{inputPath}\" \"/out:{outputPath}\" /nologo {flags}",
                 out stdout,
                 out stderr);
 
             if (exitCode != 0)
             {
-                throw new Exception($"Error while compiling {inputPath}: {stderr}");
+                throw new Exception($"Error while compiling {inputPath}: {stderr}{stdout}");
             }
         }
 
