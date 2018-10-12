@@ -211,22 +211,23 @@ namespace Flame.Clr.Emit
 
                 bool hasArgs = ifBranch.Arguments.Count > 0;
                 var ifTarget = hasArgs ? new BasicBlockTag() : ifBranch.Target;
+                var elseTarget = switchFlow.DefaultBranch.Target;
 
                 // Emit equality test.
                 instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
                 instructions.Add(
                     new CilOpInstruction(
                         CilInstruction.Create(
-                            OpCodes.Beq,
+                            hasArgs ? OpCodes.Bne_Un : OpCodes.Beq,
                             CilInstruction.Create(OpCodes.Nop)),
-                        (insn, branchTargets) => insn.Operand = branchTargets[ifTarget]));
+                        (insn, branchTargets) => insn.Operand = branchTargets[hasArgs ? elseTarget : ifTarget]));
 
                 // If the if-branch takes one or more arguments, then we need to
                 // build a little thunk that selects instructions for those arguments.
                 if (hasArgs)
                 {
                     instructions.Add(new CilMarkTargetInstruction(ifTarget));
-                    var ifArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
+                    var ifArgs = SelectBranchArguments(ifBranch, graph);
                     instructions.AddRange(ifArgs.Instructions);
                     dependencies.AddRange(ifArgs.Dependencies);
                     instructions.Add(
@@ -241,7 +242,7 @@ namespace Flame.Clr.Emit
                 var defaultArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
                 instructions.AddRange(defaultArgs.Instructions);
                 dependencies.AddRange(defaultArgs.Dependencies);
-                fallthrough = switchFlow.DefaultBranch.Target;
+                fallthrough = elseTarget;
                 return SelectedInstructions.Create(instructions, dependencies);
             }
             else if (flow.IsJumpTable)
