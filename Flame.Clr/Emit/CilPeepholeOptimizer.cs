@@ -57,6 +57,7 @@ namespace Flame.Clr.Emit
         {
             DupUse1PopToUse1,
             LdcZeroBeqToBrfalse,
+            LdcZeroBneToBrtrue,
             CltBrfalseToBge,
             CltUnBrfalseToBgeUn,
             CltBrtrueToBlt,
@@ -65,7 +66,8 @@ namespace Flame.Clr.Emit
             CgtUnBrfalseToBleUn,
             CgtBrtrueToBgt,
             CgtUnBrtrueToBgtUn,
-            CeqBrfalseToBneUn
+            CeqBrfalseToBneUn,
+            CompareOneAndToCompare
         };
 
         /// <summary>
@@ -108,6 +110,26 @@ namespace Flame.Clr.Emit
                     insns => new[]
                     {
                         Instruction.Create(OpCodes.Brfalse, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ldc.* 0; bne.un target` pattern to `brtrue target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdcZeroBneToBrtrue
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        IsZeroConstant,
+                        HasOpCode(OpCodes.Bne_Un)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brtrue, (Instruction)insns[1].Operand)
                     });
             }
         }
@@ -293,6 +315,24 @@ namespace Flame.Clr.Emit
         }
 
         /// <summary>
+        /// A rewrite use that transforms the `ceq/cgt/clt; ldc.i4.1; and` pattern to `ceq/cgt/clt`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> CompareOneAndToCompare
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Ceq, OpCodes.Cgt, OpCodes.Clt, OpCodes.Cgt_Un, OpCodes.Clt_Un),
+                        IsIntegerConstant(1),
+                        HasOpCode(OpCodes.And)
+                    },
+                    insns => new[] { insns[0] });
+            }
+        }
+
+        /// <summary>
         /// Tests if a particular instruction is a zero constant.
         /// </summary>
         /// <param name="instruction">An instruction.</param>
@@ -301,24 +341,115 @@ namespace Flame.Clr.Emit
         /// </returns>
         private static bool IsZeroConstant(Instruction instruction)
         {
-            if (instruction.OpCode == OpCodes.Ldc_I4_0)
+            long value;
+            return TryGetIntegerConstantValue(instruction, out value)
+                && value == 0;
+        }
+
+        /// <summary>
+        /// Produces a predicate that tests if a particular instruction
+        /// is a particular integer constant.
+        /// </summary>
+        /// <param name="constant">The constant to test for.</param>
+        /// <returns>
+        /// A predicate that tests if a particular instruction is the
+        /// specified integer constant.
+        /// </returns>
+        private static Predicate<Instruction> IsIntegerConstant(long constant)
+        {
+            return instruction => {
+                long value;
+                return TryGetIntegerConstantValue(instruction, out value)
+                    && value == constant;
+            };
+        }
+
+        /// <summary>
+        /// Tries to interpret an instruction as an integer constant.
+        /// </summary>
+        /// <param name="instruction">
+        /// An instruction that may be an integer constant.
+        /// </param>
+        /// <param name="value">
+        /// A variable to store the integer constant specified by
+        /// the instruction in, if applicable.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="instruction"/> is an integer constant;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        private static bool TryGetIntegerConstantValue(
+            Instruction instruction,
+            out long value)
+        {
+            if (instruction.OpCode == OpCodes.Ldc_I4)
             {
+                value = (int)instruction.Operand;
                 return true;
-            }
-            else if (instruction.OpCode == OpCodes.Ldc_I4)
-            {
-                return (int)instruction.Operand == 0;
             }
             else if (instruction.OpCode == OpCodes.Ldc_I4_S)
             {
-                return (sbyte)instruction.Operand == 0;
+                value = (sbyte)instruction.Operand;
+                return true;
             }
             else if (instruction.OpCode == OpCodes.Ldc_I8)
             {
-                return (long)instruction.Operand == 0;
+                value = (long)instruction.Operand;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_0)
+            {
+                value = 0;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_1)
+            {
+                value = 1;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_2)
+            {
+                value = 2;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_3)
+            {
+                value = 3;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_4)
+            {
+                value = 4;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_5)
+            {
+                value = 5;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_6)
+            {
+                value = 6;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_7)
+            {
+                value = 7;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_8)
+            {
+                value = 8;
+                return true;
+            }
+            else if (instruction.OpCode == OpCodes.Ldc_I4_M1)
+            {
+                value = -1;
+                return true;
             }
             else
             {
+                value = 0;
                 return false;
             }
         }
@@ -326,6 +457,12 @@ namespace Flame.Clr.Emit
         private static Predicate<Instruction> HasOpCode(OpCode opCode)
         {
             return instruction => instruction.OpCode == opCode;
+        }
+
+        private static Predicate<Instruction> HasOpCode(params OpCode[] opCodes)
+        {
+            var opcodeSet = new HashSet<OpCode>(opCodes);
+            return instruction => opcodeSet.Contains(instruction.OpCode);
         }
 
         private static Predicate<Instruction> HasArities(
