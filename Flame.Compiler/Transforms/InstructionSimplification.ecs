@@ -1,0 +1,33 @@
+#importMacros(FlameMacros);
+
+using System.Collections.Generic;
+
+namespace Flame.Compiler.Transforms
+{
+    #rewriteRuleAnalysis(InstructionSimplificationAnalysis, {
+        // Nop casts can be replaced by copies.
+        #rule({
+            result = intrinsic("arith.convert", T, #(T))(value);
+        }, {
+            result = copy(T)(value);
+        });
+
+        // A truncation followed by a sign or zero extension can be
+        // simplified to just the sign or zero extension.
+        #rule({
+            temp_cast = intrinsic("arith.convert", Intermediate, #(From))(value);
+            result = intrinsic("arith.convert", To, #(Intermediate))(temp_cast);
+        }, {
+            result = intrinsic("arith.convert", To, #(From))(value);
+        }, From.IsIntegerType()
+            && Intermediate.IsIntegerType()
+            && To.IsIntegerType()
+            && Intermediate.GetIntegerSpecOrNull().Size <= From.GetIntegerSpecOrNull()
+            && Intermediate.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull());
+    });
+
+    public sealed class InstructionSimplification
+    {
+
+    }
+}

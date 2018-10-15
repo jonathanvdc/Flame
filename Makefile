@@ -1,4 +1,4 @@
-.PHONY: release debug all nuget clean test
+.PHONY: release debug all dsl nuget clean test
 release:
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
 
@@ -6,6 +6,11 @@ debug:
 	msbuild /p:Configuration=Debug /verbosity:quiet /nologo Flame.sln
 
 all: debug release
+
+%.out.cs: %.ecs
+	FlameMacros/bin/Release/LeMP.exe --macros FlameMacros/bin/Release/FlameMacros.dll --outext=.out.cs $<
+
+dsl: Flame.Compiler/Transforms/InstructionSimplification.out.cs
 
 nuget:
 	nuget restore Flame.sln
