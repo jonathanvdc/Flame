@@ -66,38 +66,13 @@ namespace FlameMacros
             var pattern = new List<InstructionPattern>();
             foreach (var insn in instructions.Args)
             {
-                if (!insn.Calls(CodeSymbols.Assign, 2)
-                    || !insn.Args[0].IsId
-                    || !insn.Args[1].IsCall
-                    || !insn.Args[1].Target.IsCall
-                    || !insn.Args[1].Target.Target.IsId)
+                var insnPattern = InstructionPattern.Parse(insn, sink);
+                if (insnPattern == null)
                 {
-                    sink.Write(
-                        Severity.Error,
-                        insn,
-                        "Each instruction pattern must be formatted as 'name = kind(protoArgs...)(args...);'.");
                     return null;
                 }
 
-                var name = insn.Args[0].Name;
-                var kind = insn.Args[1].Target.Name.Name;
-                var protoArgs = insn.Args[1].Target.Args;
-                var args = new List<Symbol>();
-
-                foreach (var node in insn.Args[1].Args)
-                {
-                    if (!node.IsId)
-                    {
-                        sink.Write(
-                            Severity.Error,
-                            insn,
-                            "Each instruction argument must be a reference to another instruction, encoded as an identifier.");
-                        return null;
-                    }
-                    args.Add(node.Name);
-                }
-
-                pattern.Add(new InstructionPattern(name, kind, protoArgs, args));
+                pattern.Add(insnPattern);
             }
             return pattern;
         }

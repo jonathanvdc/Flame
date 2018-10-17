@@ -5,7 +5,7 @@ using Loyc.Syntax;
 
 namespace FlameMacros
 {
-    public struct InstructionPattern
+    public sealed class InstructionPattern
     {
         public InstructionPattern(
             Symbol instructionName,
@@ -26,6 +26,42 @@ namespace FlameMacros
         public IReadOnlyList<LNode> PrototypeArgs { get; private set; }
 
         public IReadOnlyList<Symbol> InstructionArgs { get; private set; }
+
+        public static InstructionPattern Parse(LNode insn, IMessageSink sink)
+        {
+            if (!insn.Calls(CodeSymbols.Assign, 2)
+                || !insn.Args[0].IsId
+                || !insn.Args[1].IsCall
+                || !insn.Args[1].Target.IsCall
+                || !insn.Args[1].Target.Target.IsId)
+            {
+                sink.Write(
+                    Severity.Error,
+                    insn,
+                    "Each instruction pattern must be formatted as 'name = kind(protoArgs...)(args...);'.");
+                return null;
+            }
+
+            var name = insn.Args[0].Name;
+            var kind = insn.Args[1].Target.Name.Name;
+            var protoArgs = insn.Args[1].Target.Args;
+            var args = new List<Symbol>();
+
+            foreach (var node in insn.Args[1].Args)
+            {
+                if (!node.IsId)
+                {
+                    sink.Write(
+                        Severity.Error,
+                        insn,
+                        "Each instruction argument must be a reference to another instruction, encoded as an identifier.");
+                    return null;
+                }
+                args.Add(node.Name);
+            }
+
+            return new InstructionPattern(name, kind, protoArgs, args);
+        }
     }
 
     /// <summary>
@@ -96,9 +132,9 @@ namespace FlameMacros
             else if (left.IsCall)
             {
                 int count = left.ArgCount;
-                if (!left.IsCall
-                    || count != right.Count
-                    || !left.Target.Equals(right.Target))
+                if (!right.IsCall
+                    || count != right.ArgCount
+                    || left.Name != right.Name)
                 {
                     return false;
                 }
@@ -185,7 +221,7 @@ namespace FlameMacros
                 int hashCode = EnumerableComparer.EmptyHash;
                 hashCode = EnumerableComparer.FoldIntoHashCode(
                     hashCode,
-                    argument.Target.GetHashCode());
+                    argument.Name.GetHashCode());
 
                 foreach (var arg in argument.Args)
                 {
