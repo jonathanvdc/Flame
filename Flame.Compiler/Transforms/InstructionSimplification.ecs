@@ -1,6 +1,7 @@
 #importMacros(FlameMacros);
 
 using System.Collections.Generic;
+using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Transforms
 {
