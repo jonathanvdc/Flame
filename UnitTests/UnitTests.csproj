@@ -106,6 +106,7 @@
     <Compile Include="Flame.Ir\TypeCodecTest.cs" />
     <Compile Include="Tools\ILOptTests.cs" />
     <Compile Include="Tools\ToolCommand.cs" />
+    <Compile Include="Macros\InstructionPatternTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -128,11 +129,16 @@
       <Project>{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}</Project>
       <Name>Flame.Clr</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FlameMacros\FlameMacros.csproj">
+      <Project>{42FA2924-B6DE-48AE-957C-514C37D0D1ED}</Project>
+      <Name>FlameMacros</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flame\" />
     <Folder Include="Flame.Ir\" />
     <Folder Include="Flame.Clr\" />
     <Folder Include="Tools\" />
+    <Folder Include="Macros\" />
   </ItemGroup>
 </Project>

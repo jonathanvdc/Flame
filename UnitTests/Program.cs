@@ -12,6 +12,7 @@ using Pixie.Transforms;
 using Pixie.Markup;
 using UnitTests.Flame.Clr;
 using UnitTests.Flame.Compiler;
+using UnitTests.Macros;
 
 namespace UnitTests
 {
@@ -25,6 +26,7 @@ namespace UnitTests
             new Pair<string,Func<int>>("Run unit tests of Flame.Clr.dll", FlameClr),
             new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", FlameCompiler),
             new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr),
+            new Pair<string,Func<int>>("Run unit tests of FlameMacros.dll", FlameMacros),
             new Pair<string,Func<int>>("Run Flame tool tests", FlameTools)
         };
 
@@ -140,6 +142,12 @@ namespace UnitTests
                 new ConstantCodecTest(globalLog, globalRng),
                 new PiecewiseCodecTest(globalLog),
                 new TypeCodecTest(globalLog));
+        }
+
+        public static int FlameMacros()
+        {
+            return RunTests.RunMany(
+                new InstructionPatternTests());
         }
 
         public static int FlameTools()
