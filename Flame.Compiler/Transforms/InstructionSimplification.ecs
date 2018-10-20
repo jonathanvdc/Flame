@@ -5,7 +5,7 @@ using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Transforms
 {
-    #rewriteRuleAnalysis(InstructionSimplificationAnalysis, {
+    public #rewriteRuleAnalysis(InstructionSimplificationAnalysis, {
         // Nop casts can be replaced by copies.
         #rule({
             result = intrinsic("arith.convert", T, #(T))(value);

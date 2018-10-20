@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using LeMP;
 using Loyc;
@@ -121,18 +122,32 @@ namespace FlameMacros
             // Generate a function to determine which prototype patterns
             // match a particular prototype.
             var protoMatcherName = "GetPrototypePatternMatches";
-            var protoMatcher = SynthesizePrototypePatternMatcher(
-                F.Id(protoMatcherName),
-                prototypePatterns,
-                topLevelNode,
-                sink);
+
+            var members = new VList<LNode>();
+
+            members.Add(
+                SynthesizePrototypePatternMatcher(
+                    F.Id(protoMatcherName),
+                    prototypePatterns,
+                    topLevelNode,
+                    sink));
+
+            for (int i = 0; i < rules.Count; i++)
+            {
+                members.Add(
+                    SynthesizeRewriteRuleClass(
+                        rules[i],
+                        "Rule" + i.ToString(CultureInfo.InvariantCulture),
+                        prototypePatterns));
+            }
 
             return F.Call(
                 CodeSymbols.Class,
                 F.Id(analysisName),
                 F.List(),
-                F.Braces(
-                    protoMatcher));
+                F.Braces(members))
+                .WithAttrs(topLevelNode.Attrs)
+                .PlusAttr(F.Id(CodeSymbols.Sealed));
         }
 
         private static LNode SynthesizePrototypePatternMatcher(
@@ -229,7 +244,14 @@ namespace FlameMacros
             }
             body.Add(F.Call(CodeSymbols.Return, matchSetVar));
 
-            return F.Fn(hashSetType, name, F.List(F.Var(F.Id("InstructionPrototype"), protoParam)), F.Braces(body));
+            return F.Fn(
+                hashSetType,
+                name,
+                F.List(F.Var(F.Id("InstructionPrototype"), protoParam)),
+                F.Braces(body))
+                .WithAttrs(
+                    F.Id(CodeSymbols.Private),
+                    F.Id(CodeSymbols.Static));
         }
 
         private static LNode SynthesizeFieldCheck(
@@ -282,6 +304,27 @@ namespace FlameMacros
                     $"Unknown call target: '{prototypeArg.Target}'");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Synthesizes a class that represents instances of a rewrite rule.
+        /// </summary>
+        /// <param name="rule">The rewrite rule to synthesize a class for.</param>
+        /// <param name="className">The name of the class to generate.</param>
+        /// <param name="patterns">A mapping of prototype patterns to integers.</param>
+        /// <returns>A class node.</returns>
+        private static LNode SynthesizeRewriteRuleClass(
+            RewriteRule rule,
+            string className,
+            Dictionary<InstructionPattern, int> patterns)
+        {
+            // TODO: generate class contents.
+            return F.Call(
+                CodeSymbols.Class,
+                F.Id(className),
+                F.List(),
+                F.Braces())
+                .WithAttrs(F.Id(CodeSymbols.Private));
         }
 
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> fieldNames =
