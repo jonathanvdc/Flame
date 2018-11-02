@@ -318,21 +318,239 @@ namespace FlameMacros
             string className,
             Dictionary<InstructionPattern, int> patterns)
         {
+            var members = new VList<LNode>();
+            var fieldMapping = new Dictionary<Symbol, LNode>();
             // TODO: generate class contents.
+
+            var matchStatements = new List<LNode>();
+            var matchRoots = new HashSet<Symbol>();
+            var matchParams = new List<LNode>();
+            var nameToPatternMap = GetNameToPatternMap(rule.Pattern);
+            int localCounter = 0;
+            for (int i = rule.Pattern.Count - 1; i >= 0; i--)
+            {
+                var name = rule.Pattern[i].InstructionName;
+                if (!fieldMapping.ContainsKey(name))
+                {
+                    var paramName = GSymbol.Get(name.Name + "Candidate");
+                    matchRoots.Add(name);
+                    matchParams.Add(F.Var(F.Id("ValueTag"), paramName));
+                    matchStatements.AddRange(
+                        CreateRewriteRuleMatcher(
+                            name,
+                            paramName,
+                            nameToPatternMap,
+                            patterns,
+                            fieldMapping,
+                            ref localCounter));
+                }
+            }
+            matchParams.Add(F.Var(F.Id("FlowGraph"), GraphParameterName));
+            matchParams.Add(
+                F.Var(
+                    F.Of(F.Id("Dictionary"), F.Id("ValueTag"), F.Of(F.Id("HashSet"), F.Int32)),
+                    PatternMatchesParameterName));
+            matchStatements.Add(F.Call(CodeSymbols.Return, F.True));
+
+            foreach (var field in fieldMapping.Values)
+            {
+                members.Add(field);
+            }
+
+            members.Add(F.Fn(F.Bool, GSymbol.Get("Matches"), F.List(matchParams), F.Braces(matchStatements)));
+
             return F.Call(
                 CodeSymbols.Class,
                 F.Id(className),
                 F.List(),
-                F.Braces())
+                F.Braces(members))
                 .WithAttrs(F.Id(CodeSymbols.Private));
         }
 
-        private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> fieldNames =
-            new Dictionary<string, IReadOnlyList<string>>()
+        private static IReadOnlyDictionary<Symbol, InstructionPattern> GetNameToPatternMap(
+            IReadOnlyList<InstructionPattern> patterns)
         {
-            { "copy", new[] { "ResultType" } },
-            { "intrinsic", new[] { "Name", "ResultType", "ParameterTypes" } }
+            var result = new Dictionary<Symbol, InstructionPattern>();
+            foreach (var pattern in patterns)
+            {
+                result[pattern.InstructionName] = pattern;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a sequence of statements that match on a rewrite
+        /// rule. Also matches all reachable rules.
+        /// </summary>
+        /// <param name="instructionName">
+        /// The name of the instruction pattern to match on.
+        /// </param>
+        /// <param name="parameterName">
+        /// The name of the instruction parameter that is the root.
+        /// </param>
+        /// <param name="nameToPatternMapping">
+        /// A mapping of instruction names to instruction patterns.
+        /// </param>
+        /// <param name="patterns">
+        /// A mapping of prototype patterns to integers.
+        /// </param>
+        /// <param name="fieldMapping">
+        /// A mapping of variable names to fields.
+        /// </param>
+        /// <returns>A sequence of expressions.</returns>
+        private static IEnumerable<LNode> CreateRewriteRuleMatcher(
+            Symbol instructionName,
+            Symbol parameterName,
+            IReadOnlyDictionary<Symbol, InstructionPattern> nameToPatternMapping,
+            Dictionary<InstructionPattern, int> patterns,
+            Dictionary<Symbol, LNode> fieldMapping,
+            ref int localCounter)
+        {
+            // Store the instruction in a field.
+            fieldMapping[instructionName] = F.Var(F.Id("ValueTag"), instructionName);
+            var results = new List<LNode>();
+            results.Add(F.Assign(instructionName, F.Id(parameterName)));
+
+            // Early out if we're dealing with a parameter.
+            if (!nameToPatternMapping.ContainsKey(instructionName))
+            {
+                return results;
+            }
+
+            var insnPattern = nameToPatternMapping[instructionName];
+
+            // Check the prototype.
+            results.Add(
+                ReturnFalseIf(
+                    F.Call(
+                        CodeSymbols.Not,
+                        F.Call(
+                            F.Dot(
+                                F.Call(CodeSymbols.IndexBracks, F.Id(PatternMatchesParameterName), F.Id(parameterName)),
+                                GSymbol.Get("Contains")),
+                            F.Literal(patterns[insnPattern])))));
+
+            // Load the actual instruction into a local.
+            Symbol insnName;
+            results.Add(
+                DefineTemporary(
+                    ValueToInstruction(GraphParameterName, parameterName),
+                    ref localCounter,
+                    out insnName));
+
+            // TODO: analyze the prototype.
+
+            // Analyze the instruction arguments.
+            for (int i = 0; i < insnPattern.InstructionArgs.Count; i++)
+            {
+                var arg = insnPattern.InstructionArgs[i];
+                var loadArg = F.Call(
+                    CodeSymbols.IndexBracks,
+                    F.Dot(insnName, GSymbol.Get("Arguments")),
+                    F.Literal(i));
+
+                if (fieldMapping.ContainsKey(arg))
+                {
+                    results.Add(
+                        ReturnFalseIf(
+                            F.Call(
+                                CodeSymbols.Neq,
+                                F.Id(arg),
+                                loadArg)));
+                }
+                else
+                {
+                    Symbol argTempName;
+                    results.Add(
+                        DefineTemporary(
+                            loadArg,
+                            ref localCounter,
+                            out argTempName));
+
+                    if (nameToPatternMapping.ContainsKey(arg))
+                    {
+                        results.Add(
+                            ReturnFalseIf(
+                                F.Call(
+                                    CodeSymbols.Not,
+                                    ValueIsInstruction(GraphParameterName, argTempName))));
+                    }
+
+                    results.AddRange(
+                        CreateRewriteRuleMatcher(
+                            arg,
+                            argTempName,
+                            nameToPatternMapping,
+                            patterns,
+                            fieldMapping,
+                            ref localCounter));
+                }
+            }
+            return results;
+        }
+
+        private static LNode DefineTemporary(
+            LNode value,
+            ref int localCounter,
+            out Symbol name)
+        {
+            name = GSymbol.Get(
+                "temp" + localCounter.ToString(CultureInfo.InvariantCulture));
+            localCounter++;
+            return F.Var(F.Missing, name, value);
+        }
+
+        private static LNode ValueToInstruction(LNode graph, LNode value)
+        {
+            return F.Dot(F.Call(F.Dot(graph, GSymbol.Get("GetInstruction")), value), F.Id("Instruction"));
+        }
+
+        private static LNode ValueToInstruction(Symbol graph, Symbol value)
+        {
+            return ValueToInstruction(F.Id(graph), F.Id(value));
+        }
+
+        private static LNode ValueIsInstruction(LNode graph, LNode value)
+        {
+            return F.Call(F.Dot(graph, GSymbol.Get("ContainsInstruction")), value);
+        }
+
+        private static LNode ValueIsInstruction(Symbol graph, Symbol value)
+        {
+            return ValueIsInstruction(F.Id(graph), F.Id(value));
+        }
+
+        private static LNode ReturnFalseIf(LNode condition)
+        {
+            return F.Call(CodeSymbols.If, condition, F.Call(CodeSymbols.Return, F.False));
+        }
+
+        private static readonly Symbol GraphParameterName = GSymbol.Get("graph");
+
+        private static readonly Symbol PatternMatchesParameterName = GSymbol.Get("patternMatches");
+
+        private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyValuePair<string, string>>> fieldNamesAndTypes =
+            new Dictionary<string, IReadOnlyList<KeyValuePair<string, string>>>()
+        {
+            { "copy", new[] { new KeyValuePair<string, string>("ResultType", "IType") } },
+            {
+                "intrinsic",
+                new[]
+                {
+                    new KeyValuePair<string, string>("Name", "string"),
+                    new KeyValuePair<string, string>("ResultType", "IType"),
+                    new KeyValuePair<string, string>("ParameterTypes", "IReadOnlyList<IType>")
+                }
+            }
         };
+
+        private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> fieldNames =
+            fieldNamesAndTypes.ToDictionary<
+                KeyValuePair<string, IReadOnlyList<KeyValuePair<string, string>>>,
+                string,
+                IReadOnlyList<string>>(
+                    pair => pair.Key,
+                    pair => pair.Value.Select(p => p.Key).ToArray());
 
         private static string PrototypeKindToTypeName(string prototypeKind)
         {
