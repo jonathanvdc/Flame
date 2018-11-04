@@ -125,36 +125,41 @@ namespace FlameMacros
 
             var members = new VList<LNode>();
 
-            members.Add(
-                SynthesizePrototypePatternMatcher(
-                    F.Id(protoMatcherName),
-                    prototypePatterns,
-                    topLevelNode,
-                    sink));
-
-            for (int i = 0; i < rules.Count; i++)
+            try
             {
                 members.Add(
-                    SynthesizeRewriteRuleClass(
-                        rules[i],
-                        "Rule" + i.ToString(CultureInfo.InvariantCulture),
-                        prototypePatterns));
-            }
+                    SynthesizePrototypePatternMatcher(
+                        F.Id(protoMatcherName),
+                        prototypePatterns,
+                        topLevelNode));
 
-            return F.Call(
-                CodeSymbols.Class,
-                F.Id(analysisName),
-                F.List(),
-                F.Braces(members))
-                .WithAttrs(topLevelNode.Attrs)
-                .PlusAttr(F.Id(CodeSymbols.Sealed));
+                for (int i = 0; i < rules.Count; i++)
+                {
+                    members.Add(
+                        SynthesizeRewriteRuleClass(
+                            rules[i],
+                            "Rule" + i.ToString(CultureInfo.InvariantCulture),
+                            prototypePatterns));
+                }
+
+                return F.Call(
+                    CodeSymbols.Class,
+                    F.Id(analysisName),
+                    F.List(),
+                    F.Braces(members))
+                    .WithAttrs(topLevelNode.Attrs)
+                    .PlusAttr(F.Id(CodeSymbols.Sealed));
+            }
+            catch (MacroApplicationException ex)
+            {
+                return Reject(sink, ex.At, ex.Message);
+            }
         }
 
         private static LNode SynthesizePrototypePatternMatcher(
             LNode name,
             Dictionary<InstructionPattern, int> patterns,
-            LNode topLevelNode,
-            IMessageSink sink)
+            LNode topLevelNode)
         {
             // We'll split on prototype kinds and then just compose a linear
             // sequence of tests.
@@ -191,8 +196,7 @@ namespace FlameMacros
                         var check = SynthesizeFieldCheck(
                             F.Dot(protoVar, F.Id(fields[i])),
                             item.Key.PrototypeArgs[i],
-                            boundSymbols,
-                            sink);
+                            boundSymbols);
 
                         if (check != null)
                         {
@@ -202,11 +206,9 @@ namespace FlameMacros
                 }
                 else
                 {
-                    sink.Write(
-                        Severity.Error,
+                    throw new MacroApplicationException(
                         topLevelNode,
                         $"Unsupported prototype kind: '{protoKind}'.");
-                    return null;
                 }
 
                 var addMatch = F.Call(F.Dot(matchSetVar, F.Id("Add")), F.Literal(item.Value));
@@ -257,8 +259,7 @@ namespace FlameMacros
         private static LNode SynthesizeFieldCheck(
             LNode fieldVar,
             LNode prototypeArg,
-            Dictionary<Symbol, LNode> boundSymbols,
-            IMessageSink sink)
+            Dictionary<Symbol, LNode> boundSymbols)
         {
             if (prototypeArg.IsLiteral)
             {
@@ -286,8 +287,7 @@ namespace FlameMacros
                     var indexCheck = SynthesizeFieldCheck(
                         F.Call(CodeSymbols.IndexBracks, fieldVar, F.Literal(i)),
                         prototypeArg.Args[i],
-                        boundSymbols,
-                        sink);
+                        boundSymbols);
 
                     if (indexCheck != null)
                     {
@@ -298,11 +298,9 @@ namespace FlameMacros
             }
             else
             {
-                sink.Write(
-                    Severity.Error,
+                throw new MacroApplicationException(
                     prototypeArg,
                     $"Unknown call target: '{prototypeArg.Target}'");
-                return null;
             }
         }
 
@@ -350,11 +348,11 @@ namespace FlameMacros
                 F.Var(
                     F.Of(F.Id("Dictionary"), F.Id("ValueTag"), F.Of(F.Id("HashSet"), F.Int32)),
                     PatternMatchesParameterName));
-            matchStatements.Add(F.Call(CodeSymbols.Return, F.True));
+            matchStatements.Add(F.Call(CodeSymbols.Return, rule.Condition ?? F.True));
 
             foreach (var field in fieldMapping.Values)
             {
-                members.Add(field);
+                members.Add(field.PlusAttr(F.Id(CodeSymbols.Private)));
             }
 
             members.Add(F.Fn(F.Bool, GSymbol.Get("Matches"), F.List(matchParams), F.Braces(matchStatements)));
@@ -438,7 +436,32 @@ namespace FlameMacros
                     ref localCounter,
                     out insnName));
 
-            // TODO: analyze the prototype.
+            // Load the instruction's prototype into a local.
+            Symbol prototypeName;
+            results.Add(
+                DefineTemporary(
+                    F.Call(
+                        CodeSymbols.Cast,
+                        F.Dot(F.Id(insnName), F.Id("Prototype")),
+                        F.Id(PrototypeKindToTypeName(insnPattern.PrototypeKind))),
+                    ref localCounter,
+                    out prototypeName));
+
+            // Analyze the prototype.
+            var paramList = fieldNamesAndTypes[insnPattern.PrototypeKind];
+            for (int i = 0; i < insnPattern.PrototypeArgs.Count; i++)
+            {
+                var pattern = insnPattern.PrototypeArgs[i];
+                var fieldName = paramList[i].Key;
+                var fieldType = paramList[i].Value;
+                results.AddRange(
+                    CreatePrototypeParameterMatcher(
+                        pattern,
+                        F.Dot(F.Id(prototypeName), F.Id(fieldName)),
+                        fieldType,
+                        fieldMapping,
+                        ref localCounter));
+            }
 
             // Analyze the instruction arguments.
             for (int i = 0; i < insnPattern.InstructionArgs.Count; i++)
@@ -489,6 +512,74 @@ namespace FlameMacros
             return results;
         }
 
+        private static IReadOnlyList<LNode> CreatePrototypeParameterMatcher(
+            LNode pattern,
+            LNode parameter,
+            LNode parameterType,
+            Dictionary<Symbol, LNode> fieldMapping,
+            ref int localCounter)
+        {
+            if (pattern.IsId)
+            {
+                if (fieldMapping.ContainsKey(pattern.Name))
+                {
+                    return new[]
+                    {
+                        ReturnFalseIf(F.Call(CodeSymbols.Neq, parameter, pattern))
+                    };
+                }
+                else
+                {
+                    fieldMapping[pattern.Name] = F.Var(parameterType, pattern.Name);
+                    return new[]
+                    {
+                        F.Assign(pattern, parameter)
+                    };
+                }
+            }
+            else if (pattern.IsLiteral)
+            {
+                // We can safely elide literal checks because they are always
+                // handled at the prototype pattern matching level.
+                return EmptyArray<LNode>.Value;
+            }
+            else if (pattern.Calls(CodeSymbols.AltList))
+            {
+                // We can elide a list length check here because we already know
+                // that the actual list's length matches the pattern list's length
+                // here: if it didn't, then the instruction's prototype wouldn't
+                // have matched the prototype pattern.
+                if (!parameterType.Calls(CodeSymbols.Of, 2))
+                {
+                    throw new MacroApplicationException(
+                        pattern,
+                        "list pattern is applied to a field of type '" + parameterType +
+                        "'; list patterns can only be applied to list fields.");
+                }
+
+                var results = new List<LNode>();
+                Symbol listTemp;
+                results.Add(DefineTemporary(parameter, ref localCounter, out listTemp));
+                for (int i = 0; i < pattern.ArgCount; i++)
+                {
+                    results.AddRange(
+                        CreatePrototypeParameterMatcher(
+                            pattern[i],
+                            F.Call(CodeSymbols.IndexBracks, F.Id(listTemp), F.Literal(i)),
+                            parameterType.Args[1],
+                            fieldMapping,
+                            ref localCounter));
+                }
+                return results;
+            }
+            else
+            {
+                throw new MacroApplicationException(
+                    pattern,
+                    "unsupported pattern type: call to '" + pattern.Name.Name + "'.");
+            }
+        }
+
         private static LNode DefineTemporary(
             LNode value,
             ref int localCounter,
@@ -525,28 +616,35 @@ namespace FlameMacros
             return F.Call(CodeSymbols.If, condition, F.Call(CodeSymbols.Return, F.False));
         }
 
+        private static LNode ReadOnlyListType(LNode elementType)
+        {
+            return F.Of(F.Id("IReadOnlyList"), ITypeNode);
+        }
+
         private static readonly Symbol GraphParameterName = GSymbol.Get("graph");
 
         private static readonly Symbol PatternMatchesParameterName = GSymbol.Get("patternMatches");
 
-        private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyValuePair<string, string>>> fieldNamesAndTypes =
-            new Dictionary<string, IReadOnlyList<KeyValuePair<string, string>>>()
+        private static readonly LNode ITypeNode = F.Id("IType");
+
+        private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>> fieldNamesAndTypes =
+            new Dictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>>()
         {
-            { "copy", new[] { new KeyValuePair<string, string>("ResultType", "IType") } },
+            { "copy", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
             {
                 "intrinsic",
                 new[]
                 {
-                    new KeyValuePair<string, string>("Name", "string"),
-                    new KeyValuePair<string, string>("ResultType", "IType"),
-                    new KeyValuePair<string, string>("ParameterTypes", "IReadOnlyList<IType>")
+                    new KeyValuePair<string, LNode>("Name", F.String),
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode),
+                    new KeyValuePair<string, LNode>("ParameterTypes", ReadOnlyListType(ITypeNode))
                 }
             }
         };
 
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> fieldNames =
             fieldNamesAndTypes.ToDictionary<
-                KeyValuePair<string, IReadOnlyList<KeyValuePair<string, string>>>,
+                KeyValuePair<string, IReadOnlyList<KeyValuePair<string, LNode>>>,
                 string,
                 IReadOnlyList<string>>(
                     pair => pair.Key,

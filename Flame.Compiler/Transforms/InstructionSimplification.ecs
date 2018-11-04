@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Flame.Compiler.Instructions;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Transforms
 {
@@ -23,8 +24,8 @@ namespace Flame.Compiler.Transforms
         }, From.IsIntegerType()
             && Intermediate.IsIntegerType()
             && To.IsIntegerType()
-            && Intermediate.GetIntegerSpecOrNull().Size <= From.GetIntegerSpecOrNull()
-            && Intermediate.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull());
+            && Intermediate.GetIntegerSpecOrNull().Size <= From.GetIntegerSpecOrNull().Size
+            && Intermediate.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull().Size);
     });
 
     public sealed class InstructionSimplification
