@@ -37,7 +37,15 @@ namespace ILOpt
             var parser = new GnuOptionSetParser(
                 Options.All, Options.Input);
 
-            var parsedOptions = parser.Parse(args, log);
+            var recLog = new RecordingLog(log);
+            var parsedOptions = parser.Parse(args, recLog);
+
+            if (recLog.Contains(Severity.Error))
+            {
+                // Stop the program if the command-line arguments
+                // are half baked.
+                return 1;
+            }
 
             if (parsedOptions.GetValue<bool>(Options.Help))
             {
