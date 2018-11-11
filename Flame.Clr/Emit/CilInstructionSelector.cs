@@ -415,8 +415,15 @@ namespace Flame.Clr.Emit
             var proto = instruction.Prototype;
             if (proto is ConstantPrototype)
             {
-                return CreateSelection(
-                    CreatePushConstant(((ConstantPrototype)proto).Value));
+                if (proto.ResultType == TypeEnvironment.Void)
+                {
+                    return CreateNopSelection(EmptyArray<ValueTag>.Value);
+                }
+                else
+                {
+                    return CreateSelection(
+                        CreatePushConstant(((ConstantPrototype)proto).Value));
+                }
             }
             else if (proto is CopyPrototype)
             {
