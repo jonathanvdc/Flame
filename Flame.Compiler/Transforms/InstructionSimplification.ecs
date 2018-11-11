@@ -1,11 +1,16 @@
 #importMacros(FlameMacros);
 
 using System.Collections.Generic;
+using Flame.Constants;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler.Transforms
 {
+    /// <summary>
+    /// Looks for transforms that simplify instructions.
+    /// </summary>
     public #rewriteRuleAnalysis(InstructionSimplificationAnalysis, {
         // Nop casts can be replaced by copies.
         #rule({
@@ -26,10 +31,52 @@ namespace Flame.Compiler.Transforms
             && To.IsIntegerType()
             && Intermediate.GetIntegerSpecOrNull().Size <= From.GetIntegerSpecOrNull().Size
             && Intermediate.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull().Size);
+
+        // Multiplication by two is equivalent to adding something
+        // to itself.
+        #rule({
+            two = constant(c, TConst)();
+            result = intrinsic("arith.mul", T, #(T, TConst))(a, two);
+        }, {
+            result = intrinsic("arith.add", T, #(T, T))(a, a);
+        }, T.IsIntegerType() && c is IntegerConstant && c.Equals(new IntegerConstant(2).Cast(((IntegerConstant)c).Spec)));
     });
 
-    public sealed class InstructionSimplification
+    /// <summary>
+    /// An intraprocedural transform that greedily applies instruction
+    /// simplifications.
+    /// </summary>
+    public sealed class InstructionSimplification : IntraproceduralOptimization
     {
+        private InstructionSimplification()
+        { }
 
+        /// <summary>
+        /// An instance of the instruction simplification transform.
+        /// </summary>
+        public static readonly InstructionSimplification Instance = new InstructionSimplification();
+
+        /// <inheritdoc/>
+        public override FlowGraph Apply(FlowGraph graph)
+        {
+            var builder = graph.ToBuilder();
+            if (!builder.HasAnalysisFor<InstructionSimplificationAnalysis.Results>())
+            {
+                builder.AddAnalysis(new InstructionSimplificationAnalysis());
+            }
+
+            while (true)
+            {
+                var transforms = builder.GetAnalysisResult<InstructionSimplificationAnalysis.Results>();
+                if (transforms.ApplicableRules.Count == 0)
+                {
+                    return builder.ToImmutable();
+                }
+                else
+                {
+                    transforms.ApplicableRules[0].Apply(builder);
+                }
+            }
+        }
     }
 }
