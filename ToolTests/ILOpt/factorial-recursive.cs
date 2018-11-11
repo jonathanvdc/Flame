@@ -14,6 +14,9 @@ public static class Program
 
     public static int FactorialRecursive(int value, int accumulator)
     {
+        Console.WriteLine("Value, accumulator:");
+        Console.WriteLine(value);
+        Console.WriteLine(accumulator);
         if (value > 1)
         {
             return FactorialRecursive(value - 1, value * accumulator);
