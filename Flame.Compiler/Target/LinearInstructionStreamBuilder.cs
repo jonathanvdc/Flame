@@ -80,13 +80,19 @@ namespace Flame.Compiler.Target
             // Find the exact set of root instructions. Add them all
             // to a queue of instructions to select.
             var selectionWorklist = new Queue<ValueTag>();
-            foreach (var tag in effectful.Instructions)
+            foreach (var block in graph.BasicBlocks)
             {
-                if (reachability.IsReachableFrom(
-                    graph.EntryPointTag,
-                    graph.GetInstruction(tag).Block.Tag))
+                if (!reachability.IsReachableFrom(graph.EntryPointTag, block))
                 {
-                    selectionWorklist.Enqueue(tag);
+                    continue;
+                }
+
+                foreach (var tag in block.InstructionTags.Reverse())
+                {
+                    if (effectful.Instructions.Contains(tag))
+                    {
+                        selectionWorklist.Enqueue (tag);
+                    }
                 }
             }
 
