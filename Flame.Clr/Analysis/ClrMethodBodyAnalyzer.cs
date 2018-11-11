@@ -551,6 +551,15 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
+            {
+                PushValue(
+                    Instruction.CreateConstant(
+                        new StringConstant((string)instruction.Operand),
+                        TypeHelpers.BoxIfReferenceType(Assembly.Resolver.TypeEnvironment.String)),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
             {
                 stackContents.Push(
@@ -657,7 +666,19 @@ namespace Flame.Clr.Analysis
                 var args = new List<ValueTag>();
                 if (!method.IsStatic)
                 {
-                    args.Add(PopTyped(method.ParentType, block, stackContents));
+                    var thisValType = block.Graph.GetValueType(stackContents.Peek());
+                    if (thisValType is PointerType)
+                    {
+                        args.Add(
+                            PopTyped(
+                                method.ParentType.MakePointerType(((PointerType)thisValType).Kind),
+                                block,
+                                stackContents));
+                    }
+                    else
+                    {
+                        throw new NotImplementedException("Unimplemented feature: value type as 'this' argument.");
+                    }
                 }
                 for (int i = 0; i < method.Parameters.Count; i++)
                 {
