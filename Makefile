@@ -9,8 +9,10 @@ all: debug release
 
 MACROS_DLL = FlameMacros/bin/Release/FlameMacros.dll
 MACROS_CS_FILES = $(shell find FlameMacros -name '*.cs')
+RUN_EXE ?= mono
+
 %.out.cs: %.ecs $(MACROS_DLL)
-	mono FlameMacros/bin/Release/LeMP.exe --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
+	$(RUN_EXE) FlameMacros/bin/Release/LeMP.exe --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
 
 $(MACROS_DLL): $(MACROS_CS_FILES)
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo FlameMacros/FlameMacros.csproj
@@ -26,4 +28,4 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	mono ./UnitTests/bin/Debug/UnitTests.exe 123456
+	$(RUN_EXE) ./UnitTests/bin/Debug/UnitTests.exe 123456

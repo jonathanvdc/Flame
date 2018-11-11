@@ -4,6 +4,9 @@ install:
   - make nuget
 
 script:
+  # Compile supporting macros.
+  - make dsl
+
   # Build Flame using csc (Debug)
   - msbuild /p:Configuration=Debug /verbosity:quiet /nologo Flame.sln
 

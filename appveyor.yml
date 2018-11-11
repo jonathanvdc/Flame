@@ -12,10 +12,11 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 build_script:
-  # Restore NuGet packages
+  # Restore NuGet packages.
   - nuget restore Flame.sln
-  # Build Flame with csc
+  # Build supporting macros.
+  - C:\cygwin\bin\make dsl RUN_EXE=""
+  # Build Flame.
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
-  # Run the tests
+  # Run the tests.
   - UnitTests\bin\Release\UnitTests.exe 12345
-

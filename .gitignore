@@ -219,3 +219,6 @@ pip-log.txt
 
 *.cache
 *.diagsession
+
+# LeMP output files
+*.out.cs
