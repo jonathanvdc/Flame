@@ -133,6 +133,10 @@
       <Project>{42FA2924-B6DE-48AE-957C-514C37D0D1ED}</Project>
       <Name>FlameMacros</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ILOpt\ILOpt.csproj">
+      <Project>{F0CB8335-5A0A-4197-9840-B7AA93331CC6}</Project>
+      <Name>ILOpt</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flame\" />

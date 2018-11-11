@@ -126,9 +126,9 @@ namespace UnitTests
             string outputPath)
         {
             string stdout, stderr;
-            int exitCode = RunExe(
-                ILOptPath,
-                $"\"{inputPath}\" \"-o{outputPath}\"",
+            int exitCode = RunExeLite(
+                ILOpt.Program.Main,
+                new[] { inputPath, "-o", outputPath }, // $"\"{inputPath}\" \"-o{outputPath}\"",
                 out stdout,
                 out stderr);
 
@@ -169,9 +169,10 @@ namespace UnitTests
         /// <summary>
         /// Runs an executable to completion.
         /// </summary>
-        /// <param name="processName">The name of the process to run.</param>
+        /// <param name="exePath">The name of the process to run.</param>
         /// <param name="arguments">The process' arguments.</param>
-        /// <param name="stdout">The output produced by the process.</param>
+        /// <param name="stdout">The output stream produced by the process.</param>
+        /// <param name="stderr">The error stream produced by the process.</param>
         /// <returns>The process' exit code.</returns>
         public static int RunExe(
             string exePath,
@@ -187,6 +188,35 @@ namespace UnitTests
                 default:
                     return RunProcess(exePath, arguments, out stdout, out stderr);
             }
+        }
+
+        /// <summary>
+        /// Runs a function to completion in a semi-isolated environment.
+        /// Specifically, the error and output streams are redirected.
+        /// </summary>
+        /// <param name="runExe">Runs the program.</param>
+        /// <param name="arguments">The process' arguments.</param>
+        /// <param name="stdout">The output stream produced by the process.</param>
+        /// <param name="stderr">The error stream produced by the process.</param>
+        /// <returns>The process' exit code.</returns>
+        public static int RunExeLite(
+            Func<string[], int> runExe,
+            string[] arguments,
+            out string stdout,
+            out string stderr)
+        {
+            var outWriter = new StringWriter();
+            var errWriter = new StringWriter();
+            var oldOutWriter = Console.Out;
+            var oldErrWriter = Console.Error;
+            Console.SetOut(outWriter);
+            Console.SetError(errWriter);
+            int result = runExe(arguments);
+            Console.SetOut(oldOutWriter);
+            Console.SetError(oldErrWriter);
+            stdout = outWriter.ToString();
+            stderr = errWriter.ToString();
+            return result;
         }
 
         /// <summary>
