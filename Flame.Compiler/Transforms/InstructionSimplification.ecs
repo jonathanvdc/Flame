@@ -19,8 +19,8 @@ namespace Flame.Compiler.Transforms
             result = copy(T)(value);
         });
 
-        // A truncation followed by a sign or zero extension can be
-        // simplified to just the sign or zero extension.
+        // A sign or zero extension followed by a truncation can be
+        // simplified to either an extension or a truncation.
         #rule({
             temp_cast = intrinsic("arith.convert", Intermediate, #(From))(value);
             result = intrinsic("arith.convert", To, #(Intermediate))(temp_cast);
@@ -29,8 +29,8 @@ namespace Flame.Compiler.Transforms
         }, From.IsIntegerType()
             && Intermediate.IsIntegerType()
             && To.IsIntegerType()
-            && Intermediate.GetIntegerSpecOrNull().Size <= From.GetIntegerSpecOrNull().Size
-            && Intermediate.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull().Size);
+            && Intermediate.GetIntegerSpecOrNull().Size >= From.GetIntegerSpecOrNull().Size
+            && From.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull().Size);
 
         // Multiplication by two is equivalent to adding something
         // to itself.
