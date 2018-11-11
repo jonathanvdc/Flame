@@ -318,8 +318,8 @@ namespace FlameMacros
         {
             var members = new VList<LNode>();
             var fieldMapping = new Dictionary<Symbol, LNode>();
-            // TODO: generate class contents.
 
+            // Generate a 'Matches' predicate method.
             var matchStatements = new List<LNode>();
             var matchRoots = new HashSet<Symbol>();
             var matchParams = new List<LNode>();
@@ -356,6 +356,14 @@ namespace FlameMacros
             }
 
             members.Add(F.Fn(F.Bool, GSymbol.Get("Matches"), F.List(matchParams), F.Braces(matchStatements)));
+
+            // Generate an 'Apply' method.
+            members.Add(
+                F.Fn(
+                    F.Void,
+                    GSymbol.Get("Apply"),
+                    F.List(F.Var(F.Id("FlowGraphBuilder"), GraphParameterName)),
+                    CreateRewriteRuleApplier(rule, fieldMapping)));
 
             return F.Call(
                 CodeSymbols.Class,
@@ -580,6 +588,114 @@ namespace FlameMacros
             }
         }
 
+        /// <summary>
+        /// Creates a method body that applies a rewrite rule.
+        /// </summary>
+        /// <param name="rule">The rewrite rule to apply.</param>
+        /// <param name="fieldMapping">
+        /// A mapping of captured variables to the fields that capture them.
+        /// </param>
+        /// <returns>
+        /// A method body.
+        /// </returns>
+        private static LNode CreateRewriteRuleApplier(
+            RewriteRule rule,
+            IReadOnlyDictionary<Symbol, LNode> fieldMapping)
+        {
+            var statements = new VList<LNode>();
+
+            Symbol insertionPoint = null;
+            foreach (var pattern in rule.Replacement.Reverse())
+            {
+                var createInsn = CreateInstructionFromPattern(pattern);
+                if (fieldMapping.ContainsKey(pattern.InstructionName))
+                {
+                    statements.Add(
+                        F.Assign(
+                            ValueToInstruction(GraphParameterName, pattern.InstructionName),
+                            createInsn));
+                }
+                else
+                {
+                    if (insertionPoint == null)
+                    {
+                        throw new MacroApplicationException(
+                            "the last instruction of a rewrite rule must be " +
+                            $"redefinition, not a new definition; '{pattern.InstructionName}' is a definition.");
+                    }
+
+                    statements.Add(
+                        F.Var(
+                            F.Missing,
+                            pattern.InstructionName,
+                            F.Call(
+                                F.Dot(
+                                    ValueToInstructionRef(GraphParameterName, insertionPoint),
+                                    GSymbol.Get("InsertBefore")),
+                                createInsn,
+                                F.Literal(pattern.InstructionName.Name))));
+                }
+                insertionPoint = pattern.InstructionName;
+            }
+
+            return F.Braces(statements);
+        }
+
+        /// <summary>
+        /// Takes an instruction pattern and turns it into an expression
+        /// that creates such an instruction.
+        /// </summary>
+        /// <param name="pattern">The pattern to instantiate.</param>
+        /// <returns>An expression that crates an instruction.</returns>
+        private static LNode CreateInstructionFromPattern(InstructionPattern pattern)
+        {
+            int protoArgCount = pattern.PrototypeArgs.Count;
+            var protoNamesAndTypes = fieldNamesAndTypes[pattern.PrototypeKind];
+            var protoArgs = new List<LNode>();
+            for (int i = 0; i < protoArgCount; i++)
+            {
+                protoArgs.Add(
+                    PatternToPrototypeArgument(
+                        pattern.PrototypeArgs[i],
+                        protoNamesAndTypes[i].Value));
+            }
+
+            return F.Call(
+                F.Dot(
+                    F.Call(
+                        F.Dot(PrototypeKindToTypeName(pattern.PrototypeKind), "Create"),
+                        protoArgs),
+                    GSymbol.Get("Instantiate")),
+                pattern.InstructionArgs.Select(x => F.Id(x)));
+        }
+
+        private static LNode PatternToPrototypeArgument(
+            LNode pattern,
+            LNode type)
+        {
+            if (pattern.Calls(CodeSymbols.AltList))
+            {
+                var elementType = type.Args[1];
+                if (pattern.ArgCount == 0)
+                {
+                    return F.Dot(F.Of(F.Id("EmptyArray"), elementType), F.Id("Empty"));
+                }
+                else
+                {
+                    return F.Call(
+                        CodeSymbols.New,
+                        new[] { F.Call(F.Of(CodeSymbols.Array, elementType)) }
+                        .Concat(
+                            pattern.Args.Select(
+                                x => PatternToPrototypeArgument(x, elementType))));
+                }
+            }
+            else
+            {
+                return pattern;
+            }
+        }
+
         private static LNode DefineTemporary(
             LNode value,
             ref int localCounter,
@@ -591,9 +707,19 @@ namespace FlameMacros
             return F.Var(F.Missing, name, value);
         }
 
+        private static LNode ValueToInstructionRef(LNode graph, LNode value)
+        {
+            return F.Call(F.Dot(graph, GSymbol.Get("GetInstruction")), value);
+        }
+
+        private static LNode ValueToInstructionRef(Symbol graph, Symbol value)
+        {
+            return ValueToInstructionRef(F.Id(graph), F.Id(value));
+        }
+
         private static LNode ValueToInstruction(LNode graph, LNode value)
         {
-            return F.Dot(F.Call(F.Dot(graph, GSymbol.Get("GetInstruction")), value), F.Id("Instruction"));
+            return F.Dot(ValueToInstructionRef(graph, value), F.Id("Instruction"));
         }
 
         private static LNode ValueToInstruction(Symbol graph, Symbol value)
