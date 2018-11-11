@@ -216,6 +216,7 @@ namespace ILOpt
             // Optimize the IR a tiny bit.
             irBody = irBody.WithImplementation(
                 irBody.Implementation.Transform(
+                    // Optimization passes.
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
@@ -224,6 +225,9 @@ namespace ILOpt
                     new JumpThreading(true),
                     DuplicateReturns.Instance,
                     new TailRecursionElimination(method),
+                    InstructionSimplification.Instance,
+
+                    // Lowering and cleanup passes.
                     JumpToEntryRemoval.Instance,
                     DeadBlockElimination.Instance,
                     new SwitchLowering(typeSystem),
