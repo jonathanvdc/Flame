@@ -89,6 +89,12 @@ namespace Flame.TypeSystem
         public abstract IType Float64 { get; }
 
         /// <summary>
+        /// Gets the character string type in this type environment.
+        /// </summary>
+        /// <value>The character string type.</value>
+        public abstract IType String { get; }
+
+        /// <summary>
         /// Gets the Boolean type in this type environment.
         /// Booleans are represented by the UInt1 type.
         /// </summary>
@@ -214,6 +220,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType Float64 => InnerEnvironment.Float64;
+
+        /// <inheritdoc/>
+        public override IType String => InnerEnvironment.String;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(
