@@ -101,6 +101,21 @@ namespace Flame.Compiler.Instructions
             return instruction.Arguments;
         }
 
+        /// <summary>
+        /// Instantiates this prototype with a list of arguments.
+        /// </summary>
+        /// <param name="arguments">
+        /// The arguments to instantiate this prototype with.
+        /// </param>
+        /// <returns>
+        /// An instruction whose prototype is equal to this prototype
+        /// and whose argument list is <paramref name="arguments"/>.
+        /// </returns>
+        public Instruction Instantiate(params ValueTag[] arguments)
+        {
+            return Instantiate((IReadOnlyList<ValueTag>)arguments);
+        }
+
         private static readonly InterningCache<IntrinsicPrototype> instanceCache
             = new InterningCache<IntrinsicPrototype>(
                 new StructuralIntrinsicPrototypeComparer());

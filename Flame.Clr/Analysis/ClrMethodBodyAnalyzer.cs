@@ -309,7 +309,7 @@ namespace Flame.Clr.Analysis
 
             PushValue(
                 ArithmeticIntrinsics.CreatePrototype(operatorName, resultType, firstType, secondType)
-                    .Instantiate(new[] { first, second }),
+                    .Instantiate(first, second),
                 block,
                 stackContents);
 
@@ -397,7 +397,7 @@ namespace Flame.Clr.Analysis
                     ArithmeticIntrinsics.Operators.Convert,
                     targetType,
                     block.Graph.GetValueType(operand))
-                    .Instantiate(new[] { operand }));
+                    .Instantiate(operand));
         }
 
         /// <summary>
