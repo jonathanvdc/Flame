@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: release debug all dsl nuget clean test
 release: dsl
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
