@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using LeMP;
@@ -127,25 +128,77 @@ namespace FlameMacros
 
             try
             {
+                // Generate a class for the analysis' results.
+                members.Add(
+                    F.Call(
+                        CodeSymbols.Class,
+                        F.Id("Results"),
+                        F.List(),
+                        F.Braces(
+                            F.Call(
+                                CodeSymbols.Constructor,
+                                F.Missing,
+                                F.Id("Results"),
+                                F.List(F.Var(ReadOnlyListType(F.Id("Transform")), "applicableRules")),
+                                F.Braces(F.Assign(F.Id("ApplicableRules"), F.Id("applicableRules"))))
+                            .PlusAttr(F.Id(CodeSymbols.Internal)),
+                            F.Var(
+                                ReadOnlyListType(F.Id("Transform")),
+                                "ApplicableRules")
+                            .PlusAttrs(F.Id(CodeSymbols.Public), F.Id(CodeSymbols.Readonly))))
+                    .PlusAttrs(
+                        F.Id(CodeSymbols.Public),
+                        F.Id(CodeSymbols.Sealed)));
+
+                // Generate a method to match instructions to prototype patterns.
                 members.Add(
                     SynthesizePrototypePatternMatcher(
                         F.Id(protoMatcherName),
                         prototypePatterns,
                         topLevelNode));
 
+                // Generate a class for each rewrite rule.
+                var ruleNames = new Dictionary<RewriteRule, string>();
+                var ruleRoots = new Dictionary<RewriteRule, IReadOnlyList<InstructionPattern>>();
                 for (int i = 0; i < rules.Count; i++)
                 {
+                    var name = "Rule" + i.ToString(CultureInfo.InvariantCulture);
+                    ruleNames[rules[i]] = name;
+                    IReadOnlyList<InstructionPattern> roots;
                     members.Add(
                         SynthesizeRewriteRuleClass(
                             rules[i],
-                            "Rule" + i.ToString(CultureInfo.InvariantCulture),
-                            prototypePatterns));
+                            name,
+                            prototypePatterns,
+                            out roots));
+                    ruleRoots[rules[i]] = roots;
                 }
 
+                // Generate a method that walks the flow graph and figures out
+                // which rewrite rules are applicable.
+                members.Add(SynthesizeRuleMatcher(ruleNames, prototypePatterns, ruleRoots));
+
+                // Generate a trivial AnalyzeWithUpdates implementation.
+                // TODO: do less work here by reusing results from previous analyses.
+                members.Add(
+                    F.Fn(
+                        F.Id("Results"),
+                        F.Id("AnalyzeWithUpdates"),
+                        F.List(
+                            F.Var(F.Id("FlowGraph"), GraphParameterName),
+                            F.Var(F.Id("Results"), "previousResults"),
+                            F.Var(ReadOnlyListType(F.Id("FlowGraphUpdate")), "updates")),
+                        F.Braces(
+                            F.Call(
+                                CodeSymbols.Return,
+                                F.Call("Analyze", F.Id(GraphParameterName)))))
+                    .PlusAttr(F.Id(CodeSymbols.Public)));
+
+                // Generate the analysis class.
                 return F.Call(
                     CodeSymbols.Class,
                     F.Id(analysisName),
-                    F.List(),
+                    F.List(F.Of(F.Id("IFlowGraphAnalysis"), F.Dot(analysisName, GSymbol.Get("Results")))),
                     F.Braces(members))
                     .WithAttrs(topLevelNode.Attrs)
                     .PlusAttr(F.Id(CodeSymbols.Sealed));
@@ -310,18 +363,21 @@ namespace FlameMacros
         /// <param name="rule">The rewrite rule to synthesize a class for.</param>
         /// <param name="className">The name of the class to generate.</param>
         /// <param name="patterns">A mapping of prototype patterns to integers.</param>
+        /// <param name="ruleRoots">A mapping of rewrite rules to their root instructions.</param>
         /// <returns>A class node.</returns>
         private static LNode SynthesizeRewriteRuleClass(
             RewriteRule rule,
             string className,
-            Dictionary<InstructionPattern, int> patterns)
+            Dictionary<InstructionPattern, int> patterns,
+            out IReadOnlyList<InstructionPattern> ruleRoots)
         {
             var members = new VList<LNode>();
             var fieldMapping = new Dictionary<Symbol, LNode>();
 
             // Generate a 'Matches' predicate method.
             var matchStatements = new List<LNode>();
-            var matchRoots = new HashSet<Symbol>();
+            var rootInstructions = new List<InstructionPattern>();
+            ruleRoots = rootInstructions;
             var matchParams = new List<LNode>();
             var nameToPatternMap = GetNameToPatternMap(rule.Pattern);
             int localCounter = 0;
@@ -331,7 +387,7 @@ namespace FlameMacros
                 if (!fieldMapping.ContainsKey(name))
                 {
                     var paramName = GSymbol.Get(name.Name + "Candidate");
-                    matchRoots.Add(name);
+                    rootInstructions.Add(rule.Pattern[i]);
                     matchParams.Add(F.Var(F.Id("ValueTag"), paramName));
                     matchStatements.AddRange(
                         CreateRewriteRuleMatcher(
@@ -374,6 +430,7 @@ namespace FlameMacros
                     F.Id(CodeSymbols.Public),
                     F.Id(CodeSymbols.Override)));
 
+            // Generate the class.
             return F.Call(
                 CodeSymbols.Class,
                 F.Id(className),
@@ -629,8 +686,8 @@ namespace FlameMacros
                     if (insertionPoint == null)
                     {
                         throw new MacroApplicationException(
-                            "the last instruction of a rewrite rule must be " +
-                            $"redefinition, not a new definition; '{pattern.InstructionName}' is a definition.");
+                            "the last instruction of a rewrite rule must be a " +
+                            $"redefinition, not a new definition; '{pattern.InstructionName}' is a new definition.");
                     }
 
                     statements.Add(
@@ -678,6 +735,13 @@ namespace FlameMacros
                 pattern.InstructionArgs.Select(x => F.Id(x)));
         }
 
+        /// <summary>
+        /// Takes a prototype argument pattern and turns it into a
+        /// prototype argument expression.
+        /// </summary>
+        /// <param name="pattern">The pattern to turn into an expression.</param>
+        /// <param name="type">The type of the expression to generate.</param>
+        /// <returns>A prototype argument expression.</returns>
         private static LNode PatternToPrototypeArgument(
             LNode pattern,
             LNode type)
@@ -703,6 +767,198 @@ namespace FlameMacros
             {
                 return pattern;
             }
+        }
+
+        /// <summary>
+        /// Synthesizes a method that walks the flow graph and figures out
+        /// which rewrite rules are applicable.
+        /// </summary>
+        /// <param name="ruleNames">
+        /// A dictionary that maps the set of rules to recognize to their names.
+        /// </param>
+        /// <param name="prototypePatterns">
+        /// A mapping of prototype patterns to their indices.
+        /// </param>
+        /// <returns>
+        /// A method that walks the flow graph and figures out
+        /// which rewrite rules are applicable.
+        /// </returns>
+        private static LNode SynthesizeRuleMatcher(
+            IReadOnlyDictionary<RewriteRule, string> ruleNames,
+            IReadOnlyDictionary<InstructionPattern, int> prototypePatterns,
+            IReadOnlyDictionary<RewriteRule, IReadOnlyList<InstructionPattern>> patternRoots)
+        {
+            var body = new VList<LNode>();
+
+            // Create the following code snippet:
+            //
+            //     var prototypeMatches = new Dictionary<ValueTag, HashSet<int>>();
+            //     foreach (var instruction in graph.Instructions)
+            //     {
+            //         prototypeMatches[instruction] = GetPrototypePatternMatches(
+            //             instruction.Instruction.Prototype);
+            //     }
+            body.Add(
+                F.Var(
+                    F.Missing,
+                    "prototypeMatches",
+                    F.Call(
+                        CodeSymbols.New,
+                        F.Call(
+                            F.Of(
+                                F.Id("Dictionary"),
+                                F.Id("ValueTag"),
+                                F.Of(F.Id("HashSet"), F.Int32))))));
+
+            body.Add(
+                F.Call(
+                    CodeSymbols.ForEach,
+                    F.Var(F.Missing, "instruction"),
+                    F.Dot(F.Id(GraphParameterName), F.Id("Instructions")),
+                    F.Braces(
+                        F.Assign(
+                            F.Call(CodeSymbols.IndexBracks, F.Id("prototypeMatches"), F.Id("instruction")),
+                            F.Call(
+                                F.Id("GetPrototypePatternMatches"),
+                                F.Dot("instruction", "Instruction", "Prototype"))))));
+
+            // Create an instance of each rewrite rule.
+            var ruleInstances = new Dictionary<RewriteRule, string>();
+            foreach (var rule in ruleNames)
+            {
+                var name = "instanceOf" + rule.Value;
+                ruleInstances[rule.Key] = name;
+                body.Add(F.Var(F.Missing, name, F.Call(CodeSymbols.New, F.Call(F.Id(rule.Value)))));
+            }
+
+            // Create a list to put the results in.
+            body.Add(
+                F.Var(
+                    F.Missing,
+                    "transforms",
+                    F.Call(
+                        CodeSymbols.New,
+                        F.Call(F.Of(F.Id("List"), F.Id("Transform"))))));
+
+            // We now iterate through all instructions. For each instruction,
+            // we figure out which patterns are applicable, if any.
+            int localCounter = 0;
+            var patternRootTrie = new TrieNode<int, List<RewriteRule>>();
+            foreach (var pair in patternRoots)
+            {
+                var key = pair.Value.Select(x => prototypePatterns[x]).ToArray();
+                List<RewriteRule> ruleList;
+                if (patternRootTrie.TryGetValue(key, out ruleList))
+                {
+                    ruleList.Add(pair.Key);
+                }
+                else
+                {
+                    patternRootTrie.Set(
+                        key,
+                        new List<RewriteRule>() { pair.Key });
+                }
+            }
+            body.AddRange(
+                SynthesizeRuleMatcherBody(
+                    ruleNames,
+                    patternRootTrie,
+                    ruleInstances,
+                    ImmutableList.Create<LNode>(),
+                    ref localCounter));
+
+            body.Add(F.Call(CodeSymbols.Return, F.Call(CodeSymbols.New, F.Call(F.Id("Results"), F.Id("transforms")))));
+
+            return F.Fn(
+                F.Id("Results"),
+                GSymbol.Get("Analyze"),
+                F.List(F.Var(F.Id("FlowGraph"), GraphParameterName)),
+                F.Braces(body))
+                .PlusAttr(F.Id(CodeSymbols.Public));
+        }
+
+        private static IEnumerable<LNode> SynthesizeRuleMatcherBody(
+            IReadOnlyDictionary<RewriteRule, string> ruleNames,
+            TrieNode<int, List<RewriteRule>> patternRoots,
+            IReadOnlyDictionary<RewriteRule, string> ruleInstances,
+            ImmutableList<LNode> accumulatedRoots,
+            ref int localCounter)
+        {
+            var body = new VList<LNode>();
+            if (patternRoots.Value != null)
+            {
+                // Bottom-most matching logic.
+                foreach (var rule in patternRoots.Value)
+                {
+                    body.Add(
+                        F.Call(
+                            CodeSymbols.If,
+                            F.Call(
+                                F.Dot(ruleInstances[rule], "Matches"),
+                                accumulatedRoots.Concat(
+                                    new[]
+                                    {
+                                        F.Id(GraphParameterName),
+                                        F.Id("prototypeMatches")
+                                    })),
+                            F.Braces(
+                                F.Call(F.Dot("transforms", "Add"), F.Id(ruleInstances[rule])),
+                                F.Assign(
+                                    F.Id(ruleInstances[rule]),
+                                    F.Call(CodeSymbols.New, F.Call(ruleNames[rule]))))));
+                }
+            }
+
+            if (patternRoots.Children.Count > 0)
+            {
+                Symbol insnVarName;
+                var insnVarDef = DefineTemporary(ref localCounter, out insnVarName);
+
+                var loopBody = new VList<LNode>();
+
+                Symbol insnProtoMatchesVarName;
+                loopBody.Add(
+                    DefineTemporary(
+                        F.Call(CodeSymbols.IndexBracks, F.Id("prototypeMatches"), F.Id(insnVarName)),
+                        ref localCounter,
+                        out insnProtoMatchesVarName));
+
+                foreach (var keyAndNode in patternRoots.Children)
+                {
+                    loopBody.Add(
+                        F.Call(
+                            CodeSymbols.If,
+                            F.Call(
+                                F.Dot(insnProtoMatchesVarName, GSymbol.Get("Contains")),
+                                F.Literal(keyAndNode.Key)),
+                            F.Braces(
+                                SynthesizeRuleMatcherBody(
+                                    ruleNames,
+                                    keyAndNode.Value,
+                                    ruleInstances,
+                                    accumulatedRoots.Add(F.Id(insnVarName)),
+                                    ref localCounter))));
+                }
+
+                body.Add(
+                    F.Call(
+                        CodeSymbols.ForEach,
+                        insnVarDef,
+                        F.Dot(GraphParameterName, GSymbol.Get("Instructions")),
+                        F.Braces(loopBody)));
+            }
+
+            return body;
+        }
+
+        private static LNode DefineTemporary(
+            ref int localCounter,
+            out Symbol name)
+        {
+            name = GSymbol.Get(
+                "temp" + localCounter.ToString(CultureInfo.InvariantCulture));
+            localCounter++;
+            return F.Var(F.Missing, name);
         }
 
         private static LNode DefineTemporary(
@@ -753,7 +1009,7 @@ namespace FlameMacros
 
         private static LNode ReadOnlyListType(LNode elementType)
         {
-            return F.Of(F.Id("IReadOnlyList"), ITypeNode);
+            return F.Of(F.Id("IReadOnlyList"), elementType);
         }
 
         private static readonly Symbol GraphParameterName = GSymbol.Get("graph");
@@ -766,6 +1022,14 @@ namespace FlameMacros
             new Dictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>>()
         {
             { "copy", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
+            {
+                "constant",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("Value", F.Id("Constant")),
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode)
+                }
+            },
             {
                 "intrinsic",
                 new[]
