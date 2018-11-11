@@ -220,12 +220,12 @@ namespace ILOpt
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
+                    InstructionSimplification.Instance,
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
                     DuplicateReturns.Instance,
                     new TailRecursionElimination(method),
-                    InstructionSimplification.Instance,
 
                     // Lowering and cleanup passes.
                     JumpToEntryRemoval.Instance,
