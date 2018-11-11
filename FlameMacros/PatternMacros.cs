@@ -355,7 +355,13 @@ namespace FlameMacros
                 members.Add(field.PlusAttr(F.Id(CodeSymbols.Private)));
             }
 
-            members.Add(F.Fn(F.Bool, GSymbol.Get("Matches"), F.List(matchParams), F.Braces(matchStatements)));
+            members.Add(
+                F.Fn(
+                    F.Bool,
+                    GSymbol.Get("Matches"),
+                    F.List(matchParams),
+                    F.Braces(matchStatements))
+                .PlusAttr(F.Id(CodeSymbols.Public)));
 
             // Generate an 'Apply' method.
             members.Add(
@@ -363,12 +369,15 @@ namespace FlameMacros
                     F.Void,
                     GSymbol.Get("Apply"),
                     F.List(F.Var(F.Id("FlowGraphBuilder"), GraphParameterName)),
-                    CreateRewriteRuleApplier(rule, fieldMapping)));
+                    CreateRewriteRuleApplier(rule, fieldMapping))
+                .PlusAttrs(
+                    F.Id(CodeSymbols.Public),
+                    F.Id(CodeSymbols.Override)));
 
             return F.Call(
                 CodeSymbols.Class,
                 F.Id(className),
-                F.List(),
+                F.List(F.Id("Transform")),
                 F.Braces(members))
                 .WithAttrs(F.Id(CodeSymbols.Private));
         }

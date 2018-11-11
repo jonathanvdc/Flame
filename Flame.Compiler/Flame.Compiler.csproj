@@ -106,6 +106,7 @@
     <Compile Include="Transforms\SwitchLowering.cs" />
     <Compile Include="Transforms\SwitchSimplification.cs" />
     <Compile Include="Transforms\TailRecursionElimination.cs" />
+    <Compile Include="Transforms\Transform.cs" />
     <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
     <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
