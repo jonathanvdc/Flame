@@ -44,7 +44,7 @@ namespace Flame.Clr.Emit
             this.TypeEnvironment = typeEnvironment;
             this.AllocaToVariableMapping = allocaToVariableMapping;
             this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
-            this.inlineSelectedInstructions = new HashSet<ValueTag>();
+            this.selectedInstructions = new HashSet<ValueTag>();
             this.tempDefs = new List<VariableDefinition>();
             this.tempsByType = new Dictionary<IType, ValueTag>();
         }
@@ -75,7 +75,7 @@ namespace Flame.Clr.Emit
         public IReadOnlyList<VariableDefinition> Temporaries => tempDefs;
 
         private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
-        private HashSet<ValueTag> inlineSelectedInstructions;
+        private HashSet<ValueTag> selectedInstructions;
         private List<VariableDefinition> tempDefs;
         private Dictionary<IType, ValueTag> tempsByType;
 
@@ -357,7 +357,7 @@ namespace Flame.Clr.Emit
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             SelectedInstruction instruction)
         {
-            if (inlineSelectedInstructions.Contains(instruction.Tag))
+            if (!selectedInstructions.Add (instruction.Tag))
             {
                 // Never ever re-select instructions that have already
                 // been selected inline.
@@ -365,6 +365,7 @@ namespace Flame.Clr.Emit
                     EmptyArray<CilCodegenInstruction>.Value,
                     EmptyArray<ValueTag>.Value);
             }
+
             VariableDefinition allocaVarDef;
             if (AllocaToVariableMapping.TryGetValue(instruction.Tag, out allocaVarDef))
             {
@@ -921,7 +922,7 @@ namespace Flame.Clr.Emit
             }
             else if (constant is StringConstant)
             {
-                var sconst = (Float64Constant)constant;
+                var sconst = (StringConstant)constant;
                 return CilInstruction.Create(OpCodes.Ldstr, sconst.Value);
             }
             else
@@ -1117,7 +1118,7 @@ namespace Flame.Clr.Emit
                     dependency.Instruction,
                     graph);
 
-                InstructionSelector.inlineSelectedInstructions.Add(dependency.Tag);
+                InstructionSelector.selectedInstructions.Add(dependency.Tag);
                 updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
                 foreach (var subdependency in dependencySelection.Dependencies)
                 {
