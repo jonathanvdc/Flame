@@ -1,6 +1,14 @@
 # Flame
 
-This is a C# rewrite of Flame, a compiler library for managed languages. It is currently a work in progress.
+This is a C# rewrite of Flame, a set of compiler libraries for managed languages. It is currently a work in progress.
+
+## Subprojects
+
+At its core, Flame is a set of libraries designed to support tools that read, analyze, optimize and write managed languages. Additionally, Flame includes a number of projects that use Flame in a fairly straightforward way.
+
+### `ilopt`
+
+`ilopt` is a command-line tool that reads CIL assemblies, optimizes them and writes the optimized version back to disk somewhere. `ilopt` can already optimize some assemblies, but it only supports a subset of CIL at the moment. Most work being done is focused on teaching `ilopt` to round-trip all CIL opcodes.
 
 ## Build instructions
 
