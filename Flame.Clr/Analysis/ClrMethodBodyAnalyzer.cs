@@ -560,6 +560,15 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)
+            {
+                var val = stackContents.Pop();
+                var valType = block.Graph.GetValueType(val);
+                PushValue(
+                    Instruction.CreateBox(valType, val),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
             {
                 stackContents.Push(
