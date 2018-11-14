@@ -51,6 +51,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for box instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<BoxPrototype, IReadOnlyList<LNode>> Box =
+            new CodecElement<BoxPrototype, IReadOnlyList<LNode>>(
+                "box", EncodeBox, DecodeBox);
+
+        private static BoxPrototype DecodeBox(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return BoxPrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeBox(BoxPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ElementType) };
+        }
+
+        /// <summary>
         /// A codec element for constant instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -304,6 +322,7 @@ namespace Flame.Ir
                 return new PiecewiseCodec<InstructionPrototype>()
                     .Add(AllocaArray)
                     .Add(Alloca)
+                    .Add(Box)
                     .Add(Call)
                     .Add(Constant)
                     .Add(Copy)
