@@ -108,7 +108,16 @@ namespace Flame.Clr
         {
             if (type is ClrTypeDefinition)
             {
-                return module.ImportReference(((ClrTypeDefinition)type).Definition);
+                var typeRef = ((ClrTypeDefinition)type).Definition;
+                if (module == null)
+                {
+                    // The module can be null for testing purposes.
+                    return typeRef;
+                }
+                else
+                {
+                    return module.ImportReference(typeRef);
+                }
             }
             else if (type is PointerType)
             {
