@@ -429,6 +429,23 @@ namespace Flame.Clr.Emit
             {
                 return CreateNopSelection(instruction.Arguments);
             }
+            else if (proto is ReinterpretCastPrototype)
+            {
+                // Do nothing.
+                // TODO: should we maybe sometimes emit castclass opcodes
+                // to ensure that the bytecode we emit stays verifiable
+                // even when we know that downcast checks can be elided?
+                return CreateNopSelection(instruction.Arguments);
+            }
+            else if (proto is BoxPrototype)
+            {
+                var boxProto = (BoxPrototype)proto;
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Box,
+                        Method.Module.ImportReference(boxProto.ElementType)),
+                    instruction.Arguments);
+            }
             else if (proto is AllocaPrototype)
             {
                 // TODO: constant-fold `sizeof` whenever possible.
@@ -520,7 +537,7 @@ namespace Flame.Clr.Emit
             }
             else
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException("Unknown instruction type: " + proto);
             }
         }
 
@@ -843,8 +860,11 @@ namespace Flame.Clr.Emit
             }
 
             // Looks like we can reorder the instruction!
-            insertionPoint.List.Remove(instructionNode);
-            insertionPoint.List.AddBefore(insertionPoint, instructionNode);
+            if (insertionPoint != instructionNode)
+            {
+                insertionPoint.List.Remove(instructionNode);
+                insertionPoint.List.AddBefore(insertionPoint, instructionNode);
+            }
             return true;
         }
 
