@@ -39,6 +39,24 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates an instruction that boxes a value type,
+        /// turning it into a reference type (aka box pointer).
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of value to box.
+        /// </param>
+        /// <param name="element">
+        /// The value to box.
+        /// </param>
+        /// <returns>
+        /// A box instruction.
+        /// </returns>
+        public static Instruction CreateBox(IType elementType, ValueTag element)
+        {
+            return BoxPrototype.Create(elementType).Instantiate(element);
+        }
+
+        /// <summary>
         /// Creates an instruction that calls a particular method.
         /// </summary>
         /// <param name="callee">The method to call.</param>
