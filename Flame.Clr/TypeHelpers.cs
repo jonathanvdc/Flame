@@ -108,7 +108,7 @@ namespace Flame.Clr
         {
             if (type is ClrTypeDefinition)
             {
-                return ((ClrTypeDefinition)type).Definition;
+                return module.ImportReference(((ClrTypeDefinition)type).Definition);
             }
             else if (type is PointerType)
             {
