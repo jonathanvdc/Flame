@@ -479,14 +479,32 @@ namespace Flame.Clr.Emit
                 {
                     return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, allocaVarDef));
                 }
-                else
+
+                var intSpec = proto.ResultType.GetIntegerSpecOrNull();
+                OpCode shortcutOp;
+                if (intSpec != null && integerLdIndOps.TryGetValue(intSpec, out shortcutOp))
                 {
-                    return CreateSelection(
-                        CilInstruction.Create(
-                            OpCodes.Ldobj,
-                            Method.Module.ImportReference(loadProto.ResultType)),
-                        pointer);
+                    return CreateSelection(CilInstruction.Create(shortcutOp), pointer);
                 }
+                else if (proto.ResultType == TypeEnvironment.Float32)
+                {
+                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_R4), pointer);
+                }
+                else if (proto.ResultType == TypeEnvironment.Float64)
+                {
+                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_R8), pointer);
+                }
+                else if (proto.ResultType is TypeSystem.PointerType
+                    && ((TypeSystem.PointerType)proto.ResultType).Kind == PointerKind.Box)
+                {
+                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_Ref), pointer);
+                }
+
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Ldobj,
+                        Method.Module.ImportReference(loadProto.ResultType)),
+                    pointer);
             }
             else if (proto is StorePrototype)
             {
@@ -818,6 +836,19 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.Xor, new[] { OpCodes.Xor } },
             { ArithmeticIntrinsics.Operators.LeftShift, new[] { OpCodes.Shl } },
             { ArithmeticIntrinsics.Operators.RightShift, new[] { OpCodes.Shr_Un } }
+        };
+
+        private static Dictionary<IntegerSpec, OpCode> integerLdIndOps =
+            new Dictionary<IntegerSpec, OpCode>()
+        {
+            { IntegerSpec.Int8, OpCodes.Ldind_I1 },
+            { IntegerSpec.Int16, OpCodes.Ldind_I2 },
+            { IntegerSpec.Int32, OpCodes.Ldind_I4 },
+            { IntegerSpec.Int64, OpCodes.Ldind_I8 },
+            { IntegerSpec.UInt8, OpCodes.Ldind_U1 },
+            { IntegerSpec.UInt16, OpCodes.Ldind_U2 },
+            { IntegerSpec.UInt32, OpCodes.Ldind_U4 },
+            { IntegerSpec.UInt64, OpCodes.Ldind_I8 }
         };
 
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
