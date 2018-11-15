@@ -446,6 +446,15 @@ namespace Flame.Clr.Emit
                         Method.Module.ImportReference(boxProto.ElementType)),
                     instruction.Arguments);
             }
+            else if (proto is UnboxPrototype)
+            {
+                var boxProto = (UnboxPrototype)proto;
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Unbox,
+                        Method.Module.ImportReference(boxProto.ElementType)),
+                    instruction.Arguments);
+            }
             else if (proto is AllocaPrototype)
             {
                 // TODO: constant-fold `sizeof` whenever possible.
