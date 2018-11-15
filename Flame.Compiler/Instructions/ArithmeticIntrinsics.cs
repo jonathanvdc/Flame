@@ -12,7 +12,11 @@ namespace Flame.Compiler.Instructions
     /// </summary>
     public static class ArithmeticIntrinsics
     {
-        private const string arithmeticIntrinsicPrefix = "arith";
+        /// <summary>
+        /// The namespace for arithmetic intrinsics.
+        /// </summary>
+        public static readonly IntrinsicNamespace Namespace =
+            new IntrinsicNamespace("arith");
 
         /// <summary>
         /// Tries to parse an intrinsic name as an arithmetic
@@ -33,21 +37,7 @@ namespace Flame.Compiler.Instructions
             string intrinsicName,
             out string operatorName)
         {
-            // All arithmetic intrinsics have the following name format:
-            //
-            //    arith.<op>
-            //
-            var splitName = intrinsicName.Split(new char[] { '.' }, 2);
-            if (splitName.Length != 2 || splitName[0] != arithmeticIntrinsicPrefix)
-            {
-                operatorName = null;
-                return false;
-            }
-            else
-            {
-                operatorName = splitName[1];
-                return true;
-            }
+            return Namespace.TryParseIntrinsicName(intrinsicName, out operatorName);
         }
 
         /// <summary>
@@ -65,16 +55,7 @@ namespace Flame.Compiler.Instructions
         public static string ParseArithmeticIntrinsicName(
             string intrinsicName)
         {
-            string result;
-            if (TryParseArithmeticIntrinsicName(intrinsicName, out result))
-            {
-                return result;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    $"Name '{intrinsicName}' is not an arithmetic intrinsic name.");
-            }
+            return Namespace.ParseIntrinsicName(intrinsicName);
         }
 
         /// <summary>
@@ -89,8 +70,7 @@ namespace Flame.Compiler.Instructions
         /// </returns>
         public static bool IsArithmeticIntrinsicName(string intrinsicName)
         {
-            string opName;
-            return TryParseArithmeticIntrinsicName(intrinsicName, out opName);
+            return Namespace.IsIntrinsicName(intrinsicName);
         }
 
         /// <summary>
@@ -105,23 +85,7 @@ namespace Flame.Compiler.Instructions
         /// </returns>
         public static string GetArithmeticIntrinsicName(string operatorName)
         {
-            return arithmeticIntrinsicPrefix + "." + operatorName;
-        }
-
-        /// <summary>
-        /// Tests if an instruction prototype is an arithmetic intrinsic prototype.
-        /// </summary>
-        /// <param name="prototype">
-        /// The prototype to examine.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if the prototype is an arithmetic intrinsic prototype;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsArithmeticIntrinsicPrototype(InstructionPrototype prototype)
-        {
-            return prototype is IntrinsicPrototype
-                && IsArithmeticIntrinsicName(((IntrinsicPrototype)prototype).Name);
+            return Namespace.GetIntrinsicName(operatorName);
         }
 
         /// <summary>

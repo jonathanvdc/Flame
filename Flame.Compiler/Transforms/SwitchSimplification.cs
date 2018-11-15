@@ -67,7 +67,7 @@ namespace Flame.Compiler.Transforms
                     ? valuesToBranches[constant]
                     : flow.DefaultBranch);
             }
-            else if (ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(value.Prototype))
+            else if (ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(value.Prototype))
             {
                 var proto = (IntrinsicPrototype)value.Prototype;
                 var intrinsicName = ArithmeticIntrinsics.ParseArithmeticIntrinsicName(proto.Name);
@@ -241,7 +241,7 @@ namespace Flame.Compiler.Transforms
                     // interested in and they don't have any "funny" behavior.
                     if (copiedInsn.Prototype is ConstantPrototype
                         || copiedInsn.Prototype is CopyPrototype
-                        || ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(copiedInsn.Prototype))
+                        || ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(copiedInsn.Prototype))
                     {
                         return SimplifyInstruction(copiedInsn, graph);
                     }

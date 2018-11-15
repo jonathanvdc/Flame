@@ -78,11 +78,13 @@
     <Compile Include="Instructions\ConstantPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
     <Compile Include="Instructions\IndirectCallPrototype.cs" />
+    <Compile Include="Instructions\IntrinsicNamespace.cs" />
     <Compile Include="Instructions\IntrinsicPrototype.cs" />
     <Compile Include="Instructions\LoadPrototype.cs" />
     <Compile Include="Instructions\MethodLookup.cs" />
     <Compile Include="Instructions\NewDelegatePrototype.cs" />
     <Compile Include="Instructions\NewObjectPrototype.cs" />
+    <Compile Include="Instructions\ObjectIntrinsics.cs" />
     <Compile Include="Instructions\ReinterpretCastPrototype.cs" />
     <Compile Include="Instructions\StorePrototype.cs" />
     <Compile Include="Pipeline\AssemblyContentDescription.cs" />

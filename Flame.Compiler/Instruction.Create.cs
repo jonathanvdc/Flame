@@ -398,5 +398,32 @@ namespace Flame.Compiler
                 new[] { sourceType },
                 new[] { value });
         }
+
+        /// <summary>
+        /// Creates an 'unbox_any' intrinsic.
+        /// Its return type can either be a value type or a
+        /// reference type (aka box pointer).
+        /// If its return type is set to a value type, 'unbox_any'
+        /// unboxes its argument and loads it.
+        /// If 'unbox_any's return value is set to a reference type,
+        /// 'unbox_any' checks that its argument is a subtype of the
+        /// return type.
+        /// </summary>
+        /// <param name="targetType">
+        /// The target type: the type to unbox or cast a box pointer to.
+        /// </param>
+        /// <param name="sourceType">
+        /// The source type: the type of the value to convert.
+        /// </param>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>A conversion instruction.</returns>
+        public static Instruction CreateUnboxAnyIntrinsic(
+            IType targetType,
+            IType sourceType,
+            ValueTag value)
+        {
+            return ObjectIntrinsics.CreateUnboxAnyPrototype(targetType, sourceType)
+                .Instantiate(new[] { value });
+        }
     }
 }
