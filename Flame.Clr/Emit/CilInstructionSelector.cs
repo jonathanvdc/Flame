@@ -746,6 +746,22 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown arithmetic intrinsic '{prototype.Name}'.");
             }
+            else if (ObjectIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == ObjectIntrinsics.Operators.UnboxAny
+                    && prototype.ParameterCount == 1)
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Unbox_Any,
+                            Method.Module.ImportReference(prototype.ResultType)),
+                        arguments);
+                }
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown object-oriented intrinsic '{prototype.Name}'.");
+            }
             else
             {
                 throw new NotSupportedException(
