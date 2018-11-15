@@ -19,6 +19,15 @@ namespace Flame.Compiler.Transforms
             result = copy(T)(value);
         });
 
+        // The 'unbox_any' intrinsic can be replaced with its implementation
+        // if we know for sure that the target type is a value type.
+        #rule({
+            result = intrinsic("object.unbox_any", To, #(From))(value);
+        }, {
+            box_contents_ptr = unbox(To)(value);
+            result = load(To)(box_contents_ptr);
+        }, !(To is IGenericParameter) && !(To is PointerType));
+
         // A sign or zero extension followed by a truncation can be
         // simplified to either an extension or a truncation.
         #rule({
