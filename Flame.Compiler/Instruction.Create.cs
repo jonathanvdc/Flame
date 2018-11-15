@@ -57,6 +57,20 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates an instruction that unboxes a box pointer,
+        /// turning it into a ref pointer to the box's contents.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of value to unbox.
+        /// </param>
+        /// <param name="value">The value to unbox.</param>
+        /// <returns>An unbox instruction.</returns>
+        public static Instruction CreateUnbox(IType elementType, ValueTag value)
+        {
+            return UnboxPrototype.Create(elementType).Instantiate(value);
+        }
+
+        /// <summary>
         /// Creates an instruction that calls a particular method.
         /// </summary>
         /// <param name="callee">The method to call.</param>
