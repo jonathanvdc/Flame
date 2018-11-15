@@ -738,6 +738,44 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Removes the definitions for a set of instructions
+        /// from this flow graph.
+        /// </summary>
+        /// <param name="instructionsToRemove">
+        /// A set of values whose definitions are to be eliminated
+        /// from the flow graph. These values may only refer to
+        /// instructions.
+        /// </param>
+        /// <returns>
+        /// A flow graph that does not define any of the values.
+        /// </returns>
+        /// <remark>
+        /// This method incurs less overhead than RemoveDefinitions but
+        /// only works for instruction definitions, not for basic block
+        /// parameter definitions.
+        /// </remark>
+        public FlowGraph RemoveInstructionDefinitions(IEnumerable<ValueTag> instructionsToRemove)
+        {
+            var result = this;
+            foreach (var tag in instructionsToRemove)
+            {
+                if (result.ContainsInstruction(tag))
+                {
+                    result = result.RemoveInstruction(tag);
+                }
+                else if (result.ContainsBlockParameter(tag))
+                {
+                    // This is absolutely not allowed.
+                    throw new ArgumentException(
+                        $"'{nameof(RemoveInstructionDefinitions)}' can only remove instruction definitions, " +
+                        $"but was asked to remove '{tag}', a basic block parameter; consider using " +
+                        $"'{nameof(RemoveDefinitions)}' instead.");
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Applies an intraprocedural optimization to this flow graph.
         /// </summary>
         /// <param name="optimization">

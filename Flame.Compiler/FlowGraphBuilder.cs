@@ -221,6 +221,25 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Removes the definitions for a set of instructions
+        /// from this flow graph.
+        /// </summary>
+        /// <param name="instructionsToRemove">
+        /// A set of values whose definitions are to be eliminated
+        /// from the flow graph. These values may only refer to
+        /// instructions.
+        /// </param>
+        /// <remark>
+        /// This method incurs less overhead than RemoveDefinitions but
+        /// only works for instruction definitions, not for basic block
+        /// parameter definitions.
+        /// </remark>
+        public void RemoveInstructionDefinitions(IEnumerable<ValueTag> instructionsToRemove)
+        {
+            ImmutableGraph = ImmutableGraph.RemoveInstructionDefinitions(instructionsToRemove);
+        }
+
+        /// <summary>
         /// Applies an intraprocedural optimization to this flow graph.
         /// </summary>
         /// <param name="optimization">
