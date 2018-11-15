@@ -684,6 +684,14 @@ namespace Flame.Clr.Analysis
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
                 var args = new List<ValueTag>();
+
+                // Pop arguments from the stack.
+                for (int i = method.Parameters.Count - 1; i >= 0; i--)
+                {
+                    args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
+                }
+
+                // Pop the 'this' pointer from the stack.
                 if (!method.IsStatic)
                 {
                     var thisValType = block.Graph.GetValueType(stackContents.Peek());
@@ -700,10 +708,7 @@ namespace Flame.Clr.Analysis
                         throw new NotImplementedException("Unimplemented feature: value type as 'this' argument.");
                     }
                 }
-                for (int i = 0; i < method.Parameters.Count; i++)
-                {
-                    args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
-                }
+
                 args.Reverse();
                 PushValue(
                     Instruction.CreateCall(
