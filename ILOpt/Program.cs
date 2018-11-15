@@ -225,10 +225,18 @@ namespace ILOpt
             irBody = irBody.WithImplementation(
                 irBody.Implementation.Transform(
                     // Optimization passes.
+                    //   * Initial CFG cleanup.
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
                     InstructionSimplification.Instance,
+
+                    //   * Box to alloca, alloca to reg.
+                    BoxToAlloca.Instance,
+                    CopyPropagation.Instance,
+                    AllocaToRegister.Instance,
+
+                    //   * Optimize control flow.
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
