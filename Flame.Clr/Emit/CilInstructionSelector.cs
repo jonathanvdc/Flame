@@ -477,9 +477,12 @@ namespace Flame.Clr.Emit
                 VariableDefinition allocaVarDef;
                 if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
                 {
+                    // We can use `ldloc` as a shortcut for `ldloca; ldobj`.
                     return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, allocaVarDef));
                 }
 
+                // If at all possible, use `ldind.*` instead of `ldobj`. The former
+                // category of opcodes has a more compact representation.
                 var intSpec = proto.ResultType.GetIntegerSpecOrNull();
                 OpCode shortcutOp;
                 if (intSpec != null && integerLdIndOps.TryGetValue(intSpec, out shortcutOp))
@@ -500,6 +503,7 @@ namespace Flame.Clr.Emit
                     return CreateSelection(CilInstruction.Create(OpCodes.Ldind_Ref), pointer);
                 }
 
+                // Default implementation: emit a `ldobj` opcode.
                 return CreateSelection(
                     CilInstruction.Create(
                         OpCodes.Ldobj,
