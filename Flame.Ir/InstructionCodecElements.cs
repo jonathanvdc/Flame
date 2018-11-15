@@ -312,6 +312,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for unbox instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<UnboxPrototype, IReadOnlyList<LNode>> Unbox =
+            new CodecElement<UnboxPrototype, IReadOnlyList<LNode>>(
+                "unbox", EncodeUnbox, DecodeUnbox);
+
+        private static UnboxPrototype DecodeUnbox(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return UnboxPrototype.Create(state.DecodeType(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeUnbox(UnboxPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ElementType) };
+        }
+
+        /// <summary>
         /// Gets a codec that contains all sub-codecs defined in this class.
         /// </summary>
         /// <returns>A codec.</returns>
@@ -332,7 +350,8 @@ namespace Flame.Ir
                     .Add(NewDelegate)
                     .Add(NewObject)
                     .Add(ReinterpretCast)
-                    .Add(Store);
+                    .Add(Store)
+                    .Add(Unbox);
             }
         }
     }
