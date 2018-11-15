@@ -44,6 +44,20 @@ namespace Flame.Clr.Analysis
             this.Parameters = parameters;
             this.Assembly = assembly;
             this.graph = new FlowGraphBuilder();
+
+            this.convTypes = new Dictionary<Mono.Cecil.Cil.OpCode, IType>()
+            {
+                { Mono.Cecil.Cil.OpCodes.Conv_I1, TypeEnvironment.Int8 },
+                { Mono.Cecil.Cil.OpCodes.Conv_I2, TypeEnvironment.Int16 },
+                { Mono.Cecil.Cil.OpCodes.Conv_I4, TypeEnvironment.Int32 },
+                { Mono.Cecil.Cil.OpCodes.Conv_I8, TypeEnvironment.Int64 },
+                { Mono.Cecil.Cil.OpCodes.Conv_U1, TypeEnvironment.UInt8 },
+                { Mono.Cecil.Cil.OpCodes.Conv_U2, TypeEnvironment.UInt16 },
+                { Mono.Cecil.Cil.OpCodes.Conv_U4, TypeEnvironment.UInt32 },
+                { Mono.Cecil.Cil.OpCodes.Conv_U8, TypeEnvironment.UInt64 },
+                { Mono.Cecil.Cil.OpCodes.Conv_R4, TypeEnvironment.Float32 },
+                { Mono.Cecil.Cil.OpCodes.Conv_R8, TypeEnvironment.Float64 }
+            };
         }
 
         /// <summary>
@@ -71,6 +85,8 @@ namespace Flame.Clr.Analysis
         /// <returns>An assembly reference.</returns>
         public ClrAssembly Assembly { get; private set; }
 
+        private TypeEnvironment TypeEnvironment => Assembly.Resolver.TypeEnvironment;
+
         // The flow graph being constructed by this method body
         // analyzer.
         private FlowGraphBuilder graph;
@@ -79,6 +95,9 @@ namespace Flame.Clr.Analysis
         private HashSet<BasicBlockBuilder> analyzedBlocks;
         private List<InstructionBuilder> parameterStackSlots;
         private List<InstructionBuilder> localStackSlots;
+
+        // A mapping of conv.* opcodes to target types.
+        private readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, IType> convTypes;
 
         /// <summary>
         /// Analyzes a particular method body.
@@ -551,6 +570,15 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I8)
+            {
+                PushValue(
+                    Instruction.CreateConstant(
+                        new IntegerConstant((long)instruction.Operand),
+                        Assembly.Resolver.TypeEnvironment.Int64),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
             {
                 PushValue(
@@ -617,6 +645,30 @@ namespace Flame.Clr.Analysis
                     PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
                     block,
                     stackContents);
+            }
+            else if (convTypes.ContainsKey(instruction.OpCode))
+            {
+                // Conversion opcodes are usually fairly straightforward.
+                var targetType = convTypes[instruction.OpCode];
+                EmitConvertTo(targetType, block, stackContents);
+
+                // We do need to take care to convert integers < 32 bits
+                // to 32-bit integers.
+                var intSpec = targetType.GetIntegerSpecOrNull();
+                if (intSpec.Size < 32)
+                {
+                    if (intSpec.IsSigned)
+                    {
+                        // Sign-extend the integer.
+                        EmitConvertTo(TypeEnvironment.Int32, block, stackContents);
+                    }
+                    else
+                    {
+                        // Zero-extend, then make sure an int32 ends up on the stack.
+                        EmitConvertTo(TypeEnvironment.UInt32, block, stackContents);
+                        EmitConvertTo(TypeEnvironment.Int32, block, stackContents);
+                    }
+                }
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
