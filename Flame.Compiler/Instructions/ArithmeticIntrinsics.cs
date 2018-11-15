@@ -189,10 +189,21 @@ namespace Flame.Compiler.Instructions
                     if (intBinaryOps.TryGetValue(operatorName, out impl))
                     {
                         result = impl(
-                            ((IntegerConstant)arguments[0]).Cast(maxIntSpec),
-                            ((IntegerConstant)arguments[1]).Cast(maxIntSpec)).Cast(resultSpec);
+                            intLhs.Cast(maxIntSpec),
+                            intRhs.Cast(maxIntSpec)).Cast(resultSpec);
                         return true;
                     }
+                }
+            }
+            else if (arguments.Count == 1)
+            {
+                var operand = arguments[0];
+                if (operatorName == Operators.Convert
+                    && operand is IntegerConstant
+                    && resultType.IsIntegerType())
+                {
+                    result = ((IntegerConstant)operand).Cast(resultType.GetIntegerSpecOrNull());
+                    return true;
                 }
             }
             result = null;
