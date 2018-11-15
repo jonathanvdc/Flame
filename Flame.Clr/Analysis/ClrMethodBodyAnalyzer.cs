@@ -562,10 +562,21 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)
             {
-                var val = stackContents.Pop();
-                var valType = block.Graph.GetValueType(val);
+                var valType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var val = PopTyped(valType, block, stackContents);
                 PushValue(
                     Instruction.CreateBox(valType, val),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unbox_Any)
+            {
+                var val = stackContents.Pop();
+                var targetType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+                var valType = block.Graph.GetValueType(val);
+                PushValue(
+                    Instruction.CreateUnboxAnyIntrinsic(targetType, valType, val),
                     block,
                     stackContents);
             }
