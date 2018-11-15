@@ -102,6 +102,42 @@ namespace Flame.TypeSystem
         public IType Boolean => MakeUnsignedIntegerType(1);
 
         /// <summary>
+        /// Gets an 8-bit signed integer type.
+        /// </summary>
+        /// <returns>
+        /// An 8-bit signed integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType Int8 => MakeSignedIntegerType(8);
+
+        /// <summary>
+        /// Gets an 8-bit unsigned integer type.
+        /// </summary>
+        /// <returns>
+        /// An 8-bit unsigned integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType UInt8 => MakeUnsignedIntegerType(8);
+
+        /// <summary>
+        /// Gets a 16-bit signed integer type.
+        /// </summary>
+        /// <returns>
+        /// A 16-bit signed integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType Int16 => MakeSignedIntegerType(16);
+
+        /// <summary>
+        /// Gets a 16-bit unsigned integer type.
+        /// </summary>
+        /// <returns>
+        /// A 16-bit unsigned integer type if one can be created;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType UInt16 => MakeUnsignedIntegerType(16);
+
+        /// <summary>
         /// Gets a 32-bit signed integer type.
         /// </summary>
         /// <returns>
