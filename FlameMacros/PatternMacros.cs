@@ -668,7 +668,7 @@ namespace FlameMacros
             RewriteRule rule,
             IReadOnlyDictionary<Symbol, LNode> fieldMapping)
         {
-            var statements = new VList<LNode>();
+            var statements = new List<LNode>();
 
             Symbol insertionPoint = null;
             foreach (var pattern in rule.Replacement.Reverse())
@@ -704,6 +704,7 @@ namespace FlameMacros
                 insertionPoint = pattern.InstructionName;
             }
 
+            statements.Reverse();
             return F.Braces(statements);
         }
 
@@ -1022,6 +1023,9 @@ namespace FlameMacros
             new Dictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>>()
         {
             { "copy", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
+            { "box", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
+            { "unbox", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
+            { "load", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
             {
                 "constant",
                 new[]
