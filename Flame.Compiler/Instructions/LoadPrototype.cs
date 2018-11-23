@@ -5,7 +5,7 @@ using Flame.TypeSystem;
 namespace Flame.Compiler.Instructions
 {
     /// <summary>
-    /// A prototype for load instructions, which dereference pointers.
+    /// A prototype for load instructions that dereference pointers.
     /// </summary>
     public sealed class LoadPrototype : InstructionPrototype
     {

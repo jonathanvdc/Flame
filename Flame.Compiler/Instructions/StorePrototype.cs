@@ -5,7 +5,7 @@ using Flame.TypeSystem;
 namespace Flame.Compiler.Instructions
 {
     /// <summary>
-    /// A prototype for store instructions, which replace the value of
+    /// A prototype for store instructions that set the value of
     /// a pointer's pointee.
     /// </summary>
     public sealed class StorePrototype : InstructionPrototype
