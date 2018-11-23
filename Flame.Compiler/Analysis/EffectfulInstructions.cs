@@ -129,7 +129,10 @@ namespace Flame.Compiler.Analysis
             {
                 // TODO: consider method attributes. Some calls may
                 // not have side-effects and may be marked as such.
-                return true;
+
+                // Instructions whose exceptions can be delayed are not
+                // necessarily effectful.
+                return !selection.Block.Graph.CanDelayExceptions(selection);
             }
             else
             {

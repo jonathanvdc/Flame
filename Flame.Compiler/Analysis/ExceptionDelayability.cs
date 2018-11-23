@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Analysis
@@ -5,22 +6,25 @@ namespace Flame.Compiler.Analysis
     /// <summary>
     /// A base class for rules about whether or not exceptions
     /// thrown by particular types of instructions may be delayed
-    /// until their use.
+    /// until the value they produce is used by an effectful
+    /// instruction.
     /// </summary>
     public abstract class ExceptionDelayability
     {
         /// <summary>
         /// Tells if it is permissible to delay exceptions thrown by a
-        /// particular instruction until the instruction's result is used.
-        /// If the instruction's result is never used, the exception may
-        /// even be deleted altogether.
+        /// particular instruction until the instruction's result is used
+        /// by an effectful instruction.
+        /// If the instruction's result is never used that way,
+        /// the exception may even be deleted altogether.
         /// </summary>
         /// <param name="prototype">
         /// An instruction prototype to examine.
         /// </param>
         /// <returns>
         /// <c>true</c> if exceptions thrown by instances of <paramref name="prototype"/>
-        /// may be delayed until the instances are used; otherwise, <c>false</c>.
+        /// may be delayed until the instances' values are used by effectful instructions;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public abstract bool CanDelayExceptions(InstructionPrototype prototype);
 
@@ -69,6 +73,67 @@ namespace Flame.Compiler.Analysis
     }
 
     /// <summary>
+    /// Defines extension methods related to exception delayability.
+    /// </summary>
+    public static class ExceptionDelayabilityExtensions
+    {
+        /// <summary>
+        /// Tells if it is permissible to delay exceptions thrown by a
+        /// particular instruction until the instruction's result is used
+        /// by an effectful instruction.
+        /// If the instruction's result is never used that way,
+        /// the exception may even be deleted altogether.
+        /// </summary>
+        /// <param name="graph">
+        /// The flow graph that defines the instruction.
+        /// </param>
+        /// <param name="instruction">
+        /// An instruction tag to examine.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if exceptions thrown by <paramref name="instruction"/>
+        /// may be delayed until its value is used by an effectful instruction;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanDelayExceptions(this FlowGraph graph, ValueTag instruction)
+        {
+            ExceptionDelayability delayability;
+            if (graph.TryGetAnalysisResult(out delayability))
+            {
+                return delayability.CanDelayExceptions(
+                    graph.GetInstruction(instruction).Instruction.Prototype);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tells if it is permissible to delay exceptions thrown by a
+        /// particular instruction until the instruction's result is used
+        /// by an effectful instruction.
+        /// If the instruction's result is never used that way,
+        /// the exception may even be deleted altogether.
+        /// </summary>
+        /// <param name="graph">
+        /// The flow graph that defines the instruction.
+        /// </param>
+        /// <param name="instruction">
+        /// An instruction tag to examine.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if exceptions thrown by <paramref name="instruction"/>
+        /// may be delayed until its value is used by an effectful instruction;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanDelayExceptions(this FlowGraphBuilder graph, ValueTag instruction)
+        {
+            return graph.ImmutableGraph.CanDelayExceptions(instruction);
+        }
+    }
+
+    /// <summary>
     /// Exception delayability rules that disallow delaying exceptions in
     /// all cases.
     /// </summary>
@@ -112,10 +177,21 @@ namespace Flame.Compiler.Analysis
             {
                 return true;
             }
+            else if (prototype is IntrinsicPrototype)
+            {
+                var intrinsicProto = (IntrinsicPrototype)prototype;
+                return delayableIntrinsics.Contains(intrinsicProto.Name);
+            }
             else
             {
                 return false;
             }
         }
+
+        private static readonly HashSet<string> delayableIntrinsics =
+            new HashSet<string>()
+        {
+            ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetElementPointer)
+        };
     }
 }
