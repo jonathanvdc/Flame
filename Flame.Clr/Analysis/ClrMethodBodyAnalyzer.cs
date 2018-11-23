@@ -646,6 +646,34 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
+            {
+                var indexVal = stackContents.Pop();
+                var arrayVal = stackContents.Pop();
+                var arrayValType = block.Graph.GetValueType(arrayVal);
+                var unboxedArrayType = arrayValType as PointerType;
+                if (unboxedArrayType != null && unboxedArrayType.Kind != PointerKind.Box)
+                {
+                    unboxedArrayType = null;
+                }
+                var arrayType = (unboxedArrayType?.ElementType ?? arrayValType) as DirectTypeSpecialization;
+                if (arrayType == null || !(arrayType.Declaration is ClrArrayType))
+                {
+                    // What in tarnation?
+                    throw new InvalidProgramException(
+                        "ldelem.* opcodes must load elements from array types; " +
+                        $"'${block.Graph.GetValueType(arrayVal).FullName}' is not one.");
+                }
+                PushValue(
+                    Instruction.CreateLoadElementIntrinsic(
+                        arrayType.GenericArguments[0],
+                        arrayValType,
+                        new[] { block.Graph.GetValueType(indexVal) },
+                        arrayVal,
+                        new[] { indexVal }),
+                    block,
+                    stackContents);
+            }
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
