@@ -78,8 +78,7 @@ namespace Flame.Compiler.Instructions
 
         /// <summary>
         /// Creates a 'load_element' instruction prototype,
-        /// which indexes an array and produces a reference to the
-        /// indexed array element.
+        /// which indexes an array loads the indexed array element.
         /// </summary>
         /// <param name="elementType">
         /// The type of element to load.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler.Instructions;
 using Flame.TypeSystem;
 
@@ -430,7 +431,7 @@ namespace Flame.Compiler
         /// The source type: the type of the value to convert.
         /// </param>
         /// <param name="value">The value to convert.</param>
-        /// <returns>A conversion instruction.</returns>
+        /// <returns>An 'unbox_any' intrinsic.</returns>
         public static Instruction CreateUnboxAnyIntrinsic(
             IType targetType,
             IType sourceType,
@@ -438,6 +439,37 @@ namespace Flame.Compiler
         {
             return ObjectIntrinsics.CreateUnboxAnyPrototype(targetType, sourceType)
                 .Instantiate(new[] { value });
+        }
+
+        /// <summary>
+        /// Creates a 'load_element' intrinsic, which indexes
+        /// an array and loads the indexed array element.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of element to load.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <param name="indexTypes">
+        /// The types of indices to index the array with.
+        /// </param>
+        /// <param name="arrayValue">
+        /// The array to index.
+        /// </param>
+        /// <param name="indexValues">
+        /// The indices to index the array with.
+        /// </param>
+        /// <returns>A 'load_element' intrinsic.</returns>
+        public static Instruction CreateLoadElementIntrinsic(
+            IType elementType,
+            IType arrayType,
+            IReadOnlyList<IType> indexTypes,
+            ValueTag arrayValue,
+            IReadOnlyList<ValueTag> indexValues)
+        {
+            return ArrayIntrinsics.CreateLoadElementPrototype(elementType, arrayType, indexTypes)
+                .Instantiate(new[] { arrayValue }.Concat(indexValues).ToArray());
         }
     }
 }
