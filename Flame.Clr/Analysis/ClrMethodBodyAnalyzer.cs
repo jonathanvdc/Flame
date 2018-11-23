@@ -648,6 +648,8 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
             {
+                var elementType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
                 var indexVal = stackContents.Pop();
                 var arrayVal = stackContents.Pop();
                 var arrayValType = block.Graph.GetValueType(arrayVal);
@@ -666,7 +668,7 @@ namespace Flame.Clr.Analysis
                 }
                 PushValue(
                     Instruction.CreateLoadElementIntrinsic(
-                        arrayType.GenericArguments[0],
+                        elementType,
                         arrayValType,
                         new[] { block.Graph.GetValueType(indexVal) },
                         arrayVal,

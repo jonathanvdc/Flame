@@ -793,6 +793,35 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown object-oriented intrinsic '{prototype.Name}'.");
             }
+            else if (ArrayIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == ArrayIntrinsics.Operators.LoadElement
+                    && prototype.ParameterCount == 2)
+                {
+                    var resultPointerType = prototype.ResultType as TypeSystem.PointerType;
+                    if (resultPointerType != null)
+                    {
+                        if (resultPointerType.Kind == PointerKind.Box)
+                        {
+                            return CreateSelection(OpCodes.Ldelem_Ref, arguments);
+                        }
+                        else
+                        {
+                            return CreateSelection(OpCodes.Ldelem_I, arguments);
+                        }
+                    }
+
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Ldelem_Any,
+                            Method.Module.ImportReference(prototype.ResultType)),
+                        arguments);
+                }
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown array intrinsic '{prototype.Name}'.");
+            }
             else
             {
                 throw new NotSupportedException(
