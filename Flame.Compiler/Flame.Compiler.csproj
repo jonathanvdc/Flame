@@ -52,7 +52,9 @@
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Analysis\BlockReachability.cs" />
+    <Compile Include="Analysis\ConstantAnalysis.cs" />
     <Compile Include="Analysis\EffectfulInstructions.cs" />
+    <Compile Include="Analysis\ExceptionDelayability.cs" />
     <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
     <Compile Include="Analysis\FlowGraphUpdate.cs" />
     <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
