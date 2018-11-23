@@ -110,8 +110,32 @@ namespace Flame.Clr.Analysis
             { OpCodes.Stloc_1, CreateLocalAccessRewriter(OpCodes.Stloc, 1) },
             { OpCodes.Stloc_2, CreateLocalAccessRewriter(OpCodes.Stloc, 2) },
             { OpCodes.Stloc_3, CreateLocalAccessRewriter(OpCodes.Stloc, 3) },
-            { OpCodes.Stloc_S, CreateShortLocalInstructionRewriter(OpCodes.Stloc) }
+            { OpCodes.Stloc_S, CreateShortLocalInstructionRewriter(OpCodes.Stloc) },
+
+            { OpCodes.Ldelem_I, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.IntPtr) },
+            { OpCodes.Ldelem_I1, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.SByte) },
+            { OpCodes.Ldelem_I2, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Int16) },
+            { OpCodes.Ldelem_I4, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Int32) },
+            { OpCodes.Ldelem_I8, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Int64) },
+            { OpCodes.Ldelem_R4, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Single) },
+            { OpCodes.Ldelem_R8, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Double) },
+            { OpCodes.Ldelem_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Object) },
+            { OpCodes.Ldelem_U1, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Byte) },
+            { OpCodes.Ldelem_U2, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.UInt16) },
+            { OpCodes.Ldelem_U4, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.UInt32) }
         };
+
+        private static Rewriter CreatePrimitiveInjectingRewriter(
+            OpCode newOpcode,
+            Func<Mono.Cecil.TypeSystem, Mono.Cecil.TypeReference> getType)
+        {
+            return (instruction, body) => new[]
+            {
+                Instruction.Create(
+                    newOpcode,
+                    getType(body.Method.Module.TypeSystem))
+            };
+        }
 
         private static Rewriter CreateConditionalBranchRewriter(
             OpCode comparisonOpCode,
