@@ -75,6 +75,7 @@
     <Compile Include="Instructions\AllocaArrayPrototype.cs" />
     <Compile Include="Instructions\AllocaPrototype.cs" />
     <Compile Include="Instructions\ArithmeticIntrinsics.cs" />
+    <Compile Include="Instructions\ArrayIntrinsics.cs" />
     <Compile Include="Instructions\BoxPrototype.cs" />
     <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\ConstantPrototype.cs" />
