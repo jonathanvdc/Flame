@@ -663,6 +663,25 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stelem_Any)
+            {
+                var elementType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+                var elemVal = PopTyped(elementType, block, stackContents);
+                var indexVal = stackContents.Pop();
+                var arrayVal = stackContents.Pop();
+                var arrayValType = block.Graph.GetValueType(arrayVal);
+                PushValue(
+                    Instruction.CreateStoreElementIntrinsic(
+                        elementType,
+                        arrayValType,
+                        new[] { block.Graph.GetValueType(indexVal) },
+                        elemVal,
+                        arrayVal,
+                        new[] { indexVal }),
+                    block,
+                    stackContents);
+            }
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
