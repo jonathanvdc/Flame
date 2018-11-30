@@ -357,7 +357,7 @@ namespace Flame.Clr.Emit
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             SelectedInstruction instruction)
         {
-            if (!selectedInstructions.Add (instruction.Tag))
+            if (!selectedInstructions.Add(instruction.Tag))
             {
                 // Never ever re-select instructions that have already
                 // been selected inline.
@@ -818,6 +818,47 @@ namespace Flame.Clr.Emit
                             OpCodes.Ldelem_Any,
                             Method.Module.ImportReference(prototype.ResultType)),
                         arguments);
+                }
+                else if (opName == ArrayIntrinsics.Operators.StoreElement
+                    && prototype.ParameterCount == 3)
+                {
+                    var elementType = prototype.ParameterTypes[0];
+                    var elementPointerType = elementType as TypeSystem.PointerType;
+                    CilInstruction storeInstruction = null;
+                    if (elementPointerType != null)
+                    {
+                        if (elementPointerType.Kind == PointerKind.Box)
+                        {
+                            storeInstruction = CilInstruction.Create(OpCodes.Stelem_Ref);
+                        }
+                        else
+                        {
+                            storeInstruction = CilInstruction.Create(OpCodes.Stelem_I);
+                        }
+                    }
+
+                    if (storeInstruction == null)
+                    {
+                        storeInstruction = CilInstruction.Create(
+                            OpCodes.Stelem_Any,
+                            Method.Module.ImportReference(elementType));
+                    }
+
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                            new CilOpInstruction(storeInstruction)
+                        },
+                        new[]
+                        {
+                            // Load the array.
+                            arguments[1],
+                            // Load the index.
+                            arguments[2],
+                            // Load the value to store in the array.
+                            arguments[0]
+                        });
                 }
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown array intrinsic '{prototype.Name}'.");
