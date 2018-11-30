@@ -64,7 +64,7 @@ namespace Flame.Compiler.Instructions
         /// The types of indices to index the array with.
         /// </param>
         /// <returns>
-        /// An 'get_element_pointer' instruction prototype.
+        /// A 'get_element_pointer' instruction prototype.
         /// </returns>
         public static IntrinsicPrototype CreateGetElementPointerPrototype(
             IType elementType, IType arrayType, IReadOnlyList<IType> indexTypes)
@@ -78,7 +78,7 @@ namespace Flame.Compiler.Instructions
 
         /// <summary>
         /// Creates a 'load_element' instruction prototype,
-        /// which indexes an array loads the indexed array element.
+        /// which indexes an array and loads the indexed array element.
         /// </summary>
         /// <param name="elementType">
         /// The type of element to load.
@@ -90,7 +90,7 @@ namespace Flame.Compiler.Instructions
         /// The types of indices to index the array with.
         /// </param>
         /// <returns>
-        /// An 'load_element' instruction prototype.
+        /// A 'load_element' instruction prototype.
         /// </returns>
         public static IntrinsicPrototype CreateLoadElementPrototype(
             IType elementType, IType arrayType, IReadOnlyList<IType> indexTypes)
@@ -99,6 +99,32 @@ namespace Flame.Compiler.Instructions
                 Operators.LoadElement,
                 elementType,
                 new[] { arrayType }.Concat(indexTypes).ToArray(),
+                ExceptionSpecification.ThrowAny);
+        }
+
+        /// <summary>
+        /// Creates a 'store_element' instruction prototype,
+        /// which indexes an array and updates the indexed array element.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of element to store in the array.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <param name="indexTypes">
+        /// The types of indices to index the array with.
+        /// </param>
+        /// <returns>
+        /// A 'store_element' instruction prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreateStoreElementPrototype(
+            IType elementType, IType arrayType, IReadOnlyList<IType> indexTypes)
+        {
+            return CreatePrototype(
+                Operators.StoreElement,
+                elementType,
+                new[] { elementType, arrayType }.Concat(indexTypes).ToArray(),
                 ExceptionSpecification.ThrowAny);
         }
 
@@ -121,6 +147,12 @@ namespace Flame.Compiler.Instructions
             public const string LoadElement = "load_element";
 
             /// <summary>
+            /// The 'store_element' operator, which indexes
+            /// an array and updates the indexed array element.
+            /// </summary>
+            public const string StoreElement = "store_element";
+
+            /// <summary>
             /// An immutable array containing all standard array
             /// intrinsics.
             /// </summary>
@@ -129,7 +161,8 @@ namespace Flame.Compiler.Instructions
                     new[]
                     {
                         GetElementPointer,
-                        LoadElement
+                        LoadElement,
+                        StoreElement
                     });
         }
     }

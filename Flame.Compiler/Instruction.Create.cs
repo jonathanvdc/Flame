@@ -471,5 +471,40 @@ namespace Flame.Compiler
             return ArrayIntrinsics.CreateLoadElementPrototype(elementType, arrayType, indexTypes)
                 .Instantiate(new[] { arrayValue }.Concat(indexValues).ToArray());
         }
+
+        /// <summary>
+        /// Creates a 'store_element' intrinsic, which indexes
+        /// an array and sets the indexed array element.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of element to store in the array.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <param name="indexTypes">
+        /// The types of indices to index the array with.
+        /// </param>
+        /// <param name="elementValue">
+        /// The value to store in the array.
+        /// </param>
+        /// <param name="arrayValue">
+        /// The array to index.
+        /// </param>
+        /// <param name="indexValues">
+        /// The indices to index the array with.
+        /// </param>
+        /// <returns>A 'store_element' intrinsic.</returns>
+        public static Instruction CreateStoreElementIntrinsic(
+            IType elementType,
+            IType arrayType,
+            IReadOnlyList<IType> indexTypes,
+            ValueTag elementValue,
+            ValueTag arrayValue,
+            IReadOnlyList<ValueTag> indexValues)
+        {
+            return ArrayIntrinsics.CreateStoreElementPrototype(elementType, arrayType, indexTypes)
+                .Instantiate(new[] { elementValue, arrayValue }.Concat(indexValues).ToArray());
+        }
     }
 }
