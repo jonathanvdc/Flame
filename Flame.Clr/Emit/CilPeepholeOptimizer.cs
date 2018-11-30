@@ -56,7 +56,7 @@ namespace Flame.Clr.Emit
             new PeepholeRewriteRule<Instruction>[]
         {
             ElideDupPop,
-            DupUse1PopToUse1,
+            DupUsePopToUse,
             LdcZeroBeqToBrfalse,
             LdcZeroBneToBrtrue,
             CltBrfalseToBge,
@@ -95,9 +95,9 @@ namespace Flame.Clr.Emit
         }
 
         /// <summary>
-        /// A rewrite use that transforms the `dup; use 1; pop` pattern to `use 1`.
+        /// A rewrite use that transforms the `dup; use n; pop` pattern to `use n`.
         /// </summary>
-        private static PeepholeRewriteRule<Instruction> DupUse1PopToUse1
+        private static PeepholeRewriteRule<Instruction> DupUsePopToUse
         {
             get
             {
@@ -105,7 +105,7 @@ namespace Flame.Clr.Emit
                     new Predicate<Instruction>[]
                     {
                         HasOpCode(OpCodes.Dup),
-                        HasArities(1, 0),
+                        HasOutputArity(0),
                         HasOpCode(OpCodes.Pop)
                     },
                     insns => new[] { insns[1] });
@@ -491,6 +491,15 @@ namespace Flame.Clr.Emit
             {
                 return ToArity(instruction.OpCode.StackBehaviourPop) == inputArity
                     && ToArity(instruction.OpCode.StackBehaviourPush) == outputArity;
+            };
+        }
+
+        private static Predicate<Instruction> HasOutputArity(
+            int outputArity)
+        {
+            return instruction =>
+            {
+                return ToArity(instruction.OpCode.StackBehaviourPush) == outputArity;
             };
         }
 
