@@ -122,7 +122,16 @@ namespace Flame.Clr.Analysis
             { OpCodes.Ldelem_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Object) },
             { OpCodes.Ldelem_U1, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.Byte) },
             { OpCodes.Ldelem_U2, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.UInt16) },
-            { OpCodes.Ldelem_U4, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.UInt32) }
+            { OpCodes.Ldelem_U4, CreatePrimitiveInjectingRewriter(OpCodes.Ldelem_Any, typeSystem => typeSystem.UInt32) },
+
+            { OpCodes.Stelem_I, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.IntPtr) },
+            { OpCodes.Stelem_I1, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.SByte) },
+            { OpCodes.Stelem_I2, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Int16) },
+            { OpCodes.Stelem_I4, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Int32) },
+            { OpCodes.Stelem_I8, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Int64) },
+            { OpCodes.Stelem_R4, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Single) },
+            { OpCodes.Stelem_R8, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Double) },
+            { OpCodes.Stelem_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Object) }
         };
 
         private static Rewriter CreatePrimitiveInjectingRewriter(
