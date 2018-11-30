@@ -653,19 +653,6 @@ namespace Flame.Clr.Analysis
                 var indexVal = stackContents.Pop();
                 var arrayVal = stackContents.Pop();
                 var arrayValType = block.Graph.GetValueType(arrayVal);
-                var unboxedArrayType = arrayValType as PointerType;
-                if (unboxedArrayType != null && unboxedArrayType.Kind != PointerKind.Box)
-                {
-                    unboxedArrayType = null;
-                }
-                var arrayType = (unboxedArrayType?.ElementType ?? arrayValType) as DirectTypeSpecialization;
-                if (arrayType == null || !(arrayType.Declaration is ClrArrayType))
-                {
-                    // What in tarnation?
-                    throw new InvalidProgramException(
-                        "ldelem.* opcodes must load elements from array types; " +
-                        $"'${block.Graph.GetValueType(arrayVal).FullName}' is not one.");
-                }
                 PushValue(
                     Instruction.CreateLoadElementIntrinsic(
                         elementType,
