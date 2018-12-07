@@ -200,12 +200,20 @@ namespace Flame.Compiler.Transforms
             // Recurse on `phi` users, which may have become trivial.
             foreach (var use in phiUsers[phi])
             {
-                TryRemoveTrivialPhi(
-                    GetActualCopy(use, copyMap),
-                    phiArgs,
-                    phiUsers,
-                    specialPhis,
-                    copyMap);
+                var copy = GetActualCopy(use, copyMap);
+                if (phiArgs.ContainsKey(copy))
+                {
+                    // Be sure to check that the phi we want to eliminate
+                    // is actually a phi. Things will go horribly wrong if
+                    // we try to remove a "phi" that is actually an instruction
+                    // instead of a block parameter.
+                    TryRemoveTrivialPhi(
+                        copy,
+                        phiArgs,
+                        phiUsers,
+                        specialPhis,
+                        copyMap);
+                }
             }
         }
 
