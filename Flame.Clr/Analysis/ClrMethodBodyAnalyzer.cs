@@ -214,7 +214,7 @@ namespace Flame.Clr.Analysis
                         $"Different paths to instruction '{firstInstruction.ToString()}' have " +
                         "incompatible stack contents. Stack contents on first path: [" +
                         $"{string.Join(", ", parameterTypes.Select(x => x.FullName))}]. Stack contents " +
-                        $"on second path [{string.Join(", ", argumentTypes.Select(x => x.FullName))}].");
+                        $"on second path: [{string.Join(", ", argumentTypes.Select(x => x.FullName))}].");
                 }
             }
 
@@ -671,16 +671,14 @@ namespace Flame.Clr.Analysis
                 var indexVal = stackContents.Pop();
                 var arrayVal = stackContents.Pop();
                 var arrayValType = block.Graph.GetValueType(arrayVal);
-                PushValue(
+                block.AppendInstruction(
                     Instruction.CreateStoreElementIntrinsic(
                         elementType,
                         arrayValType,
                         new[] { block.Graph.GetValueType(indexVal) },
                         elemVal,
                         arrayVal,
-                        new[] { indexVal }),
-                    block,
-                    stackContents);
+                        new[] { indexVal }));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldlen)
             {
@@ -690,6 +688,26 @@ namespace Flame.Clr.Analysis
                         TypeEnvironment.NaturalUInt,
                         block.Graph.GetValueType(arrayVal),
                         arrayVal),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newarr)
+            {
+                var elementType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+                IType arrayType;
+                if (!TypeEnvironment.TryMakeArrayType(elementType, 1, out arrayType))
+                {
+                    throw new NotSupportedException(
+                        "Cannot analyze a 'newarr' opcode because the type " +
+                        "environment does not support array types.");
+                }
+                var lengthVal = stackContents.Pop();
+                PushValue(
+                    Instruction.CreateNewArrayIntrinsic(
+                        TypeHelpers.BoxIfReferenceType(arrayType),
+                        block.Graph.GetValueType(lengthVal),
+                        lengthVal),
                     block,
                     stackContents);
             }
