@@ -515,7 +515,7 @@ namespace Flame.Compiler
         /// The type of integer to store the length of the array in.
         /// </param>
         /// <param name="arrayType">
-        /// The type of array to index.
+        /// The type of array to inspect.
         /// </param>
         /// <param name="arrayValue">
         /// The array to inspect.
@@ -528,6 +528,30 @@ namespace Flame.Compiler
         {
             return ArrayIntrinsics.CreateGetLengthPrototype(sizeType, arrayType)
                 .Instantiate(new[] { arrayValue });
+        }
+
+        /// <summary>
+        /// Creates a 'new_array' intrinsic, which allocates a
+        /// new array of a particular size.
+        /// </summary>
+        /// <param name="arrayType">
+        /// The type of array to allocate.
+        /// </param>
+        /// <param name="sizeType">
+        /// The type of integer that describes the desired length
+        /// of the array to allocate.
+        /// </param>
+        /// <param name="sizeValue">
+        /// The desired length of the array to allocate.
+        /// </param>
+        /// <returns>A 'new_array' intrinsic.</returns>
+        public static Instruction CreateNewArrayIntrinsic(
+            IType arrayType,
+            IType sizeType,
+            ValueTag sizeValue)
+        {
+            return ArrayIntrinsics.CreateNewArrayPrototype(arrayType, sizeType)
+                .Instantiate(new[] { sizeValue });
         }
     }
 }

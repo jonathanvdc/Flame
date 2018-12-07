@@ -136,7 +136,7 @@ namespace Flame.Compiler.Instructions
         /// The type of integer to store the length of the array in.
         /// </param>
         /// <param name="arrayType">
-        /// The type of array to index.
+        /// The type of array to inspect.
         /// </param>
         /// <returns>
         /// A 'get_length' instruction prototype.
@@ -148,6 +148,30 @@ namespace Flame.Compiler.Instructions
                 Operators.GetLength,
                 sizeType,
                 new[] { arrayType },
+                ExceptionSpecification.ThrowAny);
+        }
+
+        /// <summary>
+        /// Creates a 'get_length' instruction prototype,
+        /// which computes the number of elements in an array.
+        /// </summary>
+        /// <param name="arrayType">
+        /// The type of array to create.
+        /// </param>
+        /// <param name="sizeType">
+        /// The type of integer that describes the length of the
+        /// array to create.
+        /// </param>
+        /// <returns>
+        /// A 'new_array' instruction prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreateNewArrayPrototype(
+            IType arrayType, IType sizeType)
+        {
+            return CreatePrototype(
+                Operators.NewArray,
+                arrayType,
+                new[] { sizeType },
                 ExceptionSpecification.ThrowAny);
         }
 
@@ -182,6 +206,12 @@ namespace Flame.Compiler.Instructions
             public const string GetLength = "get_length";
 
             /// <summary>
+            /// The 'new_array' operator, which allocates a new array
+            /// of a particular size.
+            /// </summary>
+            public const string NewArray = "new_array";
+
+            /// <summary>
             /// An immutable array containing all standard array
             /// intrinsics.
             /// </summary>
@@ -192,7 +222,8 @@ namespace Flame.Compiler.Instructions
                         GetElementPointer,
                         LoadElement,
                         StoreElement,
-                        GetLength
+                        GetLength,
+                        NewArray
                     });
         }
     }
