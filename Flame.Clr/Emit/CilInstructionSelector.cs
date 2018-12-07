@@ -797,7 +797,12 @@ namespace Flame.Clr.Emit
                 prototype.Name,
                 out opName))
             {
-                if (opName == ArrayIntrinsics.Operators.LoadElement
+                if (opName == ArrayIntrinsics.Operators.GetLength
+                    && prototype.ParameterCount == 1)
+                {
+                    return CreateSelection(OpCodes.Ldlen, arguments);
+                }
+                else if (opName == ArrayIntrinsics.Operators.LoadElement
                     && prototype.ParameterCount == 2)
                 {
                     var resultPointerType = prototype.ResultType as TypeSystem.PointerType;
