@@ -95,6 +95,18 @@ namespace Flame.TypeSystem
         public abstract IType String { get; }
 
         /// <summary>
+        /// Gets the natural signed integer type in this type environment.
+        /// </summary>
+        /// <value>The natural signed integer type.</value>
+        public abstract IType NaturalInt { get; }
+
+        /// <summary>
+        /// Gets the natural unsigned integer type in this type environment.
+        /// </summary>
+        /// <value>The natural unsigned integer type.</value>
+        public abstract IType NaturalUInt { get; }
+
+        /// <summary>
         /// Gets the Boolean type in this type environment.
         /// Booleans are represented by the UInt1 type.
         /// </summary>
@@ -259,6 +271,12 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType String => InnerEnvironment.String;
+
+        /// <inheritdoc/>
+        public override IType NaturalInt => InnerEnvironment.NaturalInt;
+
+        /// <inheritdoc/>
+        public override IType NaturalUInt => InnerEnvironment.NaturalUInt;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

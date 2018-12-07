@@ -43,6 +43,8 @@ namespace Flame.Clr
             this.float32Type = new Lazy<IType>(() => ResolveSystemType(nameof(Single)));
             this.float64Type = new Lazy<IType>(() => ResolveSystemType(nameof(Double)));
             this.stringType = new Lazy<IType>(() => ResolveSystemType(nameof(String)));
+            this.intPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(IntPtr)));
+            this.uintPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(UIntPtr)));
         }
 
         /// <summary>
@@ -64,6 +66,10 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public override IType String => stringType.Value;
 
+        public override IType NaturalInt => intPtrType.Value;
+
+        public override IType NaturalUInt => uintPtrType.Value;
+
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
         private Lazy<Dictionary<int, IType>> signedIntegerTypes;
@@ -72,6 +78,8 @@ namespace Flame.Clr
         private Lazy<IType> float32Type;
         private Lazy<IType> float64Type;
         private Lazy<IType> stringType;
+        private Lazy<IType> intPtrType;
+        private Lazy<IType> uintPtrType;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(
