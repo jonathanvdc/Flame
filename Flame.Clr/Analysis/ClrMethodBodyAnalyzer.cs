@@ -682,6 +682,17 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldlen)
+            {
+                var arrayVal = stackContents.Pop();
+                PushValue(
+                    Instruction.CreateGetLengthIntrinsic(
+                        TypeEnvironment.NaturalUInt,
+                        block.Graph.GetValueType(arrayVal),
+                        arrayVal),
+                    block,
+                    stackContents);
+            }
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
