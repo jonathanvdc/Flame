@@ -67,6 +67,66 @@ namespace Flame.Clr
 
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => EmptyArray<IType>.Value;
+
+        /// <summary>
+        /// Gets a CLR array type's element type, provided that a CLR array
+        /// type was indeed provided.
+        /// </summary>
+        /// <param name="arrayType">
+        /// The type to inspect, which might be a CLR array type.
+        /// </param>
+        /// <param name="elementType">
+        /// An output value that is set to the type of element stored in the array,
+        /// provided that <paramref name="arrayType"/> is a CLR array type.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="arrayType"/> is a CLR array type;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryGetArrayElementType(IType arrayType, out IType elementType)
+        {
+            var genericSpecialization = arrayType as DirectTypeSpecialization;
+            if (genericSpecialization == null || !(genericSpecialization.Declaration is ClrArrayType))
+            {
+                elementType = null;
+                return false;
+            }
+            else
+            {
+                elementType = genericSpecialization.GenericArguments[0];
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Gets a CLR array type's rank, provided that a CLR array
+        /// type was indeed provided.
+        /// </summary>
+        /// <param name="arrayType">
+        /// The type to inspect, which might be a CLR array type.
+        /// </param>
+        /// <param name="rank">
+        /// An output value that is set to the array type's rank,
+        /// provided that <paramref name="arrayType"/> is a CLR array type.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="arrayType"/> is a CLR array type;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryGetArrayRank(IType arrayType, out int rank)
+        {
+            var genericSpecialization = arrayType as DirectTypeSpecialization;
+            if (genericSpecialization == null || !(genericSpecialization.Declaration is ClrArrayType))
+            {
+                rank = 0;
+                return false;
+            }
+            else
+            {
+                rank = ((ClrArrayType)genericSpecialization.Declaration).Rank;
+                return true;
+            }
+        }
     }
 
     /// <summary>

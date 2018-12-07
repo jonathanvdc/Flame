@@ -40,6 +40,30 @@ namespace Flame.Clr
         }
 
         /// <summary>
+        /// Takes a type, examines it and unboxes it if it
+        /// is a box pointer type.
+        /// </summary>
+        /// <param name="type">
+        /// The type to unbox if it happens to be a box pointer type.
+        /// </param>
+        /// <returns>
+        /// <paramref name="type"/>'s pointee if it is a box pointer type;
+        /// otherwise, <paramref name="type"/> itself.
+        /// </returns>
+        public static IType UnboxIfPossible(IType type)
+        {
+            var box = type as PointerType;
+            if (box != null && box.Kind == PointerKind.Box)
+            {
+                return box.ElementType;
+            }
+            else
+            {
+                return type;
+            }
+        }
+
+        /// <summary>
         /// Replaces all raw reference types with boxed reference types.
         /// </summary>
         /// <param name="type">The type to completely box.</param>
@@ -138,9 +162,17 @@ namespace Flame.Clr
                     return new Mono.Cecil.PointerType(elemTypeRef);
                 }
             }
+
+            IType elementType;
+            if (ClrArrayType.TryGetArrayElementType(type, out elementType))
+            {
+                int rank;
+                ClrArrayType.TryGetArrayRank(type, out rank);
+                return new Mono.Cecil.ArrayType(module.ImportReference(elementType), rank);
+            }
             else
             {
-                // TODO: support arrays, generics.
+                // TODO: support generics.
                 throw new NotImplementedException();
             }
         }

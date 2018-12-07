@@ -802,6 +802,25 @@ namespace Flame.Clr.Emit
                 {
                     return CreateSelection(OpCodes.Ldlen, arguments);
                 }
+                else if (opName == ArrayIntrinsics.Operators.NewArray
+                    && prototype.ParameterCount == 1)
+                {
+                    IType elementType;
+                    if (!ClrArrayType.TryGetArrayElementType(
+                        TypeHelpers.UnboxIfPossible(prototype.ResultType),
+                        out elementType))
+                    {
+                        // What in tarnation?
+                        throw new InvalidProgramException(
+                            "When targeting the CLR, 'array.new_array' intrinsics must always produce a CLR array type; " +
+                            $"'${prototype.ResultType.FullName}' is not one.");
+                    }
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Newarr,
+                            Method.Module.ImportReference(elementType)),
+                        arguments);
+                }
                 else if (opName == ArrayIntrinsics.Operators.LoadElement
                     && prototype.ParameterCount == 2)
                 {
