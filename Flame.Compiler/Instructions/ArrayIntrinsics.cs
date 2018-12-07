@@ -129,6 +129,29 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
+        /// Creates a 'get_length' instruction prototype,
+        /// which computes the number of elements in an array.
+        /// </summary>
+        /// <param name="sizeType">
+        /// The type of integer to store the length of the array in.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <returns>
+        /// A 'get_length' instruction prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreateGetLengthPrototype(
+            IType sizeType, IType arrayType)
+        {
+            return CreatePrototype(
+                Operators.GetLength,
+                sizeType,
+                new[] { arrayType },
+                ExceptionSpecification.ThrowAny);
+        }
+
+        /// <summary>
         /// A collection of names for array operations.
         /// </summary>
         public static class Operators
@@ -153,6 +176,12 @@ namespace Flame.Compiler.Instructions
             public const string StoreElement = "store_element";
 
             /// <summary>
+            /// The 'get_length' operator, which computes the number
+            /// of elements in an array.
+            /// </summary>
+            public const string GetLength = "get_length";
+
+            /// <summary>
             /// An immutable array containing all standard array
             /// intrinsics.
             /// </summary>
@@ -162,7 +191,8 @@ namespace Flame.Compiler.Instructions
                     {
                         GetElementPointer,
                         LoadElement,
-                        StoreElement
+                        StoreElement,
+                        GetLength
                     });
         }
     }

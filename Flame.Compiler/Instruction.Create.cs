@@ -506,5 +506,28 @@ namespace Flame.Compiler
             return ArrayIntrinsics.CreateStoreElementPrototype(elementType, arrayType, indexTypes)
                 .Instantiate(new[] { elementValue, arrayValue }.Concat(indexValues).ToArray());
         }
+
+        /// <summary>
+        /// Creates a 'get_length' intrinsic, which computes the
+        /// number of elements in an array.
+        /// </summary>
+        /// <param name="sizeType">
+        /// The type of integer to store the length of the array in.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <param name="arrayValue">
+        /// The array to inspect.
+        /// </param>
+        /// <returns>A 'get_length' intrinsic.</returns>
+        public static Instruction CreateGetLengthIntrinsic(
+            IType sizeType,
+            IType arrayType,
+            ValueTag arrayValue)
+        {
+            return ArrayIntrinsics.CreateGetLengthPrototype(sizeType, arrayType)
+                .Instantiate(new[] { arrayValue });
+        }
     }
 }
