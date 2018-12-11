@@ -735,6 +735,38 @@ namespace Flame.Clr.Analysis
                     }
                 }
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Initobj)
+            {
+                var elementType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+                var pointer = stackContents.Pop();
+                var pointerType = block.Graph.GetValueType(pointer) as PointerType;
+                if (pointerType == null || pointerType.Kind == PointerKind.Box)
+                {
+                    // Check that the pointer is actually a (reference or transient)
+                    // pointer.
+                    throw new InvalidProgramException(
+                        "The parameter to an 'initobj' instruction must be a reference " +
+                        $"or transient pointer; '{block.Graph.GetValueType(pointer).FullName}' is neither.");
+                }
+
+                if (pointerType.ElementType != elementType)
+                {
+                    // Insert a reinterpret cast if necessary.
+                    pointerType = elementType.MakePointerType(pointerType.Kind);
+                    pointer = block.AppendInstruction(Instruction.CreateReinterpretCast(pointerType, pointer));
+                }
+
+                // Assign the 'default' constant to the pointer.
+                block.AppendInstruction(
+                    Instruction.CreateStore(
+                        elementType,
+                        pointer,
+                        block.AppendInstruction(
+                            Instruction.CreateConstant(
+                                DefaultConstant.Instance,
+                                elementType))));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
                 var value = PopTyped(ReturnParameter.Type, block, stackContents);
