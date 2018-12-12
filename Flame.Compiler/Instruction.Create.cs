@@ -290,6 +290,23 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a get-field-pointer instruction.
+        /// </summary>
+        /// <param name="field">
+        /// The field to create a pointer to.
+        /// </param>
+        /// <param name="basePointer">
+        /// A value that includes <paramref name="field"/>.
+        /// </param>
+        /// <returns>A get-field-pointer instruction.</returns>
+        public static Instruction CreateGetFieldPointer(
+            IField field,
+            ValueTag basePointer)
+        {
+            return GetFieldPointerPrototype.Create(field).Instantiate(basePointer);
+        }
+
+        /// <summary>
         /// Creates an arithmetic intrinsic.
         /// </summary>
         /// <param name="operatorName">

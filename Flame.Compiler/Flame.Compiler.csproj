@@ -80,6 +80,7 @@
     <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\ConstantPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
+    <Compile Include="Instructions\GetFieldPointerPrototype.cs" />
     <Compile Include="Instructions\IndirectCallPrototype.cs" />
     <Compile Include="Instructions\IntrinsicNamespace.cs" />
     <Compile Include="Instructions\IntrinsicPrototype.cs" />
