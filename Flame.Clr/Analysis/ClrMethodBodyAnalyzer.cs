@@ -646,6 +646,35 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stfld)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                var value = PopTyped(field.FieldType, block, stackContents);
+                var basePointer = stackContents.Pop();
+                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                if (basePointerType == null)
+                {
+                    throw new InvalidProgramException(
+                        "'stfld' instruction expects a base pointer that points to an " +
+                        $"element of type '{field.ParentType}'. Instead, a base pointer of " +
+                        $"type '{block.Graph.GetValueType(basePointer)}' was provided.");
+                }
+
+                if (basePointerType.ElementType != field.ParentType)
+                {
+                    // Reinterpret the base pointer if necessary.
+                    basePointer = block.AppendInstruction(
+                        Instruction.CreateReinterpretCast(
+                            field.ParentType.MakePointerType(basePointerType.Kind),
+                            basePointer));
+                }
+                block.AppendInstruction(
+                    Instruction.CreateStore(
+                        field.FieldType,
+                        block.AppendInstruction(
+                            Instruction.CreateGetFieldPointer(field, basePointer)),
+                        value));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
