@@ -709,6 +709,30 @@ namespace Flame.Clr.Analysis
                         arrayVal,
                         new[] { indexVal }));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Ref)
+            {
+                var indexVal = stackContents.Pop();
+                var arrayVal = stackContents.Pop();
+                var arrayValType = block.Graph.GetValueType(arrayVal);
+                IType elementType;
+                if (!ClrArrayType.TryGetArrayElementType(
+                    TypeHelpers.UnboxIfPossible(arrayValType),
+                    out elementType))
+                {
+                    throw new InvalidOperationException(
+                        "'ldelem.ref' opcodes can only load array elements but the argument " +
+                        $"of type '{arrayValType.FullName}' is not one.");
+                }
+                PushValue(
+                    Instruction.CreateLoadElementIntrinsic(
+                        elementType,
+                        arrayValType,
+                        new[] { block.Graph.GetValueType(indexVal) },
+                        arrayVal,
+                        new[] { indexVal }),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldlen)
             {
                 var arrayVal = stackContents.Pop();
