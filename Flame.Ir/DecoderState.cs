@@ -157,6 +157,16 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decoes an LNode as a field reference.
+        /// </summary>
+        /// <param name="node">The node to decode.</param>
+        /// <returns>A decode field reference.</returns>
+        public IField DecodeField(LNode node)
+        {
+            return (IField)Codec.TypeMembers.Decode(node, this);
+        }
+
+        /// <summary>
         /// Decodes an LNode as a property reference.
         /// </summary>
         /// <param name="node">The node to decode.</param>

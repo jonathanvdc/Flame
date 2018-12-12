@@ -91,6 +91,18 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Encodes a field reference.
+        /// </summary>
+        /// <param name="field">The field reference to encode.</param>
+        /// <returns>
+        /// An encoded field reference.
+        /// </returns>
+        public LNode Encode(IField field)
+        {
+            return Codec.TypeMembers.Encode(field, this);
+        }
+
+        /// <summary>
         /// Encodes a property reference.
         /// </summary>
         /// <param name="property">The property reference to encode.</param>
