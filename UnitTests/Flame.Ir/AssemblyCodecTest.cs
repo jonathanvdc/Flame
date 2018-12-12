@@ -178,6 +178,23 @@ namespace UnitTests.Flame.Ir
                 });");
         }
 
+        [Test]
+        public void RoundTripFieldReference()
+        {
+            AssertRoundTripAssembly(@"
+                #assembly(Test, {
+                    #type(Int32, #(), #(), {
+                        #var(Predecessor, false, Int32);
+                        #fn(GetPredecessor, false, #(), Int32, #(), #(), {
+                            #entry_point(ep, #(#param(#pointer(Int32, box), this_ptr)), {
+                                field_ptr = get_field_pointer(Int32.Predecessor)(this_ptr);
+                                value = load(Int32)(field_ptr);
+                            }, #return(copy(Int32)(value)));
+                        });
+                    });
+                });");
+        }
+
         private void AssertRoundTripAssembly(string lesCode)
         {
             AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
