@@ -196,11 +196,11 @@ namespace Flame.Clr
         }
 
         /// <summary>
-        /// Takes a Flame type and converts it to a Cecil method reference.
-        /// For this to work, <paramref name="method"/> cannot reference
+        /// Takes a Flame method and converts it to a Cecil method reference.
+        /// For this to work, <paramref name="field"/> cannot reference
         /// non-Cecil types or methods.
         /// </summary>
-        /// <param name="method">
+        /// <param name="field">
         /// The method to convert to a method reference.
         /// </param>
         /// <returns>
@@ -213,6 +213,33 @@ namespace Flame.Clr
             if (method is ClrMethodDefinition)
             {
                 var def = ((ClrMethodDefinition)method).Definition;
+                return module == null ? def : module.ImportReference(def);
+            }
+            else
+            {
+                // TODO: support generics.
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Takes a Flame field and converts it to a Cecil field reference.
+        /// For this to work, <paramref name="field"/> cannot reference
+        /// non-Cecil types or methods.
+        /// </summary>
+        /// <param name="field">
+        /// The field to convert to a field reference.
+        /// </param>
+        /// <returns>
+        /// A field reference.
+        /// </returns>
+        public static Mono.Cecil.FieldReference ImportReference(
+            this Mono.Cecil.ModuleDefinition module,
+            IField field)
+        {
+            if (field is ClrFieldDefinition)
+            {
+                var def = ((ClrFieldDefinition)field).Definition;
                 return module == null ? def : module.ImportReference(def);
             }
             else

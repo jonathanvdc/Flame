@@ -455,6 +455,15 @@ namespace Flame.Clr.Emit
                         Method.Module.ImportReference(boxProto.ElementType)),
                     instruction.Arguments);
             }
+            else if (proto is GetFieldPointerPrototype)
+            {
+                var gfpProto = (GetFieldPointerPrototype)proto;
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Ldflda,
+                        Method.Module.ImportReference(gfpProto.Field)),
+                    instruction.Arguments);
+            }
             else if (proto is AllocaPrototype)
             {
                 // TODO: constant-fold `sizeof` whenever possible.
