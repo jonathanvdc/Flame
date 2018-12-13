@@ -122,7 +122,18 @@ namespace Flame.Compiler.Analysis
                 var nullAnalysis = selection.Block.Graph.GetAnalysisResult<ValueNullability>();
                 return !nullAnalysis.IsDereferenceable(((LoadPrototype)proto).GetPointer(instruction));
             }
-            else if (proto.ExceptionSpecification.CanThrowSomething
+            else if (proto is GetFieldPointerPrototype)
+            {
+                // Get-field-pointer instructions are effectful if the base pointer
+                // may not be dereferenceable, _unless_ the exception may be delayed.
+                var nullAnalysis = selection.Block.Graph.GetAnalysisResult<ValueNullability>();
+                if (nullAnalysis.IsDereferenceable(((GetFieldPointerPrototype)proto).GetBasePointer(instruction)))
+                {
+                    return false;
+                }
+            }
+
+            if (proto.ExceptionSpecification.CanThrowSomething
                 || proto is StorePrototype
                 || proto is CallPrototype
                 || proto is NewObjectPrototype)
