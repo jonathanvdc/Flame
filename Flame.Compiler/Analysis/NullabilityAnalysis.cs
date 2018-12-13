@@ -118,14 +118,33 @@ namespace Flame.Compiler.Analysis
             // Assume that all parameters may be nullable and/or non-dereferenceable.
             nullable.UnionWith(graph.ParameterTags);
             nonderef.UnionWith(graph.ParameterTags);
-            // Assume that all instructions except for allocas may be nullable
+            // Assume that all instructions except for some may be nullable
             // and/or non-dereferenceable.
             foreach (var instruction in graph.Instructions)
             {
-                if (!(instruction.Instruction.Prototype is AllocaPrototype))
+                var proto = instruction.Instruction.Prototype;
+                if (proto is AllocaPrototype
+                    || proto is UnboxPrototype
+                    || proto is GetFieldPointerPrototype)
+                {
+                    // * Allocas always produce non-null pointers that
+                    //   are dereferenceable.
+                    //
+                    // * Unbox instructions that succeed always produce
+                    //   non-null pointers that are dereferenceable. If
+                    //   they don't succeed, then an exception is thrown
+                    //   and the result can't be used.
+                    //
+                    // * Get-field-pointer instructions that succeed
+                    //   always produce non-null pointers that are
+                    //   dereferenceable. If they don't succeed, then
+                    //   an exception is thrown and the result can't be used.
+                    continue;
+                }
+                else
                 {
                     nullable.Add(instruction);
-                    nonderef.Add(instruction);
+                    nonderef.Add(instruction);   
                 }
             }
             return new ExplicitValueNullability(
