@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
@@ -44,6 +45,8 @@ namespace Flame.Clr.Analysis
             this.Parameters = parameters;
             this.Assembly = assembly;
             this.graph = new FlowGraphBuilder();
+            this.graph.AddAnalysis(new EffectfulInstructionAnalysis());
+            this.graph.AddAnalysis(NullabilityAnalysis.Instance);
 
             this.convTypes = new Dictionary<Mono.Cecil.Cil.OpCode, IType>()
             {
@@ -646,6 +649,36 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldfld)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                var basePointer = stackContents.Pop();
+                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                if (basePointerType == null)
+                {
+                    // 'ldfld' instructions may also load a field from a value type
+                    // directly. If that is the case, we will find or create a read-only
+                    // address for the base pointer.
+                    basePointer = ToReadOnlyAddress(basePointer, block);
+                    basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                }
+
+                if (basePointerType.ElementType != field.ParentType)
+                {
+                    // Reinterpret the base pointer if necessary.
+                    basePointer = block.AppendInstruction(
+                        Instruction.CreateReinterpretCast(
+                            field.ParentType.MakePointerType(basePointerType.Kind),
+                            basePointer));
+                }
+                PushValue(
+                    Instruction.CreateLoad(
+                        field.FieldType,
+                        block.AppendInstruction(
+                            Instruction.CreateGetFieldPointer(field, basePointer))),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
@@ -933,6 +966,83 @@ namespace Flame.Clr.Analysis
             {
                 throw new NotImplementedException($"Unimplemented opcode: {instruction}");
             }
+        }
+
+        /// <summary>
+        /// Takes a value, spills it to a temporary and
+        /// returns the instruction that creates a pointer
+        /// to the temporary.
+        /// </summary>
+        /// <param name="value">The value to spill.</param>
+        /// <param name="block">
+        /// A block that will be modified to store the value
+        /// in the temporary slot.
+        /// </param>
+        /// <returns>A pointer to the temporary.</returns>
+        private static ValueTag SpillToTemporary(
+            ValueTag value,
+            BasicBlockBuilder block)
+        {
+            var type = block.Graph.GetValueType(value);
+            var alloca = block.Graph.GetBasicBlock(block.Graph.EntryPointTag)
+                .InsertInstruction(
+                    0,
+                    Instruction.CreateAlloca(type));
+            block.AppendInstruction(Instruction.CreateStore(type, alloca, value));
+            return alloca;
+        }
+
+        /// <summary>
+        /// Tries to either recover an address that can be loaded
+        /// to produce a given value or spills the value to a
+        /// temporary and returns the temporary address.
+        ///
+        /// This method assumes that all reads to the returned
+        /// address are appended to the given block; reading the
+        /// address elsewhere may result in undefined behavior.
+        /// </summary>
+        /// <param name="value">
+        /// The value to turn into a read-only address.
+        /// </param>
+        /// <param name="block">
+        /// A block that may be modified to store the value
+        /// in the temporary slot.
+        /// </param>
+        /// <returns>
+        /// A read-only address that points to a copy of <paramref name="value"/>.
+        /// </returns>
+        private static ValueTag ToReadOnlyAddress(
+            ValueTag value,
+            BasicBlockBuilder block)
+        {
+            // We have two strategies to recover a read-only address:
+            //
+            //     1. If the value is produced by a load defined in this basic
+            //        block and there has been no intervening effectful
+            //        instruction, then we will set the read-only address
+            //        to the load's argument.
+            //
+            //     2. Otherwise, we will copy the object into a temporary.
+            //
+
+            if (block.Graph.ContainsInstruction(value)
+                && block.Graph.GetValueParent(value).Tag == block.Tag)
+            {
+                var baseInsn = block.Graph.GetInstruction(value);
+                if (baseInsn.Instruction.Prototype is LoadPrototype)
+                {
+                    var effectfulness = block.Graph.GetAnalysisResult<EffectfulInstructions>();
+                    if (block.Instructions
+                        .SkipWhile(insn => insn.Tag != value)
+                        .All(insn =>
+                            insn.Instruction.Prototype is LoadPrototype
+                            || !effectfulness.Instructions.Contains(insn)))
+                    {
+                        return baseInsn.Instruction.Arguments[0];
+                    }
+                }
+            }
+            return SpillToTemporary(value, block);
         }
 
         private void AnalyzeBranchTargets(
