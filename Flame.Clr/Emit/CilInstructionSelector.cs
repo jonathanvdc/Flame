@@ -489,41 +489,42 @@ namespace Flame.Clr.Emit
                     // We can use `ldloc` as a shortcut for `ldloca; ldobj`.
                     return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, allocaVarDef));
                 }
-
-                // If at all possible, use `ldind.*` instead of `ldobj`. The former
-                // category of opcodes has a more compact representation.
-                var intSpec = proto.ResultType.GetIntegerSpecOrNull();
-                OpCode shortcutOp;
-                if (intSpec != null && integerLdIndOps.TryGetValue(intSpec, out shortcutOp))
+                else
                 {
-                    return CreateSelection(CilInstruction.Create(shortcutOp), pointer);
+                    return CreateSelection(
+                        EmitLoadAddress(loadProto.ResultType),
+                        pointer);
                 }
-                else if (proto.ResultType == TypeEnvironment.Float32)
-                {
-                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_R4), pointer);
-                }
-                else if (proto.ResultType == TypeEnvironment.Float64)
-                {
-                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_R8), pointer);
-                }
-                else if (proto.ResultType is TypeSystem.PointerType
-                    && ((TypeSystem.PointerType)proto.ResultType).Kind == PointerKind.Box)
-                {
-                    return CreateSelection(CilInstruction.Create(OpCodes.Ldind_Ref), pointer);
-                }
-
-                // Default implementation: emit a `ldobj` opcode.
-                return CreateSelection(
-                    CilInstruction.Create(
-                        OpCodes.Ldobj,
-                        Method.Module.ImportReference(loadProto.ResultType)),
-                    pointer);
             }
             else if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
                 var pointer = storeProto.GetPointer(instruction);
                 var value = storeProto.GetValue(instruction);
+
+                if (graph.ContainsInstruction(value))
+                {
+                    var valueProto = graph.GetInstruction(value).Instruction.Prototype as ConstantPrototype;
+                    if (valueProto != null && valueProto.Value == DefaultConstant.Instance)
+                    {
+                        // Materializing a default constant is complicated (it requires
+                        // a temporary), so if at all possible we will set values to
+                        // the default constant by applying the `initobj` instruction to
+                        // a pointer.
+                        return SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilCodegenInstruction[]
+                            {
+                                new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                                new CilOpInstruction(
+                                    CilInstruction.Create(
+                                        OpCodes.Initobj,
+                                        Method.Module.ImportReference(storeProto.ResultType))),
+                                new CilOpInstruction(EmitLoadAddress(storeProto.ResultType))
+                            },
+                            new[] { pointer });
+                    }
+                }
+
                 VariableDefinition allocaVarDef;
                 if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
                 {
@@ -579,6 +580,41 @@ namespace Flame.Clr.Emit
             {
                 throw new NotImplementedException("Unknown instruction type: " + proto);
             }
+        }
+
+        /// <summary>
+        /// Creates a CIL instruction that loads a value from an address.
+        /// </summary>
+        /// <param name="elementType">The type of value to load.</param>
+        /// <returns>A CIL instruction.</returns>
+        private CilInstruction EmitLoadAddress(IType elementType)
+        {
+            // If at all possible, use `ldind.*` instead of `ldobj`. The former
+            // category of opcodes has a more compact representation.
+            var intSpec = elementType.GetIntegerSpecOrNull();
+            OpCode shortcutOp;
+            if (intSpec != null && integerLdIndOps.TryGetValue(intSpec, out shortcutOp))
+            {
+                return CilInstruction.Create(shortcutOp);
+            }
+            else if (elementType == TypeEnvironment.Float32)
+            {
+                return CilInstruction.Create(OpCodes.Ldind_R4);
+            }
+            else if (elementType == TypeEnvironment.Float64)
+            {
+                return CilInstruction.Create(OpCodes.Ldind_R8);
+            }
+            else if (elementType is TypeSystem.PointerType
+                && ((TypeSystem.PointerType)elementType).Kind == PointerKind.Box)
+            {
+                return CilInstruction.Create(OpCodes.Ldind_Ref);
+            }
+
+            // Default implementation: emit a `ldobj` opcode.
+            return CilInstruction.Create(
+                OpCodes.Ldobj,
+                Method.Module.ImportReference(elementType));
         }
 
         /// <summary>

@@ -68,7 +68,8 @@ namespace Flame.Clr.Emit
             CgtBrtrueToBgt,
             CgtUnBrtrueToBgtUn,
             CeqBrfalseToBneUn,
-            CompareOneAndToCompare
+            CompareOneAndToCompare,
+            DupInitobjLoadobjPopToInitObj
         };
 
         /// <summary>
@@ -347,6 +348,31 @@ namespace Flame.Clr.Emit
                         HasOpCode(OpCodes.And)
                     },
                     insns => new[] { insns[0] });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `dup; initobj; ldobj; pop` pattern to `initobj`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> DupInitobjLoadobjPopToInitObj
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Dup),
+                        HasOpCode(OpCodes.Initobj),
+                        HasOpCode(
+                            OpCodes.Ldobj,
+                            OpCodes.Ldind_I,
+                            OpCodes.Ldind_I1, OpCodes.Ldind_I2, OpCodes.Ldind_I4, OpCodes.Ldind_I8,
+                            OpCodes.Ldind_R4, OpCodes.Ldind_R8,
+                            OpCodes.Ldind_Ref,
+                            OpCodes.Ldind_U1, OpCodes.Ldind_U2, OpCodes.Ldind_U4),
+                        HasOpCode(OpCodes.Pop)
+                    },
+                    insns => new[] { insns[1] });
             }
         }
 
