@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Analysis
 {
@@ -111,10 +112,25 @@ namespace Flame.Compiler.Analysis
         /// <inheritdoc/>
         public ValueNullability Analyze(FlowGraph graph)
         {
-            // TODO: actually implement this analysis.
+            // TODO: implement a more thorough analysis.
+            var nullable = ImmutableHashSet.CreateBuilder<ValueTag>();
+            var nonderef = ImmutableHashSet.CreateBuilder<ValueTag>();
+            // Assume that all parameters may be nullable and/or non-dereferenceable.
+            nullable.UnionWith(graph.ParameterTags);
+            nonderef.UnionWith(graph.ParameterTags);
+            // Assume that all instructions except for allocas may be nullable
+            // and/or non-dereferenceable.
+            foreach (var instruction in graph.Instructions)
+            {
+                if (!(instruction.Instruction.Prototype is AllocaPrototype))
+                {
+                    nullable.Add(instruction);
+                    nonderef.Add(instruction);
+                }
+            }
             return new ExplicitValueNullability(
-                ImmutableHashSet.CreateRange<ValueTag>(graph.ValueTags),
-                ImmutableHashSet.CreateRange<ValueTag>(graph.ValueTags));
+                nullable.ToImmutable(),
+                nonderef.ToImmutable());
         }
 
         /// <inheritdoc/>
