@@ -69,6 +69,17 @@ namespace Flame.Compiler
         public int InstructionIndex => ImmutableInstruction.InstructionIndex;
 
         /// <summary>
+        /// Gets an immutable version of this instruction, that is,
+        /// this instruction but selected in an immutable version of the
+        /// current state of the IR builder.
+        /// </summary>
+        /// <returns>An immutable version.</returns>
+        public SelectedInstruction ToImmutable()
+        {
+            return ImmutableInstruction;
+        }
+
+        /// <summary>
         /// Gets the previous instruction in the basic block that defines
         /// this instruction. Returns null if there is no such instruction.
         /// </summary>
