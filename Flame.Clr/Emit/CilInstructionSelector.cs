@@ -422,7 +422,10 @@ namespace Flame.Clr.Emit
         /// Tells if the instruction's result is used or simply discarded.
         /// It is always correct to specify <c>false</c>, but specifying
         /// <c>true</c> when <paramref name="instruction"/>'s result is
-        /// not used may result in better codegen.
+        /// not used may result in better codegen. If <c>true</c> if passed,
+        /// then the stack depth produced by the selected instructions will
+        /// be unchanged, but the contents of the stack slot holding the result
+        /// are undefined.
         /// </param>
         /// <returns>
         /// A sequence of CIL instructions.
