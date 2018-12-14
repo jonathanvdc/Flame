@@ -408,9 +408,29 @@ namespace Flame.Clr.Emit
             }
         }
 
+        /// <summary>
+        /// Select a sequence of CIL instructions that implement a Flame IR instruction.
+        /// </summary>
+        /// <param name="instruction">
+        /// The Flame IR instruction to select CIL instructions for.
+        /// </param>
+        /// <param name="graph">
+        /// The IR graph that defines the IR instruction for which CIL
+        /// instructions need to be selected.
+        /// </param>
+        /// <param name="discardResult">
+        /// Tells if the instruction's result is used or simply discarded.
+        /// It is always correct to specify <c>false</c>, but specifying
+        /// <c>true</c> when <paramref name="instruction"/>'s result is
+        /// not used may result in better codegen.
+        /// </param>
+        /// <returns>
+        /// A sequence of CIL instructions.
+        /// </returns>
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsImpl(
             Instruction instruction,
-            FlowGraph graph)
+            FlowGraph graph,
+            bool discardResult)
         {
             var proto = instruction.Prototype;
             if (proto is ConstantPrototype)
@@ -483,6 +503,23 @@ namespace Flame.Clr.Emit
             {
                 var loadProto = (LoadPrototype)proto;
                 var pointer = loadProto.GetPointer(instruction);
+
+                if (graph.ContainsInstruction(pointer))
+                {
+                    var pointerInstruction = graph.GetInstruction(pointer).Instruction;
+                    var pointerProto = pointerInstruction.Prototype;
+                    if (pointerProto is GetFieldPointerPrototype)
+                    {
+                        // If we are loading a field, then we should use the `ldfld` opcode.
+                        return CreateSelection(
+                            CilInstruction.Create(
+                                OpCodes.Ldfld,
+                                Method.Module.ImportReference(
+                                    ((GetFieldPointerPrototype)pointerProto).Field)),
+                            pointerInstruction.Arguments[0]);
+                    }
+                }
+
                 VariableDefinition allocaVarDef;
                 if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
                 {
@@ -522,6 +559,43 @@ namespace Flame.Clr.Emit
                                 new CilOpInstruction(EmitLoadAddress(storeProto.ResultType))
                             },
                             new[] { pointer });
+                    }
+                }
+
+                if (graph.ContainsInstruction(pointer))
+                {
+                    var pointerInstruction = graph.GetInstruction(pointer).Instruction;
+                    var pointerProto = pointerInstruction.Prototype;
+                    if (pointerProto is GetFieldPointerPrototype)
+                    {
+                        // Use the `stfld` opcode to store values in fields.
+                        var basePointer = pointerInstruction.Arguments[0];
+                        var stfld = CilInstruction.Create(
+                            OpCodes.Stfld,
+                            Method.Module.ImportReference(
+                                ((GetFieldPointerPrototype)pointerProto).Field));
+
+                        if (discardResult)
+                        {
+                            // HACK: Just push some garbage on the stack if we know that the
+                            // result won't be used anyway. The peephole optimizer will
+                            // delete the garbage afterward.
+                            return SelectedInstructions.Create<CilCodegenInstruction>(
+                                new CilCodegenInstruction[]
+                                {
+                                    new CilOpInstruction(OpCodes.Dup),
+                                    new CilOpInstruction(stfld)
+                                },
+                                new[] { basePointer, value });
+                        }
+                        else
+                        {
+                            return CreateSelection(
+                                stfld,
+                                value,
+                                basePointer,
+                                value);
+                        }
                     }
                 }
 
@@ -1237,7 +1311,10 @@ namespace Flame.Clr.Emit
             /// <returns>Selected and wrapped instructions.</returns>
             public SelectedInstructions<CilCodegenInstruction> SelectAndWrap()
             {
-                var impl = InstructionSelector.SelectInstructionsImpl(instruction, graph);
+                var impl = InstructionSelector.SelectInstructionsImpl(
+                    instruction,
+                    graph,
+                    instructionTag == null ? false : uses.GetUseCount(instructionTag) == 0);
 
                 updatedInsns = new List<CilCodegenInstruction>();
                 updatedDependencies = new List<ValueTag>();
@@ -1342,7 +1419,8 @@ namespace Flame.Clr.Emit
             {
                 var dependencySelection = InstructionSelector.SelectInstructionsImpl(
                     dependency.Instruction,
-                    graph);
+                    graph,
+                    false);
 
                 InstructionSelector.selectedInstructions.Add(dependency.Tag);
                 updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
