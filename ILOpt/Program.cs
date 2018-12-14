@@ -236,6 +236,13 @@ namespace ILOpt
                     CopyPropagation.Instance,
                     AllocaToRegister.Instance,
 
+                    //   * Aggregates to scalars, scalars to registers.
+                    DeadValueElimination.Instance,
+                    ScalarReplacement.Instance,
+                    CopyPropagation.Instance,
+                    DeadValueElimination.Instance,
+                    AllocaToRegister.Instance,
+
                     //   * Optimize control flow.
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
