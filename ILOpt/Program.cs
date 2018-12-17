@@ -219,7 +219,10 @@ namespace ILOpt
                     .WithAnalysis(LivenessAnalysis.Instance)
                     .WithAnalysis(InterferenceGraphAnalysis.Instance)
                     .WithAnalysis(ValueUseAnalysis.Instance)
-                    .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance));
+                    .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance)
+                    .WithAnalysis(
+                        new ConstantAnalysis<PermissiveExceptionDelayability>(
+                            PermissiveExceptionDelayability.Instance)));
 
             // Optimize the IR a tiny bit.
             irBody = irBody.WithImplementation(
