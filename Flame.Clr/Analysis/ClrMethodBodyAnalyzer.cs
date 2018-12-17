@@ -502,6 +502,31 @@ namespace Flame.Clr.Analysis
         }
 
         /// <summary>
+        /// Pops a method's formal parameters from the stack. This does
+        /// not include the 'this' parameter.
+        /// </summary>
+        /// <param name="method">The method whose parameters are to be popped.</param>
+        /// <param name="block">The block that pops values off the stack.</param>
+        /// <param name="stackContents">The stack contents.</param>
+        /// <returns>A list of arguments.</returns>
+        private IReadOnlyList<ValueTag> PopArguments(
+            IMethod method,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var args = new List<ValueTag>();
+
+            // Pop arguments from the stack.
+            for (int i = method.Parameters.Count - 1; i >= 0; i--)
+            {
+                args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
+            }
+
+            args.Reverse();
+            return args;
+        }
+
+        /// <summary>
         /// Pops a value of a particular type off the stack.
         /// </summary>
         /// <param name="type">The type of the top-of-stack value.</param>
@@ -545,6 +570,13 @@ namespace Flame.Clr.Analysis
         private static IType GetAllocaElementType(Instruction alloca)
         {
             return ((AllocaPrototype)alloca.Prototype).ElementType;
+        }
+
+        private InstructionBuilder GetParameterSlot(
+            Mono.Cecil.ParameterReference parameterRef,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            return parameterStackSlots[parameterRef.Index + (cilMethodBody.Method.HasThis ? 1 : 0)];
         }
 
         private void AnalyzeInstruction(
@@ -613,17 +645,16 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
             {
-                stackContents.Push(
-                    parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index].Tag);
+                stackContents.Push(GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarg)
             {
-                var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
+                var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
                 LoadValue(alloca.Tag, block, stackContents);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Starg)
             {
-                var alloca = parameterStackSlots[((Mono.Cecil.ParameterReference)instruction.Operand).Index];
+                var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
                 StoreValue(
                     alloca.Tag,
                     PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
@@ -918,13 +949,7 @@ namespace Flame.Clr.Analysis
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
-                var args = new List<ValueTag>();
-
-                // Pop arguments from the stack.
-                for (int i = method.Parameters.Count - 1; i >= 0; i--)
-                {
-                    args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
-                }
+                var args = PopArguments(method, block, stackContents);
 
                 // Pop the 'this' pointer from the stack.
                 if (!method.IsStatic)
@@ -932,11 +957,11 @@ namespace Flame.Clr.Analysis
                     var thisValType = block.Graph.GetValueType(stackContents.Peek());
                     if (thisValType is PointerType)
                     {
-                        args.Add(
-                            PopTyped(
-                                method.ParentType.MakePointerType(((PointerType)thisValType).Kind),
-                                block,
-                                stackContents));
+                        var thisArg = PopTyped(
+                            method.ParentType.MakePointerType(((PointerType)thisValType).Kind),
+                            block,
+                            stackContents);
+                        args = new[] { thisArg }.Concat(args).ToArray();
                     }
                     else
                     {
@@ -944,7 +969,6 @@ namespace Flame.Clr.Analysis
                     }
                 }
 
-                args.Reverse();
                 PushValue(
                     Instruction.CreateCall(
                         method,
@@ -954,6 +978,14 @@ namespace Flame.Clr.Analysis
                         args),
                     block,
                     stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newobj)
+            {
+                var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
+                var method = Assembly.Resolve(methodRef);
+                var args = PopArguments(method, block, stackContents);
+
+                PushValue(Instruction.CreateNewObject(method, args), block, stackContents);
             }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
