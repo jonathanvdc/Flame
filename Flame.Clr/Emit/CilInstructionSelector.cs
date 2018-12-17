@@ -653,6 +653,15 @@ namespace Flame.Clr.Emit
                 };
                 return new SelectedInstructions<CilCodegenInstruction>(instructions, dependencies);
             }
+            else if (proto is NewObjectPrototype)
+            {
+                var newobjProto = (NewObjectPrototype)proto;
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Newobj,
+                        Method.Module.ImportReference(newobjProto.Constructor)),
+                    newobjProto.GetArgumentList(instruction).ToArray());
+            }
             else
             {
                 throw new NotImplementedException("Unknown instruction type: " + proto);
