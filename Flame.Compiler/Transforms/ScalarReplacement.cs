@@ -162,12 +162,16 @@ namespace Flame.Compiler.Transforms
             {
                 var storeProto = (StorePrototype)proto;
                 var value = storeProto.GetValue(instruction.Instruction);
-                var valueProto = instruction.Block.Graph.GetInstruction(value).Instruction.Prototype
-                    as ConstantPrototype;
-
-                if (valueProto != null && valueProto.Value == DefaultConstant.Instance)
+                var graph = instruction.Block.Graph;
+                if (graph.ContainsInstruction(value))
                 {
-                    return true;
+                    var valueProto = graph.GetInstruction(value).Instruction.Prototype
+                        as ConstantPrototype;
+
+                    if (valueProto != null && valueProto.Value == DefaultConstant.Instance)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
