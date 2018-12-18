@@ -98,6 +98,7 @@ namespace Flame.Clr.Analysis
         private HashSet<BasicBlockBuilder> analyzedBlocks;
         private List<InstructionBuilder> parameterStackSlots;
         private List<InstructionBuilder> localStackSlots;
+        private HashSet<ValueTag> freeTemporaries;
 
         // A mapping of conv.* opcodes to target types.
         private readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, IType> convTypes;
@@ -1011,14 +1012,12 @@ namespace Flame.Clr.Analysis
                 {
                     // Value types are created by allocating a temporary, initializing it and
                     // loading its value.
-                    // TODO: reuse temporaries.
-                    var entry = block.Graph.GetBasicBlock(block.Graph.EntryPointTag);
-                    var alloca = entry.AppendInstruction(Instruction.CreateAlloca(method.ParentType), "temp_slot");
+                    var alloca = GetTemporaryAlloca(method.ParentType, block.Graph);
                     block.AppendInstruction(
                         Instruction.CreateCall(
                             method,
                             MethodLookup.Static,
-                            new[] { alloca.Tag }.Concat(args).ToArray()));
+                            new[] { alloca }.Concat(args).ToArray()));
                     PushValue(Instruction.CreateLoad(method.ParentType, alloca), block, stackContents);
                 }
             }
@@ -1189,6 +1188,8 @@ namespace Flame.Clr.Analysis
                     new BlockParameter(param.Type, param.Name.ToString()))
                 .ToImmutableList();
 
+            this.freeTemporaries = new HashSet<ValueTag>();
+
             // For each parameter, allocate a stack slot and store the
             // value of the parameter in the stack slot.
             this.parameterStackSlots = new List<InstructionBuilder>();
@@ -1225,6 +1226,54 @@ namespace Flame.Clr.Analysis
             // Jump to the entry point instruction.
             entryPoint.Flow = new JumpFlow(
                 branchTargets[cilMethodBody.Instructions[0]].Tag);
+        }
+
+        /// <summary>
+        /// Reuses or creates a temporary alloca slot of a particular type.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of type to store in the alloca slot.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that defines the alloca.
+        /// </param>
+        /// <returns>
+        /// An alloca slot value.
+        /// </returns>
+        private ValueTag GetTemporaryAlloca(IType elementType, FlowGraphBuilder graph)
+        {
+            ValueTag candidate = null;
+            foreach (var tag in freeTemporaries)
+            {
+                var proto = (AllocaPrototype)graph.GetInstruction(tag).Instruction.Prototype;
+                if (proto.ElementType == elementType)
+                {
+                    candidate = tag;
+                    break;
+                }
+            }
+
+            if (candidate == null)
+            {
+                var entryPoint = graph.GetBasicBlock(graph.EntryPointTag);
+                return entryPoint.AppendInstruction(Instruction.CreateAlloca(elementType), "temp_slot");
+            }
+            else
+            {
+                freeTemporaries.Remove(candidate);
+                return candidate;
+            }
+        }
+
+        /// <summary>
+        /// Releases a temporary alloca, making it suitable for reuse.
+        /// </summary>
+        /// <param name="alloca">
+        /// The temporary alloca to reuse.
+        /// </param>
+        private void ReleaseTemporaryAlloca(ValueTag alloca)
+        {
+            freeTemporaries.Add(alloca);
         }
 
         private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> signedBinaryOperators =
