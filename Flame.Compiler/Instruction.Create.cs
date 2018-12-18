@@ -459,6 +459,37 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a 'get_element_pointer' intrinsic, which indexes
+        /// an array and computes a pointer to the indexed array element.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of element to compute a pointer to.
+        /// </param>
+        /// <param name="arrayType">
+        /// The type of array to index.
+        /// </param>
+        /// <param name="indexTypes">
+        /// The types of indices to index the array with.
+        /// </param>
+        /// <param name="arrayValue">
+        /// The array to index.
+        /// </param>
+        /// <param name="indexValues">
+        /// The indices to index the array with.
+        /// </param>
+        /// <returns>A 'get_element_pointer' intrinsic.</returns>
+        public static Instruction CreateGetElementPointerIntrinsic(
+            IType elementType,
+            IType arrayType,
+            IReadOnlyList<IType> indexTypes,
+            ValueTag arrayValue,
+            IReadOnlyList<ValueTag> indexValues)
+        {
+            return ArrayIntrinsics.CreateGetElementPointerPrototype(elementType, arrayType, indexTypes)
+                .Instantiate(new[] { arrayValue }.Concat(indexValues).ToArray());
+        }
+
+        /// <summary>
         /// Creates a 'load_element' intrinsic, which indexes
         /// an array and loads the indexed array element.
         /// </summary>

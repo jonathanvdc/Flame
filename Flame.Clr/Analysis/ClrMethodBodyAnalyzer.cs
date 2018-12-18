@@ -739,6 +739,23 @@ namespace Flame.Clr.Analysis
                             Instruction.CreateGetFieldPointer(field, basePointer)),
                         value));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
+            {
+                var elementType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+                var indexVal = stackContents.Pop();
+                var arrayVal = stackContents.Pop();
+                var arrayValType = block.Graph.GetValueType(arrayVal);
+                PushValue(
+                    Instruction.CreateGetElementPointerIntrinsic(
+                        elementType,
+                        arrayValType,
+                        new[] { block.Graph.GetValueType(indexVal) },
+                        arrayVal,
+                        new[] { indexVal }),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
@@ -985,7 +1002,25 @@ namespace Flame.Clr.Analysis
                 var method = Assembly.Resolve(methodRef);
                 var args = PopArguments(method, block, stackContents);
 
-                PushValue(Instruction.CreateNewObject(method, args), block, stackContents);
+                if (method.ParentType.IsReferenceType())
+                {
+                    // Reference types are created by actual 'new_object' instructions.
+                    PushValue(Instruction.CreateNewObject(method, args), block, stackContents);
+                }
+                else
+                {
+                    // Value types are created by allocating a temporary, initializing it and
+                    // loading its value.
+                    // TODO: reuse temporaries.
+                    var entry = block.Graph.GetBasicBlock(block.Graph.EntryPointTag);
+                    var alloca = entry.AppendInstruction(Instruction.CreateAlloca(method.ParentType), "temp_slot");
+                    block.AppendInstruction(
+                        Instruction.CreateCall(
+                            method,
+                            MethodLookup.Static,
+                            new[] { alloca.Tag }.Concat(args).ToArray()));
+                    PushValue(Instruction.CreateLoad(method.ParentType, alloca), block, stackContents);
+                }
             }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
