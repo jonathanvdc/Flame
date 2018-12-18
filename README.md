@@ -12,7 +12,7 @@ At its core, Flame is a set of libraries designed to support tools that read, an
 
 ## Build instructions
 
-Flame is a C# project that targets .NET 4.5 implementations, like Mono and the .NET framework. .NET Core is not supported yet because Flame relies on NuGet packages that don't support yet .NET Core.
+Flame is a C# project that targets .NET 4.5 implementations, like Mono and the .NET framework. .NET Core is not supported yet because Flame relies on NuGet packages that don't yet support .NET Core.
 
 Additionally, Flame uses [EC#](http://ecsharp.net/) macros to convert Flame's IR rewrite rule DSL to C# code.
 
