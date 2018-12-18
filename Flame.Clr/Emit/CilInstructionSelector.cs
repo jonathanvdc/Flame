@@ -952,6 +952,15 @@ namespace Flame.Clr.Emit
                             Method.Module.ImportReference(elementType)),
                         arguments);
                 }
+                else if (opName == ArrayIntrinsics.Operators.GetElementPointer
+                    && prototype.ParameterCount == 2)
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            OpCodes.Ldelema,
+                            Method.Module.ImportReference(prototype.ResultType)),
+                        arguments);
+                }
                 else if (opName == ArrayIntrinsics.Operators.LoadElement
                     && prototype.ParameterCount == 2)
                 {
