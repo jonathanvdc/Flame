@@ -147,6 +147,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for get-static-field-pointer instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<GetStaticFieldPointerPrototype, IReadOnlyList<LNode>> GetStaticFieldPointer =
+            new CodecElement<GetStaticFieldPointerPrototype, IReadOnlyList<LNode>>(
+                "get_static_field_pointer", EncodeGetStaticFieldPointer, DecodeGetStaticFieldPointer);
+
+        private static GetStaticFieldPointerPrototype DecodeGetStaticFieldPointer(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return GetStaticFieldPointerPrototype.Create(state.DecodeField(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeGetStaticFieldPointer(GetStaticFieldPointerPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.Field) };
+        }
+
+        /// <summary>
         /// A codec element for indirect call instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -363,6 +381,7 @@ namespace Flame.Ir
                     .Add(Constant)
                     .Add(Copy)
                     .Add(GetFieldPointer)
+                    .Add(GetStaticFieldPointer)
                     .Add(IndirectCall)
                     .Add(Intrinsic)
                     .Add(Load)
