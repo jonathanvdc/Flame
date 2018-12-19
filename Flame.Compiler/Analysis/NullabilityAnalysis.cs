@@ -125,7 +125,8 @@ namespace Flame.Compiler.Analysis
                 var proto = instruction.Instruction.Prototype;
                 if (proto is AllocaPrototype
                     || proto is UnboxPrototype
-                    || proto is GetFieldPointerPrototype)
+                    || proto is GetFieldPointerPrototype
+                    || proto is GetStaticFieldPointerPrototype)
                 {
                     // * Allocas always produce non-null pointers that
                     //   are dereferenceable.
