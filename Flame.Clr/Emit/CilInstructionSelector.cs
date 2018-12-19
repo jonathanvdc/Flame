@@ -487,6 +487,15 @@ namespace Flame.Clr.Emit
                         Method.Module.ImportReference(gfpProto.Field)),
                     instruction.Arguments);
             }
+            else if (proto is GetStaticFieldPointerPrototype)
+            {
+                var gsfpProto = (GetStaticFieldPointerPrototype)proto;
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Ldsflda,
+                        Method.Module.ImportReference(gsfpProto.Field)),
+                    instruction.Arguments);
+            }
             else if (proto is AllocaPrototype)
             {
                 // TODO: constant-fold `sizeof` whenever possible.
@@ -520,6 +529,15 @@ namespace Flame.Clr.Emit
                                 Method.Module.ImportReference(
                                     ((GetFieldPointerPrototype)pointerProto).Field)),
                             pointerInstruction.Arguments[0]);
+                    }
+                    else if (pointerProto is GetStaticFieldPointerPrototype)
+                    {
+                        // If we are loading a static field, then we should use the `ldsfld` opcode.
+                        return CreateSelection(
+                            CilInstruction.Create(
+                                OpCodes.Ldsfld,
+                                Method.Module.ImportReference(
+                                    ((GetStaticFieldPointerPrototype)pointerProto).Field)));
                     }
                 }
 
@@ -599,6 +617,20 @@ namespace Flame.Clr.Emit
                                 basePointer,
                                 value);
                         }
+                    }
+                    else if (pointerProto is GetStaticFieldPointerPrototype)
+                    {
+                        return SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilCodegenInstruction[]
+                            {
+                                new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                                new CilOpInstruction(
+                                    CilInstruction.Create(
+                                        OpCodes.Stsfld,
+                                        Method.Module.ImportReference(
+                                            ((GetStaticFieldPointerPrototype)pointerProto).Field)))
+                            },
+                            new[] { value });
                     }
                 }
 
