@@ -740,6 +740,36 @@ namespace Flame.Clr.Analysis
                             Instruction.CreateGetFieldPointer(field, basePointer)),
                         value));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsfld)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                PushValue(
+                    Instruction.CreateLoad(
+                        field.FieldType,
+                        block.AppendInstruction(
+                            Instruction.CreateGetStaticFieldPointer(field))),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsflda)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                PushValue(
+                    Instruction.CreateGetStaticFieldPointer(field),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                var value = PopTyped(field.FieldType, block, stackContents);
+                block.AppendInstruction(
+                    Instruction.CreateStore(
+                        field.FieldType,
+                        block.AppendInstruction(
+                            Instruction.CreateGetStaticFieldPointer(field)),
+                        value));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
