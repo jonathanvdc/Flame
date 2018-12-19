@@ -1,3 +1,5 @@
+//! run:hello
+
 using System;
 
 public class StringContainer
