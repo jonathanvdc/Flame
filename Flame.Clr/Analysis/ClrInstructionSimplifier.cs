@@ -130,7 +130,27 @@ namespace Flame.Clr.Analysis
             { OpCodes.Stelem_I8, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Int64) },
             { OpCodes.Stelem_R4, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Single) },
             { OpCodes.Stelem_R8, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Double) },
-            { OpCodes.Stelem_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Object) }
+            { OpCodes.Stelem_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Stelem_Any, typeSystem => typeSystem.Object) },
+
+            { OpCodes.Ldind_I, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.IntPtr) },
+            { OpCodes.Ldind_I1, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.SByte) },
+            { OpCodes.Ldind_I2, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Int16) },
+            { OpCodes.Ldind_I4, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Int32) },
+            { OpCodes.Ldind_I8, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Int64) },
+            { OpCodes.Ldind_R4, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Single) },
+            { OpCodes.Ldind_R8, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Double) },
+            { OpCodes.Ldind_U1, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.Byte) },
+            { OpCodes.Ldind_U2, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.UInt16) },
+            { OpCodes.Ldind_U4, CreatePrimitiveInjectingRewriter(OpCodes.Ldobj, typeSystem => typeSystem.UInt32) },
+
+            { OpCodes.Stind_I, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.IntPtr) },
+            { OpCodes.Stind_I1, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.SByte) },
+            { OpCodes.Stind_I2, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Int16) },
+            { OpCodes.Stind_I4, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Int32) },
+            { OpCodes.Stind_I8, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Int64) },
+            { OpCodes.Stind_R4, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Single) },
+            { OpCodes.Stind_R8, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Double) },
+            { OpCodes.Stind_Ref, CreatePrimitiveInjectingRewriter(OpCodes.Stobj, typeSystem => typeSystem.Object) }
         };
 
         private static Rewriter CreatePrimitiveInjectingRewriter(
