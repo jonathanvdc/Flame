@@ -615,6 +615,24 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4)
+            {
+                PushValue(
+                    Instruction.CreateConstant(
+                        new Float32Constant((float)instruction.Operand),
+                        Assembly.Resolver.TypeEnvironment.Float32),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R8)
+            {
+                PushValue(
+                    Instruction.CreateConstant(
+                        new Float64Constant((double)instruction.Operand),
+                        Assembly.Resolver.TypeEnvironment.Float64),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
             {
                 PushValue(
