@@ -568,6 +568,50 @@ namespace Flame.Clr.Analysis
             }
         }
 
+        /// <summary>
+        /// Pops a value of the stack and interprets it as a pointer
+        /// to a value of a particular type.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of value the top-of-stack value should point to.
+        /// </param>
+        /// <param name="block">
+        /// The block that pops a value from the stack.
+        /// </param>
+        /// <param name="stackContents">
+        /// The stack to pop the topmost value from.
+        /// </param>
+        /// <returns>
+        /// A pointer to the element type.
+        /// </returns>
+        private ValueTag PopPointerToType(
+            IType elementType,
+            BasicBlockBuilder block,
+            Stack<ValueTag> stackContents)
+        {
+            var pointer = stackContents.Pop();
+            var pointerType = block.Graph.GetValueType(pointer) as PointerType;
+            if (pointerType == null)
+            {
+                // Just return the pointer for now.
+                // TODO: maybe throw an exception instead?
+                return pointer;
+            }
+            else if (pointerType.ElementType != elementType)
+            {
+                // Emit a reinterpret cast to convert between pointers.
+                return block.AppendInstruction(
+                    Instruction.CreateReinterpretCast(
+                        elementType.MakePointerType(pointerType.Kind),
+                        pointer));
+            }
+            else
+            {
+                // Exact match. No need to insert a cast.
+                return pointer;
+            }
+        }
+
         private static IType GetAllocaElementType(Instruction alloca)
         {
             return ((AllocaPrototype)alloca.Prototype).ElementType;
@@ -812,6 +856,45 @@ namespace Flame.Clr.Analysis
                         field.FieldType,
                         block.AppendInstruction(
                             Instruction.CreateGetStaticFieldPointer(field)),
+                        value));
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldobj)
+            {
+                var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var pointer = PopPointerToType(elementType, block, stackContents);
+                PushValue(
+                    Instruction.CreateLoad(
+                        elementType,
+                        pointer),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldind_Ref)
+            {
+                var pointer = stackContents.Pop();
+                var pointerType = graph.GetValueType(pointer) as PointerType;
+                if (pointerType == null)
+                {
+                    throw new InvalidProgramException(
+                        "`ldind.ref` instructions can only load pointer values; " +
+                        $"argument of type '{graph.GetValueType(pointer)}' isn't one.");
+                }
+                PushValue(
+                    Instruction.CreateLoad(
+                        pointerType.ElementType,
+                        pointer),
+                    block,
+                    stackContents);
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stobj)
+            {
+                var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var value = PopTyped(elementType, block, stackContents);
+                var pointer = PopPointerToType(elementType, block, stackContents);
+                block.AppendInstruction(
+                    Instruction.CreateStore(
+                        elementType,
+                        pointer,
                         value));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
