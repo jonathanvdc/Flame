@@ -729,6 +729,32 @@ namespace Flame.Clr.Analysis
                     block,
                     stackContents);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldflda)
+            {
+                var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
+                var basePointer = stackContents.Pop();
+                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                if (basePointerType == null)
+                {
+                    throw new InvalidProgramException(
+                        "'ldflda' instruction expects a base pointer that points to an " +
+                        $"element of type '{field.ParentType}'. Instead, a base pointer of " +
+                        $"type '{block.Graph.GetValueType(basePointer)}' was provided.");
+                }
+
+                if (basePointerType.ElementType != field.ParentType)
+                {
+                    // Reinterpret the base pointer if necessary.
+                    basePointer = block.AppendInstruction(
+                        Instruction.CreateReinterpretCast(
+                            field.ParentType.MakePointerType(basePointerType.Kind),
+                            basePointer));
+                }
+                PushValue(
+                    Instruction.CreateGetFieldPointer(field, basePointer),
+                    block,
+                    stackContents);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
