@@ -307,6 +307,18 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a get-static-field-pointer instruction.
+        /// </summary>
+        /// <param name="field">
+        /// The field to create a pointer to.
+        /// </param>
+        /// <returns>A get-static-field-pointer instruction.</returns>
+        public static Instruction CreateGetStaticFieldPointer(IField field)
+        {
+            return GetStaticFieldPointerPrototype.Create(field).Instantiate();
+        }
+
+        /// <summary>
         /// Creates an arithmetic intrinsic.
         /// </summary>
         /// <param name="operatorName">
