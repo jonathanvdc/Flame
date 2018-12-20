@@ -302,10 +302,7 @@ namespace Flame.Clr
                                 enclosingMember,
                                 useStandins);
 
-                    int offset = declType.Parent.IsType
-                        ? declType.Parent.TypeOrNull.GenericParameters.Count
-                        : 0;
-                    return declType.GenericParameters[offset + genericParam.Position];
+                    return declType.GetRecursiveGenericParameters()[genericParam.Position];
                 }
                 else
                 {
