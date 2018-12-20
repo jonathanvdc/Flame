@@ -318,7 +318,7 @@ namespace FlameMacros
             {
                 return F.Call(CodeSymbols.Eq, fieldVar, prototypeArg);
             }
-            else if (prototypeArg.IsId)
+            else if (prototypeArg.IsId && !prototypeArg.HasSpecialName)
             {
                 LNode firstOccurence;
                 if (boundSymbols.TryGetValue(prototypeArg.Name, out firstOccurence))
@@ -349,11 +349,19 @@ namespace FlameMacros
                 }
                 return checks.Aggregate((x, y) => F.Call(CodeSymbols.And, x, y));
             }
+            else if (prototypeArg.IsIdNamed(CodeSymbols.Default))
+            {
+                return F.Call(CodeSymbols.Eq, fieldVar, F.Dot("DefaultConstant", "Instance"));
+            }
+            else if (prototypeArg.IsIdNamed("#null"))
+            {
+                return F.Call(CodeSymbols.Eq, fieldVar, F.Dot("NullConstant", "Instance"));
+            }
             else
             {
                 throw new MacroApplicationException(
                     prototypeArg,
-                    $"Unknown call target: '{prototypeArg.Target}'");
+                    $"Unknown node type: '{(prototypeArg.IsId ? prototypeArg.Name.ToString() : prototypeArg.Target.ToString())}'");
             }
         }
 
@@ -593,7 +601,7 @@ namespace FlameMacros
             Dictionary<Symbol, LNode> fieldMapping,
             ref int localCounter)
         {
-            if (pattern.IsId)
+            if (pattern.IsId && !pattern.HasSpecialName)
             {
                 if (fieldMapping.ContainsKey(pattern.Name))
                 {
@@ -611,7 +619,7 @@ namespace FlameMacros
                     };
                 }
             }
-            else if (pattern.IsLiteral)
+            else if (pattern.IsLiteral || (pattern.IsId && pattern.HasSpecialName))
             {
                 // We can safely elide literal checks because they are always
                 // handled at the prototype pattern matching level.
@@ -763,6 +771,14 @@ namespace FlameMacros
                             pattern.Args.Select(
                                 x => PatternToPrototypeArgument(x, elementType))));
                 }
+            }
+            else if (pattern.IsIdNamed(CodeSymbols.Default))
+            {
+                return F.Dot("DefaultConstant", "Instance");
+            }
+            else if (pattern.IsIdNamed("#null"))
+            {
+                return F.Dot("NullConstant", "Instance");
             }
             else
             {

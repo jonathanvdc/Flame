@@ -247,6 +247,7 @@ namespace ILOpt
                     AllocaToRegister.Instance,
 
                     //   * Optimize control flow.
+                    InstructionSimplification.Instance,
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),

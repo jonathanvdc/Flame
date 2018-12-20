@@ -49,6 +49,20 @@ namespace Flame.Compiler.Transforms
         }, {
             result = intrinsic("arith.add", T, #(T, T))(a, a);
         }, T.IsIntegerType() && c is IntegerConstant && c.Equals(new IntegerConstant(2).Cast(((IntegerConstant)c).Spec)));
+
+        // The default value for integers is zero.
+        #rule({
+            c = constant(#default, TConst)();
+        }, {
+            c = constant(new IntegerConstant(0).Cast(TConst.GetIntegerSpecOrNull()), TConst)();
+        }, TConst.IsIntegerType());
+
+        // The default value for pointers is null.
+        #rule({
+            c = constant(#default, TConst)();
+        }, {
+            c = constant(#null, TConst)();
+        }, TConst is PointerType);
     });
 
     /// <summary>

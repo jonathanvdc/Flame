@@ -129,6 +129,10 @@ namespace FlameMacros
             {
                 return right.IsLiteral && left.Value.Equals(right.Value);
             }
+            else if (left.IsId && left.HasSpecialName)
+            {
+                return right.IsId && left.Name == right.Name;
+            }
             else if (left.IsCall)
             {
                 int count = left.ArgCount;
@@ -152,7 +156,7 @@ namespace FlameMacros
             {
                 // `left` must be an identifier because we know
                 // it's neither a literal nor a call.
-                if (!right.IsId)
+                if (!right.IsId || right.HasSpecialName)
                 {
                     return false;
                 }
@@ -215,6 +219,10 @@ namespace FlameMacros
             if (argument.IsLiteral)
             {
                 return argument.Value.GetHashCode();
+            }
+            else if (argument.IsId && argument.HasSpecialName)
+            {
+                return argument.Name.GetHashCode();
             }
             else if (argument.IsCall)
             {
