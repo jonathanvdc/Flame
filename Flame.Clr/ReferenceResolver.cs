@@ -380,8 +380,10 @@ namespace Flame.Clr
         internal IField Resolve(FieldReference fieldRef, ClrAssembly assembly)
         {
             var declaringType = Resolve(fieldRef.DeclaringType, assembly);
+            var standinReplacer = CreateStandinReplacingVisitor(declaringType);
             var fieldType = TypeHelpers.BoxIfReferenceType(
-                Resolve(fieldRef.FieldType, assembly));
+                standinReplacer.Visit(
+                    Resolve(fieldRef.FieldType, assembly, declaringType, true)));
             return PickSingleResolvedMember(
                 fieldRef,
                 fieldIndex.GetAll(
