@@ -166,14 +166,28 @@ namespace Flame.Clr
             IType elementType;
             if (ClrArrayType.TryGetArrayElementType(type, out elementType))
             {
+                // Handle arrays.
                 int rank;
                 ClrArrayType.TryGetArrayRank(type, out rank);
                 return new Mono.Cecil.ArrayType(module.ImportReference(elementType), rank);
             }
+            else if (type is DirectTypeSpecialization)
+            {
+                // Handle generics.
+                var instance = new Mono.Cecil.GenericInstanceType(
+                    module.ImportReference(
+                        type.GetRecursiveGenericDeclaration()));
+
+                foreach (var item in type.GetRecursiveGenericArguments())
+                {
+                    instance.GenericArguments.Add(module.ImportReference(item));
+                }
+
+                return instance;
+            }
             else
             {
-                // TODO: support generics.
-                throw new NotImplementedException();
+                throw new NotSupportedException($"Cannot import ill-understood type '{type.FullName}'.");
             }
         }
 
@@ -215,10 +229,28 @@ namespace Flame.Clr
                 var def = ((ClrMethodDefinition)method).Definition;
                 return module == null ? def : module.ImportReference(def);
             }
+            else if (method is IndirectMethodSpecialization)
+            {
+                var specialization = (IndirectMethodSpecialization)method;
+                return CloneMethodWithDeclaringType(
+                    module.ImportReference(specialization.Declaration),
+                    module.ImportReference(specialization.ParentType));
+            }
+            else if (method is DirectMethodSpecialization)
+            {
+                var specialization = (DirectMethodSpecialization)method;
+                var genInst = new Mono.Cecil.GenericInstanceMethod(
+                    module.ImportReference(specialization.Declaration));
+
+                foreach (var item in specialization.GenericArguments)
+                {
+                    genInst.GenericArguments.Add(module.ImportReference(item));
+                }
+                return genInst;
+            }
             else
             {
-                // TODO: support generics.
-                throw new NotImplementedException();
+                throw new NotSupportedException($"Cannot import ill-understood method '{method.FullName}'.");
             }
         }
 
@@ -242,11 +274,66 @@ namespace Flame.Clr
                 var def = ((ClrFieldDefinition)field).Definition;
                 return module == null ? def : module.ImportReference(def);
             }
+            else if (field is IndirectFieldSpecialization)
+            {
+                var specialization = (IndirectFieldSpecialization)field;
+                var declarationRef = module.ImportReference(specialization.Declaration);
+                var typeRef = module.ImportReference(specialization.ParentType);
+                return new Mono.Cecil.FieldReference(
+                    declarationRef.Name,
+                    module.ImportReference(declarationRef.FieldType, typeRef), typeRef);
+            }
             else
             {
-                // TODO: support generics.
-                throw new NotImplementedException();
+                throw new NotSupportedException($"Cannot import ill-understood field '{field.FullName}'.");
             }
+        }
+
+        private static Mono.Cecil.MethodReference CloneMethodWithDeclaringType(
+            Mono.Cecil.MethodReference methodDef,
+            Mono.Cecil.TypeReference declaringTypeRef)
+        {
+            if (!declaringTypeRef.IsGenericInstance || methodDef == null)
+            {
+                return methodDef;
+            }
+
+            var methodRef = new Mono.Cecil.MethodReference(methodDef.Name, methodDef.ReturnType, declaringTypeRef)
+            {
+                CallingConvention = methodDef.CallingConvention,
+                HasThis = methodDef.HasThis,
+                ExplicitThis = methodDef.ExplicitThis
+            };
+
+            foreach (Mono.Cecil.GenericParameter genParamDef in methodDef.GenericParameters)
+            {
+                methodRef.GenericParameters.Add(CloneGenericParameter(genParamDef, methodRef));
+            }
+
+            methodRef.ReturnType = declaringTypeRef.Module.ImportReference(methodDef.ReturnType, methodRef);
+
+            foreach (Mono.Cecil.ParameterDefinition paramDef in methodDef.Parameters)
+            {
+                methodRef.Parameters.Add(
+                    new Mono.Cecil.ParameterDefinition(
+                        paramDef.Name, paramDef.Attributes,
+                        declaringTypeRef.Module.ImportReference(paramDef.ParameterType, methodRef)));
+            }
+
+            return methodRef;
+        }
+
+        public static Mono.Cecil.GenericParameter CloneGenericParameter(
+            Mono.Cecil.GenericParameter Parameter,
+            Mono.Cecil.IGenericParameterProvider ParameterProvider)
+        {
+            var genericParam = new Mono.Cecil.GenericParameter(Parameter.Name, ParameterProvider);
+            genericParam.Attributes = Parameter.Attributes;
+            foreach (var item in Parameter.Constraints)
+            {
+                genericParam.Constraints.Add(item);
+            }
+            return genericParam;
         }
     }
 }
