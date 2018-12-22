@@ -89,6 +89,13 @@ namespace Flame.Clr
             return other is ClrMethodSignature && Equals((ClrMethodSignature)other);
         }
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{{ Name: {Name}, GenericParameterCount: {GenericParameterCount}, " +
+                $"ReturnType: {ReturnType}, ParameterTypes: [{string.Join(", ", ParameterTypes)}] }}";
+        }
+
         /// <summary>
         /// Creates a method signature from a method's name,
         /// the number of generic parameters the method
@@ -306,7 +313,7 @@ namespace Flame.Clr
         {
             return x.Kind == y.Kind
                 && x.Position == y.Position
-                && x.IsReferenceType == y.IsReferenceType;;
+                && x.IsReferenceType == y.IsReferenceType;
         }
 
         public int GetHashCode(ClrGenericParameterStandin obj)
