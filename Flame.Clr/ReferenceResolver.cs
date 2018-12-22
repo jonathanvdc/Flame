@@ -402,13 +402,17 @@ namespace Flame.Clr
             var declaringType = Resolve(methodRef.DeclaringType, assembly);
             var name = NameConversion.ParseSimpleName(methodRef.Name);
 
+            var standinReplacer = CreateStandinReplacingVisitor(declaringType);
+
             var returnType = TypeHelpers.BoxIfReferenceType(
-                Resolve(methodRef.ReturnType, assembly, declaringType, true));
+                standinReplacer.Visit(
+                    Resolve(methodRef.ReturnType, assembly, declaringType, true)));
 
             var parameterTypes = methodRef.Parameters
                 .Select(param =>
                     TypeHelpers.BoxIfReferenceType(
-                        Resolve(param.ParameterType, assembly, declaringType, true)))
+                        standinReplacer.Visit(
+                            Resolve(param.ParameterType, assembly, declaringType, true))))
                 .ToArray();
 
             return PickSingleResolvedMember(
@@ -433,13 +437,17 @@ namespace Flame.Clr
             ClrAssembly assembly)
         {
             var declaringType = Resolve(propertyRef.DeclaringType, assembly);
+            var standinReplacer = CreateStandinReplacingVisitor(declaringType);
+
             var propertyType = TypeHelpers.BoxIfReferenceType(
-                Resolve(propertyRef.PropertyType, assembly));
+                standinReplacer.Visit(Resolve(propertyRef.PropertyType, assembly, declaringType, true)));
             var parameterTypes = propertyRef.Parameters
                 .Select(param =>
                     TypeHelpers.BoxIfReferenceType(
-                        Resolve(param.ParameterType, assembly, declaringType, true)))
+                        standinReplacer.Visit(
+                            Resolve(param.ParameterType, assembly, declaringType, true))))
                 .ToImmutableArray();
+
             return PickSingleResolvedMember(
                 propertyRef,
                 propertyIndex.GetAll(
@@ -462,6 +470,25 @@ namespace Flame.Clr
             {
                 throw new ResolutionException(memberRef);
             }
+        }
+
+        private static TypeMappingVisitor CreateStandinReplacingVisitor(
+            IType declaringType)
+        {
+            var typeArgs = declaringType.GetRecursiveGenericArguments();
+
+            var standinMap = new Dictionary<IType, IType>();
+
+            for (int i = 0; i < typeArgs.Count; i++)
+            {
+                var standin = ClrGenericParameterStandin.Create(
+                    GenericParameterType.Type,
+                    i,
+                    typeArgs[i].IsReferenceType());
+                standinMap[standin] = typeArgs[i];
+            }
+
+            return new TypeMappingVisitor(standinMap);
         }
     }
 }
