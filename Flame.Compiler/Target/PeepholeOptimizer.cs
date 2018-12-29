@@ -112,12 +112,16 @@ namespace Flame.Collections.Target
                 while (current != null)
                 {
                     // Apply rules to the current node until we can't anymore.
-                    while (TryApplyRule(current, out current, tempInsnArray, replacedBranchTargets))
+                    while (current != null
+                        && TryApplyRule(current, out current, tempInsnArray, replacedBranchTargets))
                     {
                         changes = true;
                     }
 
-                    current = current.Next;
+                    if (current != null)
+                    {
+                        current = current.Next;
+                    }
                 }
             }
 
