@@ -613,5 +613,23 @@ namespace Flame.Compiler
             return ArrayIntrinsics.CreateNewArrayPrototype(arrayType, sizeType)
                 .Instantiate(new[] { sizeValue });
         }
+
+        /// <summary>
+        /// Creates a 'throw' intrinsic, which throws an exception.
+        /// </summary>
+        /// <param name="exceptionType">
+        /// The type of exception to throw.
+        /// </param>
+        /// <param name="exception">
+        /// The exception to throw.
+        /// </param>
+        /// <returns>A 'throw' intrinsic.</returns>
+        public static Instruction CreateThrowIntrinsic(
+            IType exceptionType,
+            ValueTag exception)
+        {
+            return ExceptionIntrinsics.CreateThrowPrototype(exceptionType)
+                .Instantiate(new[] { exception });
+        }
     }
 }
