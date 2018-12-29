@@ -940,6 +940,33 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown arithmetic intrinsic '{prototype.Name}'.");
             }
+            else if (ExceptionIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == ExceptionIntrinsics.Operators.Throw
+                    && prototype.ParameterCount == 1)
+                {
+                    // HACK: emit 'throw; dup' because the 'exception.throw' intrinsic
+                    // "returns" a non-void value. This value cannot ever be used because
+                    // 'exception.throw' always throws, but the fact that the type
+                    // signature for the 'exception.throw' intrinsic has a non-void result
+                    // value makes the code generator think that the 'throw' opcode pushes
+                    // a value on the stack. Consequently, the code generator will emit
+                    // a 'pop' opcode after every 'exceptions.throw' intrinsic. By putting
+                    // a 'dup' inbetween the 'throw' and the 'pop', we can make the peephole
+                    // optimizer delete the 'pop'.
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Throw)),
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup))
+                        },
+                        arguments);
+                }
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown exception handling intrinsic '{prototype.Name}'.");
+            }
             else if (ObjectIntrinsics.Namespace.TryParseIntrinsicName(
                 prototype.Name,
                 out opName))
