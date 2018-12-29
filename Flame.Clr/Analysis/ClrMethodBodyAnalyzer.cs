@@ -248,6 +248,8 @@ namespace Flame.Clr.Analysis
                     // Current instruction is the last instruction of the block.
                     // Handle fallthrough.
                     if (block.Flow is UnreachableFlow
+                        && currentInstruction.OpCode != Mono.Cecil.Cil.OpCodes.Throw
+                        && currentInstruction.OpCode != Mono.Cecil.Cil.OpCodes.Rethrow
                         && branchTargets.ContainsKey(currentInstruction.Next))
                     {
                         var args = stackContents.Reverse().ToArray();
@@ -1066,6 +1068,13 @@ namespace Flame.Clr.Analysis
                     Instruction.CreateCopy(
                         graph.GetValueType(value),
                         value));
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Throw)
+            {
+                var value = stackContents.Pop();
+                block.AppendInstruction(
+                    Instruction.CreateThrowIntrinsic(graph.GetValueType(value), value));
+                block.Flow = UnreachableFlow.Instance;
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
             {
