@@ -107,6 +107,12 @@ namespace Flame.TypeSystem
         public abstract IType NaturalUInt { get; }
 
         /// <summary>
+        /// Gets the root type for this environment, if there is a root type.
+        /// </summary>
+        /// <value>The root type.</value>
+        public abstract IType Object { get; }
+
+        /// <summary>
         /// Gets the Boolean type in this type environment.
         /// Booleans are represented by the UInt1 type.
         /// </summary>
@@ -277,6 +283,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType NaturalUInt => InnerEnvironment.NaturalUInt;
+
+        /// <inheritdoc/>
+        public override IType Object => InnerEnvironment.Object;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

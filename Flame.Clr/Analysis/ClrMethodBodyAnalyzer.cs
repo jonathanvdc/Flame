@@ -360,8 +360,7 @@ namespace Flame.Clr.Analysis
             var value = context.Peek();
             var type = context.GetValueType(value);
             var spec = type.GetIntegerSpecOrNull();
-            // TODO: throw useful exception if `spec == null`.
-            if (spec.IsSigned)
+            if (spec != null && spec.IsSigned)
             {
                 EmitConvertTo(
                     Assembly
@@ -602,6 +601,13 @@ namespace Flame.Clr.Analysis
                     Instruction.CreateConstant(
                         new Float64Constant((double)instruction.Operand),
                         Assembly.Resolver.TypeEnvironment.Float64));
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldnull)
+            {
+                context.Push(
+                    Instruction.CreateConstant(
+                        NullConstant.Instance,
+                        TypeEnvironment.Object));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
             {
