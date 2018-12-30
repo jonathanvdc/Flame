@@ -6,13 +6,14 @@ using Flame.TypeSystem;
 namespace Flame.Compiler.Instructions
 {
     /// <summary>
-    /// A prototype for reinterpret cast instructions: instructions that
-    /// convert one pointer type to another and are free to assume that
-    /// this conversion will always succeed.
+    /// A prototype for dynamic cast instructions: instructions that
+    /// convert one pointer type to another but check that this
+    /// conversion is indeed legal; if it is not, then a null pointer
+    /// is produced.
     /// </summary>
-    public sealed class ReinterpretCastPrototype : InstructionPrototype
+    public sealed class DynamicCastPrototype : InstructionPrototype
     {
-        private ReinterpretCastPrototype(PointerType targetType)
+        private DynamicCastPrototype(PointerType targetType)
         {
             this.TargetType = targetType;
         }
@@ -43,7 +44,7 @@ namespace Flame.Compiler.Instructions
             {
                 return new string[]
                 {
-                    "Argument to a reinterpret cast has type '" + argType.FullName +
+                    "Argument to a dynamic cast has type '" + argType.FullName +
                     "', but should have had a pointer type."
                 };
             }
@@ -64,7 +65,7 @@ namespace Flame.Compiler.Instructions
             else if (!(newType is PointerType))
             {
                 throw new InvalidOperationException(
-                    "Cannot transform a reinterpret cast to take non-pointer target type '" +
+                    "Cannot transform a dynamic cast to take non-pointer target type '" +
                     newType.FullName + "'.");
             }
             else
@@ -74,11 +75,11 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Gets the input pointer of an instance of this reinterpret-
+        /// Gets the input pointer of an instance of this dynamic
         /// cast instruction prototype.
         /// </summary>
         /// <param name="instance">
-        /// An instance of this reinterpret cast instruction prototype.
+        /// An instance of this dynamic cast instruction prototype.
         /// </param>
         /// <returns>The input pointer.</returns>
         public ValueTag GetOperand(Instruction instance)
@@ -88,45 +89,45 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Creates an instance of this reinterpret cast instruction
+        /// Creates an instance of this dynamic cast instruction
         /// prototype.
         /// </summary>
         /// <param name="operand">
         /// A pointer to cast to another pointer type.
         /// </param>
         /// <returns>
-        /// A reinterpret cast instruction.
+        /// A dynamic cast instruction.
         /// </returns>
         public Instruction Instantiate(ValueTag operand)
         {
             return Instantiate(new ValueTag[] { operand });
         }
 
-        private static readonly InterningCache<ReinterpretCastPrototype> instanceCache
-            = new InterningCache<ReinterpretCastPrototype>(
-                new StructuralReinterpretCastPrototypeComparer());
+        private static readonly InterningCache<DynamicCastPrototype> instanceCache
+            = new InterningCache<DynamicCastPrototype>(
+                new StructuralDynamicCastPrototypeComparer());
 
         /// <summary>
-        /// Gets or creates a reinterpret cast instruction prototype that
+        /// Gets or creates a dynamic cast instruction prototype that
         /// converts pointers to a specific pointer type.
         /// </summary>
         /// <param name="targetType">The target pointer type.</param>
-        /// <returns>A reinterpret cast instruction prototype.</returns>
-        public static ReinterpretCastPrototype Create(PointerType targetType)
+        /// <returns>A dynamic cast instruction prototype.</returns>
+        public static DynamicCastPrototype Create(PointerType targetType)
         {
-            return instanceCache.Intern(new ReinterpretCastPrototype(targetType));
+            return instanceCache.Intern(new DynamicCastPrototype(targetType));
         }
     }
 
-    internal sealed class StructuralReinterpretCastPrototypeComparer
-        : IEqualityComparer<ReinterpretCastPrototype>
+    internal sealed class StructuralDynamicCastPrototypeComparer
+        : IEqualityComparer<DynamicCastPrototype>
     {
-        public bool Equals(ReinterpretCastPrototype x, ReinterpretCastPrototype y)
+        public bool Equals(DynamicCastPrototype x, DynamicCastPrototype y)
         {
             return object.Equals(x.TargetType, y.TargetType);
         }
 
-        public int GetHashCode(ReinterpretCastPrototype obj)
+        public int GetHashCode(DynamicCastPrototype obj)
         {
             return obj.TargetType.GetHashCode();
         }

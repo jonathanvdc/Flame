@@ -247,7 +247,7 @@ namespace Flame.Compiler
         }
 
         /// <summary>
-        /// Creates a reinterpret-cast instruction that converts
+        /// Creates a reinterpret cast instruction that converts
         /// from one pointer type to another.
         /// </summary>
         /// <param name="targetType">
@@ -257,12 +257,31 @@ namespace Flame.Compiler
         /// An operand to convert to the target type.
         /// </param>
         /// <returns>
-        /// A reinterpret-cast instruction.
+        /// A reinterpret cast instruction.
         /// </returns>
         public static Instruction CreateReinterpretCast(
             PointerType targetType, ValueTag operand)
         {
             return ReinterpretCastPrototype.Create(targetType).Instantiate(operand);
+        }
+
+        /// <summary>
+        /// Creates a dynamic cast instruction that converts
+        /// from one pointer type to another.
+        /// </summary>
+        /// <param name="targetType">
+        /// A type to convert operands to.
+        /// </param>
+        /// <param name="operand">
+        /// An operand to convert to the target type.
+        /// </param>
+        /// <returns>
+        /// A dynamic cast instruction.
+        /// </returns>
+        public static Instruction CreateDynamicCast(
+            PointerType targetType, ValueTag operand)
+        {
+            return DynamicCastPrototype.Create(targetType).Instantiate(operand);
         }
 
         /// <summary>
