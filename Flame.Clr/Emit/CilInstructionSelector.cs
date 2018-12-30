@@ -460,6 +460,14 @@ namespace Flame.Clr.Emit
                 // even when we know that downcast checks can be elided?
                 return CreateNopSelection(instruction.Arguments);
             }
+            else if (proto is DynamicCastPrototype)
+            {
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Isinst,
+                        Method.Module.ImportReference(proto.ResultType)),
+                    instruction.Arguments);
+            }
             else if (proto is BoxPrototype)
             {
                 var boxProto = (BoxPrototype)proto;
