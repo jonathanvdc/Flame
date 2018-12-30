@@ -245,9 +245,7 @@ namespace Flame.Clr.Analysis
                 {
                     // Current instruction is the last instruction of the block.
                     // Handle fallthrough.
-                    if (block.Flow is UnreachableFlow
-                        && currentInstruction.OpCode != Mono.Cecil.Cil.OpCodes.Throw
-                        && currentInstruction.OpCode != Mono.Cecil.Cil.OpCodes.Rethrow
+                    if (!context.IsTerminated
                         && branchTargets.ContainsKey(currentInstruction.Next))
                     {
                         var args = context.EvaluationStack.Reverse().ToArray();

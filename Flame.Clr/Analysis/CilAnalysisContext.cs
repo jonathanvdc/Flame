@@ -32,6 +32,7 @@ namespace Flame.Clr.Analysis
             this.Analyzer = analyzer;
             this.stack = new Stack<ValueTag>(
                 block.Parameters.Select(param => param.Tag));
+            this.IsTerminated = false;
         }
 
         /// <summary>
@@ -51,6 +52,15 @@ namespace Flame.Clr.Analysis
         /// Gets the current contents of the evaluation stack.
         /// </summary>
         public IEnumerable<ValueTag> EvaluationStack => stack;
+
+        /// <summary>
+        /// Tells if the CIL basic block analyzed by this object
+        /// has been terminated yet or not.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the basic block has been terminated yet; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsTerminated { get; private set; }
 
         private Stack<ValueTag> stack;
 
@@ -174,6 +184,7 @@ namespace Flame.Clr.Analysis
         public void Terminate(BlockFlow flow)
         {
             Block.Flow = flow;
+            IsTerminated = true;
         }
     }
 }
