@@ -475,7 +475,7 @@ namespace Flame.Clr.Analysis
         /// <param name="method">The method whose parameters are to be popped.</param>
         /// <param name="context">The CIL analysis context.</param>
         /// <returns>A list of arguments.</returns>
-        private IReadOnlyList<ValueTag> PopArguments(
+        private static IReadOnlyList<ValueTag> PopArguments(
             IMethod method,
             CilAnalysisContext context)
         {

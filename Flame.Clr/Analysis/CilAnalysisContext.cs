@@ -12,7 +12,7 @@ namespace Flame.Clr.Analysis
     /// The context in which CIL instructions are converted
     /// to Flame IR.
     /// </summary>
-    public sealed class CilAnalysisContext
+    internal sealed class CilAnalysisContext
     {
         /// <summary>
         /// Creates a CIL evaluation context.
