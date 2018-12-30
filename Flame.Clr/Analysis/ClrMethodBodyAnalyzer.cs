@@ -229,9 +229,7 @@ namespace Flame.Clr.Analysis
                 .ToImmutableList();
 
             var currentInstruction = firstInstruction;
-            var stackContents = new Stack<ValueTag>(
-                block.Parameters
-                    .Select(param => param.Tag));
+            var context = new CilAnalysisContext(block, this);
 
             while (true)
             {
@@ -240,8 +238,8 @@ namespace Flame.Clr.Analysis
                     currentInstruction,
                     currentInstruction.Next,
                     cilMethodBody,
-                    block,
-                    stackContents);
+                    context);
+
                 if (currentInstruction.Next == null ||
                     branchTargets.ContainsKey(currentInstruction.Next))
                 {
@@ -252,7 +250,7 @@ namespace Flame.Clr.Analysis
                         && currentInstruction.OpCode != Mono.Cecil.Cil.OpCodes.Rethrow
                         && branchTargets.ContainsKey(currentInstruction.Next))
                     {
-                        var args = stackContents.Reverse().ToArray();
+                        var args = context.EvaluationStack.Reverse().ToArray();
                         block.Flow = new JumpFlow(
                             AnalyzeBlock(
                                 currentInstruction.Next,
@@ -271,40 +269,24 @@ namespace Flame.Clr.Analysis
             }
         }
 
-        private void PushValue(
-            Instruction value,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
-        {
-            var instruction = block.AppendInstruction(value);
-            if (instruction.Instruction.ResultType != Assembly.Resolver.TypeEnvironment.Void)
-            {
-                stackContents.Push(instruction.Tag);
-            }
-        }
-
         private void LoadValue(
             ValueTag pointer,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            PushValue(
+            context.Push(
                 Instruction.CreateLoad(
-                    ((PointerType)block.Graph.GetValueType(pointer)).ElementType,
-                    pointer),
-                block,
-                stackContents);
+                    ((PointerType)context.GetValueType(pointer)).ElementType,
+                    pointer));
         }
 
         private static void StoreValue(
             ValueTag pointer,
             ValueTag value,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            block.AppendInstruction(
+            context.Emit(
                 Instruction.CreateStore(
-                    block.Graph.GetValueType(value),
+                    context.GetValueType(value),
                     pointer,
                     value));
         }
@@ -315,35 +297,30 @@ namespace Flame.Clr.Analysis
         /// <param name="operatorName">The name of the operator to create.</param>
         /// <param name="first">The first argument to the intrinsic operation.</param>
         /// <param name="second">The second argument to the intrinsic operation.</param>
-        /// <param name="block">The block to update.</param>
-        /// <param name="stackContents">The stack contents.</param>
+        /// <param name="context">The CIL analysis context.</param>
         private void EmitArithmeticBinary(
             string operatorName,
             ValueTag first,
             ValueTag second,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var firstType = block.Graph.GetValueType(first);
-            var secondType = block.Graph.GetValueType(second);
+            var firstType = context.GetValueType(first);
+            var secondType = context.GetValueType(second);
 
             bool isRelational = ArithmeticIntrinsics.Operators
                 .IsRelationalOperator(operatorName);
 
             var resultType = isRelational ? Assembly.Resolver.TypeEnvironment.Boolean : firstType;
 
-            PushValue(
+            context.Push(
                 ArithmeticIntrinsics.CreatePrototype(operatorName, resultType, firstType, secondType)
-                    .Instantiate(first, second),
-                block,
-                stackContents);
+                    .Instantiate(first, second));
 
             if (isRelational)
             {
                 EmitConvertTo(
                     Assembly.Resolver.TypeEnvironment.Int32,
-                    block,
-                    stackContents);
+                    context);
             }
         }
 
@@ -352,16 +329,14 @@ namespace Flame.Clr.Analysis
         /// for signed integer or floating-point values.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
-        /// <param name="block">The block to update.</param>
-        /// <param name="stackContents">The stack contents.</param>
+        /// <param name="context">The CIL analysis context.</param>
         private void EmitSignedArithmeticBinary(
             string operatorName,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var second = stackContents.Pop();
-            var first = stackContents.Pop();
-            EmitArithmeticBinary(operatorName, first, second, block, stackContents);
+            var second = context.Pop();
+            var first = context.Pop();
+            EmitArithmeticBinary(operatorName, first, second, context);
         }
 
         /// <summary>
@@ -369,26 +344,23 @@ namespace Flame.Clr.Analysis
         /// for unsigned integer values.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
-        /// <param name="block">The block to update.</param>
-        /// <param name="stackContents">The stack contents.</param>
+        /// <param name="context">The CIL analysis context.</param>
         private void EmitUnsignedArithmeticBinary(
             string operatorName,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            EmitConvertToUnsigned(block, stackContents);
-            var second = stackContents.Pop();
-            EmitConvertToUnsigned(block, stackContents);
-            var first = stackContents.Pop();
-            EmitArithmeticBinary(operatorName, first, second, block, stackContents);
+            EmitConvertToUnsigned(context);
+            var second = context.Pop();
+            EmitConvertToUnsigned(context);
+            var first = context.Pop();
+            EmitArithmeticBinary(operatorName, first, second, context);
         }
 
         private void EmitConvertToUnsigned(
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var value = stackContents.Peek();
-            var type = block.Graph.GetValueType(value);
+            var value = context.Peek();
+            var type = context.GetValueType(value);
             var spec = type.GetIntegerSpecOrNull();
             // TODO: throw useful exception if `spec == null`.
             if (spec.IsSigned)
@@ -398,31 +370,28 @@ namespace Flame.Clr.Analysis
                         .Resolver
                         .TypeEnvironment
                         .MakeUnsignedIntegerType(spec.Size),
-                    block,
-                    stackContents);
+                    context);
             }
         }
 
         private void EmitConvertTo(
             IType targetType,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            stackContents.Push(
-                EmitConvertTo(stackContents.Pop(), targetType, block));
+            context.Push(
+                EmitConvertTo(context.Pop(), targetType, context));
         }
 
         private ValueTag EmitConvertTo(
             ValueTag operand,
             IType targetType,
-            BasicBlockBuilder block)
+            CilAnalysisContext context)
         {
-            return block.AppendInstruction(
-                ArithmeticIntrinsics.CreatePrototype(
-                    ArithmeticIntrinsics.Operators.Convert,
+            return context.Emit(
+                Instruction.CreateConvertIntrinsic(
                     targetType,
-                    block.Graph.GetValueType(operand))
-                    .Instantiate(operand));
+                    context.GetValueType(operand),
+                    operand));
         }
 
         /// <summary>
@@ -437,38 +406,35 @@ namespace Flame.Clr.Analysis
         /// <param name="falseInstruction">
         /// The instruction to branch to if the condition is false/zero.
         /// </param>
-        /// <param name="block">
-        /// The current basic block.
-        /// </param>
-        /// <param name="stackContents">
-        /// The stack contents.
+        /// <param name="context">
+        /// The current CIL analysis context.
         /// </param>
         private void EmitConditionalBranch(
             ValueTag condition,
             Mono.Cecil.Cil.Instruction ifInstruction,
             Mono.Cecil.Cil.Instruction falseInstruction,
             Mono.Cecil.Cil.MethodBody cilMethodBody,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var args = stackContents.Reverse().ToArray();
-            var branchTypes = args.EagerSelect(arg => block.Graph.GetValueType(arg));
+            var args = context.EvaluationStack.Reverse().ToArray();
+            var branchTypes = args.EagerSelect(arg => context.GetValueType(arg));
 
-            var conditionType = block.Graph.GetValueType(condition);
+            var conditionType = context.GetValueType(condition);
             var conditionISpec = conditionType.GetIntegerSpecOrNull();
             var falseConstant = new IntegerConstant(0).Cast(conditionISpec);
 
-            block.Flow = new SwitchFlow(
-                Instruction.CreateCopy(conditionType, condition),
-                ImmutableList.Create(
-                    new SwitchCase(
-                        ImmutableHashSet.Create<Constant>(falseConstant),
-                        new Branch(
-                            AnalyzeBlock(falseInstruction, branchTypes, cilMethodBody),
-                            args))),
-                new Branch(
-                    AnalyzeBlock(ifInstruction, branchTypes, cilMethodBody),
-                    args));
+            context.Terminate(
+                new SwitchFlow(
+                    Instruction.CreateCopy(conditionType, condition),
+                    ImmutableList.Create(
+                        new SwitchCase(
+                            ImmutableHashSet.Create<Constant>(falseConstant),
+                            new Branch(
+                                AnalyzeBlock(falseInstruction, branchTypes, cilMethodBody),
+                                args))),
+                    new Branch(
+                        AnalyzeBlock(ifInstruction, branchTypes, cilMethodBody),
+                        args)));
         }
 
         private void EmitJumpTable(
@@ -476,12 +442,11 @@ namespace Flame.Clr.Analysis
             IReadOnlyList<Mono.Cecil.Cil.Instruction> labels,
             Mono.Cecil.Cil.Instruction defaultLabel,
             Mono.Cecil.Cil.MethodBody cilMethodBody,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var args = stackContents.Reverse().ToArray();
-            var branchTypes = args.EagerSelect(arg => block.Graph.GetValueType(arg));
-            var conditionType = block.Graph.GetValueType(condition);
+            var args = context.EvaluationStack.Reverse().ToArray();
+            var branchTypes = args.EagerSelect(arg => context.GetValueType(arg));
+            var conditionType = context.GetValueType(condition);
             var conditionSpec = conditionType.GetIntegerSpecOrNull();
 
             var cases = ImmutableList.CreateBuilder<SwitchCase>();
@@ -496,12 +461,13 @@ namespace Flame.Clr.Analysis
                             AnalyzeBlock(labels[i], branchTypes, cilMethodBody),
                             args)));
             }
-            block.Flow = new SwitchFlow(
-                Instruction.CreateCopy(conditionType, condition),
-                cases.ToImmutable(),
-                new Branch(
-                    AnalyzeBlock(defaultLabel, branchTypes, cilMethodBody),
-                    args));
+            context.Terminate(
+                new SwitchFlow(
+                    Instruction.CreateCopy(conditionType, condition),
+                    cases.ToImmutable(),
+                    new Branch(
+                        AnalyzeBlock(defaultLabel, branchTypes, cilMethodBody),
+                        args)));
         }
 
         /// <summary>
@@ -509,65 +475,22 @@ namespace Flame.Clr.Analysis
         /// not include the 'this' parameter.
         /// </summary>
         /// <param name="method">The method whose parameters are to be popped.</param>
-        /// <param name="block">The block that pops values off the stack.</param>
-        /// <param name="stackContents">The stack contents.</param>
+        /// <param name="context">The CIL analysis context.</param>
         /// <returns>A list of arguments.</returns>
         private IReadOnlyList<ValueTag> PopArguments(
             IMethod method,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
             var args = new List<ValueTag>();
 
             // Pop arguments from the stack.
             for (int i = method.Parameters.Count - 1; i >= 0; i--)
             {
-                args.Add(PopTyped(method.Parameters[i].Type, block, stackContents));
+                args.Add(context.Pop(method.Parameters[i].Type));
             }
 
             args.Reverse();
             return args;
-        }
-
-        /// <summary>
-        /// Pops a value of a particular type off the stack.
-        /// </summary>
-        /// <param name="type">The type of the top-of-stack value.</param>
-        /// <param name="block">The block that pops the value off the stack.</param>
-        /// <param name="stackContents">The stack contents.</param>
-        private ValueTag PopTyped(
-            IType type,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
-        {
-            if (type == Assembly.Resolver.TypeEnvironment.Void)
-            {
-                return block.AppendInstruction(
-                    Instruction.CreateConstant(DefaultConstant.Instance,
-                    type));
-            }
-            else
-            {
-                var value = stackContents.Pop();
-                var valueType = block.Graph.GetValueType(value);
-                if (valueType.Equals(type))
-                {
-                    // No need to emit a conversion.
-                    return value;
-                }
-                else if (valueType is PointerType && type is PointerType)
-                {
-                    // Emit a reinterpret cast to convert between pointers.
-                    return block.AppendInstruction(
-                        Instruction.CreateReinterpretCast((PointerType)type, value));
-                }
-                else
-                {
-                    // Emit an 'arith.convert' intrinsic to convert between
-                    // primitive types.
-                    return EmitConvertTo(value, type, block);
-                }
-            }
         }
 
         /// <summary>
@@ -577,22 +500,18 @@ namespace Flame.Clr.Analysis
         /// <param name="elementType">
         /// The type of value the top-of-stack value should point to.
         /// </param>
-        /// <param name="block">
-        /// The block that pops a value from the stack.
-        /// </param>
-        /// <param name="stackContents">
-        /// The stack to pop the topmost value from.
+        /// <param name="context">
+        /// The CIL analysis context.
         /// </param>
         /// <returns>
         /// A pointer to the element type.
         /// </returns>
         private ValueTag PopPointerToType(
             IType elementType,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
-            var pointer = stackContents.Pop();
-            var pointerType = block.Graph.GetValueType(pointer) as PointerType;
+            var pointer = context.Pop();
+            var pointerType = context.GetValueType(pointer) as PointerType;
             if (pointerType == null)
             {
                 // Just return the pointer for now.
@@ -602,7 +521,7 @@ namespace Flame.Clr.Analysis
             else if (pointerType.ElementType != elementType)
             {
                 // Emit a reinterpret cast to convert between pointers.
-                return block.AppendInstruction(
+                return context.Emit(
                     Instruction.CreateReinterpretCast(
                         elementType.MakePointerType(pointerType.Kind),
                         pointer));
@@ -630,250 +549,223 @@ namespace Flame.Clr.Analysis
             Mono.Cecil.Cil.Instruction instruction,
             Mono.Cecil.Cil.Instruction nextInstruction,
             Mono.Cecil.Cil.MethodBody cilMethodBody,
-            BasicBlockBuilder block,
-            Stack<ValueTag> stackContents)
+            CilAnalysisContext context)
         {
             string opName;
             IEnumerable<Mono.Cecil.Cil.Instruction> simplifiedSeq;
             if (signedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
-                EmitSignedArithmeticBinary(opName, block, stackContents);
+                EmitSignedArithmeticBinary(opName, context);
             }
             else if (unsignedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
-                EmitUnsignedArithmeticBinary(opName, block, stackContents);
+                EmitUnsignedArithmeticBinary(opName, context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
-                PushValue(
+                context.Push(
                     Instruction.CreateConstant(
                         new IntegerConstant((int)instruction.Operand),
-                        Assembly.Resolver.TypeEnvironment.Int32),
-                    block,
-                    stackContents);
+                        Assembly.Resolver.TypeEnvironment.Int32));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I8)
             {
-                PushValue(
+                context.Push(
                     Instruction.CreateConstant(
                         new IntegerConstant((long)instruction.Operand),
-                        Assembly.Resolver.TypeEnvironment.Int64),
-                    block,
-                    stackContents);
+                        Assembly.Resolver.TypeEnvironment.Int64));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4)
             {
-                PushValue(
+                context.Push(
                     Instruction.CreateConstant(
                         new Float32Constant((float)instruction.Operand),
-                        Assembly.Resolver.TypeEnvironment.Float32),
-                    block,
-                    stackContents);
+                        Assembly.Resolver.TypeEnvironment.Float32));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R8)
             {
-                PushValue(
+                context.Push(
                     Instruction.CreateConstant(
                         new Float64Constant((double)instruction.Operand),
-                        Assembly.Resolver.TypeEnvironment.Float64),
-                    block,
-                    stackContents);
+                        Assembly.Resolver.TypeEnvironment.Float64));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
             {
-                PushValue(
+                context.Push(
                     Instruction.CreateConstant(
                         new StringConstant((string)instruction.Operand),
-                        TypeHelpers.BoxIfReferenceType(Assembly.Resolver.TypeEnvironment.String)),
-                    block,
-                    stackContents);
+                        TypeHelpers.BoxIfReferenceType(Assembly.Resolver.TypeEnvironment.String)));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)
             {
                 var valType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
-                var val = PopTyped(valType, block, stackContents);
-                PushValue(
-                    Instruction.CreateBox(valType, val),
-                    block,
-                    stackContents);
+                var val = context.Pop(valType);
+                context.Push(
+                    Instruction.CreateBox(valType, val));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unbox_Any)
             {
-                var val = stackContents.Pop();
+                var val = context.Pop();
                 var targetType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-                var valType = block.Graph.GetValueType(val);
-                PushValue(
-                    Instruction.CreateUnboxAnyIntrinsic(targetType, valType, val),
-                    block,
-                    stackContents);
+                var valType = context.GetValueType(val);
+                context.Push(
+                    Instruction.CreateUnboxAnyIntrinsic(targetType, valType, val));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
             {
-                stackContents.Push(GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody));
+                context.Push(GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarg)
             {
                 var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
-                LoadValue(alloca.Tag, block, stackContents);
+                LoadValue(alloca.Tag, context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Starg)
             {
                 var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
                 StoreValue(
                     alloca.Tag,
-                    PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
-                    block,
-                    stackContents);
+                    context.Pop(GetAllocaElementType(alloca.Instruction)),
+                    context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloca)
             {
-                stackContents.Push(
+                context.Push(
                     localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index].Tag);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloc)
             {
                 var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
-                LoadValue(alloca.Tag, block, stackContents);
+                LoadValue(alloca.Tag, context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stloc)
             {
                 var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
                 StoreValue(
                     alloca.Tag,
-                    PopTyped(GetAllocaElementType(alloca.Instruction), block, stackContents),
-                    block,
-                    stackContents);
+                    context.Pop(GetAllocaElementType(alloca.Instruction)),
+                    context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                var basePointer = stackContents.Pop();
-                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                var basePointer = context.Pop();
+                var basePointerType = context.GetValueType(basePointer) as PointerType;
                 if (basePointerType == null)
                 {
                     // 'ldfld' instructions may also load a field from a value type
                     // directly. If that is the case, we will find or create a read-only
                     // address for the base pointer.
-                    basePointer = ToReadOnlyAddress(basePointer, block);
-                    basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                    basePointer = ToReadOnlyAddress(basePointer, context);
+                    basePointerType = context.GetValueType(basePointer) as PointerType;
                 }
 
                 if (basePointerType.ElementType != field.ParentType)
                 {
                     // Reinterpret the base pointer if necessary.
-                    basePointer = block.AppendInstruction(
+                    basePointer = context.Emit(
                         Instruction.CreateReinterpretCast(
                             field.ParentType.MakePointerType(basePointerType.Kind),
                             basePointer));
                 }
-                PushValue(
+                context.Push(
                     Instruction.CreateLoad(
                         field.FieldType,
-                        block.AppendInstruction(
-                            Instruction.CreateGetFieldPointer(field, basePointer))),
-                    block,
-                    stackContents);
+                        context.Emit(
+                            Instruction.CreateGetFieldPointer(field, basePointer))));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldflda)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                var basePointer = stackContents.Pop();
-                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                var basePointer = context.Pop();
+                var basePointerType = context.GetValueType(basePointer) as PointerType;
                 if (basePointerType == null)
                 {
                     throw new InvalidProgramException(
                         "'ldflda' instruction expects a base pointer that points to an " +
                         $"element of type '{field.ParentType}'. Instead, a base pointer of " +
-                        $"type '{block.Graph.GetValueType(basePointer)}' was provided.");
+                        $"type '{context.GetValueType(basePointer)}' was provided.");
                 }
 
                 if (basePointerType.ElementType != field.ParentType)
                 {
                     // Reinterpret the base pointer if necessary.
-                    basePointer = block.AppendInstruction(
+                    basePointer = context.Emit(
                         Instruction.CreateReinterpretCast(
                             field.ParentType.MakePointerType(basePointerType.Kind),
                             basePointer));
                 }
-                PushValue(
-                    Instruction.CreateGetFieldPointer(field, basePointer),
-                    block,
-                    stackContents);
+                context.Push(
+                    Instruction.CreateGetFieldPointer(field, basePointer));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                var value = PopTyped(field.FieldType, block, stackContents);
-                var basePointer = stackContents.Pop();
-                var basePointerType = block.Graph.GetValueType(basePointer) as PointerType;
+                var value = context.Pop(field.FieldType);
+                var basePointer = context.Pop();
+                var basePointerType = context.GetValueType(basePointer) as PointerType;
                 if (basePointerType == null)
                 {
                     throw new InvalidProgramException(
                         "'stfld' instruction expects a base pointer that points to an " +
                         $"element of type '{field.ParentType}'. Instead, a base pointer of " +
-                        $"type '{block.Graph.GetValueType(basePointer)}' was provided.");
+                        $"type '{context.GetValueType(basePointer)}' was provided.");
                 }
 
                 if (basePointerType.ElementType != field.ParentType)
                 {
                     // Reinterpret the base pointer if necessary.
-                    basePointer = block.AppendInstruction(
+                    basePointer = context.Emit(
                         Instruction.CreateReinterpretCast(
                             field.ParentType.MakePointerType(basePointerType.Kind),
                             basePointer));
                 }
-                block.AppendInstruction(
+                context.Emit(
                     Instruction.CreateStore(
                         field.FieldType,
-                        block.AppendInstruction(
+                        context.Emit(
                             Instruction.CreateGetFieldPointer(field, basePointer)),
                         value));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                PushValue(
+                context.Push(
                     Instruction.CreateLoad(
                         field.FieldType,
-                        block.AppendInstruction(
-                            Instruction.CreateGetStaticFieldPointer(field))),
-                    block,
-                    stackContents);
+                        context.Emit(
+                            Instruction.CreateGetStaticFieldPointer(field))));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsflda)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                PushValue(
-                    Instruction.CreateGetStaticFieldPointer(field),
-                    block,
-                    stackContents);
+                context.Push(
+                    Instruction.CreateGetStaticFieldPointer(field));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
-                var value = PopTyped(field.FieldType, block, stackContents);
-                block.AppendInstruction(
+                var value = context.Pop(field.FieldType);
+                context.Emit(
                     Instruction.CreateStore(
                         field.FieldType,
-                        block.AppendInstruction(
+                        context.Emit(
                             Instruction.CreateGetStaticFieldPointer(field)),
                         value));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldobj)
             {
                 var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
-                var pointer = PopPointerToType(elementType, block, stackContents);
-                PushValue(
+                var pointer = PopPointerToType(elementType, context);
+                context.Push(
                     Instruction.CreateLoad(
                         elementType,
-                        pointer),
-                    block,
-                    stackContents);
+                        pointer));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldind_Ref)
             {
-                var pointer = stackContents.Pop();
+                var pointer = context.Pop();
                 var pointerType = graph.GetValueType(pointer) as PointerType;
                 if (pointerType == null)
                 {
@@ -881,19 +773,17 @@ namespace Flame.Clr.Analysis
                         "`ldind.ref` instructions can only load pointer values; " +
                         $"argument of type '{graph.GetValueType(pointer)}' isn't one.");
                 }
-                PushValue(
+                context.Push(
                     Instruction.CreateLoad(
                         pointerType.ElementType,
-                        pointer),
-                    block,
-                    stackContents);
+                        pointer));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stobj)
             {
                 var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
-                var value = PopTyped(elementType, block, stackContents);
-                var pointer = PopPointerToType(elementType, block, stackContents);
-                block.AppendInstruction(
+                var value = context.Pop(elementType);
+                var pointer = PopPointerToType(elementType, context);
+                context.Emit(
                     Instruction.CreateStore(
                         elementType,
                         pointer,
@@ -903,58 +793,54 @@ namespace Flame.Clr.Analysis
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-                var indexVal = stackContents.Pop();
-                var arrayVal = stackContents.Pop();
-                var arrayValType = block.Graph.GetValueType(arrayVal);
-                PushValue(
+                var indexVal = context.Pop();
+                var arrayVal = context.Pop();
+                var arrayValType = context.GetValueType(arrayVal);
+                context.Push(
                     Instruction.CreateGetElementPointerIntrinsic(
                         elementType,
                         arrayValType,
-                        new[] { block.Graph.GetValueType(indexVal) },
+                        new[] { context.GetValueType(indexVal) },
                         arrayVal,
-                        new[] { indexVal }),
-                    block,
-                    stackContents);
+                        new[] { indexVal }));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-                var indexVal = stackContents.Pop();
-                var arrayVal = stackContents.Pop();
-                var arrayValType = block.Graph.GetValueType(arrayVal);
-                PushValue(
+                var indexVal = context.Pop();
+                var arrayVal = context.Pop();
+                var arrayValType = context.GetValueType(arrayVal);
+                context.Push(
                     Instruction.CreateLoadElementIntrinsic(
                         elementType,
                         arrayValType,
-                        new[] { block.Graph.GetValueType(indexVal) },
+                        new[] { context.GetValueType(indexVal) },
                         arrayVal,
-                        new[] { indexVal }),
-                    block,
-                    stackContents);
+                        new[] { indexVal }));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-                var elemVal = PopTyped(elementType, block, stackContents);
-                var indexVal = stackContents.Pop();
-                var arrayVal = stackContents.Pop();
-                var arrayValType = block.Graph.GetValueType(arrayVal);
-                block.AppendInstruction(
+                var elemVal = context.Pop(elementType);
+                var indexVal = context.Pop();
+                var arrayVal = context.Pop();
+                var arrayValType = context.GetValueType(arrayVal);
+                context.Emit(
                     Instruction.CreateStoreElementIntrinsic(
                         elementType,
                         arrayValType,
-                        new[] { block.Graph.GetValueType(indexVal) },
+                        new[] { context.GetValueType(indexVal) },
                         elemVal,
                         arrayVal,
                         new[] { indexVal }));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Ref)
             {
-                var indexVal = stackContents.Pop();
-                var arrayVal = stackContents.Pop();
-                var arrayValType = block.Graph.GetValueType(arrayVal);
+                var indexVal = context.Pop();
+                var arrayVal = context.Pop();
+                var arrayValType = context.GetValueType(arrayVal);
                 IType elementType;
                 if (!ClrArrayType.TryGetArrayElementType(
                     TypeHelpers.UnboxIfPossible(arrayValType),
@@ -964,26 +850,22 @@ namespace Flame.Clr.Analysis
                         "'ldelem.ref' opcodes can only load array elements but the argument " +
                         $"of type '{arrayValType.FullName}' is not one.");
                 }
-                PushValue(
+                context.Push(
                     Instruction.CreateLoadElementIntrinsic(
                         elementType,
                         arrayValType,
-                        new[] { block.Graph.GetValueType(indexVal) },
+                        new[] { context.GetValueType(indexVal) },
                         arrayVal,
-                        new[] { indexVal }),
-                    block,
-                    stackContents);
+                        new[] { indexVal }));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldlen)
             {
-                var arrayVal = stackContents.Pop();
-                PushValue(
+                var arrayVal = context.Pop();
+                context.Push(
                     Instruction.CreateGetLengthIntrinsic(
                         TypeEnvironment.NaturalUInt,
-                        block.Graph.GetValueType(arrayVal),
-                        arrayVal),
-                    block,
-                    stackContents);
+                        context.GetValueType(arrayVal),
+                        arrayVal));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newarr)
             {
@@ -996,20 +878,18 @@ namespace Flame.Clr.Analysis
                         "Cannot analyze a 'newarr' opcode because the type " +
                         "environment does not support array types.");
                 }
-                var lengthVal = stackContents.Pop();
-                PushValue(
+                var lengthVal = context.Pop();
+                context.Push(
                     Instruction.CreateNewArrayIntrinsic(
                         TypeHelpers.BoxIfReferenceType(arrayType),
-                        block.Graph.GetValueType(lengthVal),
-                        lengthVal),
-                    block,
-                    stackContents);
+                        context.GetValueType(lengthVal),
+                        lengthVal));
             }
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
                 var targetType = convTypes[instruction.OpCode];
-                EmitConvertTo(targetType, block, stackContents);
+                EmitConvertTo(targetType, context);
 
                 // We do need to take care to convert integers < 32 bits
                 // to 32-bit integers.
@@ -1019,13 +899,13 @@ namespace Flame.Clr.Analysis
                     if (intSpec.IsSigned)
                     {
                         // Sign-extend the integer.
-                        EmitConvertTo(TypeEnvironment.Int32, block, stackContents);
+                        EmitConvertTo(TypeEnvironment.Int32, context);
                     }
                     else
                     {
                         // Zero-extend, then make sure an int32 ends up on the stack.
-                        EmitConvertTo(TypeEnvironment.UInt32, block, stackContents);
-                        EmitConvertTo(TypeEnvironment.Int32, block, stackContents);
+                        EmitConvertTo(TypeEnvironment.UInt32, context);
+                        EmitConvertTo(TypeEnvironment.Int32, context);
                     }
                 }
             }
@@ -1033,56 +913,57 @@ namespace Flame.Clr.Analysis
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-                var pointer = stackContents.Pop();
-                var pointerType = block.Graph.GetValueType(pointer) as PointerType;
+                var pointer = context.Pop();
+                var pointerType = context.GetValueType(pointer) as PointerType;
                 if (pointerType == null || pointerType.Kind == PointerKind.Box)
                 {
                     // Check that the pointer is actually a (reference or transient)
                     // pointer.
                     throw new InvalidProgramException(
                         "The parameter to an 'initobj' instruction must be a reference " +
-                        $"or transient pointer; '{block.Graph.GetValueType(pointer).FullName}' is neither.");
+                        $"or transient pointer; '{context.GetValueType(pointer).FullName}' is neither.");
                 }
 
                 if (pointerType.ElementType != elementType)
                 {
                     // Insert a reinterpret cast if necessary.
                     pointerType = elementType.MakePointerType(pointerType.Kind);
-                    pointer = block.AppendInstruction(Instruction.CreateReinterpretCast(pointerType, pointer));
+                    pointer = context.Emit(Instruction.CreateReinterpretCast(pointerType, pointer));
                 }
 
                 // Assign the 'default' constant to the pointer.
-                block.AppendInstruction(
+                context.Emit(
                     Instruction.CreateStore(
                         elementType,
                         pointer,
-                        block.AppendInstruction(
+                        context.Emit(
                             Instruction.CreateConstant(
                                 DefaultConstant.Instance,
                                 elementType))));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {
-                var value = PopTyped(ReturnParameter.Type, block, stackContents);
-                block.Flow = new ReturnFlow(
-                    Instruction.CreateCopy(
-                        graph.GetValueType(value),
-                        value));
+                var value = context.Pop(ReturnParameter.Type);
+                context.Terminate(
+                    new ReturnFlow(
+                        Instruction.CreateCopy(
+                            graph.GetValueType(value),
+                            value)));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Throw)
             {
-                var value = stackContents.Pop();
-                block.AppendInstruction(
+                var value = context.Pop();
+                context.Emit(
                     Instruction.CreateThrowIntrinsic(graph.GetValueType(value), value));
-                block.Flow = UnreachableFlow.Instance;
+                context.Terminate(UnreachableFlow.Instance);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
             {
-                stackContents.Pop();
+                context.Pop();
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Dup)
             {
-                stackContents.Push(stackContents.Peek());
+                context.Push(context.Peek());
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Nop)
             {
@@ -1090,61 +971,57 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Br)
             {
-                var args = stackContents.Reverse().ToArray();
-                block.Flow = new JumpFlow(
-                    AnalyzeBlock(
-                        (Mono.Cecil.Cil.Instruction)instruction.Operand,
-                        args.EagerSelect(arg => block.Graph.GetValueType(arg)),
-                        cilMethodBody),
-                    args);
+                var args = context.EvaluationStack.Reverse().ToArray();
+                context.Terminate(
+                    new JumpFlow(
+                        AnalyzeBlock(
+                            (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                            args.EagerSelect(arg => context.GetValueType(arg)),
+                            cilMethodBody),
+                        args));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
             {
                 EmitConditionalBranch(
-                    stackContents.Pop(),
+                    context.Pop(),
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
                     nextInstruction,
                     cilMethodBody,
-                    block,
-                    stackContents);
+                    context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brfalse)
             {
                 EmitConditionalBranch(
-                    stackContents.Pop(),
+                    context.Pop(),
                     nextInstruction,
                     (Mono.Cecil.Cil.Instruction)instruction.Operand,
                     cilMethodBody,
-                    block,
-                    stackContents);
+                    context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Switch)
             {
                 EmitJumpTable(
-                    stackContents.Pop(),
+                    context.Pop(),
                     (Mono.Cecil.Cil.Instruction[])instruction.Operand,
                     nextInstruction,
                     cilMethodBody,
-                    block,
-                    stackContents);
+                    context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Call
                 || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
-                var args = PopArguments(method, block, stackContents);
+                var args = PopArguments(method, context);
 
                 // Pop the 'this' pointer from the stack.
                 if (!method.IsStatic)
                 {
-                    var thisValType = block.Graph.GetValueType(stackContents.Peek());
+                    var thisValType = context.GetValueType(context.Peek());
                     if (thisValType is PointerType)
                     {
-                        var thisArg = PopTyped(
-                            method.ParentType.MakePointerType(((PointerType)thisValType).Kind),
-                            block,
-                            stackContents);
+                        var thisArg = context.Pop(
+                            method.ParentType.MakePointerType(((PointerType)thisValType).Kind));
                         args = new[] { thisArg }.Concat(args).ToArray();
                     }
                     else
@@ -1153,45 +1030,51 @@ namespace Flame.Clr.Analysis
                     }
                 }
 
-                PushValue(
-                    Instruction.CreateCall(
-                        method,
-                        instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
-                            ? MethodLookup.Virtual
-                            : MethodLookup.Static,
-                        args),
-                    block,
-                    stackContents);
+                var call = Instruction.CreateCall(
+                    method,
+                    instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
+                        ? MethodLookup.Virtual
+                        : MethodLookup.Static,
+                    args);
+
+                if (call.ResultType == TypeEnvironment.Void)
+                {
+                    context.Emit(call);
+                }
+                else
+                {
+                    context.Push(call);
+                }
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newobj)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
-                var args = PopArguments(method, block, stackContents);
+                var args = PopArguments(method, context);
 
                 if (method.ParentType.IsReferenceType())
                 {
                     // Reference types are created by actual 'new_object' instructions.
-                    PushValue(Instruction.CreateNewObject(method, args), block, stackContents);
+                    context.Push(Instruction.CreateNewObject(method, args));
                 }
                 else
                 {
                     // Value types are created by allocating a temporary, initializing it and
                     // loading its value.
-                    var alloca = GetTemporaryAlloca(method.ParentType, block.Graph);
-                    block.AppendInstruction(
+                    var alloca = GetTemporaryAlloca(method.ParentType, context.Block.Graph);
+                    context.Emit(
                         Instruction.CreateCall(
                             method,
                             MethodLookup.Static,
                             new[] { alloca }.Concat(args).ToArray()));
-                    PushValue(Instruction.CreateLoad(method.ParentType, alloca), block, stackContents);
+                    context.Push(Instruction.CreateLoad(method.ParentType, alloca));
                 }
             }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
                 foreach (var instr in simplifiedSeq)
                 {
-                    AnalyzeInstruction(instr, nextInstruction, cilMethodBody, block, stackContents);
+                    AnalyzeInstruction(instr, nextInstruction, cilMethodBody, context);
                 }
             }
             else
@@ -1206,21 +1089,21 @@ namespace Flame.Clr.Analysis
         /// to the temporary.
         /// </summary>
         /// <param name="value">The value to spill.</param>
-        /// <param name="block">
-        /// A block that will be modified to store the value
-        /// in the temporary slot.
+        /// <param name="context">
+        /// The CIL analysis context that makes the request.
         /// </param>
         /// <returns>A pointer to the temporary.</returns>
         private static ValueTag SpillToTemporary(
             ValueTag value,
-            BasicBlockBuilder block)
+            CilAnalysisContext context)
         {
-            var type = block.Graph.GetValueType(value);
-            var alloca = block.Graph.GetBasicBlock(block.Graph.EntryPointTag)
+            var graph = context.Block.Graph;
+            var type = graph.GetValueType(value);
+            var alloca = graph.GetBasicBlock(graph.EntryPointTag)
                 .InsertInstruction(
                     0,
                     Instruction.CreateAlloca(type));
-            block.AppendInstruction(Instruction.CreateStore(type, alloca, value));
+            context.Emit(Instruction.CreateStore(type, alloca, value));
             return alloca;
         }
 
@@ -1236,16 +1119,15 @@ namespace Flame.Clr.Analysis
         /// <param name="value">
         /// The value to turn into a read-only address.
         /// </param>
-        /// <param name="block">
-        /// A block that may be modified to store the value
-        /// in the temporary slot.
+        /// <param name="context">
+        /// The CIL analysis context that makes the request.
         /// </param>
         /// <returns>
         /// A read-only address that points to a copy of <paramref name="value"/>.
         /// </returns>
         private static ValueTag ToReadOnlyAddress(
             ValueTag value,
-            BasicBlockBuilder block)
+            CilAnalysisContext context)
         {
             // We have two strategies to recover a read-only address:
             //
@@ -1257,14 +1139,15 @@ namespace Flame.Clr.Analysis
             //     2. Otherwise, we will copy the object into a temporary.
             //
 
-            if (block.Graph.ContainsInstruction(value)
-                && block.Graph.GetValueParent(value).Tag == block.Tag)
+            var graph = context.Block.Graph;
+            if (graph.ContainsInstruction(value)
+                && graph.GetValueParent(value).Tag == context.Block.Tag)
             {
-                var baseInsn = block.Graph.GetInstruction(value);
+                var baseInsn = graph.GetInstruction(value);
                 if (baseInsn.Instruction.Prototype is LoadPrototype)
                 {
-                    var effectfulness = block.Graph.GetAnalysisResult<EffectfulInstructions>();
-                    if (block.Instructions
+                    var effectfulness = graph.GetAnalysisResult<EffectfulInstructions>();
+                    if (context.Block.Instructions
                         .SkipWhile(insn => insn.Tag != value)
                         .All(insn =>
                             insn.Instruction.Prototype is LoadPrototype
@@ -1274,7 +1157,7 @@ namespace Flame.Clr.Analysis
                     }
                 }
             }
-            return SpillToTemporary(value, block);
+            return SpillToTemporary(value, context);
         }
 
         private void AnalyzeBranchTargets(
