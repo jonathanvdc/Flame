@@ -129,6 +129,35 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for dynamic cast instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<DynamicCastPrototype, IReadOnlyList<LNode>> DynamicCast =
+            new CodecElement<DynamicCastPrototype, IReadOnlyList<LNode>>(
+                "dynamic_cast", EncodeDynamicCast, DecodeDynamicCast);
+
+        private static DynamicCastPrototype DecodeDynamicCast(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            var targetType = state.DecodeType(data[0]);
+            if (targetType is PointerType)
+            {
+                return DynamicCastPrototype.Create((PointerType)targetType);
+            }
+            else
+            {
+                state.Log.LogSyntaxError(
+                    data[0],
+                    new Text("expected a pointer type."));
+                return null;
+            }
+        }
+
+        private static IReadOnlyList<LNode> EncodeDynamicCast(DynamicCastPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.TargetType) };
+        }
+
+        /// <summary>
         /// A codec element for get-field-pointer instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -380,6 +409,7 @@ namespace Flame.Ir
                     .Add(Call)
                     .Add(Constant)
                     .Add(Copy)
+                    .Add(DynamicCast)
                     .Add(GetFieldPointer)
                     .Add(GetStaticFieldPointer)
                     .Add(IndirectCall)
