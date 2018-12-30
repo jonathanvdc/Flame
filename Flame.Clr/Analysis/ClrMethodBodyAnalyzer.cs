@@ -419,7 +419,23 @@ namespace Flame.Clr.Analysis
 
             var conditionType = context.GetValueType(condition);
             var conditionISpec = conditionType.GetIntegerSpecOrNull();
-            var falseConstant = new IntegerConstant(0).Cast(conditionISpec);
+
+            Constant falseConstant;
+            if (conditionISpec == null)
+            {
+                if (conditionType is PointerType)
+                {
+                    falseConstant = NullConstant.Instance;
+                }
+                else
+                {
+                    throw new InvalidProgramException("Cannot branch on a non-pointer, non-integer type.");
+                }
+            }
+            else
+            {
+                falseConstant = new IntegerConstant(0).Cast(conditionISpec);
+            }
 
             context.Terminate(
                 new SwitchFlow(
@@ -906,6 +922,30 @@ namespace Flame.Clr.Analysis
                         EmitConvertTo(TypeEnvironment.Int32, context);
                     }
                 }
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Isinst)
+            {
+                var operandType = TypeHelpers.BoxIfReferenceType(
+                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
+
+                var pointerOperandType = operandType as PointerType;
+                if (pointerOperandType == null)
+                {
+                    throw new InvalidProgramException(
+                        "The type argument to an 'isinst' instruction must be a " +
+                        $" pointer or reference; '{operandType.FullName}' isn't one.");
+                }
+
+                var arg = context.Pop();
+                var argType = context.GetValueType(arg) as PointerType;
+                if (argType == null)
+                {
+                    throw new InvalidProgramException(
+                        "The parameter to an 'isinst' instruction must be a " +
+                        $" pointer; '{context.GetValueType(arg).FullName}' isn't one.");
+                }
+
+                context.Push(Instruction.CreateDynamicCast(pointerOperandType, arg));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Initobj)
             {
