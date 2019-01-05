@@ -623,7 +623,8 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     Instruction.CreateBox(valType, val));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unbox_Any)
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unbox_Any
+                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Castclass)
             {
                 var val = context.Pop();
                 var targetType = TypeHelpers.BoxIfReferenceType(
