@@ -982,9 +982,17 @@ namespace Flame.Clr.Emit
                 if (opName == ObjectIntrinsics.Operators.UnboxAny
                     && prototype.ParameterCount == 1)
                 {
+                    var resultType = prototype.ResultType as TypeSystem.PointerType;
+
+                    // Use `castclass` to convert between reference types. Only
+                    // use `unbox.any` if the result type might be a value type.
+                    var op = resultType != null && resultType.Kind == PointerKind.Box
+                        ? OpCodes.Castclass
+                        : OpCodes.Unbox_Any;
+
                     return CreateSelection(
                         CilInstruction.Create(
-                            OpCodes.Unbox_Any,
+                            op,
                             Method.Module.ImportReference(prototype.ResultType)),
                         arguments);
                 }
