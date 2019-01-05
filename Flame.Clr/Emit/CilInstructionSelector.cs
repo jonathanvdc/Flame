@@ -1200,6 +1200,14 @@ namespace Flame.Clr.Emit
             LinkedListNode<ValueTag> insertionPoint,
             FlowGraph graph)
         {
+            if (selectedInstructions.Contains(instruction))
+            {
+                // Never ever allow selected instructions to be "reordered."
+                // They have already been selected so any "reordering" is
+                // bound to be a form of duplication.
+                return false;
+            }
+
             // Grab the ordering to which we should adhere.
             var ordering = graph.GetAnalysisResult<InstructionOrdering>();
 

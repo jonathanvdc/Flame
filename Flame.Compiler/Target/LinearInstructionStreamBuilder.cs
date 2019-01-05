@@ -91,7 +91,7 @@ namespace Flame.Compiler.Target
                 {
                     if (effectful.Instructions.Contains(tag))
                     {
-                        selectionWorklist.Enqueue (tag);
+                        selectionWorklist.Enqueue(tag);
                     }
                 }
             }
