@@ -56,6 +56,9 @@ namespace Flame.Clr
         public ReadOnlyTypeResolver CorlibTypeResolver { get; private set; }
 
         /// <inheritdoc/>
+        public override SubtypingRules Subtyping => ClrSubtypingRules.Instance;
+
+        /// <inheritdoc/>
         public override IType Void => voidType.Value;
 
         /// <inheritdoc/>

@@ -71,6 +71,12 @@ namespace Flame.TypeSystem
             out IType arrayType);
 
         /// <summary>
+        /// Gets the subtyping rules for this type environment.
+        /// </summary>
+        /// <value>The subtyping rules.</value>
+        public abstract SubtypingRules Subtyping { get; }
+
+        /// <summary>
         /// Gets the Void type in this type environment.
         /// </summary>
         /// <value>The Void type.</value>
@@ -286,6 +292,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType Object => InnerEnvironment.Object;
+
+        /// <inheritdoc/>
+        public override SubtypingRules Subtyping => InnerEnvironment.Subtyping;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(

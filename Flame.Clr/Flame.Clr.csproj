@@ -56,6 +56,7 @@
     <Compile Include="ClrMethodSignature.cs" />
     <Compile Include="ClrPropertyDefinition.cs" />
     <Compile Include="ClrPropertySignature.cs" />
+    <Compile Include="ClrSubtypingRules.cs" />
     <Compile Include="ClrTypeDefinition.cs" />
     <Compile Include="CorlibTypeEnvironment.cs" />
     <Compile Include="NameConversion.cs" />
