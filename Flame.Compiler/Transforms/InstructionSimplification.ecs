@@ -63,6 +63,36 @@ namespace Flame.Compiler.Transforms
         }, {
             c = constant(#null, TConst)();
         }, TConst is PointerType);
+
+        // Delete nop reinterpret casts.
+        #rule({
+            cast = reinterpret_cast(T)(value);
+        }, {
+            cast = copy(T)(value);
+        }, graph.GetValueType(value) == T);
+
+        // Reduce dynamic casts to reinterpret casts if possible.
+        #rule({
+            cast = dynamic_cast(T)(value);
+        }, {
+            cast = reinterpret_cast(T)(value);
+        }, graph.GetAnalysisResult<SubtypingRules>().IsSubtypeOf(graph.GetValueType(value), T) == ImpreciseBoolean.True);
+
+        // Cut the middle man for reinterpret casts.
+        #rule({
+            middle_man = reinterpret_cast(T1)(value);
+            use = reinterpret_cast(T2)(middle_man);
+        }, {
+            use = reinterpret_cast(T2)(value);
+        });
+
+        // Cut the middle man for reinterpret/dynamic casts.
+        #rule({
+            middle_man = reinterpret_cast(T1)(value);
+            use = dynamic_cast(T2)(middle_man);
+        }, {
+            use = dynamic_cast(T2)(value);
+        });
     });
 
     /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using LeMP;
 using Loyc;
 using Loyc.Collections;
@@ -1034,6 +1035,7 @@ namespace FlameMacros
         private static readonly Symbol PatternMatchesParameterName = GSymbol.Get("patternMatches");
 
         private static readonly LNode ITypeNode = F.Id("IType");
+        private static readonly LNode PointerTypeNode = F.Id("PointerType");
 
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>> fieldNamesAndTypes =
             new Dictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>>()
@@ -1042,6 +1044,8 @@ namespace FlameMacros
             { "box", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
             { "unbox", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
             { "load", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
+            { "dynamic_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
+            { "reinterpret_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
             {
                 "constant",
                 new[]
@@ -1071,9 +1075,26 @@ namespace FlameMacros
 
         private static string PrototypeKindToTypeName(string prototypeKind)
         {
-            return char.ToUpperInvariant(prototypeKind[0])
-                + prototypeKind.Substring(1).ToLowerInvariant()
-                + "Prototype";
+            bool toUpper = true;
+            var name = new StringBuilder();
+            foreach (var c in prototypeKind)
+            {
+                if (c == '_')
+                {
+                    toUpper = true;
+                }
+                else if (toUpper)
+                {
+                    name.Append(char.ToUpperInvariant(c));
+                    toUpper = false;
+                }
+                else
+                {
+                    name.Append(char.ToLowerInvariant(c));
+                }
+            }
+            name.Append("Prototype");
+            return name.ToString();
         }
 
         private static LNode Reject(IMessageSink sink, LNode at, string msg)

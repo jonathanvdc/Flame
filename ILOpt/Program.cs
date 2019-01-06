@@ -221,6 +221,9 @@ namespace ILOpt
                     .WithAnalysis(ValueUseAnalysis.Instance)
                     .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance)
                     .WithAnalysis(
+                        new ConstantAnalysis<SubtypingRules>(
+                            typeSystem.Subtyping))
+                    .WithAnalysis(
                         new ConstantAnalysis<PermissiveExceptionDelayability>(
                             PermissiveExceptionDelayability.Instance)));
 
