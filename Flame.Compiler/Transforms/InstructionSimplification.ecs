@@ -85,7 +85,14 @@ namespace Flame.Compiler.Transforms
             cast = constant(#null, T)();
         }, graph.GetAnalysisResult<SubtypingRules>().IsSubtypeOf(graph.GetValueType(value), T) == ImpreciseBoolean.False);
 
-        // Cut the middle man for reinterpret casts.
+        // Reduce 'unbox_any' intrinsics to reinterpret casts if possible.
+        #rule({
+            cast = intrinsic("object.unbox_any", To, #(From))(value);
+        }, {
+            cast = reinterpret_cast((PointerType)To)(value);
+        }, To is PointerType && graph.GetAnalysisResult<SubtypingRules>().IsSubtypeOf(From, To) == ImpreciseBoolean.True);
+
+        // Cut out the middle man for reinterpret casts.
         #rule({
             middle_man = reinterpret_cast(T1)(value);
             use = reinterpret_cast(T2)(middle_man);
@@ -93,7 +100,7 @@ namespace Flame.Compiler.Transforms
             use = reinterpret_cast(T2)(value);
         });
 
-        // Cut the middle man for reinterpret/dynamic casts.
+        // Cut out the middle man for reinterpret/dynamic casts.
         #rule({
             middle_man = reinterpret_cast(T1)(value);
             use = dynamic_cast(T2)(middle_man);
