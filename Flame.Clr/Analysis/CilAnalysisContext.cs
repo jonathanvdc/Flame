@@ -64,6 +64,11 @@ namespace Flame.Clr.Analysis
 
         private Stack<ValueTag> stack;
 
+        private string GenerateInstructionName()
+        {
+            return Block.Tag.Name + "_val_" + Block.InstructionTags.Count;
+        }
+
         /// <summary>
         /// Appends an instruction to the basic block.
         /// </summary>
@@ -71,7 +76,7 @@ namespace Flame.Clr.Analysis
         /// <returns>The value computed by <paramref name="instruction"/>.</returns>
         public ValueTag Emit(Instruction instruction)
         {
-            return Block.AppendInstruction(instruction);
+            return Block.AppendInstruction(instruction, GenerateInstructionName());
         }
 
         /// <summary>
