@@ -182,7 +182,7 @@ namespace Flame.Compiler.Transforms
 
             // Remove all instructions from dead blocks and mark the blocks
             // themselves as unreachable.
-            foreach (var tag in graphBuilder.BasicBlockTags.Except(liveBlocks))
+            foreach (var tag in graphBuilder.BasicBlockTags.Except(liveBlocks).ToArray())
             {
                 var block = graphBuilder.GetBasicBlock(tag);
 
@@ -294,11 +294,7 @@ namespace Flame.Compiler.Transforms
                 while (valueWorklist.Count > 0)
                 {
                     var value = valueWorklist.Dequeue();
-                    LatticeCell cell;
-                    if (!valueCells.TryGetValue(value, out cell))
-                    {
-                        cell = LatticeCell.Top;
-                    }
+                    var cell = GetCellForValue(value, valueCells);
 
                     var newCell = graph.ContainsInstruction(value)
                         ? UpdateInstructionCell(value, valueCells, graph)
@@ -403,7 +399,7 @@ namespace Flame.Compiler.Transforms
                                     parameterArgs[pair.Key] = args;
                                 }
 
-                                args.Add(pair.Key);
+                                args.Add(pair.Value.ValueOrNull);
                                 valueWorklist.Enqueue(pair.Key);
                             }
                             else
