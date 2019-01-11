@@ -37,8 +37,8 @@ namespace UnitTests.Flame.Clr
 {
     #entry_point(@entry-point, #(), { }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_0 = const(42, System::Int32)();
-    }, #return(copy(System::Int32)(val_0)));
+        IL_0000_val_0 = const(42, System::Int32)();
+    }, #return(copy(System::Int32)(IL_0000_val_0)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -63,8 +63,8 @@ namespace UnitTests.Flame.Clr
         val_0 = store(System::Int32)(param_0_slot, param_0);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_1 = load(System::Int32)(param_0_slot);
-    }, #return(copy(System::Int32)(val_1)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+    }, #return(copy(System::Int32)(IL_0000_val_0)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -90,10 +90,10 @@ namespace UnitTests.Flame.Clr
         local_0_slot = alloca(System::Int32)();
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_1 = load(System::Int32)(param_0_slot);
-        val_2 = store(System::Int32)(local_0_slot, val_1);
-        val_3 = load(System::Int32)(local_0_slot);
-    }, #return(copy(System::Int32)(val_3)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = store(System::Int32)(local_0_slot, IL_0000_val_0);
+        IL_0000_val_2 = load(System::Int32)(local_0_slot);
+    }, #return(copy(System::Int32)(IL_0000_val_2)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -122,10 +122,10 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-        val_4 = intrinsic(@arith.add, System::Int32, #(System::Int32, System::Int32))(val_2, val_3);
-    }, #return(copy(System::Int32)(val_4)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+        IL_0000_val_2 = intrinsic(@arith.add, System::Int32, #(System::Int32, System::Int32))(IL_0000_val_0, IL_0000_val_1);
+    }, #return(copy(System::Int32)(IL_0000_val_2)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -157,11 +157,11 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-        val_4 = intrinsic(@arith.gt, System::Boolean, #(System::Int32, System::Int32))(val_2, val_3);
-        val_5 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(val_4);
-    }, #return(copy(System::Int32)(val_5)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+        IL_0000_val_2 = intrinsic(@arith.gt, System::Boolean, #(System::Int32, System::Int32))(IL_0000_val_0, IL_0000_val_1);
+        IL_0000_val_3 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(IL_0000_val_2);
+    }, #return(copy(System::Int32)(IL_0000_val_3)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -193,13 +193,13 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-        val_4 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(val_3);
-        val_5 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(val_2);
-        val_6 = intrinsic(@arith.gt, System::Boolean, #(System::UInt32, System::UInt32))(val_5, val_4);
-        val_7 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(val_6);
-    }, #return(copy(System::Int32)(val_7)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+        IL_0000_val_2 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(IL_0000_val_1);
+        IL_0000_val_3 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(IL_0000_val_0);
+        IL_0000_val_4 = intrinsic(@arith.gt, System::Boolean, #(System::UInt32, System::UInt32))(IL_0000_val_3, IL_0000_val_2);
+        IL_0000_val_5 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(IL_0000_val_4);
+    }, #return(copy(System::Int32)(IL_0000_val_5)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -233,11 +233,11 @@ namespace UnitTests.Flame.Clr
     #block(IL_0000, #(), { }, #goto(block_0()));
     #block(block_0, #(), { }, #goto(block_1()));
     #block(block_1, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-    }, #goto(block_2(val_2, val_3)));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+    }, #goto(block_2(IL_0000_val_0, IL_0000_val_1)));
     #block(block_2, #(#param(System::Int32, IL_0000_stackarg_0), #param(System::Int32, IL_0000_stackarg_1)), { }, #goto(block_3(IL_0000_stackarg_0, IL_0000_stackarg_1)));
-    #block(block_3, #(#param(System::Int32, val_4), #param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_4)));
+    #block(block_3, #(#param(System::Int32, val_2), #param(System::Int32, val_3)), { }, #return(copy(System::Int32)(val_2)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -277,15 +277,15 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-    }, #switch(copy(System::Int32)(val_3), block_1(val_2), {
-        #case(#(0), block_0(val_2));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+    }, #switch(copy(System::Int32)(IL_0000_val_1), block_1(IL_0000_val_0), {
+        #case(#(0), block_0(IL_0000_val_0));
     }));
     #block(block_1, #(#param(System::Int32, IL_0000_stackarg_0)), {
-        val_4 = load(System::Int32)(param_1_slot);
-    }, #return(copy(System::Int32)(val_4)));
-    #block(block_0, #(#param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_5)));
+        val_2 = load(System::Int32)(param_1_slot);
+    }, #return(copy(System::Int32)(val_2)));
+    #block(block_0, #(#param(System::Int32, val_3)), { }, #return(copy(System::Int32)(val_3)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -321,15 +321,15 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-    }, #switch(copy(System::Int32)(val_3), block_1(val_2), {
-        #case(#(0), block_0(val_2));
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+    }, #switch(copy(System::Int32)(IL_0000_val_1), block_1(IL_0000_val_0), {
+        #case(#(0), block_0(IL_0000_val_0));
     }));
     #block(block_0, #(#param(System::Int32, IL_0000_stackarg_0)), {
-        val_4 = load(System::Int32)(param_1_slot);
-    }, #return(copy(System::Int32)(val_4)));
-    #block(block_1, #(#param(System::Int32, val_5)), { }, #return(copy(System::Int32)(val_5)));
+        val_2 = load(System::Int32)(param_1_slot);
+    }, #return(copy(System::Int32)(val_2)));
+    #block(block_1, #(#param(System::Int32, val_3)), { }, #return(copy(System::Int32)(val_3)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -365,19 +365,19 @@ namespace UnitTests.Flame.Clr
         val_1 = store(System::Int32)(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(System::Int32)(param_0_slot);
-        val_3 = load(System::Int32)(param_1_slot);
-        val_4 = intrinsic(@arith.lt, System::Boolean, #(System::Int32, System::Int32))(val_2, val_3);
-        val_5 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(val_4);
-    }, #switch(copy(System::Int32)(val_5), block_1(), {
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = load(System::Int32)(param_1_slot);
+        IL_0000_val_2 = intrinsic(@arith.lt, System::Boolean, #(System::Int32, System::Int32))(IL_0000_val_0, IL_0000_val_1);
+        IL_0000_val_3 = intrinsic(@arith.convert, System::Int32, #(System::Boolean))(IL_0000_val_2);
+    }, #switch(copy(System::Int32)(IL_0000_val_3), block_1(), {
         #case(#(0), block_0());
     }));
     #block(block_0, #(), {
-        val_6 = load(System::Int32)(param_1_slot);
-    }, #return(copy(System::Int32)(val_6)));
+        val_2 = load(System::Int32)(param_1_slot);
+    }, #return(copy(System::Int32)(val_2)));
     #block(block_1, #(), {
-        val_7 = const(7, System::Int32)();
-    }, #return(copy(System::Int32)(val_7)));
+        val_3 = const(7, System::Int32)();
+    }, #return(copy(System::Int32)(val_3)));
 };";
 
             AnalyzeStaticMethodBody(
@@ -414,10 +414,10 @@ namespace UnitTests.Flame.Clr
         val_1 = store(#pointer(System::String, box))(param_1_slot, param_1);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_2 = load(#pointer(System::String, box))(param_0_slot);
-        val_3 = load(#pointer(System::String, box))(param_1_slot);
-        val_4 = call(@'::(System, String).Concat(#pointer(System::String, box), #pointer(System::String, box)) => #pointer(System::String, box), static)(val_2, val_3);
-    }, #return(copy(#pointer(System::String, box))(val_4)));
+        IL_0000_val_0 = load(#pointer(System::String, box))(param_0_slot);
+        IL_0000_val_1 = load(#pointer(System::String, box))(param_1_slot);
+        IL_0000_val_2 = call(@'::(System, String).Concat(#pointer(System::String, box), #pointer(System::String, box)) => #pointer(System::String, box), static)(IL_0000_val_0, IL_0000_val_1);
+    }, #return(copy(#pointer(System::String, box))(IL_0000_val_2)));
 };";
             var stringType = corlib.Definition.MainModule.TypeSystem.String;
 
@@ -454,20 +454,20 @@ namespace UnitTests.Flame.Clr
         val_0 = store(System::Int32)(param_0_slot, param_0);
     }, #goto(IL_0000()));
     #block(IL_0000, #(), {
-        val_1 = load(System::Int32)(param_0_slot);
-    }, #switch(copy(System::Int32)(val_1), block_2(), {
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+    }, #switch(copy(System::Int32)(IL_0000_val_0), block_2(), {
         #case(#(1), block_0());
         #case(#(2), block_1());
     }));
     #block(block_2, #(), {
-        val_2 = const(1, System::Int32)();
-    }, #return(copy(System::Int32)(val_2)));
+        val_1 = const(1, System::Int32)();
+    }, #return(copy(System::Int32)(val_1)));
     #block(block_0, #(), {
-        val_3 = const(2, System::Int32)();
-    }, #return(copy(System::Int32)(val_3)));
+        val_2 = const(2, System::Int32)();
+    }, #return(copy(System::Int32)(val_2)));
     #block(block_1, #(), {
-        val_4 = const(4, System::Int32)();
-    }, #return(copy(System::Int32)(val_4)));
+        val_3 = const(4, System::Int32)();
+    }, #return(copy(System::Int32)(val_3)));
 };";
 
             AnalyzeStaticMethodBody(
