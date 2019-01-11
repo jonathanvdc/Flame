@@ -206,7 +206,7 @@ namespace ILOpt
             var irBody = method.Body;
 
             // Register analyses.
-            irBody = new global::Flame.Compiler.MethodBody(
+            irBody = new MethodBody(
                 irBody.ReturnParameter,
                 irBody.ThisParameter,
                 irBody.Parameters,
