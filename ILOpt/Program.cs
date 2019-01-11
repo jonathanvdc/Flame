@@ -251,6 +251,7 @@ namespace ILOpt
 
                     //   * Optimize control flow.
                     InstructionSimplification.Instance,
+                    new ConstantPropagation(),
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(true),
