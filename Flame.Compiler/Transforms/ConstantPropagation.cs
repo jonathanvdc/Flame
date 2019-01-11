@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Collections;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
@@ -109,15 +110,20 @@ namespace Flame.Compiler.Transforms
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
         {
-            // Do the fancy analysis.
-            var cells = FillCells(graph);
+            IEnumerable<BasicBlockTag> liveBlocks;
 
-            // Rewrite the flow graph.
+            // Do the fancy analysis.
+            var cells = FillCells(graph, out liveBlocks);
+
+            // Get ready to rewrite the flow graph.
             var graphBuilder = graph.ToBuilder();
 
+            // Eliminate switch cases whenever possible.
+            SimplifySwitches(graphBuilder, cells);
+
+            // Replace instructions with constants.
             foreach (var selection in graphBuilder.Instructions)
             {
-                // Replace instructions with constants.
                 LatticeCell cell;
                 if (cells.TryGetValue(selection, out cell)
                     && cell.IsConstant)
@@ -128,12 +134,12 @@ namespace Flame.Compiler.Transforms
                 }
             }
 
+            // Replace block parameters with constants if possible.
             var phiReplacements = new Dictionary<ValueTag, ValueTag>();
             var entryPoint = graphBuilder.GetBasicBlock(graphBuilder.EntryPointTag);
 
             foreach (var block in graphBuilder.BasicBlocks)
             {
-                // Replace block parameters with constants if possible.
                 foreach (var param in block.Parameters)
                 {
                     LatticeCell cell;
@@ -173,10 +179,91 @@ namespace Flame.Compiler.Transforms
 
             graphBuilder.ReplaceUses(phiReplacements);
             graphBuilder.RemoveDefinitions(phiReplacements.Keys);
+
+            // Remove all instructions from dead blocks and mark the blocks
+            // themselves as unreachable.
+            foreach (var tag in graphBuilder.BasicBlockTags.Except(liveBlocks))
+            {
+                var block = graphBuilder.GetBasicBlock(tag);
+
+                // Turn the block's flow into unreachable flow.
+                block.Flow = UnreachableFlow.Instance;
+
+                // Delete the block's instructions.
+                graphBuilder.RemoveInstructionDefinitions(block.InstructionTags);
+            }
+
             return graphBuilder.ToImmutable();
         }
 
-        private Dictionary<ValueTag, LatticeCell> FillCells(FlowGraph graph)
+        /// <summary>
+        /// Simplify switch flows in the 
+        /// </summary>
+        /// <param name="graphBuilder">
+        /// A mutable control flow graph.
+        /// </param>
+        /// <param name="cells">
+        /// A mapping of values to the lattice cells they evaluate to.
+        /// </param>
+        private void SimplifySwitches(
+            FlowGraphBuilder graphBuilder,
+            IReadOnlyDictionary<ValueTag, LatticeCell> cells)
+        {
+            foreach (var block in graphBuilder.BasicBlocks)
+            {
+                var switchFlow = block.Flow as SwitchFlow;
+                if (switchFlow != null)
+                {
+                    // We found a switch. Now we just need to figure
+                    // out which branches are viable. To do so, we'll
+                    // evaluate the switch's condition.
+                    var condition = EvaluateInstruction(
+                        switchFlow.SwitchValue,
+                        cells,
+                        graphBuilder.ImmutableGraph);
+
+                    if (condition.IsConstant)
+                    {
+                        // If a switch flow has a constant condition,
+                        // then we pick a single branch and replace the
+                        // switch with a jump.
+                        var valuesToBranches = switchFlow.ValueToBranchMap;
+                        var branch = valuesToBranches.ContainsKey(condition.Value)
+                            ? valuesToBranches[condition.Value]
+                            : switchFlow.DefaultBranch;
+
+                        block.AppendInstruction(switchFlow.SwitchValue);
+                        block.Flow = new JumpFlow(branch);
+                    }
+                    else if (condition.Kind == LatticeCellKind.NonNull)
+                    {
+                        // If a switch flow has a non-null condition, then
+                        // we can at least rule out all of the null branches.
+                        var nullSingleton = new Constant[] { NullConstant.Instance };
+                        var newCases = switchFlow.Cases
+                            .Where(switchCase => !switchCase.Values.IsSubsetOf(nullSingleton))
+                            .ToArray();
+
+                        if (newCases.Length == 0)
+                        {
+                            block.AppendInstruction(switchFlow.SwitchValue);
+                            block.Flow = new JumpFlow(switchFlow.DefaultBranch);
+                        }
+                        else if (newCases.Length != switchFlow.Cases.Count)
+                        {
+                            block.Flow = new SwitchFlow(
+                                switchFlow.SwitchValue,
+                                newCases,
+                                switchFlow.DefaultBranch);
+                        }
+                    }
+                }
+            }
+        }
+
+        private Dictionary<ValueTag, LatticeCell> FillCells(
+            FlowGraph graph,
+            out IEnumerable<BasicBlockTag> liveBlocks)
         {
             var uses = graph.GetAnalysisResult<ValueUses>();
 
@@ -194,13 +281,16 @@ namespace Flame.Compiler.Transforms
             }
 
             var visitedBlocks = new HashSet<BasicBlockTag>();
+            var liveBlockSet = new HashSet<BasicBlockTag>();
             var valueWorklist = new Queue<ValueTag>(entryPointBlock.InstructionTags);
             var flowWorklist = new Queue<BasicBlockTag>();
             flowWorklist.Enqueue(entryPointBlock);
             visitedBlocks.Add(entryPointBlock);
+            liveBlockSet.Add(entryPointBlock);
 
             while (valueWorklist.Count > 0 || flowWorklist.Count > 0)
             {
+                // Process all values in the worklist.
                 while (valueWorklist.Count > 0)
                 {
                     var value = valueWorklist.Dequeue();
@@ -266,6 +356,17 @@ namespace Flame.Compiler.Transforms
                                     : switchFlow.DefaultBranch
                             };
                         }
+                        else if (condition.Kind == LatticeCellKind.NonNull)
+                        {
+                            // If a switch flow has a non-null condition, then we
+                            // work on all branches except for the null branch, if
+                            // it exists.
+                            branches = switchFlow.ValueToBranchMap
+                                .Where(pair => pair.Key != NullConstant.Instance)
+                                .Select(pair => pair.Value)
+                                .Concat(new[] { switchFlow.DefaultBranch })
+                                .ToArray();
+                        }
                         else
                         {
                             // If a switch flow has a bottom condition, then everything
@@ -281,6 +382,11 @@ namespace Flame.Compiler.Transforms
                     // Process the selected branches.
                     foreach (var branch in branches)
                     {
+                        // The target of every branch we visit is live.
+                        liveBlockSet.Add(branch.Target);
+
+                        // Add the branch target to the worklist of blocks
+                        // to process if we haven't processed it already.
                         if (!visitedBlocks.Contains(branch.Target))
                         {
                             flowWorklist.Enqueue(branch.Target);
@@ -310,23 +416,49 @@ namespace Flame.Compiler.Transforms
                 }
             }
 
+            liveBlocks = liveBlockSet;
             return valueCells;
+        }
+
+        /// <summary>
+        /// Retrieves the lattice cell to which a value evaluates.
+        /// </summary>
+        /// <returns>The lattice cell for the value.</returns>
+        /// <param name="value">The value to inspect.</param>
+        /// <param name="cells">A mapping of values to lattice cells.</param>
+        private static LatticeCell GetCellForValue(
+            ValueTag value,
+            IReadOnlyDictionary<ValueTag, LatticeCell> cells)
+        {
+            LatticeCell result;
+            if (cells.TryGetValue(value, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return LatticeCell.Top;
+            }
         }
 
         private LatticeCell EvaluateInstruction(
             Instruction instruction,
-            Dictionary<ValueTag, LatticeCell> cells,
+            IReadOnlyDictionary<ValueTag, LatticeCell> cells,
             FlowGraph graph)
         {
+            if (instruction.Prototype is CopyPrototype)
+            {
+                // Special case on copy instructions because they're
+                // easy to deal with: just return the lattice cell for
+                // the argument.
+                return GetCellForValue(instruction.Arguments[0], cells);
+            }
+
             var foundTop = false;
             var args = new Constant[instruction.Arguments.Count];
             for (int i = 0; i < args.Length; i++)
             {
-                LatticeCell argCell;
-                if (!cells.TryGetValue(instruction.Arguments[i], out argCell))
-                {
-                    argCell = LatticeCell.Top;
-                }
+                var argCell = GetCellForValue(instruction.Arguments[i], cells);
 
                 if (argCell.Kind == LatticeCellKind.Top)
                 {
@@ -335,16 +467,17 @@ namespace Flame.Compiler.Transforms
                     // that this value cannot be evaluated yet.
                     foundTop = true;
                 }
-                else if (argCell.Kind == LatticeCellKind.Bottom)
+                else if (argCell.Kind == LatticeCellKind.Constant)
+                {
+                    // Yay. We found a compile-time constant.
+                    args[i] = argCell.Value;
+                }
+                else
                 {
                     // We can't evaluate this value at compile-time
                     // because one if its arguments is unknown.
                     // Time to early-out.
-                    return LatticeCell.Bottom;
-                }
-                else
-                {
-                    args[i] = argCell.Value;
+                    return EvaluateNonConstantInstruction(instruction, graph);
                 }
             }
 
@@ -359,13 +492,39 @@ namespace Flame.Compiler.Transforms
                 var constant = Evaluate(instruction.Prototype, args);
                 if (constant == null)
                 {
-                    // Turns out we can't evaluate the instruction.
-                    return LatticeCell.Bottom;
+                    // Turns out we can't evaluate the instruction. But maybe
+                    // we can say something sensible about its nullability?
+                    return EvaluateNonConstantInstruction(instruction, graph);
                 }
                 else
                 {
                     return LatticeCell.Constant(constant);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Evaluates an instruction that has a non-constant value to
+        /// a lattice cell.
+        /// </summary>
+        /// <param name="instruction">The instruction to evaluate.</param>
+        /// <param name="graph">The graph that defines the instruction.</param>
+        /// <returns>A lattice cell.</returns>
+        private static LatticeCell EvaluateNonConstantInstruction(
+            Instruction instruction,
+            FlowGraph graph)
+        {
+            // We can't "evaluate" the instruction in a traditional sense,
+            // but maybe we can say something sensible about its nullability.
+
+            var nullability = graph.GetAnalysisResult<ValueNullability>();
+            if (nullability.IsNonNull(instruction))
+            {
+                return LatticeCell.NonNull;
+            }
+            else
+            {
+                return LatticeCell.Bottom;
             }
         }
 
@@ -436,8 +595,15 @@ namespace Flame.Compiler.Transforms
             Constant,
 
             /// <summary>
+            /// Indicates that the cell is live and value that is
+            /// definitely not <c>null</c>.
+            /// </summary>
+            NonNull,
+
+            /// <summary>
             /// Indicates that the cell is live but does not have a
-            /// constant value.
+            /// constant value. The cell may or may not have a <c>null</c>
+            /// value.
             /// </summary>
             Bottom
         }
@@ -467,18 +633,52 @@ namespace Flame.Compiler.Transforms
 
             public LatticeCell Meet(LatticeCell other)
             {
+                if (other.Kind == LatticeCellKind.Top)
+                {
+                    return this;
+                }
+
                 switch (Kind)
                 {
                     case LatticeCellKind.Top:
                         return other;
+
                     case LatticeCellKind.Constant:
-                        if (Value.Equals(other.Value))
+                        if (other.Kind == LatticeCellKind.Constant
+                            && Value.Equals(other.Value))
+                        {
                             return this;
+                        }
                         else
+                        {
                             return Bottom;
+                        }
+
+                    case LatticeCellKind.NonNull:
+                        if (other.Kind == LatticeCellKind.NonNull)
+                        {
+                            return this;
+                        }
+                        else
+                        {
+                            return Bottom;
+                        }
+
                     case LatticeCellKind.Bottom:
                     default:
                         return this;
+                }
+            }
+
+            public override string ToString()
+            {
+                if (Kind == LatticeCellKind.Constant)
+                {
+                    return $"constant({Value})";
+                }
+                else
+                {
+                    return Kind.ToString().ToLowerInvariant();
                 }
             }
 
@@ -487,6 +687,9 @@ namespace Flame.Compiler.Transforms
 
             public static LatticeCell Bottom =>
                 new LatticeCell(LatticeCellKind.Bottom, null);
+
+            public static LatticeCell NonNull =>
+                new LatticeCell(LatticeCellKind.NonNull, null);
 
             public static LatticeCell Constant(Constant value) =>
                 new LatticeCell(LatticeCellKind.Constant, value);
