@@ -607,7 +607,7 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     Instruction.CreateConstant(
                         NullConstant.Instance,
-                        TypeEnvironment.Object));
+                        TypeEnvironment.Object.MakePointerType(PointerKind.Box)));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
             {
@@ -1114,6 +1114,19 @@ namespace Flame.Clr.Analysis
                             new[] { alloca }.Concat(args).ToArray()));
                     context.Push(Instruction.CreateLoad(method.ParentType, alloca));
                 }
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldftn
+                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldvirtftn)
+            {
+                var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
+                var method = Assembly.Resolve(methodRef);
+                bool isVirtual = instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldvirtftn;
+                context.Push(
+                    Instruction.CreateNewDelegate(
+                        TypeEnvironment.Void.MakePointerType(PointerKind.Transient),
+                        method,
+                        isVirtual ? context.Pop(method.ParentType) : null,
+                        isVirtual ? MethodLookup.Virtual : MethodLookup.Static));
             }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
