@@ -257,6 +257,7 @@ namespace ILOpt
                     new JumpThreading(true),
                     DuplicateReturns.Instance,
                     new TailRecursionElimination(method),
+                    BlockFusion.Instance,
 
                     // Lowering and cleanup passes.
                     JumpToEntryRemoval.Instance,
