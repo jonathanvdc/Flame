@@ -31,7 +31,7 @@ namespace Flame.Compiler.Transforms
             foreach (var block in graph.BasicBlocks)
             {
                 var jumpFlow = block.Flow as JumpFlow;
-                if (jumpFlow != null)
+                if (jumpFlow != null && graph.EntryPointTag != jumpFlow.Branch.Target)
                 {
                     var preds = predecessors.GetPredecessorsOf(jumpFlow.Branch.Target).ToArray();
                     if (preds.Length == 1 && preds[0] == block.Tag)
