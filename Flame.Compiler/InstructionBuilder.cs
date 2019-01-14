@@ -158,6 +158,40 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Moves this instruction from its current location to a
+        /// particular position in a block.
+        /// </summary>
+        /// <param name="index">
+        /// The position in <paramref name="block"/> at which to insert
+        /// this instruction.
+        /// </param>
+        /// <param name="block">
+        /// The block to move this instruction to.
+        /// </param>
+        public void MoveTo(int index, BasicBlockTag block)
+        {
+            var data = this.Instruction;
+            var target = Graph.GetBasicBlock(block);
+            Graph.RemoveInstruction(Tag);
+            target.InsertInstruction(index, data, Tag);
+        }
+
+        /// <summary>
+        /// Moves this instruction from its current location to a
+        /// the end of a basic block.
+        /// </summary>
+        /// <param name="block">
+        /// The block to move this instruction to.
+        /// </param>
+        public void MoveTo(BasicBlockTag block)
+        {
+            var data = this.Instruction;
+            var target = Graph.GetBasicBlock(block);
+            Graph.RemoveInstruction(Tag);
+            target.AppendInstruction(data, Tag);
+        }
+
+        /// <summary>
         /// Tests if this instruction builder is the same instruction
         /// as another instruction builder.
         /// </summary>

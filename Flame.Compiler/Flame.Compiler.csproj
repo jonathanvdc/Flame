@@ -106,6 +106,7 @@
     <Compile Include="Target\PeepholeOptimizer.cs" />
     <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="Transforms\AllocaToRegister.cs" />
+    <Compile Include="Transforms\BlockFusion.cs" />
     <Compile Include="Transforms\BoxToAlloca.cs" />
     <Compile Include="Transforms\ConstantPropagation.cs" />
     <Compile Include="Transforms\CopyPropagation.cs" />

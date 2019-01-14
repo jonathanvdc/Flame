@@ -130,6 +130,23 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Zips this branch's arguments with their corresponding
+        /// parameters.
+        /// </summary>
+        /// <param name="graph">
+        /// The graph that defines the branch.
+        /// </param>
+        /// <returns>
+        /// A sequence of key-value pairs where the keys are basic
+        /// block parameters and the values are branch arguments.
+        /// </returns>
+        public IEnumerable<KeyValuePair<ValueTag, BranchArgument>> ZipArgumentsWithParameters(
+            FlowGraphBuilder graph)
+        {
+            return ZipArgumentsWithParameters(graph.ImmutableGraph);
+        }
+
+        /// <summary>
         /// Tests if this branch equals another branch.
         /// </summary>
         /// <param name="other">The branch to compare with.</param>
