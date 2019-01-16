@@ -69,7 +69,8 @@ namespace Flame.Compiler.Transforms
             InstructionPrototype prototype,
             IReadOnlyList<Constant> arguments)
         {
-            if (prototype is CopyPrototype)
+            if (prototype is CopyPrototype
+                || prototype is ReinterpretCastPrototype)
             {
                 return arguments[0];
             }
