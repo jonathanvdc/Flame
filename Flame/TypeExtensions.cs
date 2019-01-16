@@ -13,6 +13,33 @@ namespace Flame
     public static class TypeExtensions
     {
         /// <summary>
+        /// Tests if a type is a pointer type.
+        /// </summary>
+        /// <param name="type">The type to inspect.</param>
+        /// <returns>
+        /// <c>true</c> if the type is a pointer type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPointerType(this IType type)
+        {
+            return type is PointerType;
+        }
+
+        /// <summary>
+        /// Tests if a type is a pointer type of a particular kind.
+        /// </summary>
+        /// <param name="type">The type to inspect.</param>
+        /// <param name="kind">The kind of pointer to test for.</param>
+        /// <returns>
+        /// <c>true</c> if the type is a pointer type of the specified kind;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPointerType(this IType type, PointerKind kind)
+        {
+            var ptrType = type as PointerType;
+            return ptrType != null && ptrType.Kind == kind;
+        }
+
+        /// <summary>
         /// Creates a pointer type of a particular kind that has a
         /// type as element.
         /// </summary>
