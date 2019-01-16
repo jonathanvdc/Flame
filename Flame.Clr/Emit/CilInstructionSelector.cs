@@ -823,12 +823,14 @@ namespace Flame.Clr.Emit
                         // below takes advantage of that fact to reduce the number
                         // of instructions emitted.
 
-                        if (paramType == prototype.ResultType)
+                        var resultType = prototype.ResultType;
+
+                        if (paramType == resultType)
                         {
                             // Do nothing.
                             return CreateNopSelection(arguments);
                         }
-                        else if (paramType == TypeEnvironment.Float32 || paramType == TypeEnvironment.Float64)
+                        else if (resultType == TypeEnvironment.Float32 || resultType == TypeEnvironment.Float64)
                         {
                             var instructions = new List<CilCodegenInstruction>();
                             if (paramType.IsUnsignedIntegerType())
@@ -837,15 +839,24 @@ namespace Flame.Clr.Emit
                             }
                             instructions.Add(
                                 new CilOpInstruction(
-                                    paramType == TypeEnvironment.Float32
+                                    resultType == TypeEnvironment.Float32
                                     ? OpCodes.Conv_R4
                                     : OpCodes.Conv_R8));
                             return SelectedInstructions.Create<CilCodegenInstruction>(
                                 instructions,
                                 arguments);
                         }
+                        else if (resultType == TypeEnvironment.NaturalInt)
+                        {
+                            return CreateSelection(OpCodes.Conv_I, arguments);
+                        }
+                        else if (resultType == TypeEnvironment.NaturalUInt
+                            || resultType.IsPointerType(PointerKind.Transient))
+                        {
+                            return CreateSelection(OpCodes.Conv_U, arguments);
+                        }
 
-                        var targetSpec = prototype.ResultType.GetIntegerSpecOrNull();
+                        var targetSpec = resultType.GetIntegerSpecOrNull();
 
                         if (targetSpec != null)
                         {
