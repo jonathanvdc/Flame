@@ -682,16 +682,13 @@ namespace Flame.Clr.Emit
                     dependencies.Add(callProto.GetThisArgument(instruction));
                 }
                 dependencies.AddRange(callProto.GetArgumentList(instruction).ToArray());
-                var instructions = new[]
-                {
-                    new CilOpInstruction(
-                        CilInstruction.Create(
-                            callProto.Lookup == MethodLookup.Virtual
+                return CreateSelection(
+                    CilInstruction.Create(
+                        callProto.Lookup == MethodLookup.Virtual
                             ? OpCodes.Callvirt
                             : OpCodes.Call,
-                            Method.Module.ImportReference(callProto.Callee)))
-                };
-                return new SelectedInstructions<CilCodegenInstruction>(instructions, dependencies);
+                        Method.Module.ImportReference(callProto.Callee)),
+                    dependencies);
             }
             else if (proto is NewObjectPrototype)
             {
@@ -701,6 +698,24 @@ namespace Flame.Clr.Emit
                         OpCodes.Newobj,
                         Method.Module.ImportReference(newobjProto.Constructor)),
                     newobjProto.GetArgumentList(instruction).ToArray());
+            }
+            else if (proto is NewDelegatePrototype)
+            {
+                var newDelegateProto = (NewDelegatePrototype)proto;
+                if (IsNativePointerlike(newDelegateProto.ResultType))
+                {
+                    return CreateSelection(
+                        CilInstruction.Create(
+                            newDelegateProto.Lookup == MethodLookup.Virtual
+                                ? OpCodes.Ldvirtftn
+                                : OpCodes.Ldftn,
+                            Method.Module.ImportReference(newDelegateProto.Callee)),
+                        instruction.Arguments);
+                }
+                else
+                {
+                    throw new NotImplementedException($"Cannot emit a function pointer of type '{newDelegateProto.ResultType}'.");
+                }
             }
             else
             {
@@ -848,12 +863,26 @@ namespace Flame.Clr.Emit
                         }
                         else if (resultType == TypeEnvironment.NaturalInt)
                         {
-                            return CreateSelection(OpCodes.Conv_I, arguments);
+                            if (IsNativePointerlike(paramType))
+                            {
+                                return CreateNopSelection(arguments);
+                            }
+                            else
+                            {
+                                return CreateSelection(OpCodes.Conv_I, arguments);
+                            }
                         }
                         else if (resultType == TypeEnvironment.NaturalUInt
                             || resultType.IsPointerType(PointerKind.Transient))
                         {
-                            return CreateSelection(OpCodes.Conv_U, arguments);
+                            if (IsNativePointerlike(paramType))
+                            {
+                                return CreateNopSelection(arguments);
+                            }
+                            else
+                            {
+                                return CreateSelection(OpCodes.Conv_U, arguments);
+                            }
                         }
 
                         var targetSpec = resultType.GetIntegerSpecOrNull();
@@ -1344,6 +1373,13 @@ namespace Flame.Clr.Emit
             {
                 throw new NotSupportedException($"Unknown type of constant: '{constant}'.");
             }
+        }
+
+        private bool IsNativePointerlike(IType type)
+        {
+            return type.IsPointerType(PointerKind.Transient)
+                || type == TypeEnvironment.NaturalUInt
+                || type == TypeEnvironment.NaturalInt;
         }
 
         private static SelectedInstructions<CilCodegenInstruction> CreateSelection(
