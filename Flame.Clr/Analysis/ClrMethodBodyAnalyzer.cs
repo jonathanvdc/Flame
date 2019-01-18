@@ -1123,7 +1123,7 @@ namespace Flame.Clr.Analysis
                 bool isVirtual = instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldvirtftn;
                 context.Push(
                     Instruction.CreateNewDelegate(
-                        TypeEnvironment.Void.MakePointerType(PointerKind.Transient),
+                        TypeEnvironment.NaturalInt,
                         method,
                         isVirtual ? context.Pop(method.ParentType) : null,
                         isVirtual ? MethodLookup.Virtual : MethodLookup.Static));
