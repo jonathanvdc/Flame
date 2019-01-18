@@ -323,7 +323,7 @@ namespace Flame.Clr
             return methodRef;
         }
 
-        public static Mono.Cecil.GenericParameter CloneGenericParameter(
+        private static Mono.Cecil.GenericParameter CloneGenericParameter(
             Mono.Cecil.GenericParameter Parameter,
             Mono.Cecil.IGenericParameterProvider ParameterProvider)
         {
