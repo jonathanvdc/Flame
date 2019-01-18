@@ -335,5 +335,58 @@ namespace Flame.Clr
             }
             return genericParam;
         }
+
+        /// <summary>
+        /// Gets the 'invoke' method of a delegate type, provided
+        /// that it is indeed a delegate type.
+        /// </summary>
+        /// <param name="delegateType">
+        /// A type that may be a delegate type.
+        /// </param>
+        /// <param name="invokeMethod">
+        /// The delegate type's 'invoke' method, provided that
+        /// <paramref name="delegateType"/> is a delegate type with
+        /// an 'invoke' method
+        /// </param>
+        /// <returns><c>true</c> if <paramref name="delegateType"/>
+        /// is indeed a delegate type with an 'invoke' method;
+        /// otherwise, <c>false</c>.</returns>
+        public static bool TryGetDelegateInvokeMethod(
+            IType delegateType,
+            out IMethod invokeMethod)
+        {
+            // All delegate types must inherit from 'System.Delegate'
+            // or 'System.MulticastDelegate'.
+            if (!InheritsFromDelegate(delegateType))
+            {
+                invokeMethod = null;
+                return false;
+            }
+
+            // Find a unique instance method called 'Invoke'.
+            var candidates = delegateType.Methods
+                .Where(method => !method.IsStatic && method.Name.ToString() == "Invoke")
+                .ToArray();
+
+            if (candidates.Length == 1)
+            {
+                invokeMethod = candidates[0];
+                return true;
+            }
+            else
+            {
+                invokeMethod = null;
+                return false;
+            }
+        }
+
+        private static bool InheritsFromDelegate(IType type)
+        {
+            return type.BaseTypes.Any(item => {
+                var fullName = item.FullName.ToString();
+                return fullName == nameof(System) + "." + nameof(Delegate)
+                    || fullName == nameof(System) + "." + nameof(MulticastDelegate);
+            });
+        }
     }
 }
