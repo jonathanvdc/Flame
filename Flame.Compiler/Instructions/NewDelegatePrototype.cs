@@ -59,8 +59,8 @@ namespace Flame.Compiler.Instructions
         /// <inheritdoc/>
         public override ExceptionSpecification ExceptionSpecification
             // TODO: maybe refine the exception specification to `throws (NullPointerException)`
-            // for the `HasThisArgument` case somehow?
-            => HasThisArgument
+            // for the virtual lookup case somehow?
+            => Lookup == MethodLookup.Virtual
                 ? ExceptionSpecification.ThrowAny
                 : ExceptionSpecification.NoThrow;
 

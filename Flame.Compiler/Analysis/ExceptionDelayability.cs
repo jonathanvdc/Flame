@@ -173,7 +173,9 @@ namespace Flame.Compiler.Analysis
         /// <inheritdoc/>
         public override bool CanDelayExceptions(InstructionPrototype prototype)
         {
-            if (prototype is UnboxPrototype || prototype is GetFieldPointerPrototype)
+            if (prototype is UnboxPrototype
+                || prototype is GetFieldPointerPrototype
+                || prototype is NewDelegatePrototype)
             {
                 return true;
             }
