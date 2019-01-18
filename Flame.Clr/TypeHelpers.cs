@@ -357,7 +357,7 @@ namespace Flame.Clr
         {
             // All delegate types must inherit from 'System.Delegate'
             // or 'System.MulticastDelegate'.
-            if (!InheritsFromDelegate(delegateType))
+            if (delegateType == null || !InheritsFromDelegate(delegateType))
             {
                 invokeMethod = null;
                 return false;

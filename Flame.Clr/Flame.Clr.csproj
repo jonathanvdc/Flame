@@ -71,6 +71,7 @@
     <Compile Include="Emit\CilRegisterAllocator.cs" />
     <Compile Include="Emit\ClrMethodBodyEmitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transforms\CanonicalizeDelegates.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj">
