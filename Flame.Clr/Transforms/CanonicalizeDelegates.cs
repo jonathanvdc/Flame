@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using Flame.Constants;
-using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
-using Flame.TypeSystem;
 using Flame.Compiler.Transforms;
 using Flame.Compiler;
 using Flame.Collections;
