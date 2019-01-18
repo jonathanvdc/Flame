@@ -2,6 +2,7 @@ using Flame.Compiler.Instructions;
 using Flame.Compiler.Transforms;
 using Flame.Compiler;
 using Flame.Collections;
+using Flame.TypeSystem;
 
 namespace Flame.Clr.Transforms
 {
@@ -84,7 +85,12 @@ namespace Flame.Clr.Transforms
                             instruction.Instruction = Instruction.CreateNewDelegate(
                                 delegateType,
                                 callee,
-                                hasThisParameter ? boundObject : null,
+                                hasThisParameter
+                                    ? ConvertThisArgument(
+                                        boundObject,
+                                        callee.Parameters[0].Type,
+                                        instruction)
+                                    : null,
                                 MethodLookup.Static);
                         }
                         else
@@ -95,16 +101,39 @@ namespace Flame.Clr.Transforms
                             if (boundObject == thisArg)
                             {
                                 instruction.Instruction = Instruction.CreateNewDelegate(
-                                delegateType,
-                                callee,
-                                thisArg,
-                                MethodLookup.Virtual);
+                                    delegateType,
+                                    callee,
+                                    ConvertThisArgument(
+                                        thisArg,
+                                        TypeHelpers.BoxIfReferenceType(callee.ParentType),
+                                        instruction),
+                                    MethodLookup.Virtual);
                             }
                         }
                     }
                 }
             }
             return builder.ToImmutable();
+        }
+
+        private static ValueTag ConvertThisArgument(
+            ValueTag thisArgument,
+            IType expectedThisType,
+            InstructionBuilder insertionPoint)
+        {
+            var thisType = insertionPoint.Graph.GetValueType(thisArgument);
+
+            if (thisType != expectedThisType)
+            {
+                return insertionPoint.InsertBefore(
+                    Instruction.CreateReinterpretCast(
+                        (PointerType)expectedThisType,
+                        thisArgument));
+            }
+            else
+            {
+                return thisArgument;
+            }
         }
     }
 }

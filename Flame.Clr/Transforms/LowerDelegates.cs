@@ -64,16 +64,46 @@ namespace Flame.Clr.Transforms
                         continue;
                     }
 
+                    bool isVirtual = newDelegateProto.Lookup == MethodLookup.Virtual;
+
                     // First create an instruction that loads the function pointer.
                     var functionPointer = instruction.InsertBefore(
                         Instruction.CreateNewDelegate(
                             constructor.Parameters[1].Type,
                             newDelegateProto.Callee,
-                            newDelegateProto.Lookup == MethodLookup.Virtual
+                            isVirtual
                                 ? newDelegateProto.GetThisArgument(instruction.Instruction)
                                 : null,
                             newDelegateProto.Lookup),
                         instruction.Tag.Name + "_fptr");
+
+                    ValueTag thisArgument;
+                    if (newDelegateProto.HasThisArgument)
+                    {
+                        thisArgument = newDelegateProto.GetThisArgument(instruction.Instruction);
+
+                        var thisType = builder.GetValueType(thisArgument);
+                        var expectedThisType = constructor.Parameters[0].Type;
+                        
+                        // isVirtual
+                        //     ? TypeHelpers.BoxIfReferenceType(newDelegateProto.Callee.ParentType)
+                        //     : newDelegateProto.Callee.Parameters[0].Type;
+
+                        if (thisType != expectedThisType)
+                        {
+                            thisArgument = functionPointer.InsertBefore(
+                                Instruction.CreateReinterpretCast(
+                                    (PointerType)expectedThisType,
+                                    thisArgument));
+                        }
+                    }
+                    else
+                    {
+                        thisArgument = functionPointer.InsertBefore(
+                            Instruction.CreateConstant(
+                                NullConstant.Instance,
+                                constructor.Parameters[0].Type));
+                    }
 
                     // And then create the actual delegate. To do so we must use the
                     // delegate type's constructor. This constructor will always take
@@ -83,12 +113,7 @@ namespace Flame.Clr.Transforms
                         constructor,
                         new[]
                         {
-                            newDelegateProto.HasThisArgument
-                                ? newDelegateProto.GetThisArgument(instruction.Instruction)
-                                : functionPointer.InsertBefore(
-                                    Instruction.CreateConstant(
-                                        NullConstant.Instance,
-                                        constructor.Parameters[0].Type)),
+                            thisArgument,
                             functionPointer
                         });
                 }
