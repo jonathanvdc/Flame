@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Flame.Clr;
 using Flame.Clr.Emit;
+using Flame.Clr.Transforms;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Transforms;
@@ -235,6 +236,7 @@ namespace ILOpt
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
+                    CanonicalizeDelegates.Instance,
                     InstructionSimplification.Instance,
 
                     //   * Box to alloca, alloca to reg.
@@ -265,7 +267,8 @@ namespace ILOpt
                     new SwitchLowering(typeSystem),
                     CopyPropagation.Instance,
                     DeadValueElimination.Instance,
-                    new JumpThreading(false)));
+                    new JumpThreading(false),
+                    LowerDelegates.Instance));
 
             if (printIr)
             {
