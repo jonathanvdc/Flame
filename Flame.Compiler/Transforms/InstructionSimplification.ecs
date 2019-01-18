@@ -1,6 +1,7 @@
 #importMacros(FlameMacros);
 
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Constants;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
@@ -106,6 +107,14 @@ namespace Flame.Compiler.Transforms
             use = dynamic_cast(T2)(middle_man);
         }, {
             use = dynamic_cast(T2)(value);
+        });
+
+        // Turn indirect calls into direct calls.
+        #rule({
+            callee = new_delegate(TDelegate, method, has_this, lookup)(...this_value);
+            result = indirect_call(TRet, TParams)(callee, ...args);
+        }, {
+            result = call(method, lookup)(...this_value, ...args);
         });
     });
 

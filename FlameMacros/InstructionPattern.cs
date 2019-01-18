@@ -5,13 +5,58 @@ using Loyc.Syntax;
 
 namespace FlameMacros
 {
+    /// <summary>
+    /// An enumeration of possible argument kinds in an instruction pattern.
+    /// </summary>
+    public enum InstructionArgumentKind
+    {
+        /// <summary>
+        /// An argument kind that indicates a single value.
+        /// </summary>
+        Value,
+
+        /// <summary>
+        /// An argument kind that indicates a sequence of values.
+        /// </summary>
+        List
+    }
+
+    /// <summary>
+    /// Describes an argument to an instruction pattern.
+    /// </summary>
+    public struct InstructionArgument
+    {
+        /// <summary>
+        /// Creates an instruction argument.
+        /// </summary>
+        /// <param name="name">The name of the argument.</param>
+        /// <param name="kind">The kind of argument.</param>
+        public InstructionArgument(Symbol name, InstructionArgumentKind kind)
+        {
+            this.Name = name;
+            this.Kind = kind;
+        }
+
+        /// <summary>
+        /// Gets the name of the argument.
+        /// </summary>
+        /// <value>The argument's name.</value>
+        public Symbol Name { get; private set; }
+
+        /// <summary>
+        /// Gets the argument's kind.
+        /// </summary>
+        /// <value>The argument's kind.</value>
+        public InstructionArgumentKind Kind { get; private set; }
+    }
+
     public sealed class InstructionPattern
     {
         public InstructionPattern(
             Symbol instructionName,
             string prototypeKind,
             IReadOnlyList<LNode> prototypeArgs,
-            IReadOnlyList<Symbol> instructionArgs)
+            IReadOnlyList<InstructionArgument> instructionArgs)
         {
             this.InstructionName = instructionName;
             this.PrototypeKind = prototypeKind;
@@ -25,7 +70,7 @@ namespace FlameMacros
 
         public IReadOnlyList<LNode> PrototypeArgs { get; private set; }
 
-        public IReadOnlyList<Symbol> InstructionArgs { get; private set; }
+        public IReadOnlyList<InstructionArgument> InstructionArgs { get; private set; }
 
         public static InstructionPattern Parse(LNode insn, IMessageSink sink)
         {
@@ -45,19 +90,29 @@ namespace FlameMacros
             var name = insn.Args[0].Name;
             var kind = insn.Args[1].Target.Name.Name;
             var protoArgs = insn.Args[1].Target.Args;
-            var args = new List<Symbol>();
+            var args = new List<InstructionArgument>();
 
             foreach (var node in insn.Args[1].Args)
             {
-                if (!node.IsId)
+                if (node.IsId)
+                {
+                    args.Add(new InstructionArgument(node.Name, InstructionArgumentKind.Value));
+                }
+                else if (node.Calls(CodeSymbols.DotDotDot)
+                    && node.ArgCount == 1
+                    && node.Args[0].IsId)
+                {
+                    args.Add(new InstructionArgument(node.Args[0].Name, InstructionArgumentKind.List));
+                }
+                else
                 {
                     sink.Write(
                         Severity.Error,
                         insn,
-                        "Each instruction argument must be a reference to another instruction, encoded as an identifier.");
+                        "Each instruction argument must be a reference to another instruction, encoded as an identifier; " +
+                        $"'{insn}' does not conform to that pattern.");
                     return null;
                 }
-                args.Add(node.Name);
             }
 
             return new InstructionPattern(name, kind, protoArgs, args);

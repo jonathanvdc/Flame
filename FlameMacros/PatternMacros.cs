@@ -550,46 +550,79 @@ namespace FlameMacros
             for (int i = 0; i < insnPattern.InstructionArgs.Count; i++)
             {
                 var arg = insnPattern.InstructionArgs[i];
-                var loadArg = F.Call(
-                    CodeSymbols.IndexBracks,
-                    F.Dot(insnName, GSymbol.Get("Arguments")),
-                    F.Literal(i));
 
-                if (fieldMapping.ContainsKey(arg))
+                if (arg.Kind == InstructionArgumentKind.List)
                 {
-                    results.Add(
-                        ReturnFalseIf(
-                            F.Call(
-                                CodeSymbols.Neq,
-                                F.Id(arg),
-                                loadArg)));
-                }
-                else
-                {
-                    Symbol argTempName;
-                    results.Add(
-                        DefineTemporary(
-                            loadArg,
-                            ref localCounter,
-                            out argTempName));
+                    if (i < insnPattern.InstructionArgs.Count - 1)
+                    {
+                        throw new MacroApplicationException(
+                            "The splatting operator (...) may only be used at the end of an instruction's argument list.");
+                    }
 
-                    if (nameToPatternMapping.ContainsKey(arg))
+                    var loadArg = F.Call(
+                        F.Dot(insnName, GSymbol.Get("Arguments"), GSymbol.Get("Skip")),
+                        F.Literal(i));
+
+                    if (fieldMapping.ContainsKey(arg.Name))
                     {
                         results.Add(
                             ReturnFalseIf(
                                 F.Call(
-                                    CodeSymbols.Not,
-                                    ValueIsInstruction(GraphParameterName, argTempName))));
+                                    F.Dot(arg.Name, (Symbol)"SequenceEqual"),
+                                    loadArg)));
                     }
+                    else
+                    {
+                        fieldMapping[arg.Name] = F.Var(
+                            EnumerableType(F.Id("ValueTag")),
+                            arg.Name);
 
-                    results.AddRange(
-                        CreateRewriteRuleMatcher(
-                            arg,
-                            argTempName,
-                            nameToPatternMapping,
-                            patterns,
-                            fieldMapping,
-                            ref localCounter));
+                        results.Add(F.Assign(arg.Name, loadArg));
+                    }
+                }
+                else
+                {
+                    var loadArg = F.Call(
+                        CodeSymbols.IndexBracks,
+                        F.Dot(insnName, GSymbol.Get("Arguments")),
+                        F.Literal(i));
+
+                    if (fieldMapping.ContainsKey(arg.Name))
+                    {
+                        results.Add(
+                            ReturnFalseIf(
+                                F.Call(
+                                    CodeSymbols.Neq,
+                                    F.Id(arg.Name),
+                                    loadArg)));
+                    }
+                    else
+                    {
+                        Symbol argTempName;
+                        results.Add(
+                            DefineTemporary(
+                                loadArg,
+                                ref localCounter,
+                                out argTempName));
+
+                        if (nameToPatternMapping.ContainsKey(arg.Name))
+                        {
+                            results.Add(
+                                ReturnFalseIf(
+                                    F.Call(
+                                        CodeSymbols.Not,
+                                        ValueIsInstruction(GraphParameterName, argTempName))));
+                        }
+
+                        results.AddRange(
+                            CreateRewriteRuleMatcher(
+                                arg.Name,
+                                argTempName,
+                                nameToPatternMapping,
+                                patterns,
+                                fieldMapping,
+                                ref localCounter));
+                    }
                 }
             }
             return results;
@@ -736,13 +769,85 @@ namespace FlameMacros
                         protoNamesAndTypes[i].Value));
             }
 
-            return F.Call(
+            return CreatePrototypeInstantiation(
                 F.Dot(
                     F.Call(
                         F.Dot(PrototypeKindToTypeName(pattern.PrototypeKind), "Create"),
                         protoArgs),
                     GSymbol.Get("Instantiate")),
-                pattern.InstructionArgs.Select(x => F.Id(x)));
+                pattern.InstructionArgs);
+        }
+
+        /// <summary>
+        /// Takes a list of instruction arguments and converts it to a
+        /// call that instantiates an instruction prototype.
+        /// </summary>
+        /// <param name="prototype">A prototype to instantiate.</param>
+        /// <param name="arguments">
+        /// A list of values to feed to the prototype as arguments.
+        /// </param>
+        /// <returns>
+        /// An instruction prototype instantiation.
+        /// </returns>
+        private static LNode CreatePrototypeInstantiation(
+            LNode prototype,
+            IReadOnlyList<InstructionArgument> arguments)
+        {
+            if (arguments.All(x => x.Kind == InstructionArgumentKind.Value))
+            {
+                return F.Call(prototype, arguments.Select(x => F.Id(x.Name)));
+            }
+            else
+            {
+                // Construct two lists. The first contains sequences of arguments.
+                // These will all be concatenated at run time. The second contains
+                // single-value arguments. These are aggregated into arrays of arguments
+                // here.
+                var argSequences = new List<LNode>();
+                var valueArgs = new List<LNode>();
+                foreach (var item in arguments)
+                {
+                    if (item.Kind == InstructionArgumentKind.List)
+                    {
+                        // Add the argument value list to the list of argument
+                        // sequences.
+                        if (valueArgs.Count > 0)
+                        {
+                            argSequences.Add(
+                                F.Call(
+                                    CodeSymbols.New,
+                                    new[] { F.Call(CodeSymbols.Array) }.Concat(valueArgs)));
+                            valueArgs.Clear();
+                        }
+
+                        // Add the list to the list of argument sequences.
+                        argSequences.Add(F.Id(item.Name));
+                    }
+                    else
+                    {
+                        // Add single values to the argument value list.
+                        valueArgs.Add(F.Id(item.Name));
+                    }
+                }
+
+                // Add the argument value list to the list of argument
+                // sequences.
+                if (valueArgs.Count > 0)
+                {
+                    argSequences.Add(
+                        F.Call(
+                            CodeSymbols.New,
+                            new[] { F.Call(CodeSymbols.Array) }.Concat(valueArgs)));
+                }
+
+                // Now concatenate all the argument sequences.
+                return F.Call(
+                    prototype,
+                    F.Call(
+                        F.Dot(
+                            argSequences.Aggregate((left, right) => F.Call(F.Dot(left, (Symbol)"Concat"), right)),
+                            (Symbol)"ToArray")));
+            }
         }
 
         /// <summary>
@@ -1030,11 +1135,18 @@ namespace FlameMacros
             return F.Of(F.Id("IReadOnlyList"), elementType);
         }
 
+        private static LNode EnumerableType(LNode elementType)
+        {
+            return F.Of(F.Id("IEnumerable"), elementType);
+        }
+
         private static readonly Symbol GraphParameterName = GSymbol.Get("graph");
 
         private static readonly Symbol PatternMatchesParameterName = GSymbol.Get("patternMatches");
 
         private static readonly LNode ITypeNode = F.Id("IType");
+        private static readonly LNode IMethodNode = F.Id("IMethod");
+        private static readonly LNode MethodLookupNode = F.Id("MethodLookup");
         private static readonly LNode PointerTypeNode = F.Id("PointerType");
 
         private static readonly IReadOnlyDictionary<string, IReadOnlyList<KeyValuePair<string, LNode>>> fieldNamesAndTypes =
@@ -1061,6 +1173,32 @@ namespace FlameMacros
                     new KeyValuePair<string, LNode>("Name", F.String),
                     new KeyValuePair<string, LNode>("ResultType", ITypeNode),
                     new KeyValuePair<string, LNode>("ParameterTypes", ReadOnlyListType(ITypeNode))
+                }
+            },
+            {
+                "indirect_call",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode),
+                    new KeyValuePair<string, LNode>("ParameterTypes", ReadOnlyListType(ITypeNode))
+                }
+            },
+            {
+                "new_delegate",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode),
+                    new KeyValuePair<string, LNode>("Callee", IMethodNode),
+                    new KeyValuePair<string, LNode>("HasThisArgument", F.Bool),
+                    new KeyValuePair<string, LNode>("Lookup", MethodLookupNode)
+                }
+            },
+            {
+                "call",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("Callee", IMethodNode),
+                    new KeyValuePair<string, LNode>("Lookup", MethodLookupNode)
                 }
             }
         };
