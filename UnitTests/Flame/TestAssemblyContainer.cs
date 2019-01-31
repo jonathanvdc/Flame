@@ -3,7 +3,7 @@ using Flame.TypeSystem;
 
 namespace UnitTests
 {
-        /// <summary>
+    /// <summary>
     /// A convenient container for a static test assembly.
     /// </summary>
     public class TestAssemblyContainer

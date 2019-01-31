@@ -15,9 +15,10 @@ namespace UnitTests.Flame.Ir
     {
         public ConstantCodecTest(ILog log, Random rng)
         {
+            this.testAssembly = new TestAssemblyContainer();
             this.log = log;
             this.rng = rng;
-            this.decoder = new DecoderState(log, new TypeResolver().ReadOnlyView);
+            this.decoder = new DecoderState(log, testAssembly.CreateResolver().ReadOnlyView);
             this.encoder = new EncoderState();
         }
 
@@ -28,6 +29,8 @@ namespace UnitTests.Flame.Ir
         private DecoderState decoder;
 
         private EncoderState encoder;
+
+        private TestAssemblyContainer testAssembly;
 
         [Test]
         public void RoundTripBooleans()
@@ -75,6 +78,15 @@ namespace UnitTests.Flame.Ir
                     var num = rng.NextIntegerConstant(rng.NextIntegerSpec((1 << i) + 1));
                     AssertRoundTrip(num);
                 }
+            }
+        }
+
+        [Test]
+        public void RoundTripTypeToken()
+        {
+            foreach (var type in testAssembly.Assembly.Types)
+            {
+                AssertRoundTrip(new TypeTokenConstant(type));
             }
         }
 

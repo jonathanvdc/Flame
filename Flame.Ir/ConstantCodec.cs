@@ -85,6 +85,10 @@ namespace Flame.Ir
             {
                 return state.Factory.Literal(((Float64Constant)value).Value);
             }
+            else if (value is TypeTokenConstant)
+            {
+                return state.Factory.Call(CodeSymbols.Typeof, state.Encode(((TypeTokenConstant)value).Type));
+            }
 
             throw new NotSupportedException(
                 "Cannot encode unknown kind of literal '" + value.ToString() + "'.");
@@ -102,6 +106,12 @@ namespace Flame.Ir
             if (node.IsIdNamed(CodeSymbols.Default))
             {
                 return DefaultConstant.Instance;
+            }
+
+            // Type token constants.
+            if (node.Calls(CodeSymbols.Typeof, 1))
+            {
+                return new TypeTokenConstant(state.DecodeType(node.Args[0]));
             }
 
             if (!FeedbackHelpers.AssertIsLiteral(node, state.Log))
