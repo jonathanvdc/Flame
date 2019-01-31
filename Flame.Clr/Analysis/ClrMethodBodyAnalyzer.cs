@@ -616,6 +616,23 @@ namespace Flame.Clr.Analysis
                         new StringConstant((string)instruction.Operand),
                         TypeHelpers.BoxIfReferenceType(Assembly.Resolver.TypeEnvironment.String)));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldtoken)
+            {
+                if (instruction.Operand is Mono.Cecil.TypeReference)
+                {
+                    context.Push(
+                        Instruction.CreateConstant(
+                            new TypeTokenConstant(
+                                Assembly.Resolve(
+                                    (Mono.Cecil.TypeReference)instruction.Operand)),
+                            TypeEnvironment.TypeToken));
+                }
+                else
+                {
+                    throw new NotImplementedException(
+                        $"the ldtoken opcode analyzer does not support methods and fields yet; offending instruction: {instruction}");
+                }
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)
             {
                 var valType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
