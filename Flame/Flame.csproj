@@ -74,6 +74,7 @@
     <Compile Include="Constants\IntegerSpec.cs" />
     <Compile Include="Constants\NullConstant.cs" />
     <Compile Include="Constants\StringConstant.cs" />
+    <Compile Include="Constants\TypeTokenConstant.cs" />
     <Compile Include="Names\ArrayName.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\PointerName.cs" />
