@@ -15,7 +15,7 @@ namespace Flame.Clr.Analysis
     internal sealed class CilAnalysisContext
     {
         /// <summary>
-        /// Creates a CIL evaluation context.
+        /// Creates a CIL analysis context.
         /// </summary>
         /// <param name="block">
         /// The initial basic block to fill.
@@ -24,12 +24,17 @@ namespace Flame.Clr.Analysis
         /// The method body analyzer to which this
         /// analysis context belongs.
         /// </param>
+        /// <param name="exceptionHandlers">
+        /// The exception handlers for the CIL analysis context.
+        /// </param>
         public CilAnalysisContext(
             BasicBlockBuilder block,
-            ClrMethodBodyAnalyzer analyzer)
+            ClrMethodBodyAnalyzer analyzer,
+            IReadOnlyList<CilExceptionHandler> exceptionHandlers)
         {
             this.Block = block;
             this.Analyzer = analyzer;
+            this.ExceptionHandlers = exceptionHandlers;
             this.stack = new Stack<ValueTag>(
                 block.Parameters.Select(param => param.Tag));
             this.IsTerminated = false;
@@ -47,6 +52,18 @@ namespace Flame.Clr.Analysis
         /// </summary>
         /// <value>The method body analyzer.</value>
         public ClrMethodBodyAnalyzer Analyzer { get; private set; }
+
+        /// <summary>
+        /// Gets the list of exception handlers that are responsible
+        /// for handling exceptions thrown by the CIL basic block
+        /// that is being analyzed.
+        /// Exception handlers are tested sequentially: the first
+        /// exception handler that *may* be appropriate is used to
+        /// handle exceptions. It is always legal to transfer control
+        /// to the first exception handler.
+        /// </summary>
+        /// <value>A list of exception handlers.</value>
+        public IReadOnlyList<CilExceptionHandler> ExceptionHandlers { get; private set; }
 
         /// <summary>
         /// Gets the current contents of the evaluation stack.
@@ -76,7 +93,37 @@ namespace Flame.Clr.Analysis
         /// <returns>The value computed by <paramref name="instruction"/>.</returns>
         public ValueTag Emit(Instruction instruction)
         {
-            return Block.AppendInstruction(instruction, GenerateInstructionName());
+            var name = GenerateInstructionName();
+
+            // Our first step is to figure out if there's an exception handler
+            // that might catch the instruction's exception.
+            // TODO: switch to a better exception specification system.
+            var exceptionSpec = instruction.Prototype.ExceptionSpecification;
+            if (exceptionSpec.CanThrowSomething)
+            {
+                foreach (var handler in ExceptionHandlers)
+                {
+                    if (handler.IsCatchAll
+                        || handler.HandledExceptionTypes.Any(exceptionSpec.CanThrow))
+                    {
+                        // We found an appropriate exception handler. Now all
+                        // we have to do is split up the basic block and reconnect
+                        // the two pieces with 'try' flow.
+                        var nextBasicBlock = Block.Graph.AddBasicBlock();
+                        var successTag = new ValueTag(name);
+                        nextBasicBlock.AppendParameter(new BlockParameter(instruction.ResultType, successTag));
+
+                        Block.Flow = new TryFlow(
+                            instruction,
+                            new Branch(nextBasicBlock, new[] { BranchArgument.TryResult }),
+                            new Branch(handler.LandingPad, new[] { BranchArgument.TryException }));
+
+                        Block = nextBasicBlock;
+                    }
+                }
+            }
+
+            return Block.AppendInstruction(instruction, name);
         }
 
         /// <summary>

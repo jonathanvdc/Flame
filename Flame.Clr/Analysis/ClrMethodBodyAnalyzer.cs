@@ -229,7 +229,7 @@ namespace Flame.Clr.Analysis
                 .ToImmutableList();
 
             var currentInstruction = firstInstruction;
-            var context = new CilAnalysisContext(block, this);
+            var context = new CilAnalysisContext(block, this, new CilExceptionHandler[0]);
 
             while (true)
             {
