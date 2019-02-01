@@ -1329,7 +1329,7 @@ namespace Flame.Clr.Emit
             return blockInstructionList;
         }
 
-        private static CilInstruction CreatePushConstant(
+        private CilInstruction CreatePushConstant(
             Constant constant)
         {
             if (constant is IntegerConstant)
@@ -1368,6 +1368,11 @@ namespace Flame.Clr.Emit
             {
                 var sconst = (StringConstant)constant;
                 return CilInstruction.Create(OpCodes.Ldstr, sconst.Value);
+            }
+            else if (constant is TypeTokenConstant)
+            {
+                var tconst = (TypeTokenConstant)constant;
+                return CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(tconst.Type));
             }
             else
             {
