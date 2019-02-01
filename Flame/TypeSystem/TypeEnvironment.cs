@@ -125,6 +125,12 @@ namespace Flame.TypeSystem
         public abstract IType TypeToken { get; }
 
         /// <summary>
+        /// Gets the canonical type of a captured exception in this environment.
+        /// </summary>
+        /// <value>The captured exception type.</value>
+        public abstract IType CapturedException { get; }
+
+        /// <summary>
         /// Gets the Boolean type in this type environment.
         /// Booleans are represented by the UInt1 type.
         /// </summary>
@@ -301,6 +307,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType TypeToken => InnerEnvironment.TypeToken;
+
+        /// <inheritdoc/>
+        public override IType CapturedException => InnerEnvironment.CapturedException;
 
         /// <inheritdoc/>
         public override SubtypingRules Subtyping => InnerEnvironment.Subtyping;

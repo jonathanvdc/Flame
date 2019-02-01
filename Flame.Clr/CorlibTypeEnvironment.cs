@@ -47,6 +47,13 @@ namespace Flame.Clr
             this.uintPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(UIntPtr)));
             this.objectType = new Lazy<IType>(() => ResolveSystemType(nameof(Object)));
             this.typeTokenType = new Lazy<IType>(() => ResolveSystemType(nameof(RuntimeTypeHandle)));
+            this.capturedExceptionType = new Lazy<IType>(
+                () => CorlibTypeResolver.ResolveTypes(
+                    new SimpleName("ExceptionDispatchInfo")
+                    .Qualify("ExceptionServices")
+                    .Qualify("Runtime")
+                    .Qualify("System"))
+                    .FirstOrDefault());
         }
 
         /// <summary>
@@ -71,13 +78,20 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public override IType String => stringType.Value;
 
+        /// <inheritdoc/>
         public override IType NaturalInt => intPtrType.Value;
 
+        /// <inheritdoc/>
         public override IType NaturalUInt => uintPtrType.Value;
 
+        /// <inheritdoc/>
         public override IType Object => objectType.Value;
 
+        /// <inheritdoc/>
         public override IType TypeToken => typeTokenType.Value;
+
+        /// <inheritdoc/>
+        public override IType CapturedException => capturedExceptionType.Value;
 
         private InterningCache<ClrArrayType> arrayTypeCache;
         private Lazy<Func<int, IGenericParameter, IReadOnlyList<IType>>> createArrayBaseTypes;
@@ -91,6 +105,7 @@ namespace Flame.Clr
         private Lazy<IType> uintPtrType;
         private Lazy<IType> objectType;
         private Lazy<IType> typeTokenType;
+        private Lazy<IType> capturedExceptionType;
 
         /// <inheritdoc/>
         public override bool TryMakeArrayType(
