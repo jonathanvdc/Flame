@@ -1502,6 +1502,10 @@ namespace Flame.Clr.Analysis
             // a bit of trouble by exiting early.
             if (!cilMethodBody.HasExceptionHandlers)
             {
+                foreach (var target in branchTargets.Keys)
+                {
+                    exceptionHandlers[target] = EmptyArray<CilExceptionHandler>.Value;
+                }
                 return ehMapping;
             }
 
