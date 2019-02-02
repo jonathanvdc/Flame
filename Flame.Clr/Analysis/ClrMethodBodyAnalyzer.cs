@@ -95,6 +95,7 @@ namespace Flame.Clr.Analysis
         private FlowGraphBuilder graph;
 
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
+        private Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>> exceptionHandlers;
         private HashSet<BasicBlockBuilder> analyzedBlocks;
         private List<InstructionBuilder> parameterStackSlots;
         private List<InstructionBuilder> localStackSlots;
@@ -177,12 +178,22 @@ namespace Flame.Clr.Analysis
                 // for the method body's parameters and locals.
                 analyzer.CreateEntryPoint(cilMethodBody);
 
-                // Analyze the entire flow graph by starting at the
+                // Create a mapping of Cecil exception handlers to
+                // our exception handlers.
+                var ehMapping = analyzer.CreateExceptionHandlers(cilMethodBody);
+
+                // Analyze the flow graph by starting at the
                 // entry point block.
                 analyzer.AnalyzeBlock(
                     cilMethodBody.Instructions[0],
                     EmptyArray<IType>.Value,
                     cilMethodBody);
+
+                // Also analyze all exception handlers.
+                foreach (var handler in cilMethodBody.ExceptionHandlers)
+                {
+                    analyzer.AnalyzeExceptionHandler(handler, ehMapping[handler].LandingPad, cilMethodBody);
+                }
             }
 
             return new MethodBody(
@@ -190,6 +201,86 @@ namespace Flame.Clr.Analysis
                 analyzer.ThisParameter,
                 analyzer.Parameters,
                 analyzer.graph.ToImmutable());
+        }
+
+        /// <summary>
+        /// Analyzes an exception handler's implementation.
+        /// </summary>
+        /// <param name="handler">The exception handler to analyze.</param>
+        /// <param name="landingPadTag">
+        /// The basic block tag of the landing pad to populate for the handler.
+        /// </param>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        private void AnalyzeExceptionHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            BasicBlockTag landingPadTag,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            switch (handler.HandlerType)
+            {
+                case Mono.Cecil.Cil.ExceptionHandlerType.Catch:
+                    AnalyzeCatchHandler(handler, landingPadTag, cilMethodBody);
+                    return;
+
+                default:
+                    throw new NotImplementedException(
+                        $"Unimplemented exception handler type '{handler.HandlerType}' " +
+                        $"at '{handler.HandlerStart}'.");
+            }
+        }
+
+        /// <summary>
+        /// Analyzes a 'catch' exception handler's implementation.
+        /// </summary>
+        /// <param name="handler">The exception handler to analyze.</param>
+        /// <param name="landingPadTag">
+        /// The basic block tag of the landing pad to populate for the handler.
+        /// </param>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        private void AnalyzeCatchHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            BasicBlockTag landingPadTag,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            // Determine the type of exception the handler is prepared
+            // to handle.
+            var catchType = Assembly.Resolve(handler.CatchType).MakePointerType(PointerKind.Box);
+
+            // Analyze the handler's implementation.
+            var handlerImpl = AnalyzeBlock(
+                handler.HandlerStart,
+                new[] { catchType },
+                cilMethodBody);
+
+            // Grab the landing pad. We're going to populate it in such
+            // a way that it redirects control flow to the handler block
+            // if and only if the thrown exception's type matches the catch
+            // type. Otherwise, it'll transfer control to the next handler.
+            var landingPad = graph.GetBasicBlock(landingPadTag);
+
+            // Emit an intrinsic to extract the exception
+            // from the landing pad's parameter.
+            var exceptionValue = landingPad.AppendInstruction(
+                Instruction.CreateGetCapturedExceptionIntrinsic(
+                    TypeEnvironment.Object.MakePointerType(PointerKind.Box),
+                    landingPad.Parameters[0].Type,
+                    landingPad.Parameters[0].Tag));
+
+            // Test if the exception is an instance of the catch type.
+            var typedException = landingPad.AppendInstruction(
+                Instruction.CreateDynamicCast(catchType, exceptionValue));
+
+            // Set the landing pad's flow.
+            landingPad.Flow = SwitchFlow.CreateNullCheck(
+                Instruction.CreateCopy(catchType, typedException),
+                // Redirect control flow to the next exception handler
+                // landing pad if the exception's type does not match
+                // the caught type.
+                new Branch(
+                    exceptionHandlers[handler.HandlerStart][0].LandingPad,
+                    new[] { landingPad.Parameters[0].Tag }),
+                // Otherwise, direct control flow to the catch handler.
+                new Branch(handlerImpl, new[] { typedException.Tag }));
         }
 
         private BasicBlockTag AnalyzeBlock(
@@ -229,7 +320,7 @@ namespace Flame.Clr.Analysis
                 .ToImmutableList();
 
             var currentInstruction = firstInstruction;
-            var context = new CilAnalysisContext(block, this, new CilExceptionHandler[0]);
+            var context = new CilAnalysisContext(block, this, exceptionHandlers[firstInstruction]);
 
             while (true)
             {
@@ -1235,11 +1326,17 @@ namespace Flame.Clr.Analysis
             return SpillToTemporary(value, context);
         }
 
+        /// <summary>
+        /// Flags all branch targets in a CIL method body.
+        /// </summary>
+        /// <param name="cilMethodBody">The method body to analyze.</param>
         private void AnalyzeBranchTargets(
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             branchTargets = new Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder>();
             analyzedBlocks = new HashSet<BasicBlockBuilder>();
+
+            // Analyze regular control flow.
             if (cilMethodBody.Instructions.Count > 0)
             {
                 FlagBranchTarget(cilMethodBody.Instructions[0]);
@@ -1248,8 +1345,22 @@ namespace Flame.Clr.Analysis
                     AnalyzeBranchTargets(instruction);
                 }
             }
+
+            // Analyze exception control flow.
+            foreach (var handler in cilMethodBody.ExceptionHandlers)
+            {
+                FlagBranchTarget(handler.TryStart);
+                FlagBranchTarget(handler.TryEnd);
+                FlagBranchTarget(handler.FilterStart);
+                FlagBranchTarget(handler.HandlerStart);
+                FlagBranchTarget(handler.HandlerEnd);
+            }
         }
 
+        /// <summary>
+        /// Flags all instructions to which a particular instruction may branch.
+        /// </summary>
+        /// <param name="cilInstruction">The instruction to analyze.</param>
         private void AnalyzeBranchTargets(
             Mono.Cecil.Cil.Instruction cilInstruction)
         {
@@ -1350,6 +1461,105 @@ namespace Flame.Clr.Analysis
             // Jump to the entry point instruction.
             entryPoint.Flow = new JumpFlow(
                 branchTargets[cilMethodBody.Instructions[0]].Tag);
+        }
+
+        /// <summary>
+        /// Initializes exception handler data structures.
+        /// </summary>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        /// <returns>
+        /// A mapping of Cecil exception handlers to CIL analysis exception handlers.
+        /// </returns>
+        private IReadOnlyDictionary<Mono.Cecil.Cil.ExceptionHandler, CilExceptionHandler> CreateExceptionHandlers(
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            // Initialize exception handler data structures.
+            exceptionHandlers = new Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>>();
+            var ehMapping = new Dictionary<Mono.Cecil.Cil.ExceptionHandler, CilExceptionHandler>();
+
+            // If there are no exception handlers then we can save ourselves quite
+            // a bit of trouble by exiting early.
+            if (!cilMethodBody.HasExceptionHandlers)
+            {
+                return ehMapping;
+            }
+
+            // First map Cecil exception handlers to CIL analysis exception handlers.
+            foreach (var handler in cilMethodBody.ExceptionHandlers)
+            {
+                var pad = graph.AddBasicBlock($"IL_{handler.HandlerStart.Offset.ToString("X4")}_landingpad");
+                pad.AppendParameter(
+                    new BlockParameter(
+                        TypeHelpers.BoxIfReferenceType(TypeEnvironment.CapturedException)));
+                if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch)
+                {
+                    ehMapping[handler] = new CilExceptionHandler(
+                        pad,
+                        new[]
+                        {
+                            TypeHelpers.BoxIfReferenceType(
+                                Assembly.Resolve(handler.CatchType))
+                        });
+                }
+                else
+                {
+                    ehMapping[handler] = new CilExceptionHandler(pad);
+                }
+            }
+
+            // At this point, we want to create a top-level landing pad that does nothing
+            // but rethrow uncaught exceptions. That'll make implementing other handlers
+            // much easier.
+            var toplevelLandingPad = graph.AddBasicBlock("toplevel_landingpad");
+            toplevelLandingPad.AppendParameter(
+                new BlockParameter(
+                    TypeHelpers.BoxIfReferenceType(TypeEnvironment.CapturedException)));
+
+            // Make the top-level landing pad rethrow every exception it is passed.
+            toplevelLandingPad.AppendInstruction(
+                Instruction.CreateRethrowIntrinsic(
+                    toplevelLandingPad.Parameters[0].Type,
+                    toplevelLandingPad.Parameters[0].Tag));
+
+            // Create the top-level handler data structure. The top-level handler is
+            // kind of funny in the sense that it does not catch *any* exception type.
+            // It's not a catch-all handler, either. That should ensure that CIL instructions
+            // never directly transfer control to the top-level handler. It wouldn't be
+            // wrong for them to do so anyway, but it would obscure control flow.
+            // Only exception handlers should transfer control to the top-level handler.
+            var toplevelHandler = new CilExceptionHandler(toplevelLandingPad, EmptyArray<IType>.Value);
+
+            // Finally iterate over all branch targets and construct exception handler lists.
+            var activeHandlers = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
+            foreach (var instruction in cilMethodBody.Instructions)
+            {
+                if (!branchTargets.ContainsKey(instruction))
+                {
+                    continue;
+                }
+
+                // Pop handlers that are no longer active.
+                while (activeHandlers.Count > 0 && activeHandlers.Peek().TryEnd == instruction)
+                {
+                    activeHandlers.Pop();
+                }
+
+                // Push handlers that become active.
+                foreach (var handler in cilMethodBody.ExceptionHandlers)
+                {
+                    if (handler.TryStart == instruction)
+                    {
+                        activeHandlers.Push(handler);
+                    }
+                }
+
+                exceptionHandlers[instruction] = activeHandlers
+                    .Select(h => ehMapping[h])
+                    .Concat(new[] { toplevelHandler })
+                    .ToArray();
+            }
+
+            return ehMapping;
         }
 
         /// <summary>
