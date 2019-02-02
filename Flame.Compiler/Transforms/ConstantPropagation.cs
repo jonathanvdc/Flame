@@ -559,7 +559,7 @@ namespace Flame.Compiler.Transforms
                 parameterArguments[value] = args;
             }
 
-            var cell = LatticeCell.Top;
+            var cell = cells.ContainsKey(value) ? cells[value] : LatticeCell.Top;
             foreach (var arg in args)
             {
                 LatticeCell argCell;
