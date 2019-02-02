@@ -119,6 +119,7 @@ namespace Flame.Clr.Analysis
                             new Branch(handler.LandingPad, new[] { BranchArgument.TryException }));
 
                         Block = nextBasicBlock;
+                        return successTag;
                     }
                 }
             }
