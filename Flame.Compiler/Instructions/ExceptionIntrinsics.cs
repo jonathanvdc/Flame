@@ -51,6 +51,32 @@ namespace Flame.Compiler.Instructions
 
         /// <summary>
         /// Creates a 'throw' instruction prototype,
+        /// which extracts the exception captured by a
+        /// captured exception.
+        /// </summary>
+        /// <param name="resultType">
+        /// The type of the exception value returned
+        /// by this operation.
+        /// </param>
+        /// <param name="argumentType">
+        /// The type of the captured exception to examine.
+        /// </param>
+        /// <returns>
+        /// A 'get_captured_exception' instruction prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreateGetCapturedExceptionPrototype(
+            IType resultType,
+            IType argumentType)
+        {
+            return CreatePrototype(
+                Operators.GetCapturedException,
+                resultType,
+                new[] { argumentType },
+                ExceptionSpecification.NoThrow);
+        }
+
+        /// <summary>
+        /// Creates a 'throw' instruction prototype,
         /// which throws an exception.
         /// </summary>
         /// <param name="exceptionType">
@@ -70,14 +96,46 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
+        /// Creates a 'rethrow' instruction prototype, which rethrows a
+        /// captured exception. The difference between 'rethrow' and 'throw'
+        /// is that the former takes a captured exception and retains stack
+        /// trace information whereas the latter takes a (raw) exception value
+        /// and constructs a new stack trace.
+        /// </summary>
+        /// <param name="capturedExceptionType">
+        /// The type of the captured exception to rethrow.
+        /// </param>
+        /// <returns>A 'rethrow' intrinsic.</returns>
+        public static IntrinsicPrototype CreateRethrowPrototype(
+            IType capturedExceptionType)
+        {
+            return CreatePrototype(
+                Operators.Rethrow,
+                capturedExceptionType,
+                new[] { capturedExceptionType },
+                ExceptionSpecification.ThrowAny);
+        }
+
+        /// <summary>
         /// A collection of names for exception handling operations.
         /// </summary>
         public static class Operators
         {
             /// <summary>
+            /// The 'get_captured_exception' operator, which extracts the exception
+            /// captured by a captured exception.
+            /// </summary>
+            public const string GetCapturedException = "get_captured_exception";
+
+            /// <summary>
             /// The 'throw' operator, which throws a new exception.
             /// </summary>
             public const string Throw = "throw";
+
+            /// <summary>
+            /// The 'rethrow' operator, which rethrows an existing exception.
+            /// </summary>
+            public const string Rethrow = "rethrow";
 
             /// <summary>
             /// An immutable array containing all standard exception handling
@@ -87,7 +145,9 @@ namespace Flame.Compiler.Instructions
                 ImmutableArray.Create(
                     new[]
                     {
-                        Throw
+                        GetCapturedException,
+                        Throw,
+                        Rethrow
                     });
         }
     }

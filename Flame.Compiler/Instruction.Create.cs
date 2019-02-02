@@ -634,6 +634,29 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a 'get_captured_exception' intrinsic, which throws an exception.
+        /// </summary>
+        /// <param name="resultType">
+        /// The type of the exception value returned
+        /// by this operation.
+        /// </param>
+        /// <param name="argumentType">
+        /// The type of the captured exception to examine.
+        /// </param>
+        /// <param name="argument">
+        /// A captured exception to examine.
+        /// </param>
+        /// <returns>A 'get_captured_exception' intrinsic.</returns>
+        public static Instruction CreateGetCapturedExceptionIntrinsic(
+            IType resultType,
+            IType argumentType,
+            ValueTag argument)
+        {
+            return ExceptionIntrinsics.CreateGetCapturedExceptionPrototype(resultType, argumentType)
+                .Instantiate(new[] { argument });
+        }
+
+        /// <summary>
         /// Creates a 'throw' intrinsic, which throws an exception.
         /// </summary>
         /// <param name="exceptionType">
@@ -649,6 +672,28 @@ namespace Flame.Compiler
         {
             return ExceptionIntrinsics.CreateThrowPrototype(exceptionType)
                 .Instantiate(new[] { exception });
+        }
+
+        /// <summary>
+        /// Creates a 'rethrow' intrinsic, which rethrows a captured exception.
+        /// The difference between 'rethrow' and 'throw' is that the former
+        /// takes a captured exception and retains stack trace information
+        /// whereas the latter takes a (raw) exception value and constructs
+        /// a new stack trace.
+        /// </summary>
+        /// <param name="capturedExceptionType">
+        /// The type of the captured exception to rethrow.
+        /// </param>
+        /// <param name="capturedException">
+        /// The captured exception to rethrow.
+        /// </param>
+        /// <returns>A 'rethrow' intrinsic.</returns>
+        public static Instruction CreateRethrowIntrinsic(
+            IType capturedExceptionType,
+            ValueTag capturedException)
+        {
+            return ExceptionIntrinsics.CreateRethrowPrototype(capturedExceptionType)
+                .Instantiate(new[] { capturedException });
         }
     }
 }
