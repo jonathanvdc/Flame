@@ -219,16 +219,80 @@ namespace Flame.Compiler.Flow
             Branch elseBranch)
         {
             var booleanSpec = condition.ResultType.GetIntegerSpecOrNull();
-            return new SwitchFlow(
+            return CreateConstantCheck(
                 condition,
-                ImmutableList<SwitchCase>.Empty.Add(
-                    new SwitchCase(
-                        ImmutableHashSet<Constant>.Empty.Add(
-                            booleanSpec == null
-                            ? BooleanConstant.False
-                            : new IntegerConstant(0, booleanSpec)),
-                        elseBranch)),
+                booleanSpec == null
+                    ? BooleanConstant.False
+                    : new IntegerConstant(0, booleanSpec),
+                elseBranch,
                 ifBranch);
+        }
+
+        /// <summary>
+        /// Creates switch flow that redirects control to one branch
+        /// if a value equals <c>null</c> and to another branch otherwise.
+        /// </summary>
+        /// <param name="value">
+        /// A value to compare to <c>null</c>.
+        /// </param>
+        /// <param name="nullBranch">
+        /// The branch to which flow is redirected if <paramref name="value"/>
+        /// equals <c>null</c>.
+        /// </param>
+        /// <param name="nonNullBranch">
+        /// The branch to which flow is redirected if <paramref name="value"/>
+        /// does not equal <c>null</c>.
+        /// </param>
+        /// <returns>
+        /// Switch flow that corresponds to a null check.
+        /// </returns>
+        public static SwitchFlow CreateNullCheck(
+            Instruction value,
+            Branch nullBranch,
+            Branch nonNullBranch)
+        {
+            return CreateConstantCheck(
+                value,
+                NullConstant.Instance,
+                nullBranch,
+                nonNullBranch);
+        }
+
+        /// <summary>
+        /// Creates switch flow that redirects control to one branch
+        /// if a value equals a particular constants and to another
+        /// branch otherwise.
+        /// </summary>
+        /// <param name="value">
+        /// The value to compare to a constant.
+        /// </param>
+        /// <param name="constant">
+        /// The constant to compare the value to.
+        /// </param>
+        /// <param name="equalBranch">
+        /// The branch to which flow is redirected if <paramref name="value"/>
+        /// equals <paramref name="constant"/>.
+        /// </param>
+        /// <param name="equalBranch">
+        /// The branch to which flow is redirected if <paramref name="value"/>
+        /// does not equal <paramref name="constant"/>.
+        /// </param>
+        /// <returns>
+        /// Switch flow that corresponds to a constant equality check.
+        /// </returns>
+        public static SwitchFlow CreateConstantCheck(
+            Instruction value,
+            Constant constant,
+            Branch equalBranch,
+            Branch notEqualBranch)
+        {
+            return new SwitchFlow(
+                value,
+                ImmutableList.Create<SwitchCase>(
+                    new SwitchCase(
+                        ImmutableHashSet.Create<Constant>(constant),
+                        equalBranch)),
+                notEqualBranch);
         }
     }
 
