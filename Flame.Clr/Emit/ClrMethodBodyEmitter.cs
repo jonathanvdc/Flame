@@ -236,78 +236,122 @@ namespace Flame.Clr.Emit
                 // Emit instructions.
                 foreach (var instruction in instructions)
                 {
-                    if (instruction is CilMarkTargetInstruction)
-                    {
-                        pendingTargets.Add(((CilMarkTargetInstruction)instruction).Target);
-                    }
-                    else if (instruction is CilOpInstruction)
-                    {
-                        var opInsn = (CilOpInstruction)instruction;
-
-                        // Emit the instruction.
-                        Emit(opInsn.Op);
-
-                        // Add an entry to the patch list if necessary.
-                        if (opInsn.Patch != null)
-                        {
-                            patches.Add(opInsn);
-                        }
-                    }
-                    else if (instruction is CilLoadRegisterInstruction)
-                    {
-                        var loadInsn = (CilLoadRegisterInstruction)instruction;
-                        var reg = RegisterAllocation.GetRegister(loadInsn.Value);
-                        if (reg.IsParameter)
-                        {
-                            Emit(CilInstruction.Create(OpCodes.Ldarg, reg.ParameterOrNull));
-                        }
-                        else
-                        {
-                            IncrementUseCount(reg.VariableOrNull);
-                            Emit(CilInstruction.Create(OpCodes.Ldloc, reg.VariableOrNull));
-                        }
-                    }
-                    else if (instruction is CilAddressOfRegisterInstruction)
-                    {
-                        var addressOfInsn = (CilAddressOfRegisterInstruction)instruction;
-                        var reg = RegisterAllocation.GetRegister(addressOfInsn.Value);
-                        if (reg.IsParameter)
-                        {
-                            Emit(CilInstruction.Create(OpCodes.Ldarga, reg.ParameterOrNull));
-                        }
-                        else
-                        {
-                            IncrementUseCount(reg.VariableOrNull);
-                            Emit(CilInstruction.Create(OpCodes.Ldloca, reg.VariableOrNull));
-                        }
-                    }
-                    else
-                    {
-                        var storeInsn = (CilStoreRegisterInstruction)instruction;
-                        if (RegisterAllocation.Allocation.ContainsKey(storeInsn.Value))
-                        {
-                            var reg = RegisterAllocation.GetRegister(storeInsn.Value);
-                            if (reg.IsParameter)
-                            {
-                                Emit(CilInstruction.Create(OpCodes.Starg, reg.ParameterOrNull));
-                            }
-                            else
-                            {
-                                IncrementUseCount(reg.VariableOrNull);
-                                Emit(CilInstruction.Create(OpCodes.Stloc, reg.VariableOrNull));
-                            }
-                        }
-                        else
-                        {
-                            Emit(CilInstruction.Create(OpCodes.Pop));
-                        }
-                    }
+                    Emit(instruction);
                 }
 
                 // Apply patches.
                 foreach (var patchOp in patches)
                 {
                     patchOp.Patch(patchOp.Op, branchTargets);
+                }
+            }
+
+            private void Emit(CilCodegenInstruction instruction)
+            {
+                if (instruction is CilMarkTargetInstruction)
+                {
+                    pendingTargets.Add(((CilMarkTargetInstruction)instruction).Target);
+                }
+                else if (instruction is CilOpInstruction)
+                {
+                    var opInsn = (CilOpInstruction)instruction;
+
+                    // Emit the instruction.
+                    Emit(opInsn.Op);
+
+                    // Add an entry to the patch list if necessary.
+                    if (opInsn.Patch != null)
+                    {
+                        patches.Add(opInsn);
+                    }
+                }
+                else if (instruction is CilExceptionHandlerInstruction)
+                {
+                    var handlerInsn = (CilExceptionHandlerInstruction)instruction;
+
+                    // Create the actual exception handler.
+                    var handler = new Mono.Cecil.Cil.ExceptionHandler(handlerInsn.Type);
+                    if (handlerInsn.Type == Mono.Cecil.Cil.ExceptionHandlerType.Catch)
+                    {
+                        handler.CatchType = handlerInsn.CatchType;
+                    }
+                    Processor.Body.ExceptionHandlers.Add(handler);
+
+                    // Emit the try block's contents. Record the last instruction
+                    // prior to the try block. We'll use it to find the first instruction
+                    // inside the try block when we add a handler to the 
+                    var preTryInstruction = Processor.Body.Instructions.LastOrDefault();
+                    foreach (var insn in handlerInsn.TryBlock)
+                    {
+                        Emit(insn);
+                    }
+
+                    // Similarly, record the last instruction of the 'try' block and then
+                    // proceed by emitting the handler block.
+                    var lastTryInstruction = Processor.Body.Instructions.LastOrDefault();
+                    foreach (var insn in handlerInsn.HandlerBlock)
+                    {
+                        Emit(insn);
+                    }
+
+                    // Populate the exception handler's start/end fields.
+                    handler.TryStart = preTryInstruction == null
+                        ? preTryInstruction.Next
+                        : Processor.Body.Instructions.First();
+                    handler.TryEnd = lastTryInstruction == null
+                        ? lastTryInstruction.Next
+                        : Processor.Body.Instructions.First();
+                    handler.HandlerStart = handler.TryEnd;
+                    handler.HandlerEnd = Processor.Body.Instructions.Last();
+                }
+                else if (instruction is CilLoadRegisterInstruction)
+                {
+                    var loadInsn = (CilLoadRegisterInstruction)instruction;
+                    var reg = RegisterAllocation.GetRegister(loadInsn.Value);
+                    if (reg.IsParameter)
+                    {
+                        Emit(CilInstruction.Create(OpCodes.Ldarg, reg.ParameterOrNull));
+                    }
+                    else
+                    {
+                        IncrementUseCount(reg.VariableOrNull);
+                        Emit(CilInstruction.Create(OpCodes.Ldloc, reg.VariableOrNull));
+                    }
+                }
+                else if (instruction is CilAddressOfRegisterInstruction)
+                {
+                    var addressOfInsn = (CilAddressOfRegisterInstruction)instruction;
+                    var reg = RegisterAllocation.GetRegister(addressOfInsn.Value);
+                    if (reg.IsParameter)
+                    {
+                        Emit(CilInstruction.Create(OpCodes.Ldarga, reg.ParameterOrNull));
+                    }
+                    else
+                    {
+                        IncrementUseCount(reg.VariableOrNull);
+                        Emit(CilInstruction.Create(OpCodes.Ldloca, reg.VariableOrNull));
+                    }
+                }
+                else
+                {
+                    var storeInsn = (CilStoreRegisterInstruction)instruction;
+                    if (RegisterAllocation.Allocation.ContainsKey(storeInsn.Value))
+                    {
+                        var reg = RegisterAllocation.GetRegister(storeInsn.Value);
+                        if (reg.IsParameter)
+                        {
+                            Emit(CilInstruction.Create(OpCodes.Starg, reg.ParameterOrNull));
+                        }
+                        else
+                        {
+                            IncrementUseCount(reg.VariableOrNull);
+                            Emit(CilInstruction.Create(OpCodes.Stloc, reg.VariableOrNull));
+                        }
+                    }
+                    else
+                    {
+                        Emit(CilInstruction.Create(OpCodes.Pop));
+                    }
                 }
             }
 

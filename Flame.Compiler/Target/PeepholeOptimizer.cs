@@ -231,7 +231,7 @@ namespace Flame.Collections.Target
                 {
                     // A pattern may not be applicable for one of three reasons:
                     //
-                    //   1. The subsequence being examined in shorter than the
+                    //   1. The subsequence being examined is shorter than the
                     //      pattern itself.
                     //
                     //   2. An element of the pattern does not match.
