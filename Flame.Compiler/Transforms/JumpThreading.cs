@@ -62,6 +62,7 @@ namespace Flame.Compiler.Transforms
             var flow = block.Flow;
             if (flow is JumpFlow)
             {
+                // Jump flow is usually fairly straightforward to thread.
                 var jumpFlow = (JumpFlow)flow;
                 var threadFlow = AsThreadableFlow(jumpFlow.Branch, block.Graph, processedBlocks);
                 if (threadFlow != null && jumpFlow.Branch.Target != block.Tag)
@@ -69,11 +70,33 @@ namespace Flame.Compiler.Transforms
                     block.Flow = threadFlow;
                 }
             }
-
-            flow = block.Flow;
-            bool changed = false;
-            if (flow is SwitchFlow && IncludeSwitches)
+            else if (flow is TryFlow)
             {
+                // We might be able to turn try flow into a jump, which we can thread
+                // recursively.
+                // TODO: switch to an actual analysis for exception specifications.
+
+                var tryFlow = (TryFlow)flow;
+                if (!tryFlow.Instruction.Prototype.ExceptionSpecification.CanThrowSomething)
+                {
+                    // Rewrite the try as a jump.
+                    var value = block.AppendInstruction(tryFlow.Instruction);
+                    var branch = tryFlow.SuccessBranch.WithArguments(
+                        tryFlow.SuccessBranch.Arguments
+                            .Select(arg => arg.IsTryResult ? BranchArgument.FromValue(value) : arg)
+                            .ToArray());
+                    block.Flow = new JumpFlow(branch);
+
+                    // Jump-thread this block again.
+                    processedBlocks.Remove(block);
+                    ThreadJumps(block, processedBlocks);
+                }
+            }
+            else if (flow is SwitchFlow && IncludeSwitches)
+            {
+                // If we're allowed to, then we might be able to thread jumps in switch flow
+                // branches.
+                bool changed = false;
                 var switchFlow = (SwitchFlow)flow;
 
                 // Rewrite switch cases.
