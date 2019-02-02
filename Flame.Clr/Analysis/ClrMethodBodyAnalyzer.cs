@@ -1133,6 +1133,27 @@ namespace Flame.Clr.Analysis
                             cilMethodBody),
                         args));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Leave)
+            {
+                // From MSDN:
+                //
+                //   The leave instruction is similar to the br instruction,
+                //   but it can be used to exit a try, filter, or catch block
+                //   whereas the ordinary branch instructions can only be used
+                //   in such a block to transfer control within it. The leave
+                //   instruction empties the evaluation stack and ensures that
+                //   the appropriate surrounding finally blocks are executed.
+                //
+
+                // TODO: run finally blocks.
+
+                context.Terminate(
+                    new JumpFlow(
+                        AnalyzeBlock(
+                            (Mono.Cecil.Cil.Instruction)instruction.Operand,
+                            EmptyArray<IType>.Value,
+                            cilMethodBody)));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
             {
                 EmitConditionalBranch(
