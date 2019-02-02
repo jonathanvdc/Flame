@@ -342,33 +342,35 @@ namespace Flame.Compiler.Transforms
                     SealBlock(block.Tag);
                 }
 
-                // Actually fill the block.
+                // Actually fill the block, starting with the block's instructions.
                 foreach (var selection in block.Instructions)
                 {
-                    var instruction = selection.Instruction;
-                    var prototype = instruction.Prototype;
-                    if (prototype is LoadPrototype)
+                    Instruction newInstruction;
+                    if (RewriteInstruction(selection.Instruction, block, out newInstruction))
                     {
-                        var loadProto = (LoadPrototype)prototype;
-                        var pointer = loadProto.GetPointer(instruction);
-                        if (eligibleAllocas.Contains(pointer))
-                        {
-                            selection.Instruction = Instruction.CreateCopy(
-                                instruction.ResultType,
-                                ReadVariable(pointer, block.Tag, instruction.ResultType));
-                        }
+                        selection.Instruction = newInstruction;
                     }
-                    else if (prototype is StorePrototype)
+                }
+
+                // Also process instructions in the block's flow.
+                var newFlowInstructions = new List<Instruction>();
+                bool flowChanged = false;
+                foreach (var instruction in block.Flow.Instructions)
+                {
+                    Instruction newInstruction;
+                    if (RewriteInstruction(instruction, block, out newInstruction))
                     {
-                        var storeProto = (StorePrototype)prototype;
-                        var pointer = storeProto.GetPointer(instruction);
-                        if (eligibleAllocas.Contains(pointer))
-                        {
-                            var value = storeProto.GetValue(instruction);
-                            WriteVariable(pointer, block.Tag, value);
-                            selection.Instruction = Instruction.CreateCopy(instruction.ResultType, value);
-                        }
+                        flowChanged = true;
+                        newFlowInstructions.Add(newInstruction);
                     }
+                    else
+                    {
+                        newFlowInstructions.Add(instruction);
+                    }
+                }
+                if (flowChanged)
+                {
+                    block.Flow = block.Flow.WithInstructions(newFlowInstructions);
                 }
 
                 // Declare the block to be filled.
@@ -382,6 +384,49 @@ namespace Flame.Compiler.Transforms
                 {
                     FillBlock(graphBuilder.GetBasicBlock(target));
                 }
+            }
+
+            /// <summary>
+            /// Rewrites an instruction in a basic block.
+            /// </summary>
+            /// <param name="instruction">The instruction to rewrite.</param>
+            /// <param name="block">The block that defines the instruction.</param>
+            /// <param name="newInstruction">A rewritten instruction.</param>
+            /// <returns>
+            /// <c>true</c> if <paramref name="instruction"/> has been rewritten; otherwise <c>false</c>.
+            /// </returns>
+            private bool RewriteInstruction(
+                Instruction instruction,
+                BasicBlockTag block,
+                out Instruction newInstruction)
+            {
+                var prototype = instruction.Prototype;
+                if (prototype is LoadPrototype)
+                {
+                    var loadProto = (LoadPrototype)prototype;
+                    var pointer = loadProto.GetPointer(instruction);
+                    if (eligibleAllocas.Contains(pointer))
+                    {
+                        newInstruction = Instruction.CreateCopy(
+                            instruction.ResultType,
+                            ReadVariable(pointer, block, instruction.ResultType));
+                        return true;
+                    }
+                }
+                else if (prototype is StorePrototype)
+                {
+                    var storeProto = (StorePrototype)prototype;
+                    var pointer = storeProto.GetPointer(instruction);
+                    if (eligibleAllocas.Contains(pointer))
+                    {
+                        var value = storeProto.GetValue(instruction);
+                        WriteVariable(pointer, block, value);
+                        newInstruction = Instruction.CreateCopy(instruction.ResultType, value);
+                        return true;
+                    }
+                }
+                newInstruction = instruction;
+                return false;
             }
 
             /// <summary>
