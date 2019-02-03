@@ -10,7 +10,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// A peephole optimizer for CIL instructions.
     /// </summary>
-    public sealed class CilPeepholeOptimizer : PeepholeOptimizer<Instruction>
+    public sealed class CilPeepholeOptimizer : PeepholeOptimizer<Instruction, ExceptionHandler>
     {
         private CilPeepholeOptimizer()
             : base(rules)
@@ -50,6 +50,48 @@ namespace Flame.Clr.Emit
                     .ToArray();
             }
             return instruction;
+        }
+
+        /// <inheritdoc/>
+        protected override IEnumerable<Instruction> GetInstructionReferences(ExceptionHandler externalRef)
+        {
+            if (externalRef.HandlerType == ExceptionHandlerType.Filter)
+            {
+                return new[]
+                {
+                    externalRef.TryStart,
+                    externalRef.TryEnd,
+                    externalRef.FilterStart,
+                    externalRef.HandlerStart,
+                    externalRef.HandlerEnd
+                };
+            }
+            else
+            {
+                return new[]
+                {
+                    externalRef.TryStart,
+                    externalRef.TryEnd,
+                    externalRef.HandlerStart,
+                    externalRef.HandlerEnd
+                };
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override ExceptionHandler RewriteInstructionReferences(
+            ExceptionHandler externalRef,
+            IReadOnlyDictionary<Instruction, Instruction> referenceMap)
+        {
+            externalRef.TryStart = referenceMap[externalRef.TryStart];
+            externalRef.TryEnd = referenceMap[externalRef.TryEnd];
+            externalRef.HandlerStart = referenceMap[externalRef.HandlerStart];
+            externalRef.HandlerEnd = referenceMap[externalRef.HandlerEnd];
+            if (externalRef.FilterStart != null)
+            {
+                externalRef.FilterStart = referenceMap[externalRef.FilterStart];
+            }
+            return externalRef;
         }
 
         private static readonly PeepholeRewriteRule<Instruction>[] rules =

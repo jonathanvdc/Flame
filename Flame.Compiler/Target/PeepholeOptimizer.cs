@@ -12,7 +12,10 @@ namespace Flame.Collections.Target
     /// <typeparam name="TInstruction">
     /// The type of target-specific instruction to optimize.
     /// </typeparam>
-    public class PeepholeOptimizer<TInstruction>
+    /// <typeparam name="TExternalRef">
+    /// The type of an external reference to instructions.
+    /// </typeparam>
+    public class PeepholeOptimizer<TInstruction, TExternalRef>
     {
         /// <summary>
         /// Creates a peephole optimizer that applies a set of rewrite rules.
@@ -52,6 +55,18 @@ namespace Flame.Collections.Target
         }
 
         /// <summary>
+        /// Gets a list of all instructions referenced by a particular
+        /// external instruction reference.
+        /// </summary>
+        /// <param name="externalRef">The external reference to examine.</param>
+        /// <returns>A list of referenced instructions.</returns>
+        protected virtual IEnumerable<TInstruction> GetInstructionReferences(
+            TExternalRef externalRef)
+        {
+            return EmptyArray<TInstruction>.Value;
+        }
+
+        /// <summary>
         /// Rewrites an instruction's branch targets.
         /// </summary>
         /// <param name="instruction">
@@ -72,6 +87,26 @@ namespace Flame.Collections.Target
         }
 
         /// <summary>
+        /// Rewrites an external reference's referenced instructions.
+        /// </summary>
+        /// <param name="externalRef">
+        /// The reference to rewrite.
+        /// </param>
+        /// <param name="referenceMap">
+        /// A mapping of old referenced instructions to new
+        /// referenced instructions.
+        /// </param>
+        /// <returns>
+        /// A modified or new external reference.
+        /// </returns>
+        protected virtual TExternalRef RewriteInstructionReferences(
+            TExternalRef externalRef,
+            IReadOnlyDictionary<TInstruction, TInstruction> referenceMap)
+        {
+            return externalRef;
+        }
+
+        /// <summary>
         /// Optimizes a linear sequence of instructions by applying
         /// rewrite rules.
         /// </summary>
@@ -82,7 +117,32 @@ namespace Flame.Collections.Target
         /// A linear sequence of optimized instructions.
         /// </returns>
         public IReadOnlyList<TInstruction> Optimize(
-            IEnumerable<TInstruction> instructions)
+            IReadOnlyList<TInstruction> instructions)
+        {
+            IReadOnlyList<TExternalRef> newExternalRefs;
+            return Optimize(instructions, EmptyArray<TExternalRef>.Value, out newExternalRefs);
+        }
+
+        /// <summary>
+        /// Optimizes a linear sequence of instructions by applying
+        /// rewrite rules.
+        /// </summary>
+        /// <param name="instructions">
+        /// The instructions to optimize.
+        /// </param>
+        /// <param name="externalRefs">
+        /// A list of external references to instructions.
+        /// </param>
+        /// <param name="newExternalRefs">
+        /// A list of rewritten external references to instructions.
+        /// </param>
+        /// <returns>
+        /// A linear sequence of optimized instructions.
+        /// </returns>
+        public IReadOnlyList<TInstruction> Optimize(
+            IReadOnlyList<TInstruction> instructions,
+            IReadOnlyList<TExternalRef> externalRefs,
+            out IReadOnlyList<TExternalRef> newExternalRefs)
         {
             var results = new LinkedList<TInstruction>(instructions);
 
@@ -91,6 +151,13 @@ namespace Flame.Collections.Target
             foreach (var insn in instructions)
             {
                 foreach (var target in GetBranchTargets(insn))
+                {
+                    replacedBranchTargets[target] = target;
+                }
+            }
+            foreach (var externalRef in externalRefs)
+            {
+                foreach (var target in GetInstructionReferences(externalRef))
                 {
                     replacedBranchTargets[target] = target;
                 }
@@ -132,6 +199,11 @@ namespace Flame.Collections.Target
             {
                 branchTargetMap[pair.Value] = pair.Key;
             }
+
+            // Rewrite external instruction references.
+            newExternalRefs = externalRefs
+                .Select(externalRef => RewriteInstructionReferences(externalRef, branchTargetMap))
+                .ToArray();
 
             // Rewrite branch targets and return.
             return results
