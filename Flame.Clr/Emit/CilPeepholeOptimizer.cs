@@ -16,6 +16,31 @@ namespace Flame.Clr.Emit
             : base(rules)
         { }
 
+        /// <summary>
+        /// Applies peephole optimizations to a CIL method body.
+        /// </summary>
+        /// <param name="body">The method body to optimize.</param>
+        public static void Optimize(MethodBody body)
+        {
+            IReadOnlyList<ExceptionHandler> newExceptionHandlers;
+            var optInstructions = Instance.Optimize(
+                body.Instructions.ToArray(),
+                body.ExceptionHandlers.ToArray(),
+                out newExceptionHandlers);
+
+            body.Instructions.Clear();
+            foreach (var instruction in optInstructions)
+            {
+                body.Instructions.Add(instruction);
+            }
+
+            body.ExceptionHandlers.Clear();
+            foreach (var handler in newExceptionHandlers)
+            {
+                body.ExceptionHandlers.Add(handler);
+            }
+        }
+
         /// <inheritdoc/>
         protected override IEnumerable<Instruction> GetBranchTargets(
             Instruction instruction)

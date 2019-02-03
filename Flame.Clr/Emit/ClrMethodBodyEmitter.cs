@@ -108,23 +108,7 @@ namespace Flame.Clr.Emit
             }
 
             // Apply peephole optimizations to the generated method body.
-            IReadOnlyList< Mono.Cecil.Cil.ExceptionHandler> newExceptionHandlers;
-            var optInstructions = CilPeepholeOptimizer.Instance.Optimize(
-                result.Instructions.ToArray(),
-                result.ExceptionHandlers.ToArray(),
-                out newExceptionHandlers);
-
-            result.Instructions.Clear();
-            foreach (var instruction in optInstructions)
-            {
-                result.Instructions.Add(instruction);
-            }
-
-            result.ExceptionHandlers.Clear();
-            foreach (var handler in newExceptionHandlers)
-            {
-                result.ExceptionHandlers.Add(handler);
-            }
+            CilPeepholeOptimizer.Optimize(result);
 
             // Apply Cecil's macro optimizations to the generated method body.
             MethodBodyRocks.Optimize(result);
