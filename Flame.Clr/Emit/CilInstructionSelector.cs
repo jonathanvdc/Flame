@@ -46,7 +46,7 @@ namespace Flame.Clr.Emit
             this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
             this.selectedInstructions = new HashSet<ValueTag>();
             this.tempDefs = new List<VariableDefinition>();
-            this.tempsByType = new Dictionary<IType, ValueTag>();
+            this.freeTempsByType = new Dictionary<TypeReference, HashSet<VariableDefinition>>();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Flame.Clr.Emit
         public IReadOnlyDictionary<ValueTag, VariableDefinition> AllocaToVariableMapping { get; private set; }
 
         /// <summary>
-        /// Gets a list of all temporaries defines by this instruction
+        /// Gets a list of all temporaries defined by this instruction
         /// selector.
         /// </summary>
         public IReadOnlyList<VariableDefinition> Temporaries => tempDefs;
@@ -77,7 +77,7 @@ namespace Flame.Clr.Emit
         private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
         private HashSet<ValueTag> selectedInstructions;
         private List<VariableDefinition> tempDefs;
-        private Dictionary<IType, ValueTag> tempsByType;
+        private Dictionary<TypeReference, HashSet<VariableDefinition>> freeTempsByType;
 
         /// <inheritdoc/>
         public IReadOnlyList<CilCodegenInstruction> CreateBlockMarker(BasicBlock block)
@@ -118,9 +118,7 @@ namespace Flame.Clr.Emit
         {
             return new CilCodegenInstruction[]
             {
-                new CilOpInstruction(
-                    CilInstruction.Create(OpCodes.Br, CilInstruction.Create(OpCodes.Nop)),
-                    (insn, mapping) => insn.Operand = mapping[target])
+                CreateBranchInstruction(OpCodes.Br, target)
             };
         }
 
@@ -174,7 +172,249 @@ namespace Flame.Clr.Emit
                     preferredFallthrough,
                     out fallthrough);
             }
-            throw new System.NotImplementedException();
+            else if (flow is TryFlow)
+            {
+                fallthrough = null;
+                return SelectForTryFlow(
+                    (TryFlow)flow,
+                    blockTag,
+                    graph,
+                    preferredFallthrough,
+                    out fallthrough);
+            }
+            else
+            {
+                throw new NotSupportedException($"Unknown type of control flow: '{flow}'.");
+            }
+        }
+
+        /// <summary>
+        /// Select instructions for 'try' control flow.
+        /// </summary>
+        /// <param name="flow">The try flow to select instructions for.</param>
+        /// <param name="blockTag">The tag of the block that defines the try flow.</param>
+        /// <param name="graph">The graph that contains the try flow.</param>
+        /// <param name="preferredFallthrough">
+        /// A preferred fallthrough block, which will likely result in better
+        /// codegen if chosen as fallthrough. May be <c>null</c>.
+        /// </param>
+        /// <param name="fallthrough">
+        /// The fallthrough block expected by the selected instruction,
+        /// if any.
+        /// </param>
+        /// <returns>Selected instructions for the 'try' flow.</returns>
+        private SelectedInstructions<CilCodegenInstruction> SelectForTryFlow(
+            TryFlow flow,
+            BasicBlockTag blockTag,
+            FlowGraph graph,
+            BasicBlockTag preferredFallthrough,
+            out BasicBlockTag fallthrough)
+        {
+            // We can model 'try' flow using the following construction:
+            //
+            //     try
+            //     {
+            //         <risky instruction>
+            //         stloc result_temp
+            //         leave success_thunk
+            //     }
+            //     catch (System.Exception)
+            //     {
+            //         call ExceptionDispatchInfo ExceptionDispatchInfo.Capture(System.Exception)
+            //         stloc exception_temp
+            //         leave exception_thunk
+            //     }
+            //
+            //     success_thunk:
+            //         branch to success branch target
+            //
+            //     exception_thunk:
+            //         branch to exception branch target
+            //
+            // Note that we really do need the two thunks above.
+            // The 'leave' opcode clears the contents of the evaluation stack.
+
+            // Find the first basic block parameter that is assigned the
+            // `#exception` argument. Set `capturedExceptionParam` to `null`
+            // if there is no such basic block parameter.
+            var capturedExceptionParam = flow.ExceptionBranch
+                .ZipArgumentsWithParameters(graph)
+                .FirstOrDefault(pair => pair.Value.IsTryException)
+                .Key;
+
+            // Grab the static `ExceptionDispatchInfo.Capture` method if
+            // we have a captured exception parameter.
+            MethodReference captureMethod;
+            if (capturedExceptionParam == null)
+            {
+                captureMethod = null;
+            }
+            else
+            {
+                var capturedExceptionType = TypeHelpers.UnboxIfPossible(
+                    graph.GetValueType(capturedExceptionParam));
+
+                captureMethod = Method.Module.ImportReference(
+                    capturedExceptionType.Methods.Single(
+                        m => m.Name.ToString() == "Capture"));
+            }
+
+            var successThunkTag = new BasicBlockTag("success_thunk");
+            var exceptionThunkTag = new BasicBlockTag("exception_thunk");
+            var dependencies = new List<ValueTag>();
+
+            // Select CIL instructions for the 'risky' Flame IR instruction,
+            // i.e., the instruction that might throw.
+            var riskyInstruction = SelectInstructionsAndWrap(
+                flow.Instruction,
+                null,
+                blockTag,
+                GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
+                graph,
+                GetArgumentValues(flow));
+
+            dependencies.AddRange(riskyInstruction.Dependencies);
+
+            // Compose the 'try' body.
+            var tryBody = new List<CilCodegenInstruction>(riskyInstruction.Instructions);
+
+            VariableDefinition resultTemporary = null;
+            if (flow.Instruction.ResultType != TypeEnvironment.Void)
+            {
+                if (flow.SuccessBranch.Arguments.Any(arg => arg.IsTryResult))
+                {
+                    // Put used `#result` values in a temporary so they can be
+                    // smuggled out (`leave` opcodes clear the contents of the stack).
+                    resultTemporary = AllocateTemporary(flow.Instruction.ResultType);
+                    tryBody.Add(
+                        new CilOpInstruction(
+                            CilInstruction.Create(OpCodes.Stloc, resultTemporary)));
+                }
+                else
+                {
+                    // Pop unused result values.
+                    tryBody.Add(new CilOpInstruction(OpCodes.Pop));
+                }
+            }
+
+            // Generate the `leave success_thunk` instruction.
+            tryBody.Add(CreateBranchInstruction(OpCodes.Leave, successThunkTag));
+
+            // Compose the 'catch' body. Our main job here is to capture
+            // the exception and send control to a thunk that implements
+            // the exception branch.
+            var catchBody = new List<CilCodegenInstruction>();
+            VariableDefinition capturedExceptionTemporary = null;
+            if (captureMethod != null)
+            {
+                capturedExceptionTemporary = AllocateTemporary(flow.Instruction.ResultType);
+                catchBody.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(OpCodes.Call, captureMethod)));
+                catchBody.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(OpCodes.Stloc, capturedExceptionTemporary)));
+            }
+
+            // Generate the `leave exception_thunk` instruction.
+            catchBody.Add(CreateBranchInstruction(OpCodes.Leave, exceptionThunkTag));
+
+            // Construct the try/catch block.
+            var tryCatchBlock = new CilExceptionHandlerInstruction(
+                Mono.Cecil.Cil.ExceptionHandlerType.Catch,
+                Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType),
+                tryBody,
+                catchBody);
+
+            // Generate the success thunk.
+            var successThunkBody = new List<CilCodegenInstruction>();
+            successThunkBody.Add(new CilMarkTargetInstruction(successThunkTag));
+            var successArgs = SelectBranchArguments(
+                flow.SuccessBranch,
+                graph,
+                selectForNonValueArg: arg =>
+                {
+                    if (arg.IsTryResult)
+                    {
+                        if (resultTemporary == null)
+                        {
+                            return CreateNopSelection(EmptyArray<ValueTag>.Value);
+                        }
+                        else
+                        {
+                            return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, resultTemporary));
+                        }
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(
+                            $"Illegal branch argument '{arg}' in success branch of try flow.");
+                    }
+                });
+            successThunkBody.AddRange(successArgs.Instructions);
+            dependencies.AddRange(successArgs.Dependencies);
+
+            // Generate the exception thunk.
+            var exceptionThunkBody = new List<CilCodegenInstruction>();
+            exceptionThunkBody.Add(new CilMarkTargetInstruction(exceptionThunkTag));
+            var exceptionArgs = SelectBranchArguments(
+                flow.ExceptionBranch,
+                graph,
+                selectForNonValueArg: arg =>
+                {
+                    if (arg.IsTryException)
+                    {
+                        return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, capturedExceptionTemporary));
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(
+                            $"Illegal branch argument '{arg}' in exception branch of try flow.");
+                    }
+                });
+            exceptionThunkBody.AddRange(exceptionArgs.Instructions);
+            dependencies.AddRange(exceptionArgs.Dependencies);
+
+            // Release temporaries.
+            ReleaseTemporary(resultTemporary);
+            ReleaseTemporary(capturedExceptionTemporary);
+
+            // Now compose the final instruction stream.
+            var selectedInsns = new List<CilCodegenInstruction>();
+            selectedInsns.Add(tryCatchBlock);
+            if (preferredFallthrough == flow.ExceptionBranch.Target)
+            {
+                selectedInsns.AddRange(successThunkBody);
+                selectedInsns.Add(CreateBranchInstruction(OpCodes.Br, flow.SuccessBranch.Target));
+                selectedInsns.AddRange(exceptionThunkBody);
+                fallthrough = flow.ExceptionBranch.Target;
+            }
+            else
+            {
+                selectedInsns.AddRange(exceptionThunkBody);
+                selectedInsns.Add(CreateBranchInstruction(OpCodes.Br, flow.ExceptionBranch.Target));
+                selectedInsns.AddRange(successThunkBody);
+                fallthrough = flow.SuccessBranch.Target;
+            }
+
+            return new SelectedInstructions<CilCodegenInstruction>(
+                selectedInsns,
+                dependencies);
+        }
+
+        /// <summary>
+        /// Gets the set of all branch arguments used by a particular
+        /// control flow.
+        /// </summary>
+        /// <param name="flow">The control flow to inspect.</param>
+        /// <returns>All branch arguments used by <paramref name="flow" />.</returns>
+        private static HashSet<ValueTag> GetArgumentValues(BlockFlow flow)
+        {
+            return new HashSet<ValueTag>(
+                flow.Branches
+                .SelectMany(branch => branch.Arguments)
+                .Where(arg => arg.IsValue)
+                .Select(arg => arg.ValueOrNull));
         }
 
         private SelectedInstructions<CilCodegenInstruction> SelectForSwitchFlow(
@@ -186,19 +426,13 @@ namespace Flame.Clr.Emit
         {
             var switchFlow = (SwitchFlow)flow;
 
-            var argValues = new HashSet<ValueTag>(
-                switchFlow.Branches
-                .SelectMany(branch => branch.Arguments)
-                .Where(arg => arg.IsValue)
-                .Select(arg => arg.ValueOrNull));
-
             var switchArgSelection = SelectInstructionsAndWrap(
                 switchFlow.SwitchValue,
                 null,
                 blockTag,
                 GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
                 graph,
-                argValues);
+                GetArgumentValues(switchFlow));
 
             var instructions = new List<CilCodegenInstruction>(switchArgSelection.Instructions);
             var dependencies = new List<ValueTag>(switchArgSelection.Dependencies);
@@ -216,11 +450,9 @@ namespace Flame.Clr.Emit
                 // Emit equality test.
                 instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
                 instructions.Add(
-                    new CilOpInstruction(
-                        CilInstruction.Create(
-                            hasArgs ? OpCodes.Bne_Un : OpCodes.Beq,
-                            CilInstruction.Create(OpCodes.Nop)),
-                        (insn, branchTargets) => insn.Operand = branchTargets[hasArgs ? elseTarget : ifTarget]));
+                    hasArgs
+                    ? CreateBranchInstruction(OpCodes.Bne_Un, elseTarget)
+                    : CreateBranchInstruction(OpCodes.Beq, ifTarget));
 
                 // If the if-branch takes one or more arguments, then we need to
                 // build a little thunk that selects instructions for those arguments.
@@ -230,12 +462,7 @@ namespace Flame.Clr.Emit
                     var ifArgs = SelectBranchArguments(ifBranch, graph);
                     instructions.AddRange(ifArgs.Instructions);
                     dependencies.AddRange(ifArgs.Dependencies);
-                    instructions.Add(
-                        new CilOpInstruction(
-                            CilInstruction.Create(
-                                OpCodes.Br,
-                                CilInstruction.Create(OpCodes.Nop)),
-                            (insn, branchTargets) => insn.Operand = branchTargets[ifBranch.Target]));
+                    instructions.Add(CreateBranchInstruction(OpCodes.Br, ifTarget));
                 }
 
                 // Emit branch arguments for fallthrough branch.
@@ -324,27 +551,59 @@ namespace Flame.Clr.Emit
             }
         }
 
+        /// <summary>
+        /// Selects instructions for a branch argument.
+        /// </summary>
+        /// <param name="branch">
+        /// The branch whose arguments are selected for.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that contains the branch.
+        /// </param>
+        /// <param name="blockTag">
+        /// The tag of the block that defines the branch.
+        /// </param>
+        /// <param name="insertionPoint">
+        /// The index at which instructions are inserted into the
+        /// defining basic block's instruction list.
+        /// </param>
+        /// <param name="selectForNonValueArg">
+        /// An optional function that selects instructions for non-value
+        /// branch arguments.
+        /// </param>
+        /// <returns>
+        /// Selected instructions for all branch arguments.
+        /// </returns>
         private SelectedInstructions<CilCodegenInstruction> SelectBranchArguments(
             Branch branch,
             FlowGraph graph,
             BasicBlockTag blockTag = null,
-            LinkedListNode<ValueTag> insertionPoint = null)
+            LinkedListNode<ValueTag> insertionPoint = null,
+            Func<BranchArgument, SelectedInstructions<CilCodegenInstruction>> selectForNonValueArg = null)
         {
             var instructions = new List<CilCodegenInstruction>();
             var dependencies = new HashSet<ValueTag>();
             foreach (var arg in branch.Arguments)
             {
-                if (!arg.IsValue)
+                SelectedInstructions<CilCodegenInstruction> insnSelection;
+                if (arg.IsValue)
                 {
-                    throw new NotImplementedException(
-                        $"Non-value argument '{arg}' is not supported yet.");
+                    var argInsn = Instruction.CreateCopy(
+                        graph.GetValueType(arg.ValueOrNull),
+                        arg.ValueOrNull);
+
+                    insnSelection = SelectInstructionsAndWrap(argInsn, null, blockTag, insertionPoint, graph);
+                }
+                else if (selectForNonValueArg == null)
+                {
+                    throw new NotSupportedException(
+                        $"Non-value argument '{arg}' is not supported here.");
+                }
+                else
+                {
+                    insnSelection = selectForNonValueArg(arg);
                 }
 
-                var argInsn = Instruction.CreateCopy(
-                    graph.GetValueType(arg.ValueOrNull),
-                    arg.ValueOrNull);
-
-                var insnSelection = SelectInstructionsAndWrap(argInsn, null, blockTag, insertionPoint, graph);
                 instructions.AddRange(insnSelection.Instructions);
                 dependencies.UnionWith(insnSelection.Dependencies);
             }
@@ -1204,6 +1463,40 @@ namespace Flame.Clr.Emit
             { IntegerSpec.UInt64, OpCodes.Ldind_I8 }
         };
 
+        /// <summary>
+        /// Selects CIL instructions for a particular Flame IR instruction,
+        /// prepends dependency-loading instructions and appends a result-storing
+        /// instruction if the result is non-void and the instruction has a non-null
+        /// tag.
+        /// </summary>
+        /// <param name="instruction">
+        /// The Flame IR instruction to select instructions for.
+        /// </param>
+        /// <param name="instructionTag">
+        /// The tag assigned to <paramref name="instruction"/>.
+        /// </param>
+        /// <param name="blockTag">
+        /// The tag of the block that defines <paramref name="instruction"/>.
+        /// </param>
+        /// <param name="insertionPoint">
+        /// The index at which the instruction is inserted in the
+        /// defining basic block's instruction list.
+        /// </param>
+        /// <param name="graph">
+        /// The graph that defines the basic block and the instruction.
+        /// </param>
+        /// <param name="uninlineableValues">
+        /// An optional hash set of uninlineable values: these values
+        /// will never be loaded inline if they are used as dependencies.
+        /// </param>
+        /// <returns>
+        /// CIL instructions that implement <paramref name="instruction"/>,
+        /// sandwiched between dependency-loading instructions and a result-storing
+        /// instruction. The result-storing instruction is elided if either
+        /// the instruction produces a <c>void</c> result (in which case there
+        /// is no result to store) or if <paramref name="instructionTag"/> is <c>null</c>
+        /// (in which case the result is left on the stack if there is a result).
+        /// </returns>
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
             Instruction instruction,
             ValueTag instructionTag,
@@ -1416,6 +1709,74 @@ namespace Flame.Clr.Emit
             return SelectedInstructions.Create<CilCodegenInstruction>(
                 EmptyArray<CilCodegenInstruction>.Value,
                 dependencies);
+        }
+
+        /// <summary>
+        /// Creates a simple instruction based on an opcode and
+        /// a basic block tag that is translated to an instruction
+        /// operand.
+        /// </summary>
+        /// <param name="op">The opcode of the instruction.</param>
+        /// <param name="operand">The instruction's operand.</param>
+        /// <returns>An instruction.</returns>
+        private CilOpInstruction CreateBranchInstruction(OpCode op, BasicBlockTag operand)
+        {
+            return new CilOpInstruction(
+                CilInstruction.Create(
+                    op,
+                    CilInstruction.Create(OpCodes.Nop)),
+                (insn, branchTargets) => insn.Operand = branchTargets[operand]);
+        }
+
+        /// <summary>
+        /// Allocates a temporary variable of a particular type.
+        /// </summary>
+        /// <param name="type">The type of temporary to allocate.</param>
+        /// <returns>A temporary variable.</returns>
+        private VariableDefinition AllocateTemporary(IType type)
+        {
+            return AllocateTemporary(Method.Module.ImportReference(type));
+        }
+
+        /// <summary>
+        /// Allocates a temporary variable of a particular type.
+        /// </summary>
+        /// <param name="type">The type of temporary to allocate.</param>
+        /// <returns>A temporary variable.</returns>
+        private VariableDefinition AllocateTemporary(TypeReference type)
+        {
+            HashSet<VariableDefinition> tempSet;
+            if (!freeTempsByType.TryGetValue(type, out tempSet))
+            {
+                freeTempsByType[type] = tempSet = new HashSet<VariableDefinition>();
+            }
+            if (tempSet.Count == 0)
+            {
+                var newTemp = new VariableDefinition(type);
+                tempDefs.Add(newTemp);
+                return newTemp;
+            }
+            else
+            {
+                var temp = tempSet.First();
+                tempSet.Remove(temp);
+                return temp;
+            }
+        }
+
+        /// <summary>
+        /// Releases a temporary variable, allowing for it to be reused.
+        /// </summary>
+        /// <param name="temporary">
+        /// The temporary to release. If this value is <c>null</c>, this
+        /// method does nothing.
+        /// </param>
+        private void ReleaseTemporary(VariableDefinition temporary)
+        {
+            if (temporary != null)
+            {
+                freeTempsByType[temporary.VariableType].Add(temporary);
+            }
         }
 
         /// <summary>
