@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Flame.Compiler;
 using OpCode = Mono.Cecil.Cil.OpCode;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
+using Flame.Collections;
+using System.Linq;
 
 namespace Flame.Clr.Emit
 {
@@ -13,6 +15,32 @@ namespace Flame.Clr.Emit
     {
         internal CilCodegenInstruction()
         { }
+
+        /// <summary>
+        /// Gets a sequence that represents a preorder traversal
+        /// of this CIL instruction and all of its children,
+        /// immediate or otherwise.
+        /// </summary>
+        /// <value>A pre-order traversal.</value>
+        public IEnumerable<CilCodegenInstruction> Traversal
+        {
+            get
+            {
+                return new[] { this }.Concat(Children.SelectMany(c => c.Traversal));
+            }
+        }
+
+        /// <summary>
+        /// Gets this CIL codegen instruction's immediate children.
+        /// </summary>
+        /// <value>A sequence of child instructions.</value>
+        public virtual IEnumerable<CilCodegenInstruction> Children
+        {
+            get
+            {
+                return EmptyArray<CilCodegenInstruction>.Value;
+            }
+        }
     }
 
     /// <summary>
@@ -128,6 +156,15 @@ namespace Flame.Clr.Emit
         /// </summary>
         /// <value>The exception handler block itself.</value>
         public IReadOnlyList<CilCodegenInstruction> HandlerBlock { get; private set; }
+
+        /// <inheritdoc/>
+        public override IEnumerable<CilCodegenInstruction> Children
+        {
+            get
+            {
+                return TryBlock.Concat(HandlerBlock);
+            }
+        }
     }
 
     /// <summary>

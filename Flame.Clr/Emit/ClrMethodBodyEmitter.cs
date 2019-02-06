@@ -71,10 +71,13 @@ namespace Flame.Clr.Emit
             // Find the set of loaded values so we can allocate registers to them.
             var loadedValues = new HashSet<ValueTag>(
                 codegenInsns
+                    .SelectMany(insn => insn.Traversal)
                     .OfType<CilLoadRegisterInstruction>()
                     .Select(insn => insn.Value));
             loadedValues.UnionWith(
-                codegenInsns.OfType<CilAddressOfRegisterInstruction>()
+                codegenInsns
+                .SelectMany(insn => insn.Traversal)
+                .OfType<CilAddressOfRegisterInstruction>()
                 .Select(insn => insn.Value));
 
             // Allocate registers to values.
@@ -291,13 +294,14 @@ namespace Flame.Clr.Emit
 
                     // Populate the exception handler's start/end fields.
                     handler.TryStart = preTryInstruction == null
-                        ? preTryInstruction.Next
-                        : Processor.Body.Instructions.First();
+                        ? Processor.Body.Instructions.First()
+                        : preTryInstruction.Next;
                     handler.TryEnd = lastTryInstruction == null
-                        ? lastTryInstruction.Next
-                        : Processor.Body.Instructions.First();
+                        ? Processor.Body.Instructions.First()
+                        : lastTryInstruction.Next;
                     handler.HandlerStart = handler.TryEnd;
-                    handler.HandlerEnd = Processor.Body.Instructions.Last();
+                    handler.HandlerEnd = Processor.Create(OpCodes.Nop);
+                    Processor.Append(handler.HandlerEnd);
                 }
                 else if (instruction is CilLoadRegisterInstruction)
                 {
