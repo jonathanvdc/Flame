@@ -148,9 +148,22 @@ namespace Flame.Clr.Emit
             }
             else if (flow is UnreachableFlow)
             {
+                // Unreachable flow is fairly tricky to get right. We know that
+                // the unreachable flow is indeed unreachable, so we have no
+                // particular obligations wrt the semantics of the instructions
+                // we emit. However, we do need to generate a valid stream of CIL
+                // instructions, so we do have some stringent requirements wrt
+                // the syntax of the instructions we emit here.
+                //
+                // So, what we want is a short sequence of instructions that terminates
+                // control flow. `ldnull; throw` should do the trick.
                 fallthrough = null;
                 return SelectedInstructions.Create<CilCodegenInstruction>(
-                    EmptyArray<CilCodegenInstruction>.Value,
+                    new CilCodegenInstruction[]
+                    {
+                        new CilOpInstruction(OpCodes.Ldnull),
+                        new CilOpInstruction(OpCodes.Throw)
+                    },
                     EmptyArray<ValueTag>.Value);
             }
             else if (flow is JumpFlow)
@@ -1269,6 +1282,42 @@ namespace Flame.Clr.Emit
                             new CilOpInstruction(CilInstruction.Create(OpCodes.Throw)),
                             new CilOpInstruction(CilInstruction.Create(OpCodes.Dup))
                         },
+                        arguments);
+                }
+                else if (opName == ExceptionIntrinsics.Operators.Rethrow
+                    && prototype.ParameterCount == 1)
+                {
+                    // HACK: same as for 'throw'.
+                    var capturedExceptionType = TypeHelpers.UnboxIfPossible(
+                        prototype.ParameterTypes[0]);
+                    var throwMethod = Method.Module.ImportReference(
+                        capturedExceptionType.Methods.Single(
+                            m => m.Name.ToString() == "Throw"
+                                && !m.IsStatic
+                                && m.Parameters.Count == 0));
+
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Call, throwMethod)),
+                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup))
+                        },
+                        arguments);
+                }
+                else if (opName == ExceptionIntrinsics.Operators.GetCapturedException
+                    && prototype.ParameterCount == 1)
+                {
+                    var capturedExceptionType = TypeHelpers.UnboxIfPossible(
+                        prototype.ParameterTypes[0]);
+                    var getSourceExceptionMethod = Method.Module.ImportReference(
+                        capturedExceptionType
+                            .Properties
+                            .Single(p => p.Name.ToString() == "SourceException")
+                            .Accessors
+                            .Single(a => a.Kind == AccessorKind.Get));
+
+                    return CreateSelection(
+                        CilInstruction.Create(OpCodes.Call, getSourceExceptionMethod),
                         arguments);
                 }
                 throw new NotSupportedException(
