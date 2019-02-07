@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Transforms
 {
@@ -79,13 +80,52 @@ namespace Flame.Compiler.Transforms
                 var tryFlow = (TryFlow)flow;
                 if (!tryFlow.Instruction.Prototype.ExceptionSpecification.CanThrowSomething)
                 {
-                    // Rewrite the try as a jump.
+                    // If the "risky" instruction absolutely cannot throw,
+                    // then we can just rewrite the try as a jump.
                     var value = block.AppendInstruction(tryFlow.Instruction);
                     var branch = tryFlow.SuccessBranch.WithArguments(
                         tryFlow.SuccessBranch.Arguments
                             .Select(arg => arg.IsTryResult ? BranchArgument.FromValue(value) : arg)
                             .ToArray());
                     block.Flow = new JumpFlow(branch);
+
+                    // Jump-thread this block again.
+                    processedBlocks.Remove(block);
+                    ThreadJumps(block, processedBlocks);
+                }
+                else if (IsThrowIntrinsic(tryFlow.Instruction))
+                {
+                    // If the "risky" instruction is really just a 'throw' intrinsic,
+                    // then we can insert an instruction to capture the exception and
+                    // jump directly to the exception block.
+                    var exception = tryFlow.Instruction.Arguments[0];
+
+                    var capturedExceptionParam = tryFlow.ExceptionBranch
+                        .ZipArgumentsWithParameters(block.Graph)
+                        .FirstOrDefault(pair => pair.Value.IsTryException)
+                        .Key;
+
+                    if (capturedExceptionParam == null)
+                    {
+                        // If the exception branch does not pass an '#exception' parameter,
+                        // then we can replace the try by a simple jump.
+                        block.Flow = new JumpFlow(tryFlow.ExceptionBranch);
+                    }
+                    else
+                    {
+                        // Otherwise, we actually need to capture the exception.
+                        var capturedException = block.AppendInstruction(
+                            Instruction.CreateCaptureIntrinsic(
+                                block.Graph.GetValueType(capturedExceptionParam),
+                                block.Graph.GetValueType(exception),
+                                exception));
+                        var branch = tryFlow.ExceptionBranch.WithArguments(
+                            tryFlow.ExceptionBranch.Arguments
+                                .Select(arg => arg.IsTryException ? BranchArgument.FromValue(capturedException) : arg)
+                                .ToArray());
+
+                        block.Flow = new JumpFlow(branch);
+                    }
 
                     // Jump-thread this block again.
                     processedBlocks.Remove(block);
@@ -204,6 +244,20 @@ namespace Flame.Compiler.Transforms
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Tells if an instruction is a 'throw' intrinsic.
+        /// </summary>
+        /// <param name="instruction">The instruction to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="instruction"/> is a 'throw' intrinsic; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsThrowIntrinsic(Instruction instruction)
+        {
+            return ExceptionIntrinsics.Namespace.IsIntrinsicPrototype(
+                instruction.Prototype,
+                ExceptionIntrinsics.Operators.Throw);
         }
     }
 }
