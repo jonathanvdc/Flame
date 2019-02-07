@@ -320,7 +320,7 @@ namespace Flame.Clr.Emit
             VariableDefinition capturedExceptionTemporary = null;
             if (captureMethod != null)
             {
-                capturedExceptionTemporary = AllocateTemporary(flow.Instruction.ResultType);
+                capturedExceptionTemporary = AllocateTemporary(captureMethod.DeclaringType);
                 catchBody.Add(
                     new CilOpInstruction(
                         CilInstruction.Create(OpCodes.Call, captureMethod)));
