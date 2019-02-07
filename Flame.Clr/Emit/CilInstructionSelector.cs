@@ -46,7 +46,8 @@ namespace Flame.Clr.Emit
             this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
             this.selectedInstructions = new HashSet<ValueTag>();
             this.tempDefs = new List<VariableDefinition>();
-            this.freeTempsByType = new Dictionary<TypeReference, HashSet<VariableDefinition>>();
+            this.freeTempsByType = new Dictionary<IType, HashSet<VariableDefinition>>();
+            this.tempTypes = new Dictionary<VariableDefinition, IType>();
         }
 
         /// <summary>
@@ -77,7 +78,8 @@ namespace Flame.Clr.Emit
         private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
         private HashSet<ValueTag> selectedInstructions;
         private List<VariableDefinition> tempDefs;
-        private Dictionary<TypeReference, HashSet<VariableDefinition>> freeTempsByType;
+        private Dictionary<IType, HashSet<VariableDefinition>> freeTempsByType;
+        private Dictionary<VariableDefinition, IType> tempTypes;
 
         /// <inheritdoc/>
         public IReadOnlyList<CilCodegenInstruction> CreateBlockMarker(BasicBlock block)
@@ -320,7 +322,8 @@ namespace Flame.Clr.Emit
             VariableDefinition capturedExceptionTemporary = null;
             if (captureMethod != null)
             {
-                capturedExceptionTemporary = AllocateTemporary(captureMethod.DeclaringType);
+                capturedExceptionTemporary = AllocateTemporary(
+                    graph.GetValueType(capturedExceptionParam));
                 catchBody.Add(
                     new CilOpInstruction(
                         CilInstruction.Create(OpCodes.Call, captureMethod)));
@@ -1784,16 +1787,6 @@ namespace Flame.Clr.Emit
         /// <returns>A temporary variable.</returns>
         private VariableDefinition AllocateTemporary(IType type)
         {
-            return AllocateTemporary(Method.Module.ImportReference(type));
-        }
-
-        /// <summary>
-        /// Allocates a temporary variable of a particular type.
-        /// </summary>
-        /// <param name="type">The type of temporary to allocate.</param>
-        /// <returns>A temporary variable.</returns>
-        private VariableDefinition AllocateTemporary(TypeReference type)
-        {
             HashSet<VariableDefinition> tempSet;
             if (!freeTempsByType.TryGetValue(type, out tempSet))
             {
@@ -1801,8 +1794,10 @@ namespace Flame.Clr.Emit
             }
             if (tempSet.Count == 0)
             {
-                var newTemp = new VariableDefinition(type);
+                var newTemp = new VariableDefinition(
+                    Method.Module.ImportReference(type));
                 tempDefs.Add(newTemp);
+                tempTypes[newTemp] = type;
                 return newTemp;
             }
             else
@@ -1824,7 +1819,7 @@ namespace Flame.Clr.Emit
         {
             if (temporary != null)
             {
-                freeTempsByType[temporary.VariableType].Add(temporary);
+                freeTempsByType[tempTypes[temporary]].Add(temporary);
             }
         }
 
