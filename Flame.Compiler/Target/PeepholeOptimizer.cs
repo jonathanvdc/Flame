@@ -323,9 +323,19 @@ namespace Flame.Collections.Target
                 current = current.Next;
             }
 
+            // Construct the sequence of instructions to replace.
+            IReadOnlyList<TInstruction> sequence =
+                new ArraySegment<TInstruction>(instructionArray, 0, patternLength);
+
+            // Check if the sequence adheres to the macro-pattern.
+            if (!rule.MacroPattern(sequence))
+            {
+                newFirst = first;
+                return false;
+            }
+
             // Actually rewrite the pattern.
-            var rewritten = rule.Rewrite(
-                new ArraySegment<TInstruction>(instructionArray, 0, patternLength));
+            var rewritten = rule.Rewrite(sequence);
 
             var newLength = rewritten.Count;
             var reusableNodeCount = Math.Min(patternLength, newLength);
@@ -403,21 +413,56 @@ namespace Flame.Collections.Target
         public PeepholeRewriteRule(
             IReadOnlyList<Predicate<TInstruction>> pattern,
             Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>> rewrite)
+            : this(pattern, seq => true, rewrite)
+        { }
+
+        /// <summary>
+        /// Creates a peephole rewrite rule.
+        /// </summary>
+        /// <param name="pattern">
+        /// The pattern to match on, specified as a list
+        /// of predicates. The rewrite rule only considered to
+        /// be applicable if every pattern in the list is a match.
+        /// list is a match.
+        /// </param>
+        /// <param name="macroPattern">
+        /// A "macro-pattern" that decides if a sequence of
+        /// instructions can be rewritten by the rewrite rule,
+        /// assuming that every instruction in the sequence
+        /// already adheres to <paramref name="pattern"/>.
+        /// </param>
+        /// <param name="rewrite">
+        /// A function that rewrites instructions that match
+        /// the pattern.
+        /// </param>
+        public PeepholeRewriteRule(
+            IReadOnlyList<Predicate<TInstruction>> pattern,
+            Predicate<IReadOnlyList<TInstruction>> macroPattern,
+            Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>> rewrite)
         {
             this.Pattern = pattern;
+            this.MacroPattern = macroPattern;
             this.Rewrite = rewrite;
         }
 
         /// <summary>
         /// Gets the pattern to match on, specified as a list
-        /// of predicates. The rewrite rule is considered to
-        /// be applicable if and only if every pattern in the
-        /// list is a match.
+        /// of predicates. The rewrite rule is only considered to
+        /// be applicable if every pattern in the list is a match.
         /// </summary>
         /// <value>
         /// A list of instruction-matching predicates.
         /// </value>
         public IReadOnlyList<Predicate<TInstruction>> Pattern { get; private set; }
+
+        /// <summary>
+        /// Gets a "macro-pattern" that decides if a sequence of
+        /// instructions can be rewritten by the rewrite rule,
+        /// assuming that every instruction in the sequence
+        /// already adheres to <paramref name="pattern"/>.
+        /// </summary>
+        /// <value>A predicate on a sequence of instructions.</value>
+        public Predicate<IReadOnlyList<TInstruction>> MacroPattern { get; private set; }
 
         /// <summary>
         /// Rewrites a list of instructions matching the pattern
