@@ -147,19 +147,19 @@ namespace Flame.Collections.Target
             var results = new LinkedList<TInstruction>(instructions);
 
             // Create a trivial branch target replacement map.
-            var replacedBranchTargets = new Dictionary<TInstruction, TInstruction>();
+            var replacedBranchTargets = new Dictionary<TInstruction, HashSet<TInstruction>>();
             foreach (var insn in instructions)
             {
                 foreach (var target in GetBranchTargets(insn))
                 {
-                    replacedBranchTargets[target] = target;
+                    replacedBranchTargets[target] = new HashSet<TInstruction> { target };
                 }
             }
             foreach (var externalRef in externalRefs)
             {
                 foreach (var target in GetInstructionReferences(externalRef))
                 {
-                    replacedBranchTargets[target] = target;
+                    replacedBranchTargets[target] = new HashSet<TInstruction> { target };
                 }
             }
 
@@ -197,7 +197,10 @@ namespace Flame.Collections.Target
             var branchTargetMap = new Dictionary<TInstruction, TInstruction>();
             foreach (var pair in replacedBranchTargets)
             {
-                branchTargetMap[pair.Value] = pair.Key;
+                foreach (var item in pair.Value)
+                {
+                    branchTargetMap.Add(item, pair.Key);
+                }
             }
 
             // Rewrite external instruction references.
@@ -240,7 +243,7 @@ namespace Flame.Collections.Target
             LinkedListNode<TInstruction> first,
             out LinkedListNode<TInstruction> newFirst,
             TInstruction[] instructionArray,
-            Dictionary<TInstruction, TInstruction> replacedBranchTargets)
+            Dictionary<TInstruction, HashSet<TInstruction>> replacedBranchTargets)
         {
             foreach (var rule in Rules)
             {
@@ -286,7 +289,7 @@ namespace Flame.Collections.Target
             LinkedListNode<TInstruction> first,
             out LinkedListNode<TInstruction> newFirst,
             TInstruction[] instructionArray,
-            Dictionary<TInstruction, TInstruction> replacedBranchTargets)
+            Dictionary<TInstruction, HashSet<TInstruction>> replacedBranchTargets)
         {
             // Ensure that the pattern matches.
             var oldFirstInstruction = first.Value;
@@ -353,11 +356,23 @@ namespace Flame.Collections.Target
             // Figure out what the new 'first' instruction is.
             newFirst = preFirst == null ? linkedList.First : preFirst.Next;
 
-            // Update the branch target map.
-            TInstruction oldBranchTarget;
-            if (replacedBranchTargets.TryGetValue(oldFirstInstruction, out oldBranchTarget))
+            if (!object.Equals(newFirst.Value, oldFirstInstruction))
             {
-                replacedBranchTargets[newFirst.Value] = oldBranchTarget;
+                // Update the branch target map.
+                HashSet<TInstruction> oldBranchTargets;
+                if (replacedBranchTargets.TryGetValue(oldFirstInstruction, out oldBranchTargets))
+                {
+                    HashSet<TInstruction> newBranchTargets;
+                    if (!replacedBranchTargets.TryGetValue(newFirst.Value, out newBranchTargets))
+                    {
+                        replacedBranchTargets[newFirst.Value] = newBranchTargets = new HashSet<TInstruction>();
+                    }
+
+                    newBranchTargets.Add(oldFirstInstruction);
+                    newBranchTargets.UnionWith(oldBranchTargets);
+
+                    replacedBranchTargets.Remove(oldFirstInstruction);
+                }
             }
 
             return true;
