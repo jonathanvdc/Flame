@@ -634,6 +634,29 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a 'capture' intrinsic, which captures a (thrown)
+        /// exception.
+        /// </summary>
+        /// <param name="resultType">
+        /// The type of a captured exception.
+        /// </param>
+        /// <param name="argumentType">
+        /// The type of the exception to capture.
+        /// </param>
+        /// <param name="argument">
+        /// An exception to capture.
+        /// </param>
+        /// <returns>A 'capture' intrinsic.</returns>
+        public static Instruction CreateCaptureIntrinsic(
+            IType resultType,
+            IType argumentType,
+            ValueTag argument)
+        {
+            return ExceptionIntrinsics.CreateCapturePrototype(resultType, argumentType)
+                .Instantiate(new[] { argument });
+        }
+
+        /// <summary>
         /// Creates a 'get_captured_exception' intrinsic, which throws an exception.
         /// </summary>
         /// <param name="resultType">

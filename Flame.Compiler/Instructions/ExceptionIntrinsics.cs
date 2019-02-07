@@ -50,7 +50,31 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Creates a 'throw' instruction prototype,
+        /// Creates a 'capture' instruction prototype,
+        /// which captures a (thrown) exception.
+        /// </summary>
+        /// <param name="resultType">
+        /// The type of a captured exception.
+        /// </param>
+        /// <param name="argumentType">
+        /// The type of the exception to capture.
+        /// </param>
+        /// <returns>
+        /// A 'capture' instruction prototype.
+        /// </returns>
+        public static IntrinsicPrototype CreateCapturePrototype(
+            IType resultType,
+            IType argumentType)
+        {
+            return CreatePrototype(
+                Operators.Capture,
+                resultType,
+                new[] { argumentType },
+                ExceptionSpecification.NoThrow);
+        }
+
+        /// <summary>
+        /// Creates a 'get_captured_exception' instruction prototype,
         /// which extracts the exception captured by a
         /// captured exception.
         /// </summary>
@@ -122,6 +146,12 @@ namespace Flame.Compiler.Instructions
         public static class Operators
         {
             /// <summary>
+            /// The 'capture' operator, which captures a (thrown) exception.
+            /// Captured exceptions can be rethrown.
+            /// </summary>
+            public const string Capture = "capture";
+
+            /// <summary>
             /// The 'get_captured_exception' operator, which extracts the exception
             /// captured by a captured exception.
             /// </summary>
@@ -145,6 +175,7 @@ namespace Flame.Compiler.Instructions
                 ImmutableArray.Create(
                     new[]
                     {
+                        Capture,
                         GetCapturedException,
                         Throw,
                         Rethrow

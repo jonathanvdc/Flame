@@ -132,5 +132,27 @@ namespace Flame.Compiler.Instructions
             return prototype is IntrinsicPrototype
                 && IsIntrinsicName(((IntrinsicPrototype)prototype).Name);
         }
+
+        /// <summary>
+        /// Tests if an instruction prototype is a intrinsic prototype
+        /// with a particular name defined in the current namespace.
+        /// </summary>
+        /// <param name="prototype">
+        /// The prototype to examine.
+        /// </param>
+        /// <param name="name">
+        /// The prototype name to expect.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the prototype is a namespaced intrinsic prototype
+        /// with a name equal to <paramref name="name"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsIntrinsicPrototype(InstructionPrototype prototype, string name)
+        {
+            string opName;
+            return prototype is IntrinsicPrototype
+                && TryParseIntrinsicName(((IntrinsicPrototype)prototype).Name, out opName)
+                && name == opName;
+        }
     }
 }
