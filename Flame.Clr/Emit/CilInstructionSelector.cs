@@ -325,17 +325,12 @@ namespace Flame.Clr.Emit
             // the exception and send control to a thunk that implements
             // the exception branch.
             var catchBody = new List<CilCodegenInstruction>();
-            VariableDefinition capturedExceptionTemporary = null;
             if (captureMethod != null)
             {
-                capturedExceptionTemporary = AllocateTemporary(
-                    graph.GetValueType(capturedExceptionParam));
                 catchBody.Add(
                     new CilOpInstruction(
                         CilInstruction.Create(OpCodes.Call, captureMethod)));
-                catchBody.Add(
-                    new CilOpInstruction(
-                        CilInstruction.Create(OpCodes.Stloc, capturedExceptionTemporary)));
+                catchBody.Add(new CilStoreRegisterInstruction(capturedExceptionParam));
             }
 
             // Generate the `leave exception_thunk` instruction.
@@ -365,8 +360,7 @@ namespace Flame.Clr.Emit
                         else
                         {
                             return SelectedInstructions.Create<CilCodegenInstruction>(
-                                new CilCodegenInstruction[] { new CilLoadRegisterInstruction(resultParam) },
-                                dependencies);
+                                new CilLoadRegisterInstruction(resultParam));
                         }
                     }
                     else
@@ -388,7 +382,8 @@ namespace Flame.Clr.Emit
                 {
                     if (arg.IsTryException)
                     {
-                        return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, capturedExceptionTemporary));
+                        return SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilLoadRegisterInstruction(capturedExceptionParam));
                     }
                     else
                     {
@@ -398,9 +393,6 @@ namespace Flame.Clr.Emit
                 });
             exceptionThunkBody.AddRange(exceptionArgs.Instructions);
             dependencies.AddRange(exceptionArgs.Dependencies);
-
-            // Release temporaries.
-            ReleaseTemporary(capturedExceptionTemporary);
 
             // Now compose the final instruction stream.
             var selectedInsns = new List<CilCodegenInstruction>();
