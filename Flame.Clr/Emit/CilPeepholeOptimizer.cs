@@ -127,6 +127,8 @@ namespace Flame.Clr.Emit
             DupUsePopToUse,
             LdcZeroBeqToBrfalse,
             LdcZeroBneToBrtrue,
+            LdnullBeqToBrfalse,
+            LdnullBneToBrtrue,
             CltBrfalseToBge,
             CltUnBrfalseToBgeUn,
             CltBrtrueToBlt,
@@ -229,6 +231,46 @@ namespace Flame.Clr.Emit
                     new Predicate<Instruction>[]
                     {
                         IsZeroConstant,
+                        HasOpCode(OpCodes.Bne_Un)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brtrue, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ldnull; beq target` pattern to `brfalse target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdnullBeqToBrfalse
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Ldnull),
+                        HasOpCode(OpCodes.Beq)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brfalse, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ldnull; bne.un target` pattern to `brtrue target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdnullBneToBrtrue
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Ldnull),
                         HasOpCode(OpCodes.Bne_Un)
                     },
                     insns => new[]
