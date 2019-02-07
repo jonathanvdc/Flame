@@ -278,6 +278,23 @@ namespace Flame.Compiler
         /// </summary>
         public bool IsTryException => Kind == BranchArgumentKind.TryException;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            if (IsTryResult)
+            {
+                return "#result";
+            }
+            else if (IsTryException)
+            {
+                return "#exception";
+            }
+            else
+            {
+                return ValueOrNull.ToString();
+            }
+        }
+
         /// <summary>
         /// Creates a branch argument that passes a particular value
         /// to the branch's target block.
