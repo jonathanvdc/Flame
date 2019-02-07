@@ -1322,6 +1322,19 @@ namespace Flame.Clr.Emit
                         CilInstruction.Create(OpCodes.Call, getSourceExceptionMethod),
                         arguments);
                 }
+                else if (opName == ExceptionIntrinsics.Operators.Capture
+                    && prototype.ParameterCount == 1)
+                {
+                    var capturedExceptionType = TypeHelpers.UnboxIfPossible(prototype.ResultType);
+
+                    var captureMethod = Method.Module.ImportReference(
+                        capturedExceptionType.Methods.Single(
+                            m => m.Name.ToString() == "Capture"));
+
+                    return CreateSelection(
+                        CilInstruction.Create(OpCodes.Call, captureMethod),
+                        arguments);
+                }
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown exception handling intrinsic '{prototype.Name}'.");
             }
