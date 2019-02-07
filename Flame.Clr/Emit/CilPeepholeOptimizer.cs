@@ -196,7 +196,7 @@ namespace Flame.Clr.Emit
                         HasOpCode(OpCodes.Ldloc),
                         HasOpCode(OpCodes.Stloc)
                     },
-                    seq => seq[0].Operand == seq[1].Operand,
+                    insns => insns[0].Operand == insns[1].Operand,
                     insns => EmptyArray<Instruction>.Value);
             }
         }
