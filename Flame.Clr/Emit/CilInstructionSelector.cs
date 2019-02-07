@@ -257,6 +257,12 @@ namespace Flame.Clr.Emit
                 .FirstOrDefault(pair => pair.Value.IsTryException)
                 .Key;
 
+            // Ditto for the `#result` argument.
+            var resultParam = flow.SuccessBranch
+                .ZipArgumentsWithParameters(graph)
+                .FirstOrDefault(pair => pair.Value.IsTryResult)
+                .Key;
+
             // Grab the static `ExceptionDispatchInfo.Capture` method if
             // we have a captured exception parameter.
             MethodReference captureMethod;
@@ -293,17 +299,17 @@ namespace Flame.Clr.Emit
             // Compose the 'try' body.
             var tryBody = new List<CilCodegenInstruction>(riskyInstruction.Instructions);
 
-            VariableDefinition resultTemporary = null;
             if (flow.Instruction.ResultType != TypeEnvironment.Void)
             {
-                if (flow.SuccessBranch.Arguments.Any(arg => arg.IsTryResult))
+                if (resultParam != null)
                 {
-                    // Put used `#result` values in a temporary so they can be
+                    // Put used `#result` values in the virtual register assigned to
+                    // the first parameter to which `#result` is assigned so they can be
                     // smuggled out (`leave` opcodes clear the contents of the stack).
-                    resultTemporary = AllocateTemporary(flow.Instruction.ResultType);
-                    tryBody.Add(
-                        new CilOpInstruction(
-                            CilInstruction.Create(OpCodes.Stloc, resultTemporary)));
+                    //
+                    // This is an okay thing to do because the success branch is indeed
+                    // allowed to write to the parameter.
+                    tryBody.Add(new CilStoreRegisterInstruction(resultParam));
                 }
                 else
                 {
@@ -352,13 +358,15 @@ namespace Flame.Clr.Emit
                 {
                     if (arg.IsTryResult)
                     {
-                        if (resultTemporary == null)
+                        if (resultParam == null)
                         {
                             return CreateNopSelection(EmptyArray<ValueTag>.Value);
                         }
                         else
                         {
-                            return CreateSelection(CilInstruction.Create(OpCodes.Ldloc, resultTemporary));
+                            return SelectedInstructions.Create<CilCodegenInstruction>(
+                                new CilCodegenInstruction[] { new CilLoadRegisterInstruction(resultParam) },
+                                dependencies);
                         }
                     }
                     else
@@ -392,7 +400,6 @@ namespace Flame.Clr.Emit
             dependencies.AddRange(exceptionArgs.Dependencies);
 
             // Release temporaries.
-            ReleaseTemporary(resultTemporary);
             ReleaseTemporary(capturedExceptionTemporary);
 
             // Now compose the final instruction stream.
