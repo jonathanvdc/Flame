@@ -77,6 +77,16 @@ namespace Flame.Clr.Transforms
                             newDelegateProto.Lookup),
                         instruction.Tag.Name + "_fptr");
 
+                    // CLR delegate constructors always take two parameters: a function
+                    // pointer and a 'this' argument (of type 'Object *box').
+                    // The latter can be somewhat tricky to get right:
+                    //
+                    //   * if the delegate has a 'this' argument then that 'this' argument
+                    //     should be reinterpreted as an instance of 'Object *box'.
+                    //
+                    //   * if the delegate does not have a 'this' argument, then we pass
+                    //     a `null` constant as 'this' argument.
+
                     ValueTag thisArgument;
                     if (newDelegateProto.HasThisArgument)
                     {
@@ -85,10 +95,6 @@ namespace Flame.Clr.Transforms
                         var thisType = builder.GetValueType(thisArgument);
                         var expectedThisType = constructor.Parameters[0].Type;
                         
-                        // isVirtual
-                        //     ? TypeHelpers.BoxIfReferenceType(newDelegateProto.Callee.ParentType)
-                        //     : newDelegateProto.Callee.Parameters[0].Type;
-
                         if (thisType != expectedThisType)
                         {
                             thisArgument = functionPointer.InsertBefore(
