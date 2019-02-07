@@ -122,6 +122,7 @@ namespace Flame.Clr.Emit
         private static readonly PeepholeRewriteRule<Instruction>[] rules =
             new PeepholeRewriteRule<Instruction>[]
         {
+            ElideNop,
             ElideDupPop,
             DupUsePopToUse,
             LdcZeroBeqToBrfalse,
@@ -144,6 +145,23 @@ namespace Flame.Clr.Emit
         /// </summary>
         public static readonly CilPeepholeOptimizer Instance =
             new CilPeepholeOptimizer();
+
+
+        /// <summary>
+        /// A rewrite use that removes nops.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> ElideNop
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Nop)
+                    },
+                    insns => EmptyArray<Instruction>.Value);
+            }
+        }
 
         /// <summary>
         /// A rewrite use that removes the `dup; pop` pattern.
