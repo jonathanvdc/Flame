@@ -124,6 +124,7 @@ namespace Flame.Clr.Emit
         {
             ElideNop,
             ElideDupPop,
+            ElideLdlocStloc,
             DupUsePopToUse,
             LdcZeroBeqToBrfalse,
             LdcZeroBneToBrtrue,
@@ -178,6 +179,24 @@ namespace Flame.Clr.Emit
                         HasOpCode(OpCodes.Dup),
                         HasOpCode(OpCodes.Pop)
                     },
+                    insns => EmptyArray<Instruction>.Value);
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that removes the `ldloc X; stloc X` pattern.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> ElideLdlocStloc
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        HasOpCode(OpCodes.Ldloc),
+                        HasOpCode(OpCodes.Stloc)
+                    },
+                    seq => seq[0].Operand == seq[1].Operand,
                     insns => EmptyArray<Instruction>.Value);
             }
         }
