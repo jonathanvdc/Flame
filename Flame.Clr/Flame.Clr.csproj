@@ -64,6 +64,7 @@
     <Compile Include="TypeHelpers.cs" />
     <Compile Include="Analysis\CilAnalysisContext.cs" />
     <Compile Include="Analysis\CilExceptionHandler.cs" />
+    <Compile Include="Analysis\CilPrototypeExceptionSpecs.cs" />
     <Compile Include="Analysis\ClrInstructionSimplifier.cs" />
     <Compile Include="Analysis\ClrMethodBodyAnalyzer.cs" />
     <Compile Include="Emit\CilCodegenInstruction.cs" />

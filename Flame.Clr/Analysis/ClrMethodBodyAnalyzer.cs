@@ -45,13 +45,29 @@ namespace Flame.Clr.Analysis
             this.Parameters = parameters;
             this.Assembly = assembly;
             this.graph = new FlowGraphBuilder();
+
+            // TODO: support type environments other than CorlibTypeEnvironment?
+            PrototypeExceptionSpecs prototypeExceptionSpecs;
+            var typeEnv = assembly.Resolver.TypeEnvironment;
+            while (typeEnv is MutableTypeEnvironment)
+            {
+                typeEnv = ((MutableTypeEnvironment)typeEnv).InnerEnvironment;
+            }
+            if (typeEnv is CorlibTypeEnvironment)
+            {
+                prototypeExceptionSpecs = CilPrototypeExceptionSpecs.Create(
+                    ((CorlibTypeEnvironment)typeEnv).CorlibTypeResolver);
+            }
+            else
+            {
+                prototypeExceptionSpecs = RuleBasedPrototypeExceptionSpecs.Default;
+            }
+
             this.graph.AddAnalysis(
-                new ConstantAnalysis<PrototypeExceptionSpecs>(
-                    RuleBasedPrototypeExceptionSpecs.Default));
+                new ConstantAnalysis<PrototypeExceptionSpecs>(prototypeExceptionSpecs));
             this.graph.AddAnalysis(
                 new ConstantAnalysis<InstructionExceptionSpecs>(
-                    new TrivialInstructionExceptionSpecs(
-                        RuleBasedPrototypeExceptionSpecs.Default)));
+                    new TrivialInstructionExceptionSpecs(prototypeExceptionSpecs)));
             this.graph.AddAnalysis(new EffectfulInstructionAnalysis());
             this.graph.AddAnalysis(NullabilityAnalysis.Instance);
 
