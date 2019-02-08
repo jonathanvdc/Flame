@@ -29,12 +29,6 @@ namespace Flame.Compiler.Instructions
         public override int ParameterCount => Constructor.Parameters.Count;
 
         /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification
-            // TODO: use the constructor's exception specification instead
-            // of a throw-any exception specification.
-            => ExceptionSpecification.ThrowAny;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             return CallPrototype.CheckArgumentTypes(

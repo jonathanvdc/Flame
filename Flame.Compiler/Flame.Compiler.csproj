@@ -58,12 +58,14 @@
     <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
     <Compile Include="Analysis\FlowGraphUpdate.cs" />
     <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
+    <Compile Include="Analysis\InstructionExceptionSpecs.cs" />
     <Compile Include="Analysis\InstructionOrderingAnalysis.cs" />
     <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Analysis\NullabilityAnalysis.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />
+    <Compile Include="Analysis\PrototypeExceptionSpecs.cs" />
     <Compile Include="Analysis\RegisterAllocation.cs" />
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
     <Compile Include="Analysis\ValueUseAnalysis.cs" />

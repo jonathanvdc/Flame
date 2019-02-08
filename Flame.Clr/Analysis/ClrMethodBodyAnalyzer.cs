@@ -45,6 +45,13 @@ namespace Flame.Clr.Analysis
             this.Parameters = parameters;
             this.Assembly = assembly;
             this.graph = new FlowGraphBuilder();
+            this.graph.AddAnalysis(
+                new ConstantAnalysis<PrototypeExceptionSpecs>(
+                    RuleBasedPrototypeExceptionSpecs.Default));
+            this.graph.AddAnalysis(
+                new ConstantAnalysis<InstructionExceptionSpecs>(
+                    new TrivialInstructionExceptionSpecs(
+                        RuleBasedPrototypeExceptionSpecs.Default)));
             this.graph.AddAnalysis(new EffectfulInstructionAnalysis());
             this.graph.AddAnalysis(NullabilityAnalysis.Instance);
 

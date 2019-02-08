@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Constants;
 using Flame.TypeSystem;
@@ -97,8 +98,10 @@ namespace Flame.Clr.Analysis
 
             // Our first step is to figure out if there's an exception handler
             // that might catch the instruction's exception.
-            // TODO: switch to a better exception specification system.
-            var exceptionSpec = instruction.Prototype.ExceptionSpecification;
+            var exceptionSpec = Block.Graph
+                .GetAnalysisResult<PrototypeExceptionSpecs>()
+                .GetExceptionSpecification(instruction.Prototype);
+
             if (exceptionSpec.CanThrowSomething)
             {
                 foreach (var handler in ExceptionHandlers)

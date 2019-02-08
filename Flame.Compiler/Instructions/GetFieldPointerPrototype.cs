@@ -30,11 +30,6 @@ namespace Flame.Compiler.Instructions
         /// <inheritdoc/>
         public override int ParameterCount => 1;
 
-        // May throw because of an implicit null check.
-        /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification =>
-            ExceptionSpecification.ThrowAny;
-
         /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {

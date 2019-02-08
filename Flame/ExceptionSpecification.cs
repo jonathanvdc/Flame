@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Flame
 {
     /// <summary>
@@ -41,6 +44,35 @@ namespace Flame
         /// <returns>A throw-any exception specification.</returns>
         public static readonly ExceptionSpecification ThrowAny
             = new ThrowAnyExceptionSpecification();
+
+        /// <summary>
+        /// Creates an exception specification that can throw
+        /// exactly one type of exception.
+        /// </summary>
+        /// <param name="exceptionType">
+        /// The single exception type that can be thrown.
+        /// </param>
+        public static ExactExceptionSpecification Exactly(
+            IType exceptionType)
+        {
+            return new ExactExceptionSpecification(exceptionType);
+        }
+
+        /// <summary>
+        /// Takes the union of a sequence of exception specifications.
+        /// The union can throw an exception iff said
+        /// exception is throwable by any of the operands.
+        /// </summary>
+        /// <param name="operands">
+        /// The exception specifications to which the union operator
+        /// is applied.
+        /// </param>
+        /// <returns>A union exception specification.</returns>
+        public static UnionExceptionSpecification Union(
+            params ExceptionSpecification[] operands)
+        {
+            return new UnionExceptionSpecification(operands);
+        }
     }
 
     internal sealed class NoThrowExceptionSpecification : ExceptionSpecification
@@ -60,6 +92,78 @@ namespace Flame
         public override bool CanThrow(IType exceptionType)
         {
             return true;
+        }
+    }
+
+    /// <summary>
+    /// An exception specification that can throw an exception
+    /// of exactly one type.
+    /// </summary>
+    public sealed class ExactExceptionSpecification : ExceptionSpecification
+    {
+        /// <summary>
+        /// Creates an exception specification that can throw
+        /// exactly one type of exception.
+        /// </summary>
+        /// <param name="exceptionType">
+        /// The single exception type that can be thrown.
+        /// </param>
+        internal ExactExceptionSpecification(IType exceptionType)
+        {
+            this.ExceptionType = exceptionType;
+        }
+
+        /// <summary>
+        /// Gets the type of exception that can be thrown by this
+        /// exception specification.
+        /// </summary>
+        /// <value>The type of exception that can be thrown.</value>
+        public IType ExceptionType { get; private set; }
+
+        /// <inheritdoc/>
+        public override bool CanThrowSomething => true;
+
+        /// <inheritdoc/>
+        public override bool CanThrow(IType exceptionType)
+        {
+            return exceptionType == this.ExceptionType;
+        }
+    }
+
+    /// <summary>
+    /// An exception specification that is the union of a sequence of other
+    /// exception specifications: the union can throw an exception iff said
+    /// exception is throwable by any of the operands.
+    /// </summary>
+    public sealed class UnionExceptionSpecification : ExceptionSpecification
+    {
+        /// <summary>
+        /// Creates an exception specification that is the union of
+        /// a list of operands.
+        /// </summary>
+        /// <param name="operands">
+        /// The exception specifications to which the union operator
+        /// is applied.
+        /// </param>
+        internal UnionExceptionSpecification(IReadOnlyList<ExceptionSpecification> operands)
+        {
+            this.Operands = operands;
+        }
+
+        /// <summary>
+        /// Gets the list of exception specifications to which the
+        /// union operator is applied.
+        /// </summary>
+        /// <value>A list of exception specifications.</value>
+        public IReadOnlyList<ExceptionSpecification> Operands { get; private set; }
+
+        /// <inheritdoc/>
+        public override bool CanThrowSomething => Operands.Any(op => op.CanThrowSomething);
+
+        /// <inheritdoc/>
+        public override bool CanThrow(IType exceptionType)
+        {
+            return Operands.Any(op => op.CanThrow(exceptionType));
         }
     }
 }

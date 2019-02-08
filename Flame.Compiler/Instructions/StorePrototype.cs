@@ -24,13 +24,6 @@ namespace Flame.Compiler.Instructions
         public override int ParameterCount => 2;
 
         /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification
-            // TODO: refine this somehow to reflect the fact that this can
-            // only go wrong if the store target pointer is null (or a dangling
-            // pointer if the store target pointer is transient).
-            => ExceptionSpecification.ThrowAny;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             var errors = new List<string>();

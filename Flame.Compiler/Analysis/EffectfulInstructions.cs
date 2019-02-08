@@ -133,10 +133,12 @@ namespace Flame.Compiler.Analysis
                 }
             }
 
-            if (proto.ExceptionSpecification.CanThrowSomething
-                || proto is StorePrototype
+            if (proto is StorePrototype
                 || proto is CallPrototype
-                || proto is NewObjectPrototype)
+                || proto is NewObjectPrototype
+                || selection.Block.Graph.GetAnalysisResult<InstructionExceptionSpecs>()
+                    .GetExceptionSpecification(selection.Instruction)
+                    .CanThrowSomething)
             {
                 // TODO: consider method attributes. Some calls may
                 // not have side-effects and may be marked as such.

@@ -17,13 +17,11 @@ namespace Flame.Compiler.Instructions
         private IntrinsicPrototype(
             string name,
             IType returnType,
-            IReadOnlyList<IType> parameterTypes,
-            ExceptionSpecification exceptionSpec)
+            IReadOnlyList<IType> parameterTypes)
         {
             this.Name = name;
             this.returnType = returnType;
             this.ParameterTypes = parameterTypes;
-            this.exceptionSpec = exceptionSpec;
         }
 
         /// <summary>
@@ -40,16 +38,11 @@ namespace Flame.Compiler.Instructions
 
         private IType returnType;
 
-        private ExceptionSpecification exceptionSpec;
-
         /// <inheritdoc/>
         public override IType ResultType => returnType;
 
         /// <inheritdoc/>
         public override int ParameterCount => ParameterTypes.Count;
-
-        /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification => exceptionSpec;
 
         /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
@@ -83,8 +76,7 @@ namespace Flame.Compiler.Instructions
             return Create(
                 Name,
                 mapping.MapType(ResultType),
-                ParameterTypes.EagerSelect<IType, IType>(mapping.MapType),
-                ExceptionSpecification);
+                ParameterTypes.EagerSelect<IType, IType>(mapping.MapType));
         }
 
         /// <summary>
@@ -122,26 +114,7 @@ namespace Flame.Compiler.Instructions
 
         /// <summary>
         /// Gets the intrinsic instruction prototype for a particular intrinsic name,
-        /// return type, parameter type list and exception specification.
-        /// </summary>
-        /// <param name="name">The intrinsic's name.</param>
-        /// <param name="returnType">The type of value returned by the intrinsic.</param>
-        /// <param name="parameterTypes">A list of the intrinsic's parameter types.</param>
-        /// <param name="exceptionSpec">An exception specification for the intrinsic.</param>
-        /// <returns>An intrinsic instruction prototype.</returns>
-        public static IntrinsicPrototype Create(
-            string name,
-            IType returnType,
-            IReadOnlyList<IType> parameterTypes,
-            ExceptionSpecification exceptionSpec)
-        {
-            return instanceCache.Intern(
-                new IntrinsicPrototype(name, returnType, parameterTypes, exceptionSpec));
-        }
-
-        /// <summary>
-        /// Gets the intrinsic instruction prototype for a particular intrinsic name,
-        /// return type and parameter type list. The intrinsic is assumed not to throw.
+        /// return type and parameter type list.
         /// </summary>
         /// <param name="name">The intrinsic's name.</param>
         /// <param name="returnType">The type of value returned by the intrinsic.</param>
@@ -152,7 +125,8 @@ namespace Flame.Compiler.Instructions
             IType returnType,
             IReadOnlyList<IType> parameterTypes)
         {
-            return Create(name, returnType, parameterTypes, ExceptionSpecification.NoThrow);
+            return instanceCache.Intern(
+                new IntrinsicPrototype(name, returnType, parameterTypes));
         }
     }
 
@@ -163,8 +137,7 @@ namespace Flame.Compiler.Instructions
         {
             return x.Name == y.Name
                 && object.Equals(x.ResultType, y.ResultType)
-                && x.ParameterTypes.SequenceEqual<IType>(y.ParameterTypes)
-                && object.Equals(x.ExceptionSpecification, y.ExceptionSpecification);
+                && x.ParameterTypes.SequenceEqual<IType>(y.ParameterTypes);
         }
 
         public int GetHashCode(IntrinsicPrototype obj)
@@ -177,7 +150,6 @@ namespace Flame.Compiler.Instructions
             {
                 hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, paramTypes[i]);
             }
-            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.ExceptionSpecification);
             hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Name);
             return hashCode;
         }

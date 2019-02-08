@@ -30,23 +30,18 @@ namespace Flame.Compiler.Instructions
         /// <param name="parameterTypes">
         /// The types of the values the intrinsic takes as arguments.
         /// </param>
-        /// <param name="exceptionSpec">
-        /// The exception specification of the intrinsic.
-        /// </param>
         /// <returns>
         /// An object-oriented intrinsic prototype.
         /// </returns>
         public static IntrinsicPrototype CreatePrototype(
             string operatorName,
             IType resultType,
-            IReadOnlyList<IType> parameterTypes,
-            ExceptionSpecification exceptionSpec)
+            IReadOnlyList<IType> parameterTypes)
         {
             return IntrinsicPrototype.Create(
                 Namespace.GetIntrinsicName(operatorName),
                 resultType,
-                parameterTypes,
-                exceptionSpec);
+                parameterTypes);
         }
 
         /// <summary>
@@ -75,8 +70,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.UnboxAny,
                 resultType,
-                new[] { argumentType },
-                ExceptionSpecification.ThrowAny);
+                new[] { argumentType });
         }
 
         /// <summary>

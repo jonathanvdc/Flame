@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 
@@ -75,10 +76,10 @@ namespace Flame.Compiler.Transforms
             {
                 // We might be able to turn try flow into a jump, which we can thread
                 // recursively.
-                // TODO: switch to an actual analysis for exception specifications.
 
                 var tryFlow = (TryFlow)flow;
-                if (!tryFlow.Instruction.Prototype.ExceptionSpecification.CanThrowSomething)
+                var exceptionSpecs = block.Graph.GetAnalysisResult<InstructionExceptionSpecs>();
+                if (!exceptionSpecs.GetExceptionSpecification(tryFlow.Instruction).CanThrowSomething)
                 {
                     // If the "risky" instruction absolutely cannot throw,
                     // then we can just rewrite the try as a jump.

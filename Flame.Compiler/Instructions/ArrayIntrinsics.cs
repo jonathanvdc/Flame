@@ -30,23 +30,18 @@ namespace Flame.Compiler.Instructions
         /// <param name="parameterTypes">
         /// The types of the values the intrinsic takes as arguments.
         /// </param>
-        /// <param name="exceptionSpec">
-        /// The exception specification of the intrinsic.
-        /// </param>
         /// <returns>
         /// An array intrinsic prototype.
         /// </returns>
         public static IntrinsicPrototype CreatePrototype(
             string operatorName,
             IType resultType,
-            IReadOnlyList<IType> parameterTypes,
-            ExceptionSpecification exceptionSpec)
+            IReadOnlyList<IType> parameterTypes)
         {
             return IntrinsicPrototype.Create(
                 Namespace.GetIntrinsicName(operatorName),
                 resultType,
-                parameterTypes,
-                exceptionSpec);
+                parameterTypes);
         }
 
         /// <summary>
@@ -72,8 +67,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.GetElementPointer,
                 elementType.MakePointerType(PointerKind.Reference),
-                new[] { arrayType }.Concat(indexTypes).ToArray(),
-                ExceptionSpecification.ThrowAny);
+                new[] { arrayType }.Concat(indexTypes).ToArray());
         }
 
         /// <summary>
@@ -98,8 +92,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.LoadElement,
                 elementType,
-                new[] { arrayType }.Concat(indexTypes).ToArray(),
-                ExceptionSpecification.ThrowAny);
+                new[] { arrayType }.Concat(indexTypes).ToArray());
         }
 
         /// <summary>
@@ -124,8 +117,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.StoreElement,
                 elementType,
-                new[] { elementType, arrayType }.Concat(indexTypes).ToArray(),
-                ExceptionSpecification.ThrowAny);
+                new[] { elementType, arrayType }.Concat(indexTypes).ToArray());
         }
 
         /// <summary>
@@ -147,13 +139,12 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.GetLength,
                 sizeType,
-                new[] { arrayType },
-                ExceptionSpecification.ThrowAny);
+                new[] { arrayType });
         }
 
         /// <summary>
-        /// Creates a 'get_length' instruction prototype,
-        /// which computes the number of elements in an array.
+        /// Creates a 'new_array' instruction prototype,
+        /// allocates a new array.
         /// </summary>
         /// <param name="arrayType">
         /// The type of array to create.
@@ -171,8 +162,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.NewArray,
                 arrayType,
-                new[] { sizeType },
-                ExceptionSpecification.ThrowAny);
+                new[] { sizeType });
         }
 
         /// <summary>

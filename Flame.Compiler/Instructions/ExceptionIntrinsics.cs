@@ -30,23 +30,18 @@ namespace Flame.Compiler.Instructions
         /// <param name="parameterTypes">
         /// The types of the values the intrinsic takes as arguments.
         /// </param>
-        /// <param name="exceptionSpec">
-        /// The exception specification of the intrinsic.
-        /// </param>
         /// <returns>
         /// An exception handling intrinsic prototype.
         /// </returns>
         public static IntrinsicPrototype CreatePrototype(
             string operatorName,
             IType resultType,
-            IReadOnlyList<IType> parameterTypes,
-            ExceptionSpecification exceptionSpec)
+            IReadOnlyList<IType> parameterTypes)
         {
             return IntrinsicPrototype.Create(
                 Namespace.GetIntrinsicName(operatorName),
                 resultType,
-                parameterTypes,
-                exceptionSpec);
+                parameterTypes);
         }
 
         /// <summary>
@@ -69,8 +64,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.Capture,
                 resultType,
-                new[] { argumentType },
-                ExceptionSpecification.NoThrow);
+                new[] { argumentType });
         }
 
         /// <summary>
@@ -95,8 +89,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.GetCapturedException,
                 resultType,
-                new[] { argumentType },
-                ExceptionSpecification.NoThrow);
+                new[] { argumentType });
         }
 
         /// <summary>
@@ -115,8 +108,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.Throw,
                 exceptionType,
-                new[] { exceptionType },
-                ExceptionSpecification.ThrowAny);
+                new[] { exceptionType });
         }
 
         /// <summary>
@@ -136,8 +128,7 @@ namespace Flame.Compiler.Instructions
             return CreatePrototype(
                 Operators.Rethrow,
                 capturedExceptionType,
-                new[] { capturedExceptionType },
-                ExceptionSpecification.ThrowAny);
+                new[] { capturedExceptionType });
         }
 
         /// <summary>

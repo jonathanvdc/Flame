@@ -24,13 +24,6 @@ namespace Flame.Compiler
         public abstract int ParameterCount { get; }
 
         /// <summary>
-        /// Gets this instruction prototype's exception specification, which
-        /// details which types of exception can and cannot be thrown.
-        /// </summary>
-        /// <returns>An exception specification.</returns>
-        public abstract ExceptionSpecification ExceptionSpecification { get; }
-
-        /// <summary>
         /// Checks if a particular instance of this prototype conforms to
         /// the rules for this instruction prototype.
         /// </summary>

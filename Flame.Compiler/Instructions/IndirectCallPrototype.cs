@@ -34,10 +34,6 @@ namespace Flame.Compiler.Instructions
         public override int ParameterCount => 1 + ParameterTypes.Count;
 
         /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification
-            => ExceptionSpecification.ThrowAny;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(
             Instruction instance,
             MethodBody body)

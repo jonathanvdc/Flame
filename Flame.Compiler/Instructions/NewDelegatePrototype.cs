@@ -57,14 +57,6 @@ namespace Flame.Compiler.Instructions
         public override int ParameterCount => HasThisArgument ? 1 : 0;
 
         /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification
-            // TODO: maybe refine the exception specification to `throws (NullPointerException)`
-            // for the virtual lookup case somehow?
-            => Lookup == MethodLookup.Virtual
-                ? ExceptionSpecification.ThrowAny
-                : ExceptionSpecification.NoThrow;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(Instruction instance, MethodBody body)
         {
             if (HasThisArgument)

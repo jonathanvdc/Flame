@@ -38,12 +38,6 @@ namespace Flame.Compiler.Instructions
             => (Callee.IsStatic ? 0 : 1) + Callee.Parameters.Count;
 
         /// <inheritdoc/>
-        public override ExceptionSpecification ExceptionSpecification
-            // TODO: use the callee's exception specification instead
-            // of a throw-any exception specification.
-            => ExceptionSpecification.ThrowAny;
-
-        /// <inheritdoc/>
         public override IReadOnlyList<string> CheckConformance(
             Instruction instance,
             MethodBody body)
