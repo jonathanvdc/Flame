@@ -177,7 +177,7 @@ namespace Flame.Compiler.Analysis
             // Call-like instruction prototypes.
             // TODO: use the callee's exception specification.
             Default.Register<CallPrototype>(ExceptionSpecification.ThrowAny);
-            Default.Register<NewObjectPrototype>(ExceptionSpecification.NoThrow);
+            Default.Register<NewObjectPrototype>(ExceptionSpecification.ThrowAny);
             Default.Register<IndirectCallPrototype>(ExceptionSpecification.ThrowAny);
 
             // Arithmetic intrinsics never throw.
