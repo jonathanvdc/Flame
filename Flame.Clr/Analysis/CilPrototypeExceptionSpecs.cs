@@ -12,6 +12,14 @@ namespace Flame.Clr.Analysis
     /// </summary>
     public static class CilPrototypeExceptionSpecs
     {
+        /// <summary>
+        /// Creates CIL prototype exception specification rules.
+        /// </summary>
+        /// <param name="corlibTypeResolver">
+        /// A type resolver for the core library (corlib.dll) that
+        /// defines well-known exception types.
+        /// </param>
+        /// <returns>Prototype exception specification rules.</returns>
         public static RuleBasedPrototypeExceptionSpecs Create(
             ReadOnlyTypeResolver corlibTypeResolver)
         {
@@ -55,7 +63,8 @@ namespace Flame.Clr.Analysis
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetElementPointer),
                 ExceptionSpecification.Union(
                     new NullCheckExceptionSpecification(0, nullRefException),
-                    ExceptionSpecification.Exactly(outOfRangeException)));
+                    ExceptionSpecification.Exactly(outOfRangeException),
+                    ExceptionSpecification.Exactly(arrayTypeMismatchException)));
             result.Register(
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.LoadElement),
                 ExceptionSpecification.Union(
