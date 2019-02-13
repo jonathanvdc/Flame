@@ -55,9 +55,8 @@ namespace Flame.Compiler.Analysis
         { }
 
         /// <summary>
-        /// Gets an instance of the basic block predecessor analysis.
+        /// An instance of the basic block predecessor analysis.
         /// </summary>
-        /// <returns>An instance of the predecessor analysis.</returns>
         public static readonly PredecessorAnalysis Instance = new PredecessorAnalysis();
 
         /// <inheritdoc/>
