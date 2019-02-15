@@ -28,7 +28,7 @@ namespace Flame.Compiler.Analysis
 
         /// <summary>
         /// Tests if two values are equivalent. Values 'a', 'b' are considered
-        /// to the equivalent iff 'a' dominates 'b' implies that 'b' can be
+        /// to be equivalent iff 'a' dominates 'b' implies that 'b' can be
         /// replaced with a copy of 'a'.
         /// </summary>
         /// <param name="first">The first value to consider.</param>
@@ -58,7 +58,7 @@ namespace Flame.Compiler.Analysis
         public abstract bool TryGetNumber(Instruction instruction, out ValueTag number);
 
         /// <summary>
-        /// Tests if an instruction is equivalent to an instruction.
+        /// Tests if an instruction is equivalent to a value.
         /// </summary>
         /// <param name="first">The instruction to consider.</param>
         /// <param name="second">The value to consider.</param>
@@ -73,6 +73,9 @@ namespace Flame.Compiler.Analysis
 
         /// <summary>
         /// Tests if two instructions are equivalent.
+        /// Instructions 'a', 'b' are considered
+        /// to be equivalent iff 'a' dominates 'b' implies that 'b' can be
+        /// replaced with a copy of the result computed by 'a'.
         /// </summary>
         /// <param name="first">The first instruction to consider.</param>
         /// <param name="second">The second instruction to consider.</param>
@@ -81,8 +84,9 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public virtual bool AreEquivalent(Instruction first, Instruction second)
         {
-            return first.Prototype == second.Prototype
-                && first.Arguments.SequenceEqual(second.Arguments.Select(GetNumber))
+            return object.Equals(first.Prototype, second.Prototype)
+                && first.Arguments.Select(GetNumber)
+                    .SequenceEqual(second.Arguments.Select(GetNumber))
                 && IsCopyablePrototype(first.Prototype);
         }
 
@@ -110,6 +114,7 @@ namespace Flame.Compiler.Analysis
                     || prototype is GetFieldPointerPrototype
                     || prototype is GetStaticFieldPointerPrototype
                     || prototype is NewDelegatePrototype
+                    || prototype is ReinterpretCastPrototype
                     || prototype is UnboxPrototype;
             }
         }
@@ -127,6 +132,72 @@ namespace Flame.Compiler.Analysis
         private static bool IsCopyableIntrinsic(IntrinsicPrototype intrinsic)
         {
             return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic);
+        }
+    }
+
+    /// <summary>
+    /// A specialized instruction comparer for instructions that uses value
+    /// numbers to more accurately compare instructions. Assumes that all
+    /// instructions being compared are defined by the same graph. The
+    /// equality relation that arises from this comparer is that of
+    /// semantic instruction equivalence, not of syntactic equality.
+    /// </summary>
+    public sealed class ValueNumberingInstructionComparer : IEqualityComparer<Instruction>
+    {
+        /// <summary>
+        /// Creates an instruction comparer that uses a value numbering
+        /// to decide if two instructions are equivalent.
+        /// </summary>
+        /// <param name="numbering">
+        /// The value numbering to use for deciding if instructions are equivalent.
+        /// </param>
+        public ValueNumberingInstructionComparer(ValueNumbering numbering)
+        {
+            this.numbering = numbering;
+        }
+
+        private ValueNumbering numbering;
+
+        /// <summary>
+        /// Tests if two instructions are equivalent in a value
+        /// numbering sense.
+        /// Instructions 'a', 'b' are considered
+        /// to be equivalent iff 'a' dominates 'b' implies that 'b' can be
+        /// replaced with a copy of the result computed by 'a'.
+        /// </summary>
+        /// <param name="a">The first instruction to compare.</param>
+        /// <param name="b">The second instruction to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the instructions are equivalent; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(Instruction a, Instruction b)
+        {
+            return numbering.AreEquivalent(a, b);
+        }
+
+        /// <summary>
+        /// Computes a hash code for an instruction.
+        /// </summary>
+        /// <param name="obj">The instruction to hash.</param>
+        /// <returns>A hash code.</returns>
+        public int GetHashCode(Instruction obj)
+        {
+            // Compute a hash code for the instruction based on its
+            // prototype and the value numbers of its arguments.
+            // TODO: this implementation of GetHashCode will always produce
+            // a collision for non-copyable instructions (e.g., calls).
+            // Is there something we can do about this?
+
+            int hashCode = EnumerableComparer.EmptyHash;
+            int argCount = obj.Arguments.Count;
+            for (int i = 0; i < argCount; i++)
+            {
+                hashCode = EnumerableComparer.FoldIntoHashCode(
+                    hashCode,
+                    numbering.GetNumber(obj.Arguments[i]));
+            }
+            hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Prototype);
+            return hashCode;
         }
     }
 
@@ -177,7 +248,7 @@ namespace Flame.Compiler.Analysis
             {
                 this.valueNumbers = new Dictionary<ValueTag, ValueTag>();
                 this.instructionNumbers = new Dictionary<Instruction, ValueTag>(
-                    new ValueNumberingComparer(this));
+                    new ValueNumberingInstructionComparer(this));
             }
 
             private Dictionary<ValueTag, ValueTag> valueNumbers;
@@ -242,45 +313,6 @@ namespace Flame.Compiler.Analysis
             public override bool TryGetNumber(Instruction instruction, out ValueTag number)
             {
                 return instructionNumbers.TryGetValue(instruction, out number);
-            }
-
-            /// <summary>
-            /// A specialized comparer for instructions that 
-            /// </summary>
-            private sealed class ValueNumberingComparer : IEqualityComparer<Instruction>
-            {
-                public ValueNumberingComparer(ValueNumberingImpl numbering)
-                {
-                    this.numbering = numbering;
-                }
-
-                private ValueNumberingImpl numbering;
-
-                public bool Equals(Instruction x, Instruction y)
-                {
-                    return numbering.AreEquivalent(x, y);
-                }
-
-                public int GetHashCode(Instruction obj)
-                {
-                    // Compute a hash code for the instruction based on its
-                    // prototype and the value numbers of its arguments.
-                    // TODO: this implementation of GetHashCode will always produce
-                    // a collision for non-copyable instructions (e.g., calls).
-                    // Is there something we can do about this? Should we do anything
-                    // about this?
-
-                    int hashCode = EnumerableComparer.EmptyHash;
-                    int argCount = obj.Arguments.Count;
-                    for (int i = 0; i < argCount; i++)
-                    {
-                        hashCode = EnumerableComparer.FoldIntoHashCode(
-                            hashCode,
-                            numbering.GetNumber(obj.Arguments[i]));
-                    }
-                    hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Prototype);
-                    return hashCode;
-                }
             }
         }
     }
