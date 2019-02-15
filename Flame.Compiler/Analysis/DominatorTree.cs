@@ -69,6 +69,116 @@ namespace Flame.Compiler.Analysis
         }
 
         /// <summary>
+        /// Tells if a particular value is strictly dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// An value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// An value that might dominate <paramref name="instruction"/>.
+        /// </param>
+        /// <param name="graph">
+        /// A graph that defines both values.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsStrictlyDominatedBy(ValueTag value, ValueTag dominator, FlowGraph graph)
+        {
+            var valueBlock = graph.GetValueParent(value);
+            var dominatorBlock = graph.GetValueParent(dominator);
+            if (valueBlock.Tag == dominatorBlock.Tag)
+            {
+                if (graph.ContainsBlockParameter(dominator))
+                {
+                    return !graph.ContainsBlockParameter(value);
+                }
+                else if (graph.ContainsBlockParameter(value))
+                {
+                    return false;
+                }
+                else
+                {
+                    var valueInsn = graph.GetInstruction(value);
+                    var domInsn = graph.GetInstruction(dominator);
+                    return valueInsn.InstructionIndex > domInsn.InstructionIndex;
+                }
+            }
+            else
+            {
+                return IsStrictlyDominatedBy(valueBlock, dominatorBlock);
+            }
+        }
+
+        /// <summary>
+        /// Tells if a particular value is dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// A value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// A value that might dominate <paramref name="value"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/> or <paramref name="value"/> equals
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsDominatedBy(ValueTag value, ValueTag dominator, FlowGraph graph)
+        {
+            return value == dominator || IsStrictlyDominatedBy(value, dominator, graph);
+        }
+
+        /// <summary>
+        /// Tells if a particular value is strictly dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// An value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// An value that might dominate <paramref name="instruction"/>.
+        /// </param>
+        /// <param name="graph">
+        /// A graph that defines both values.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsStrictlyDominatedBy(ValueTag value, ValueTag dominator, FlowGraphBuilder graph)
+        {
+            return IsStrictlyDominatedBy(value, dominator, graph.ImmutableGraph);
+        }
+
+        /// <summary>
+        /// Tells if a particular value is dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// A value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// A value that might dominate <paramref name="value"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/> or <paramref name="value"/> equals
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsDominatedBy(ValueTag value, ValueTag dominator, FlowGraphBuilder graph)
+        {
+            return IsDominatedBy(value, dominator, graph.ImmutableGraph);
+        }
+
+        /// <summary>
         /// Tells if a particular instruction is strictly dominated by another instruction,
         /// that is, if control cannot flow to the instruction unless it first flowed
         /// through the dominator instruction.
@@ -85,15 +195,9 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public bool IsStrictlyDominatedBy(SelectedInstruction instruction, SelectedInstruction dominator)
         {
-            ContractHelpers.Assert(instruction.Block.Graph == dominator.Block.Graph);
-            if (instruction.Block.Tag == dominator.Block.Tag)
-            {
-                return instruction.InstructionIndex > dominator.InstructionIndex;
-            }
-            else
-            {
-                return IsStrictlyDominatedBy(instruction.Block, dominator.Block);
-            }
+            var graph = instruction.Block.Graph;
+            ContractHelpers.Assert(graph == dominator.Block.Graph);
+            return IsStrictlyDominatedBy(instruction, dominator, graph);
         }
 
         /// <summary>
@@ -114,8 +218,9 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public bool IsDominatedBy(SelectedInstruction instruction, SelectedInstruction dominator)
         {
-            ContractHelpers.Assert(instruction.Block.Graph == dominator.Block.Graph);
-            return instruction.Tag == dominator.Tag || IsStrictlyDominatedBy(instruction, dominator);
+            var graph = instruction.Block.Graph;
+            ContractHelpers.Assert(graph == dominator.Block.Graph);
+            return IsDominatedBy(instruction, dominator, graph);
         }
     }
 
