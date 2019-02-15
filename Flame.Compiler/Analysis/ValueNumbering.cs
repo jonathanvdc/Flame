@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Analysis
@@ -146,7 +147,16 @@ namespace Flame.Compiler.Analysis
         /// <inheritdoc/>
         public ValueNumbering Analyze(FlowGraph graph)
         {
-            throw new System.NotImplementedException();
+            var numbering = new ValueNumberingImpl();
+            foreach (var param in graph.ParameterTags)
+            {
+                numbering.AddBlockParameter(param);
+            }
+            foreach (var insn in graph.Instructions)
+            {
+                numbering.AddInstruction(insn);
+            }
+            return numbering;
         }
 
         /// <inheritdoc/>
@@ -155,7 +165,123 @@ namespace Flame.Compiler.Analysis
             ValueNumbering previousResult,
             IReadOnlyList<FlowGraphUpdate> updates)
         {
-            throw new System.NotImplementedException();
+            return Analyze(graph);
+        }
+
+        /// <summary>
+        /// A simple value numbering implementation.
+        /// </summary>
+        private sealed class ValueNumberingImpl : ValueNumbering
+        {
+            public ValueNumberingImpl()
+            {
+                this.valueNumbers = new Dictionary<ValueTag, ValueTag>();
+                this.instructionNumbers = new Dictionary<Instruction, ValueTag>(
+                    new ValueNumberingComparer(this));
+            }
+
+            private Dictionary<ValueTag, ValueTag> valueNumbers;
+            private Dictionary<Instruction, ValueTag> instructionNumbers;
+
+            /// <summary>
+            /// Adds an instruction to this value numbering.
+            /// </summary>
+            /// <param name="instruction">
+            /// The instruction to add.
+            /// </param>
+            public void AddInstruction(SelectedInstruction instruction)
+            {
+                if (valueNumbers.ContainsKey(instruction))
+                {
+                    return;
+                }
+
+                // TODO: at the moment, we consider all basic block
+                // parameters to have their own number. We can do better
+                // than this. Concretely, we can use a lattice-based
+                // update propagation approach as is used by the constant
+                // propagation algorithm. Once lattice-based analyses are
+                // abstracted over, we should use that for value numbering
+                // instead of this simplistic algorithm.
+                //
+                // TL;DR: abstract over lattice-based update propagation,
+                // then implement better value numbering based on that.
+
+                var graph = instruction.Block.Graph;
+                foreach (var arg in instruction.Instruction.Arguments)
+                {
+                    if (graph.ContainsInstruction(arg))
+                    {
+                        AddInstruction(graph.GetInstruction(arg));
+                    }
+                    else
+                    {
+                        AddBlockParameter(arg);
+                    }
+                }
+
+                ValueTag number;
+                if (!TryGetNumber(instruction.Instruction, out number))
+                {
+                    number = instruction;
+                }
+                valueNumbers[instruction] = number;
+                instructionNumbers[instruction.Instruction] = number;
+            }
+
+            public void AddBlockParameter(ValueTag parameterTag)
+            {
+                valueNumbers[parameterTag] = parameterTag;
+            }
+
+            public override ValueTag GetNumber(ValueTag value)
+            {
+                return valueNumbers[value];
+            }
+
+            public override bool TryGetNumber(Instruction instruction, out ValueTag number)
+            {
+                return instructionNumbers.TryGetValue(instruction, out number);
+            }
+
+            /// <summary>
+            /// A specialized comparer for instructions that 
+            /// </summary>
+            private sealed class ValueNumberingComparer : IEqualityComparer<Instruction>
+            {
+                public ValueNumberingComparer(ValueNumberingImpl numbering)
+                {
+                    this.numbering = numbering;
+                }
+
+                private ValueNumberingImpl numbering;
+
+                public bool Equals(Instruction x, Instruction y)
+                {
+                    return numbering.AreEquivalent(x, y);
+                }
+
+                public int GetHashCode(Instruction obj)
+                {
+                    // Compute a hash code for the instruction based on its
+                    // prototype and the value numbers of its arguments.
+                    // TODO: this implementation of GetHashCode will always produce
+                    // a collision for non-copyable instructions (e.g., calls).
+                    // Is there something we can do about this? Should we do anything
+                    // about this?
+
+                    int hashCode = EnumerableComparer.EmptyHash;
+                    int argCount = obj.Arguments.Count;
+                    for (int i = 0; i < argCount; i++)
+                    {
+                        hashCode = EnumerableComparer.FoldIntoHashCode(
+                            hashCode,
+                            numbering.GetNumber(obj.Arguments[i]));
+                    }
+                    hashCode = EnumerableComparer.FoldIntoHashCode(hashCode, obj.Prototype);
+                    return hashCode;
+                }
+            }
         }
     }
 }
