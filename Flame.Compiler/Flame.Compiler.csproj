@@ -69,6 +69,7 @@
     <Compile Include="Analysis\PrototypeExceptionSpecs.cs" />
     <Compile Include="Analysis\RegisterAllocation.cs" />
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
+    <Compile Include="Analysis\ValueNumbering.cs" />
     <Compile Include="Analysis\ValueUseAnalysis.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
