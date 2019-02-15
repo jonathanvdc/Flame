@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Instructions;
 
@@ -80,10 +81,20 @@ namespace Flame.Compiler.Analysis
         public virtual bool AreEquivalent(Instruction first, Instruction second)
         {
             return first.Prototype == second.Prototype
-                && first.Arguments.SequenceEqual(second.Arguments)
+                && first.Arguments.SequenceEqual(second.Arguments.Select(GetNumber))
                 && IsCopyablePrototype(first.Prototype);
         }
 
+        /// <summary>
+        /// Tells if syntactically equivalent instances of a particular prototype 
+        /// are semantically equivalent.
+        /// </summary>
+        /// <param name="prototype">A prototype to consider.</param>
+        /// <returns>
+        /// <c>true</c> if syntactically equivalent instances of
+        /// <paramref name="prototype"/> are semantically equivalent;
+        /// otherwise, <c>false</c>.
+        /// </returns>
         private static bool IsCopyablePrototype(InstructionPrototype prototype)
         {
             if (prototype is IntrinsicPrototype)
@@ -102,9 +113,49 @@ namespace Flame.Compiler.Analysis
             }
         }
 
+        /// <summary>
+        /// Tells if syntactically equivalent instances of a particular intrinsic 
+        /// are semantically equivalent.
+        /// </summary>
+        /// <param name="intrinsic">An intrinsic to consider.</param>
+        /// <returns>
+        /// <c>true</c> if syntactically equivalent instances of
+        /// <paramref name="intrinsic"/> are semantically equivalent;
+        /// otherwise, <c>false</c>.
+        /// </returns>
         private static bool IsCopyableIntrinsic(IntrinsicPrototype intrinsic)
         {
             return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic);
+        }
+    }
+
+    /// <summary>
+    /// An analysis that computes value numbers.
+    /// </summary>
+    public sealed class ValueNumberingAnalysis : IFlowGraphAnalysis<ValueNumbering>
+    {
+        private ValueNumberingAnalysis()
+        { }
+
+        /// <summary>
+        /// Gets an instance of the value numbering analysis.
+        /// </summary>
+        /// <returns>An instance of the value numbering analysis.</returns>
+        public static readonly ValueNumberingAnalysis Instance = new ValueNumberingAnalysis();
+
+        /// <inheritdoc/>
+        public ValueNumbering Analyze(FlowGraph graph)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public ValueNumbering AnalyzeWithUpdates(
+            FlowGraph graph,
+            ValueNumbering previousResult,
+            IReadOnlyList<FlowGraphUpdate> updates)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
