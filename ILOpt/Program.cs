@@ -221,6 +221,8 @@ namespace ILOpt
                     .WithAnalysis(InterferenceGraphAnalysis.Instance)
                     .WithAnalysis(ValueUseAnalysis.Instance)
                     .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance)
+                    .WithAnalysis(DominatorTreeAnalysis.Instance)
+                    .WithAnalysis(ValueNumberingAnalysis.Instance)
                     .WithAnalysis(
                         new ConstantAnalysis<SubtypingRules>(
                             typeSystem.Subtyping))
@@ -245,8 +247,10 @@ namespace ILOpt
                     AllocaToRegister.Instance,
 
                     //   * Aggregates to scalars, scalars to registers.
+                    //     Also throw in GVN.
                     DeadValueElimination.Instance,
                     ScalarReplacement.Instance,
+                    GlobalValueNumbering.Instance,
                     CopyPropagation.Instance,
                     DeadValueElimination.Instance,
                     AllocaToRegister.Instance,
