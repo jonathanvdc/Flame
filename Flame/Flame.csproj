@@ -57,6 +57,7 @@
     <Compile Include="Collections\EnumerableComparer.cs" />
     <Compile Include="Collections\Index.cs" />
     <Compile Include="Collections\InterningCache.cs" />
+    <Compile Include="Collections\MappedComparer.cs" />
     <Compile Include="Collections\ReadOnlyListExtensions.cs" />
     <Compile Include="Collections\ReadOnlySlice.cs" />
     <Compile Include="Collections\SmallMultiDictionary.cs" />
