@@ -1988,15 +1988,52 @@ namespace Flame.Clr.Emit
                 updatedDependencies.Add(dependency);
             }
 
+            /// <summary>
+            /// Selects instructions that compute a dependency inline.
+            /// </summary>
+            /// <param name="dependency">The dependency to select instructions for.</param>
             private void SelectDependencyInline(SelectedInstruction dependency)
             {
+                // Select instructions for the dependency.
                 var dependencySelection = InstructionSelector.SelectInstructionsImpl(
                     dependency.Instruction,
                     graph,
                     false);
 
+                // Note that the dependency has been selected inline.
                 InstructionSelector.selectedInstructions.Add(dependency.Tag);
+
+                // HACK: Write the dependency's result into a virtual register.
+                // We must do this because use counts are off sometimes. For
+                // example, consider the following situation:
+                //
+                //     obj = ...
+                //     val = ...
+                //     ptr = get_field_pointer(field)(obj);
+                //     _   = store(ptr, val)
+                //     x   = load(ptr)
+                //
+                // In the snippet above, obj's use count is one because it is
+                // only used by ptr. However, when we emit CIL instructions we
+                // bypass instructions such as get_field_pointer to get better
+                // codegen and will instead load obj directly. So, obj's "real"
+                // use count is two from a codegen perspective.
+                //
+                // This is an unfortunate and hard-to-fix problem. Fortunately,
+                // it is easy to work around it: just duplicate the value on the
+                // stack and store the duplicate in a virtual register. The
+                // regalloc and peephole optimization passes will delete unnecessary
+                // dup/store sequences and keep the ones we do need.
+                if (dependency.Instruction.ResultType != InstructionSelector.TypeEnvironment.Void)
+                {
+                    updatedInsns.Add(new CilStoreRegisterInstruction(dependency));
+                    updatedInsns.Add(new CilOpInstruction(OpCodes.Dup));
+                }
+
+                // Add the dependency's instructions to the list of instructions.
                 updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
+
+                // Load the dependency's dependencies.
                 foreach (var subdependency in dependencySelection.Dependencies)
                 {
                     dependencyWorklist.Push(subdependency);
