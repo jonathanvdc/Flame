@@ -131,7 +131,9 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         private static bool IsCopyableIntrinsic(IntrinsicPrototype intrinsic)
         {
-            return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic);
+            return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic)
+                || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetLength)
+                || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetElementPointer);
         }
     }
 
