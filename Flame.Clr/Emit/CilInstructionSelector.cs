@@ -477,7 +477,7 @@ namespace Flame.Clr.Emit
                     var ifArgs = SelectBranchArguments(ifBranch, graph);
                     instructions.AddRange(ifArgs.Instructions);
                     dependencies.AddRange(ifArgs.Dependencies);
-                    instructions.Add(CreateBranchInstruction(OpCodes.Br, ifTarget));
+                    instructions.Add(CreateBranchInstruction(OpCodes.Br, ifBranch.Target));
                 }
 
                 // Emit branch arguments for fallthrough branch.
@@ -2024,6 +2024,9 @@ namespace Flame.Clr.Emit
                 // stack and store the duplicate in a virtual register. The
                 // regalloc and peephole optimization passes will delete unnecessary
                 // dup/store sequences and keep the ones we do need.
+                //
+                // TODO: figure out a proper fix for this issue. This hack sneakily
+                // extends live ranges, which is bad.
                 if (dependency.Instruction.ResultType != InstructionSelector.TypeEnvironment.Void)
                 {
                     updatedInsns.Add(new CilStoreRegisterInstruction(dependency));
