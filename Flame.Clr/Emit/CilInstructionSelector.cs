@@ -6,6 +6,7 @@ using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
+using Flame.Compiler.Instructions.Fused;
 using Flame.Compiler.Target;
 using Flame.Constants;
 using Flame.TypeSystem;
@@ -836,6 +837,16 @@ namespace Flame.Clr.Emit
                         pointer);
                 }
             }
+            else if (proto is LoadFieldPrototype)
+            {
+                var loadProto = (LoadFieldPrototype)proto;
+
+                return CreateSelection(
+                    CilInstruction.Create(
+                        OpCodes.Ldfld,
+                        Method.Module.ImportReference(loadProto.Field)),
+                    instruction.Arguments);
+            }
             else if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
@@ -869,38 +880,7 @@ namespace Flame.Clr.Emit
                 {
                     var pointerInstruction = graph.GetInstruction(pointer).Instruction;
                     var pointerProto = pointerInstruction.Prototype;
-                    if (pointerProto is GetFieldPointerPrototype)
-                    {
-                        // Use the `stfld` opcode to store values in fields.
-                        var basePointer = pointerInstruction.Arguments[0];
-                        var stfld = CilInstruction.Create(
-                            OpCodes.Stfld,
-                            Method.Module.ImportReference(
-                                ((GetFieldPointerPrototype)pointerProto).Field));
-
-                        if (discardResult)
-                        {
-                            // HACK: Just push some garbage on the stack if we know that the
-                            // result won't be used anyway. The peephole optimizer will
-                            // delete the garbage afterward.
-                            return SelectedInstructions.Create<CilCodegenInstruction>(
-                                new CilCodegenInstruction[]
-                                {
-                                    new CilOpInstruction(OpCodes.Dup),
-                                    new CilOpInstruction(stfld)
-                                },
-                                new[] { basePointer, value });
-                        }
-                        else
-                        {
-                            return CreateSelection(
-                                stfld,
-                                value,
-                                basePointer,
-                                value);
-                        }
-                    }
-                    else if (pointerProto is GetStaticFieldPointerPrototype)
+                    if (pointerProto is GetStaticFieldPointerPrototype)
                     {
                         return SelectedInstructions.Create<CilCodegenInstruction>(
                             new CilCodegenInstruction[]
@@ -940,6 +920,39 @@ namespace Flame.Clr.Emit
                                     Method.Module.ImportReference(storeProto.ResultType)))
                         },
                         new[] { pointer, value });
+                }
+            }
+            else if (proto is StoreFieldPrototype)
+            {
+                var storeProto = (StoreFieldPrototype)proto;
+
+                // Use the `stfld` opcode to store values in fields.
+                var basePointer = instruction.Arguments[0];
+                var value = instruction.Arguments[1];
+                var stfld = CilInstruction.Create(
+                    OpCodes.Stfld,
+                    Method.Module.ImportReference(storeProto.Field));
+
+                if (discardResult)
+                {
+                    // HACK: Just push some garbage on the stack if we know that the
+                    // result won't be used anyway. The peephole optimizer will
+                    // delete the garbage afterward.
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilCodegenInstruction[]
+                        {
+                            new CilOpInstruction(OpCodes.Dup),
+                            new CilOpInstruction(stfld)
+                        },
+                        new[] { basePointer, value });
+                }
+                else
+                {
+                    return CreateSelection(
+                        stfld,
+                        value,
+                        basePointer,
+                        value);
                 }
             }
             else if (proto is IntrinsicPrototype)
@@ -2002,36 +2015,6 @@ namespace Flame.Clr.Emit
 
                 // Note that the dependency has been selected inline.
                 InstructionSelector.selectedInstructions.Add(dependency.Tag);
-
-                // HACK: Write the dependency's result into a virtual register.
-                // We must do this because use counts are off sometimes. For
-                // example, consider the following situation:
-                //
-                //     obj = ...
-                //     val = ...
-                //     ptr = get_field_pointer(field)(obj);
-                //     _   = store(ptr, val)
-                //     x   = load(ptr)
-                //
-                // In the snippet above, obj's use count is one because it is
-                // only used by ptr. However, when we emit CIL instructions we
-                // bypass instructions such as get_field_pointer to get better
-                // codegen and will instead load obj directly. So, obj's "real"
-                // use count is two from a codegen perspective.
-                //
-                // This is an unfortunate and hard-to-fix problem. Fortunately,
-                // it is easy to work around it: just duplicate the value on the
-                // stack and store the duplicate in a virtual register. The
-                // regalloc and peephole optimization passes will delete unnecessary
-                // dup/store sequences and keep the ones we do need.
-                //
-                // TODO: figure out a proper fix for this issue. This hack sneakily
-                // extends live ranges, which is bad.
-                if (dependency.Instruction.ResultType != InstructionSelector.TypeEnvironment.Void)
-                {
-                    updatedInsns.Add(new CilStoreRegisterInstruction(dependency));
-                    updatedInsns.Add(new CilOpInstruction(OpCodes.Dup));
-                }
 
                 // Add the dependency's instructions to the list of instructions.
                 updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
