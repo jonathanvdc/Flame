@@ -101,6 +101,7 @@
     <Compile Include="Instructions\UnboxPrototype.cs" />
     <Compile Include="Instructions\Fused\FusedInstructionPrototype.cs" />
     <Compile Include="Instructions\Fused\LoadFieldPrototype.cs" />
+    <Compile Include="Instructions\Fused\StoreFieldPrototype.cs" />
     <Compile Include="Pipeline\AssemblyContentDescription.cs" />
     <Compile Include="Pipeline\ITarget.cs" />
     <Compile Include="Pipeline\ITargetAssembly.cs" />
