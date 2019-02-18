@@ -70,6 +70,22 @@ namespace Flame.Compiler.Transforms
                 result = store(T)(gfp, value);
             }, {
                 result = store_field(field)(base_ptr, value);
+            }, {
+                // Introduce an exception: when the value is a 'default' constant,
+                // we definitely *don't* want to fuse the store with the get_field_pointer.
+                // Here's why: initializing a bunch of bytes at a particular address
+                // can be done directly. We want to encourage the back-end to fuse the
+                // default-initialization of the field, which precludes fusing the get_field_pointer
+                // with the store.
+                if (graph.ContainsInstruction(value))
+                {
+                    var valueProto = graph.GetInstruction(value).Instruction.Prototype as ConstantPrototype;
+                    return valueProto == null || valueProto.Value != DefaultConstant.Instance;
+                }
+                else
+                {
+                    return false;
+                }
             });
         });
     }

@@ -413,7 +413,15 @@ namespace FlameMacros
                 F.Var(
                     F.Of(F.Id("Dictionary"), F.Id("ValueTag"), F.Of(F.Id("HashSet"), F.Int32)),
                     PatternMatchesParameterName));
-            matchStatements.Add(F.Call(CodeSymbols.Return, rule.Condition ?? F.True));
+
+            if (rule.Condition != null && rule.Condition.Calls(CodeSymbols.Braces))
+            {
+                matchStatements.Add(rule.Condition);
+            }
+            else
+            {
+                matchStatements.Add(F.Call(CodeSymbols.Return, rule.Condition ?? F.True));
+            }
 
             foreach (var field in fieldMapping.Values)
             {
