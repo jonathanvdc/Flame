@@ -1146,6 +1146,7 @@ namespace FlameMacros
 
         private static readonly LNode ITypeNode = F.Id("IType");
         private static readonly LNode IMethodNode = F.Id("IMethod");
+        private static readonly LNode IFieldNode = F.Id("IField");
         private static readonly LNode MethodLookupNode = F.Id("MethodLookup");
         private static readonly LNode PointerTypeNode = F.Id("PointerType");
 
@@ -1156,8 +1157,12 @@ namespace FlameMacros
             { "box", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
             { "unbox", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
             { "load", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
+            { "store", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
             { "dynamic_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
             { "reinterpret_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
+            { "get_field_pointer", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
+            { "load_field", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
+            { "store_field", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
             {
                 "constant",
                 new[]

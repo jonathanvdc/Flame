@@ -1,0 +1,76 @@
+#importMacros(FlameMacros);
+
+using System.Collections.Generic;
+using System.Linq;
+using Flame.Constants;
+using Flame.Compiler.Analysis;
+using Flame.Compiler.Instructions;
+using Flame.Compiler.Instructions.Fused;
+using Flame.TypeSystem;
+
+namespace Flame.Compiler.Transforms
+{
+    /// <summary>
+    /// A transform that tries to turn loads from and stores to
+    /// special addresses like field pointers into fused loads
+    /// and store instructions.
+    ///
+    /// Back-ends are this pass' main target audience; fused
+    /// loads and stores produce better codegen for back-ends
+    /// such as the CIL back-end.
+    /// </summary>
+    public sealed class FuseMemoryAccesses : IntraproceduralOptimization
+    {
+        private FuseMemoryAccesses()
+        { }
+
+        /// <summary>
+        /// An instance of the memory access fusion transform.
+        /// </summary>
+        public static readonly FuseMemoryAccesses Instance = new FuseMemoryAccesses();
+
+        /// <inheritdoc/>
+        public override FlowGraph Apply(FlowGraph graph)
+        {
+            var builder = graph.ToBuilder();
+            if (!builder.HasAnalysisFor<Analysis.Results>())
+            {
+                builder.AddAnalysis(new Analysis());
+            }
+
+            while (true)
+            {
+                var transforms = builder.GetAnalysisResult<Analysis.Results>();
+                if (transforms.ApplicableRules.Count == 0)
+                {
+                    return builder.ToImmutable();
+                }
+                else
+                {
+                    transforms.ApplicableRules[0].Apply(builder);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Rewrite rules for fused memory accesses.
+        /// </summary>
+        private #rewriteRuleAnalysis(Analysis, {
+            // Fuse 'get_field_pointer' followed by 'load'.
+            #rule({
+                gfp = get_field_pointer(field)(base_ptr);
+                result = load(T)(gfp);
+            }, {
+                result = load_field(field)(base_ptr);
+            });
+
+            // Fuse 'get_field_pointer' followed by 'store'.
+            #rule({
+                gfp = get_field_pointer(field)(base_ptr);
+                result = store(T)(gfp, value);
+            }, {
+                result = store_field(field)(base_ptr, value);
+            });
+        });
+    }
+}

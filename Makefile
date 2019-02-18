@@ -19,7 +19,8 @@ RUN_EXE ?= mono
 $(MACROS_DLL): $(MACROS_CS_FILES)
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo FlameMacros/FlameMacros.csproj
 
-dsl: Flame.Compiler/Transforms/InstructionSimplification.out.cs
+dsl: Flame.Compiler/Transforms/InstructionSimplification.out.cs \
+	Flame.Compiler/Transforms/FuseMemoryAccesses.out.cs
 
 nuget:
 	nuget restore Flame.sln
