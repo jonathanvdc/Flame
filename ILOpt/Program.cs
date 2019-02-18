@@ -270,6 +270,7 @@ namespace ILOpt
                     DeadBlockElimination.Instance,
                     new SwitchLowering(typeSystem),
                     CopyPropagation.Instance,
+                    FuseMemoryAccesses.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(false),
                     LowerDelegates.Instance));
