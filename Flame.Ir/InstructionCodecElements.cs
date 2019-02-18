@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Flame.Collections;
 using Flame.Compiler;
 using Flame.Compiler.Instructions;
+using Flame.Compiler.Instructions.Fused;
 using Flame.TypeSystem;
 using Loyc.Syntax;
 using Pixie.Markup;
@@ -279,6 +280,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for fused load-field instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<LoadFieldPrototype, IReadOnlyList<LNode>> LoadField =
+            new CodecElement<LoadFieldPrototype, IReadOnlyList<LNode>>(
+                "load_field", EncodeLoadField, DecodeLoadField);
+
+        private static LoadFieldPrototype DecodeLoadField(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return LoadFieldPrototype.Create(state.DecodeField(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeLoadField(LoadFieldPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
         /// A codec element for new-delegate instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -377,6 +396,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for fused store-field instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<StoreFieldPrototype, IReadOnlyList<LNode>> StoreField =
+            new CodecElement<StoreFieldPrototype, IReadOnlyList<LNode>>(
+                "store_field", EncodeStoreField, DecodeStoreField);
+
+        private static StoreFieldPrototype DecodeStoreField(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return StoreFieldPrototype.Create(state.DecodeField(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeStoreField(StoreFieldPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.Field) };
+        }
+
+        /// <summary>
         /// A codec element for unbox instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -415,10 +452,12 @@ namespace Flame.Ir
                     .Add(IndirectCall)
                     .Add(Intrinsic)
                     .Add(Load)
+                    .Add(LoadField)
                     .Add(NewDelegate)
                     .Add(NewObject)
                     .Add(ReinterpretCast)
                     .Add(Store)
+                    .Add(StoreField)
                     .Add(Unbox);
             }
         }
