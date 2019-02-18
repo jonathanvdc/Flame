@@ -47,6 +47,22 @@ namespace Flame.Compiler.Instructions.Fused
                 insn.Arguments[1]);
         }
 
+        /// <summary>
+        /// Creates an instance of this store-field prototype.
+        /// </summary>
+        /// <param name="basePointer">
+        /// A pointer to a value that includes the field referred
+        /// to by the store-field prototype.
+        /// </param>
+        /// <param name="value">
+        /// The value to store in the field.
+        /// </param>
+        /// <returns>A store-field instruction.</returns>
+        public Instruction Instantiate(ValueTag basePointer, ValueTag value)
+        {
+            return Instantiate(new ValueTag[] { basePointer, value });
+        }
+
         private static readonly InterningCache<StoreFieldPrototype> instanceCache
             = new InterningCache<StoreFieldPrototype>(
                 new MappedComparer<StoreFieldPrototype, IField>(proto => proto.Field));

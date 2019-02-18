@@ -44,6 +44,19 @@ namespace Flame.Compiler.Instructions.Fused
             instance.Instruction = Instruction.CreateLoad(Field.FieldType, gfp);
         }
 
+        /// <summary>
+        /// Creates an instance of this load-field prototype.
+        /// </summary>
+        /// <param name="basePointer">
+        /// A pointer to a value that includes the field referred
+        /// to by the load-field prototype.
+        /// </param>
+        /// <returns>A load-field instruction.</returns>
+        public Instruction Instantiate(ValueTag basePointer)
+        {
+            return Instantiate(new ValueTag[] { basePointer });
+        }
+
         private static readonly InterningCache<LoadFieldPrototype> instanceCache
             = new InterningCache<LoadFieldPrototype>(
                 new MappedComparer<LoadFieldPrototype, IField>(proto => proto.Field));
