@@ -294,7 +294,7 @@ namespace Flame.Ir
 
         private static IReadOnlyList<LNode> EncodeLoadField(LoadFieldPrototype value, EncoderState state)
         {
-            return new LNode[] { state.Encode(value.ResultType) };
+            return new LNode[] { state.Encode(value.Field) };
         }
 
         /// <summary>
