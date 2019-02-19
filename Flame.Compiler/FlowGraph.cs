@@ -64,6 +64,12 @@ namespace Flame.Compiler
         public BasicBlockTag EntryPointTag { get; private set; }
 
         /// <summary>
+        /// Gets the entry point block.
+        /// </summary>
+        /// <returns>The entry point block.</returns>
+        public BasicBlock EntryPoint => GetBasicBlock(EntryPointTag);
+
+        /// <summary>
         /// Gets a sequence of all basic block tags in this control-flow graph.
         /// </summary>
         public IEnumerable<BasicBlockTag> BasicBlockTags => blocks.Keys;
