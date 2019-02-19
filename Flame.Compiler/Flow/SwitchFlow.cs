@@ -289,9 +289,7 @@ namespace Flame.Compiler.Flow
             return new SwitchFlow(
                 value,
                 ImmutableList.Create<SwitchCase>(
-                    new SwitchCase(
-                        ImmutableHashSet.Create<Constant>(constant),
-                        equalBranch)),
+                    new SwitchCase(constant, equalBranch)),
                 notEqualBranch);
         }
     }
@@ -301,6 +299,15 @@ namespace Flame.Compiler.Flow
     /// </summary>
     public struct SwitchCase : IEquatable<SwitchCase>
     {
+        /// <summary>
+        /// Creates a switch case from a value and a branch.
+        /// </summary>
+        /// <param name="value">The value for the switch case.</param>
+        /// <param name="branch">A branch for the switch case.</param>
+        public SwitchCase(Constant value, Branch branch)
+            : this(ImmutableHashSet.Create<Constant>(value), branch)
+        { }
+
         /// <summary>
         /// Creates a switch case from a set of values and a branch.
         /// </summary>
