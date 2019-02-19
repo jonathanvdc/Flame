@@ -84,6 +84,8 @@ namespace Flame.Clr.Analysis
                 { Mono.Cecil.Cil.OpCodes.Conv_R4, TypeEnvironment.Float32 },
                 { Mono.Cecil.Cil.OpCodes.Conv_R8, TypeEnvironment.Float64 }
             };
+
+            this.leaveTokens = new Dictionary<BasicBlockTag, int>();
         }
 
         /// <summary>
@@ -123,6 +125,9 @@ namespace Flame.Clr.Analysis
         private List<InstructionBuilder> parameterStackSlots;
         private List<InstructionBuilder> localStackSlots;
         private HashSet<ValueTag> freeTemporaries;
+        private EndFinallyFlow endfinallyFlow;
+        private Dictionary<BasicBlockTag, int> leaveTokens;
+        private ValueTag flowTokenVariable;
 
         // A mapping of conv.* opcodes to target types.
         private readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, IType> convTypes;
@@ -215,7 +220,19 @@ namespace Flame.Clr.Analysis
                 // Also analyze all exception handlers.
                 foreach (var handler in cilMethodBody.ExceptionHandlers)
                 {
-                    analyzer.AnalyzeExceptionHandler(handler, ehMapping[handler].LandingPad, cilMethodBody);
+                    analyzer.AnalyzeExceptionHandler(handler, ehMapping[handler], cilMethodBody);
+                }
+            }
+
+            // Finally, rewrite endfinally flow as switch flow (no pun intended).
+            foreach (var block in analyzer.graph.BasicBlocks)
+            {
+                if (block.Flow is EndFinallyFlow)
+                {
+                    block.Flow = ((EndFinallyFlow)block.Flow).ToSwitchFlow(
+                        Instruction.CreateLoad(
+                            analyzer.TypeEnvironment.Int32,
+                            analyzer.flowTokenVariable));
                 }
             }
 
@@ -230,19 +247,23 @@ namespace Flame.Clr.Analysis
         /// Analyzes an exception handler's implementation.
         /// </summary>
         /// <param name="handler">The exception handler to analyze.</param>
-        /// <param name="landingPadTag">
-        /// The basic block tag of the landing pad to populate for the handler.
+        /// <param name="analyzedHandler">
+        /// The analyzed version of the exception handler's structure.
         /// </param>
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeExceptionHandler(
             Mono.Cecil.Cil.ExceptionHandler handler,
-            BasicBlockTag landingPadTag,
+            CilExceptionHandler analyzedHandler,
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             switch (handler.HandlerType)
             {
                 case Mono.Cecil.Cil.ExceptionHandlerType.Catch:
-                    AnalyzeCatchHandler(handler, landingPadTag, cilMethodBody);
+                    AnalyzeCatchHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
+                    return;
+
+                case Mono.Cecil.Cil.ExceptionHandlerType.Finally:
+                    AnalyzeFinallyHandler(handler, (CilFinallyHandler)analyzedHandler, cilMethodBody);
                     return;
 
                 default:
@@ -304,6 +325,83 @@ namespace Flame.Clr.Analysis
                     new[] { landingPad.Parameters[0].Tag }),
                 // Otherwise, direct control flow to the catch handler.
                 new Branch(handlerImpl, new[] { typedException.Tag }));
+        }
+
+        /// <summary>
+        /// Analyzes a 'finally' exception handler's implementation.
+        /// </summary>
+        /// <param name="handler">The exception handler to analyze.</param>
+        /// <param name="analyzedHandler">
+        /// The structure of the analyzed 'finally' handler.
+        /// </param>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        private void AnalyzeFinallyHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            CilFinallyHandler analyzedHandler,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            // Analyze the handler's implementation. Set the pending
+            // endfinally flow.
+            var oldEndfinally = endfinallyFlow;
+            endfinallyFlow = analyzedHandler.Flow;
+            var handlerImpl = AnalyzeBlock(
+                handler.HandlerStart,
+                EmptyArray<IType>.Value,
+                cilMethodBody);
+            endfinallyFlow = oldEndfinally;
+
+            // Grab the landing pad.
+            var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
+
+            // Create a variable to put the exception in.
+            // We need to use a variable because the landing
+            // pad does not necessarily dominate the finally
+            // block.
+            var exceptionVar = graph.EntryPoint
+                .AppendInstruction(
+                    Instruction.CreateAlloca(landingPad.Parameters[0].Type),
+                    "stored_exception_var");
+
+            // Store the exception in a variable.
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    landingPad.Parameters[0].Type,
+                    exceptionVar,
+                    landingPad.Parameters[0].Tag));
+
+            // Set the flow token to zero.
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    TypeEnvironment.Int32,
+                    flowTokenVariable,
+                    landingPad.AppendInstruction(
+                        Instruction.CreateConstant(
+                            new IntegerConstant(0),
+                            TypeEnvironment.Int32))));
+
+            // Create a thunk that loads the exception from the
+            // variable and branches to the next landing pad.
+            var thunk = graph.AddBasicBlock("finally_next_handler_thunk");
+            thunk.Flow = new JumpFlow(
+                new Branch(
+                    exceptionHandlers[handler.HandlerStart][0].LandingPad,
+                    new[]
+                    {
+                        thunk.AppendInstruction(
+                            Instruction.CreateLoad(
+                                landingPad.Parameters[0].Type,
+                                exceptionVar))
+                            .Tag
+                    }));
+
+            // Make the endfinally flow branch to the thunk by default.
+            analyzedHandler.Flow.DefaultBranch = new Branch(thunk);
+
+            // Set the landing pad's flow.
+            landingPad.Flow = new JumpFlow(handlerImpl);
+
+            // Set the leave pad's flow.
+            graph.GetBasicBlock(analyzedHandler.LeavePad).Flow = new JumpFlow(handlerImpl);
         }
 
         private BasicBlockTag AnalyzeBlock(
@@ -1167,15 +1265,88 @@ namespace Flame.Clr.Analysis
                 //   instruction empties the evaluation stack and ensures that
                 //   the appropriate surrounding finally blocks are executed.
                 //
+                // Ensuring that the appropriate surrounding finally blocks are
+                // executed is fairly hard to do using standard control flow.
+                // What we'll do is label every 'leave' target with a unique
+                // integer. We then update the endfinally flow of every
+                // surrounding finally block's endfinally flow with a branch that
+                // either runs the 'leave' target or the next finally block.
+                var target = (Mono.Cecil.Cil.Instruction)instruction.Operand;
 
-                // TODO: run finally blocks.
+                // Figure out what the target's finally handlers are.
+                var targetHandlers = new HashSet<CilFinallyHandler>(
+                    exceptionHandlers[target].OfType<CilFinallyHandler>());
 
-                context.Terminate(
-                    new JumpFlow(
-                        AnalyzeBlock(
-                            (Mono.Cecil.Cil.Instruction)instruction.Operand,
-                            EmptyArray<IType>.Value,
-                            cilMethodBody)));
+                // By "surrounding finally handlers" we mean all finally
+                // handlers for the source that are not finally handlers for
+                // the target. So the first handler we *won't* run is the first
+                // handler the target and source have in common.
+                var surroundingHandlers = context.ExceptionHandlers
+                    .OfType<CilFinallyHandler>()
+                    .TakeWhile(handler => !targetHandlers.Contains(handler))
+                    .ToArray();
+
+                if (surroundingHandlers.Length > 0)
+                {
+                    // Acquire a token for the leave target.
+                    var targetBlock = branchTargets[target];
+                    int token;
+                    if (!leaveTokens.TryGetValue(targetBlock, out token))
+                    {
+                        // Create a new token if we don't have one already.
+                        // The zero value is reserved for when an exception is
+                        // thrown, so don't use that one.
+                        token = leaveTokens.Count + 1;
+                        leaveTokens[targetBlock] = token;
+                    }
+
+                    // Update all surrounding finally handlers up to and including the
+                    // penultimate surrounding finally handler to direct control to
+                    // the next finally handler when the tag is encountered.
+                    for (int i = 0; i < surroundingHandlers.Length - 1; i++)
+                    {
+                        surroundingHandlers[i].Flow.Destinations[token] =
+                            new Branch(surroundingHandlers[i + 1].LeavePad);
+                    }
+
+                    // Update the last surrounding finally handler to direct control
+                    // to the 'leave' target when the token is encountered.
+                    surroundingHandlers[surroundingHandlers.Length - 1].Flow.Destinations[token] =
+                        new Branch(targetBlock);
+
+                    // Set the token variable.
+                    context.Emit(
+                        Instruction.CreateStore(
+                            TypeEnvironment.Int32,
+                            flowTokenVariable,
+                            context.Emit(
+                                Instruction.CreateConstant(
+                                    new IntegerConstant(token),
+                                    TypeEnvironment.Int32))));
+
+                    // Jump to the first finally handler.
+                    context.Terminate(new JumpFlow(surroundingHandlers[0].LeavePad));
+                }
+                else
+                {
+                    // If there is no finally handler then we can just jump to
+                    // the leave target.
+                    context.Terminate(
+                        new JumpFlow(
+                            AnalyzeBlock(
+                                target,
+                                EmptyArray<IType>.Value,
+                                cilMethodBody)));
+                }
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Endfinally)
+            {
+                if (endfinallyFlow == null)
+                {
+                    throw new InvalidProgramException(
+                        $"illegal instruction '{instruction}' appears outside of a 'finally' clause.");
+                }
+                context.Terminate(endfinallyFlow);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
             {
@@ -1309,7 +1480,7 @@ namespace Flame.Clr.Analysis
         {
             var graph = context.Block.Graph;
             var type = graph.GetValueType(value);
-            var alloca = graph.GetBasicBlock(graph.EntryPointTag)
+            var alloca = graph.EntryPoint
                 .InsertInstruction(
                     0,
                     Instruction.CreateAlloca(type));
@@ -1458,7 +1629,7 @@ namespace Flame.Clr.Analysis
                 : Parameters;
 
             // Grab the entry point block.
-            var entryPoint = graph.GetBasicBlock(graph.EntryPointTag);
+            var entryPoint = graph.EntryPoint;
 
             // Create a block parameter in the entry point for each
             // actual parameter in the method.
@@ -1532,6 +1703,12 @@ namespace Flame.Clr.Analysis
                 return ehMapping;
             }
 
+            // Define a flow token variable. We might need it for finally flow.
+            flowTokenVariable = graph.EntryPoint
+                .AppendInstruction(
+                    Instruction.CreateAlloca(TypeEnvironment.Int32),
+                    "flow_token");
+
             // First map Cecil exception handlers to CIL analysis exception handlers.
             foreach (var handler in cilMethodBody.ExceptionHandlers)
             {
@@ -1541,7 +1718,7 @@ namespace Flame.Clr.Analysis
                         TypeHelpers.BoxIfReferenceType(TypeEnvironment.CapturedException)));
                 if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Catch)
                 {
-                    ehMapping[handler] = new CilExceptionHandler(
+                    ehMapping[handler] = new CilCatchHandler(
                         pad,
                         new[]
                         {
@@ -1549,9 +1726,16 @@ namespace Flame.Clr.Analysis
                                 Assembly.Resolve(handler.CatchType))
                         });
                 }
+                else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
+                {
+                    var leavePad = graph.AddBasicBlock($"IL_{handler.HandlerStart.Offset.ToString("X4")}_leave");
+                    ehMapping[handler] = new CilFinallyHandler(pad, leavePad);
+                }
                 else
                 {
-                    ehMapping[handler] = new CilExceptionHandler(pad);
+                    throw new NotSupportedException(
+                        "Only catch and finally exception handlers are supported; " + 
+                        $"{handler.HandlerType} handlers are not.");
                 }
             }
 
@@ -1575,7 +1759,7 @@ namespace Flame.Clr.Analysis
             // never directly transfer control to the top-level handler. It wouldn't be
             // wrong for them to do so anyway, but it would obscure control flow.
             // Only exception handlers should transfer control to the top-level handler.
-            var toplevelHandler = new CilExceptionHandler(toplevelLandingPad, EmptyArray<IType>.Value);
+            var toplevelHandler = new CilCatchHandler(toplevelLandingPad, EmptyArray<IType>.Value);
 
             // Finally iterate over all branch targets and construct exception handler lists.
             var activeHandlers = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
@@ -1637,7 +1821,7 @@ namespace Flame.Clr.Analysis
 
             if (candidate == null)
             {
-                var entryPoint = graph.GetBasicBlock(graph.EntryPointTag);
+                var entryPoint = graph.EntryPoint;
                 return entryPoint.AppendInstruction(Instruction.CreateAlloca(elementType), "temp_slot");
             }
             else
