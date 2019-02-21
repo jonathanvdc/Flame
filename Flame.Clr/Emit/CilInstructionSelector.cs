@@ -340,7 +340,9 @@ namespace Flame.Clr.Emit
             // Construct the try/catch block.
             var tryCatchBlock = new CilExceptionHandlerInstruction(
                 Mono.Cecil.Cil.ExceptionHandlerType.Catch,
-                Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType),
+                captureMethod == null
+                    ? Method.Module.ImportReference(TypeEnvironment.Object)
+                    : Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType),
                 tryBody,
                 catchBody);
 
