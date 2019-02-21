@@ -194,6 +194,13 @@ namespace Flame.Compiler.Transforms
                 same = actualArg;
             }
 
+            if (same == null)
+            {
+                // If the phi has zero arguments, then it is trivial,
+                // but not a copy. DCE should take care of it.
+                return;
+            }
+
             // Reroute all uses of `phi` to `same`.
             copyMap[phi] = same;
 
