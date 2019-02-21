@@ -1312,7 +1312,7 @@ namespace Flame.Clr.Analysis
                     // Update the last surrounding finally handler to direct control
                     // to the 'leave' target when the token is encountered.
                     surroundingHandlers[surroundingHandlers.Length - 1].Flow.Destinations[token] =
-                        new Branch(targetBlock);
+                        new Branch(AnalyzeBlock(target, EmptyArray<IType>.Value, cilMethodBody));
 
                     // Set the token variable.
                     context.Emit(
