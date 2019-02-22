@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
@@ -56,7 +57,7 @@ namespace Flame.Clr.Emit
             ParameterDefinition parameter;
             if (paramRegisters.TryGetValue(value, out parameter))
             {
-                register = new CilCodegenRegister(parameter);
+                register = new CilCodegenRegister(parameter, graph.GetValueType(value));
                 return true;
             }
             else
@@ -70,7 +71,7 @@ namespace Flame.Clr.Emit
         protected override CilCodegenRegister CreateRegister(IType type)
         {
             return new CilCodegenRegister(
-                new VariableDefinition(module.ImportReference(type)));
+                new VariableDefinition(module.ImportReference(type)), type);
         }
 
         /// <inheritdoc/>
@@ -79,8 +80,7 @@ namespace Flame.Clr.Emit
             IEnumerable<CilCodegenRegister> registers,
             out CilCodegenRegister result)
         {
-            var typeRef = module.ImportReference(type);
-            result = registers.FirstOrDefault(reg => reg.Type == typeRef);
+            result = registers.FirstOrDefault(reg => reg.Type == type);
             return result.IsParameter || result.IsVariable;
         }
     }
@@ -88,7 +88,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// A register as produced by the CIL register allocator.
     /// </summary>
-    public struct CilCodegenRegister
+    public struct CilCodegenRegister : IEquatable<CilCodegenRegister>
     {
         /// <summary>
         /// Creates a register from a parameter definition.
@@ -96,10 +96,14 @@ namespace Flame.Clr.Emit
         /// <param name="parameter">
         /// A parameter definition.
         /// </param>
-        public CilCodegenRegister(ParameterDefinition parameter)
+        /// <param name="type">
+        /// The register's type.
+        /// </param>
+        public CilCodegenRegister(ParameterDefinition parameter, IType type)
         {
             this.ParameterOrNull = parameter;
             this.VariableOrNull = null;
+            this.Type = type;
         }
 
         /// <summary>
@@ -108,20 +112,45 @@ namespace Flame.Clr.Emit
         /// <param name="variable">
         /// A variable definition.
         /// </param>
-        public CilCodegenRegister(VariableDefinition variable)
+        /// <param name="type">
+        /// The register's type.
+        /// </param>
+        public CilCodegenRegister(VariableDefinition variable, IType type)
         {
             this.ParameterOrNull = null;
             this.VariableOrNull = variable;
+            this.Type = type;
         }
 
         public ParameterDefinition ParameterOrNull { get; private set; }
         public VariableDefinition VariableOrNull { get; private set; }
+        public IType Type { get; private set; }
 
         public bool IsParameter => ParameterOrNull != null;
         public bool IsVariable => VariableOrNull != null;
 
-        public TypeReference Type => IsParameter
-            ? ParameterOrNull.ParameterType
-            : VariableOrNull.VariableType;
+        public override bool Equals(object obj)
+        {
+            return obj is CilCodegenRegister
+                && Equals((CilCodegenRegister)obj);
+        }
+
+        public bool Equals(CilCodegenRegister other)
+        {
+            return (IsVariable && VariableOrNull == other.VariableOrNull)
+                || (IsParameter && ParameterOrNull == other.ParameterOrNull);
+        }
+
+        public override int GetHashCode()
+        {
+            if (IsParameter)
+            {
+                return ParameterOrNull.GetHashCode();
+            }
+            else
+            {
+                return VariableOrNull.GetHashCode();
+            }
+        }
     }
 }
