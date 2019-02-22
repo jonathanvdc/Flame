@@ -96,6 +96,7 @@
     <Compile Include="Flame.Compiler\ArithmeticIntrinsicsTests.cs" />
     <Compile Include="Flame.Compiler\DominatorTreeAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\FlowGraphAnalysisTests.cs" />
+    <Compile Include="Flame.Compiler\FlowGraphTests.cs" />
     <Compile Include="Flame.Compiler\InterferenceGraphAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\LivenessAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\PredecessorAnalysisTests.cs" />

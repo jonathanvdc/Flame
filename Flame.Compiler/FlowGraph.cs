@@ -716,19 +716,14 @@ namespace Flame.Compiler
 
                 // Remove arguments to deleted parameters.
                 block.Flow = block.Flow.WithBranches(
-                    block.Flow.Branches.Select(
-                        branch =>
-                        {
-                            var newArgs = new List<BranchArgument>();
-                            foreach (var pair in branch.ZipArgumentsWithParameters(graphBuilder.ImmutableGraph))
-                            {
-                                if (!pair.Value.IsValue || !valuesToRemoveSet.Contains(pair.Key))
-                                {
-                                    newArgs.Add(pair.Value);
-                                }
-                            }
-                            return branch.WithArguments(newArgs);
-                        }).ToArray());
+                    block.Flow.Branches
+                        .Select(branch =>
+                            branch.WithArguments(
+                                branch.ZipArgumentsWithParameters(this)
+                                    .Where(pair => !valuesToRemoveSet.Contains(pair.Key))
+                                    .Select(pair => pair.Value)
+                                    .ToArray()))
+                        .ToArray());
             }
 
             // Remove all dead instructions.

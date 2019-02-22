@@ -129,6 +129,7 @@ namespace UnitTests
                 new ArithmeticIntrinsicsTests(),
                 new DominatorTreeAnalysisTests(),
                 new FlowGraphAnalysisTests(),
+                new FlowGraphTests(),
                 new InterferenceGraphAnalysisTests(),
                 new LivenessAnalysisTests(),
                 new PredecessorAnalysisTests(),
