@@ -409,7 +409,7 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(OpCodes.Ret);
                 },
                 @"
-Locals: [ System.UInt32, System.UInt32 ]
+Locals: [ System.UInt32 ]
 IL_0000: ldarg.0
 IL_0001: ldc.i4.1
 IL_0002: sub
@@ -423,13 +423,13 @@ IL_000b: ldc.i4.1
 IL_000c: ldloc.0
 IL_000d: shl
 IL_000e: dup
-IL_000f: stloc.1
+IL_000f: stloc.0
 IL_0010: ldc.i4 4161
 IL_0015: and
 IL_0016: brfalse.s IL_001a
 IL_0018: ldc.i4.2
 IL_0019: ret
-IL_001a: ldloc.1
+IL_001a: ldloc.0
 IL_001b: ldc.i4 3074
 IL_0020: and
 IL_0021: brfalse.s IL_0025
