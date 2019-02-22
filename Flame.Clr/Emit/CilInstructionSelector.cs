@@ -1953,8 +1953,7 @@ namespace Flame.Clr.Emit
                     {
                         // Fall through to the default implementation.
                     }
-                    else if (insertionPoint != null
-                        && ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
+                    else if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
                     {
                         // Some instructions should always be selected inline.
                         SelectDependencyInline(dependencyImpl);
@@ -1991,6 +1990,7 @@ namespace Flame.Clr.Emit
                         // the dependency inline.
 
                         SelectDependencyInline(dependencyImpl);
+                        insertionPoint = insertionPoint.Previous;
                         return;
                     }
                 }
@@ -2033,7 +2033,6 @@ namespace Flame.Clr.Emit
                     arity++;
                     dependencyArities[subdependency] = arity;
                 }
-                insertionPoint = insertionPoint.Previous;
             }
 
             private static bool ShouldAlwaysInlineInstruction(Instruction instruction)
