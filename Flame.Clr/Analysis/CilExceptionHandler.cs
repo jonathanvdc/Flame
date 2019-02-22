@@ -163,11 +163,21 @@ namespace Flame.Clr.Analysis
                 DefaultBranch);
         }
 
-        public override IReadOnlyList<Instruction> Instructions =>
-            throw new System.InvalidOperationException();
+        public override IReadOnlyList<Instruction> Instructions
+        {
+            get
+            {
+                throw new System.InvalidOperationException();
+            }
+        }
 
-        public override IReadOnlyList<Branch> Branches =>
-            throw new System.InvalidOperationException();
+        public override IReadOnlyList<Branch> Branches
+        {
+            get
+            {
+                throw new System.InvalidOperationException();
+            }
+        }
 
         public override BlockFlow WithBranches(IReadOnlyList<Branch> branches)
         {
