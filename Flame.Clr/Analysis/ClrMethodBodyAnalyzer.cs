@@ -461,12 +461,13 @@ namespace Flame.Clr.Analysis
                         && branchTargets.ContainsKey(currentInstruction.Next))
                     {
                         var args = context.EvaluationStack.Reverse().ToArray();
-                        block.Flow = new JumpFlow(
-                            AnalyzeBlock(
-                                currentInstruction.Next,
-                                args.EagerSelect(arg => block.Graph.GetValueType(arg)),
-                                cilMethodBody),
-                            args);
+                        context.Terminate(
+                            new JumpFlow(
+                                AnalyzeBlock(
+                                    currentInstruction.Next,
+                                    args.EagerSelect(arg => block.Graph.GetValueType(arg)),
+                                    cilMethodBody),
+                                args));
                     }
                     return block.Tag;
                 }
