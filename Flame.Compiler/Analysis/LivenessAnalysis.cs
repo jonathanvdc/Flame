@@ -229,7 +229,9 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         private bool UseAt(ValueTag value, int index)
         {
-            if (deadPositions.ContainsKey(value) && deadPositions[value] > index)
+            int previousIndex;
+            if (deadPositions.TryGetValue(value, out previousIndex)
+                && previousIndex >= index)
             {
                 return false;
             }
@@ -372,12 +374,17 @@ namespace Flame.Compiler.Analysis
                 // Propagate imports to predecessors.
                 foreach (var predTag in preds.GetPredecessorsOf(blockTag))
                 {
+                    // Every predecessor must export each and every one of the
+                    // block's imports.
                     var predData = liveness[predTag];
                     foreach (var import in blockData.Imports)
                     {
-                        if (predData.Import(import))
+                        // Have the predecessor export the imported value.
+                        if (predData.Export(import))
                         {
-                            // We actually imported something. Update the worklist.
+                            // The predecessor block doesn't define the imported value
+                            // and hence also had to import the imported value. Add the
+                            // predecessor block to the worklist.
                             if (workset.Add(predTag))
                             {
                                 worklist.Enqueue(predTag);
