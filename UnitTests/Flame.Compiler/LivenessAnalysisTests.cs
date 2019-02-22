@@ -70,7 +70,7 @@ namespace UnitTests.Flame.Compiler
             Assert.IsTrue(
                 liveness
                 .GetLiveness(entryBlock.Tag)
-                .IsLiveAt(copyInstruction.Tag, zeroConstant.InstructionIndex));
+                .IsLiveAt(zeroConstant.Tag, copyInstruction.InstructionIndex));
             Assert.IsTrue(
                 liveness
                 .GetLiveness(exitBlock.Tag)
