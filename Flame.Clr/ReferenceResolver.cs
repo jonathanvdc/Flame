@@ -30,7 +30,7 @@ namespace Flame.Clr
         {
             this.AssemblyResolver = resolver;
             this.TypeEnvironment = typeEnvironment;
-            this.assemblyCache = new Dictionary<AssemblyNameReference, IAssembly>();
+            this.assemblyCache = new Dictionary<string, IAssembly>();
             this.typeResolvers = new Dictionary<IAssembly, TypeResolver>();
             this.cacheLock = new ReaderWriterLockSlim();
 
@@ -75,7 +75,7 @@ namespace Flame.Clr
         /// <summary>
         /// A cache of all assemblies that have been resolved so far.
         /// </summary>
-        private Dictionary<AssemblyNameReference, IAssembly> assemblyCache;
+        private Dictionary<string, IAssembly> assemblyCache;
 
         /// <summary>
         /// A dictionary of type resolvers, which allow us to look up types efficiently.
@@ -99,7 +99,10 @@ namespace Flame.Clr
         /// <returns>The assembly referenced by <paramref name="assemblyRef"/>.</returns>
         public IAssembly Resolve(AssemblyNameReference assemblyRef)
         {
-            return GetOrCreate(assemblyRef, assemblyCache, ResolveImpl);
+            return GetOrCreate(
+                assemblyRef.FullName,
+                assemblyCache,
+                name => ResolveImpl(assemblyRef));
         }
 
         /// <summary>
