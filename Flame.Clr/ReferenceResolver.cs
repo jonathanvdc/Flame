@@ -404,6 +404,25 @@ namespace Flame.Clr
         /// <returns>The method referred to by the reference.</returns>
         internal IMethod Resolve(MethodReference methodRef, ClrAssembly assembly)
         {
+            if (methodRef is MethodSpecification)
+            {
+                if (methodRef is GenericInstanceMethod)
+                {
+                    var genInstMethod = (GenericInstanceMethod)methodRef;
+                    var elemMethod = Resolve(genInstMethod.ElementMethod, assembly);
+                    return elemMethod.MakeGenericMethod(
+                        genInstMethod.GenericArguments
+                        .Select(arg => TypeHelpers.BoxIfReferenceType(Resolve(arg, assembly)))
+                        .ToArray());
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "Cannot resolve unsupported method specification type " +
+                        $"'{methodRef.GetType()}' for method reference '{methodRef}'.");
+                }
+            }
+
             var declaringType = Resolve(methodRef.DeclaringType, assembly);
             var name = NameConversion.ParseSimpleName(methodRef.Name);
 
