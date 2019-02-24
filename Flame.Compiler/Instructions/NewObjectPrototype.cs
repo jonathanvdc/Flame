@@ -77,7 +77,7 @@ namespace Flame.Compiler.Instructions
         public static NewObjectPrototype Create(IMethod constructor)
         {
             ContractHelpers.Assert(
-                constructor.IsConstructor && constructor.IsStatic,
+                constructor.IsConstructor && !constructor.IsStatic,
                 "A new-object instruction prototype's constructor method " +
                 "must be an instance constructor.");
             return instanceCache.Intern(new NewObjectPrototype(constructor));
