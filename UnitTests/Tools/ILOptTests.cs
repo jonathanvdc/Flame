@@ -56,7 +56,7 @@ namespace UnitTests
             string csharpFlags,
             Func<ToolCommand, string, string> runCommand)
         {
-            var prefix = Path.GetTempPath() + Guid.NewGuid().ToString();
+            var prefix = CreateTemporaryPath();
             var exePath = prefix + ".exe";
             var optExePath = prefix + ".opt.exe";
             try
@@ -211,12 +211,17 @@ namespace UnitTests
             var oldErrWriter = Console.Error;
             Console.SetOut(outWriter);
             Console.SetError(errWriter);
-            int result = runExe(arguments);
-            Console.SetOut(oldOutWriter);
-            Console.SetError(oldErrWriter);
-            stdout = outWriter.ToString();
-            stderr = errWriter.ToString();
-            return result;
+            try
+            {
+                return runExe(arguments);
+            }
+            finally
+            {
+                Console.SetOut(oldOutWriter);
+                Console.SetError(oldErrWriter);
+                stdout = outWriter.ToString();
+                stderr = errWriter.ToString();
+            }
         }
 
         /// <summary>
@@ -244,6 +249,15 @@ namespace UnitTests
                 }
             }
             return commands;
+        }
+
+        /// <summary>
+        /// Creates a path at which a temporary file may be created.
+        /// </summary>
+        /// <returns>A path string.</returns>
+        private static string CreateTemporaryPath()
+        {
+            return Path.GetTempPath() + Guid.NewGuid().ToString();
         }
     }
 }
