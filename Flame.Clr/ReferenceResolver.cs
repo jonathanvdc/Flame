@@ -240,7 +240,7 @@ namespace Flame.Clr
                 if (typeSpec is GenericInstanceType)
                 {
                     var genInstType = (GenericInstanceType)typeSpec;
-                    return elemType.MakeGenericType(
+                    return elemType.MakeRecursiveGenericType(
                         genInstType.GenericArguments.Select(
                             arg => TypeHelpers.BoxIfReferenceType(
                                 Resolve(arg, assembly, enclosingMember, useStandins)))
