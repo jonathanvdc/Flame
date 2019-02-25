@@ -58,6 +58,17 @@ namespace Flame.Ir
         /// <returns>A node factory.</returns>
         public LNodeFactory Factory { get; private set; }
 
+        /// <summary>
+        /// Creates an encoder state that uses a particular codec
+        /// but retains all other fields.
+        /// </summary>
+        /// <param name="newCodec">The new codec to use.</param>
+        /// <returns>An encoder state that uses <paramref name="newCodec"/>.</returns>
+        public EncoderState WithCodec(IrCodec newCodec)
+        {
+            return new EncoderState(newCodec, Factory);
+        }
+
         internal static readonly Symbol typeHintSymbol = GSymbol.Get("#type");
         internal static readonly Symbol methodHintSymbol = GSymbol.Get("#method");
         internal static readonly Symbol parameterSymbol = GSymbol.Get("#param");

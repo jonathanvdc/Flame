@@ -131,6 +131,9 @@ namespace Flame.Ir
                     return null;
                 }
 
+                // TODO: implement generic parameter decoding, use generic
+                // parameters in resolution process.
+
                 var paramTypes = data.Args[0].Args
                     .EagerSelect(state.DecodeType);
 
@@ -244,13 +247,23 @@ namespace Flame.Ir
             {
                 var method = (IMethod)value;
 
+                // Update the type codec so it can encode generic parameter
+                // references.
+                var innerState = method.GenericParameters.Count > 0
+                    ? state.WithCodec(
+                        state.Codec.WithTypes(
+                            new GenericMethodTypeEncoder(
+                                state.Codec.Types,
+                                method.GenericParameters)))
+                    : state;
+
                 return state.Factory.Call(
                     CodeSymbols.Lambda,
                     state.Factory.Call(
                         EncodeTypeAndName(method, state),
                         method.Parameters.EagerSelect(
-                            p => state.Encode(p.Type))),
-                    state.Encode(method.ReturnParameter.Type));
+                            p => innerState.Encode(p.Type))),
+                    innerState.Encode(method.ReturnParameter.Type));
             }
             else
             {
@@ -331,6 +344,42 @@ namespace Flame.Ir
                 CodeSymbols.Dot,
                 state.Encode(member.ParentType),
                 state.Encode(member.Name));
+        }
+
+        /// <summary>
+        /// A type encoder that supports generic method parameters.
+        /// </summary>
+        private sealed class GenericMethodTypeEncoder : Codec<IType, LNode>
+        {
+            public GenericMethodTypeEncoder(
+                Codec<IType, LNode> typeCodec,
+                IReadOnlyList<IGenericParameter> typeParameters)
+            {
+                this.typeCodec = typeCodec;
+                this.typeParameters = new HashSet<IType>(typeParameters);
+            }
+
+            private Codec<IType, LNode> typeCodec;
+            private HashSet<IType> typeParameters;
+
+            public override IType Decode(LNode data, DecoderState state)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override LNode Encode(IType value, EncoderState state)
+            {
+                if (typeParameters.Contains(value))
+                {
+                    return state.Factory.Call(
+                        CodeSymbols.PreBangBang,
+                        state.Encode(value.Name));
+                }
+                else
+                {
+                    return typeCodec.Encode(value, state);
+                }
+            }
         }
     }
 }

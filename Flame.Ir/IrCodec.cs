@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Compiler;
 using Loyc.Syntax;
@@ -91,5 +92,23 @@ namespace Flame.Ir
             TypeMemberDefinitionCodec.Instance,
             TypeDefinitionCodec.Instance,
             new PiecewiseCodec<IAttribute>());
+
+        /// <summary>
+        /// Creates an IR codec with a particular type codec.
+        /// All other fields are copied from this codec.
+        /// </summary>
+        /// <param name="typeCodec">A type codec.</param>
+        /// <returns>An IR codec.</returns>
+        public IrCodec WithTypes(Codec<IType, LNode> typeCodec)
+        {
+            return new IrCodec(
+                Constants,
+                Instructions,
+                typeCodec,
+                TypeMembers,
+                TypeMembers,
+                TypeDefinitions,
+                Attributes);
+        }
     }
 }
