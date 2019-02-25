@@ -112,7 +112,7 @@ namespace Flame.Clr
             var assembly = ParentType.Assembly;
 
             propertyTypeValue = TypeHelpers.BoxIfReferenceType(
-                assembly.Resolve(Definition.PropertyType));
+                assembly.Resolve(Definition.PropertyType, ParentType));
 
             // Analyze the parameter list.
             indexerParams = Definition.Parameters
