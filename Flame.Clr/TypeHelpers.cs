@@ -136,6 +136,12 @@ namespace Flame.Clr
                 // The module can be null for testing purposes.
                 return module == null ? typeRef : module.ImportReference(typeRef);
             }
+            else if (type is ClrGenericParameter)
+            {
+                // There's no need to "import" generic parameters: they can only be
+                // used in the same place where they are defined.
+                return ((ClrGenericParameter)type).Definition;
+            }
             else if (type is PointerType)
             {
                 var pointerType = (PointerType)type;
