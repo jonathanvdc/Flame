@@ -189,28 +189,7 @@ namespace Flame.Clr
         private void AnalyzeContents()
         {
             // Analyze attributes.
-            var attrBuilder = new AttributeMapBuilder();
-            if (!Definition.IsValueType)
-            {
-                attrBuilder.Add(FlagAttribute.ReferenceType);
-            }
-            if (Definition.IsAbstract)
-            {
-                attrBuilder.Add(FlagAttribute.Abstract);
-            }
-            if (!Definition.IsSealed)
-            {
-                attrBuilder.Add(FlagAttribute.Virtual);
-            }
-
-            IntegerSpec iSpec;
-            if (Definition.Namespace == "System"
-                && integerSpecMap.TryGetValue(Definition.Name, out iSpec))
-            {
-                attrBuilder.Add(IntegerSpecAttribute.Create(iSpec));
-            }
-            // TODO: support more attributes.
-            attributeMap = new AttributeMap(attrBuilder);
+            AnalyzeAttributes();
 
             // Analyze base types and interface implementations.
             baseTypeList = (Definition.BaseType == null
@@ -236,8 +215,67 @@ namespace Flame.Clr
             propertyDefList = Definition.Properties
                 .Select(property => new ClrPropertyDefinition(property, this))
                 .ToArray();
+        }
 
-            // TODO: analyze fields.
+        private void AnalyzeAttributes()
+        {
+            var attrBuilder = new AttributeMapBuilder();
+
+            // Handle low-hanging fruit first.
+            if (!Definition.IsValueType)
+            {
+                attrBuilder.Add(FlagAttribute.ReferenceType);
+            }
+            if (Definition.IsAbstract)
+            {
+                attrBuilder.Add(FlagAttribute.Abstract);
+            }
+            if (!Definition.IsSealed)
+            {
+                attrBuilder.Add(FlagAttribute.Virtual);
+            }
+
+            // If we're dealing with an integer type, then we want to
+            // assign that type an integer spec.
+            IntegerSpec iSpec;
+            if (Definition.Namespace == "System"
+                && integerSpecMap.TryGetValue(Definition.Name, out iSpec))
+            {
+                attrBuilder.Add(IntegerSpecAttribute.Create(iSpec));
+            }
+
+            // If we are presented an enum type, then we need to look
+            // up its 'value__' field, which specifies its enum type.
+            if (Definition.IsEnum)
+            {
+                // The 'value__' field has some very particular properties:
+                // it has both the "runtime special name" and "special name"
+                // attributes.
+                var valueField = Definition.Fields.FirstOrDefault(
+                    field =>
+                        field.Name == "value__"
+                        && field.IsRuntimeSpecialName
+                        && field.IsSpecialName);
+
+                // Make sure that we didn't encounter a "fake" enum.
+                if (valueField != null)
+                {
+                    // Resolve the enum's element type. This should always be an
+                    // integer type.
+                    var enumElementType = Assembly.Resolve(valueField.FieldType);
+                    var enumIntSpec = enumElementType.GetIntegerSpecOrNull();
+
+                    if (enumIntSpec != null)
+                    {
+                        // Mark the enum type itself as an integer type because it
+                        // acts like an integer type in essentially every way.
+                        attrBuilder.Add(IntegerSpecAttribute.Create(enumIntSpec));
+                    }
+                }
+            }
+
+            // TODO: support more attributes.
+            attributeMap = new AttributeMap(attrBuilder);
         }
 
         private void AnalyzeOverrides()

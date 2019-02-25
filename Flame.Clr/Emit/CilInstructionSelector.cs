@@ -1122,7 +1122,7 @@ namespace Flame.Clr.Emit
                     else if (opName == ArithmeticIntrinsics.Operators.Convert)
                     {
                         // Conversions are interesting because Flame IR has a much
-                        // richer type system than the CIL stack type system. Hence,
+                        // richer type system than the CIL *stack* type system. Hence,
                         // integer zext/sext is typically unnecessary. The code
                         // below takes advantage of that fact to reduce the number
                         // of instructions emitted.
