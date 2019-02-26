@@ -156,8 +156,14 @@ namespace Flame.Compiler.Analysis
         public virtual bool IsNonNull(IType type)
         {
             var pointerType = type as PointerType;
-            return (pointerType == null && !(type is IGenericParameter))
-                || pointerType.Kind == PointerKind.Reference;
+            if (pointerType == null)
+            {
+                return !(type is IGenericParameter);
+            }
+            else
+            {
+                return pointerType.Kind == PointerKind.Reference;
+            }
         }
 
         /// <summary>
@@ -173,9 +179,15 @@ namespace Flame.Compiler.Analysis
         public virtual bool IsDereferenceableOrNull(IType type)
         {
             var pointerType = type as PointerType;
-            return (pointerType == null && !(type is IGenericParameter))
-                || pointerType.Kind == PointerKind.Box
-                || pointerType.Kind == PointerKind.Reference;
+            if (pointerType == null)
+            {
+                return !(type is IGenericParameter);
+            }
+            else
+            {
+                return pointerType.Kind == PointerKind.Box
+                    || pointerType.Kind == PointerKind.Reference;
+            }
         }
 
         internal static bool IsNonNull(InstructionPrototype prototype)
