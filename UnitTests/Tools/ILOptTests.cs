@@ -29,7 +29,11 @@ namespace UnitTests
             if (command.Command == "run")
             {
                 string stdout, stderr;
-                Assert.AreEqual(0, RunExe(exePath, command.Argument, out stdout, out stderr));
+                int exitCode = RunExe(exePath, command.Argument, out stdout, out stderr);
+                if (exitCode != 0)
+                {
+                    throw new Exception($"Executable at '{exePath}' exited with a nonzero exit code: {stdout}{stderr}");
+                }
                 return stdout;
             }
             else
