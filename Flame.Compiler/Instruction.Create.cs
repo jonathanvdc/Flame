@@ -138,6 +138,29 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates an instruction that performs a constrained virtual call to
+        /// a particular method.
+        /// </summary>
+        /// <param name="callee">The method to call.</param>
+        /// <param name="thisArgument">
+        /// The 'this' argument for the constrained method call.
+        /// </param>
+        /// <param name="arguments">
+        /// The argument list for the constrained method call.
+        /// </param>
+        /// <returns>
+        /// A constrained call instruction.
+        /// </returns>
+        public static Instruction CreateConstrainedCall(
+            IMethod callee,
+            ValueTag thisArgument,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            return ConstrainedCallPrototype.Create(callee)
+                .Instantiate(thisArgument, arguments);
+        }
+
+        /// <summary>
         /// Creates a copy instruction, which creates an alias for
         /// an existing value.
         /// </summary>
