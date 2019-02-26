@@ -13,9 +13,9 @@ clone_script:
 
 build_script:
   # Get the C# compiler's path and put it in an environment variable.
-  where csc > csc-address.txt
-  set /p CSC_PATH=<csc-address.txt
-  echo %CSC_PATH%
+  - where csc > csc-address.txt
+  - set /p CSC_PATH=<csc-address.txt
+  - echo %CSC_PATH%
   # Restore NuGet packages.
   - nuget restore Flame.sln
   # Build supporting macros.
