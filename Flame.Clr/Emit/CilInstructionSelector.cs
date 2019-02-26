@@ -1430,10 +1430,11 @@ namespace Flame.Clr.Emit
                 else if (opName == ArrayIntrinsics.Operators.GetElementPointer
                     && prototype.ParameterCount == 2)
                 {
+                    var resultPointerType = prototype.ResultType as TypeSystem.PointerType;
                     return CreateSelection(
                         CilInstruction.Create(
                             OpCodes.Ldelema,
-                            Method.Module.ImportReference(prototype.ResultType)),
+                            Method.Module.ImportReference(resultPointerType.ElementType)),
                         arguments);
                 }
                 else if (opName == ArrayIntrinsics.Operators.LoadElement
