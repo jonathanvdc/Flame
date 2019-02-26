@@ -84,7 +84,12 @@ namespace ILOpt
             Mono.Cecil.AssemblyDefinition cecilAsm;
             try
             {
-                cecilAsm = Mono.Cecil.AssemblyDefinition.ReadAssembly(inputPath);
+                cecilAsm = Mono.Cecil.AssemblyDefinition.ReadAssembly(
+                    inputPath,
+                    new Mono.Cecil.ReaderParameters
+                    {
+                        ReadWrite = false
+                    });
             }
             catch (Exception)
             {
