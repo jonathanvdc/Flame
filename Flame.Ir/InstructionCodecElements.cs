@@ -125,7 +125,7 @@ namespace Flame.Ir
                 state.DecodeMethod(data[0]));
         }
 
-        private static IReadOnlyList<LNode> EncodeCall(ConstrainedCallPrototype value, EncoderState state)
+        private static IReadOnlyList<LNode> EncodeConstrainedCall(ConstrainedCallPrototype value, EncoderState state)
         {
             return new LNode[]
             {
