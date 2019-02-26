@@ -90,8 +90,13 @@ namespace UnitTests
             string inputPath,
             string outputPath,
             string flags,
-            string compilerName = "csc")
+            string compilerName = null)
         {
+            if (compilerName == null)
+            {
+                compilerName = Program.parsedOptions.GetValue<string>(Options.CscPath);
+            }
+
             string stdout, stderr;
             int exitCode = RunProcess(
                 compilerName,

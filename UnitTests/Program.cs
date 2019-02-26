@@ -13,6 +13,9 @@ using Pixie.Markup;
 using UnitTests.Flame.Clr;
 using UnitTests.Flame.Compiler;
 using UnitTests.Macros;
+using Pixie.Options;
+using System.Linq;
+using System.Globalization;
 
 namespace UnitTests
 {
@@ -30,20 +33,86 @@ namespace UnitTests
             new Pair<string,Func<int>>("Run Flame tool tests", FlameTools)
         };
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            // Workaround for MS bug: Assert(false) will not fire in debugger
-            Debug.Listeners.Clear();
-            Debug.Listeners.Add(new DefaultTraceListener());
-            if (RunMenu(Menu, args.Length > 0 ? args[0].GetEnumerator() : null) > 0)
-                // Let the outside world know that something went wrong (e.g. Travis CI)
-                Environment.ExitCode = 1;
+            // Parse command-line options.
+            var parser = new GnuOptionSetParser(
+                Options.All, Options.Input);
+
+            var recLog = new RecordingLog(ioLog);
+            parsedOptions = parser.Parse(args, recLog);
+
+            if (recLog.Contains(Pixie.Severity.Error))
+            {
+                // Stop the program if the command-line arguments
+                // are half baked. The parser will report an error.
+                return 1;
+            }
+
+            if (parsedOptions.GetValue<bool>(Options.Help))
+            {
+                // Wrap the help message into a log entry and send it to the log.
+                rawLog.Log(
+                    new LogEntry(
+                        Pixie.Severity.Info,
+                        new HelpMessage(
+                            "unit-tests is a command-line tool that runs Flame's unit tests.",
+                            "unit-tests [all|0|1|2|3|4|5|6...] [options...]",
+                            Options.All)));
+                return 0;
+            }
+
+            var positionalArgs = parsedOptions
+                .GetValue<IEnumerable<string>>(Options.Input)
+                .ToArray();
+
+            if (positionalArgs.Length == 0)
+            {
+                // Workaround for MS bug: Assert(false) will not fire in debugger
+                Debug.Listeners.Clear();
+                Debug.Listeners.Add(new DefaultTraceListener());
+                if (RunMenu(Menu) > 0)
+                    // Let the outside world know that something went wrong (e.g. Travis CI)
+                    return 1;
+                else
+                    return 0;
+            }
+            else
+            {
+                int errorCount = 0;
+                foreach (var arg in positionalArgs)
+                {
+                    if (arg.Equals("all", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        errorCount += RunAllTests(Menu);
+                    }
+                    else
+                    {
+                        int testIndex;
+                        if (int.TryParse(arg, NumberStyles.Integer, CultureInfo.InvariantCulture, out testIndex)
+                            && testIndex > 0 && testIndex <= Menu.Count)
+                        {
+                            errorCount += errorCount += Menu[testIndex - 1].Value();
+                        }
+                        else
+                        {
+                            ioLog.Log(
+                                new LogEntry(
+                                    Pixie.Severity.Error,
+                                    "ill-formed positional argument",
+                                    $"positional argument '{arg} does not name a test suite.'"));
+                            errorCount += 1;
+                        }
+                    }
+                }
+                return errorCount == 0 ? 0 : 1;
+            }
         }
 
-        public static int RunMenu(List<Pair<string, Func<int>>> menu, IEnumerator<char> input)
+        public static int RunMenu(List<Pair<string, Func<int>>> menu)
         {
             int errorCount = 0;
-            for (;;)
+            while (true)
             {
                 Console.WriteLine();
                 Console.WriteLine("What do you want to do? (Esc to quit)");
@@ -52,31 +121,22 @@ namespace UnitTests
                 Console.WriteLine("Space. Run all tests");
 
                 char c = default(char);
-                if (input == null)
+                for (ConsoleKeyInfo k; (k = Console.ReadKey(true)).Key != ConsoleKey.Enter;)
                 {
-                    for (ConsoleKeyInfo k; (k = Console.ReadKey(true)).Key != ConsoleKey.Escape
-                        && k.Key != ConsoleKey.Enter;)
+                    if (k.Key == ConsoleKey.Escape)
+                    {
+                        return errorCount;
+                    }
+                    else
                     {
                         c = k.KeyChar;
                         break;
                     }
                 }
-                else
-                {
-                    if (!input.MoveNext())
-                        break;
-
-                    c = input.Current;
-                }
 
                 if (c == ' ')
                 {
-                    for (int i = 0; i < menu.Count; i++)
-                    {
-                        Console.WriteLine();
-                        ConsoleMessageSink.WriteColoredMessage(ConsoleColor.White, i + 1, menu[i].Key);
-                        errorCount += menu[i].Value();
-                    }
+                    errorCount += RunAllTests(menu);
                 }
                 else
                 {
@@ -85,16 +145,33 @@ namespace UnitTests
                         errorCount += menu[i - 1].Value();
                 }
             }
+        }
+
+        private static int RunAllTests(List<Pair<string, Func<int>>> menu)
+        {
+            int errorCount = 0;
+            for (int i = 0; i < menu.Count; i++)
+            {
+                Console.WriteLine();
+                ConsoleMessageSink.WriteColoredMessage(ConsoleColor.White, i + 1, menu[i].Key);
+                errorCount += menu[i].Value();
+            }
             return errorCount;
         }
 
         private static Random globalRng = new Random();
 
-        private static ILog globalLog = new TransformLog(
-            new TestLog(
-                ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
-                Pixie.Terminal.TerminalLog.Acquire()),
-            entry => DiagnosticExtractor.Transform(entry, new Text("program")));
+        private static ILog rawLog = Pixie.Terminal.TerminalLog.Acquire();
+
+        private static ILog ioLog = new TransformLog(
+            rawLog,
+            entry => DiagnosticExtractor.Transform(entry, new Text("unit-tests")));
+
+        private static ILog testLog = new TestLog(
+            ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
+            ioLog);
+
+        internal static OptionSet parsedOptions;
 
         public static int Flame()
         {
@@ -115,8 +192,8 @@ namespace UnitTests
         public static int FlameClr()
         {
             return RunTests.RunMany(
-                new CilAnalysisTests(globalLog),
-                new CilEmitTests(globalLog),
+                new CilAnalysisTests(testLog),
+                new CilEmitTests(testLog),
                 new LocalTypeResolutionTests(),
                 new MemberResolutionTests(),
                 new NameConversionTests(),
@@ -140,10 +217,10 @@ namespace UnitTests
         public static int FlameIr()
         {
             return RunTests.RunMany(
-                new AssemblyCodecTest(globalLog),
-                new ConstantCodecTest(globalLog, globalRng),
-                new PiecewiseCodecTest(globalLog),
-                new TypeCodecTest(globalLog));
+                new AssemblyCodecTest(testLog),
+                new ConstantCodecTest(testLog, globalRng),
+                new PiecewiseCodecTest(testLog),
+                new TypeCodecTest(testLog));
         }
 
         public static int FlameMacros()

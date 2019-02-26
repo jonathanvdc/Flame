@@ -12,8 +12,10 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 build_script:
-  # Print the path to the C# compiler.
-  - where csc
+  # Get the C# compiler's path and put it in an environment variable.
+  where csc > csc-address.txt
+  set /p CSC_PATH=<csc-address.txt
+  echo %CSC_PATH%
   # Restore NuGet packages.
   - nuget restore Flame.sln
   # Build supporting macros.
@@ -23,4 +25,4 @@ build_script:
   # Build Flame.
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
   # Run the tests.
-  - UnitTests\bin\Release\UnitTests.exe 12345
+  - UnitTests\bin\Release\UnitTests.exe all "--csc-path=%CSC_PATH%"

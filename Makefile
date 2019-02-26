@@ -31,4 +31,4 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	$(RUN_EXE) ./UnitTests/bin/Debug/UnitTests.exe 123456
+	$(RUN_EXE) ./UnitTests/bin/Debug/UnitTests.exe all
