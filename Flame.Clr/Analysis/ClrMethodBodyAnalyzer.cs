@@ -446,25 +446,24 @@ namespace Flame.Clr.Analysis
             while (true)
             {
                 // Analyze the current instruction.
+                var nextInsn = currentInstruction.Next;
                 AnalyzeInstruction(
                     currentInstruction,
-                    currentInstruction.Next,
+                    ref nextInsn,
                     cilMethodBody,
                     context);
 
-                if (currentInstruction.Next == null ||
-                    branchTargets.ContainsKey(currentInstruction.Next))
+                if (nextInsn == null || branchTargets.ContainsKey(nextInsn))
                 {
                     // Current instruction is the last instruction of the block.
                     // Handle fallthrough.
-                    if (!context.IsTerminated
-                        && branchTargets.ContainsKey(currentInstruction.Next))
+                    if (!context.IsTerminated && branchTargets.ContainsKey(nextInsn))
                     {
                         var args = context.EvaluationStack.Reverse().ToArray();
                         context.Terminate(
                             new JumpFlow(
                                 AnalyzeBlock(
-                                    currentInstruction.Next,
+                                    nextInsn,
                                     args.EagerSelect(arg => block.Graph.GetValueType(arg)),
                                     cilMethodBody),
                                 args));
@@ -475,7 +474,7 @@ namespace Flame.Clr.Analysis
                 {
                     // Current instruction is not the last instruction of the
                     // block. Proceed to the next instruction.
-                    currentInstruction = currentInstruction.Next;
+                    currentInstruction = nextInsn;
                 }
             }
         }
@@ -773,7 +772,7 @@ namespace Flame.Clr.Analysis
 
         private void AnalyzeInstruction(
             Mono.Cecil.Cil.Instruction instruction,
-            Mono.Cecil.Cil.Instruction nextInstruction,
+            ref Mono.Cecil.Cil.Instruction nextInstruction,
             Mono.Cecil.Cil.MethodBody cilMethodBody,
             CilAnalysisContext context)
         {
@@ -1415,6 +1414,44 @@ namespace Flame.Clr.Analysis
                     context.Push(call);
                 }
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Constrained)
+            {
+                // The 'constrained.' prefix opcode is always followed by a 'callvirt'
+                // instruction. Grab that 'callvirt' instruction.
+                var callInsn = nextInstruction;
+                nextInstruction = callInsn.Next;
+
+                if (callInsn.OpCode != Mono.Cecil.Cil.OpCodes.Callvirt)
+                {
+                    throw new InvalidProgramException(
+                        $"Instruction '{instruction}' must be trailed by a 'callvirt' " +
+                        $"instruction but was actually trailed by '{callInsn}'.");
+                }
+
+                var methodRef = (Mono.Cecil.MethodReference)callInsn.Operand;
+                var method = Assembly.Resolve(methodRef);
+                var args = PopArguments(method, context);
+
+                var thisValType = context.GetValueType(context.Peek());
+                var thisPtrType = thisValType as PointerType;
+                if (thisPtrType == null || thisPtrType.Kind != PointerKind.Reference)
+                {
+                    throw new InvalidProgramException(
+                        $"Constrained call '{instruction}' expected a managed pointer " +
+                        $"as 'this' argument, but got '{thisValType}'.");
+                }
+
+                var call = Instruction.CreateConstrainedCall(method, context.Pop(), args);
+
+                if (call.ResultType == TypeEnvironment.Void)
+                {
+                    context.Emit(call);
+                }
+                else
+                {
+                    context.Push(call);
+                }
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newobj)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
@@ -1454,9 +1491,20 @@ namespace Flame.Clr.Analysis
             }
             else if (ClrInstructionSimplifier.TrySimplify(instruction, cilMethodBody, out simplifiedSeq))
             {
-                foreach (var instr in simplifiedSeq)
+                // Process all instructions in the simplified instruction sequence.
+                var simplifiedArray = simplifiedSeq.ToArray();
+                for (int i = 0; i < simplifiedArray.Length; i++)
                 {
-                    AnalyzeInstruction(instr, nextInstruction, cilMethodBody, context);
+                    var instr = simplifiedArray[i];
+                    var expectedNextInstr = i == simplifiedArray.Length - 1 ? nextInstruction : simplifiedArray[i + 1];
+                    var nextInstr = expectedNextInstr;
+                    AnalyzeInstruction(instr, ref nextInstr, cilMethodBody, context);
+
+                    // Skip instructions until we get to the expected next instruction.
+                    while (nextInstr != expectedNextInstr && i < simplifiedArray.Length)
+                    {
+                        i++;
+                    }
                 }
             }
             else
