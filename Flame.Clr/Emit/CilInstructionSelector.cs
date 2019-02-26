@@ -979,6 +979,28 @@ namespace Flame.Clr.Emit
                         Method.Module.ImportReference(callProto.Callee)),
                     dependencies);
             }
+            else if (proto is ConstrainedCallPrototype)
+            {
+                var callProto = (ConstrainedCallPrototype)proto;
+                var thisArg = callProto.GetThisArgument(instruction);
+                var thisPtrType = graph.GetValueType(thisArg) as TypeSystem.PointerType;
+                var dependencies = new[] { thisArg }
+                    .Concat(callProto.GetArgumentList(instruction).ToArray())
+                    .ToArray();
+                return new SelectedInstructions<CilCodegenInstruction>(
+                    new CilCodegenInstruction[]
+                    {
+                        new CilOpInstruction(
+                            CilInstruction.Create(
+                                OpCodes.Constrained,
+                                Method.Module.ImportReference(thisPtrType.ElementType))),
+                        new CilOpInstruction(
+                            CilInstruction.Create(
+                                OpCodes.Callvirt,
+                                Method.Module.ImportReference(callProto.Callee)))
+                    },
+                    dependencies);
+            }
             else if (proto is NewObjectPrototype)
             {
                 var newobjProto = (NewObjectPrototype)proto;

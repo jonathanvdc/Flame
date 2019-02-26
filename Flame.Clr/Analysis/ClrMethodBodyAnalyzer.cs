@@ -1432,16 +1432,15 @@ namespace Flame.Clr.Analysis
                 var method = Assembly.Resolve(methodRef);
                 var args = PopArguments(method, context);
 
-                var thisValType = context.GetValueType(context.Peek());
-                var thisPtrType = thisValType as PointerType;
-                if (thisPtrType == null || thisPtrType.Kind != PointerKind.Reference)
-                {
-                    throw new InvalidProgramException(
-                        $"Constrained call '{instruction}' expected a managed pointer " +
-                        $"as 'this' argument, but got '{thisValType}'.");
-                }
+                var thisType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var thisPtrArg = context.Pop(
+                    TypeHelpers.BoxIfReferenceType(thisType)
+                    .MakePointerType(PointerKind.Reference));
 
-                var call = Instruction.CreateConstrainedCall(method, context.Pop(), args);
+                var call = Instruction.CreateConstrainedCall(
+                    method,
+                    thisPtrArg,
+                    args);
 
                 if (call.ResultType == TypeEnvironment.Void)
                 {
