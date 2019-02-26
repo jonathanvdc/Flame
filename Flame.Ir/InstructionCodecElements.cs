@@ -112,6 +112,28 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for constrained call instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<ConstrainedCallPrototype, IReadOnlyList<LNode>> ConstrainedCall =
+            new CodecElement<ConstrainedCallPrototype, IReadOnlyList<LNode>>(
+                "constrained_call", EncodeConstrainedCall, DecodeConstrainedCall);
+
+        private static ConstrainedCallPrototype DecodeConstrainedCall(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return ConstrainedCallPrototype.Create(
+                state.DecodeMethod(data[0]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeCall(ConstrainedCallPrototype value, EncoderState state)
+        {
+            return new LNode[]
+            {
+                state.Encode(value.Callee)
+            };
+        }
+
+        /// <summary>
         /// A codec element for copy instruction prototypes.
         /// </summary>
         /// <returns>A codec element.</returns>
@@ -445,6 +467,7 @@ namespace Flame.Ir
                     .Add(Box)
                     .Add(Call)
                     .Add(Constant)
+                    .Add(ConstrainedCall)
                     .Add(Copy)
                     .Add(DynamicCast)
                     .Add(GetFieldPointer)
