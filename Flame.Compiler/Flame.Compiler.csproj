@@ -83,6 +83,7 @@
     <Compile Include="Instructions\BoxPrototype.cs" />
     <Compile Include="Instructions\CallPrototype.cs" />
     <Compile Include="Instructions\ConstantPrototype.cs" />
+    <Compile Include="Instructions\ConstrainedCallPrototype.cs" />
     <Compile Include="Instructions\CopyPrototype.cs" />
     <Compile Include="Instructions\DynamicCastPrototype.cs" />
     <Compile Include="Instructions\ExceptionIntrinsics.cs" />
