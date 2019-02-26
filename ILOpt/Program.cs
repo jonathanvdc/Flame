@@ -104,23 +104,31 @@ namespace ILOpt
                 return 1;
             }
 
-            // Bootstrap a type system resolver.
-            var typeSystem = new MutableTypeEnvironment(null);
-            var resolver = new CecilAssemblyResolver(
-                cecilAsm.MainModule.AssemblyResolver,
-                typeSystem);
-            var flameAsm = new ClrAssembly(cecilAsm, resolver.ReferenceResolver);
+            try
+            {
+                // Bootstrap a type system resolver.
+                var typeSystem = new MutableTypeEnvironment(null);
+                var resolver = new CecilAssemblyResolver(
+                    cecilAsm.MainModule.AssemblyResolver,
+                    typeSystem);
+                var flameAsm = new ClrAssembly(cecilAsm, resolver.ReferenceResolver);
 
-            var objectType = flameAsm.Resolve(cecilAsm.MainModule.TypeSystem.Object);
-            var corlib = objectType.Parent.Assembly;
+                var objectType = flameAsm.Resolve(cecilAsm.MainModule.TypeSystem.Object);
+                var corlib = objectType.Parent.Assembly;
 
-            typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
+                typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
 
-            // Optimize the assembly.
-            OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem, printIr));
+                // Optimize the assembly.
+                OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem, printIr));
 
-            // Write the optimized assembly to disk.
-            cecilAsm.Write(outputPath);
+                // Write the optimized assembly to disk.
+                cecilAsm.Write(outputPath);
+            }
+            finally
+            {
+                // Be sure to dispose the assembly after we've used it.
+                cecilAsm.Dispose();
+            }
 
             return 0;
         }
