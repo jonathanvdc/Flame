@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using Loyc.MiniTest;
 
 namespace UnitTests
@@ -109,57 +108,6 @@ namespace UnitTests
             {
                 throw new Exception($"Error while compiling {inputPath}: {stderr}{stdout}");
             }
-
-            // Wait for the output file to become available.
-            if (!WaitForFile(outputPath))
-            {
-                throw new Exception($"Output file '{outputPath}' is busy.");
-            }
-        }
-
-        private static bool IsFileReady(string filePath)
-        {
-            // This function is based on Gordon Thompson's answer to Refracted Paladin's
-            // question on StackOverflow: "Wait for file to be freed by process".
-            // https://stackoverflow.com/questions/1406808/wait-for-file-to-be-freed-by-process
-
-            // If the file can be opened for exclusive access it means that the file
-            // is no longer locked by another process.
-            try
-            {
-                using (var inputStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    return inputStream.Length >= 0;
-                }
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Waits for a particular file to become available.
-        /// </summary>
-        /// <param name="filePath">The file's path.</param>
-        /// <param name="maxTries">The number of availability tests.</param>
-        /// <returns>
-        /// <c>true</c> if the file has become available; otherwise, <c>false</c>.
-        /// </returns>
-        private static bool WaitForFile(string filePath, int maxTries = 50)
-        {
-            for (int i = 0; i < maxTries; i++)
-            {
-                if (IsFileReady(filePath))
-                {
-                    return true;
-                }
-                else
-                {
-                    Thread.Sleep(100);
-                }
-            }
-            return false;
         }
 
         private static readonly string ProjectPath = Directory.GetParent(
