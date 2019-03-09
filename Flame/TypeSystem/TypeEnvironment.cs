@@ -101,6 +101,12 @@ namespace Flame.TypeSystem
         public abstract IType String { get; }
 
         /// <summary>
+        /// Gets the character type in this type environment.
+        /// </summary>
+        /// <value>The character type.</value>
+        public abstract IType Char { get; }
+
+        /// <summary>
         /// Gets the natural signed integer type in this type environment.
         /// </summary>
         /// <value>The natural signed integer type.</value>
@@ -292,6 +298,9 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType Float64 => InnerEnvironment.Float64;
+
+        /// <inheritdoc/>
+        public override IType Char => InnerEnvironment.Char;
 
         /// <inheritdoc/>
         public override IType String => InnerEnvironment.String;

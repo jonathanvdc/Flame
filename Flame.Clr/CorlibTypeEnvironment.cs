@@ -42,6 +42,7 @@ namespace Flame.Clr
             this.voidType = new Lazy<IType>(() => ResolveSystemType(nameof(Void)));
             this.float32Type = new Lazy<IType>(() => ResolveSystemType(nameof(Single)));
             this.float64Type = new Lazy<IType>(() => ResolveSystemType(nameof(Double)));
+            this.charType = new Lazy<IType>(() => ResolveSystemType(nameof(Char)));
             this.stringType = new Lazy<IType>(() => ResolveSystemType(nameof(String)));
             this.intPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(IntPtr)));
             this.uintPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(UIntPtr)));
@@ -76,6 +77,9 @@ namespace Flame.Clr
         public override IType Float64 => float64Type.Value;
 
         /// <inheritdoc/>
+        public override IType Char => charType.Value;
+
+        /// <inheritdoc/>
         public override IType String => stringType.Value;
 
         /// <inheritdoc/>
@@ -100,6 +104,7 @@ namespace Flame.Clr
         private Lazy<IType> voidType;
         private Lazy<IType> float32Type;
         private Lazy<IType> float64Type;
+        private Lazy<IType> charType;
         private Lazy<IType> stringType;
         private Lazy<IType> intPtrType;
         private Lazy<IType> uintPtrType;
