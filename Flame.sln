@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILOpt", "ILOpt\ILOpt.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlameMacros", "FlameMacros\FlameMacros.csproj", "{42FA2924-B6DE-48AE-957C-514C37D0D1ED}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{54E347D7-BBAC-4CCE-BA56-4BF4F9215E80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brainfuck", "Examples\Brainfuck\Brainfuck.csproj", "{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,5 +53,12 @@ Global
 		{42FA2924-B6DE-48AE-957C-514C37D0D1ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42FA2924-B6DE-48AE-957C-514C37D0D1ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42FA2924-B6DE-48AE-957C-514C37D0D1ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB} = {54E347D7-BBAC-4CCE-BA56-4BF4F9215E80}
 	EndGlobalSection
 EndGlobal
