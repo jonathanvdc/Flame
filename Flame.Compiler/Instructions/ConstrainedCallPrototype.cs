@@ -152,7 +152,7 @@ namespace Flame.Compiler.Instructions
         public static ConstrainedCallPrototype Create(IMethod callee)
         {
             ContractHelpers.Assert(
-                callee.IsStatic,
+                !callee.IsStatic,
                 "Constrained calls cannot call static methods.");
             return instanceCache.Intern(new ConstrainedCallPrototype(callee));
         }
