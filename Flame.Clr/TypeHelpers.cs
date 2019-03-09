@@ -177,7 +177,7 @@ namespace Flame.Clr
                 ClrArrayType.TryGetArrayRank(type, out rank);
                 return new Mono.Cecil.ArrayType(module.ImportReference(elementType), rank);
             }
-            else if (type is DirectTypeSpecialization)
+            else if (type is TypeSpecialization)
             {
                 // Handle generics.
                 var instance = new Mono.Cecil.GenericInstanceType(
