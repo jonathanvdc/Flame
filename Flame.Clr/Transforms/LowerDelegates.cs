@@ -56,14 +56,13 @@ namespace Flame.Clr.Transforms
                     var newDelegateProto = (NewDelegatePrototype)proto;
                     var delegateType = newDelegateProto.ResultType;
 
-                    var constructor = delegateType.Methods.Single(method => method.IsConstructor);
-
                     IMethod invokeMethod;
                     if (!TypeHelpers.TryGetDelegateInvokeMethod(delegateType, out invokeMethod))
                     {
                         continue;
                     }
 
+                    var constructor = delegateType.Methods.Single(method => method.IsConstructor);
                     bool isVirtual = newDelegateProto.Lookup == MethodLookup.Virtual;
 
                     // First create an instruction that loads the function pointer.
