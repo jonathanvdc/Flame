@@ -84,7 +84,7 @@ namespace Flame.Compiler.Transforms
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             });
         });
