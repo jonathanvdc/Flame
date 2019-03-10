@@ -6,15 +6,21 @@ using Pixie;
 using Flame.TypeSystem;
 using System.Linq;
 using Flame.Clr;
+using Flame.Constants;
+using Flame.Compiler.Instructions;
+using Pixie.Markup;
+using Flame.Compiler.Flow;
+using Flame.Collections;
+using Flame.Clr.Emit;
 
 namespace Flame.Brainfuck
 {
-    public class SourceReader
+    public sealed class SourceReader
     {
-        public SourceReader(SourceDocument Document)
+        public SourceReader(SourceDocument document)
         {
-            this.Document = Document;
-            this.Code = Document.GetText(0, Document.Length);
+            this.Document = document;
+            this.Code = document.GetText(0, document.Length);
             this.Position = 0;
         }
 
@@ -36,241 +42,274 @@ namespace Flame.Brainfuck
                     return default(char);
             }
         }
-    }
 
-    public class BrainfuckEnvironment
-    {
-        public BrainfuckEnvironment(ValueTag ArrayVariable, ValueTag PointerVariable)
+        public MarkupNode Highlight(int position, int length)
         {
-            this.ArrayVariable = ArrayVariable;
-            this.PointerVariable = PointerVariable;
-        }
-
-        public ValueTag ArrayVariable { get; private set; }
-        public ValueTag PointerVariable { get; private set; }
-
-        public IVariable CreateDataVariable()
-        {
-            return new ElementVariable(ArrayVariable.CreateGetExpression(), new IExpression[] { PointerVariable.CreateGetExpression() });
+            return new HighlightedSource(
+                new SourceRegion(
+                    new SourceSpan(Document, position, length)));
         }
     }
 
-    public class Compiler
+    public sealed class Compiler
     {
-        public Compiler(ClrAssembly assembly, ILog Log, IMethod ReadMethod, IMethod WriteMethod)
+        public Compiler(ClrAssembly assembly, ILog Log, Dependencies dependencies)
         {
-            this.assembly = assembly;
+            this.Assembly = assembly;
             this.Log = Log;
-            this.ReadMethod = ReadMethod;
-            this.WriteMethod = WriteMethod;
-        }
-
-        public Compiler(ClrAssembly assembly, ILog Log, TypeEnvironment environment, ReadOnlyTypeResolver Binder)
-        {
-            this.assembly = assembly;
-            this.Log = Log;
-
-            var consoleType = Binder.ResolveTypes(new SimpleName("Console").Qualify("System")).FirstOrDefault();
-            if (consoleType == null)
-            {
-                Log.Log(
-                    new LogEntry(
-                        Severity.Warning,
-                        "console not found",
-                        "no class named 'System.Console' was not found. IO calls will be replaced with constants."));
-            }
-            else
-            {
-                WriteMethod = consoleType.Methods.FirstOrDefault(
-                    method => method.Name.ToString() == "Write"
-                        && method.IsStatic
-                        && method.ReturnParameter.Type == environment.Void
-                        && method.Parameters.Count == 1
-                        && method.Parameters[0].Type == environment.Char);
-
-                ReadMethod = consoleType.Methods.FirstOrDefault(
-                    method => method.Name.ToString() == "Read"
-                        && method.IsStatic
-                        && method.ReturnParameter.Type == environment.Int32
-                        && method.Parameters.Count == 0); 
-
-                if (WriteMethod != null)
-                {
-                    Log.Log(
-                        new LogEntry(
-                            Severity.Info,
-                            "output method found",
-                            "found 'void " + WriteMethod.FullName + "(" + WriteMethod.Parameters[0].Type.Name + ")'."));
-                }
-                else
-                {
-                    Log.Log(
-                        new LogEntry(
-                            Severity.Warning,
-                            "output method not found",
-                            "couldn't find 'void System.Console.Write(char)'. No output will be written."));
-                }
-                if (ReadMethod != null)
-                {
-                    Log.Log(
-                        new LogEntry(
-                            Severity.Info,
-                            "input method found",
-                            "found 'int System.Console.Read()'."));
-                }
-                else
-                {
-                    Log.Log(
-                        new LogEntry(
-                            Severity.Warning,
-                            "input method not found",
-                            "couldn't find 'char System.Console.Read()'. No input will be read."));
-                }
-            }
+            this.Dependencies = dependencies;
         }
 
         public ClrAssembly Assembly { get; private set; }
         public ILog Log { get; private set; }
+        public Dependencies Dependencies { get; private set; }
 
-        public IMethod WriteMethod { get; private set; }
-        public IMethod ReadMethod { get; private set; }
+        public TypeEnvironment Environment => Dependencies.Environment;
 
-        public IStatement CreateWriteStatement(IExpression Value)
+        /// <summary>
+        /// Compiles Brainfuck source code down to a method and sets the
+        /// assembly's entry point to that method.
+        /// </summary>
+        /// <param name="document">
+        /// A Brainfuck source code document.
+        /// </param>
+        public void Compile(SourceDocument document)
         {
-            if (WriteMethod == null)
-                return new EmptyStatement();
+            // Compile the Brainfuck source code to a method body.
+            var body = CompileBody(new SourceReader(document));
 
-            return new ExpressionStatement(new InvocationExpression(WriteMethod, null,
-                new IExpression[] {
-                    new ConversionExpression(Value, WriteMethod.GetParameters()[0].ParameterType)
-                }));
+            // Define a class.
+            var program = new Mono.Cecil.TypeDefinition(
+                "Brainfuck",
+                "Program",
+                Mono.Cecil.TypeAttributes.Class | Mono.Cecil.TypeAttributes.Public);
+
+            Assembly.Definition.MainModule.Types.Add(program);
+
+            // Add an entry point method to that class.
+            var main = new Mono.Cecil.MethodDefinition(
+                "Main",
+                Mono.Cecil.MethodAttributes.Static | Mono.Cecil.MethodAttributes.Public,
+                Assembly.Definition.MainModule.ImportReference(Environment.Void));
+
+            program.Methods.Add(main);
+
+            // Compile the method body down to CIL and assign it to the method.
+            var emitter = new ClrMethodBodyEmitter(main, body, Environment);
+            main.Body = emitter.Compile();
+
+            // Set the entry point.
+            Assembly.Definition.MainModule.EntryPoint = main;
         }
 
-        private IExpression readExpr;
-        public IExpression CreateReadExpression(IType TargetType)
+        /// <summary>
+        /// Compiles Brainfuck source code down to a method body.
+        /// </summary>
+        /// <param name="reader">
+        /// A source reader for Brainfuck source code.
+        /// </param>
+        /// <returns>
+        /// A method body.
+        /// </returns>
+        private MethodBody CompileBody(SourceReader reader)
         {
-            if (readExpr == null)
+            // Create a control-flow graph that consists of an entry point only.
+            var graph = new FlowGraphBuilder();
+
+            // Grab the entry point block.
+            var block = graph.EntryPoint;
+
+            // Allocate an array of Brainfuck cells, which we'll represent using
+            // 8-bit unsigned integers (i.e., unsigned bytes).
+            var cellCount = block.AppendInstruction(
+                Instruction.CreateConstant(
+                    new IntegerConstant(30000, IntegerSpec.Int32),
+                    Environment.Int32));
+
+            var cells = block.AppendInstruction(
+                Instruction.CreateNewArrayIntrinsic(
+                    Environment.MakeArrayType(Environment.UInt8, 1),
+                    Environment.Int32,
+                    cellCount));
+
+            // Allocate a stack variable that stores an index into the array.
+            var indexAlloca = block.AppendInstruction(
+                Instruction.CreateAlloca(Environment.Int32));
+
+            // Initially set that variable to zero.
+            block.AppendInstruction(
+                Instruction.CreateStore(
+                    Environment.Int32,
+                    indexAlloca,
+                    block.AppendInstruction(
+                        Instruction.CreateConstant(
+                            new IntegerConstant(0, IntegerSpec.Int32),
+                            Environment.Int32))));
+
+            // We now iterate through the Brainfuck source code and turn it into
+            // instructions.
+            var whileBodies = new Stack<BasicBlockBuilder>();
+            var whileTerminators = new Stack<BasicBlockBuilder>();
+            while (!reader.IsEmpty)
             {
-                if (ReadMethod == null)
-                    readExpr = new ConversionExpression(new Int8Expression(0), TargetType);
-
-                var call = new InvocationExpression(ReadMethod, null, new IExpression[] { });
-
-                if (ReadMethod.ReturnType.IsSignedInteger)
-                {
-                    var resultVariable = new LateBoundVariable("temp", ReadMethod.ReturnType);
-                    var resultSet = resultVariable.CreateSetStatement(call);
-                    var resultExpr = resultVariable.CreateGetExpression();
-                    var zero = new ConversionExpression(new Int8Expression(0), ReadMethod.ReturnType);
-                    var selectExpr = new SelectExpression(new GreaterThanExpression(resultExpr, zero), resultExpr, zero);
-                    return new InitializedExpression(resultSet, selectExpr); // Do not release the temporary as we are already reusing it
-                }
-                else
-                    readExpr = new ConversionExpression(call, TargetType);
-            }
-            return readExpr;
-        }
-
-        public IAssembly Compile(string Name, SourceDocument Code)
-        {
-            return ToAssembly(Name, CompileBody(new SourceReader(Code)));
-        }
-
-        public IAssembly ToAssembly(string Name, IStatement Statement)
-        {
-            var descAssembly = new DescribedAssembly(Name);
-            var descType = new DescribedType("Program", descAssembly);
-            var descMethod = new DescribedBodyMethod("Main", descType, PrimitiveTypes.Void, true);
-            descMethod.Body = Statement;
-            descType.AddMethod(descMethod);
-            descAssembly.AddType(descType);
-            descAssembly.EntryPoint = descMethod;
-            return descAssembly;
-        }
-
-        public IStatement CompileBody(SourceReader Reader)
-        {
-            int cellCount = Log.Options.GetOption<int>("cell-count", 30000); // Arbitrary array size
-
-            var elemType = PrimitiveTypes.UInt8;
-            var arrType = elemType.MakeArrayType(1); // uint8[]
-            var arrVar = new LateBoundVariable("data", arrType);
-            var arrCreation = arrVar.CreateSetStatement(new NewArrayExpression(elemType, new IExpression[] { new Int32Expression(cellCount) }));
-
-            var ptrVar = new LateBoundVariable("ptr", PrimitiveTypes.Int32);
-            var ptrInit = ptrVar.CreateSetStatement(new Int32Expression(0));
-
-            var env = new BrainfuckEnvironment(arrVar, ptrVar);
-
-            var body = CompileBody(Reader, env);
-
-            if (!Reader.IsEmpty)
-            {
-                Log.LogWarning(new LogEntry("Program closed", "The program was closed by ']'. This is a compiler extension.", new SourceLocation(Reader.Document, Reader.Position, 1)));
-            }
-
-            var ret = new ReturnStatement();
-
-            return new BlockStatement(new IStatement[] { arrCreation, ptrInit, body, ret });
-        }
-
-        private IStatement CompileBody(SourceReader Reader, BrainfuckEnvironment Environment)
-        {
-            var stmts = new List<IStatement>();
-
-            while (!Reader.IsEmpty)
-            {
-                char item = Reader.Code[Reader.Position];
-                if (item == ']')
-                {
-                    break; // This signifies the end of a while loop. Assume we're parsing said while loop's body.
-                }
-
+                char item = reader.Code[reader.Position];
                 if (item == '>')
                 {
-                    stmts.Add(Environment.PointerVariable.CreateSetStatement(new AddExpression(Environment.PointerVariable.CreateGetExpression(), new Int32Expression(1))));
+                    IncrementOrDecrement(indexAlloca, block, ArithmeticIntrinsics.Operators.Add);
                 }
                 else if (item == '<')
                 {
-                    stmts.Add(Environment.PointerVariable.CreateSetStatement(new SubtractExpression(Environment.PointerVariable.CreateGetExpression(), new Int32Expression(1))));
+                    IncrementOrDecrement(indexAlloca, block, ArithmeticIntrinsics.Operators.Subtract);
                 }
                 else if (item == '+')
                 {
-                    var elem = Environment.CreateDataVariable();
-                    stmts.Add(elem.CreateSetStatement(new AddExpression(elem.CreateGetExpression(), new Int32Expression(1))));
+                    IncrementOrDecrement(
+                        GetDataPointer(Environment.UInt8, cells, indexAlloca, block),
+                        block,
+                        ArithmeticIntrinsics.Operators.Add);
                 }
                 else if (item == '-')
                 {
-                    var elem = Environment.CreateDataVariable();
-                    stmts.Add(elem.CreateSetStatement(new SubtractExpression(elem.CreateGetExpression(), new Int32Expression(1))));
+                    IncrementOrDecrement(
+                        GetDataPointer(Environment.UInt8, cells, indexAlloca, block),
+                        block,
+                        ArithmeticIntrinsics.Operators.Subtract);
                 }
                 else if (item == '[')
                 {
-                    int pos = Reader.Position;
-                    Reader.Position++;
-                    var elem = Environment.CreateDataVariable();
-                    var cond = new InequalityExpression(elem.CreateGetExpression(), new Int32Expression(0));
-                    var body = CompileBody(Reader, Environment);
-                    if (Reader.IsEmpty)
+                    int pos = reader.Position;
+                    reader.Position++;
+
+                    var loopBody = graph.AddBasicBlock();
+                    var loopTerminator = graph.AddBasicBlock();
+
+                    whileBodies.Push(loopBody);
+                    whileTerminators.Push(loopTerminator);
+
+                    var dataPtr = GetDataPointer(Environment.UInt8, cells, indexAlloca, block);
+                    block.Flow = SwitchFlow.CreateConstantCheck(
+                        Instruction.CreateLoad(Environment.UInt8, dataPtr),
+                        new IntegerConstant(0, IntegerSpec.UInt8),
+                        new Branch(loopTerminator),
+                        new Branch(loopBody));
+
+                    block = loopBody;
+
+                    if (reader.IsEmpty)
                     {
-                        Log.LogError(new LogEntry("Loop not closed", "A loop was opened with '[', but not closed with ']'. Consider closing it.", new SourceLocation(Reader.Document, pos, 1)));
+                        Log.Log(
+                            new LogEntry(
+                                Severity.Error,
+                                "loop not closed",
+                                "a loop was opened with '[', but not closed with ']'.",
+                                reader.Highlight(pos, 1)));
                     }
-                    stmts.Add(new WhileStatement(cond, body));
+                }
+                else if (item == ']')
+                {
+                    if (whileBodies.Count == 0)
+                    {
+                        Log.Log(
+                            new LogEntry(
+                                Severity.Warning,
+                                "program closed",
+                                "the program was closed by ']'. This is an fbfc compiler extension.",
+                                reader.Highlight(reader.Position, 1)));
+                    }
+                    var body = whileBodies.Pop();
+                    var term = whileTerminators.Pop();
+                    block.Flow = new JumpFlow(body);
+                    block = term;
                 }
                 else if (item == '.')
                 {
-                    var elem = Environment.CreateDataVariable();
-                    stmts.Add(CreateWriteStatement(elem.CreateGetExpression()));
+                    var ptr = GetDataPointer(Environment.UInt8, cells, indexAlloca, block);
+                    Dependencies.EmitWrite(
+                        ref block,
+                        block.AppendInstruction(Instruction.CreateLoad(Environment.UInt8, ptr)));
                 }
                 else if (item == ',')
                 {
-                    var elem = Environment.CreateDataVariable();
-                    stmts.Add(elem.CreateSetStatement(CreateReadExpression(elem.Type)));
+                    var ptr = GetDataPointer(Environment.UInt8, cells, indexAlloca, block);
+                    block.AppendInstruction(
+                        Instruction.CreateStore(
+                            Environment.UInt8,
+                            ptr,
+                            Dependencies.EmitRead(ref block, Environment.UInt8)));
                 }
-                Reader.Position++;
+                reader.Position++;
             }
 
-            return new BlockStatement(stmts);
+            // Terminate the block with a 'return void' flow.
+            block.Flow = new ReturnFlow(
+                Instruction.CreateConstant(DefaultConstant.Instance, Environment.Void));
+
+            // Finish up the method body.
+            return new MethodBody(
+                new Parameter(Environment.Void),
+                default(Parameter),
+                EmptyArray<Parameter>.Value,
+                graph.ToImmutable());
+        }
+
+        private static ValueTag GetDataPointer(
+            IType elementType,
+            ValueTag cellArray,
+            ValueTag cellIndexAlloca,
+            BasicBlockBuilder block)
+        {
+            var arrayType = block.Graph.GetValueType(cellArray);
+            var indexAllocType = block.Graph.GetValueType(cellIndexAlloca);
+            var indexType = ((PointerType)indexAllocType).ElementType;
+
+            return block.AppendInstruction(
+                Instruction.CreateGetElementPointerIntrinsic(
+                    elementType,
+                    arrayType,
+                    new[] { indexType },
+                    cellArray,
+                    new ValueTag[]
+                    {
+                        block.AppendInstruction(
+                            Instruction.CreateLoad(indexType, cellIndexAlloca))
+                    }));
+        }
+
+        /// <summary>
+        /// Applies a binary arithmetic intrinsic to an integer value stored
+        /// at an address and a 'one' integer constant.
+        /// </summary>
+        /// <param name="pointer">
+        /// An address that contains an integer variable to update.
+        /// </param>
+        /// <param name="block">
+        /// The block to write the update instructions to.
+        /// </param>
+        /// <param name="op">
+        /// The operator to apply.
+        /// </param>
+        private static void IncrementOrDecrement(
+            ValueTag pointer,
+            BasicBlockBuilder block,
+            string op)
+        {
+            var integerType = ((PointerType)block.Graph.GetValueType(pointer)).ElementType;
+            block.AppendInstruction(
+                Instruction.CreateStore(
+                    integerType,
+                    pointer,
+                    block.AppendInstruction(
+                        Instruction.CreateBinaryArithmeticIntrinsic(
+                            op,
+                            integerType,
+                            block.AppendInstruction(
+                                Instruction.CreateLoad(
+                                    integerType,
+                                    pointer)),
+                            block.AppendInstruction(
+                                Instruction.CreateConstant(
+                                    new IntegerConstant(1, integerType.GetIntegerSpecOrNull()),
+                                    integerType))))));
         }
     }
 }

@@ -15,15 +15,23 @@ namespace Flame.Brainfuck
     public struct Dependencies
     {
         /// <summary>
-        /// Creates a Brainfuck IO data structure.
+        /// Creates a Brainfuck IO dependencies data structure.
         /// </summary>
+        /// <param name="environment">The type environment to use.</param>
         /// <param name="readMethod">The 'read' method to use.</param>
         /// <param name="writeMethod">The 'write' method to use.</param>
-        public Dependencies(IMethod readMethod, IMethod writeMethod)
+        public Dependencies(TypeEnvironment environment, IMethod readMethod, IMethod writeMethod)
         {
+            this.Environment = environment;
             this.ReadMethod = readMethod;
             this.WriteMethod = writeMethod;
         }
+
+        /// <summary>
+        /// Gets the type environment.
+        /// </summary>
+        /// <value>The type environment.</value>
+        public TypeEnvironment Environment { get; private set; }
 
         /// <summary>
         /// Gets the 'read' method, which reads a character from the input stream.
@@ -63,7 +71,7 @@ namespace Flame.Brainfuck
                         Severity.Warning,
                         "console not found",
                         "no class named 'System.Console' was not found. IO calls will be replaced with constants."));
-                return new Dependencies(null, null);
+                return new Dependencies(environment, null, null);
             }
             else
             {
@@ -113,7 +121,7 @@ namespace Flame.Brainfuck
                             "couldn't find 'char System.Console.Read()'. No input will be read."));
                 }
 
-                return new Dependencies(readMethod, writeMethod);
+                return new Dependencies(environment, readMethod, writeMethod);
             }
         }
 
