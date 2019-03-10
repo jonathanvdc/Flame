@@ -237,5 +237,28 @@ namespace Flame.Clr
         {
             return Resolver.Resolve(propertyRef, this);
         }
+
+        /// <summary>
+        /// Wraps a CIL assembly definition in a Flame assembly, setting
+        /// up an assembly resolver and type system.
+        /// </summary>
+        /// <param name="definition">The assembly definition to wrap.</param>
+        /// <returns>A Flame assembly.</returns>
+        public static ClrAssembly Wrap(AssemblyDefinition definition)
+        {
+            // Bootstrap a type system resolver.
+            var typeSystem = new MutableTypeEnvironment(null);
+            var resolver = new CecilAssemblyResolver(
+                definition.MainModule.AssemblyResolver,
+                typeSystem);
+            var flameAsm = new ClrAssembly(definition, resolver.ReferenceResolver);
+
+            var objectType = flameAsm.Resolve(definition.MainModule.TypeSystem.Object);
+            var corlib = objectType.Parent.Assembly;
+
+            typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
+
+            return flameAsm;
+        }
     }
 }
