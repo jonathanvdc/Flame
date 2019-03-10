@@ -106,17 +106,9 @@ namespace ILOpt
 
             try
             {
-                // Bootstrap a type system resolver.
-                var typeSystem = new MutableTypeEnvironment(null);
-                var resolver = new CecilAssemblyResolver(
-                    cecilAsm.MainModule.AssemblyResolver,
-                    typeSystem);
-                var flameAsm = new ClrAssembly(cecilAsm, resolver.ReferenceResolver);
-
-                var objectType = flameAsm.Resolve(cecilAsm.MainModule.TypeSystem.Object);
-                var corlib = objectType.Parent.Assembly;
-
-                typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
+                // Wrap the CIL assembly in a Flame assembly.
+                var flameAsm = ClrAssembly.Wrap(cecilAsm);
+                var typeSystem = flameAsm.Resolver.TypeEnvironment;
 
                 // Optimize the assembly.
                 OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem, printIr));
