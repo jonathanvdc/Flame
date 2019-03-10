@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+using Flame.Clr;
+using Flame.TypeSystem;
 using Pixie;
+using Pixie.Code;
 using Pixie.Markup;
 using Pixie.Options;
 using Pixie.Terminal;
@@ -66,6 +69,46 @@ namespace Flame.Brainfuck
             }
 
             var printIr = parsedOptions.GetValue<bool>(Options.PrintIr);
+
+            // Read the Brainfuck source code from disk.
+            SourceDocument source;
+            try
+            {
+                source = new StringDocument(inputPath, File.ReadAllText(inputPath));
+            }
+            catch (Exception)
+            {
+                log.Log(
+                    new LogEntry(
+                        Severity.Error,
+                        "invalid source path",
+                        Quotation.QuoteEvenInBold(
+                            "cannot read Brainfuck source code at ",
+                            inputPath,
+                            ".")));
+                return 1;
+            }
+
+            var asmName = Path.GetFileNameWithoutExtension(outputPath);
+            var cecilAsm = Mono.Cecil.AssemblyDefinition.CreateAssembly(
+                new Mono.Cecil.AssemblyNameDefinition(asmName, new Version(1, 0, 0, 0)),
+                asmName,
+                Mono.Cecil.ModuleKind.Console);
+
+            var flameAsm = ClrAssembly.Wrap(cecilAsm);
+
+            var typeEnv = flameAsm.Resolver.TypeEnvironment;
+            var compiler = new Compiler(
+                flameAsm,
+                log,
+                Dependencies.Resolve(
+                    typeEnv,
+                    new ReadOnlyTypeResolver(typeEnv.Object.Parent.Assembly),
+                    log));
+
+            compiler.Compile(source);
+
+            cecilAsm.Write(outputPath);
 
             return 0;
         }

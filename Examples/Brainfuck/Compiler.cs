@@ -12,6 +12,8 @@ using Pixie.Markup;
 using Flame.Compiler.Flow;
 using Flame.Collections;
 using Flame.Clr.Emit;
+using Flame.Compiler.Analysis;
+using Flame.Compiler.Transforms;
 
 namespace Flame.Brainfuck
 {
@@ -75,14 +77,25 @@ namespace Flame.Brainfuck
         /// </param>
         public void Compile(SourceDocument document)
         {
-            // Compile the Brainfuck source code to a method body.
+            // Compile the Brainfuck source code to a Flame IR method body.
             var body = CompileBody(new SourceReader(document));
+
+            // Optimize the Flame IR.
+            body.WithImplementation(
+                body.Implementation.Transform(
+                    AllocaToRegister.Instance,
+                    CopyPropagation.Instance,
+                    new ConstantPropagation(),
+                    GlobalValueNumbering.Instance,
+                    InstructionSimplification.Instance,
+                    FuseMemoryAccesses.Instance));
 
             // Define a class.
             var program = new Mono.Cecil.TypeDefinition(
                 "Brainfuck",
                 "Program",
-                Mono.Cecil.TypeAttributes.Class | Mono.Cecil.TypeAttributes.Public);
+                Mono.Cecil.TypeAttributes.Class | Mono.Cecil.TypeAttributes.Public,
+                Assembly.Definition.MainModule.ImportReference(Environment.Object));
 
             Assembly.Definition.MainModule.Types.Add(program);
 
@@ -116,6 +129,23 @@ namespace Flame.Brainfuck
             // Create a control-flow graph that consists of an entry point only.
             var graph = new FlowGraphBuilder();
 
+            // Register a number of analyses. We'll need these for optimizations
+            // and codegen.
+            graph.AddAnalysis(ValueUseAnalysis.Instance);
+            graph.AddAnalysis(new EffectfulInstructionAnalysis());
+            graph.AddAnalysis(NullabilityAnalysis.Instance);
+            graph.AddAnalysis(LazyBlockReachabilityAnalysis.Instance);
+            graph.AddAnalysis(ConservativeInstructionOrderingAnalysis.Instance);
+            graph.AddAnalysis(PredecessorAnalysis.Instance);
+            graph.AddAnalysis(RelatedValueAnalysis.Instance);
+            graph.AddAnalysis(InterferenceGraphAnalysis.Instance);
+            graph.AddAnalysis(LivenessAnalysis.Instance);
+            graph.AddAnalysis(
+                new ConstantAnalysis<ExceptionDelayability>(
+                    PermissiveExceptionDelayability.Instance));
+            graph.AddAnalysis(ValueNumberingAnalysis.Instance);
+            graph.AddAnalysis(DominatorTreeAnalysis.Instance);
+
             // Grab the entry point block.
             var block = graph.EntryPoint;
 
@@ -136,14 +166,14 @@ namespace Flame.Brainfuck
             var indexAlloca = block.AppendInstruction(
                 Instruction.CreateAlloca(Environment.Int32));
 
-            // Initially set that variable to zero.
+            // Initially set that variable to one.
             block.AppendInstruction(
                 Instruction.CreateStore(
                     Environment.Int32,
                     indexAlloca,
                     block.AppendInstruction(
                         Instruction.CreateConstant(
-                            new IntegerConstant(0, IntegerSpec.Int32),
+                            new IntegerConstant(1, IntegerSpec.Int32),
                             Environment.Int32))));
 
             // We now iterate through the Brainfuck source code and turn it into
