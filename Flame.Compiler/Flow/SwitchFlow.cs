@@ -260,7 +260,7 @@ namespace Flame.Compiler.Flow
 
         /// <summary>
         /// Creates switch flow that redirects control to one branch
-        /// if a value equals a particular constants and to another
+        /// if a value equals a particular constant and to another
         /// branch otherwise.
         /// </summary>
         /// <param name="value">
