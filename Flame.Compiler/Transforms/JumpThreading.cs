@@ -46,6 +46,22 @@ namespace Flame.Compiler.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var graphBuilder = graph.ToBuilder();
+
+            // Suggest exception spec analyses if the graph doesn't have any yet.
+            if (!graphBuilder.HasAnalysisFor<PrototypeExceptionSpecs>())
+            {
+                graphBuilder.AddAnalysis(
+                    new ConstantAnalysis<PrototypeExceptionSpecs>(
+                        RuleBasedPrototypeExceptionSpecs.Default));
+            }
+            if (!graphBuilder.HasAnalysisFor<InstructionExceptionSpecs>())
+            {
+                graphBuilder.AddAnalysis(
+                    new ConstantAnalysis<InstructionExceptionSpecs>(
+                        new TrivialInstructionExceptionSpecs(
+                            graphBuilder.GetAnalysisResult<PrototypeExceptionSpecs>())));
+            }
+
             var finished = new HashSet<BasicBlockTag>();
             foreach (var block in graphBuilder.BasicBlocks)
             {

@@ -69,6 +69,21 @@ namespace Flame.Compiler.Analysis
         /// <inheritdoc/>
         public EffectfulInstructions Analyze(FlowGraph graph)
         {
+            // Suggest exception spec analyses if the graph doesn't have any yet.
+            if (!graph.HasAnalysisFor<PrototypeExceptionSpecs>())
+            {
+                graph = graph.WithAnalysis(
+                    new ConstantAnalysis<PrototypeExceptionSpecs>(
+                        RuleBasedPrototypeExceptionSpecs.Default));
+            }
+            if (!graph.HasAnalysisFor<InstructionExceptionSpecs>())
+            {
+                graph = graph.WithAnalysis(
+                    new ConstantAnalysis<InstructionExceptionSpecs>(
+                        new TrivialInstructionExceptionSpecs(
+                            graph.GetAnalysisResult<PrototypeExceptionSpecs>())));
+            }
+
             var results = ImmutableHashSet.CreateBuilder<ValueTag>();
             foreach (var instruction in graph.Instructions)
             {
