@@ -62,6 +62,11 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets the selected instruction's result type.
+        /// </summary>
+        public IType ResultType => Instruction.ResultType;
+
+        /// <summary>
         /// Gets the index of this instruction in the defining block's
         /// list of instructions.
         /// </summary>

@@ -47,6 +47,11 @@ namespace Flame.Compiler
         /// <returns>The instruction.</returns>
         public Instruction Instruction { get; private set; }
 
+        /// <summary>
+        /// Gets the selected instruction's result type.
+        /// </summary>
+        public IType ResultType => Instruction.ResultType;
+
         private int instrIndexValue;
 
         /// <summary>
