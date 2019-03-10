@@ -12,14 +12,14 @@ namespace Flame.Brainfuck
     /// <summary>
     /// Dependencies that Brainfuck programs use to accept input and produce output.
     /// </summary>
-    public struct BrainfuckIO
+    public struct Dependencies
     {
         /// <summary>
         /// Creates a Brainfuck IO data structure.
         /// </summary>
         /// <param name="readMethod">The 'read' method to use.</param>
         /// <param name="writeMethod">The 'write' method to use.</param>
-        public BrainfuckIO(IMethod readMethod, IMethod writeMethod)
+        public Dependencies(IMethod readMethod, IMethod writeMethod)
         {
             this.ReadMethod = readMethod;
             this.WriteMethod = writeMethod;
@@ -37,20 +37,33 @@ namespace Flame.Brainfuck
         /// <value>The 'write' method.</value>
         public IMethod WriteMethod { get; private set; }
 
-        public static BrainfuckIO Resolve(
+        /// <summary>
+        /// Resolves dependencies that Brainfuck programs use to accept input and produce output.
+        /// </summary>
+        /// <param name="environment">
+        /// The type environment to resolve dependencies in.
+        /// </param>
+        /// <param name="binder">
+        /// A type resolver for resolving dependencies with.
+        /// </param>
+        /// <param name="log">A log to send messages to.</param>
+        /// <returns>
+        /// Brainfuck IO dependencies.
+        /// </returns>
+        public static Dependencies Resolve(
             TypeEnvironment environment,
             ReadOnlyTypeResolver binder,
-            ILog Log)
+            ILog log)
         {
             var consoleType = binder.ResolveTypes(new SimpleName("Console").Qualify("System")).FirstOrDefault();
             if (consoleType == null)
             {
-                Log.Log(
+                log.Log(
                     new LogEntry(
                         Severity.Warning,
                         "console not found",
                         "no class named 'System.Console' was not found. IO calls will be replaced with constants."));
-                return new BrainfuckIO(null, null);
+                return new Dependencies(null, null);
             }
             else
             {
@@ -69,7 +82,7 @@ namespace Flame.Brainfuck
 
                 if (writeMethod != null)
                 {
-                    Log.Log(
+                    log.Log(
                         new LogEntry(
                             Severity.Info,
                             "output method found",
@@ -77,7 +90,7 @@ namespace Flame.Brainfuck
                 }
                 else
                 {
-                    Log.Log(
+                    log.Log(
                         new LogEntry(
                             Severity.Warning,
                             "output method not found",
@@ -85,7 +98,7 @@ namespace Flame.Brainfuck
                 }
                 if (readMethod != null)
                 {
-                    Log.Log(
+                    log.Log(
                         new LogEntry(
                             Severity.Info,
                             "input method found",
@@ -93,14 +106,14 @@ namespace Flame.Brainfuck
                 }
                 else
                 {
-                    Log.Log(
+                    log.Log(
                         new LogEntry(
                             Severity.Warning,
                             "input method not found",
                             "couldn't find 'char System.Console.Read()'. No input will be read."));
                 }
 
-                return new BrainfuckIO(readMethod, writeMethod);
+                return new Dependencies(readMethod, writeMethod);
             }
         }
 
