@@ -258,6 +258,30 @@ namespace Flame.TypeSystem
                 return null;
             }
         }
+
+        /// <summary>
+        /// Creates an array type of a particular rank.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of element stored in the array.
+        /// </param>
+        /// <param name="rank">The array's rank.</param>
+        /// <returns>
+        /// An array type if one can be created in this environment;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public IType MakeArrayType(IType elementType, int rank)
+        {
+            IType result;
+            if (TryMakeArrayType(elementType, rank, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>
