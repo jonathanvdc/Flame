@@ -68,8 +68,6 @@ namespace Flame.Brainfuck
                 outputPath = Path.GetFileNameWithoutExtension(inputPath) + ".exe";
             }
 
-            var printIr = parsedOptions.GetValue<bool>(Options.PrintIr);
-
             // Read the Brainfuck source code from disk.
             SourceDocument source;
             try
@@ -100,11 +98,12 @@ namespace Flame.Brainfuck
             var typeEnv = flameAsm.Resolver.TypeEnvironment;
             var compiler = new Compiler(
                 flameAsm,
-                log,
                 Dependencies.Resolve(
                     typeEnv,
                     new ReadOnlyTypeResolver(typeEnv.Object.Parent.Assembly),
-                    log));
+                    log),
+                log,
+                parsedOptions);
 
             compiler.Compile(source);
 

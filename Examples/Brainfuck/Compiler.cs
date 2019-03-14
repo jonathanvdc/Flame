@@ -14,6 +14,10 @@ using Flame.Collections;
 using Flame.Clr.Emit;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Transforms;
+using Pixie.Options;
+using Flame.Ir;
+using Loyc.Syntax.Les;
+using Loyc.Syntax;
 
 namespace Flame.Brainfuck
 {
@@ -55,16 +59,18 @@ namespace Flame.Brainfuck
 
     public sealed class Compiler
     {
-        public Compiler(ClrAssembly assembly, ILog Log, Dependencies dependencies)
+        public Compiler(ClrAssembly assembly, Dependencies dependencies, ILog Log, OptionSet options)
         {
             this.Assembly = assembly;
             this.Log = Log;
             this.Dependencies = dependencies;
+            this.CompilerOptions = options;
         }
 
         public ClrAssembly Assembly { get; private set; }
         public ILog Log { get; private set; }
         public Dependencies Dependencies { get; private set; }
+        public OptionSet CompilerOptions { get; private set; }
 
         public TypeEnvironment Environment => Dependencies.Environment;
 
@@ -78,17 +84,24 @@ namespace Flame.Brainfuck
         public void Compile(SourceDocument document)
         {
             // Compile the Brainfuck source code to a Flame IR method body.
-            var body = CompileBody(new SourceReader(document));
+            var sourceBody = CompileBody(new SourceReader(document));
 
-            // Optimize the Flame IR.
-            body.WithImplementation(
-                body.Implementation.Transform(
+            // Optimize the IR method body.
+            var body = sourceBody.WithImplementation(
+                sourceBody.Implementation.Transform(
                     AllocaToRegister.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
                     GlobalValueNumbering.Instance,
+                    CopyPropagation.Instance,
                     InstructionSimplification.Instance,
-                    FuseMemoryAccesses.Instance));
+                    FuseMemoryAccesses.Instance,
+                    DeadValueElimination.Instance));
+
+            if (CompilerOptions.GetValue<bool>(Options.PrintIr))
+            {
+                PrintIr(sourceBody, body);
+            }
 
             // Define a class.
             var program = new Mono.Cecil.TypeDefinition(
@@ -329,6 +342,46 @@ namespace Flame.Brainfuck
                                 Instruction.CreateConstant(
                                     new IntegerConstant(1, integerType.GetIntegerSpecOrNull()),
                                     integerType))))));
+        }
+
+        private void PrintIr(
+            MethodBody sourceBody,
+            MethodBody optBody)
+        {
+            var sourceIr = FormatIr(sourceBody);
+            var optIr = FormatIr(optBody);
+
+            Log.Log(
+                new LogEntry(
+                    Severity.Message,
+                    "method body IR",
+                    "optimized Flame IR: ",
+                    new Paragraph(new WrapBox(optIr, 0, -optIr.Length)),
+                    CreateRemark(
+                        "unoptimized Flame IR:",
+                        new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length)))));
+        }
+
+        private static string FormatIr(MethodBody methodBody)
+        {
+            var encoder = new EncoderState();
+            var encodedImpl = encoder.Encode(methodBody.Implementation);
+
+            return Les2LanguageService.Value.Print(
+                encodedImpl,
+                options: new LNodePrinterOptions
+                {
+                    IndentString = new string(' ', 4)
+                });
+        }
+
+        private static MarkupNode CreateRemark(
+            params MarkupNode[] contents)
+        {
+            return new Paragraph(
+                new MarkupNode[] { DecorationSpan.MakeBold(new ColorSpan("remark: ", Colors.Gray)) }
+                .Concat(contents)
+                .ToArray());
         }
     }
 }
