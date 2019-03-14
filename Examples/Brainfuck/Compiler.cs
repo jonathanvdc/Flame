@@ -129,22 +129,11 @@ namespace Flame.Brainfuck
             // Create a control-flow graph that consists of an entry point only.
             var graph = new FlowGraphBuilder();
 
-            // Register a number of analyses. We'll need these for optimizations
-            // and codegen.
-            graph.AddAnalysis(ValueUseAnalysis.Instance);
-            graph.AddAnalysis(new EffectfulInstructionAnalysis());
-            graph.AddAnalysis(NullabilityAnalysis.Instance);
-            graph.AddAnalysis(LazyBlockReachabilityAnalysis.Instance);
-            graph.AddAnalysis(ConservativeInstructionOrderingAnalysis.Instance);
-            graph.AddAnalysis(PredecessorAnalysis.Instance);
-            graph.AddAnalysis(RelatedValueAnalysis.Instance);
-            graph.AddAnalysis(InterferenceGraphAnalysis.Instance);
-            graph.AddAnalysis(LivenessAnalysis.Instance);
+            // Use a permissive exception delayability model to make the optimizer's
+            // life easier.
             graph.AddAnalysis(
                 new ConstantAnalysis<ExceptionDelayability>(
                     PermissiveExceptionDelayability.Instance));
-            graph.AddAnalysis(ValueNumberingAnalysis.Instance);
-            graph.AddAnalysis(DominatorTreeAnalysis.Instance);
 
             // Grab the entry point block.
             var block = graph.EntryPoint;
