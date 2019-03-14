@@ -13,7 +13,18 @@ namespace Flame.Compiler.Analysis
         {
             defaults = new Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>>();
 
+            Register(ValueUseAnalysis.Instance);
+            Register(new EffectfulInstructionAnalysis());
+            Register(NullabilityAnalysis.Instance);
             Register(LazyBlockReachabilityAnalysis.Instance);
+            Register(ConservativeInstructionOrderingAnalysis.Instance);
+            Register(PredecessorAnalysis.Instance);
+            Register(RelatedValueAnalysis.Instance);
+            Register(InterferenceGraphAnalysis.Instance);
+            Register(LivenessAnalysis.Instance);
+            Register(new ConstantAnalysis<ExceptionDelayability>(StrictExceptionDelayability.Instance));
+            Register(ValueNumberingAnalysis.Instance);
+            Register(DominatorTreeAnalysis.Instance);
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;
