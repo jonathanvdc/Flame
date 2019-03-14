@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
 
 namespace Flame.Compiler.Analysis
 {
@@ -17,6 +18,7 @@ namespace Flame.Compiler.Analysis
             this.distinctCaches = new List<FlowGraphAnalysisCache>();
             this.cacheIndices = ImmutableDictionary.Create<Type, int>();
             this.cacheRefCounts = ImmutableDictionary.Create<int, int>();
+            this.updateLock = new ReaderWriterLockSlim();
         }
 
         private MacroAnalysisCache(
@@ -27,6 +29,7 @@ namespace Flame.Compiler.Analysis
             this.distinctCaches = distinctCaches;
             this.cacheIndices = cacheIndices;
             this.cacheRefCounts = cacheRefCounts;
+            this.updateLock = new ReaderWriterLockSlim();
         }
 
         /// <summary>
@@ -51,6 +54,12 @@ namespace Flame.Compiler.Analysis
         private ImmutableDictionary<int, int> cacheRefCounts;
 
         /// <summary>
+        /// A reader-writer lock that can be used to transparently update
+        /// the analysis cache.
+        /// </summary>
+        private ReaderWriterLockSlim updateLock;
+
+        /// <summary>
         /// Updates this macro analysis cache with a tweak to
         /// the graph. The update is not performed in place: instead,
         /// a derived cache is created.
@@ -63,9 +72,17 @@ namespace Flame.Compiler.Analysis
         public MacroAnalysisCache Update(FlowGraphUpdate update)
         {
             var newCaches = new List<FlowGraphAnalysisCache>();
-            foreach (var cache in distinctCaches)
+            updateLock.EnterReadLock();
+            try
             {
-                newCaches.Add(cache.Update(update));
+                foreach (var cache in distinctCaches)
+                {
+                    newCaches.Add(cache.Update(update));
+                }
+            }
+            finally
+            {
+                updateLock.ExitReadLock();
             }
             return new MacroAnalysisCache(newCaches, cacheIndices, cacheRefCounts);
         }
@@ -85,25 +102,48 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public MacroAnalysisCache WithAnalysis<T>(IFlowGraphAnalysis<T> analysis)
         {
+            updateLock.EnterReadLock();
+            try
+            {
+                var cache = new FlowGraphAnalysisCache<T>(analysis);
+                return WithAnalysis(typeof(T), cache, true);
+            }
+            finally
+            {
+                updateLock.ExitReadLock();
+            }
+        }
+
+        private MacroAnalysisCache WithAnalysis(
+            Type t,
+            FlowGraphAnalysisCache cache,
+            bool overwrite)
+        {
             // Figure out which types the analysis is assignable to.
-            var resultTypes = GetAssignableTypes(typeof(T));
+            var resultTypes = GetAssignableTypes(t);
 
             // Decrement reference counts for those types and maintain
             // a list of all cache indices with a reference count of zero.
             var cacheRefCountsBuilder = cacheRefCounts.ToBuilder();
 
             var danglingCaches = new List<int>();
-            foreach (var type in resultTypes)
+
+            if (overwrite)
             {
-                int cacheIndex;
-                if (cacheIndices.TryGetValue(type, out cacheIndex))
+                // Decrement analysis cache reference counts. Add unreferenced
+                // analysis caches to a list of dangling caches.
+                foreach (var type in resultTypes)
                 {
-                    int refCount = cacheRefCountsBuilder[cacheIndex];
-                    refCount--;
-                    cacheRefCountsBuilder[cacheIndex] = refCount;
-                    if (refCount == 0)
+                    int cacheIndex;
+                    if (cacheIndices.TryGetValue(type, out cacheIndex))
                     {
-                        danglingCaches.Add(cacheIndex);
+                        int refCount = cacheRefCountsBuilder[cacheIndex];
+                        refCount--;
+                        cacheRefCountsBuilder[cacheIndex] = refCount;
+                        if (refCount == 0)
+                        {
+                            danglingCaches.Add(cacheIndex);
+                        }
                     }
                 }
             }
@@ -112,7 +152,6 @@ namespace Flame.Compiler.Analysis
             // and maybe do some cleanup if we really have to.
             int newCacheIndex;
             var newCaches = new List<FlowGraphAnalysisCache>(distinctCaches);
-            var cache = new FlowGraphAnalysisCache<T>(analysis);
 
             var cacheIndicesBuilder = cacheIndices.ToBuilder();
 
@@ -179,11 +218,16 @@ namespace Flame.Compiler.Analysis
 
             // Update the type-to-cache-index dictionary and increment
             // the new cache's reference count.
+            int newRefCount = 0;
             foreach (var type in resultTypes)
             {
-                cacheIndicesBuilder[type] = newCacheIndex;
+                if (overwrite || !cacheIndicesBuilder.ContainsKey(type))
+                {
+                    cacheIndicesBuilder[type] = newCacheIndex;
+                    newRefCount++;
+                }
             }
-            cacheRefCountsBuilder[newCacheIndex] = resultTypes.Count;
+            cacheRefCountsBuilder[newCacheIndex] = newRefCount;
 
             return new MacroAnalysisCache(
                 newCaches,
@@ -210,10 +254,47 @@ namespace Flame.Compiler.Analysis
         public bool TryGetResultAs<T>(FlowGraph graph, out T result)
         {
             var t = typeof(T);
-            int cacheIndex;
-            if (cacheIndices.TryGetValue(t, out cacheIndex))
+
+            FlowGraphAnalysisCache cache = null;
+            updateLock.EnterReadLock();
+            try
             {
-                result = distinctCaches[cacheIndex].GetResultAs<T>(graph);
+                int cacheIndex;
+                if (cacheIndices.TryGetValue(t, out cacheIndex))
+                {
+                    cache = distinctCaches[cacheIndex];
+                }
+            }
+            finally
+            {
+                updateLock.ExitReadLock();
+            }
+
+            if (cache != null)
+            {
+                result = cache.GetResultAs<T>(graph);
+                return true;
+            }
+
+            updateLock.EnterWriteLock();
+            try
+            {
+                if (DefaultAnalyses.TryGetDefaultAnalysisCache(t, graph, out cache))
+                {
+                    var newMacroCache = WithAnalysis(t, cache, false);
+                    this.cacheIndices = newMacroCache.cacheIndices;
+                    this.cacheRefCounts = newMacroCache.cacheRefCounts;
+                    this.distinctCaches = newMacroCache.distinctCaches;
+                }
+            }
+            finally
+            {
+                updateLock.ExitWriteLock();
+            }
+
+            if (cache != null)
+            {
+                result = cache.GetResultAs<T>(graph);
                 return true;
             }
             else
@@ -262,7 +343,15 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public bool HasAnalysisFor<T>()
         {
-            return cacheIndices.ContainsKey(typeof(T));
+            updateLock.EnterReadLock();
+            try
+            {
+                return cacheIndices.ContainsKey(typeof(T));
+            }
+            finally
+            {
+                updateLock.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -270,7 +359,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <param name="rootType">The root type to start at.</param>
         /// <returns>A set of types.</returns>
-        private static HashSet<Type> GetAssignableTypes(Type rootType)
+        internal static HashSet<Type> GetAssignableTypes(Type rootType)
         {
             // Construct the set of all types inherited from and implemented by
             // the root type using a worklist-driven algorithm.

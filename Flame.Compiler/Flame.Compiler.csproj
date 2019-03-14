@@ -53,6 +53,7 @@
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Analysis\BlockReachability.cs" />
     <Compile Include="Analysis\ConstantAnalysis.cs" />
+    <Compile Include="Analysis\DefaultAnalyses.cs" />
     <Compile Include="Analysis\DominatorTree.cs" />
     <Compile Include="Analysis\EffectfulInstructions.cs" />
     <Compile Include="Analysis\ExceptionDelayability.cs" />
