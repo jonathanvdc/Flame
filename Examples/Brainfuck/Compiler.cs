@@ -180,7 +180,7 @@ namespace Flame.Brainfuck
 
             // We now iterate through the Brainfuck source code and turn it into
             // instructions.
-            var whileBodies = new Stack<BasicBlockBuilder>();
+            var whileHeaders = new Stack<BasicBlockBuilder>();
             var whileTerminators = new Stack<BasicBlockBuilder>();
             while (!reader.IsEmpty)
             {
@@ -209,21 +209,21 @@ namespace Flame.Brainfuck
                 }
                 else if (item == '[')
                 {
-                    int pos = reader.Position;
-                    reader.Position++;
-
+                    var loopHeader = graph.AddBasicBlock();
                     var loopBody = graph.AddBasicBlock();
                     var loopTerminator = graph.AddBasicBlock();
 
-                    whileBodies.Push(loopBody);
+                    whileHeaders.Push(loopHeader);
                     whileTerminators.Push(loopTerminator);
 
                     var dataPtr = GetDataPointer(Environment.UInt8, cells, indexAlloca, block);
-                    block.Flow = SwitchFlow.CreateConstantCheck(
+                    loopHeader.Flow = SwitchFlow.CreateConstantCheck(
                         Instruction.CreateLoad(Environment.UInt8, dataPtr),
                         new IntegerConstant(0, IntegerSpec.UInt8),
                         new Branch(loopTerminator),
                         new Branch(loopBody));
+
+                    block.Flow = new JumpFlow(loopHeader);
 
                     block = loopBody;
 
@@ -234,12 +234,12 @@ namespace Flame.Brainfuck
                                 Severity.Error,
                                 "loop not closed",
                                 "a loop was opened with '[', but not closed with ']'.",
-                                reader.Highlight(pos, 1)));
+                                reader.Highlight(reader.Position, 1)));
                     }
                 }
                 else if (item == ']')
                 {
-                    if (whileBodies.Count == 0)
+                    if (whileHeaders.Count == 0)
                     {
                         Log.Log(
                             new LogEntry(
@@ -248,9 +248,9 @@ namespace Flame.Brainfuck
                                 "the program was closed by ']'. This is an fbfc compiler extension.",
                                 reader.Highlight(reader.Position, 1)));
                     }
-                    var body = whileBodies.Pop();
+                    var header = whileHeaders.Pop();
                     var term = whileTerminators.Pop();
-                    block.Flow = new JumpFlow(body);
+                    block.Flow = new JumpFlow(header);
                     block = term;
                 }
                 else if (item == '.')
