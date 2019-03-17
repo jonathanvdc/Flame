@@ -66,6 +66,7 @@
     <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
+    <Compile Include="Analysis\MemorySSA.cs" />
     <Compile Include="Analysis\NullabilityAnalysis.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />
     <Compile Include="Analysis\PrototypeExceptionSpecs.cs" />
