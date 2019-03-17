@@ -24,7 +24,13 @@ namespace UnitTests
             }
         }
 
-        private string RunCommand(ToolCommand command, string exePath)
+        /// <summary>
+        /// Runs a command.
+        /// </summary>
+        /// <param name="command">The command to run.</param>
+        /// <param name="exePath">The path of the executable to run.</param>
+        /// <returns>Standard output, freshly captured from the executable.</returns>
+        public static string RunCommand(ToolCommand command, string exePath)
         {
             if (command.Command == "run")
             {
@@ -33,6 +39,10 @@ namespace UnitTests
                 if (exitCode != 0)
                 {
                     throw new Exception($"Executable at '{exePath}' exited with a nonzero exit code: {stdout}{stderr}");
+                }
+                if (command.HasExpectedOutput)
+                {
+                    Assert.AreEqual(command.ExpectedOutput, stdout.Trim());
                 }
                 return stdout;
             }
@@ -248,8 +258,12 @@ namespace UnitTests
                 var trimmedLine = line.Trim();
                 if (trimmedLine.StartsWith("//!", StringComparison.Ordinal))
                 {
-                    var splitLine = trimmedLine.Substring("//!".Length).Split(new[] { ':' }, 2);
-                    if (splitLine.Length > 1)
+                    var splitLine = trimmedLine.Substring("//!".Length).Split(new[] { ':' }, 3);
+                    if (splitLine.Length > 2)
+                    {
+                        commands.Add(new ToolCommand(splitLine[0].Trim(), splitLine[1].Trim(), splitLine[2].Trim()));
+                    }
+                    else if (splitLine.Length > 1)
                     {
                         commands.Add(new ToolCommand(splitLine[0].Trim(), splitLine[1].Trim()));
                     }
@@ -266,7 +280,7 @@ namespace UnitTests
         /// Creates a path at which a temporary file may be created.
         /// </summary>
         /// <returns>A path string.</returns>
-        private static string CreateTemporaryPath()
+        public static string CreateTemporaryPath()
         {
             return Path.GetTempPath() + Guid.NewGuid().ToString();
         }

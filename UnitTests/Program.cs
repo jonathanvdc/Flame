@@ -230,6 +230,7 @@ namespace UnitTests
         public static int FlameTools()
         {
             return RunTests.RunMany(
+                new BrainfuckTests(),
                 new ILOptTests());
         }
     }

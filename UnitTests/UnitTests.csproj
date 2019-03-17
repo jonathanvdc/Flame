@@ -107,6 +107,7 @@
     <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
     <Compile Include="Flame.Ir\PiecewiseCodecTest.cs" />
     <Compile Include="Flame.Ir\TypeCodecTest.cs" />
+    <Compile Include="Tools\BrainfuckTests.cs" />
     <Compile Include="Tools\ILOptTests.cs" />
     <Compile Include="Tools\ToolCommand.cs" />
     <Compile Include="Macros\InstructionPatternTests.cs" />
@@ -139,6 +140,10 @@
     <ProjectReference Include="..\ILOpt\ILOpt.csproj">
       <Project>{F0CB8335-5A0A-4197-9840-B7AA93331CC6}</Project>
       <Name>ILOpt</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Examples\Brainfuck\Brainfuck.csproj">
+      <Project>{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}</Project>
+      <Name>Brainfuck</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
