@@ -22,9 +22,10 @@ namespace Flame.Compiler.Analysis
             Register(RelatedValueAnalysis.Instance);
             Register(InterferenceGraphAnalysis.Instance);
             Register(LivenessAnalysis.Instance);
-            Register(new ConstantAnalysis<ExceptionDelayability>(StrictExceptionDelayability.Instance));
+            Register(new ConstantAnalysis<StrictExceptionDelayability>(StrictExceptionDelayability.Instance));
             Register(ValueNumberingAnalysis.Instance);
             Register(DominatorTreeAnalysis.Instance);
+            Register(new ConstantAnalysis<TrivialAliasAnalysisResult>(TrivialAliasAnalysisResult.Instance));
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;
