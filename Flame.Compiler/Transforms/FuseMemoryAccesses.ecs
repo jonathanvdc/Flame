@@ -79,7 +79,7 @@ namespace Flame.Compiler.Transforms
                 // with the store.
                 if (graph.ContainsInstruction(value))
                 {
-                    var valueProto = graph.GetInstruction(value).Instruction.Prototype as ConstantPrototype;
+                    var valueProto = graph.GetInstruction(value).Prototype as ConstantPrototype;
                     return valueProto == null || valueProto.Value != DefaultConstant.Instance;
                 }
                 else

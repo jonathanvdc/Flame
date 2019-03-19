@@ -295,7 +295,7 @@ namespace Flame.Compiler.Analysis
             // and/or non-dereferenceable.
             foreach (var instruction in graph.Instructions)
             {
-                var proto = instruction.Instruction.Prototype;
+                var proto = instruction.Prototype;
                 var tag = instruction.Tag;
                 if (!ValueNullability.IsNonNull(proto))
                 {

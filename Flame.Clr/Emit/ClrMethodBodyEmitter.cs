@@ -186,7 +186,7 @@ namespace Flame.Clr.Emit
 
             foreach (var insn in graph.Instructions)
             {
-                var proto = insn.Instruction.Prototype;
+                var proto = insn.Prototype;
                 if (proto is AllocaPrototype
                     && !reachability.IsStrictlyReachableFrom(insn.Block.Tag, insn.Block.Tag))
                 {

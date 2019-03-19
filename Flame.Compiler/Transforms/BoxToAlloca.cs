@@ -32,7 +32,7 @@ namespace Flame.Compiler.Transforms
             var nonescapingUnboxInstructions = new HashSet<ValueTag>();
             foreach (var instruction in graph.Instructions)
             {
-                if (instruction.Instruction.Prototype is UnboxPrototype
+                if (instruction.Prototype is UnboxPrototype
                     && uses.GetFlowUses(instruction).Count == 0
                     && !uses.GetInstructionUses(instruction).Any(
                         tag => AllowsEscape(tag, instruction, graph)))
@@ -47,7 +47,7 @@ namespace Flame.Compiler.Transforms
             var unboxReplacements = new Dictionary<ValueTag, ValueTag>();
             foreach (var instruction in builder.Instructions)
             {
-                var boxProto = instruction.Instruction.Prototype as BoxPrototype;
+                var boxProto = instruction.Prototype as BoxPrototype;
                 if (boxProto != null
                     && uses.GetFlowUses(instruction).Count == 0
                     && uses.GetInstructionUses(instruction).IsSubsetOf(

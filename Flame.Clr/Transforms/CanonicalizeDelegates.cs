@@ -26,7 +26,7 @@ namespace Flame.Clr.Transforms
             var builder = graph.ToBuilder();
             foreach (var instruction in builder.Instructions)
             {
-                var proto = instruction.Instruction.Prototype;
+                var proto = instruction.Prototype;
                 if (proto is CallPrototype)
                 {
                     // CIL delegates are called using a (virtual) call to the
@@ -62,7 +62,7 @@ namespace Flame.Clr.Transforms
                     }
 
                     var functionPointerInstruction = builder.GetInstruction(functionPointer);
-                    var functionPointerProto = functionPointerInstruction.Instruction.Prototype as NewDelegatePrototype;
+                    var functionPointerProto = functionPointerInstruction.Prototype as NewDelegatePrototype;
                     if (functionPointerProto == null)
                     {
                         continue;

@@ -101,7 +101,7 @@ namespace Flame.Compiler.Analysis
             if (graph.TryGetAnalysisResult(out delayability))
             {
                 return delayability.CanDelayExceptions(
-                    graph.GetInstruction(instruction).Instruction.Prototype);
+                    graph.GetInstruction(instruction).Prototype);
             }
             else
             {

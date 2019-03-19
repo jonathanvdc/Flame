@@ -52,6 +52,11 @@ namespace Flame.Compiler
         /// </summary>
         public IType ResultType => Instruction.ResultType;
 
+        /// <summary>
+        /// Gets the selected instruction's prototype.
+        /// </summary>
+        public InstructionPrototype Prototype => Instruction.Prototype;
+
         private int instrIndexValue;
 
         /// <summary>

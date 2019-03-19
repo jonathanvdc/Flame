@@ -28,7 +28,7 @@ namespace Flame.Clr.Transforms
             var builder = graph.ToBuilder();
             foreach (var instruction in builder.Instructions)
             {
-                var proto = instruction.Instruction.Prototype;
+                var proto = instruction.Prototype;
                 if (proto is IndirectCallPrototype)
                 {
                     // Flame IR has dedicated instructions for delegate calls,

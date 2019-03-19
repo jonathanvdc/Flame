@@ -857,7 +857,7 @@ namespace Flame.Clr.Emit
 
                 if (graph.ContainsInstruction(value))
                 {
-                    var valueProto = graph.GetInstruction(value).Instruction.Prototype as ConstantPrototype;
+                    var valueProto = graph.GetInstruction(value).Prototype as ConstantPrototype;
                     if (valueProto != null && valueProto.Value == DefaultConstant.Instance)
                     {
                         // Materializing a default constant is complicated (it requires

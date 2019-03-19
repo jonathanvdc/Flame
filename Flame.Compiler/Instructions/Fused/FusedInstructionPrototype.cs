@@ -78,7 +78,7 @@ namespace Flame.Compiler.Instructions.Fused
             foreach (var item in block.Instructions)
             {
                 results.AddRange(
-                    item.Instruction.Prototype.CheckConformance(
+                    item.Prototype.CheckConformance(
                         item.Instruction, body));
             }
             return results;

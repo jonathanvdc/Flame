@@ -33,7 +33,7 @@ namespace Flame.Compiler.Transforms
             foreach (var allocaTag in eligible)
             {
                 var allocaInstruction = builder.GetInstruction(allocaTag);
-                var allocaProto = (AllocaPrototype)allocaInstruction.Instruction.Prototype;
+                var allocaProto = (AllocaPrototype)allocaInstruction.Prototype;
                 var fieldSlots = new Dictionary<IField, ValueTag>();
                 foreach (var field in allocaProto.ElementType.Fields)
                 {
@@ -47,7 +47,7 @@ namespace Flame.Compiler.Transforms
             // Rewrite instructions.
             foreach (var instruction in builder.Instructions)
             {
-                var proto = instruction.Instruction.Prototype;
+                var proto = instruction.Prototype;
                 if (proto is GetFieldPointerPrototype)
                 {
                     var gfpProto = (GetFieldPointerPrototype)proto;
@@ -115,7 +115,7 @@ namespace Flame.Compiler.Transforms
             // store instructions.
             foreach (var instruction in graph.Instructions)
             {
-                var proto = instruction.Instruction.Prototype;
+                var proto = instruction.Prototype;
                 if (proto is AllocaPrototype)
                 {
                     allocas.Add(instruction);
@@ -157,7 +157,7 @@ namespace Flame.Compiler.Transforms
 
         private static bool IsDefaultInitialization(SelectedInstruction instruction)
         {
-            var proto = instruction.Instruction.Prototype;
+            var proto = instruction.Prototype;
             if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
@@ -165,7 +165,7 @@ namespace Flame.Compiler.Transforms
                 var graph = instruction.Block.Graph;
                 if (graph.ContainsInstruction(value))
                 {
-                    var valueProto = graph.GetInstruction(value).Instruction.Prototype
+                    var valueProto = graph.GetInstruction(value).Prototype
                         as ConstantPrototype;
 
                     if (valueProto != null && valueProto.Value == DefaultConstant.Instance)

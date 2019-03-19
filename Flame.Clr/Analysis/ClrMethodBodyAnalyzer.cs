@@ -1573,13 +1573,13 @@ namespace Flame.Clr.Analysis
                 && graph.GetValueParent(value).Tag == context.Block.Tag)
             {
                 var baseInsn = graph.GetInstruction(value);
-                if (baseInsn.Instruction.Prototype is LoadPrototype)
+                if (baseInsn.Prototype is LoadPrototype)
                 {
                     var effectfulness = graph.GetAnalysisResult<EffectfulInstructions>();
                     if (context.Block.Instructions
                         .SkipWhile(insn => insn.Tag != value)
                         .All(insn =>
-                            insn.Instruction.Prototype is LoadPrototype
+                            insn.Prototype is LoadPrototype
                             || !effectfulness.Instructions.Contains(insn)))
                     {
                         return baseInsn.Instruction.Arguments[0];
@@ -1859,7 +1859,7 @@ namespace Flame.Clr.Analysis
             ValueTag candidate = null;
             foreach (var tag in freeTemporaries)
             {
-                var proto = (AllocaPrototype)graph.GetInstruction(tag).Instruction.Prototype;
+                var proto = (AllocaPrototype)graph.GetInstruction(tag).Prototype;
                 if (proto.ElementType == elementType)
                 {
                     candidate = tag;

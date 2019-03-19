@@ -927,7 +927,7 @@ namespace FlameMacros
             //     foreach (var instruction in graph.Instructions)
             //     {
             //         prototypeMatches[instruction] = GetPrototypePatternMatches(
-            //             instruction.Instruction.Prototype);
+            //             instruction.Prototype);
             //     }
             body.Add(
                 F.Var(
@@ -951,7 +951,7 @@ namespace FlameMacros
                             F.Call(CodeSymbols.IndexBracks, F.Id("prototypeMatches"), F.Id("instruction")),
                             F.Call(
                                 F.Id("GetPrototypePatternMatches"),
-                                F.Dot("instruction", "Instruction", "Prototype"))))));
+                                F.Dot("instruction", "Prototype"))))));
 
             // Create an instance of each rewrite rule.
             var ruleInstances = new Dictionary<RewriteRule, string>();
