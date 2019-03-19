@@ -26,6 +26,7 @@ namespace Flame.Compiler.Analysis
             Register(ValueNumberingAnalysis.Instance);
             Register(DominatorTreeAnalysis.Instance);
             Register(new ConstantAnalysis<TrivialAliasAnalysisResult>(TrivialAliasAnalysisResult.Instance));
+            Register(LocalMemorySSAAnalysis.Instance);
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;
