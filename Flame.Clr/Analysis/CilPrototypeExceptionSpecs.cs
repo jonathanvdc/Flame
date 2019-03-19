@@ -47,14 +47,10 @@ namespace Flame.Clr.Analysis
             // Refine null check exception types.
             result.Register<GetFieldPointerPrototype>(
                 new NullCheckExceptionSpecification(0, nullRefException));
-            result.Register<LoadPrototype>(
-                new NullCheckExceptionSpecification(0, nullRefException));
             result.Register<NewDelegatePrototype>(
                 proto => proto.Lookup == MethodLookup.Virtual
                     ? new NullCheckExceptionSpecification(0, nullRefException)
                     : ExceptionSpecification.NoThrow);
-            result.Register<StorePrototype>(
-                new NullCheckExceptionSpecification(0, nullRefException));
             result.Register<UnboxPrototype>(
                 new NullCheckExceptionSpecification(0, nullRefException));
 

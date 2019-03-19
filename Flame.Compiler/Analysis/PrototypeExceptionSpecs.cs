@@ -157,20 +157,17 @@ namespace Flame.Compiler.Analysis
             Default.Register<CopyPrototype>(ExceptionSpecification.NoThrow);
             Default.Register<DynamicCastPrototype>(ExceptionSpecification.NoThrow);
             Default.Register<GetStaticFieldPointerPrototype>(ExceptionSpecification.NoThrow);
+            Default.Register<LoadPrototype>(ExceptionSpecification.NoThrow);
             Default.Register<ReinterpretCastPrototype>(ExceptionSpecification.NoThrow);
+            Default.Register<StorePrototype>(ExceptionSpecification.NoThrow);
 
-            // Instruction prototypes that may throw because of implicit
-            // null checks.
+            // Instruction prototypes that may throw because of implicit null checks.
             Default.Register<GetFieldPointerPrototype>(
-                new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny));
-            Default.Register<LoadPrototype>(
                 new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny));
             Default.Register<NewDelegatePrototype>(
                 proto => proto.Lookup == MethodLookup.Virtual
                     ? new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny)
                     : ExceptionSpecification.NoThrow);
-            Default.Register<StorePrototype>(
-                new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny));
             Default.Register<UnboxPrototype>(
                 new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny));
 
