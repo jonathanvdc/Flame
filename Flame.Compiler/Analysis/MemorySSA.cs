@@ -319,7 +319,7 @@ namespace Flame.Compiler.Analysis
             foreach (var block in graph.BasicBlocks)
             {
                 var state = blockStates[block];
-                foreach (var instruction in graph.Instructions)
+                foreach (var instruction in block.Instructions)
                 {
                     state = UpdateState(state, instruction);
                     insnStates[instruction] = state;
@@ -341,6 +341,10 @@ namespace Flame.Compiler.Analysis
                 var pointer = storeProto.GetPointer(instruction.Instruction);
                 var value = storeProto.GetValue(instruction.Instruction);
                 return MemorySSA.Store.WithStore(state, pointer, value, graph);
+            }
+            else if (proto is LoadPrototype)
+            {
+                return state;
             }
             else if (graph.GetAnalysisResult<EffectfulInstructions>().Instructions.Contains(instruction))
             {

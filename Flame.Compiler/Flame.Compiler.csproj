@@ -130,6 +130,7 @@
     <Compile Include="Transforms\IntraproceduralOptimization.cs" />
     <Compile Include="Transforms\JumpThreading.cs" />
     <Compile Include="Transforms\JumpToEntryRemoval.cs" />
+    <Compile Include="Transforms\MemoryAccessElimination.cs" />
     <Compile Include="Transforms\ScalarReplacement.cs" />
     <Compile Include="Transforms\SwitchLowering.cs" />
     <Compile Include="Transforms\SwitchSimplification.cs" />
