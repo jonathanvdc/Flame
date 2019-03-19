@@ -98,6 +98,7 @@ namespace Flame.Brainfuck
                     FuseMemoryAccesses.Instance,
                     DeadValueElimination.Instance,
                     MemoryAccessElimination.Instance,
+                    CopyPropagation.Instance,
                     new ConstantPropagation(),
                     DeadValueElimination.Instance));
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
 
@@ -22,8 +23,13 @@ namespace Flame.Compiler.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var memSSA = graph.GetAnalysisResult<MemorySSA>();
+            var aliasing = graph.GetAnalysisResult<AliasAnalysisResult>();
+            var effectfulness = graph.GetAnalysisResult<EffectfulInstructions>();
 
             var builder = graph.ToBuilder();
+
+            // First try and eliminate loads and stores based on their memory SSA
+            // states.
             foreach (var instruction in builder.Instructions)
             {
                 var proto = instruction.Prototype;
@@ -51,14 +57,73 @@ namespace Flame.Compiler.Transforms
                     var stateAfter = memSSA.GetMemoryAfter(instruction);
                     if (stateBefore == stateAfter)
                     {
-                        instruction.Instruction = Instruction.CreateCopy(
-                            instruction.ResultType,
-                            storeProto.GetValue(instruction.Instruction));
+                        EliminateStore(instruction);
+                    }
+                }
+            }
+
+            // Then try to coalesce stores by iterating through basic blocks.
+            foreach (var block in builder.BasicBlocks)
+            {
+                var pendingStores = new List<InstructionBuilder>();
+                foreach (var instruction in block.Instructions)
+                {
+                    var proto = instruction.Prototype;
+                    if (proto is StorePrototype)
+                    {
+                        var storeProto = (StorePrototype)proto;
+                        var pointer = storeProto.GetPointer(instruction.Instruction);
+
+                        var newPending = new List<InstructionBuilder>();
+                        foreach (var pending in pendingStores)
+                        {
+                            var pendingProto = (StorePrototype)pending.Prototype;
+                            var pendingPointer = pendingProto.GetPointer(pending.Instruction);
+                            var aliasState = aliasing.GetAliasing(pointer, pendingPointer);
+                            if (aliasState == Aliasing.MustAlias)
+                            {
+                                // Yes, do it. Delete the pending store.
+                                EliminateStore(pending);
+                            }
+                            else if (aliasState == Aliasing.NoAlias)
+                            {
+                                // We can't eliminate the pending store, but we can keep it
+                                // in the pending list.
+                                newPending.Add(pending);
+                            }
+                        }
+                        pendingStores = newPending;
+
+                        // Add this store to the list of pending stores as well.
+                        pendingStores.Add(instruction);
+                    }
+                    else if (proto is LoadPrototype || proto is CopyPrototype)
+                    {
+                        // Loads are perfectly benign. They *may* be effectful in the sense
+                        // that they can trigger a segfault and make the program blow up, but
+                        // there's no way we can catch that anyway. We'll just allow store
+                        // coalescing across load boundaries.
+                        //
+                        // We also want to test for copy instructions here because our effectfulness
+                        // analysis is slightly outdated and we may have turned loads/stores into copies.
+                    }
+                    else if (effectfulness.Instructions.Contains(instruction))
+                    {
+                        // Effectful instructions are a barrier for store coalescing.
+                        pendingStores.Clear();
                     }
                 }
             }
 
             return builder.ToImmutable();
+        }
+
+        private void EliminateStore(InstructionBuilder instruction)
+        {
+            var storeProto = (StorePrototype)instruction.Prototype;
+            instruction.Instruction = Instruction.CreateCopy(
+                instruction.ResultType,
+                storeProto.GetValue(instruction.Instruction));
         }
     }
 }
