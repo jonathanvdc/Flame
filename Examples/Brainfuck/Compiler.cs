@@ -100,6 +100,8 @@ namespace Flame.Brainfuck
                     MemoryAccessElimination.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
+                    DeadValueElimination.Instance,
+                    ReassociateOperators.Instance,
                     DeadValueElimination.Instance));
 
             if (CompilerOptions.GetValue<bool>(Options.PrintIr))

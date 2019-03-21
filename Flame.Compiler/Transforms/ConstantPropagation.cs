@@ -23,7 +23,7 @@ namespace Flame.Compiler.Transforms
         /// evaluation function.
         /// </summary>
         /// <param name="evaluate">
-        /// The evaluation function to use. It valuates an instruction that
+        /// The evaluation function to use. It evaluates an instruction that
         /// takes a list of constant arguments. It returns <c>null</c> if the
         /// instruction cannot be evaluated; otherwise, it returns the constant
         /// to which it was evaluated.
@@ -37,7 +37,7 @@ namespace Flame.Compiler.Transforms
         /// evaluation function.
         /// </summary>
         /// <param name="evaluate">
-        /// The evaluation function to use. It valuates an instruction that
+        /// The evaluation function to use. It evaluates an instruction that
         /// takes a list of constant arguments. It returns <c>null</c> if the
         /// instruction cannot be evaluated; otherwise, it returns the constant
         /// to which it was evaluated.
@@ -64,7 +64,10 @@ namespace Flame.Compiler.Transforms
         /// A list of arguments to the instruction, all of which
         /// must be constants.
         /// </param>
-        /// <returns></returns>
+        /// <returns>
+        /// <c>null</c> if the instruction cannot be evaluated; otherwise, the constant
+        /// to which the instruction evaluates.
+        /// </returns>
         public static Constant EvaluateDefault(
             InstructionPrototype prototype,
             IReadOnlyList<Constant> arguments)
