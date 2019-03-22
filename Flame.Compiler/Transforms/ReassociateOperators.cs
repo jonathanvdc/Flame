@@ -24,24 +24,77 @@ namespace Flame.Compiler.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var builder = graph.ToBuilder();
+
+            foreach (var block in builder.BasicBlocks)
+            {
+                var instruction = block.Instructions.FirstOrDefault();
+                while (instruction != null)
+                {
+                    ReassociateNonAssociative(instruction);
+                    instruction = instruction.NextInstructionOrNull;
+                }
+            }
+
             foreach (var block in builder.BasicBlocks)
             {
                 var instruction = block.Instructions.LastOrDefault();
                 while (instruction != null)
                 {
-                    TryReassociate(instruction);
+                    ReassociateReduction(instruction);
                     instruction = instruction.PreviousInstructionOrNull;
                 }
             }
+
             return builder.ToImmutable();
         }
 
-        private static bool TryReassociate(InstructionBuilder instruction)
+        private static void ReassociateNonAssociative(InstructionBuilder instruction)
+        {
+            // Look for instructions that compute an expression that looks
+            // like so: `(a op1 b) op1 c` and replace it with `a op1 (b op2 c)`,
+            // where `op2` is some (associative) operator such that the transformation
+            // is semantics-preserving, e.g., op1 == (-) and op2 == (+) for integers.
+            //
+            // Here's why this transformation is useful: consider the following
+            // expression: `(((x - 1) - 1) - 1) - 1`. It is clear that this can be
+            // optimized to `x - 4`, but it's not super easy to see how: the reduction-
+            // based reassociation doesn't apply to nonassociative operators. However,
+            // by rewriting the expression as `x - (1 + 1 + 1 + 1)`, we can apply
+            // reduction-based reassocation to the RHS.
+
+            var proto = instruction.Prototype as IntrinsicPrototype;
+            IntrinsicPrototype rightPrototype;
+            if (proto == null || !IsLeftToRightReassociable(proto, out rightPrototype))
+            {
+                return;
+            }
+
+            InstructionBuilder left;
+            if (instruction.Graph.TryGetInstruction(instruction.Instruction.Arguments[0], out left)
+                && left.Prototype == proto)
+            {
+                var uses = instruction.Graph.GetAnalysisResult<ValueUses>();
+                if (uses.GetUseCount(left) == 1)
+                {
+                    var right = instruction.InsertBefore(
+                        rightPrototype.Instantiate(
+                            new[]
+                            {
+                                left.Instruction.Arguments[1],
+                                instruction.Instruction.Arguments[1]
+                            }));
+                    instruction.Instruction = proto.Instantiate(new[] { left.Instruction.Arguments[0], right });
+                    instruction.Graph.RemoveInstruction(left);
+                }
+            }
+        }
+
+        private static void ReassociateReduction(InstructionBuilder instruction)
         {
             var proto = instruction.Prototype as IntrinsicPrototype;
             if (proto == null)
             {
-                return false;
+                return;
             }
 
             if (IsAssociative(proto))
@@ -56,14 +109,13 @@ namespace Flame.Compiler.Transforms
                     reductionOps,
                     uses,
                     instruction.Graph.ToImmutable());
+
                 if (TrySimplifyReduction(ref reductionArgs, proto, instruction))
                 {
                     MaterializeReduction(reductionArgs, proto, instruction);
                     instruction.Graph.RemoveInstructionDefinitions(reductionOps);
-                    return true;
                 }
             }
-            return false;
         }
 
         private static void ToReductionList(
@@ -101,10 +153,11 @@ namespace Flame.Compiler.Transforms
         {
             foreach (var arg in arguments)
             {
-                if (graph.ContainsInstruction(arg))
+                SelectedInstruction insn;
+                if (graph.TryGetInstruction(arg, out insn))
                 {
                     ToReductionList(
-                        graph.GetInstruction(arg),
+                        insn,
                         prototype,
                         reductionArgs,
                         reductionOps,
@@ -124,9 +177,8 @@ namespace Flame.Compiler.Transforms
         {
             bool changed = false;
             var newArgs = new List<ValueTag>();
-            for (int i = 0; i < args.Count; i++)
+            foreach (var operand in args)
             {
-                var operand = args[i];
                 if (newArgs.Count > 0)
                 {
                     var prevOperand = newArgs[newArgs.Count - 1];
@@ -157,27 +209,37 @@ namespace Flame.Compiler.Transforms
             InstructionBuilder insertionPoint)
         {
             var graph = insertionPoint.Graph;
-            if (graph.ContainsInstruction(first) && graph.ContainsInstruction(second))
+            Constant firstConstant;
+            Constant secondConstant;
+            if (IsConstant(first, insertionPoint.Graph.ToImmutable(), out firstConstant)
+                && IsConstant(second, insertionPoint.Graph.ToImmutable(), out secondConstant))
             {
-                var firstInsn = graph.GetInstruction(first);
-                var secondInsn = graph.GetInstruction(second);
-                if (firstInsn.Prototype is ConstantPrototype
-                    && secondInsn.Prototype is ConstantPrototype
-                    && firstInsn.ResultType == secondInsn.ResultType)
+                var newConstant = ConstantPropagation.EvaluateDefault(
+                    prototype,
+                    new[] { firstConstant, secondConstant });
+                if (newConstant != null)
                 {
-                    var firstConstant = (ConstantPrototype)firstInsn.Prototype;
-                    var secondConstant = (ConstantPrototype)secondInsn.Prototype;
-                    var newConstant = ConstantPropagation.EvaluateDefault(
-                        prototype,
-                        new[] { firstConstant.Value, secondConstant.Value });
-                    if (newConstant != null)
-                    {
-                        return insertionPoint.InsertBefore(
-                            Instruction.CreateConstant(newConstant, prototype.ResultType));
-                    }
+                    return insertionPoint.InsertBefore(
+                        Instruction.CreateConstant(newConstant, prototype.ResultType));
                 }
             }
             return null;
+        }
+
+        private static bool IsConstant(ValueTag tag, FlowGraph graph, out Constant constant)
+        {
+            SelectedInstruction instruction;
+            if (graph.TryGetInstruction(tag, out instruction)
+                && instruction.Prototype is ConstantPrototype)
+            {
+                constant = ((ConstantPrototype)instruction.Prototype).Value;;
+                return true;
+            }
+            else
+            {
+                constant = null;
+                return false;
+            }
         }
 
         private static void MaterializeReduction(
@@ -185,6 +247,12 @@ namespace Flame.Compiler.Transforms
             InstructionPrototype prototype,
             InstructionBuilder result)
         {
+            if (args.Count == 1)
+            {
+                result.Instruction = Instruction.CreateCopy(result.ResultType, args[0]);
+                return;
+            }
+
             var accumulator = args[0];
             for (int i = 1; i < args.Count - 1; i++)
             {
@@ -208,6 +276,31 @@ namespace Flame.Compiler.Transforms
             }
         }
 
+        private static bool IsLeftToRightReassociable(
+            IntrinsicPrototype prototype,
+            out IntrinsicPrototype rightPrototype)
+        {
+            string op;
+            string rightOp;
+            if (ArithmeticIntrinsics.Namespace.TryParseIntrinsicName(prototype.Name, out op)
+                && intArithLeftToRight.TryGetValue(op, out rightOp)
+                && prototype.ParameterTypes.All(x => x.IsIntegerType()))
+            {
+                rightPrototype = IntrinsicPrototype.Create(
+                    ArithmeticIntrinsics.Namespace.GetIntrinsicName(rightOp),
+                    prototype.ResultType,
+                    prototype.ParameterTypes);
+                return true;
+            }
+            else
+            {
+                rightPrototype = null;
+                return false;
+            }
+        }
+
+        // A set of integer arithmetic operators `op` for which
+        // `(a op b) op c == a op (b op c)` holds.
         private static readonly HashSet<string> assocIntArith =
             new HashSet<string>()
         {
@@ -216,6 +309,15 @@ namespace Flame.Compiler.Transforms
             ArithmeticIntrinsics.Operators.And,
             ArithmeticIntrinsics.Operators.Or,
             ArithmeticIntrinsics.Operators.Xor
+        };
+
+        // A set of `(op1, op2)` pairs for which `(a op1 b) op1 c == a op1 (b op2 c)` holds,
+        // where both `op1` and `op2` are integer arithmetic operators.
+        private static readonly Dictionary<string, string> intArithLeftToRight =
+            new Dictionary<string, string>()
+        {
+            { ArithmeticIntrinsics.Operators.Subtract, ArithmeticIntrinsics.Operators.Add },
+            { ArithmeticIntrinsics.Operators.Divide, ArithmeticIntrinsics.Operators.Multiply }
         };
     }
 }
