@@ -916,10 +916,7 @@ namespace Flame.Clr.Emit
                         new CilCodegenInstruction[]
                         {
                             new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                            new CilOpInstruction(
-                                CilInstruction.Create(
-                                    OpCodes.Stobj,
-                                    Method.Module.ImportReference(storeProto.ResultType)))
+                            new CilOpInstruction(EmitStoreAddress(storeProto.ResultType))
                         },
                         new[] { pointer, value });
                 }
@@ -1066,6 +1063,41 @@ namespace Flame.Clr.Emit
             // Default implementation: emit a `ldobj` opcode.
             return CilInstruction.Create(
                 OpCodes.Ldobj,
+                Method.Module.ImportReference(elementType));
+        }
+
+        /// <summary>
+        /// Creates a CIL instruction that stores a value at an address.
+        /// </summary>
+        /// <param name="elementType">The type of value to store.</param>
+        /// <returns>A CIL instruction.</returns>
+        private CilInstruction EmitStoreAddress(IType elementType)
+        {
+            // If at all possible, use `stind.*` instead of `stobj`. The former
+            // category of opcodes has a more compact representation.
+            var intSpec = elementType.GetIntegerSpecOrNull();
+            OpCode shortcutOp;
+            if (intSpec != null && integerStIndOps.TryGetValue(intSpec, out shortcutOp))
+            {
+                return CilInstruction.Create(shortcutOp);
+            }
+            else if (elementType == TypeEnvironment.Float32)
+            {
+                return CilInstruction.Create(OpCodes.Stind_R4);
+            }
+            else if (elementType == TypeEnvironment.Float64)
+            {
+                return CilInstruction.Create(OpCodes.Stind_R8);
+            }
+            else if (elementType is TypeSystem.PointerType
+                && ((TypeSystem.PointerType)elementType).Kind == PointerKind.Box)
+            {
+                return CilInstruction.Create(OpCodes.Stind_Ref);
+            }
+
+            // Default implementation: emit a `stobj` opcode.
+            return CilInstruction.Create(
+                OpCodes.Stobj,
                 Method.Module.ImportReference(elementType));
         }
 
@@ -1563,6 +1595,19 @@ namespace Flame.Clr.Emit
             { IntegerSpec.UInt16, OpCodes.Ldind_U2 },
             { IntegerSpec.UInt32, OpCodes.Ldind_U4 },
             { IntegerSpec.UInt64, OpCodes.Ldind_I8 }
+        };
+
+        private static Dictionary<IntegerSpec, OpCode> integerStIndOps =
+            new Dictionary<IntegerSpec, OpCode>()
+        {
+            { IntegerSpec.Int8, OpCodes.Stind_I1 },
+            { IntegerSpec.Int16, OpCodes.Stind_I2 },
+            { IntegerSpec.Int32, OpCodes.Stind_I4 },
+            { IntegerSpec.Int64, OpCodes.Stind_I8 },
+            { IntegerSpec.UInt8, OpCodes.Stind_I1 },
+            { IntegerSpec.UInt16, OpCodes.Stind_I2 },
+            { IntegerSpec.UInt32, OpCodes.Stind_I4 },
+            { IntegerSpec.UInt64, OpCodes.Stind_I8 }
         };
 
         /// <summary>
