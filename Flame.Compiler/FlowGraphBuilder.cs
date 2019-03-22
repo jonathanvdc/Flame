@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Analysis;
@@ -295,7 +296,39 @@ namespace Flame.Compiler
         /// <returns>A selected instruction.</returns>
         public InstructionBuilder GetInstruction(ValueTag tag)
         {
-            return new InstructionBuilder(this, tag);
+            InstructionBuilder result;
+            if (TryGetInstruction(tag, out result))
+            {
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Flow graph does not define an instruction with tag '{tag}'.");
+            }
+        }
+
+        /// <summary>
+        /// Tries to get an instruction with a particular tag, if it exists in this
+        /// control-flow graph.
+        /// </summary>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <param name="result">
+        /// The selected instruction, if it exists in this control-flow graph.
+        /// </param>
+        /// <returns><c>true</c> if the instruction exists; otherwise, <c>false</c>.</returns>
+        public bool TryGetInstruction(ValueTag tag, out InstructionBuilder result)
+        {
+            if (ContainsInstruction(tag))
+            {
+                result = new InstructionBuilder(this, tag);
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
         }
 
         /// <summary>

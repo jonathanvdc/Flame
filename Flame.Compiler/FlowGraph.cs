@@ -304,6 +304,30 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Tries to get an instruction with a particular tag, if it exists in this
+        /// control-flow graph.
+        /// </summary>
+        /// <param name="tag">The instruction's tag.</param>
+        /// <param name="result">
+        /// The selected instruction, if it exists in this control-flow graph.
+        /// </param>
+        /// <returns><c>true</c> if the instruction exists; otherwise, <c>false</c>.</returns>
+        public bool TryGetInstruction(ValueTag tag, out SelectedInstruction result)
+        {
+            Instruction insn;
+            if (instructions.TryGetValue(tag, out insn))
+            {
+                result = new SelectedInstruction(GetValueParent(tag), tag, insn);
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Checks if this control-flow graph contains a basic block
         /// with a particular tag.
         /// </summary>
