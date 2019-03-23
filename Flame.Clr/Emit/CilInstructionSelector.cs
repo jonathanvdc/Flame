@@ -1485,11 +1485,22 @@ namespace Flame.Clr.Emit
                         }
                     }
 
-                    return CreateSelection(
-                        CilInstruction.Create(
-                            OpCodes.Ldelem_Any,
-                            Method.Module.ImportReference(prototype.ResultType)),
-                        arguments);
+                    var intSpec = prototype.ResultType.GetIntegerSpecOrNull();
+                    OpCode ldelemOpCode;
+                    if (intSpec != null && integerLdelemOps.TryGetValue(intSpec, out ldelemOpCode))
+                    {
+                        return CreateSelection(
+                            CilInstruction.Create(ldelemOpCode),
+                            arguments);
+                    }
+                    else
+                    {
+                        return CreateSelection(
+                            CilInstruction.Create(
+                                OpCodes.Ldelem_Any,
+                                Method.Module.ImportReference(prototype.ResultType)),
+                            arguments);
+                    }
                 }
                 else if (opName == ArrayIntrinsics.Operators.StoreElement
                     && prototype.ParameterCount == 3)
@@ -1511,9 +1522,18 @@ namespace Flame.Clr.Emit
 
                     if (storeInstruction == null)
                     {
-                        storeInstruction = CilInstruction.Create(
-                            OpCodes.Stelem_Any,
-                            Method.Module.ImportReference(elementType));
+                        var intSpec = prototype.ResultType.GetIntegerSpecOrNull();
+                        OpCode stelemOpCode;
+                        if (intSpec != null && integerStelemOps.TryGetValue(intSpec, out stelemOpCode))
+                        {
+                            storeInstruction = CilInstruction.Create(stelemOpCode);
+                        }
+                        else
+                        {
+                            storeInstruction = CilInstruction.Create(
+                                OpCodes.Stelem_Any,
+                                Method.Module.ImportReference(elementType));
+                        }
                     }
 
                     return SelectedInstructions.Create<CilCodegenInstruction>(
@@ -1608,6 +1628,32 @@ namespace Flame.Clr.Emit
             { IntegerSpec.UInt16, OpCodes.Stind_I2 },
             { IntegerSpec.UInt32, OpCodes.Stind_I4 },
             { IntegerSpec.UInt64, OpCodes.Stind_I8 }
+        };
+
+        private static Dictionary<IntegerSpec, OpCode> integerLdelemOps =
+            new Dictionary<IntegerSpec, OpCode>()
+        {
+            { IntegerSpec.Int8, OpCodes.Ldelem_I1 },
+            { IntegerSpec.Int16, OpCodes.Ldelem_I2 },
+            { IntegerSpec.Int32, OpCodes.Ldelem_I4 },
+            { IntegerSpec.Int64, OpCodes.Ldelem_I8 },
+            { IntegerSpec.UInt8, OpCodes.Ldelem_U1 },
+            { IntegerSpec.UInt16, OpCodes.Ldelem_U2 },
+            { IntegerSpec.UInt32, OpCodes.Ldelem_U4 },
+            { IntegerSpec.UInt64, OpCodes.Ldelem_I8 }
+        };
+
+        private static Dictionary<IntegerSpec, OpCode> integerStelemOps =
+            new Dictionary<IntegerSpec, OpCode>()
+        {
+            { IntegerSpec.Int8, OpCodes.Stelem_I1 },
+            { IntegerSpec.Int16, OpCodes.Stelem_I2 },
+            { IntegerSpec.Int32, OpCodes.Stelem_I4 },
+            { IntegerSpec.Int64, OpCodes.Stelem_I8 },
+            { IntegerSpec.UInt8, OpCodes.Stelem_I1 },
+            { IntegerSpec.UInt16, OpCodes.Stelem_I2 },
+            { IntegerSpec.UInt32, OpCodes.Stelem_I4 },
+            { IntegerSpec.UInt64, OpCodes.Stelem_I8 }
         };
 
         /// <summary>
