@@ -95,14 +95,14 @@ namespace Flame.Brainfuck
                     GlobalValueNumbering.Instance,
                     CopyPropagation.Instance,
                     InstructionSimplification.Instance,
-                    FuseMemoryAccesses.Instance,
                     DeadValueElimination.Instance,
                     MemoryAccessElimination.Instance,
                     CopyPropagation.Instance,
                     new ConstantPropagation(),
                     DeadValueElimination.Instance,
                     ReassociateOperators.Instance,
-                    DeadValueElimination.Instance));
+                    DeadValueElimination.Instance,
+                    FuseMemoryAccesses.Instance));
 
             if (CompilerOptions.GetValue<bool>(Options.PrintIr))
             {
