@@ -81,6 +81,14 @@ namespace Flame.Compiler.Transforms
                     var operandType = graph.GetValueType(operand);
                     var convType = proto.ResultType;
                     var operandSpec = operandType.GetIntegerSpecOrNull();
+
+                    if (operandSpec == null)
+                    {
+                        // The operand of the conversion intrinsic is not an
+                        // integer.
+                        return flow;
+                    }
+
                     var convSpec = convType.GetIntegerSpecOrNull();
 
                     if (operandSpec.Size > convSpec.Size)
