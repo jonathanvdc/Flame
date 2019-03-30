@@ -844,10 +844,28 @@ namespace Flame.Clr.Analysis
                                     (Mono.Cecil.TypeReference)instruction.Operand)),
                             TypeEnvironment.TypeToken));
                 }
+                else if (instruction.Operand is Mono.Cecil.FieldReference)
+                {
+                    context.Push(
+                        Instruction.CreateConstant(
+                            new FieldTokenConstant(
+                                Assembly.Resolve(
+                                    (Mono.Cecil.FieldReference)instruction.Operand)),
+                            TypeEnvironment.FieldToken));
+                }
+                else if (instruction.Operand is Mono.Cecil.MethodReference)
+                {
+                    context.Push(
+                        Instruction.CreateConstant(
+                            new MethodTokenConstant(
+                                Assembly.Resolve(
+                                    (Mono.Cecil.MethodReference)instruction.Operand)),
+                            TypeEnvironment.MethodToken));
+                }
                 else
                 {
                     throw new NotImplementedException(
-                        $"the ldtoken opcode analyzer does not support methods and fields yet; offending instruction: {instruction}");
+                        $"Instruction '{instruction}' should have a type, field or method reference operand, but doesn't.");
                 }
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)

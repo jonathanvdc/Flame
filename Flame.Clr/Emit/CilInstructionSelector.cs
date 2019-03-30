@@ -1870,6 +1870,16 @@ namespace Flame.Clr.Emit
                 var tconst = (TypeTokenConstant)constant;
                 return new[] { CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(tconst.Type)) };
             }
+            else if (constant is FieldTokenConstant)
+            {
+                var fconst = (FieldTokenConstant)constant;
+                return new[] { CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(fconst.Field)) };
+            }
+            else if (constant is MethodTokenConstant)
+            {
+                var mconst = (MethodTokenConstant)constant;
+                return new[] { CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(mconst.Method)) };
+            }
             else if (constant is DefaultConstant)
             {
                 if (type == TypeEnvironment.NaturalInt)
