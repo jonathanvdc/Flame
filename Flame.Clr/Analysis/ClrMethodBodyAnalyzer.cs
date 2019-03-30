@@ -638,6 +638,11 @@ namespace Flame.Clr.Analysis
                 {
                     falseConstant = NullConstant.Instance;
                 }
+                else if (conditionType == TypeEnvironment.NaturalInt
+                    || conditionType == TypeEnvironment.NaturalUInt)
+                {
+                    falseConstant = DefaultConstant.Instance;
+                }
                 else
                 {
                     throw new InvalidProgramException("Cannot branch on a non-pointer, non-integer type.");
