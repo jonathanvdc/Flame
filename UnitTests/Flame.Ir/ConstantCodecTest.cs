@@ -90,6 +90,30 @@ namespace UnitTests.Flame.Ir
             }
         }
 
+        [Test]
+        public void RoundTripFieldToken()
+        {
+            foreach (var type in testAssembly.Assembly.Types)
+            {
+                foreach (var field in type.Fields)
+                {
+                    AssertRoundTrip(new FieldTokenConstant(field));
+                }
+            }
+        }
+
+        [Test]
+        public void RoundTripMethodToken()
+        {
+            foreach (var type in testAssembly.Assembly.Types)
+            {
+                foreach (var method in type.Methods)
+                {
+                    AssertRoundTrip(new MethodTokenConstant(method));
+                }
+            }
+        }
+
         private void AssertRoundTrip(Constant constant, bool alsoUseLes = true)
         {
             AssertRoundTrip<Constant, LNode>(

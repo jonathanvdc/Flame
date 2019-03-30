@@ -131,6 +131,18 @@ namespace Flame.TypeSystem
         public abstract IType TypeToken { get; }
 
         /// <summary>
+        /// Gets the canonical type of a field token in this environment, if there is such a type.
+        /// </summary>
+        /// <value>The field token type.</value>
+        public abstract IType FieldToken { get; }
+
+        /// <summary>
+        /// Gets the canonical type of a method token in this environment, if there is such a type.
+        /// </summary>
+        /// <value>The method token type.</value>
+        public abstract IType MethodToken { get; }
+
+        /// <summary>
         /// Gets the canonical type of a captured exception in this environment.
         /// </summary>
         /// <value>The captured exception type.</value>
@@ -340,6 +352,12 @@ namespace Flame.TypeSystem
 
         /// <inheritdoc/>
         public override IType TypeToken => InnerEnvironment.TypeToken;
+
+        /// <inheritdoc/>
+        public override IType FieldToken => InnerEnvironment.FieldToken;
+
+        /// <inheritdoc/>
+        public override IType MethodToken => InnerEnvironment.MethodToken;
 
         /// <inheritdoc/>
         public override IType CapturedException => InnerEnvironment.CapturedException;

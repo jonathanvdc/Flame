@@ -22,6 +22,9 @@ namespace Flame.Ir
         public static readonly ConstantCodec Instance =
             new ConstantCodec();
 
+        private static readonly Symbol fieldofSymbol = GSymbol.Get("#fieldof");
+        private static readonly Symbol methodofSymbol = GSymbol.Get("#methodof");
+
         /// <summary>
         /// Encodes a constant value.
         /// </summary>
@@ -89,6 +92,14 @@ namespace Flame.Ir
             {
                 return state.Factory.Call(CodeSymbols.Typeof, state.Encode(((TypeTokenConstant)value).Type));
             }
+            else if (value is FieldTokenConstant)
+            {
+                return state.Factory.Call(fieldofSymbol, state.Encode(((FieldTokenConstant)value).Field));
+            }
+            else if (value is MethodTokenConstant)
+            {
+                return state.Factory.Call(methodofSymbol, state.Encode(((MethodTokenConstant)value).Method));
+            }
 
             throw new NotSupportedException(
                 "Cannot encode unknown kind of literal '" + value.ToString() + "'.");
@@ -108,10 +119,18 @@ namespace Flame.Ir
                 return DefaultConstant.Instance;
             }
 
-            // Type token constants.
+            // Type/field/method token constants.
             if (node.Calls(CodeSymbols.Typeof, 1))
             {
                 return new TypeTokenConstant(state.DecodeType(node.Args[0]));
+            }
+            else if (node.Calls(fieldofSymbol, 1))
+            {
+                return new FieldTokenConstant(state.DecodeField(node.Args[0]));
+            }
+            else if (node.Calls(methodofSymbol, 1))
+            {
+                return new MethodTokenConstant(state.DecodeMethod(node.Args[0]));
             }
 
             if (!FeedbackHelpers.AssertIsLiteral(node, state.Log))

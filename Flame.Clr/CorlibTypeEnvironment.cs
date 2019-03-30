@@ -48,6 +48,8 @@ namespace Flame.Clr
             this.uintPtrType = new Lazy<IType>(() => ResolveSystemType(nameof(UIntPtr)));
             this.objectType = new Lazy<IType>(() => ResolveSystemType(nameof(Object)));
             this.typeTokenType = new Lazy<IType>(() => ResolveSystemType(nameof(RuntimeTypeHandle)));
+            this.fieldTokenType = new Lazy<IType>(() => ResolveSystemType(nameof(RuntimeFieldHandle)));
+            this.methodTokenType = new Lazy<IType>(() => ResolveSystemType(nameof(RuntimeMethodHandle)));
             this.capturedExceptionType = new Lazy<IType>(
                 () => CorlibTypeResolver.ResolveTypes(
                     new SimpleName("ExceptionDispatchInfo")
@@ -95,6 +97,12 @@ namespace Flame.Clr
         public override IType TypeToken => typeTokenType.Value;
 
         /// <inheritdoc/>
+        public override IType FieldToken => fieldTokenType.Value;
+
+        /// <inheritdoc/>
+        public override IType MethodToken => methodTokenType.Value;
+
+        /// <inheritdoc/>
         public override IType CapturedException => capturedExceptionType.Value;
 
         private InterningCache<ClrArrayType> arrayTypeCache;
@@ -110,6 +118,8 @@ namespace Flame.Clr
         private Lazy<IType> uintPtrType;
         private Lazy<IType> objectType;
         private Lazy<IType> typeTokenType;
+        private Lazy<IType> fieldTokenType;
+        private Lazy<IType> methodTokenType;
         private Lazy<IType> capturedExceptionType;
 
         /// <inheritdoc/>

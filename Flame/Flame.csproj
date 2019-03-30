@@ -69,10 +69,12 @@
     <Compile Include="Collections\WeakCache.cs" />
     <Compile Include="Constants\BooleanConstant.cs" />
     <Compile Include="Constants\DefaultConstant.cs" />
+    <Compile Include="Constants\FieldTokenConstant.cs" />
     <Compile Include="Constants\Float32Constant.cs" />
     <Compile Include="Constants\Float64Constant.cs" />
     <Compile Include="Constants\IntegerConstant.cs" />
     <Compile Include="Constants\IntegerSpec.cs" />
+    <Compile Include="Constants\MethodTokenConstant.cs" />
     <Compile Include="Constants\NullConstant.cs" />
     <Compile Include="Constants\StringConstant.cs" />
     <Compile Include="Constants\TypeTokenConstant.cs" />
