@@ -127,7 +127,9 @@ namespace Flame.Clr.Emit
             ElideLdlocStloc,
             DupUsePopToUse,
             LdcZeroBeqToBrfalse,
+            LdcZeroConvBeqToBrfalse,
             LdcZeroBneToBrtrue,
+            LdcZeroConvBneToBrtrue,
             LdnullBeqToBrfalse,
             LdnullBneToBrtrue,
             CltBrfalseToBge,
@@ -240,6 +242,29 @@ namespace Flame.Clr.Emit
         }
 
         /// <summary>
+        /// A rewrite use that transforms the `ldc.* 0; conv.*; beq target` pattern to `brfalse target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdcZeroConvBeqToBrfalse
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        IsZeroConstant,
+                        HasOpCode(
+                            OpCodes.Conv_I, OpCodes.Conv_I1, OpCodes.Conv_I2, OpCodes.Conv_I4, OpCodes.Conv_I8,
+                            OpCodes.Conv_U, OpCodes.Conv_U1, OpCodes.Conv_U2, OpCodes.Conv_U4, OpCodes.Conv_U8),
+                        HasOpCode(OpCodes.Beq)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brfalse, (Instruction)insns[2].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
         /// A rewrite use that transforms the `ldc.* 0; bne.un target` pattern to `brtrue target`.
         /// </summary>
         private static PeepholeRewriteRule<Instruction> LdcZeroBneToBrtrue
@@ -255,6 +280,29 @@ namespace Flame.Clr.Emit
                     insns => new[]
                     {
                         Instruction.Create(OpCodes.Brtrue, (Instruction)insns[1].Operand)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// A rewrite use that transforms the `ldc.* 0; conv.*; bne.un target` pattern to `brtrue target`.
+        /// </summary>
+        private static PeepholeRewriteRule<Instruction> LdcZeroConvBneToBrtrue
+        {
+            get
+            {
+                return new PeepholeRewriteRule<Instruction>(
+                    new Predicate<Instruction>[]
+                    {
+                        IsZeroConstant,
+                        HasOpCode(
+                            OpCodes.Conv_I, OpCodes.Conv_I1, OpCodes.Conv_I2, OpCodes.Conv_I4, OpCodes.Conv_I8,
+                            OpCodes.Conv_U, OpCodes.Conv_U1, OpCodes.Conv_U2, OpCodes.Conv_U4, OpCodes.Conv_U8),
+                        HasOpCode(OpCodes.Bne_Un)
+                    },
+                    insns => new[]
+                    {
+                        Instruction.Create(OpCodes.Brtrue, (Instruction)insns[2].Operand)
                     });
             }
         }
