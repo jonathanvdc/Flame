@@ -466,7 +466,9 @@ namespace Flame.Clr.Emit
                 var elseTarget = switchFlow.DefaultBranch.Target;
 
                 // Emit equality test.
-                instructions.Add(new CilOpInstruction(CreatePushConstant(ifValue)));
+                instructions.AddRange(
+                    CreatePushConstant(ifValue, switchFlow.SwitchValue.ResultType)
+                    .Select(insn => new CilOpInstruction(insn)));
                 instructions.Add(
                     hasArgs
                     ? CreateBranchInstruction(OpCodes.Bne_Un, elseTarget)
@@ -537,7 +539,9 @@ namespace Flame.Clr.Emit
                 // Tweak the value being switched on if necessary.
                 if (!minValue.IsZero)
                 {
-                    instructions.Add(new CilOpInstruction(CreatePushConstant(minValue)));
+                    instructions.AddRange(
+                        CreatePushConstant(minValue, switchFlow.SwitchValue.ResultType)
+                        .Select(insn => new CilOpInstruction(insn)));
                     instructions.Add(new CilOpInstruction(OpCodes.Sub));
                 }
 
@@ -721,8 +725,11 @@ namespace Flame.Clr.Emit
                 }
                 else
                 {
-                    return CreateSelection(
-                        CreatePushConstant(((ConstantPrototype)proto).Value));
+                    return new SelectedInstructions<CilCodegenInstruction>(
+                        CreatePushConstant(((ConstantPrototype)proto).Value, instruction.ResultType)
+                            .Select<CilInstruction, CilCodegenInstruction>(insn => new CilOpInstruction(insn))
+                            .ToArray(),
+                        EmptyArray<ValueTag>.Value);
                 }
             }
             else if (proto is CopyPrototype)
@@ -1164,12 +1171,14 @@ namespace Flame.Clr.Emit
                             var allOnesConst = new IntegerConstant(
                                 allOnes,
                                 intSpec.UnsignedVariant);
+
+                            var instructions = CreatePushConstant(allOnesConst, paramType)
+                                .Select(insn => new CilOpInstruction(insn))
+                                .Concat(new[] { new CilOpInstruction(OpCodes.Xor) })
+                                .ToArray();
+
                             return SelectedInstructions.Create<CilCodegenInstruction>(
-                                new[]
-                                {
-                                    new CilOpInstruction(CreatePushConstant(allOnesConst)),
-                                    new CilOpInstruction(OpCodes.Xor)
-                                },
+                                instructions,
                                 arguments);
                         }
                     }
@@ -1815,19 +1824,20 @@ namespace Flame.Clr.Emit
             return blockInstructionList;
         }
 
-        private CilInstruction CreatePushConstant(
-            Constant constant)
+        private IReadOnlyList<CilInstruction> CreatePushConstant(
+            Constant constant,
+            IType type)
         {
             if (constant is IntegerConstant)
             {
                 var iconst = (IntegerConstant)constant;
                 if (iconst.Spec.Size <= 32)
                 {
-                    return CilInstruction.Create(OpCodes.Ldc_I4, iconst.ToInt32());
+                    return new[] { CilInstruction.Create(OpCodes.Ldc_I4, iconst.ToInt32()) };
                 }
                 else if (iconst.Spec.Size <= 64)
                 {
-                    return CilInstruction.Create(OpCodes.Ldc_I8, iconst.ToInt64());
+                    return new[] { CilInstruction.Create(OpCodes.Ldc_I8, iconst.ToInt64()) };
                 }
                 else
                 {
@@ -1838,27 +1848,56 @@ namespace Flame.Clr.Emit
             }
             else if (constant is NullConstant)
             {
-                return CilInstruction.Create(OpCodes.Ldnull);
+                return new[] { CilInstruction.Create(OpCodes.Ldnull) };
             }
             else if (constant is Float32Constant)
             {
                 var fconst = (Float32Constant)constant;
-                return CilInstruction.Create(OpCodes.Ldc_R4, fconst.Value);
+                return new[] { CilInstruction.Create(OpCodes.Ldc_R4, fconst.Value) };
             }
             else if (constant is Float64Constant)
             {
                 var fconst = (Float64Constant)constant;
-                return CilInstruction.Create(OpCodes.Ldc_R8, fconst.Value);
+                return new[] { CilInstruction.Create(OpCodes.Ldc_R8, fconst.Value) };
             }
             else if (constant is StringConstant)
             {
                 var sconst = (StringConstant)constant;
-                return CilInstruction.Create(OpCodes.Ldstr, sconst.Value);
+                return new[] { CilInstruction.Create(OpCodes.Ldstr, sconst.Value) };
             }
             else if (constant is TypeTokenConstant)
             {
                 var tconst = (TypeTokenConstant)constant;
-                return CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(tconst.Type));
+                return new[] { CilInstruction.Create(OpCodes.Ldtoken, Method.Module.ImportReference(tconst.Type)) };
+            }
+            else if (constant is DefaultConstant)
+            {
+                if (type == TypeEnvironment.NaturalInt)
+                {
+                    return new[]
+                    {
+                        CilInstruction.Create(OpCodes.Ldc_I4_0),
+                        CilInstruction.Create(OpCodes.Conv_I)
+                    };
+                }
+                else if (type == TypeEnvironment.NaturalUInt)
+                {
+                    return new[]
+                    {
+                        CilInstruction.Create(OpCodes.Ldc_I4_0),
+                        CilInstruction.Create(OpCodes.Conv_U)
+                    };
+                }
+
+                var temp = AllocateTemporary(type);
+                var results = new[]
+                {
+                    CilInstruction.Create(OpCodes.Ldloca, temp),
+                    CilInstruction.Create(OpCodes.Initobj, Method.Module.ImportReference(type)),
+                    CilInstruction.Create(OpCodes.Ldloc, temp)
+                };
+                ReleaseTemporary(temp);
+                return results;
             }
             else
             {
