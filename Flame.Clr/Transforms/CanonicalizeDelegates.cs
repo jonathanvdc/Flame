@@ -88,7 +88,9 @@ namespace Flame.Clr.Transforms
                                 hasThisParameter
                                     ? ConvertThisArgument(
                                         boundObject,
-                                        callee.Parameters[0].Type,
+                                        callee.IsStatic
+                                            ? callee.Parameters[0].Type
+                                            : TypeHelpers.BoxIfReferenceType(callee.ParentType),
                                         instruction)
                                     : null,
                                 MethodLookup.Static);
