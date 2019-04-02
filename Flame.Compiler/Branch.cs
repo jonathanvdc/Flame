@@ -147,6 +147,25 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a new branch by applying a mapping to every value in
+        /// this branch's argument list.
+        /// </summary>
+        /// <param name="mapping">
+        /// The mapping to apply to every value in this branch's
+        /// argument list.
+        /// </param>
+        /// <returns>A new branch.</returns>
+        public Branch MapArguments(Func<ValueTag, ValueTag> mapping)
+        {
+            return WithArguments(
+                Arguments.EagerSelect(
+                    arg =>
+                        arg.IsValue
+                        ? BranchArgument.FromValue(mapping(arg.ValueOrNull))
+                        : arg));
+        }
+
+        /// <summary>
         /// Tests if this branch equals another branch.
         /// </summary>
         /// <param name="other">The branch to compare with.</param>

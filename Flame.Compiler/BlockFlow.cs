@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 
 namespace Flame.Compiler
 {
@@ -45,6 +47,86 @@ namespace Flame.Compiler
             {
                 return Branches.Select(branch => branch.Target);
             }
+        }
+
+        /// <summary>
+        /// Applies a mapping to all values referenced by instructions
+        /// and branches in this block flow.
+        /// </summary>
+        /// <param name="mapping">A value-to-value mapping to apply.</param>
+        /// <returns>A block flow.</returns>
+        public BlockFlow MapValues(
+            Func<ValueTag, ValueTag> mapping)
+        {
+            return this
+                .WithInstructions(
+                    Instructions.EagerSelect(insn => insn.MapArguments(mapping)))
+                .WithBranches(
+                    Branches.EagerSelect(branch => branch.MapArguments(mapping)));
+        }
+
+        /// <summary>
+        /// Applies a mapping to all values referenced by instructions
+        /// and branches in this block flow.
+        /// </summary>
+        /// <param name="mapping">
+        /// A value-to-value mapping to apply.
+        /// </param>
+        /// <returns>A block flow.</returns>
+        public BlockFlow MapValues(
+            IReadOnlyDictionary<ValueTag, ValueTag> mapping)
+        {
+            return MapValues(arg =>
+            {
+                ValueTag result;
+                if (mapping.TryGetValue(arg, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return arg;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Applies a mapping to all basic blocks referenced by
+        /// branches in this block flow.
+        /// </summary>
+        /// <param name="mapping">A block-to-block mapping to apply.</param>
+        /// <returns>A block flow.</returns>
+        public BlockFlow MapBlocks(
+            Func<BasicBlockTag, BasicBlockTag> mapping)
+        {
+            return this
+                .WithBranches(
+                    Branches.EagerSelect(branch => branch.WithTarget(mapping(branch.Target))));
+        }
+
+        /// <summary>
+        /// Applies a mapping to all basic blocks referenced by
+        /// branches in this block flow.
+        /// </summary>
+        /// <param name="mapping">
+        /// A block-to-block mapping to apply.
+        /// </param>
+        /// <returns>A block flow.</returns>
+        public BlockFlow MapBlocks(
+            IReadOnlyDictionary<BasicBlockTag, BasicBlockTag> mapping)
+        {
+            return MapBlocks(arg =>
+            {
+                BasicBlockTag result;
+                if (mapping.TryGetValue(arg, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return arg;
+                }
+            });
         }
     }
 }

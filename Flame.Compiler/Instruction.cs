@@ -67,6 +67,46 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a new instruction by applying a mapping to this
+        /// instruction's argument list.
+        /// </summary>
+        /// <param name="mapping">
+        /// The mapping to apply to every element of this instruction's
+        /// argument list.
+        /// </param>
+        /// <returns>A new instruction.</returns>
+        public Instruction MapArguments(Func<ValueTag, ValueTag> mapping)
+        {
+            return WithArguments(Arguments.EagerSelect(mapping));
+        }
+
+        /// <summary>
+        /// Creates a new instruction by applying a mapping to this
+        /// instruction's argument list.
+        /// </summary>
+        /// <param name="mapping">
+        /// The mapping to apply to every element of this instruction's
+        /// argument list, encoded as a dictionary. Arguments that do
+        /// not show up as keys in the dictionary are left unmodified.
+        /// </param>
+        /// <returns>A new instruction.</returns>
+        public Instruction MapArguments(IReadOnlyDictionary<ValueTag, ValueTag> mapping)
+        {
+            return MapArguments(arg =>
+            {
+                ValueTag result;
+                if (mapping.TryGetValue(arg, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return arg;
+                }
+            });
+        }
+
+        /// <summary>
         /// Applies a member mapping to this instruction.
         /// </summary>
         /// <param name="mapping">A member mapping.</param>
