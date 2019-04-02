@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Transforms;
 
 namespace Flame.Compiler
@@ -416,6 +417,85 @@ namespace Flame.Compiler
         public FlowGraph ToImmutable()
         {
             return ImmutableGraph;
+        }
+
+        /// <summary>
+        /// Includes a control-flow graph in this control-flow graph.
+        /// Any values and blocks defined by the graph to include are
+        /// renamed in order to avoid conflicts with tags in this graph.
+        /// </summary>
+        /// <param name="graph">
+        /// The graph to include in this graph.
+        /// </param>
+        /// <param name="rewriteReturnFlow">
+        /// Rewrites 'return' flow.
+        /// </param>
+        /// <returns>
+        /// The tag of the imported graph's entry point.
+        /// </returns>
+        public BasicBlockTag Include(
+            FlowGraph graph,
+            Func<ReturnFlow, BasicBlockBuilder, BlockFlow> rewriteReturnFlow)
+        {
+            // The first thing we want to do is compose a mapping of
+            // value tags in `graph` to value tags in this
+            // control-flow graph.
+            var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
+            foreach (var insn in graph.Instructions)
+            {
+                valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
+            }
+
+            // Populate a basic block rename mapping.
+            var blockMap = new Dictionary<BasicBlockTag, BasicBlockBuilder>();
+            var blockRenameMap = new Dictionary<BasicBlockTag, BasicBlockTag>();
+            foreach (var block in graph.BasicBlocks)
+            {
+                // Add a basic block.
+                var newBlock = AddBasicBlock(block.Tag.Name);
+                blockMap[block] = newBlock;
+                blockRenameMap[block] = newBlock;
+
+                // Also handle parameters here.
+                foreach (var param in block.Parameters)
+                {
+                    var newParam = new BlockParameter(param.Type, param.Tag.Name);
+                    newBlock.AppendParameter(newParam);
+                    valueRenameMap[param.Tag] = newParam.Tag;
+                }
+            }
+
+            // Copy basic block instructions and flow.
+            foreach (var block in graph.BasicBlocks)
+            {
+                var newBlock = blockMap[block];
+                // Copy the block's instructions.
+                foreach (var insn in block.Instructions)
+                {
+                    newBlock.AppendInstruction(
+                        insn.Instruction.MapArguments(valueRenameMap),
+                        valueRenameMap[insn]);
+                }
+
+                // If the block ends in 'return' flow, then we want to
+                // turn that return into a jump to the continuation.
+                if (block.Flow is ReturnFlow)
+                {
+                    var returnFlow = (ReturnFlow)block.Flow;
+                    newBlock.Flow = rewriteReturnFlow(
+                        new ReturnFlow(
+                            returnFlow.ReturnValue.MapArguments(valueRenameMap)),
+                        newBlock);
+                }
+                else
+                {
+                    newBlock.Flow = block.Flow
+                        .MapValues(valueRenameMap)
+                        .MapBlocks(blockRenameMap);
+                }
+            }
+
+            return blockRenameMap[graph.EntryPointTag];
         }
     }
 }

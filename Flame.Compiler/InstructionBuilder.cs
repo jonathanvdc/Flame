@@ -242,15 +242,6 @@ namespace Flame.Compiler
         /// </param>
         public void ReplaceInstruction(FlowGraph implementation)
         {
-            // The first thing we want to do is compose a mapping of
-            // value tags in `implementation` to value tags in this
-            // control-flow graph.
-            var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
-            foreach (var insn in implementation.Instructions)
-            {
-                valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
-            }
-
             if (implementation.EntryPoint.Flow is ReturnFlow)
             {
                 // In the likely case where the implementation consists of a
@@ -260,6 +251,15 @@ namespace Flame.Compiler
                 // Also take care to rename instructions as we step through the
                 // basic block: we don't want two different expansions of the same
                 // block to conflict.
+
+                // The first thing we want to do is compose a mapping of
+                // value tags in `implementation` to value tags in this
+                // control-flow graph.
+                var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
+                foreach (var insn in implementation.Instructions)
+                {
+                    valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
+                }
 
                 // Rename parameters.
                 var parameters = implementation.EntryPoint.Parameters;
@@ -302,62 +302,21 @@ namespace Flame.Compiler
                     insn.MoveTo(continuationBlock);
                 }
 
-                // Populate a basic block rename mapping.
-                var blockMap = new Dictionary<BasicBlockTag, BasicBlockBuilder>();
-                var blockRenameMap = new Dictionary<BasicBlockTag, BasicBlockTag>();
-                foreach (var block in implementation.BasicBlocks)
-                {
-                    // Add a basic block.
-                    var newBlock = Graph.AddBasicBlock(block.Tag.Name);
-                    blockMap[block] = newBlock;
-                    blockRenameMap[block] = newBlock;
-
-                    // Also handle parameters here.
-                    foreach (var param in block.Parameters)
+                // Include `implementation` in this graph.
+                var entryTag = Graph.Include(
+                    implementation,
+                    (retFlow, block) =>
                     {
-                        var newParam = new BlockParameter(param.Type, param.Tag.Name);
-                        newBlock.AppendParameter(newParam);
-                        valueRenameMap[param.Tag] = newParam.Tag;
-                    }
-                }
-
-                // Copy basic block instructions and flow.
-                foreach (var block in implementation.BasicBlocks)
-                {
-                    var newBlock = blockMap[block];
-                    // Copy the block's instructions.
-                    foreach (var insn in block.Instructions)
-                    {
-                        newBlock.AppendInstruction(
-                            insn.Instruction.MapArguments(valueRenameMap),
-                            valueRenameMap[insn]);
-                    }
-
-                    // If the block ends in 'return' flow, then we want to
-                    // turn that return into a jump to the continuation.
-                    if (block.Flow is ReturnFlow)
-                    {
-                        var returnFlow = (ReturnFlow)block.Flow;
-                        ValueTag resultTag = newBlock.AppendInstruction(
-                            returnFlow.ReturnValue.MapArguments(valueRenameMap));
-                        newBlock.Flow = new JumpFlow(continuationBlock, new[] { resultTag });
-                    }
-                    else
-                    {
-                        newBlock.Flow = block.Flow
-                            .MapValues(valueRenameMap)
-                            .MapBlocks(blockRenameMap);
-                    }
-                }
+                        ValueTag resultTag = block.AppendInstruction(retFlow.ReturnValue);
+                        return new JumpFlow(continuationBlock, new[] { resultTag });
+                    });
 
                 // Copy the parent basic block's flow to the continuation block.
                 continuationBlock.Flow = parentBlock.Flow;
 
                 // Set the parent basic block's flow to a jump to `implementation`'s
                 // entry point.
-                parentBlock.Flow = new JumpFlow(
-                    blockRenameMap[implementation.EntryPointTag],
-                    Instruction.Arguments);
+                parentBlock.Flow = new JumpFlow(entryTag, Instruction.Arguments);
 
                 // Replace this instruction with a copy of the result parameter.
                 Instruction = Instruction.CreateCopy(ResultType, resultParam.Tag);
