@@ -135,6 +135,24 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Replaces this instruction with a control-flow graph that implements
+        /// this instruction. The arity of the control-flow graph's entry point
+        /// block must match this instruction's arity.
+        /// </summary>
+        /// <param name="implementation">
+        /// A control-flow graph that implements the instruction.
+        /// </param>
+        /// <returns>
+        /// A new instruction in a new control-flow graph.
+        /// </returns>
+        public SelectedInstruction ReplaceInstruction(FlowGraph implementation)
+        {
+            var builder = Block.Graph.ToBuilder().GetInstruction(this);
+            builder.ReplaceInstruction(implementation);
+            return builder.ToImmutable();
+        }
+
+        /// <summary>
         /// Inserts a particular instruction just before this instruction.
         /// Returns the new instruction in a new control-flow graph.
         /// </summary>
