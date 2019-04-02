@@ -8,7 +8,7 @@ namespace Flame.Compiler
     /// <summary>
     /// An instruction in a mutable control-flow graph builder.
     /// </summary>
-    public sealed class InstructionBuilder : IEquatable<InstructionBuilder>
+    public sealed class InstructionBuilder : MutableInstructionRef, IEquatable<InstructionBuilder>
     {
         /// <summary>
         /// Creates an instruction builder from a graph and a tag.
@@ -51,7 +51,7 @@ namespace Flame.Compiler
         /// Gets the actual instruction behind this instruction selector.
         /// </summary>
         /// <returns>The instruction.</returns>
-        public Instruction Instruction
+        public override Instruction Instruction
         {
             get
             {
@@ -240,7 +240,7 @@ namespace Flame.Compiler
         /// <param name="implementation">
         /// A control-flow graph that implements the instruction.
         /// </param>
-        public void ReplaceInstruction(FlowGraph implementation)
+        public override void ReplaceInstruction(FlowGraph implementation)
         {
             if (implementation.EntryPoint.Flow is ReturnFlow)
             {
