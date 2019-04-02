@@ -31,8 +31,14 @@ namespace Flame.Compiler
         /// Gets the control-flow graph builder that defines this
         /// instruction.
         /// </summary>
-        /// <returns>The control-flow graph builder.</returns>
+        /// <returns>A control-flow graph builder.</returns>
         public FlowGraphBuilder Graph { get; private set; }
+
+        /// <summary>
+        /// Gets the basic block that defines this instruction.
+        /// </summary>
+        /// <returns>A basic block builder.</returns>
+        public BasicBlockBuilder Block => Graph.GetValueParent(this);
 
         /// <summary>
         /// Tells if this instruction builder is still valid, that is,
@@ -248,37 +254,13 @@ namespace Flame.Compiler
                 // basic block that immediately returns a value, we will insert
                 // the block's instructions just before this instruction and set
                 // this instruction to the return value.
-                // Also take care to rename instructions as we step through the
-                // basic block: we don't want two different expansions of the same
-                // block to conflict.
-
-                // The first thing we want to do is compose a mapping of
-                // value tags in `implementation` to value tags in this
-                // control-flow graph.
-                var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
-                foreach (var insn in implementation.Instructions)
-                {
-                    valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
-                }
-
-                // Rename parameters.
-                var parameters = implementation.EntryPoint.Parameters;
-                for (int i = 0; i < parameters.Count; i++)
-                {
-                    valueRenameMap[parameters[i].Tag] = Instruction.Arguments[i];
-                }
-
-                // Insert instructions.
-                foreach (var insn in implementation.EntryPoint.Instructions)
-                {
-                    InsertBefore(
-                        insn.Instruction.MapArguments(valueRenameMap),
-                        valueRenameMap[insn]);
-                }
+                var returnFlow = (ReturnFlow)Block.CopyInstructionsFrom(
+                    InstructionIndex,
+                    implementation.EntryPoint,
+                    Instruction.Arguments);
 
                 // Copy the return value.
-                var returnFlow = (ReturnFlow)implementation.EntryPoint.Flow;
-                Instruction = returnFlow.ReturnValue.MapArguments(valueRenameMap);
+                Instruction = returnFlow.ReturnValue;
             }
             else
             {

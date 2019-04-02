@@ -153,6 +153,7 @@ namespace Flame.Compiler
         /// Inserts a new instruction into this basic block's list of instructions.
         /// Returns the instruction builder for the inserted instruction.
         /// </summary>
+        /// <param name="index">The index to insert the instruction at.</param>
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction.</returns>
@@ -167,6 +168,7 @@ namespace Flame.Compiler
         /// Appends a new instruction to the end of this basic block.
         /// Returns the instruction builder for the inserted instruction.
         /// </summary>
+        /// <param name="index">The index to insert the instruction at.</param>
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The inserted instruction.</returns>
@@ -179,6 +181,7 @@ namespace Flame.Compiler
         /// Appends a new instruction to the end of this basic block.
         /// Returns the instruction builder for the inserted instruction.
         /// </summary>
+        /// <param name="index">The index to insert the instruction at.</param>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction.</returns>
         public InstructionBuilder InsertInstruction(int index, Instruction instruction)
@@ -193,6 +196,61 @@ namespace Flame.Compiler
         public void AppendParameter(BlockParameter parameter)
         {
             Graph.ImmutableGraph = ImmutableBlock.AppendParameter(parameter).Graph;
+        }
+
+        /// <summary>
+        /// Copies all instructions in a particular basic block
+        /// into this basic block. All instructions defined by
+        /// the block are renamed to avoid name clashes. References
+        /// to the block's parameters are substituted by a list
+        /// of arguments.
+        /// </summary>
+        /// <param name="insertionIndex">
+        /// The instruction at which to insert <paramref name="block"/>'s
+        /// instructions.
+        /// </param>
+        /// <param name="block">
+        /// The block to copy instructions from.
+        /// </param>
+        /// <param name="arguments">
+        /// The arguments to feed to the <paramref name="block"/>.
+        /// </param>
+        /// <returns>
+        /// <paramref name="block"/>'s flow, with values renamed to
+        /// inserted instruction tags.
+        /// </returns>
+        public BlockFlow CopyInstructionsFrom(
+            int insertionIndex,
+            BasicBlock block,
+            IReadOnlyList<ValueTag> arguments)
+        {
+            // The first thing we want to do is compose a mapping of
+            // value tags in the block to copy to value tags in this
+            // control-flow graph.
+            var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
+            foreach (var insn in block.Instructions)
+            {
+                valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
+            }
+
+            // Rename parameters.
+            for (int i = 0; i < block.Parameters.Count; i++)
+            {
+                valueRenameMap[block.Parameters[i].Tag] = arguments[i];
+            }
+
+            // Insert instructions.
+            foreach (var insn in block.Instructions)
+            {
+                InsertInstruction(
+                    insertionIndex,
+                    insn.Instruction.MapArguments(valueRenameMap),
+                    valueRenameMap[insn]);
+                insertionIndex++;
+            }
+
+            // Rename values in the block flow and return it.
+            return block.Flow.MapValues(valueRenameMap);
         }
 
         /// <summary>
