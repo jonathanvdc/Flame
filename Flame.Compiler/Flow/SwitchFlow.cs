@@ -195,6 +195,21 @@ namespace Flame.Compiler.Flow
             }
         }
 
+        /// <inheritdoc/>
+        public override MutableInstructionRef GetInstructionRef(
+            BasicBlockBuilder block,
+            int instructionIndex)
+        {
+            if (instructionIndex == 0)
+            {
+                return new SimpleFlowInstructionRef(block);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
+        }
+
         /// <summary>
         /// Creates switch flow that corresponds to if-else flow on
         /// a Boolean condition.

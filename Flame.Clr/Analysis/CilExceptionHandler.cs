@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
@@ -167,7 +168,7 @@ namespace Flame.Clr.Analysis
         {
             get
             {
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
             }
         }
 
@@ -175,18 +176,23 @@ namespace Flame.Clr.Analysis
         {
             get
             {
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
             }
         }
 
         public override BlockFlow WithBranches(IReadOnlyList<Branch> branches)
         {
-            throw new System.InvalidOperationException();
+            throw new InvalidOperationException();
         }
 
         public override BlockFlow WithInstructions(IReadOnlyList<Instruction> instructions)
         {
-            throw new System.InvalidOperationException();
+            throw new InvalidOperationException();
+        }
+
+        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        {
+            throw new IndexOutOfRangeException();
         }
     }
 }

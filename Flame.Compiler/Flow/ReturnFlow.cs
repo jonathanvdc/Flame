@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 
@@ -49,6 +50,21 @@ namespace Flame.Compiler.Flow
         {
             ContractHelpers.Assert(branches.Count == 0, "Return flow does not take any branches.");
             return this;
+        }
+
+        /// <inheritdoc/>
+        public override MutableInstructionRef GetInstructionRef(
+            BasicBlockBuilder block,
+            int instructionIndex)
+        {
+            if (instructionIndex == 0)
+            {
+                return new SimpleFlowInstructionRef(block);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
         }
     }
 }

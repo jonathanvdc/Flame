@@ -38,6 +38,21 @@ namespace Flame.Compiler
         public abstract BlockFlow WithBranches(IReadOnlyList<Branch> branches);
 
         /// <summary>
+        /// Gets a mutable instruction reference for the nth unnamed
+        /// instruction in this block flow.
+        /// </summary>
+        /// <param name="block">The block that defines this flow.</param>
+        /// <param name="instructionIndex">
+        /// The index of the unnamed instruction to create a reference to.
+        /// </param>
+        /// <returns>
+        /// A mutable instruction reference to an unnamed instruction.
+        /// </returns>
+        public abstract MutableInstructionRef GetInstructionRef(
+            BasicBlockBuilder block,
+            int instructionIndex);
+
+        /// <summary>
         /// Gets a list of each branch's target.
         /// </summary>
         /// <value>A list of branch targets.</value>
@@ -47,6 +62,19 @@ namespace Flame.Compiler
             {
                 return Branches.Select(branch => branch.Target);
             }
+        }
+
+        /// <summary>
+        /// Gets mutable instruction references for all unnamed instructions
+        /// in this block flow.
+        /// </summary>
+        /// <param name="block">The block that defines this flow.</param>
+        /// <returns>
+        /// A sequence of mutable instruction references to unnamed instructions.
+        /// </returns>
+        public IEnumerable<MutableInstructionRef> GetInstructionRefs(BasicBlockBuilder block)
+        {
+            return Instructions.Select((insn, i) => GetInstructionRef(block, i));
         }
 
         /// <summary>

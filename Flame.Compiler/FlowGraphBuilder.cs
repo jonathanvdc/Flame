@@ -437,6 +437,35 @@ namespace Flame.Compiler
             FlowGraph graph,
             Func<ReturnFlow, BasicBlockBuilder, BlockFlow> rewriteReturnFlow)
         {
+            return Include(graph, rewriteReturnFlow, null);
+        }
+
+        /// <summary>
+        /// Includes a control-flow graph in this control-flow graph.
+        /// Any values and blocks defined by the graph to include are
+        /// renamed in order to avoid conflicts with tags in this graph.
+        /// Instructions that may throw an exception are wrapped in 'try'
+        /// flow.
+        /// </summary>
+        /// <param name="graph">
+        /// The graph to include in this graph.
+        /// </param>
+        /// <param name="rewriteReturnFlow">
+        /// Rewrites 'return' flow.
+        /// </param>
+        /// <param name="exceptionBranch">
+        /// The branch to take when an exception is thrown by an instruction
+        /// in <paramref name="graph"/>. Instructions are not wrapped in
+        /// 'try' flow if this parameter is set to <c>null</c>.
+        /// </param>
+        /// <returns>
+        /// The tag of the imported graph's entry point.
+        /// </returns>
+        public BasicBlockTag Include(
+            FlowGraph graph,
+            Func<ReturnFlow, BasicBlockBuilder, BlockFlow> rewriteReturnFlow,
+            Branch exceptionBranch)
+        {
             // The first thing we want to do is compose a mapping of
             // value tags in `graph` to value tags in this
             // control-flow graph.
@@ -465,6 +494,10 @@ namespace Flame.Compiler
                 }
             }
 
+            var exceptionSpecs = exceptionBranch == null
+                ? null
+                : graph.GetAnalysisResult<InstructionExceptionSpecs>();
+
             // Copy basic block instructions and flow.
             foreach (var block in graph.BasicBlocks)
             {
@@ -472,9 +505,26 @@ namespace Flame.Compiler
                 // Copy the block's instructions.
                 foreach (var insn in block.Instructions)
                 {
-                    newBlock.AppendInstruction(
-                        insn.Instruction.MapArguments(valueRenameMap),
-                        valueRenameMap[insn]);
+                    if (exceptionBranch != null
+                        && exceptionSpecs.GetExceptionSpecification(insn.Instruction).CanThrowSomething)
+                    {
+                        // Create a new block for the success path.
+                        var successBlock = AddBasicBlock();
+                        var successParam = new BlockParameter(insn.ResultType);
+                        successBlock.AppendParameter(successParam);
+
+                        // Wrap the instruction in 'try' flow.
+                        newBlock.Flow = new TryFlow(insn.Instruction, exceptionBranch, exceptionBranch);
+
+                        // Update the current block.
+                        newBlock = successBlock;
+                    }
+                    else
+                    {
+                        newBlock.AppendInstruction(
+                            insn.Instruction.MapArguments(valueRenameMap),
+                            valueRenameMap[insn]);
+                    }
                 }
 
                 // If the block ends in 'return' flow, then we want to

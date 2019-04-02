@@ -1,4 +1,5 @@
 using Flame.Collections;
+using System;
 using System.Collections.Generic;
 
 namespace Flame.Compiler.Flow
@@ -84,6 +85,14 @@ namespace Flame.Compiler.Flow
             {
                 return new JumpFlow(newBranch);
             }
+        }
+
+        /// <inheritdoc/>
+        public override MutableInstructionRef GetInstructionRef(
+            BasicBlockBuilder block,
+            int instructionIndex)
+        {
+            throw new IndexOutOfRangeException();
         }
     }
 }

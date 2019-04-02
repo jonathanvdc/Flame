@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Flame.Collections;
 
@@ -35,6 +36,11 @@ namespace Flame.Compiler.Flow
         {
             ContractHelpers.Assert(branches.Count == 0, "Unreachable flow does not take any branches.");
             return this;
+        }
+
+        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        {
+            throw new IndexOutOfRangeException();
         }
     }
 }

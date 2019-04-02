@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Flame.Compiler.Flow
@@ -58,6 +59,18 @@ namespace Flame.Compiler.Flow
 
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => new Branch[] { SuccessBranch, ExceptionBranch };
+
+        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        {
+            if (instructionIndex == 0)
+            {
+                return new TryFlowInstructionRef(block);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
+        }
 
         /// <inheritdoc/>
         public override BlockFlow WithBranches(IReadOnlyList<Branch> branches)

@@ -147,6 +147,20 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates a new branch by applying a mapping to every argument in
+        /// this branch's argument list.
+        /// </summary>
+        /// <param name="mapping">
+        /// The mapping to apply to every argument in this branch's
+        /// argument list.
+        /// </param>
+        /// <returns>A new branch.</returns>
+        public Branch MapArguments(Func<BranchArgument, BranchArgument> mapping)
+        {
+            return WithArguments(Arguments.EagerSelect(mapping));
+        }
+
+        /// <summary>
         /// Creates a new branch by applying a mapping to every value in
         /// this branch's argument list.
         /// </summary>
@@ -157,12 +171,11 @@ namespace Flame.Compiler
         /// <returns>A new branch.</returns>
         public Branch MapArguments(Func<ValueTag, ValueTag> mapping)
         {
-            return WithArguments(
-                Arguments.EagerSelect(
-                    arg =>
-                        arg.IsValue
-                        ? BranchArgument.FromValue(mapping(arg.ValueOrNull))
-                        : arg));
+            return MapArguments(
+                arg =>
+                    arg.IsValue
+                    ? BranchArgument.FromValue(mapping(arg.ValueOrNull))
+                    : arg);
         }
 
         /// <summary>
