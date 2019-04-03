@@ -240,13 +240,16 @@ namespace Flame.Compiler
 
         /// <summary>
         /// Replaces this instruction with a control-flow graph that implements
-        /// this instruction. The arity of the control-flow graph's entry point
-        /// block must match this instruction's arity.
+        /// this instruction.
         /// </summary>
         /// <param name="implementation">
         /// A control-flow graph that implements the instruction.
         /// </param>
-        public override void ReplaceInstruction(FlowGraph implementation)
+        /// <param name="arguments">
+        /// A list of arguments to pass to <paramref name="implementation"/>'s
+        /// entry point block.
+        /// </param>
+        public override void ReplaceInstruction(FlowGraph implementation, IReadOnlyList<ValueTag> arguments)
         {
             if (!IsValid)
             {
@@ -262,7 +265,7 @@ namespace Flame.Compiler
                 var returnFlow = (ReturnFlow)Block.CopyInstructionsFrom(
                     InstructionIndex,
                     implementation.EntryPoint,
-                    Instruction.Arguments);
+                    arguments);
 
                 // Copy the return value.
                 Instruction = returnFlow.ReturnValue;
@@ -303,7 +306,7 @@ namespace Flame.Compiler
 
                 // Set the parent basic block's flow to a jump to `implementation`'s
                 // entry point.
-                parentBlock.Flow = new JumpFlow(entryTag, Instruction.Arguments);
+                parentBlock.Flow = new JumpFlow(entryTag, arguments);
 
                 // Replace this instruction with a copy of the result parameter.
                 Instruction = Instruction.CreateCopy(ResultType, resultParam.Tag);

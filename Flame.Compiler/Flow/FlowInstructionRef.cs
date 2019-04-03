@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Flow
@@ -64,7 +65,7 @@ namespace Flame.Compiler.Flow
             }
         }
 
-        public override void ReplaceInstruction(FlowGraph graph)
+        public override void ReplaceInstruction(FlowGraph graph, IReadOnlyList<ValueTag> arguments)
         {
             if (!IsValid)
             {
@@ -82,7 +83,7 @@ namespace Flame.Compiler.Flow
                 var retFlow = (ReturnFlow)Block.CopyInstructionsFrom(
                     Block.InstructionTags.Count,
                     graph.EntryPoint,
-                    Instruction.Arguments);
+                    arguments);
 
                 Instruction = retFlow.ReturnValue;
             }
@@ -106,7 +107,7 @@ namespace Flame.Compiler.Flow
                     });
 
                 // Jump to the graph.
-                Block.Flow = new JumpFlow(entryTag, Instruction.Arguments);
+                Block.Flow = new JumpFlow(entryTag, arguments);
 
                 // Set the block that defines this flow to the continuation block.
                 Block = continuationBlock;
@@ -147,7 +148,7 @@ namespace Flame.Compiler.Flow
             }
         }
 
-        public override void ReplaceInstruction(FlowGraph graph)
+        public override void ReplaceInstruction(FlowGraph graph, IReadOnlyList<ValueTag> arguments)
         {
             if (!IsValid)
             {
@@ -172,7 +173,7 @@ namespace Flame.Compiler.Flow
                 tryFlow.ExceptionBranch);
 
             // Jump to `graph`'s entry point.
-            Block.Flow = new JumpFlow(entryTag, Instruction.Arguments);
+            Block.Flow = new JumpFlow(entryTag, arguments);
 
             // Invalidate the instruction reference.
             Flow = null;
