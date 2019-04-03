@@ -40,7 +40,10 @@ namespace Flame.Compiler
         /// </param>
         /// <remarks>
         /// Calling this method may invalidate instruction references,
-        /// including this reference.
+        /// including this reference. Specifically, if this reference
+        /// refers to an unnamed instruction in block flow, then this
+        /// reference and all other references to unnamed instructions
+        /// in that block flow may be invalidated.
         /// </remarks>
         public abstract void ReplaceInstruction(FlowGraph graph);
     }
