@@ -8,7 +8,7 @@ namespace Flame.Compiler
     /// <summary>
     /// A named instruction in a mutable control-flow graph builder.
     /// </summary>
-    public sealed class NamedInstructionBuilder : InstructionRef, IEquatable<NamedInstructionBuilder>
+    public sealed class NamedInstructionBuilder : InstructionBuilder, IEquatable<NamedInstructionBuilder>
     {
         /// <summary>
         /// Creates a named instruction builder from a graph and a tag.

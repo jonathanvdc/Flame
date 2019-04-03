@@ -8,9 +8,9 @@ namespace Flame.Compiler.Flow
     /// An instruction reference to an unnamed instruction in
     /// block flow.
     /// </summary>
-    public abstract class FlowInstructionRef : InstructionRef
+    public abstract class FlowInstructionBuilder : InstructionBuilder
     {
-        public FlowInstructionRef(BasicBlockBuilder block)
+        public FlowInstructionBuilder(BasicBlockBuilder block)
         {
             this.Block = block;
             this.Flow = block.Flow;
@@ -37,9 +37,9 @@ namespace Flame.Compiler.Flow
     /// its result, i.e., the instruction may be spilled into the
     /// enclosing block without changing the program's semantics.
     /// </summary>
-    internal sealed class SimpleFlowInstructionRef : FlowInstructionRef
+    internal sealed class SimpleFlowInstructionBuilder : FlowInstructionBuilder
     {
-        public SimpleFlowInstructionRef(BasicBlockBuilder block)
+        public SimpleFlowInstructionBuilder(BasicBlockBuilder block)
             : base(block)
         { }
 
@@ -120,9 +120,9 @@ namespace Flame.Compiler.Flow
     /// An instruction reference to an unnamed instruction in 'try'
     /// flow.
     /// </summary>
-    internal sealed class TryFlowInstructionRef : FlowInstructionRef
+    internal sealed class TryFlowInstructionBuilder : FlowInstructionBuilder
     {
-        public TryFlowInstructionRef(BasicBlockBuilder block)
+        public TryFlowInstructionBuilder(BasicBlockBuilder block)
             : base(block)
         { }
 

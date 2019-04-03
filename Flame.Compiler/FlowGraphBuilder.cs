@@ -100,8 +100,8 @@ namespace Flame.Compiler
         /// in this control-flow graph.
         /// </summary>
         /// <returns>All anonymous instructions.</returns>
-        public IEnumerable<InstructionRef> AnonymousInstructions =>
-            BasicBlocks.SelectMany(block => block.Flow.GetInstructionRefs(block));
+        public IEnumerable<InstructionBuilder> AnonymousInstructions =>
+            BasicBlocks.SelectMany(block => block.Flow.GetInstructionBuilders(block));
 
         /// <summary>
         /// Registers a flow graph analysis with this graph.

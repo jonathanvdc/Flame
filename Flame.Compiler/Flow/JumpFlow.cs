@@ -88,7 +88,7 @@ namespace Flame.Compiler.Flow
         }
 
         /// <inheritdoc/>
-        public override InstructionRef GetInstructionRef(
+        public override InstructionBuilder GetInstructionBuilder(
             BasicBlockBuilder block,
             int instructionIndex)
         {

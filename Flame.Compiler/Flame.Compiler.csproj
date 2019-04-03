@@ -46,8 +46,8 @@
     <Compile Include="IBodyMethod.cs" />
     <Compile Include="Instruction.Create.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="InstructionBuilder.cs" />
     <Compile Include="InstructionPrototype.cs" />
-    <Compile Include="InstructionRef.cs" />
     <Compile Include="MethodBody.cs" />
     <Compile Include="NamedInstruction.cs" />
     <Compile Include="NamedInstructionBuilder.cs" />
