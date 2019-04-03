@@ -45,7 +45,7 @@ namespace Flame.Compiler.Transforms
             }
 
             // Rewrite instructions.
-            foreach (var instruction in builder.Instructions)
+            foreach (var instruction in builder.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is GetFieldPointerPrototype)
@@ -113,7 +113,7 @@ namespace Flame.Compiler.Transforms
             // Allocas are eligible if they are only used as the pointer
             // argument of GetFieldPointer instructions and default-initializing
             // store instructions.
-            foreach (var instruction in graph.Instructions)
+            foreach (var instruction in graph.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is AllocaPrototype)

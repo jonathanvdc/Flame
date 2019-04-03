@@ -103,10 +103,11 @@ namespace Flame.Compiler
             .Concat(ParameterTags);
 
         /// <summary>
-        /// Gets a sequence of all instructions in this control-flow graph.
+        /// Gets a sequence of all named instructions in this control-flow graph.
+        /// Anonymous instructions as defined by block flow are not included.
         /// </summary>
-        /// <returns>All instructions</returns>
-        public IEnumerable<SelectedInstruction> Instructions =>
+        /// <returns>All named instructions</returns>
+        public IEnumerable<SelectedInstruction> NamedInstructions =>
             InstructionTags.Select(GetInstruction);
 
         /// <summary>
@@ -598,7 +599,7 @@ namespace Flame.Compiler
             var builder = ToBuilder();
 
             // Replace uses in instructions.
-            foreach (var selection in builder.Instructions)
+            foreach (var selection in builder.NamedInstructions)
             {
                 Instruction newInstruction;
                 if (TryReplaceUsesInInstruction(

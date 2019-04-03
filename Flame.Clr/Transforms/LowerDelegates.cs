@@ -26,7 +26,7 @@ namespace Flame.Clr.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var builder = graph.ToBuilder();
-            foreach (var instruction in builder.Instructions)
+            foreach (var instruction in builder.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is IndirectCallPrototype)

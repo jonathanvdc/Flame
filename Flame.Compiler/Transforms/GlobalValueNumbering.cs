@@ -27,7 +27,7 @@ namespace Flame.Compiler.Transforms
             // Partition the set of all instructions into equivalence classes.
             var equivValues = new Dictionary<Instruction, HashSet<ValueTag>>(
                 new ValueNumberingInstructionComparer(numbering));
-            foreach (var insn in graph.Instructions)
+            foreach (var insn in graph.NamedInstructions)
             {
                 HashSet<ValueTag> valueSet;
                 if (!equivValues.TryGetValue(insn.Instruction, out valueSet))
@@ -42,7 +42,7 @@ namespace Flame.Compiler.Transforms
 
             // Replace instructions with copies to your heart's content.
             var builder = graph.ToBuilder();
-            foreach (var insn in builder.Instructions)
+            foreach (var insn in builder.NamedInstructions)
             {
                 // An instruction can be replaced with another instruction
                 // if it is equivalent to that instruction and it is strictly

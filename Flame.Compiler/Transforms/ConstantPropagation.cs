@@ -126,7 +126,7 @@ namespace Flame.Compiler.Transforms
             SimplifySwitches(graphBuilder, cells);
 
             // Replace instructions with constants.
-            foreach (var selection in graphBuilder.Instructions)
+            foreach (var selection in graphBuilder.NamedInstructions)
             {
                 LatticeCell cell;
                 if (cells.TryGetValue(selection, out cell)

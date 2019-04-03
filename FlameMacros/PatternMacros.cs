@@ -945,7 +945,7 @@ namespace FlameMacros
                 F.Call(
                     CodeSymbols.ForEach,
                     F.Var(F.Missing, "instruction"),
-                    F.Dot(F.Id(GraphParameterName), F.Id("Instructions")),
+                    F.Dot(F.Id(GraphParameterName), F.Id("NamedInstructions")),
                     F.Braces(
                         F.Assign(
                             F.Call(CodeSymbols.IndexBracks, F.Id("prototypeMatches"), F.Id("instruction")),
@@ -1075,7 +1075,7 @@ namespace FlameMacros
                     F.Call(
                         CodeSymbols.ForEach,
                         insnVarDef,
-                        F.Dot(GraphParameterName, GSymbol.Get("Instructions")),
+                        F.Dot(GraphParameterName, GSymbol.Get("NamedInstructions")),
                         F.Braces(loopBody)));
             }
 

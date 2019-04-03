@@ -75,7 +75,7 @@ namespace Flame.Compiler.Transforms
             // We will first look for instructions that *do* have the
             // identity property if they are allocas. Also, we will
             // compose a list of all alloca instructions.
-            foreach (var selection in graph.Instructions)
+            foreach (var selection in graph.NamedInstructions)
             {
                 VisitForIdentityProperty(
                     selection.Instruction,

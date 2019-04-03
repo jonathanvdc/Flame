@@ -293,7 +293,7 @@ namespace Flame.Compiler.Analysis
             nonderef.UnionWith(graph.ParameterTags);
             // Assume that all instructions except for some may be nullable
             // and/or non-dereferenceable.
-            foreach (var instruction in graph.Instructions)
+            foreach (var instruction in graph.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 var tag = instruction.Tag;

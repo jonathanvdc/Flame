@@ -76,7 +76,7 @@ namespace Flame.Compiler.Analysis
             var relation = new SymmetricRelation<ValueTag>();
 
             // Examine direct copies.
-            foreach (var selection in graph.Instructions)
+            foreach (var selection in graph.NamedInstructions)
             {
                 var instruction = selection.Instruction;
                 var prototype = instruction.Prototype as CopyPrototype;

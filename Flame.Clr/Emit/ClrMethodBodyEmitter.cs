@@ -184,7 +184,7 @@ namespace Flame.Clr.Emit
             var reachability = graph.GetAnalysisResult<BlockReachability>();
             var results = new Dictionary<ValueTag, Mono.Cecil.Cil.VariableDefinition>();
 
-            foreach (var insn in graph.Instructions)
+            foreach (var insn in graph.NamedInstructions)
             {
                 var proto = insn.Prototype;
                 if (proto is AllocaPrototype

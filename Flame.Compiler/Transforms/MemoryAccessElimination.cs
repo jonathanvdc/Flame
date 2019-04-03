@@ -30,7 +30,7 @@ namespace Flame.Compiler.Transforms
 
             // First try and eliminate loads and stores based on their memory SSA
             // states.
-            foreach (var instruction in builder.Instructions)
+            foreach (var instruction in builder.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is LoadPrototype)

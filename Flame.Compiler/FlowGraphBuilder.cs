@@ -92,7 +92,7 @@ namespace Flame.Compiler
         /// Anonymous instructions as defined by block flow are not included.
         /// </summary>
         /// <returns>All named instructions.</returns>
-        public IEnumerable<InstructionBuilder> Instructions =>
+        public IEnumerable<InstructionBuilder> NamedInstructions =>
             InstructionTags.Select(GetInstruction);
 
         /// <summary>
@@ -479,7 +479,7 @@ namespace Flame.Compiler
             // value tags in `graph` to value tags in this
             // control-flow graph.
             var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
-            foreach (var insn in graph.Instructions)
+            foreach (var insn in graph.NamedInstructions)
             {
                 valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
             }

@@ -30,7 +30,7 @@ namespace Flame.Compiler.Transforms
             // Figure out which unbox instructions are eligible.
             // TODO: implement a proper escape analysis.
             var nonescapingUnboxInstructions = new HashSet<ValueTag>();
-            foreach (var instruction in graph.Instructions)
+            foreach (var instruction in graph.NamedInstructions)
             {
                 if (instruction.Prototype is UnboxPrototype
                     && uses.GetFlowUses(instruction).Count == 0
@@ -45,7 +45,7 @@ namespace Flame.Compiler.Transforms
 
             // Rewrite box and unbox instructions.
             var unboxReplacements = new Dictionary<ValueTag, ValueTag>();
-            foreach (var instruction in builder.Instructions)
+            foreach (var instruction in builder.NamedInstructions)
             {
                 var boxProto = instruction.Prototype as BoxPrototype;
                 if (boxProto != null

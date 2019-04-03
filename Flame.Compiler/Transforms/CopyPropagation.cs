@@ -89,7 +89,7 @@ namespace Flame.Compiler.Transforms
             var copyMap = new Dictionary<ValueTag, ValueTag>();
 
             // Handle instructions.
-            foreach (var selection in graph.Instructions)
+            foreach (var selection in graph.NamedInstructions)
             {
                 var instruction = selection.Instruction;
                 var proto = instruction.Prototype;

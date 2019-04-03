@@ -85,7 +85,7 @@ namespace Flame.Compiler.Analysis
             }
 
             var results = ImmutableHashSet.CreateBuilder<ValueTag>();
-            foreach (var instruction in graph.Instructions)
+            foreach (var instruction in graph.NamedInstructions)
             {
                 if (IsEffectful(instruction))
                 {

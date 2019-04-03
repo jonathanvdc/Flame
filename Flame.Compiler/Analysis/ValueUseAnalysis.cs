@@ -98,7 +98,7 @@ namespace Flame.Compiler.Analysis
             }
 
             // Analyze instructions.
-            foreach (var selection in graph.Instructions)
+            foreach (var selection in graph.NamedInstructions)
             {
                 foreach (var arg in selection.Instruction.Arguments)
                 {

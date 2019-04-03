@@ -225,7 +225,7 @@ namespace Flame.Compiler.Analysis
             {
                 numbering.AddBlockParameter(param);
             }
-            foreach (var insn in graph.Instructions)
+            foreach (var insn in graph.NamedInstructions)
             {
                 numbering.AddInstruction(insn);
             }
