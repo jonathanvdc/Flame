@@ -88,11 +88,20 @@ namespace Flame.Compiler
         public IEnumerable<ValueTag> ValueTags => ImmutableGraph.ValueTags;
 
         /// <summary>
-        /// Gets a sequence of all instructions in this control-flow graph.
+        /// Gets a sequence of all named instructions in this control-flow graph.
+        /// Anonymous instructions as defined by block flow are not included.
         /// </summary>
-        /// <returns>All instructions.</returns>
+        /// <returns>All named instructions.</returns>
         public IEnumerable<InstructionBuilder> Instructions =>
             InstructionTags.Select(GetInstruction);
+
+        /// <summary>
+        /// Gets a sequence of all anonymous instructions defined by block flow
+        /// in this control-flow graph.
+        /// </summary>
+        /// <returns>All anonymous instructions.</returns>
+        public IEnumerable<MutableInstructionRef> AnonymousInstructions =>
+            BasicBlocks.SelectMany(block => block.Flow.GetInstructionRefs(block));
 
         /// <summary>
         /// Registers a flow graph analysis with this graph.
