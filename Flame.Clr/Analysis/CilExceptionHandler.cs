@@ -190,7 +190,7 @@ namespace Flame.Clr.Analysis
             throw new InvalidOperationException();
         }
 
-        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        public override InstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
         {
             throw new IndexOutOfRangeException();
         }

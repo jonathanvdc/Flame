@@ -38,7 +38,7 @@ namespace Flame.Compiler.Flow
             return this;
         }
 
-        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        public override InstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
         {
             throw new IndexOutOfRangeException();
         }

@@ -11,7 +11,7 @@ namespace Flame.Compiler
     /// This is a mutable reference: it refers to an instruction in
     /// a control-flow graph builder and that instruction can be changed.
     /// </summary>
-    public abstract class MutableInstructionRef
+    public abstract class InstructionRef
     {
         /// <summary>
         /// Tells if this instruction reference is still valid. Querying

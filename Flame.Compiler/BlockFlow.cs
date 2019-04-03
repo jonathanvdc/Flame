@@ -48,7 +48,7 @@ namespace Flame.Compiler
         /// <returns>
         /// A mutable instruction reference to an unnamed instruction.
         /// </returns>
-        public abstract MutableInstructionRef GetInstructionRef(
+        public abstract InstructionRef GetInstructionRef(
             BasicBlockBuilder block,
             int instructionIndex);
 
@@ -72,7 +72,7 @@ namespace Flame.Compiler
         /// <returns>
         /// A sequence of mutable instruction references to unnamed instructions.
         /// </returns>
-        public IEnumerable<MutableInstructionRef> GetInstructionRefs(BasicBlockBuilder block)
+        public IEnumerable<InstructionRef> GetInstructionRefs(BasicBlockBuilder block)
         {
             return Instructions.Select((insn, i) => GetInstructionRef(block, i));
         }

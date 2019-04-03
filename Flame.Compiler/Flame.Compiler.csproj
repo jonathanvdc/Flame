@@ -48,8 +48,8 @@
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionBuilder.cs" />
     <Compile Include="InstructionPrototype.cs" />
+    <Compile Include="InstructionRef.cs" />
     <Compile Include="MethodBody.cs" />
-    <Compile Include="MutableInstructionRef.cs" />
     <Compile Include="SelectedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Analysis\AliasAnalysis.cs" />

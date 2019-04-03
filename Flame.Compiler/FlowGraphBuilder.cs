@@ -100,7 +100,7 @@ namespace Flame.Compiler
         /// in this control-flow graph.
         /// </summary>
         /// <returns>All anonymous instructions.</returns>
-        public IEnumerable<MutableInstructionRef> AnonymousInstructions =>
+        public IEnumerable<InstructionRef> AnonymousInstructions =>
             BasicBlocks.SelectMany(block => block.Flow.GetInstructionRefs(block));
 
         /// <summary>

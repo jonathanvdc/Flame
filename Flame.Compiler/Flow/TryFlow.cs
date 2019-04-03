@@ -60,7 +60,7 @@ namespace Flame.Compiler.Flow
         /// <inheritdoc/>
         public override IReadOnlyList<Branch> Branches => new Branch[] { SuccessBranch, ExceptionBranch };
 
-        public override MutableInstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
+        public override InstructionRef GetInstructionRef(BasicBlockBuilder block, int instructionIndex)
         {
             if (instructionIndex == 0)
             {

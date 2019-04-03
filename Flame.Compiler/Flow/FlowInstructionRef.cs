@@ -8,7 +8,7 @@ namespace Flame.Compiler.Flow
     /// An instruction reference to an unnamed instruction in
     /// block flow.
     /// </summary>
-    public abstract class FlowInstructionRef : MutableInstructionRef
+    public abstract class FlowInstructionRef : InstructionRef
     {
         public FlowInstructionRef(BasicBlockBuilder block)
         {
