@@ -22,7 +22,7 @@ namespace Flame.Compiler.Target
         /// A batch of selected instructions.
         /// </returns>
         SelectedInstructions<TInstruction> SelectInstructions(
-            SelectedInstruction instruction);
+            NamedInstruction instruction);
     }
 
     /// <summary>

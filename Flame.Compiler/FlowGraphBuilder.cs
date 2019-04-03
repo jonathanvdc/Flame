@@ -303,7 +303,7 @@ namespace Flame.Compiler
         /// Gets the instruction with a particular tag.
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
-        /// <returns>A selected instruction.</returns>
+        /// <returns>A named instruction.</returns>
         public InstructionBuilder GetInstruction(ValueTag tag)
         {
             InstructionBuilder result;
@@ -324,7 +324,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
         /// <param name="result">
-        /// The selected instruction, if it exists in this control-flow graph.
+        /// The named instruction, if it exists in this control-flow graph.
         /// </param>
         /// <returns><c>true</c> if the instruction exists; otherwise, <c>false</c>.</returns>
         public bool TryGetInstruction(ValueTag tag, out InstructionBuilder result)

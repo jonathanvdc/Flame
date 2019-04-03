@@ -4,11 +4,11 @@ using System.Threading;
 namespace Flame.Compiler
 {
     /// <summary>
-    /// An instruction in the context of a control-flow graph.
+    /// A named instruction in the context of a control-flow graph.
     /// </summary>
-    public sealed class SelectedInstruction : IEquatable<SelectedInstruction>
+    public sealed class NamedInstruction : IEquatable<NamedInstruction>
     {
-        internal SelectedInstruction(
+        internal NamedInstruction(
             BasicBlock block, ValueTag tag, Instruction instruction)
         {
             this.Block = block;
@@ -17,7 +17,7 @@ namespace Flame.Compiler
             this.instrIndexValue = -1;
         }
 
-        internal SelectedInstruction(
+        internal NamedInstruction(
             BasicBlock block,
             ValueTag tag,
             Instruction instruction,
@@ -36,7 +36,7 @@ namespace Flame.Compiler
         public ValueTag Tag { get; private set; }
 
         /// <summary>
-        /// Gets the basic block that defines this selected instruction.
+        /// Gets the basic block that defines this named instruction.
         /// </summary>
         /// <returns>The basic block.</returns>
         public BasicBlock Block { get; private set; }
@@ -48,12 +48,12 @@ namespace Flame.Compiler
         public Instruction Instruction { get; private set; }
 
         /// <summary>
-        /// Gets the selected instruction's result type.
+        /// Gets the named instruction's result type.
         /// </summary>
         public IType ResultType => Instruction.ResultType;
 
         /// <summary>
-        /// Gets the selected instruction's prototype.
+        /// Gets the named instruction's prototype.
         /// </summary>
         public InstructionPrototype Prototype => Instruction.Prototype;
 
@@ -82,7 +82,7 @@ namespace Flame.Compiler
         /// this instruction. Returns null if there is no such instruction.
         /// </summary>
         /// <returns>The previous instruction or null.</returns>
-        public SelectedInstruction PreviousInstructionOrNull
+        public NamedInstruction PreviousInstructionOrNull
         {
             get
             {
@@ -103,7 +103,7 @@ namespace Flame.Compiler
         /// this instruction. Returns null if there is no such instruction.
         /// </summary>
         /// <returns>The next instruction or null.</returns>
-        public SelectedInstruction NextInstructionOrNull
+        public NamedInstruction NextInstructionOrNull
         {
             get
             {
@@ -129,7 +129,7 @@ namespace Flame.Compiler
         /// <returns>
         /// A new instruction in a new control-flow graph.
         /// </returns>
-        public SelectedInstruction ReplaceInstruction(Instruction instruction)
+        public NamedInstruction ReplaceInstruction(Instruction instruction)
         {
             return Block.Graph.ReplaceInstruction(Tag, instruction);
         }
@@ -145,7 +145,7 @@ namespace Flame.Compiler
         /// <returns>
         /// A new instruction in a new control-flow graph.
         /// </returns>
-        public SelectedInstruction ReplaceInstruction(FlowGraph implementation)
+        public NamedInstruction ReplaceInstruction(FlowGraph implementation)
         {
             var builder = Block.Graph.ToBuilder().GetInstruction(this);
             builder.ReplaceInstruction(implementation);
@@ -159,7 +159,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertBefore(Instruction instruction, ValueTag tag)
+        public NamedInstruction InsertBefore(Instruction instruction, ValueTag tag)
         {
             return Block.Graph.InsertInstructionInBasicBlock(
                 Block.Tag,
@@ -175,7 +175,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name for the instruction.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertBefore(Instruction instruction, string name)
+        public NamedInstruction InsertBefore(Instruction instruction, string name)
         {
             return InsertBefore(instruction, new ValueTag(name));
         }
@@ -186,7 +186,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertBefore(Instruction instruction)
+        public NamedInstruction InsertBefore(Instruction instruction)
         {
             return InsertBefore(instruction, "");
         }
@@ -198,7 +198,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertAfter(Instruction instruction, ValueTag tag)
+        public NamedInstruction InsertAfter(Instruction instruction, ValueTag tag)
         {
             return Block.Graph.InsertInstructionInBasicBlock(
                 Block.Tag,
@@ -214,7 +214,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name for the instruction.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertAfter(Instruction instruction, string name)
+        public NamedInstruction InsertAfter(Instruction instruction, string name)
         {
             return InsertAfter(instruction, new ValueTag(name));
         }
@@ -225,21 +225,21 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction in a new control-flow graph.</returns>
-        public SelectedInstruction InsertAfter(Instruction instruction)
+        public NamedInstruction InsertAfter(Instruction instruction)
         {
             return InsertAfter(instruction, "");
         }
 
         /// <summary>
-        /// Tests if this selected instruction is the same instruction
-        /// as another selected instruction.
+        /// Tests if this named instruction is the same instruction
+        /// as another named instruction.
         /// </summary>
-        /// <param name="other">The other selected instruction.</param>
+        /// <param name="other">The other named instruction.</param>
         /// <returns>
-        /// <c>true</c> if this selected instruction is the same as
-        /// the other selected instruction; otherwise, <c>false</c>.
+        /// <c>true</c> if this named instruction is the same as
+        /// the other named instruction; otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(SelectedInstruction other)
+        public bool Equals(NamedInstruction other)
         {
             return Tag == other.Tag && Block.Graph == other.Block.Graph;
         }
@@ -247,8 +247,8 @@ namespace Flame.Compiler
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return obj is SelectedInstruction
-                && Equals((SelectedInstruction)obj);
+            return obj is NamedInstruction
+                && Equals((NamedInstruction)obj);
         }
 
         /// <inheritdoc/>
@@ -263,7 +263,7 @@ namespace Flame.Compiler
         /// <param name="instruction">
         /// The instruction to convert.
         /// </param>
-        public static implicit operator ValueTag(SelectedInstruction instruction)
+        public static implicit operator ValueTag(NamedInstruction instruction)
         {
             return instruction.Tag;
         }

@@ -193,7 +193,7 @@ namespace Flame.Compiler.Analysis
         /// <c>true</c> if <paramref name="instruction"/> is strictly dominated by
         /// <paramref name="dominator"/>; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsStrictlyDominatedBy(SelectedInstruction instruction, SelectedInstruction dominator)
+        public bool IsStrictlyDominatedBy(NamedInstruction instruction, NamedInstruction dominator)
         {
             var graph = instruction.Block.Graph;
             ContractHelpers.Assert(graph == dominator.Block.Graph);
@@ -216,7 +216,7 @@ namespace Flame.Compiler.Analysis
         /// <paramref name="dominator"/> or <paramref name="instruction"/> equals
         /// <paramref name="dominator"/>; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsDominatedBy(SelectedInstruction instruction, SelectedInstruction dominator)
+        public bool IsDominatedBy(NamedInstruction instruction, NamedInstruction dominator)
         {
             var graph = instruction.Block.Graph;
             ContractHelpers.Assert(graph == dominator.Block.Graph);

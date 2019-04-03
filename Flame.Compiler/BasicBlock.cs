@@ -55,7 +55,7 @@ namespace Flame.Compiler
         /// Gets the list of all named instructions in this basic block.
         /// </summary>
         /// <returns>The list of all named instructions.</returns>
-        public IEnumerable<SelectedInstruction> NamedInstructions =>
+        public IEnumerable<NamedInstruction> NamedInstructions =>
             InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to append.</param>
         /// <param name="tag">The tag for the instruction.</param>
         /// <returns>The appended instruction.</returns>
-        public SelectedInstruction AppendInstruction(Instruction instruction, ValueTag tag)
+        public NamedInstruction AppendInstruction(Instruction instruction, ValueTag tag)
         {
             return Graph.InsertInstructionInBasicBlock(Tag, instruction, tag, InstructionTags.Count);
         }
@@ -136,7 +136,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to append.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The appended instruction.</returns>
-        public SelectedInstruction AppendInstruction(Instruction instruction, string name)
+        public NamedInstruction AppendInstruction(Instruction instruction, string name)
         {
             return AppendInstruction(instruction, new ValueTag(name));
         }
@@ -147,7 +147,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to append.</param>
         /// <returns>The appended instruction.</returns>
-        public SelectedInstruction AppendInstruction(Instruction instruction)
+        public NamedInstruction AppendInstruction(Instruction instruction)
         {
             return AppendInstruction(instruction, "");
         }
@@ -162,7 +162,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The tag for the instruction.</param>
         /// <returns>The inserted instruction.</returns>
-        public SelectedInstruction InsertInstruction(int index, Instruction instruction, ValueTag tag)
+        public NamedInstruction InsertInstruction(int index, Instruction instruction, ValueTag tag)
         {
             return Graph.InsertInstructionInBasicBlock(Tag, instruction, tag, index);
         }
@@ -177,7 +177,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The inserted instruction.</returns>
-        public SelectedInstruction InsertInstruction(int index, Instruction instruction, string name)
+        public NamedInstruction InsertInstruction(int index, Instruction instruction, string name)
         {
             return InsertInstruction(index, instruction, new ValueTag(name));
         }
@@ -191,7 +191,7 @@ namespace Flame.Compiler
         /// </param>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction.</returns>
-        public SelectedInstruction InsertInstruction(int index, Instruction instruction)
+        public NamedInstruction InsertInstruction(int index, Instruction instruction)
         {
             return InsertInstruction(index, instruction, "");
         }

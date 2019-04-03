@@ -119,7 +119,7 @@ namespace Flame.Compiler.Transforms
         }
 
         private static void ToReductionList(
-            SelectedInstruction instruction,
+            NamedInstruction instruction,
             InstructionPrototype prototype,
             List<ValueTag> reductionArgs,
             HashSet<ValueTag> reductionOps,
@@ -153,7 +153,7 @@ namespace Flame.Compiler.Transforms
         {
             foreach (var arg in arguments)
             {
-                SelectedInstruction insn;
+                NamedInstruction insn;
                 if (graph.TryGetInstruction(arg, out insn))
                 {
                     ToReductionList(
@@ -228,7 +228,7 @@ namespace Flame.Compiler.Transforms
 
         private static bool IsConstant(ValueTag tag, FlowGraph graph, out Constant constant)
         {
-            SelectedInstruction instruction;
+            NamedInstruction instruction;
             if (graph.TryGetInstruction(tag, out instruction)
                 && instruction.Prototype is ConstantPrototype)
             {

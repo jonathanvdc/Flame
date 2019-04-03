@@ -636,7 +636,7 @@ namespace Flame.Clr.Emit
 
         /// <inheritdoc/>
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
-            SelectedInstruction instruction)
+            NamedInstruction instruction)
         {
             if (!selectedInstructions.Add(instruction.Tag))
             {
@@ -2170,7 +2170,7 @@ namespace Flame.Clr.Emit
             /// Selects instructions that compute a dependency inline.
             /// </summary>
             /// <param name="dependency">The dependency to select instructions for.</param>
-            private void SelectDependencyInline(SelectedInstruction dependency)
+            private void SelectDependencyInline(NamedInstruction dependency)
             {
                 // Select instructions for the dependency.
                 var dependencySelection = InstructionSelector.SelectInstructionsImpl(

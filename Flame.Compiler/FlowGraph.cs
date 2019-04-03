@@ -107,7 +107,7 @@ namespace Flame.Compiler
         /// Anonymous instructions as defined by block flow are not included.
         /// </summary>
         /// <returns>All named instructions</returns>
-        public IEnumerable<SelectedInstruction> NamedInstructions =>
+        public IEnumerable<NamedInstruction> NamedInstructions =>
             InstructionTags.Select(GetInstruction);
 
         /// <summary>
@@ -295,10 +295,10 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>A named instruction.</returns>
-        public SelectedInstruction GetInstruction(ValueTag tag)
+        public NamedInstruction GetInstruction(ValueTag tag)
         {
             AssertContainsInstruction(tag);
-            return new SelectedInstruction(
+            return new NamedInstruction(
                 GetValueParent(tag),
                 tag,
                 instructions[tag]);
@@ -310,15 +310,15 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
         /// <param name="result">
-        /// The selected instruction, if it exists in this control-flow graph.
+        /// The named instruction, if it exists in this control-flow graph.
         /// </param>
         /// <returns><c>true</c> if the instruction exists; otherwise, <c>false</c>.</returns>
-        public bool TryGetInstruction(ValueTag tag, out SelectedInstruction result)
+        public bool TryGetInstruction(ValueTag tag, out NamedInstruction result)
         {
             Instruction insn;
             if (instructions.TryGetValue(tag, out insn))
             {
-                result = new SelectedInstruction(GetValueParent(tag), tag, insn);
+                result = new NamedInstruction(GetValueParent(tag), tag, insn);
                 return true;
             }
             else
@@ -915,7 +915,7 @@ namespace Flame.Compiler
             return new BasicBlock(newGraph, tag, newData);
         }
 
-        internal SelectedInstruction InsertInstructionInBasicBlock(
+        internal NamedInstruction InsertInstructionInBasicBlock(
             BasicBlockTag blockTag,
             Instruction instruction,
             ValueTag insnTag,
@@ -934,18 +934,18 @@ namespace Flame.Compiler
             newGraph.blocks = newGraph.blocks.SetItem(blockTag, newBlockData);
             newGraph.instructions = newGraph.instructions.Add(insnTag, instruction);
             newGraph.valueParents = newGraph.valueParents.Add(insnTag, blockTag);
-            return new SelectedInstruction(
+            return new NamedInstruction(
                 new BasicBlock(newGraph, blockTag, newBlockData),
                 insnTag,
                 instruction,
                 index);
         }
 
-        internal SelectedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)
+        internal NamedInstruction ReplaceInstruction(ValueTag tag, Instruction instruction)
         {
             var newGraph = new FlowGraph(this, new ReplaceInstructionUpdate(tag, instruction));
             newGraph.instructions = newGraph.instructions.SetItem(tag, instruction);
-            return new SelectedInstruction(
+            return new NamedInstruction(
                 newGraph.GetValueParent(tag),
                 tag,
                 instruction);

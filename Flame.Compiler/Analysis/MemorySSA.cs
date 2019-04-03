@@ -53,7 +53,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <param name="instruction">An instruction.</param>
         /// <returns>A memory state.</returns>
-        public Value GetMemoryAfter(SelectedInstruction instruction)
+        public Value GetMemoryAfter(NamedInstruction instruction)
         {
             return InstructionValues[instruction];
         }
@@ -63,7 +63,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <param name="instruction">An instruction.</param>
         /// <returns>A memory state.</returns>
-        public Value GetMemoryBefore(SelectedInstruction instruction)
+        public Value GetMemoryBefore(NamedInstruction instruction)
         {
             var prev = instruction.PreviousInstructionOrNull;
             if (prev == null)
@@ -329,7 +329,7 @@ namespace Flame.Compiler.Analysis
             return new MemorySSA(blockStates.ToImmutable(), insnStates.ToImmutable());
         }
 
-        private static MemorySSA.Value UpdateState(MemorySSA.Value state, SelectedInstruction instruction)
+        private static MemorySSA.Value UpdateState(MemorySSA.Value state, NamedInstruction instruction)
         {
             var graph = instruction.Block.Graph;
 

@@ -50,7 +50,7 @@ namespace Flame.Compiler
         /// </returns>
         public override bool IsValid => Graph.ContainsInstruction(Tag);
 
-        private SelectedInstruction ImmutableInstruction =>
+        private NamedInstruction ImmutableInstruction =>
             Graph.ImmutableGraph.GetInstruction(Tag);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Flame.Compiler
         /// current state of the IR builder.
         /// </summary>
         /// <returns>An immutable version.</returns>
-        public SelectedInstruction ToImmutable()
+        public NamedInstruction ToImmutable()
         {
             return ImmutableInstruction;
         }

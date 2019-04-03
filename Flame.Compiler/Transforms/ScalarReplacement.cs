@@ -155,7 +155,7 @@ namespace Flame.Compiler.Transforms
             return allocas;
         }
 
-        private static bool IsDefaultInitialization(SelectedInstruction instruction)
+        private static bool IsDefaultInitialization(NamedInstruction instruction)
         {
             var proto = instruction.Prototype;
             if (proto is StorePrototype)

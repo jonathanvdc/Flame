@@ -50,7 +50,7 @@
     <Compile Include="InstructionPrototype.cs" />
     <Compile Include="InstructionRef.cs" />
     <Compile Include="MethodBody.cs" />
-    <Compile Include="SelectedInstruction.cs" />
+    <Compile Include="NamedInstruction.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Analysis\AliasAnalysis.cs" />
     <Compile Include="Analysis\BlockReachability.cs" />

@@ -52,7 +52,7 @@ namespace Flame.Compiler.Analysis
         /// effectful or not.
         /// </param>
         public EffectfulInstructionAnalysis(
-            Predicate<SelectedInstruction> isEffectful)
+            Predicate<NamedInstruction> isEffectful)
         {
             this.IsEffectful = isEffectful;
         }
@@ -64,7 +64,7 @@ namespace Flame.Compiler.Analysis
         /// A predicate that takes an instruction and tells if it is
         /// effectful or not.
         /// </value>
-        public Predicate<SelectedInstruction> IsEffectful { get; private set; }
+        public Predicate<NamedInstruction> IsEffectful { get; private set; }
 
         /// <inheritdoc/>
         public EffectfulInstructions Analyze(FlowGraph graph)
@@ -127,7 +127,7 @@ namespace Flame.Compiler.Analysis
             return new EffectfulInstructions(effectfulSet.ToImmutable());
         }
 
-        private static bool DefaultIsEffectfulImpl(SelectedInstruction selection)
+        private static bool DefaultIsEffectfulImpl(NamedInstruction selection)
         {
             var instruction = selection.Instruction;
             var proto = instruction.Prototype;

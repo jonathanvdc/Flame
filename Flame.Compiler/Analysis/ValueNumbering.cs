@@ -262,7 +262,7 @@ namespace Flame.Compiler.Analysis
             /// <param name="instruction">
             /// The instruction to add.
             /// </param>
-            public void AddInstruction(SelectedInstruction instruction)
+            public void AddInstruction(NamedInstruction instruction)
             {
                 if (valueNumbers.ContainsKey(instruction))
                 {
