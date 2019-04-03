@@ -12,15 +12,17 @@ namespace Flame.Compiler.Flow
     {
         public FlowInstructionBuilder(BasicBlockBuilder block)
         {
-            this.Block = block;
+            this.block = block;
             this.Flow = block.Flow;
         }
+
+        protected BasicBlockBuilder block;
 
         /// <summary>
         /// Gets the block that defines the block flow.
         /// </summary>
         /// <value>A basic block builder.</value>
-        public BasicBlockBuilder Block { get; protected set; }
+        public override BasicBlockBuilder Block => block;
 
         /// <summary>
         /// Gets the flow that defines the unnamed instruction.
@@ -110,7 +112,7 @@ namespace Flame.Compiler.Flow
                 Block.Flow = new JumpFlow(entryTag, arguments);
 
                 // Set the block that defines this flow to the continuation block.
-                Block = continuationBlock;
+                block = continuationBlock;
                 Flow = Block.Flow;
             }
         }

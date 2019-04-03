@@ -38,7 +38,7 @@ namespace Flame.Compiler
         /// Gets the basic block that defines this instruction.
         /// </summary>
         /// <returns>A basic block builder.</returns>
-        public BasicBlockBuilder Block => Graph.GetValueParent(this);
+        public override BasicBlockBuilder Block => Graph.GetValueParent(this);
 
         /// <summary>
         /// Tells if this instruction builder is still valid, that is,

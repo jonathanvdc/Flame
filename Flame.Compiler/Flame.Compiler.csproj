@@ -75,7 +75,7 @@
     <Compile Include="Analysis\RelatedValueAnalysis.cs" />
     <Compile Include="Analysis\ValueNumbering.cs" />
     <Compile Include="Analysis\ValueUseAnalysis.cs" />
-    <Compile Include="Flow\FlowInstructionRef.cs" />
+    <Compile Include="Flow\FlowInstructionBuilder.cs" />
     <Compile Include="Flow\JumpFlow.cs" />
     <Compile Include="Flow\ReturnFlow.cs" />
     <Compile Include="Flow\SwitchFlow.cs" />

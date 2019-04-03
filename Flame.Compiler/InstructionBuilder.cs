@@ -14,8 +14,8 @@ namespace Flame.Compiler
     public abstract class InstructionBuilder
     {
         /// <summary>
-        /// Tells if this instruction reference is still valid. Querying
-        /// or modifying invalid instruction references results in an
+        /// Tells if this instruction builder is still valid. Querying
+        /// or modifying invalid instruction builders results in an
         /// exception.
         /// </summary>
         /// <value>
@@ -24,17 +24,23 @@ namespace Flame.Compiler
         public abstract bool IsValid { get; }
 
         /// <summary>
+        /// Gets the block that defines this instruction.
+        /// </summary>
+        /// <value></value>
+        public abstract BasicBlockBuilder Block { get; }
+
+        /// <summary>
         /// Gets or sets the instruction referred to by this
-        /// instruction reference.
+        /// instruction builder.
         /// </summary>
         /// <value>
-        /// The instruction referred to by this reference.
+        /// The instruction referred to by this builder.
         /// </value>
         public abstract Instruction Instruction { get; set; }
 
         /// <summary>
         /// Replaces the instruction referred to by this instruction
-        /// reference with a control-flow graph that implements the
+        /// builder with a control-flow graph that implements the
         /// instruction.
         /// </summary>
         /// <param name="implementation">
@@ -45,10 +51,10 @@ namespace Flame.Compiler
         /// entry point block.
         /// </param>
         /// <remarks>
-        /// Calling this method may invalidate instruction references,
-        /// including this reference. Specifically, if this reference
+        /// Calling this method may invalidate instruction builders,
+        /// including this builder. Specifically, if this builder
         /// refers to an unnamed instruction in block flow, then this
-        /// reference and all other references to unnamed instructions
+        /// builder and all other builders to unnamed instructions
         /// in that block flow may be invalidated.
         /// </remarks>
         public abstract void ReplaceInstruction(
@@ -57,7 +63,7 @@ namespace Flame.Compiler
 
         /// <summary>
         /// Replaces the instruction referred to by this instruction
-        /// reference with a control-flow graph that implements the
+        /// builder with a control-flow graph that implements the
         /// instruction. The instruction's arguments are passed to
         /// <paramref name="implementation"/>'s entry point block.
         /// </summary>
@@ -65,10 +71,10 @@ namespace Flame.Compiler
         /// A control-flow graph that implements the instruction.
         /// </param>
         /// <remarks>
-        /// Calling this method may invalidate instruction references,
-        /// including this reference. Specifically, if this reference
+        /// Calling this method may invalidate instruction builders,
+        /// including this builder. Specifically, if this builder
         /// refers to an unnamed instruction in block flow, then this
-        /// reference and all other references to unnamed instructions
+        /// builder and all other builders to unnamed instructions
         /// in that block flow may be invalidated.
         /// </remarks>
         public void ReplaceInstruction(FlowGraph implementation)
