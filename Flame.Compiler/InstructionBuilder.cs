@@ -26,8 +26,14 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the block that defines this instruction.
         /// </summary>
-        /// <value></value>
+        /// /// <value>A basic block builder.</value>
         public abstract BasicBlockBuilder Block { get; }
+
+        /// <summary>
+        /// Gets the graph that defines this instruction.
+        /// </summary>
+        /// <value>A control-flow graph builder.</value>
+        public virtual FlowGraphBuilder Graph => Block.Graph;
 
         /// <summary>
         /// Gets or sets the instruction referred to by this

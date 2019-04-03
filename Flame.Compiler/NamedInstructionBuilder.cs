@@ -17,9 +17,11 @@ namespace Flame.Compiler
         /// <param name="tag">The instruction's tag.</param>
         internal NamedInstructionBuilder(FlowGraphBuilder graph, ValueTag tag)
         {
-            this.Graph = graph;
+            this.graph = graph;
             this.Tag = tag;
         }
+
+        private FlowGraphBuilder graph;
 
         /// <summary>
         /// Gets this instruction's tag.
@@ -32,7 +34,7 @@ namespace Flame.Compiler
         /// instruction.
         /// </summary>
         /// <returns>A control-flow graph builder.</returns>
-        public FlowGraphBuilder Graph { get; private set; }
+        public override FlowGraphBuilder Graph => graph;
 
         /// <summary>
         /// Gets the basic block that defines this instruction.
