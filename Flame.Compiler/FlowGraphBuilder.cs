@@ -104,6 +104,14 @@ namespace Flame.Compiler
             BasicBlocks.SelectMany(block => block.Flow.GetInstructionBuilders(block));
 
         /// <summary>
+        /// Gets a sequence of all instructions defined in this control-flow graph,
+        /// including both named and anonymous instructions.
+        /// </summary>
+        /// <returns>All instructions in this control-flow graph.</returns>
+        public IEnumerable<InstructionBuilder> Instructions =>
+            NamedInstructions.Concat(AnonymousInstructions);
+
+        /// <summary>
         /// Registers a flow graph analysis with this graph.
         /// </summary>
         /// <param name="analysis">The analysis to register.</param>
