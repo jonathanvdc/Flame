@@ -33,7 +33,7 @@ namespace Flame.Compiler.Instructions.Fused
         }
 
         /// <inheritdoc/>
-        public override void Expand(InstructionBuilder instance)
+        public override void Expand(NamedInstructionBuilder instance)
         {
             var insn = instance.Instruction;
             AssertIsPrototypeOf(insn);

@@ -78,7 +78,7 @@ namespace Flame.Compiler
         /// Gets the list of all named instructions in this basic block.
         /// </summary>
         /// <returns>A sequence containing all named instructions.</returns>
-        public IEnumerable<InstructionBuilder> NamedInstructions =>
+        public IEnumerable<NamedInstructionBuilder> NamedInstructions =>
             InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to append.</param>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>The appended instruction.</returns>
-        public InstructionBuilder AppendInstruction(Instruction instruction, ValueTag tag)
+        public NamedInstructionBuilder AppendInstruction(Instruction instruction, ValueTag tag)
         {
             var selInsn = ImmutableBlock.AppendInstruction(instruction, tag);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -133,7 +133,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to append.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The appended instruction.</returns>
-        public InstructionBuilder AppendInstruction(Instruction instruction, string name)
+        public NamedInstructionBuilder AppendInstruction(Instruction instruction, string name)
         {
             return AppendInstruction(instruction, new ValueTag(name));
         }
@@ -144,7 +144,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to append.</param>
         /// <returns>The appended instruction.</returns>
-        public InstructionBuilder AppendInstruction(Instruction instruction)
+        public NamedInstructionBuilder AppendInstruction(Instruction instruction)
         {
             return AppendInstruction(instruction, new ValueTag());
         }
@@ -157,7 +157,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertInstruction(int index, Instruction instruction, ValueTag tag)
+        public NamedInstructionBuilder InsertInstruction(int index, Instruction instruction, ValueTag tag)
         {
             var selInsn = ImmutableBlock.InsertInstruction(index, instruction, tag);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -172,7 +172,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name of the instruction's tag.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertInstruction(int index, Instruction instruction, string name)
+        public NamedInstructionBuilder InsertInstruction(int index, Instruction instruction, string name)
         {
             return InsertInstruction(index, instruction, new ValueTag(name));
         }
@@ -184,7 +184,7 @@ namespace Flame.Compiler
         /// <param name="index">The index to insert the instruction at.</param>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertInstruction(int index, Instruction instruction)
+        public NamedInstructionBuilder InsertInstruction(int index, Instruction instruction)
         {
             return InsertInstruction(index, instruction, new ValueTag());
         }

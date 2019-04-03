@@ -92,7 +92,7 @@ namespace Flame.Compiler
         /// Anonymous instructions as defined by block flow are not included.
         /// </summary>
         /// <returns>All named instructions.</returns>
-        public IEnumerable<InstructionBuilder> NamedInstructions =>
+        public IEnumerable<NamedInstructionBuilder> NamedInstructions =>
             InstructionTags.Select(GetInstruction);
 
         /// <summary>
@@ -304,9 +304,9 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
         /// <returns>A named instruction.</returns>
-        public InstructionBuilder GetInstruction(ValueTag tag)
+        public NamedInstructionBuilder GetInstruction(ValueTag tag)
         {
-            InstructionBuilder result;
+            NamedInstructionBuilder result;
             if (TryGetInstruction(tag, out result))
             {
                 return result;
@@ -327,11 +327,11 @@ namespace Flame.Compiler
         /// The named instruction, if it exists in this control-flow graph.
         /// </param>
         /// <returns><c>true</c> if the instruction exists; otherwise, <c>false</c>.</returns>
-        public bool TryGetInstruction(ValueTag tag, out InstructionBuilder result)
+        public bool TryGetInstruction(ValueTag tag, out NamedInstructionBuilder result)
         {
             if (ContainsInstruction(tag))
             {
-                result = new InstructionBuilder(this, tag);
+                result = new NamedInstructionBuilder(this, tag);
                 return true;
             }
             else

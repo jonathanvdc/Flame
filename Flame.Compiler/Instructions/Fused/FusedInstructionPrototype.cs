@@ -31,7 +31,7 @@ namespace Flame.Compiler.Instructions.Fused
         /// <param name="instance">
         /// An instance of this prototype to expand.
         /// </param>
-        public abstract void Expand(InstructionBuilder instance);
+        public abstract void Expand(NamedInstructionBuilder instance);
 
         /// <inheritdoc/>
         public sealed override IType ResultType => resultTypeCache.Value;

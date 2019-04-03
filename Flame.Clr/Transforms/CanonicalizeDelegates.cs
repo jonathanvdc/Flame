@@ -121,7 +121,7 @@ namespace Flame.Clr.Transforms
         private static ValueTag ConvertThisArgument(
             ValueTag thisArgument,
             IType expectedThisType,
-            InstructionBuilder insertionPoint)
+            NamedInstructionBuilder insertionPoint)
         {
             var thisType = insertionPoint.Graph.GetValueType(thisArgument);
 

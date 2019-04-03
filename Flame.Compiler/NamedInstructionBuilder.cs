@@ -6,16 +6,16 @@ using Flame.Compiler.Flow;
 namespace Flame.Compiler
 {
     /// <summary>
-    /// An instruction in a mutable control-flow graph builder.
+    /// A named instruction in a mutable control-flow graph builder.
     /// </summary>
-    public sealed class InstructionBuilder : InstructionRef, IEquatable<InstructionBuilder>
+    public sealed class NamedInstructionBuilder : InstructionRef, IEquatable<NamedInstructionBuilder>
     {
         /// <summary>
-        /// Creates an instruction builder from a graph and a tag.
+        /// Creates a named instruction builder from a graph and a tag.
         /// </summary>
         /// <param name="graph">The instruction builder's defining graph.</param>
         /// <param name="tag">The instruction's tag.</param>
-        internal InstructionBuilder(FlowGraphBuilder graph, ValueTag tag)
+        internal NamedInstructionBuilder(FlowGraphBuilder graph, ValueTag tag)
         {
             this.Graph = graph;
             this.Tag = tag;
@@ -93,7 +93,7 @@ namespace Flame.Compiler
         /// this instruction. Returns null if there is no such instruction.
         /// </summary>
         /// <returns>The previous instruction or null.</returns>
-        public InstructionBuilder PreviousInstructionOrNull
+        public NamedInstructionBuilder PreviousInstructionOrNull
         {
             get
             {
@@ -107,7 +107,7 @@ namespace Flame.Compiler
         /// this instruction. Returns null if there is no such instruction.
         /// </summary>
         /// <returns>The next instruction or null.</returns>
-        public InstructionBuilder NextInstructionOrNull
+        public NamedInstructionBuilder NextInstructionOrNull
         {
             get
             {
@@ -123,7 +123,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The tag to assign to the instruction.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertBefore(Instruction instruction, ValueTag tag)
+        public NamedInstructionBuilder InsertBefore(Instruction instruction, ValueTag tag)
         {
             var selInsn = ImmutableInstruction.InsertBefore(instruction, tag);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -137,7 +137,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name for the instruction.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertBefore(Instruction instruction, string name)
+        public NamedInstructionBuilder InsertBefore(Instruction instruction, string name)
         {
             var selInsn = ImmutableInstruction.InsertBefore(instruction, name);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -150,7 +150,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertBefore(Instruction instruction)
+        public NamedInstructionBuilder InsertBefore(Instruction instruction)
         {
             return InsertBefore(instruction, "");
         }
@@ -162,7 +162,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="tag">The tag to assign to the instruction.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertAfter(Instruction instruction, ValueTag tag)
+        public NamedInstructionBuilder InsertAfter(Instruction instruction, ValueTag tag)
         {
             var selInsn = ImmutableInstruction.InsertAfter(instruction, tag);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -176,7 +176,7 @@ namespace Flame.Compiler
         /// <param name="instruction">The instruction to insert.</param>
         /// <param name="name">The preferred name for the instruction.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertAfter(Instruction instruction, string name)
+        public NamedInstructionBuilder InsertAfter(Instruction instruction, string name)
         {
             var selInsn = ImmutableInstruction.InsertAfter(instruction, name);
             Graph.ImmutableGraph = selInsn.Block.Graph;
@@ -189,7 +189,7 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="instruction">The instruction to insert.</param>
         /// <returns>The inserted instruction.</returns>
-        public InstructionBuilder InsertAfter(Instruction instruction)
+        public NamedInstructionBuilder InsertAfter(Instruction instruction)
         {
             return InsertAfter(instruction, "");
         }
@@ -312,7 +312,7 @@ namespace Flame.Compiler
         /// <c>true</c> if this instruction builder is the same as
         /// the other instruction builder; otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(InstructionBuilder other)
+        public bool Equals(NamedInstructionBuilder other)
         {
             return Tag == other.Tag && Graph == other.Graph;
         }
@@ -320,8 +320,8 @@ namespace Flame.Compiler
         /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            return obj is InstructionBuilder
-                && Equals((InstructionBuilder)obj);
+            return obj is NamedInstructionBuilder
+                && Equals((NamedInstructionBuilder)obj);
         }
 
         /// <inheritdoc/>
@@ -336,7 +336,7 @@ namespace Flame.Compiler
         /// <param name="instruction">
         /// The instruction to convert.
         /// </param>
-        public static implicit operator ValueTag(InstructionBuilder instruction)
+        public static implicit operator ValueTag(NamedInstructionBuilder instruction)
         {
             return instruction.Tag;
         }

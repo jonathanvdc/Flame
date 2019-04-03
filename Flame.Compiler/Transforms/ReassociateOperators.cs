@@ -48,7 +48,7 @@ namespace Flame.Compiler.Transforms
             return builder.ToImmutable();
         }
 
-        private static void ReassociateNonAssociative(InstructionBuilder instruction)
+        private static void ReassociateNonAssociative(NamedInstructionBuilder instruction)
         {
             // Look for instructions that compute an expression that looks
             // like so: `(a op1 b) op1 c` and replace it with `a op1 (b op2 c)`,
@@ -69,7 +69,7 @@ namespace Flame.Compiler.Transforms
                 return;
             }
 
-            InstructionBuilder left;
+            NamedInstructionBuilder left;
             if (instruction.Graph.TryGetInstruction(instruction.Instruction.Arguments[0], out left)
                 && left.Prototype == proto)
             {
@@ -89,7 +89,7 @@ namespace Flame.Compiler.Transforms
             }
         }
 
-        private static void ReassociateReduction(InstructionBuilder instruction)
+        private static void ReassociateReduction(NamedInstructionBuilder instruction)
         {
             var proto = instruction.Prototype as IntrinsicPrototype;
             if (proto == null)
@@ -173,7 +173,7 @@ namespace Flame.Compiler.Transforms
         private static bool TrySimplifyReduction(
             ref List<ValueTag> args,
             InstructionPrototype prototype,
-            InstructionBuilder insertionPoint)
+            NamedInstructionBuilder insertionPoint)
         {
             bool changed = false;
             var newArgs = new List<ValueTag>();
@@ -202,11 +202,11 @@ namespace Flame.Compiler.Transforms
             return changed;
         }
 
-        private static InstructionBuilder ConstantFold(
+        private static NamedInstructionBuilder ConstantFold(
             ValueTag first,
             ValueTag second,
             InstructionPrototype prototype,
-            InstructionBuilder insertionPoint)
+            NamedInstructionBuilder insertionPoint)
         {
             var graph = insertionPoint.Graph;
             Constant firstConstant;
@@ -245,7 +245,7 @@ namespace Flame.Compiler.Transforms
         private static void MaterializeReduction(
             IReadOnlyList<ValueTag> args,
             InstructionPrototype prototype,
-            InstructionBuilder result)
+            NamedInstructionBuilder result)
         {
             if (args.Count == 1)
             {

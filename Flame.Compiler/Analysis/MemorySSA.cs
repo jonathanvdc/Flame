@@ -81,7 +81,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <param name="instruction">An instruction.</param>
         /// <returns>A memory state.</returns>
-        public Value GetMemoryAfter(InstructionBuilder instruction)
+        public Value GetMemoryAfter(NamedInstructionBuilder instruction)
         {
             return GetMemoryAfter(instruction.ToImmutable());
         }
@@ -91,7 +91,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <param name="instruction">An instruction.</param>
         /// <returns>A memory state.</returns>
-        public Value GetMemoryBefore(InstructionBuilder instruction)
+        public Value GetMemoryBefore(NamedInstructionBuilder instruction)
         {
             return GetMemoryBefore(instruction.ToImmutable());
         }

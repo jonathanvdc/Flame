@@ -122,8 +122,8 @@ namespace Flame.Clr.Analysis
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
         private Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>> exceptionHandlers;
         private HashSet<BasicBlockBuilder> analyzedBlocks;
-        private List<InstructionBuilder> parameterStackSlots;
-        private List<InstructionBuilder> localStackSlots;
+        private List<NamedInstructionBuilder> parameterStackSlots;
+        private List<NamedInstructionBuilder> localStackSlots;
         private HashSet<ValueTag> freeTemporaries;
         private EndFinallyFlow endfinallyFlow;
         private Dictionary<BasicBlockTag, int> leaveTokens;
@@ -768,7 +768,7 @@ namespace Flame.Clr.Analysis
             return ((AllocaPrototype)alloca.Prototype).ElementType;
         }
 
-        private InstructionBuilder GetParameterSlot(
+        private NamedInstructionBuilder GetParameterSlot(
             Mono.Cecil.ParameterReference parameterRef,
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
@@ -1713,7 +1713,7 @@ namespace Flame.Clr.Analysis
 
             // For each parameter, allocate a stack slot and store the
             // value of the parameter in the stack slot.
-            this.parameterStackSlots = new List<InstructionBuilder>();
+            this.parameterStackSlots = new List<NamedInstructionBuilder>();
             for (int i = 0; i < extParameters.Count; i++)
             {
                 var param = extParameters[i];
@@ -1733,7 +1733,7 @@ namespace Flame.Clr.Analysis
             }
 
             // For each local, allocate an empty stack slot.
-            this.localStackSlots = new List<InstructionBuilder>();
+            this.localStackSlots = new List<NamedInstructionBuilder>();
             foreach (var local in cilMethodBody.Variables)
             {
                 var alloca = entryPoint.AppendInstruction(

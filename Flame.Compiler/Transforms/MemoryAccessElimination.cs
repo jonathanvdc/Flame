@@ -65,7 +65,7 @@ namespace Flame.Compiler.Transforms
             // Then try to coalesce stores by iterating through basic blocks.
             foreach (var block in builder.BasicBlocks)
             {
-                var pendingStores = new List<InstructionBuilder>();
+                var pendingStores = new List<NamedInstructionBuilder>();
                 foreach (var instruction in block.NamedInstructions)
                 {
                     var proto = instruction.Prototype;
@@ -74,7 +74,7 @@ namespace Flame.Compiler.Transforms
                         var storeProto = (StorePrototype)proto;
                         var pointer = storeProto.GetPointer(instruction.Instruction);
 
-                        var newPending = new List<InstructionBuilder>();
+                        var newPending = new List<NamedInstructionBuilder>();
                         foreach (var pending in pendingStores)
                         {
                             var pendingProto = (StorePrototype)pending.Prototype;
@@ -118,7 +118,7 @@ namespace Flame.Compiler.Transforms
             return builder.ToImmutable();
         }
 
-        private void EliminateStore(InstructionBuilder instruction)
+        private void EliminateStore(NamedInstructionBuilder instruction)
         {
             var storeProto = (StorePrototype)instruction.Prototype;
             instruction.Instruction = Instruction.CreateCopy(
