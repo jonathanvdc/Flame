@@ -75,5 +75,15 @@ namespace Flame.Compiler
         {
             ReplaceInstruction(implementation, Instruction.Arguments);
         }
+
+        /// <summary>
+        /// Gets the instruction's result type.
+        /// </summary>
+        public IType ResultType => Instruction.ResultType;
+
+        /// <summary>
+        /// Gets the instruction's prototype.
+        /// </summary>
+        public InstructionPrototype Prototype => Instruction.Prototype;
     }
 }
