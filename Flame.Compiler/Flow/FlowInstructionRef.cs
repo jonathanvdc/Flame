@@ -1,3 +1,4 @@
+using System;
 using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Flow
@@ -11,6 +12,7 @@ namespace Flame.Compiler.Flow
         public FlowInstructionRef(BasicBlockBuilder block)
         {
             this.Block = block;
+            this.Flow = block.Flow;
         }
 
         /// <summary>
@@ -22,7 +24,10 @@ namespace Flame.Compiler.Flow
         /// <summary>
         /// Gets the flow that defines the unnamed instruction.
         /// </summary>
-        public BlockFlow Flow => Block.Flow;
+        public BlockFlow Flow { get; protected set; }
+
+        /// <inheritdoc/>
+        public override bool IsValid => Flow == Block.Flow;
     }
 
     /// <summary>
@@ -41,16 +46,31 @@ namespace Flame.Compiler.Flow
         {
             get
             {
+                if (!IsValid)
+                {
+                    throw new InvalidOperationException("Cannot query an invalid instruction reference.");
+                }
+
                 return Flow.Instructions[0];
             }
             set
             {
-                Block.Flow = Flow.WithInstructions(new[] { value });
+                if (!IsValid)
+                {
+                    throw new InvalidOperationException("Cannot replace an invalid instruction reference.");
+                }
+
+                Block.Flow = Flow = Flow.WithInstructions(new[] { value });
             }
         }
 
         public override void ReplaceInstruction(FlowGraph graph)
         {
+            if (!IsValid)
+            {
+                throw new InvalidOperationException("Cannot replace an invalid instruction reference.");
+            }
+
             if (graph.EntryPoint.Flow is ReturnFlow)
             {
                 // This is the fairly common case where an instruction is replaced by
@@ -90,6 +110,7 @@ namespace Flame.Compiler.Flow
 
                 // Set the block that defines this flow to the continuation block.
                 Block = continuationBlock;
+                Flow = Block.Flow;
             }
         }
     }
@@ -108,39 +129,53 @@ namespace Flame.Compiler.Flow
         {
             get
             {
+                if (!IsValid)
+                {
+                    throw new InvalidOperationException("Cannot query an invalid instruction reference.");
+                }
+
                 return Flow.Instructions[0];
             }
             set
             {
-                Block.Flow = Flow.WithInstructions(new[] { value });
+                if (!IsValid)
+                {
+                    throw new InvalidOperationException("Cannot replace an invalid instruction reference.");
+                }
+
+                Block.Flow = Flow = Flow.WithInstructions(new[] { value });
             }
         }
 
         public override void ReplaceInstruction(FlowGraph graph)
         {
+            if (!IsValid)
+            {
+                throw new InvalidOperationException("Cannot replace an invalid instruction reference.");
+            }
+
             var tryFlow = (TryFlow)Flow;
 
-            // Create a continuation block to which 'return' flow can branch.
-            var continuationBlock = Block.Graph.AddBasicBlock();
-            var resultParam = new BlockParameter(Instruction.ResultType);
-            continuationBlock.AppendParameter(resultParam);
-            continuationBlock.Flow = tryFlow.WithInstructions(
-                new[] { Instruction.CreateCopy(resultParam.Type, resultParam.Tag) });
-
+            // Include `graph` in the defining graph. Wrap exception-throwing instructions
+            // in 'try' flow.
             var entryTag = Block.Graph.Include(
                 graph,
                 (retFlow, enclosingBlock) =>
                 {
-                    ValueTag resultTag = enclosingBlock.AppendInstruction(retFlow.ReturnValue);
-                    return new JumpFlow(continuationBlock, new[] { resultTag });
+                    // Rewrite 'return' flow by replacing it with a branch to the success
+                    // block.
+                    var resultTag = enclosingBlock.AppendInstruction(retFlow.ReturnValue);
+                    return new JumpFlow(
+                        tryFlow.SuccessBranch.MapArguments(
+                            arg => arg.IsTryResult ? BranchArgument.FromValue(resultTag) : arg));
                 },
                 tryFlow.ExceptionBranch);
 
-            // Jump to the graph.
+            // Jump to `graph`'s entry point.
             Block.Flow = new JumpFlow(entryTag, Instruction.Arguments);
 
-            // Set the block that defines this flow to the continuation block.
-            Block = continuationBlock;
+            // Invalidate the instruction reference.
+            Flow = null;
         }
     }
 }

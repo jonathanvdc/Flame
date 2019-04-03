@@ -48,7 +48,7 @@ namespace Flame.Compiler
         /// <returns>
         /// <c>true</c> if this instruction builder is still valid; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsValid => Graph.ContainsInstruction(Tag);
+        public override bool IsValid => Graph.ContainsInstruction(Tag);
 
         private SelectedInstruction ImmutableInstruction =>
             Graph.ImmutableGraph.GetInstruction(Tag);
@@ -248,6 +248,11 @@ namespace Flame.Compiler
         /// </param>
         public override void ReplaceInstruction(FlowGraph implementation)
         {
+            if (!IsValid)
+            {
+                throw new InvalidOperationException("Cannot replace an invalid instruction builder.");
+            }
+
             if (implementation.EntryPoint.Flow is ReturnFlow)
             {
                 // In the likely case where the implementation consists of a

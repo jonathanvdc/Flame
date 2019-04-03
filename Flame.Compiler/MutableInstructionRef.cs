@@ -12,6 +12,16 @@ namespace Flame.Compiler
     public abstract class MutableInstructionRef
     {
         /// <summary>
+        /// Tells if this instruction reference is still valid. Querying
+        /// or modifying invalid instruction references results in an
+        /// exception.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instruction reference is valid; otherwise, <c>false</c>.
+        /// </value>
+        public abstract bool IsValid { get; }
+
+        /// <summary>
         /// Gets or sets the instruction referred to by this
         /// instruction reference.
         /// </summary>
@@ -28,6 +38,10 @@ namespace Flame.Compiler
         /// <param name="implementation">
         /// A control-flow graph that implements the instruction.
         /// </param>
+        /// <remarks>
+        /// Calling this method may invalidate instruction references,
+        /// including this reference.
+        /// </remarks>
         public abstract void ReplaceInstruction(FlowGraph graph);
     }
 }
