@@ -1599,7 +1599,7 @@ namespace Flame.Clr.Analysis
                 if (baseInsn.Prototype is LoadPrototype)
                 {
                     var effectfulness = graph.GetAnalysisResult<EffectfulInstructions>();
-                    if (context.Block.Instructions
+                    if (context.Block.NamedInstructions
                         .SkipWhile(insn => insn.Tag != value)
                         .All(insn =>
                             insn.Prototype is LoadPrototype

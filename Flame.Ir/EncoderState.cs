@@ -363,7 +363,7 @@ namespace Flame.Ir
                             Encode(param.Type),
                             EncodeUniqueTag(param.Tag, valueNameMap)));
 
-                var instrNodes = block.Instructions
+                var instrNodes = block.NamedInstructions
                     .Select(instr =>
                         Factory.Call(
                             CodeSymbols.Assign,

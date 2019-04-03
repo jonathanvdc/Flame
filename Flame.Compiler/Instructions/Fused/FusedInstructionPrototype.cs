@@ -75,7 +75,7 @@ namespace Flame.Compiler.Instructions.Fused
             Expand(insn);
 
             var results = new List<string>();
-            foreach (var item in block.Instructions)
+            foreach (var item in block.NamedInstructions)
             {
                 results.AddRange(
                     item.Prototype.CheckConformance(

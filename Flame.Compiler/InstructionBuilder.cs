@@ -277,7 +277,7 @@ namespace Flame.Compiler
                 // as well because we'll turn it into a copy that runs in the continuation.
                 MoveTo(continuationBlock);
                 var parentBlock = Graph.GetValueParent(this);
-                foreach (var insn in parentBlock.Instructions.Skip(InstructionIndex + 1).ToArray())
+                foreach (var insn in parentBlock.NamedInstructions.Skip(InstructionIndex + 1).ToArray())
                 {
                     insn.MoveTo(continuationBlock);
                 }

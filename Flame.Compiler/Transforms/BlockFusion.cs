@@ -77,7 +77,7 @@ namespace Flame.Compiler.Transforms
                 }
 
                 // Move instructions around.
-                foreach (var instruction in successor.Instructions)
+                foreach (var instruction in successor.NamedInstructions)
                 {
                     instruction.MoveTo(block);
                 }

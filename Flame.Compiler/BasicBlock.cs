@@ -52,10 +52,10 @@ namespace Flame.Compiler
             data.Parameters.Select(p => p.Tag);
 
         /// <summary>
-        /// Gets the list of all instructions in this basic block.
+        /// Gets the list of all named instructions in this basic block.
         /// </summary>
-        /// <returns>The list of all instructions.</returns>
-        public IEnumerable<SelectedInstruction> Instructions =>
+        /// <returns>The list of all named instructions.</returns>
+        public IEnumerable<SelectedInstruction> NamedInstructions =>
             InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>

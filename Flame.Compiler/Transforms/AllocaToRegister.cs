@@ -343,7 +343,7 @@ namespace Flame.Compiler.Transforms
                 }
 
                 // Actually fill the block, starting with the block's instructions.
-                foreach (var selection in block.Instructions)
+                foreach (var selection in block.NamedInstructions)
                 {
                     Instruction newInstruction;
                     if (RewriteInstruction(selection.Instruction, block, out newInstruction))

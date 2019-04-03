@@ -102,7 +102,7 @@ namespace Flame.Compiler.Analysis
             foreach (var block in graph.BasicBlocks)
             {
                 ValueTag lastEffectfulTag = null;
-                foreach (var selection in block.Instructions)
+                foreach (var selection in block.NamedInstructions)
                 {
                     var insnDependencies = new HashSet<ValueTag>();
 

@@ -319,7 +319,7 @@ namespace Flame.Compiler.Analysis
             foreach (var block in graph.BasicBlocks)
             {
                 var state = blockStates[block];
-                foreach (var instruction in block.Instructions)
+                foreach (var instruction in block.NamedInstructions)
                 {
                     state = UpdateState(state, instruction);
                     insnStates[instruction] = state;

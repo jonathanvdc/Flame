@@ -265,7 +265,7 @@ namespace Flame.Compiler.Analysis
             }
 
             // Mark instructions as defined here, use their arguments.
-            foreach (var selection in block.Instructions)
+            foreach (var selection in block.NamedInstructions)
             {
                 result.livePositions.Add(selection.Tag, selection.InstructionIndex);
                 result.deadPositions.Add(selection.Tag, selection.InstructionIndex);

@@ -75,10 +75,10 @@ namespace Flame.Compiler
         public ImmutableList<ValueTag> InstructionTags => ImmutableBlock.InstructionTags;
 
         /// <summary>
-        /// Gets the list of all instructions in this basic block.
+        /// Gets the list of all named instructions in this basic block.
         /// </summary>
-        /// <returns>The list of all instructions.</returns>
-        public IEnumerable<InstructionBuilder> Instructions =>
+        /// <returns>A sequence containing all named instructions.</returns>
+        public IEnumerable<InstructionBuilder> NamedInstructions =>
             InstructionTags.Select(Graph.GetInstruction);
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace Flame.Compiler
             // value tags in the block to copy to value tags in this
             // control-flow graph.
             var valueRenameMap = new Dictionary<ValueTag, ValueTag>();
-            foreach (var insn in block.Instructions)
+            foreach (var insn in block.NamedInstructions)
             {
                 valueRenameMap[insn] = new ValueTag(insn.Tag.Name);
             }
@@ -240,7 +240,7 @@ namespace Flame.Compiler
             }
 
             // Insert instructions.
-            foreach (var insn in block.Instructions)
+            foreach (var insn in block.NamedInstructions)
             {
                 InsertInstruction(
                     insertionIndex,

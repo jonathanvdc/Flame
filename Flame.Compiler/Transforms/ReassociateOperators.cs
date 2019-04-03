@@ -27,7 +27,7 @@ namespace Flame.Compiler.Transforms
 
             foreach (var block in builder.BasicBlocks)
             {
-                var instruction = block.Instructions.FirstOrDefault();
+                var instruction = block.NamedInstructions.FirstOrDefault();
                 while (instruction != null)
                 {
                     ReassociateNonAssociative(instruction);
@@ -37,7 +37,7 @@ namespace Flame.Compiler.Transforms
 
             foreach (var block in builder.BasicBlocks)
             {
-                var instruction = block.Instructions.LastOrDefault();
+                var instruction = block.NamedInstructions.LastOrDefault();
                 while (instruction != null)
                 {
                     ReassociateReduction(instruction);

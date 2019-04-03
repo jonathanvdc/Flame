@@ -66,7 +66,7 @@ namespace Flame.Compiler.Transforms
             foreach (var block in builder.BasicBlocks)
             {
                 var pendingStores = new List<InstructionBuilder>();
-                foreach (var instruction in block.Instructions)
+                foreach (var instruction in block.NamedInstructions)
                 {
                     var proto = instruction.Prototype;
                     if (proto is StorePrototype)

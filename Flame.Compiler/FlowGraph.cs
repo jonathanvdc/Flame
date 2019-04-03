@@ -291,10 +291,10 @@ namespace Flame.Compiler
         }
 
         /// <summary>
-        /// Gets the instruction with a particular tag.
+        /// Gets the named instruction with a particular tag.
         /// </summary>
         /// <param name="tag">The instruction's tag.</param>
-        /// <returns>A selected instruction.</returns>
+        /// <returns>A named instruction.</returns>
         public SelectedInstruction GetInstruction(ValueTag tag)
         {
             AssertContainsInstruction(tag);

@@ -512,7 +512,7 @@ namespace Flame.Compiler
             {
                 var newBlock = blockMap[block];
                 // Copy the block's instructions.
-                foreach (var insn in block.Instructions)
+                foreach (var insn in block.NamedInstructions)
                 {
                     if (exceptionBranch != null
                         && exceptionSpecs.GetExceptionSpecification(insn.Instruction).CanThrowSomething)
