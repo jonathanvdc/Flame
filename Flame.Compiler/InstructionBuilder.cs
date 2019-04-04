@@ -26,7 +26,7 @@ namespace Flame.Compiler
         /// <summary>
         /// Gets the block that defines this instruction.
         /// </summary>
-        /// /// <value>A basic block builder.</value>
+        /// <value>A basic block builder.</value>
         public abstract BasicBlockBuilder Block { get; }
 
         /// <summary>
@@ -97,5 +97,10 @@ namespace Flame.Compiler
         /// Gets the instruction's prototype.
         /// </summary>
         public InstructionPrototype Prototype => Instruction.Prototype;
+
+        /// <summary>
+        /// Gets the instruction's argument list.
+        /// </summary>
+        public IReadOnlyList<ValueTag> Arguments => Instruction.Arguments;
     }
 }
