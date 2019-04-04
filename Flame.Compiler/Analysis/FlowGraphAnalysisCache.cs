@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -35,6 +36,14 @@ namespace Flame.Compiler.Analysis
         /// <returns>The analysis' result.</returns>
         /// <remarks>This method is thread-safe.</remarks>
         public abstract T GetResultAs<T>(FlowGraph graph);
+
+        /// <summary>
+        /// Gets the analysis managed by this cache.
+        /// </summary>
+        /// <typeparam name="T">The type of the analysis' results.</typeparam>
+        /// <returns>The analysis.</returns>
+        /// <remarks>This method is thread-safe.</remarks>
+        public abstract IFlowGraphAnalysis<T> GetAnalysis<T>();
     }
 
     /// <summary>
@@ -103,6 +112,12 @@ namespace Flame.Compiler.Analysis
             result.analysis = this.analysis;
             result.resultLock = this.resultLock;
             return result;
+        }
+
+        /// <inheritdoc/>
+        public override IFlowGraphAnalysis<TResult> GetAnalysis<TResult>()
+        {
+            return (IFlowGraphAnalysis<TResult>)analysis;
         }
 
         /// <inheritdoc/>

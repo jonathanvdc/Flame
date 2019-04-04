@@ -270,29 +270,7 @@ namespace Flame.Compiler.Analysis
                 updateLock.ExitReadLock();
             }
 
-            if (cache != null)
-            {
-                result = cache.GetResultAs<T>(graph);
-                return true;
-            }
-
-            updateLock.EnterWriteLock();
-            try
-            {
-                if (DefaultAnalyses.TryGetDefaultAnalysisCache(t, graph, out cache))
-                {
-                    var newMacroCache = WithAnalysis(t, cache, false);
-                    this.cacheIndices = newMacroCache.cacheIndices;
-                    this.cacheRefCounts = newMacroCache.cacheRefCounts;
-                    this.distinctCaches = newMacroCache.distinctCaches;
-                }
-            }
-            finally
-            {
-                updateLock.ExitWriteLock();
-            }
-
-            if (cache != null)
+            if (cache != null || TryRegisterDefaultAnalysis(t, graph, out cache))
             {
                 result = cache.GetResultAs<T>(graph);
                 return true;
@@ -351,6 +329,67 @@ namespace Flame.Compiler.Analysis
             finally
             {
                 updateLock.ExitReadLock();
+            }
+        }
+
+        /// <summary>
+        /// Gets the analysis in a macro analysis cache
+        /// that produces a particular type of result.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result that is sought.
+        /// </typeparam>
+        /// <returns>
+        /// An analysis as stored in the macro analysis cache.
+        /// </returns>
+        public IFlowGraphAnalysis<T> GetAnalysisFor<T>(FlowGraph graph)
+        {
+            if (!HasAnalysisFor<T>())
+            {
+                FlowGraphAnalysisCache cache;
+                if (TryRegisterDefaultAnalysis(typeof(T), graph, out cache))
+                {
+                    return cache.GetAnalysis<T>();
+                }
+                else
+                {
+                    throw new KeyNotFoundException(
+                        $"No analysis is registered for results of type '{typeof(T)}'.");
+                }
+            }
+
+            updateLock.EnterReadLock();
+            try
+            {
+                return distinctCaches[cacheIndices[typeof(T)]].GetAnalysis<T>();
+            }
+            finally
+            {
+                updateLock.ExitReadLock();
+            }
+        }
+
+        private bool TryRegisterDefaultAnalysis(Type t, FlowGraph graph, out FlowGraphAnalysisCache cache)
+        {
+            updateLock.EnterWriteLock();
+            try
+            {
+                if (DefaultAnalyses.TryGetDefaultAnalysisCache(t, graph, out cache))
+                {
+                    var newMacroCache = WithAnalysis(t, cache, false);
+                    this.cacheIndices = newMacroCache.cacheIndices;
+                    this.cacheRefCounts = newMacroCache.cacheRefCounts;
+                    this.distinctCaches = newMacroCache.distinctCaches;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            finally
+            {
+                updateLock.ExitWriteLock();
             }
         }
 

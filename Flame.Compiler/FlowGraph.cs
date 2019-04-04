@@ -176,6 +176,21 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets the analysis, registered with this control-flow graph,
+        /// that produced a particular type of result.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result that is sought.
+        /// </typeparam>
+        /// <returns>
+        /// An analysis.
+        /// </returns>
+        public IFlowGraphAnalysis<T> GetAnalysisFor<T>()
+        {
+            return analysisCache.GetAnalysisFor<T>(this);
+        }
+
+        /// <summary>
         /// Creates a new basic block that includes all basic blocks in this
         /// graph plus an empty basic block. The latter basic block is returned.
         /// </summary>

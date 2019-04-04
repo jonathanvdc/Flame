@@ -172,6 +172,21 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets the analysis, registered with this control-flow graph,
+        /// that produced a particular type of result.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of analysis result that is sought.
+        /// </typeparam>
+        /// <returns>
+        /// An analysis.
+        /// </returns>
+        public IFlowGraphAnalysis<T> GetAnalysisFor<T>()
+        {
+            return ImmutableGraph.GetAnalysisFor<T>();
+        }
+
+        /// <summary>
         /// Adds an empty basic block to this flow-graph builder.
         /// </summary>
         /// <param name="name">The (preferred) name of the basic block's tag.</param>
@@ -505,15 +520,24 @@ namespace Flame.Compiler
                 // Also handle parameters here.
                 foreach (var param in block.Parameters)
                 {
-                    var newParam = new BlockParameter(param.Type, param.Tag.Name);
-                    newBlock.AppendParameter(newParam);
+                    var newParam = newBlock.AppendParameter(param.Type, param.Tag.Name);
                     valueRenameMap[param.Tag] = newParam.Tag;
                 }
             }
 
-            var exceptionSpecs = exceptionBranch == null
-                ? null
-                : graph.GetAnalysisResult<InstructionExceptionSpecs>();
+            InstructionExceptionSpecs exceptionSpecs;
+            if (exceptionBranch == null)
+            {
+                exceptionSpecs = null;
+            }
+            else
+            {
+                if (!graph.HasAnalysisFor<InstructionExceptionSpecs>())
+                {
+                    graph = graph.WithAnalysis(GetAnalysisFor<InstructionExceptionSpecs>());
+                }
+                exceptionSpecs = graph.GetAnalysisResult<InstructionExceptionSpecs>();
+            }
 
             // Copy basic block instructions and flow.
             foreach (var block in graph.BasicBlocks)
@@ -527,11 +551,13 @@ namespace Flame.Compiler
                     {
                         // Create a new block for the success path.
                         var successBlock = AddBasicBlock();
-                        var successParam = new BlockParameter(insn.ResultType);
-                        successBlock.AppendParameter(successParam);
+                        var successParam = successBlock.AppendParameter(insn.ResultType, valueRenameMap[insn]);
 
                         // Wrap the instruction in 'try' flow.
-                        newBlock.Flow = new TryFlow(insn.Instruction, exceptionBranch, exceptionBranch);
+                        newBlock.Flow = new TryFlow(
+                            insn.Instruction.MapArguments(valueRenameMap),
+                            new Branch(successBlock, new[] { BranchArgument.TryResult }),
+                            exceptionBranch);
 
                         // Update the current block.
                         newBlock = successBlock;
