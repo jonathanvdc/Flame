@@ -61,5 +61,16 @@ namespace Flame.Compiler
         {
             return new BlockParameter(mapping.MapType(Type), Tag);
         }
+
+        /// <summary>
+        /// Implicitly converts a block parameter to its tag.
+        /// </summary>
+        /// <param name="parameter">
+        /// The block parameter to convert.
+        /// </param>
+        public static implicit operator ValueTag(BlockParameter parameter)
+        {
+            return parameter.Tag;
+        }
     }
 }
