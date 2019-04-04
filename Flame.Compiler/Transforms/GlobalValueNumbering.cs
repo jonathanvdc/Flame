@@ -42,7 +42,7 @@ namespace Flame.Compiler.Transforms
 
             // Replace instructions with copies to your heart's content.
             var builder = graph.ToBuilder();
-            foreach (var insn in builder.NamedInstructions)
+            foreach (var insn in builder.Instructions)
             {
                 // An instruction can be replaced with another instruction
                 // if it is equivalent to that instruction and it is strictly
@@ -55,7 +55,7 @@ namespace Flame.Compiler.Transforms
 
                 foreach (var equivValue in valueSet)
                 {
-                    if (domTree.IsStrictlyDominatedBy(insn, equivValue, builder))
+                    if (domTree.IsStrictlyDominatedBy(insn, equivValue))
                     {
                         insn.Instruction = Instruction.CreateCopy(insn.Instruction.ResultType, equivValue);
                         break;

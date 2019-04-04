@@ -222,6 +222,73 @@ namespace Flame.Compiler.Analysis
             ContractHelpers.Assert(graph == dominator.Block.Graph);
             return IsDominatedBy(instruction, dominator, graph);
         }
+
+        /// <summary>
+        /// Tells if a particular value is strictly dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// An value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// An value that might dominate <paramref name="instruction"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsStrictlyDominatedBy(InstructionBuilder value, ValueTag dominator)
+        {
+            if (value is NamedInstructionBuilder)
+            {
+                return IsStrictlyDominatedBy((NamedInstructionBuilder)value, dominator, value.Graph);
+            }
+            else
+            {
+                var block = value.Block;
+                var dominatorBlock = value.Graph.GetValueParent(dominator);
+                if (block == dominatorBlock)
+                {
+                    // Anonymous flow instructions are always strictly dominated by
+                    // named values in the same block.
+                    return true;
+                }
+                else
+                {
+                    return IsStrictlyDominatedBy(block, dominatorBlock);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tells if a particular value is dominated by another value,
+        /// that is, if control cannot flow to the value unless it first flowed
+        /// through the dominator value.
+        /// </summary>
+        /// <param name="value">
+        /// A value that might be dominated by <paramref name="dominator"/>.
+        /// </param>
+        /// <param name="dominator">
+        /// A value that might dominate <paramref name="value"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is strictly dominated by
+        /// <paramref name="dominator"/> or <paramref name="value"/> equals
+        /// <paramref name="dominator"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsDominatedBy(InstructionBuilder value, ValueTag dominator)
+        {
+            if (value is NamedInstructionBuilder
+                && ((NamedInstructionBuilder)value).Tag == dominator)
+            {
+                return true;
+            }
+            else
+            {
+                return IsStrictlyDominatedBy(value, dominator);
+            }
+        }
     }
 
     /// <summary>
