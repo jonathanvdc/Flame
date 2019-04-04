@@ -187,7 +187,8 @@ namespace Flame.Compiler
         /// </returns>
         public bool Equals(Branch other)
         {
-            return Target == other.Target
+            return !ReferenceEquals(other, null)
+                && Target == other.Target
                 && Arguments.SequenceEqual(other.Arguments);
         }
 
