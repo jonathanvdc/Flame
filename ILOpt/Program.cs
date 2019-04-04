@@ -250,6 +250,11 @@ namespace ILOpt
                     BoxToAlloca.Instance,
                     CopyPropagation.Instance,
                     AllocaToRegister.Instance,
+                    CopyPropagation.Instance,
+                    DeadValueElimination.Instance,
+
+                    //   * Expand LINQ queries.
+                    ExpandLinq.Instance,
 
                     //   * Aggregates to scalars, scalars to registers.
                     //     Also throw in GVN.
