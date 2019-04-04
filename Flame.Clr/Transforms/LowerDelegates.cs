@@ -26,7 +26,7 @@ namespace Flame.Clr.Transforms
         public override FlowGraph Apply(FlowGraph graph)
         {
             var builder = graph.ToBuilder();
-            foreach (var instruction in builder.NamedInstructions)
+            foreach (var instruction in builder.Instructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is IndirectCallPrototype)
@@ -36,7 +36,7 @@ namespace Flame.Clr.Transforms
                     // a magic 'Invoke' method.
                     var callProto = (IndirectCallPrototype)proto;
                     var calleeValue = callProto.GetCallee(instruction.Instruction);
-                    var delegateType = graph.GetValueType(calleeValue);
+                    var delegateType = TypeHelpers.UnboxIfPossible(graph.GetValueType(calleeValue));
                     IMethod invokeMethod;
                     if (TypeHelpers.TryGetDelegateInvokeMethod(delegateType, out invokeMethod))
                     {
@@ -47,8 +47,10 @@ namespace Flame.Clr.Transforms
                             callProto.GetArgumentList(instruction.Instruction).ToArray());
                     }
                 }
-                else if (proto is NewDelegatePrototype)
+                else if (proto is NewDelegatePrototype && instruction is NamedInstructionBuilder)
                 {
+                    // TODO: also lower NewDelegatePrototype for anonymous instructions!
+
                     // CIL delegates are created by first loading a function pointer
                     // onto the stack (using either `ldftn` or `ldvirtftn`) and then
                     // constructing the actual delegate using a `newobj` opcode.
@@ -66,7 +68,8 @@ namespace Flame.Clr.Transforms
                     bool isVirtual = newDelegateProto.Lookup == MethodLookup.Virtual;
 
                     // First create an instruction that loads the function pointer.
-                    var functionPointer = instruction.InsertBefore(
+                    var namedInstruction = (NamedInstructionBuilder)instruction;
+                    var functionPointer = namedInstruction.InsertBefore(
                         Instruction.CreateNewDelegate(
                             constructor.Parameters[1].Type,
                             newDelegateProto.Callee,
@@ -74,7 +77,7 @@ namespace Flame.Clr.Transforms
                                 ? newDelegateProto.GetThisArgument(instruction.Instruction)
                                 : null,
                             newDelegateProto.Lookup),
-                        instruction.Tag.Name + "_fptr");
+                        namedInstruction.Tag.Name + "_fptr");
 
                     // CLR delegate constructors always take two parameters: a function
                     // pointer and a 'this' argument (of type 'Object *box').
