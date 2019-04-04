@@ -193,9 +193,43 @@ namespace Flame.Compiler
         /// Appends a new parameter to the end of this basic block's parameter list.
         /// </summary>
         /// <param name="parameter">The parameter to append.</param>
-        public void AppendParameter(BlockParameter parameter)
+        /// <returns>The block parameter.</returns>
+        public BlockParameter AppendParameter(BlockParameter parameter)
         {
             Graph.ImmutableGraph = ImmutableBlock.AppendParameter(parameter).Graph;
+            return parameter;
+        }
+
+        /// <summary>
+        /// Appends a new parameter to the end of this basic block's parameter list.
+        /// </summary>
+        /// <param name="type">The type of the parameter to append.</param>
+        /// <returns>The block parameter.</returns>
+        public BlockParameter AppendParameter(IType type)
+        {
+            return AppendParameter(new BlockParameter(type));
+        }
+
+        /// <summary>
+        /// Appends a new parameter to the end of this basic block's parameter list.
+        /// </summary>
+        /// <param name="type">The type of the parameter to append.</param>
+        /// <param name="name">The name of the parameter to append.</param>
+        /// <returns>The block parameter.</returns>
+        public BlockParameter AppendParameter(IType type, string name)
+        {
+            return AppendParameter(new BlockParameter(type, name));
+        }
+
+        /// <summary>
+        /// Appends a new parameter to the end of this basic block's parameter list.
+        /// </summary>
+        /// <param name="type">The type of the parameter to append.</param>
+        /// <param name="tag">The tag of the parameter to append.</param>
+        /// <returns>The block parameter.</returns>
+        public BlockParameter AppendParameter(IType type, ValueTag tag)
+        {
+            return AppendParameter(new BlockParameter(type, tag));
         }
 
         /// <summary>
