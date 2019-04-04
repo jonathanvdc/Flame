@@ -74,6 +74,7 @@
     <Compile Include="Emit\ClrMethodBodyEmitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transforms\CanonicalizeDelegates.cs" />
+    <Compile Include="Transforms\ExpandLinq.cs" />
     <Compile Include="Transforms\LowerDelegates.cs" />
   </ItemGroup>
   <ItemGroup>
