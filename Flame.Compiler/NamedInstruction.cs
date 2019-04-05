@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Flame.Compiler
@@ -56,6 +57,11 @@ namespace Flame.Compiler
         /// Gets the named instruction's prototype.
         /// </summary>
         public InstructionPrototype Prototype => Instruction.Prototype;
+
+        /// <summary>
+        /// Gets the list of values this instruction takes as arguments.
+        /// </summary>
+        public IReadOnlyList<ValueTag> Arguments => Instruction.Arguments;
 
         private int instrIndexValue;
 
