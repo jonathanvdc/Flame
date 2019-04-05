@@ -254,7 +254,7 @@ namespace ILOpt
                     DeadValueElimination.Instance,
 
                     //   * Expand LINQ queries.
-                    ExpandLinq.Instance,
+                    new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
 
                     //   * Aggregates to scalars, scalars to registers.
                     //     Also throw in GVN.

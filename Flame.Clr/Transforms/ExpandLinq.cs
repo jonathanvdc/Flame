@@ -16,13 +16,32 @@ namespace Flame.Clr.Transforms
     /// </summary>
     public sealed class ExpandLinq : IntraproceduralOptimization
     {
-        private ExpandLinq()
-        { }
+        /// <summary>
+        /// Creates a LINQ-expanding optimization.
+        /// </summary>
+        /// <param name="booleanType">
+        /// The type of a Boolean value.
+        /// </param>
+        /// <param name="inductionVariableType">
+        /// The type to use for integer induction variables.
+        /// </param>
+        public ExpandLinq(IType booleanType, IType inductionVariableType)
+        {
+            this.BooleanType = booleanType;
+            this.InductionVariableType = inductionVariableType;
+        }
 
         /// <summary>
-        /// Gets an instance of the LINQ expansion optimization.
+        /// Gets the type of a Boolean value.
         /// </summary>
-        public static readonly ExpandLinq Instance = new ExpandLinq();
+        /// <value>A type.</value>
+        public IType BooleanType { get; private set; }
+
+        /// <summary>
+        /// Gets the type to use for newly introduced integer induction variables.
+        /// </summary>
+        /// <value>A type.</value>
+        public IType InductionVariableType { get; private set; }
 
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
@@ -42,7 +61,7 @@ namespace Flame.Clr.Transforms
         /// <c>true</c> if a LINQ instruction successfully expanded;
         /// otherwise, <c>false</c>.
         /// </returns>
-        private static bool TryExpandAny(FlowGraphBuilder graph)
+        private bool TryExpandAny(FlowGraphBuilder graph)
         {
             foreach (var insn in graph.NamedInstructions)
             {
@@ -64,26 +83,49 @@ namespace Flame.Clr.Transforms
         /// <c>true</c> if the instruction was a LINQ instruction that
         /// was successfully expanded; otherwise, <c>false</c>.
         /// </returns>
-        private static bool TryExpand(NamedInstructionBuilder instruction)
+        private bool TryExpand(NamedInstructionBuilder instruction)
         {
             var proto = instruction.Prototype as CallPrototype;
-            if (proto == null || proto.Callee.ParentType.FullName.ToString() != "System.Linq.Enumerable")
+            if (proto == null)
             {
-                // Not a LINQ call.
+                // Not a call.
                 return false;
             }
-
-            var calleeName = proto.Callee.Name is GenericName
-                ? ((GenericName)proto.Callee.Name).DeclarationName.ToString()
-                : proto.Callee.Name.ToString();
-
-            Func<LinqEnumeration, bool> enumRewriteRule;
-            if (enumerationRewriteRules.TryGetValue(calleeName, out enumRewriteRule))
+            else if (proto.Callee.ParentType.FullName.ToString() == "System.Linq.Enumerable")
             {
-                return TryApplyRewriteRule(instruction, enumRewriteRule);
+                // We found a LINQ call.
+                var calleeName = proto.Callee.Name is GenericName
+                    ? ((GenericName)proto.Callee.Name).DeclarationName.ToString()
+                    : proto.Callee.Name.ToString();
+
+                Func<LinqEnumeration, bool> enumRewriteRule;
+                if (enumerationRewriteRules.TryGetValue(calleeName, out enumRewriteRule))
+                {
+                    return TryApplyRewriteRule(instruction, enumRewriteRule);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            ValueTag arrayValue;
+            if (IsGetEnumeratorCall(instruction) && IsArray(instruction, out arrayValue))
+            {
+                // We can specialize array GetEnumerator with
+                LinqEnumeration linqEnum;
+                if (TryGetLinqEnumeration(instruction, out linqEnum))
+                {
+                    return RewriteArrayEnumeration(linqEnum, arrayValue);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
+                // We can't expand the call.
                 return false;
             }
         }
@@ -147,7 +189,7 @@ namespace Flame.Clr.Transforms
         {
             // First make sure that `getEnumerator` is a call to a `GetEnumerator`
             // method.
-            if (!IsCallTo(getEnumerator, "GetEnumerator", false, 1))
+            if (!IsGetEnumeratorCall(getEnumerator))
             {
                 result = null;
                 return false;
@@ -257,6 +299,42 @@ namespace Flame.Clr.Transforms
                 }
             }
             return false;
+        }
+
+        private static bool IsArray(NamedInstructionBuilder instruction, out ValueTag arrayValue)
+        {
+            return IsArray(instruction, instruction.Graph.ToImmutable(), out arrayValue);
+        }
+
+        private static bool IsArray(ValueTag value, FlowGraph graph, out ValueTag arrayValue)
+        {
+            var valueType = TypeHelpers.UnboxIfPossible(graph.GetValueType(value));
+            IType elementType;
+            if (ClrArrayType.TryGetArrayElementType(valueType, out elementType))
+            {
+                arrayValue = value;
+                return true;
+            }
+
+            NamedInstruction instruction;
+            if (graph.TryGetInstruction(value, out instruction))
+            {
+                if (instruction.Prototype is ReinterpretCastPrototype
+                    || instruction.Prototype is CopyPrototype)
+                {
+                    return IsArray(
+                        instruction.Arguments[0],
+                        graph,
+                        out arrayValue);
+                }
+            }
+            arrayValue = null;
+            return false;
+        }
+
+        private static bool IsGetEnumeratorCall(InstructionBuilder instruction)
+        {
+            return IsCallTo(instruction, "GetEnumerator", false, 1);
         }
 
         private static bool IsCallTo(
@@ -462,6 +540,144 @@ namespace Flame.Clr.Transforms
             }
 
             // 'Where' never returns `null`.
+            foreach (var block in enumeration.NullChecks)
+            {
+                // Pick the 'default' branch because object reference switches
+                // can only perform `null` checks and those `null` checks must
+                // appear as switch cases.
+                var flow = (SwitchFlow)block.Flow;
+                block.Flow = new JumpFlow(flow.DefaultBranch);
+            }
+
+            // Delete the 'GetEnumerator' call and the reinterpret casts.
+            enumeration.Graph.RemoveInstructionDefinitions(
+                enumeration.Aliases
+                    .Select(x => x.Tag)
+                    .Concat(new[] { enumeration.GetEnumeratorCall.Tag }));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Rewrites a LINQ enumeration over an array.
+        /// </summary>
+        /// <param name="enumeration">A LINQ enumeration over an array.</param>
+        /// <param name="array">The array that is enumerated over.</param>
+        /// <returns><c>true</c> if the rewrite was successful; otherwise, <c>false</c>.</returns>
+        private bool RewriteArrayEnumeration(LinqEnumeration enumeration, ValueTag array)
+        {
+            var arrayValueType = enumeration.Graph.GetValueType(array);
+            var arrayType = TypeHelpers.UnboxIfPossible(arrayValueType);
+
+            IType elementType;
+            int rank;
+            if (!ClrArrayType.TryGetArrayElementType(arrayType, out elementType)
+                || !ClrArrayType.TryGetArrayRank(arrayType, out rank)
+                || rank != 1)
+            {
+                // TODO: also handle arrays with rank not equal to one.
+                return false;
+            }
+
+            // Grab the array's length.
+            var lengthVal = enumeration.GetEnumeratorCall.InsertBefore(
+                Instruction.CreateGetLengthIntrinsic(InductionVariableType, arrayValueType, array),
+                "MoveNext_length");
+
+            // Create an induction variable.
+            var inductionVar = enumeration.Graph.EntryPoint.InsertInstruction(
+                0, Instruction.CreateAlloca(InductionVariableType), "MoveNext_i");
+
+            // Initialize that induction variable.
+            enumeration.GetEnumeratorCall.InsertBefore(
+                Instruction.CreateStore(
+                    InductionVariableType,
+                    inductionVar,
+                    enumeration.GetEnumeratorCall.InsertBefore(
+                        Instruction.CreateConstant(
+                            new IntegerConstant(0, InductionVariableType.GetIntegerSpecOrNull()),
+                            InductionVariableType))));
+
+            // Replace all calls to 'Current' with array element loads. We will use a graph
+            // to describe those loads.
+            var currentGraph = new FlowGraphBuilder();
+            {
+                var inductionVarParameter = currentGraph.EntryPoint.AppendParameter(inductionVar.ResultType, "MoveNext_i_param");
+                var arrayParameter = currentGraph.EntryPoint.AppendParameter(lengthVal.ResultType, "array");
+
+                // Load the induction variable's value.
+                var inductionVarValue = currentGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateLoad(InductionVariableType, inductionVarParameter));
+
+                // Load the element itself.
+                var element = currentGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateLoadElementIntrinsic(
+                        elementType,
+                        arrayValueType,
+                        new[] { InductionVariableType },
+                        array,
+                        new[] { inductionVarValue.Tag }));
+
+                currentGraph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(elementType, element));
+            }
+            foreach (var call in enumeration.CurrentCalls)
+            {
+                call.ReplaceInstruction(currentGraph.ToImmutable(), new[] { inductionVar, array });
+            }
+
+            // Replace all calls to 'MoveNext' with an induction variable increment
+            // followed by a comparison with the length of the array.
+            var moveNextGraph = new FlowGraphBuilder();
+            {
+                var inductionVarParameter = moveNextGraph.EntryPoint.AppendParameter(inductionVar.ResultType, "MoveNext_i_param");
+                var lengthParameter = moveNextGraph.EntryPoint.AppendParameter(lengthVal.ResultType, "MoveNext_length_param");
+
+                // Load the induction variable.
+                var oldInductionVal = moveNextGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateLoad(InductionVariableType, inductionVarParameter));
+
+                // Increment it.
+                var newInductionVal = moveNextGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateBinaryArithmeticIntrinsic(
+                        ArithmeticIntrinsics.Operators.Add,
+                        InductionVariableType,
+                        oldInductionVal,
+                        moveNextGraph.EntryPoint.AppendInstruction(
+                            Instruction.CreateConstant(
+                                new IntegerConstant(1, InductionVariableType.GetIntegerSpecOrNull()),
+                                InductionVariableType))));
+
+                // Update the induction variable.
+                moveNextGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateStore(
+                        InductionVariableType,
+                        inductionVarParameter,
+                        newInductionVal));
+
+                // Check that the induction variable is still in range.
+                var inRange = moveNextGraph.EntryPoint.AppendInstruction(
+                    Instruction.CreateRelationalIntrinsic(
+                        ArithmeticIntrinsics.Operators.IsLessThan,
+                        BooleanType,
+                        InductionVariableType,
+                        inductionVarParameter,
+                        newInductionVal));
+
+                // Return that value.
+                moveNextGraph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(BooleanType, inRange));
+            }
+            foreach (var call in enumeration.MoveNextCalls)
+            {
+                call.ReplaceInstruction(moveNextGraph.ToImmutable(), new ValueTag[] { inductionVar, lengthVal });
+            }
+
+            // Replace all 'Dispose' calls with nops.
+            foreach (var call in enumeration.DisposeCalls)
+            {
+                call.Instruction = Instruction.CreateConstant(DefaultConstant.Instance, call.ResultType);
+            }
+
+            // Eliminate null checks.
             foreach (var block in enumeration.NullChecks)
             {
                 // Pick the 'default' branch because object reference switches
