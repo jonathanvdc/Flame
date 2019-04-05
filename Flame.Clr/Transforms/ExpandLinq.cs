@@ -73,7 +73,6 @@ namespace Flame.Clr.Transforms
                 return false;
             }
 
-
             var calleeName = proto.Callee.Name is GenericName
                 ? ((GenericName)proto.Callee.Name).DeclarationName.ToString()
                 : proto.Callee.Name.ToString();
@@ -81,58 +80,65 @@ namespace Flame.Clr.Transforms
             Func<LinqEnumeration, bool> enumRewriteRule;
             if (enumerationRewriteRules.TryGetValue(calleeName, out enumRewriteRule))
             {
-                if (IsBranchArgument(instruction, instruction.Graph.ToImmutable()))
-                {
-                    // No thanks.
-                    return false;
-                }
-
-                foreach (var insn in instruction.Graph.AnonymousInstructions)
-                {
-                    if (insn.Arguments.Contains(instruction.Tag))
-                    {
-                        // Dealing with anonymous instructions here is hard, so let's not.
-                        return false;
-                    }
-                }
-
-                // Named instructions may refer to the LINQ call, but only if
-                // they're an enumeration.
-                var enumerations = new List<LinqEnumeration>();
-                foreach (var insn in instruction.Graph.NamedInstructions)
-                {
-                    if (insn.Arguments.Contains(instruction))
-                    {
-                        LinqEnumeration linqEnum;
-                        if (TryGetLinqEnumeration(insn, out linqEnum))
-                        {
-                            enumerations.Add(linqEnum);
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                int replacements = 0;
-                foreach (var linqEnum in enumerations)
-                {
-                    if (enumRewriteRule(linqEnum))
-                    {
-                        replacements++;
-                    }
-                }
-                if (replacements == enumerations.Count)
-                {
-                    instruction.Graph.RemoveInstruction(instruction);
-                }
-                return replacements > 0;
+                return TryApplyRewriteRule(instruction, enumRewriteRule);
             }
             else
             {
                 return false;
             }
+        }
+
+        private static bool TryApplyRewriteRule(
+            NamedInstructionBuilder instruction,
+            Func<LinqEnumeration, bool> rewriteRule)
+        {
+            if (IsBranchArgument(instruction, instruction.Graph.ToImmutable()))
+            {
+                // No thanks.
+                return false;
+            }
+
+            foreach (var insn in instruction.Graph.AnonymousInstructions)
+            {
+                if (insn.Arguments.Contains(instruction.Tag))
+                {
+                    // Dealing with anonymous instructions here is hard, so let's not.
+                    return false;
+                }
+            }
+
+            // Named instructions may refer to the LINQ call, but only if
+            // they're an enumeration.
+            var enumerations = new List<LinqEnumeration>();
+            foreach (var insn in instruction.Graph.NamedInstructions)
+            {
+                if (insn.Arguments.Contains(instruction))
+                {
+                    LinqEnumeration linqEnum;
+                    if (TryGetLinqEnumeration(insn, out linqEnum))
+                    {
+                        enumerations.Add(linqEnum);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            int replacements = 0;
+            foreach (var linqEnum in enumerations)
+            {
+                if (rewriteRule(linqEnum))
+                {
+                    replacements++;
+                }
+            }
+            if (replacements == enumerations.Count)
+            {
+                instruction.Graph.RemoveInstruction(instruction);
+            }
+            return replacements > 0;
         }
 
         private static bool TryGetLinqEnumeration(
