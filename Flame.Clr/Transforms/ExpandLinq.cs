@@ -70,7 +70,7 @@ namespace Flame.Clr.Transforms
                     // We expanded something. Apply copy propagation and dead code
                     // elimination to make recognizing idioms easier for the next
                     // iteration.
-                    graph.Transform(CopyPropagation.Instance, DeadBlockElimination.Instance);
+                    graph.Transform(CopyPropagation.Instance, DeadValueElimination.Instance);
                     return true;
                 }
             }
@@ -114,7 +114,8 @@ namespace Flame.Clr.Transforms
             }
 
             ValueTag arrayValue;
-            if (IsGetEnumeratorCall(instruction) && IsArray(instruction, out arrayValue))
+            if (IsGetEnumeratorCall(instruction)
+                && IsArray(instruction.Arguments[0], instruction.Graph.ToImmutable(), out arrayValue))
             {
                 // We can specialize array GetEnumerator with
                 LinqEnumeration linqEnum;
@@ -303,11 +304,6 @@ namespace Flame.Clr.Transforms
                 }
             }
             return false;
-        }
-
-        private static bool IsArray(NamedInstructionBuilder instruction, out ValueTag arrayValue)
-        {
-            return IsArray(instruction, instruction.Graph.ToImmutable(), out arrayValue);
         }
 
         private static bool IsArray(ValueTag value, FlowGraph graph, out ValueTag arrayValue)
@@ -599,7 +595,7 @@ namespace Flame.Clr.Transforms
                     inductionVar,
                     enumeration.GetEnumeratorCall.InsertBefore(
                         Instruction.CreateConstant(
-                            new IntegerConstant(0, InductionVariableType.GetIntegerSpecOrNull()),
+                            new IntegerConstant(-1, InductionVariableType.GetIntegerSpecOrNull()),
                             InductionVariableType))));
 
             // Replace all calls to 'Current' with array element loads. We will use a graph
@@ -664,8 +660,8 @@ namespace Flame.Clr.Transforms
                         ArithmeticIntrinsics.Operators.IsLessThan,
                         BooleanType,
                         InductionVariableType,
-                        inductionVarParameter,
-                        newInductionVal));
+                        newInductionVal,
+                        lengthParameter));
 
                 // Return that value.
                 moveNextGraph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(BooleanType, inRange));
