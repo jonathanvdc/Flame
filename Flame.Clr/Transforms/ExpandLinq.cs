@@ -67,6 +67,10 @@ namespace Flame.Clr.Transforms
             {
                 if (TryExpand(insn))
                 {
+                    // We expanded something. Apply copy propagation and dead code
+                    // elimination to make recognizing idioms easier for the next
+                    // iteration.
+                    graph.Transform(CopyPropagation.Instance, DeadBlockElimination.Instance);
                     return true;
                 }
             }
