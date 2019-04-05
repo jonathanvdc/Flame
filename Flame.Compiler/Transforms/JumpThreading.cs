@@ -242,20 +242,38 @@ namespace Flame.Compiler.Transforms
         {
             ThreadJumps(graph.GetBasicBlock(branch.Target), processedBlocks);
 
-            if (branch.Arguments.Count > 0)
+            // Block arguments are a bit of an obstacle for jump threading.
+            // We can't really thread jumps to blocks that have block parameters
+            // that are used outside of the block that defines them, because then
+            // we might break the invariant that uses are dominated by definitions.
+            //
+            // However, we can thread jumps to blocks that have block parameters
+            // provided that those parameters are never used outside of the block.
+            var target = graph.GetBasicBlock(branch.Target);
+            var uses = graph.GetAnalysisResult<ValueUses>();
+            if (target.ParameterTags.Any(
+                tag => uses.GetInstructionUses(tag).Count > 0
+                    || uses.GetFlowUses(tag).Any(block => block != target.Tag)))
             {
                 return null;
             }
 
-            var target = graph.GetBasicBlock(branch.Target);
-            if (target.Parameters.Count > 0 || target.InstructionTags.Count > 0)
+            if (target.InstructionTags.Count > 0)
             {
                 return null;
             }
 
             if (target.Flow is JumpFlow || target.Flow is SwitchFlow)
             {
-                return target.Flow;
+                var substitutionMap = new Dictionary<ValueTag, ValueTag>();
+                foreach (var kvPair in branch.ZipArgumentsWithParameters(graph))
+                {
+                    if (kvPair.Value.IsValue)
+                    {
+                        substitutionMap[kvPair.Key] = kvPair.Value.ValueOrNull;
+                    }
+                }
+                return target.Flow.MapValues(substitutionMap);
             }
             else
             {
