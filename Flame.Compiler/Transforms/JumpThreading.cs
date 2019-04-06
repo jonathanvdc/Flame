@@ -243,42 +243,40 @@ namespace Flame.Compiler.Transforms
             ThreadJumps(graph.GetBasicBlock(branch.Target), processedBlocks);
 
             // Block arguments are a bit of an obstacle for jump threading.
-            // We can't really thread jumps to blocks that have block parameters
-            // that are used outside of the block that defines them, because then
-            // we might break the invariant that uses are dominated by definitions.
             //
-            // However, we can thread jumps to blocks that have block parameters
-            // provided that those parameters are never used outside of the block.
+            //   * We can easily thread jumps to blocks that have block parameters
+            //     if those parameters are never used outside of the block: in that case,
+            //     we just substitute arguments for parameters.
+            //
+            //   * Jumps to blocks that have block parameters that are used outside
+            //     of the block that defines them are trickier to handle. We'll just bail
+            //     when we encounter them, because these don't occur when the control-flow
+            //     graph is in register forwarding form.
+
             var target = graph.GetBasicBlock(branch.Target);
             var uses = graph.GetAnalysisResult<ValueUses>();
-            if (target.ParameterTags.Any(
-                tag => uses.GetInstructionUses(tag).Count > 0
-                    || uses.GetFlowUses(tag).Any(block => block != target.Tag)))
+
+            // Only jump and switch flow are threadable. We don't jump-thread through
+            // instructions.
+            // TODO: consider copying instructions to enable more aggressive jump threading.
+            if ((!(target.Flow is JumpFlow) && !(target.Flow is SwitchFlow))
+                || target.InstructionTags.Count > 0
+                || target.ParameterTags.Any(
+                    tag => uses.GetInstructionUses(tag).Count > 0
+                        || uses.GetFlowUses(tag).Any(block => block != target.Tag)))
             {
                 return null;
             }
 
-            if (target.InstructionTags.Count > 0)
+            var substitutionMap = new Dictionary<ValueTag, ValueTag>();
+            foreach (var kvPair in branch.ZipArgumentsWithParameters(graph))
             {
-                return null;
-            }
-
-            if (target.Flow is JumpFlow || target.Flow is SwitchFlow)
-            {
-                var substitutionMap = new Dictionary<ValueTag, ValueTag>();
-                foreach (var kvPair in branch.ZipArgumentsWithParameters(graph))
+                if (kvPair.Value.IsValue)
                 {
-                    if (kvPair.Value.IsValue)
-                    {
-                        substitutionMap[kvPair.Key] = kvPair.Value.ValueOrNull;
-                    }
+                    substitutionMap[kvPair.Key] = kvPair.Value.ValueOrNull;
                 }
-                return target.Flow.MapValues(substitutionMap);
             }
-            else
-            {
-                return null;
-            }
+            return target.Flow.MapValues(substitutionMap);
         }
 
         /// <summary>
