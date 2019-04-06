@@ -246,6 +246,16 @@ namespace Flame.Compiler.Transforms
                         cases,
                         defaultBranch);
                 }
+
+                // Also simplify the block's switch flow. If the switch
+                // flow decays to jump flow, then we want to try threading
+                // this block again.
+                if (SwitchSimplification.TrySimplifySwitchFlow(block)
+                    && block.Flow is JumpFlow)
+                {
+                    processedBlocks.Remove(block);
+                    ThreadJumps(block, processedBlocks);
+                }
             }
         }
 

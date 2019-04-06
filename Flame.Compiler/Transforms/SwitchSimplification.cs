@@ -34,27 +34,42 @@ namespace Flame.Compiler.Transforms
             var graphBuilder = graph.ToBuilder();
             foreach (var block in graphBuilder.BasicBlocks)
             {
-                if (block.Flow is SwitchFlow)
-                {
-                    var flow = (SwitchFlow)block.Flow;
-                    var simpleFlow = SimplifySwitchFlow(flow, graphBuilder);
-                    if (flow != simpleFlow)
-                    {
-                        if (simpleFlow is JumpFlow)
-                        {
-                            // If a switch flow gets simplified to a jump
-                            // flow, then we should still ensure that the
-                            // switch value is evaluated.
-                            block.AppendInstruction(flow.SwitchValue);
-                        }
-                        block.Flow = simpleFlow;
-                    }
-                }
+                TrySimplifySwitchFlow(block);
             }
             return graphBuilder.ToImmutable();
         }
 
-        private static BlockFlow SimplifySwitchFlow(SwitchFlow flow, FlowGraphBuilder graph)
+        /// <summary>
+        /// Tries to simplify a basic block's switch flow, provided that the
+        /// block ends in switch flow.
+        /// </summary>
+        /// <param name="block">The basic block to simplify.</param>
+        /// <returns>
+        /// <c>true</c> if the block's flow was simplified; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TrySimplifySwitchFlow(BasicBlockBuilder block)
+        {
+            if (block.Flow is SwitchFlow)
+            {
+                var flow = (SwitchFlow)block.Flow;
+                var simpleFlow = SimplifySwitchFlow(flow, block.Graph.ImmutableGraph);
+                if (flow != simpleFlow)
+                {
+                    if (simpleFlow is JumpFlow)
+                    {
+                        // If a switch flow gets simplified to a jump
+                        // flow, then we should still ensure that the
+                        // switch value is evaluated.
+                        block.AppendInstruction(flow.SwitchValue);
+                    }
+                    block.Flow = simpleFlow;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static BlockFlow SimplifySwitchFlow(SwitchFlow flow, FlowGraph graph)
         {
             var value = SimplifyInstruction(flow.SwitchValue, graph);
             if (value.Prototype is ConstantPrototype)
@@ -182,7 +197,7 @@ namespace Flame.Compiler.Transforms
         private static bool TryExtractConstantAndValue(
             ValueTag leftHandSide,
             ValueTag rightHandSide,
-            FlowGraphBuilder graph,
+            FlowGraph graph,
             out Constant constant,
             out ValueTag value)
         {
@@ -235,7 +250,7 @@ namespace Flame.Compiler.Transforms
         /// A semantically equivalent instruction.</returns>
         private static Instruction SimplifyInstruction(
             Instruction instruction,
-            FlowGraphBuilder graph)
+            FlowGraph graph)
         {
             if (instruction.Prototype is CopyPrototype)
             {
