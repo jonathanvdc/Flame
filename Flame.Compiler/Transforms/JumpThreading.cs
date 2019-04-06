@@ -128,16 +128,34 @@ namespace Flame.Compiler.Transforms
             {
                 // We might be able to turn try flow into a jump, which we can thread
                 // recursively.
-
                 var tryFlow = (TryFlow)flow;
-                var exceptionSpecs = block.Graph.GetAnalysisResult<InstructionExceptionSpecs>();
-                if (!exceptionSpecs.GetExceptionSpecification(tryFlow.Instruction).CanThrowSomething)
+
+                // Start off by threading the try flow's branches.
+                var successBranch = tryFlow.SuccessBranch;
+                var failureBranch = tryFlow.ExceptionBranch;
+                var successFlow = AsThreadableFlow(tryFlow.SuccessBranch, block.Graph, processedBlocks);
+                var failureFlow = AsThreadableFlow(tryFlow.ExceptionBranch, block.Graph, processedBlocks);
+                if (successFlow is JumpFlow)
                 {
-                    // If the "risky" instruction absolutely cannot throw,
-                    // then we can just rewrite the try as a jump.
+                    successBranch = ((JumpFlow)successFlow).Branch;
+                }
+                if (failureFlow is JumpFlow)
+                {
+                    failureBranch = ((JumpFlow)failureFlow).Branch;
+                }
+
+                var exceptionSpecs = block.Graph.GetAnalysisResult<InstructionExceptionSpecs>();
+                if (!exceptionSpecs.GetExceptionSpecification(tryFlow.Instruction).CanThrowSomething
+                    || IsRethrowBranch(failureBranch, block.Graph, processedBlocks))
+                {
+                    // If the "risky" instruction absolutely cannot throw, then we can
+                    // just rewrite the try as a jump.
+                    // Similarly, if the exception branch simply re-throws the exception,
+                    // then we are also free to make the same transformation, but for
+                    // different reasons.
                     var value = block.AppendInstruction(tryFlow.Instruction);
-                    var branch = tryFlow.SuccessBranch.WithArguments(
-                        tryFlow.SuccessBranch.Arguments
+                    var branch = successBranch.WithArguments(
+                        successBranch.Arguments
                             .Select(arg => arg.IsTryResult ? BranchArgument.FromValue(value) : arg)
                             .ToArray());
                     block.Flow = new JumpFlow(branch);
@@ -153,7 +171,7 @@ namespace Flame.Compiler.Transforms
                     // jump directly to the exception block.
                     var exception = tryFlow.Instruction.Arguments[0];
 
-                    var capturedExceptionParam = tryFlow.ExceptionBranch
+                    var capturedExceptionParam = failureBranch
                         .ZipArgumentsWithParameters(block.Graph)
                         .FirstOrDefault(pair => pair.Value.IsTryException)
                         .Key;
@@ -162,7 +180,7 @@ namespace Flame.Compiler.Transforms
                     {
                         // If the exception branch does not pass an '#exception' parameter,
                         // then we can replace the try by a simple jump.
-                        block.Flow = new JumpFlow(tryFlow.ExceptionBranch);
+                        block.Flow = new JumpFlow(failureBranch);
                     }
                     else
                     {
@@ -172,8 +190,8 @@ namespace Flame.Compiler.Transforms
                                 block.Graph.GetValueType(capturedExceptionParam),
                                 block.Graph.GetValueType(exception),
                                 exception));
-                        var branch = tryFlow.ExceptionBranch.WithArguments(
-                            tryFlow.ExceptionBranch.Arguments
+                        var branch = failureBranch.WithArguments(
+                            failureBranch.Arguments
                                 .Select(arg => arg.IsTryException ? BranchArgument.FromValue(capturedException) : arg)
                                 .ToArray());
 
@@ -188,18 +206,6 @@ namespace Flame.Compiler.Transforms
                 {
                     // If we can't replace the 'try' flow with something better, then
                     // the least we can do is try and thread the 'try' flow's branches.
-                    var successBranch = tryFlow.SuccessBranch;
-                    var failureBranch = tryFlow.ExceptionBranch;
-                    var successFlow = AsThreadableFlow(tryFlow.SuccessBranch, block.Graph, processedBlocks);
-                    var failureFlow = AsThreadableFlow(tryFlow.ExceptionBranch, block.Graph, processedBlocks);
-                    if (successFlow is JumpFlow)
-                    {
-                        successBranch = ((JumpFlow)successFlow).Branch;
-                    }
-                    if (failureFlow is JumpFlow)
-                    {
-                        failureBranch = ((JumpFlow)failureFlow).Branch;
-                    }
                     block.Flow = new TryFlow(tryFlow.Instruction, successBranch, failureBranch);
                 }
             }
@@ -302,6 +308,39 @@ namespace Flame.Compiler.Transforms
             }
         }
 
+        private bool IsRethrowBranch(Branch exceptionBranch, FlowGraphBuilder graph, HashSet<BasicBlockTag> processedBlocks)
+        {
+            // Jump-thread the exception branch's target so we will have more
+            // information to act on.
+            var target = graph.GetBasicBlock(exceptionBranch.Target);
+            ThreadJumps(target, processedBlocks);
+
+            // Now walk the exception branch's instructions. If the first effectful
+            // instruction is a 'rethrow' intrinsic, then we are dealing with a
+            // rethrow branch.
+            var effectfulness = graph.GetAnalysisResult<EffectfulInstructions>();
+            foreach (var instruction in target.NamedInstructions)
+            {
+                if (effectfulness.Instructions.Contains(instruction))
+                {
+                    if (IsRethrowIntrinsic(instruction.Instruction))
+                    {
+                        return exceptionBranch
+                            .ZipArgumentsWithParameters(graph)
+                            .Where(pair => pair.Value.IsTryException)
+                            .Select(pair => pair.Key)
+                            .Any(instruction.Arguments.Contains);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private BlockFlow AsThreadableFlow(Branch branch, FlowGraphBuilder graph, HashSet<BasicBlockTag> processedBlocks)
         {
             ThreadJumps(graph.GetBasicBlock(branch.Target), processedBlocks);
@@ -390,6 +429,20 @@ namespace Flame.Compiler.Transforms
             return ExceptionIntrinsics.Namespace.IsIntrinsicPrototype(
                 instruction.Prototype,
                 ExceptionIntrinsics.Operators.Throw);
+        }
+
+        /// <summary>
+        /// Tells if an instruction is a 'rethrow' intrinsic.
+        /// </summary>
+        /// <param name="instruction">The instruction to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="instruction"/> is a 'rethrow' intrinsic; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsRethrowIntrinsic(Instruction instruction)
+        {
+            return ExceptionIntrinsics.Namespace.IsIntrinsicPrototype(
+                instruction.Prototype,
+                ExceptionIntrinsics.Operators.Rethrow);
         }
     }
 }
