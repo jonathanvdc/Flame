@@ -47,6 +47,12 @@ namespace Flame.Compiler.Transforms
         {
             var graphBuilder = graph.ToBuilder();
 
+            // Ensure that the graph is in register forwarding form.
+            // Jump threading will work even if it isn't, but register
+            // forwarding form will allow jump threading to make more
+            // aggressive simplifications.
+            graphBuilder.Transform(ForwardRegisters.Instance);
+
             // Suggest exception spec analyses if the graph doesn't have any yet.
             if (!graphBuilder.HasAnalysisFor<PrototypeExceptionSpecs>())
             {
@@ -67,6 +73,11 @@ namespace Flame.Compiler.Transforms
             {
                 ThreadJumps(block, finished);
             }
+
+            // Move out of register forwarding form by applying copy propagation
+            // and dead code elimination.
+            graphBuilder.Transform(CopyPropagation.Instance, DeadValueElimination.Instance);
+
             return graphBuilder.ToImmutable();
         }
 
