@@ -156,5 +156,15 @@ namespace Flame.Compiler
                 }
             });
         }
+
+        /// <summary>
+        /// Applies a mapping to all branches in this basic block.
+        /// </summary>
+        /// <param name="mapping">The mapping to apply.</param>
+        /// <returns>A block flow.</returns>
+        public BlockFlow MapBranches(Func<Branch, Branch> mapping)
+        {
+            return WithBranches(Branches.EagerSelect(mapping));
+        }
     }
 }
