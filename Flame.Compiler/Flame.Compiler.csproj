@@ -126,6 +126,7 @@
     <Compile Include="Transforms\DeadBlockElimination.cs" />
     <Compile Include="Transforms\DeadValueElimination.cs" />
     <Compile Include="Transforms\DuplicateReturns.cs" />
+    <Compile Include="Transforms\ForwardRegisters.cs" />
     <Compile Include="Transforms\FuseMemoryAccesses.out.cs" />
     <Compile Include="Transforms\GlobalValueNumbering.cs" />
     <Compile Include="Transforms\InstructionSimplification.out.cs" />
