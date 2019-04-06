@@ -460,37 +460,66 @@ namespace Flame.Clr.Emit
                 // If-else flow is fairly easy to handle.
                 var ifBranch = switchFlow.Cases[0].Branch;
                 var ifValue = switchFlow.Cases[0].Values.Single();
+                var elseBranch = switchFlow.DefaultBranch;
 
-                bool hasArgs = ifBranch.Arguments.Count > 0;
-                var ifTarget = hasArgs ? new BasicBlockTag() : ifBranch.Target;
-                var elseTarget = switchFlow.DefaultBranch.Target;
-
-                // Emit equality test.
+                // Emit the value to compare the condition to.
                 instructions.AddRange(
                     CreatePushConstant(ifValue, switchFlow.SwitchValue.ResultType)
                     .Select(insn => new CilOpInstruction(insn)));
-                instructions.Add(
-                    hasArgs
-                    ? CreateBranchInstruction(OpCodes.Bne_Un, elseTarget)
-                    : CreateBranchInstruction(OpCodes.Beq, ifTarget));
 
-                // If the if-branch takes one or more arguments, then we need to
-                // build a little thunk that selects instructions for those arguments.
-                if (hasArgs)
+                if (ifBranch.Arguments.Count == 0)
                 {
-                    instructions.Add(new CilMarkTargetInstruction(ifTarget));
+                    // If the 'if' branch does not take any arguments, then we can use a
+                    // simple construction: branch directly to the 'if' target if the condition
+                    // equals the value we just emitted.
+                    instructions.Add(CreateBranchInstruction(OpCodes.Beq, ifBranch.Target));
+
+                    // Emit branch arguments and make the 'else' branch target the fallthrough block.
+                    var elseArgs = SelectBranchArguments(elseBranch, graph);
+                    instructions.AddRange(elseArgs.Instructions);
+                    dependencies.AddRange(elseArgs.Dependencies);
+                    fallthrough = elseBranch.Target;
+                    return SelectedInstructions.Create(instructions, dependencies);
+                }
+                else if (elseBranch.Arguments.Count == 0)
+                {
+                    // Similarly, if the 'else' branch does not take any arguments, then
+                    // we can branch directly to the 'else' branch if the condition does not
+                    // equal the value on top of the stack.
+                    instructions.Add(CreateBranchInstruction(OpCodes.Bne_Un, elseBranch.Target));
+
+                    // Emit branch arguments and make the 'if' branch target the fallthrough block.
+                    var ifArgs = SelectBranchArguments(ifBranch, graph);
+                    instructions.AddRange(ifArgs.Instructions);
+                    dependencies.AddRange(ifArgs.Dependencies);
+                    fallthrough = ifBranch.Target;
+                    return SelectedInstructions.Create(instructions, dependencies);
+                }
+                else
+                {
+                    // Both branches take arguments, which means that we'll have to create
+                    // a thunk block that loads arguments for the 'else' branch and finally
+                    // branches to the 'else' branch target.
+                    var elseThunk = new BasicBlockTag();
+
+                    // Branch to the 'if' thunk if the condition value equals the top-of-stack
+                    // value we just pushed.
+                    instructions.Add(CreateBranchInstruction(OpCodes.Bne_Un, elseThunk));
+
+                    // Emit the 'if' branch.
                     var ifArgs = SelectBranchArguments(ifBranch, graph);
                     instructions.AddRange(ifArgs.Instructions);
                     dependencies.AddRange(ifArgs.Dependencies);
                     instructions.Add(CreateBranchInstruction(OpCodes.Br, ifBranch.Target));
-                }
 
-                // Emit branch arguments for fallthrough branch.
-                var defaultArgs = SelectBranchArguments(switchFlow.DefaultBranch, graph);
-                instructions.AddRange(defaultArgs.Instructions);
-                dependencies.AddRange(defaultArgs.Dependencies);
-                fallthrough = elseTarget;
-                return SelectedInstructions.Create(instructions, dependencies);
+                    // Emit the 'else' thunk and make the 'else' branch target the fallthrough block.
+                    instructions.Add(new CilMarkTargetInstruction(elseThunk));
+                    var elseArgs = SelectBranchArguments(elseBranch, graph);
+                    instructions.AddRange(elseArgs.Instructions);
+                    dependencies.AddRange(elseArgs.Dependencies);
+                    fallthrough = elseBranch.Target;
+                    return SelectedInstructions.Create(instructions, dependencies);
+                }
             }
             else if (flow.IsJumpTable)
             {
