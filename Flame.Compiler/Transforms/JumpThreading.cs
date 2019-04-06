@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -97,6 +98,30 @@ namespace Flame.Compiler.Transforms
                 if (threadFlow != null && jumpFlow.Branch.Target != block.Tag)
                 {
                     block.Flow = threadFlow;
+
+                    if (block.Flow is SwitchFlow)
+                    {
+                        // If the jump flow gets replaced by switch flow, then we want to
+                        // jump-thread the block again.
+                        processedBlocks.Remove(block);
+                        ThreadJumps(block, processedBlocks);
+                        return;
+                    }
+                }
+
+                // Now would also be a good time to try and fuse this block with
+                // its successor, if this jump is the only branch to the successor.
+                var predecessors = block.Graph.GetAnalysisResult<BasicBlockPredecessors>();
+                BasicBlockTag tail;
+                if (BlockFusion.TryGetFusibleTail(block, block.Graph.ToImmutable(), predecessors, out tail))
+                {
+                    // Fuse the blocks.
+                    FuseBlocks(block, tail);
+
+                    // Fusing these blocks may have exposed additional information
+                    // that will enable us to thread more jumps.
+                    processedBlocks.Remove(block);
+                    ThreadJumps(block, processedBlocks);
                 }
             }
             else if (flow is TryFlow)
@@ -158,6 +183,24 @@ namespace Flame.Compiler.Transforms
                     // Jump-thread this block again.
                     processedBlocks.Remove(block);
                     ThreadJumps(block, processedBlocks);
+                }
+                else
+                {
+                    // If we can't replace the 'try' flow with something better, then
+                    // the least we can do is try and thread the 'try' flow's branches.
+                    var successBranch = tryFlow.SuccessBranch;
+                    var failureBranch = tryFlow.ExceptionBranch;
+                    var successFlow = AsThreadableFlow(tryFlow.SuccessBranch, block.Graph, processedBlocks);
+                    var failureFlow = AsThreadableFlow(tryFlow.ExceptionBranch, block.Graph, processedBlocks);
+                    if (successFlow is JumpFlow)
+                    {
+                        successBranch = ((JumpFlow)successFlow).Branch;
+                    }
+                    if (failureFlow is JumpFlow)
+                    {
+                        failureBranch = ((JumpFlow)failureFlow).Branch;
+                    }
+                    block.Flow = new TryFlow(tryFlow.Instruction, successBranch, failureBranch);
                 }
             }
             else if (flow is SwitchFlow && IncludeSwitches)
@@ -289,15 +332,50 @@ namespace Flame.Compiler.Transforms
                 return null;
             }
 
-            var substitutionMap = new Dictionary<ValueTag, ValueTag>();
+            var valueSubstitutionMap = new Dictionary<ValueTag, ValueTag>();
+            var argSubstitutionMap = new Dictionary<BranchArgument, BranchArgument>();
             foreach (var kvPair in branch.ZipArgumentsWithParameters(graph))
             {
                 if (kvPair.Value.IsValue)
                 {
-                    substitutionMap[kvPair.Key] = kvPair.Value.ValueOrNull;
+                    valueSubstitutionMap[kvPair.Key] = kvPair.Value.ValueOrNull;
                 }
+                argSubstitutionMap[BranchArgument.FromValue(kvPair.Key)] = kvPair.Value;
             }
-            return target.Flow.MapValues(substitutionMap);
+            return target.Flow
+                .MapArguments(argSubstitutionMap)
+                .MapValues(valueSubstitutionMap);
+        }
+
+        /// <summary>
+        /// Fuses two fusible basic blocks.
+        /// </summary>
+        /// <param name="head">The 'head' block.</param>
+        /// <param name="tail">The 'tail' block.</param>
+        private static void FuseBlocks(BasicBlockBuilder head, BasicBlockTag tail)
+        {
+            var jump = (JumpFlow)head.Flow;
+
+            // Replace branch parameters by their respective arguments.
+            var replacements = new Dictionary<ValueTag, ValueTag>();
+            foreach (var pair in jump.Branch.ZipArgumentsWithParameters(head.Graph))
+            {
+                replacements.Add(pair.Key, pair.Value.ValueOrNull);
+            }
+            head.Graph.ReplaceUses(replacements);
+
+            // Move instructions around.
+            var tailBlock = head.Graph.GetBasicBlock(tail);
+            foreach (var instruction in tailBlock.NamedInstructions)
+            {
+                instruction.MoveTo(head);
+            }
+
+            // Update the block's flow.
+            head.Flow = tailBlock.Flow;
+
+            // Delete the 'tail' block.
+            head.Graph.RemoveBasicBlock(tail);
         }
 
         /// <summary>

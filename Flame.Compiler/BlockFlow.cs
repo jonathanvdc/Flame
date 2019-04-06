@@ -82,7 +82,7 @@ namespace Flame.Compiler
         /// and branches in this block flow.
         /// </summary>
         /// <param name="mapping">A value-to-value mapping to apply.</param>
-        /// <returns>A block flow.</returns>
+        /// <returns>Block flow.</returns>
         public BlockFlow MapValues(
             Func<ValueTag, ValueTag> mapping)
         {
@@ -100,7 +100,7 @@ namespace Flame.Compiler
         /// <param name="mapping">
         /// A value-to-value mapping to apply.
         /// </param>
-        /// <returns>A block flow.</returns>
+        /// <returns>Block flow.</returns>
         public BlockFlow MapValues(
             IReadOnlyDictionary<ValueTag, ValueTag> mapping)
         {
@@ -123,7 +123,7 @@ namespace Flame.Compiler
         /// branches in this block flow.
         /// </summary>
         /// <param name="mapping">A block-to-block mapping to apply.</param>
-        /// <returns>A block flow.</returns>
+        /// <returns>Block flow.</returns>
         public BlockFlow MapBlocks(
             Func<BasicBlockTag, BasicBlockTag> mapping)
         {
@@ -139,7 +139,7 @@ namespace Flame.Compiler
         /// <param name="mapping">
         /// A block-to-block mapping to apply.
         /// </param>
-        /// <returns>A block flow.</returns>
+        /// <returns>Block flow.</returns>
         public BlockFlow MapBlocks(
             IReadOnlyDictionary<BasicBlockTag, BasicBlockTag> mapping)
         {
@@ -161,10 +161,49 @@ namespace Flame.Compiler
         /// Applies a mapping to all branches in this basic block.
         /// </summary>
         /// <param name="mapping">The mapping to apply.</param>
-        /// <returns>A block flow.</returns>
+        /// <returns>Block flow.</returns>
         public BlockFlow MapBranches(Func<Branch, Branch> mapping)
         {
             return WithBranches(Branches.EagerSelect(mapping));
+        }
+
+        /// <summary>
+        /// Applies a mapping to all branch arguments in this flow.
+        /// </summary>
+        /// <param name="mapping">
+        /// A argument-to-argument mapping to apply.
+        /// </param>
+        /// <returns>Block flow.</returns>
+        public BlockFlow MapArguments(
+            Func<BranchArgument, BranchArgument> mapping)
+        {
+            return this
+                .WithBranches(
+                    Branches.EagerSelect(branch => branch.MapArguments(mapping)));
+        }
+
+        /// <summary>
+        /// Applies a mapping to all branch arguments in this flow.
+        /// </summary>
+        /// <param name="mapping">
+        /// A argument-to-argument mapping to apply.
+        /// </param>
+        /// <returns>Block flow.</returns>
+        public BlockFlow MapArguments(
+            IReadOnlyDictionary<BranchArgument, BranchArgument> mapping)
+        {
+            return MapArguments(arg =>
+            {
+                BranchArgument result;
+                if (mapping.TryGetValue(arg, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    return arg;
+                }
+            });
         }
     }
 }

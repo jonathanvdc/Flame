@@ -28,16 +28,12 @@ namespace Flame.Compiler.Transforms
             // Figure out which blocks jump unconditionally to a block
             // with only one predecessor.
             var fusible = new HashSet<BasicBlockTag>();
-            foreach (var block in graph.BasicBlocks)
+            foreach (var block in graph.BasicBlockTags)
             {
-                var jumpFlow = block.Flow as JumpFlow;
-                if (jumpFlow != null && graph.EntryPointTag != jumpFlow.Branch.Target)
+                BasicBlockTag tail;
+                if (TryGetFusibleTail(block, graph, predecessors, out tail))
                 {
-                    var preds = predecessors.GetPredecessorsOf(jumpFlow.Branch.Target).ToArray();
-                    if (preds.Length == 1 && preds[0] == block.Tag)
-                    {
-                        fusible.Add(block);
-                    }
+                    fusible.Add(block);
                 }
             }
 
@@ -96,6 +92,27 @@ namespace Flame.Compiler.Transforms
             }
 
             return builder.ToImmutable();
+        }
+
+        internal static bool TryGetFusibleTail(
+            BasicBlockTag head,
+            FlowGraph graph,
+            BasicBlockPredecessors predecessors,
+            out BasicBlockTag tail)
+        {
+            var block = graph.GetBasicBlock(head);
+            var jumpFlow = block.Flow as JumpFlow;
+            if (jumpFlow != null && graph.EntryPointTag != jumpFlow.Branch.Target)
+            {
+                var preds = predecessors.GetPredecessorsOf(jumpFlow.Branch.Target).ToArray();
+                if (preds.Length == 1 && preds[0] == block.Tag)
+                {
+                    tail = jumpFlow.Branch.Target;
+                    return true;
+                }
+            }
+            tail = null;
+            return false;
         }
     }
 }
