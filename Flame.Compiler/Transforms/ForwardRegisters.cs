@@ -81,7 +81,9 @@ namespace Flame.Compiler.Transforms
                 {
                     // Import a definition by introducing a new parameter and recursively
                     // importing it the value in predecessor blocks.
-                    blockDefs[value] = block.AppendParameter(builder.GetValueType(value));
+                    blockDefs[value] = block.AppendParameter(
+                        builder.GetValueType(value),
+                        value.Name + ".rff." + block.Tag.Name);
                     blockArgs.Add(value);
 
                     foreach (var pred in predecessors.GetPredecessorsOf(block))
@@ -96,8 +98,8 @@ namespace Flame.Compiler.Transforms
             }
 
             // We have introduced basic block parameters and know which values are
-            // used by blocks. All we need to do now is replace value uses and
-            // append branch arguments.
+            // used by blocks. We finish by replacing value uses and appending
+            // branch arguments.
             foreach (var block in builder.BasicBlocks)
             {
                 var blockDefs = definitions[block];
