@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 
@@ -51,7 +53,8 @@ namespace Flame.Compiler.Transforms
                         0,
                         Instruction.CreateConstant(
                             DefaultConstant.Instance,
-                            graphBuilder.GetValueType(pair.Key))).Tag;
+                            graphBuilder.GetValueType(pair.Key)),
+                        pair.Key.Name);
                 }
                 else
                 {
@@ -143,12 +146,16 @@ namespace Flame.Compiler.Transforms
                 }
             }
 
-            // Now run the actual trivial phi elimination
-            // algorithm.
+            // Run the trivial phi elimination algorithm.
             foreach (var tag in phiArgs.Keys)
             {
                 TryRemoveTrivialPhi(tag, phiArgs, phiUsers, specialPhis, copyMap);
             }
+
+            // Run the redundant phi elimination algorithm.
+            var phiFunctions = new HashSet<ValueTag>(phiArgs.Keys);
+            phiFunctions.ExceptWith(copyMap.Keys);
+            RemoveRedundantPhis(phiFunctions, phiArgs, copyMap);
 
             // Propagate chains of copied values.
             foreach (var key in copyMap.Keys.ToArray())
@@ -181,7 +188,7 @@ namespace Flame.Compiler.Transforms
             foreach (var arg in phiArgs[phi])
             {
                 var actualArg = GetActualCopy(arg, copyMap);
-                if (actualArg == same || actualArg == phi)
+                if (actualArg == null || actualArg == same || actualArg == phi)
                 {
                     continue;
                 }
@@ -194,21 +201,17 @@ namespace Flame.Compiler.Transforms
                 same = actualArg;
             }
 
-            if (same == null)
-            {
-                // If the phi has zero arguments, then it is trivial,
-                // but not a copy. DCE should take care of it.
-                return;
-            }
-
-            // Reroute all uses of `phi` to `same`.
+            // Reroute all uses of `phi` to `same`. If `same` is null,
+            // then that means that the phi has zero arguments. It is
+            // trivial, but not a "real" copy, so we'll just write `null`
+            // to the copy map as well.
             copyMap[phi] = same;
 
             // Recurse on `phi` users, which may have become trivial.
             foreach (var use in phiUsers[phi])
             {
                 var copy = GetActualCopy(use, copyMap);
-                if (phiArgs.ContainsKey(copy))
+                if (copy != null && phiArgs.ContainsKey(copy))
                 {
                     // Be sure to check that the phi we want to eliminate
                     // is actually a phi. Things will go horribly wrong if
@@ -224,10 +227,84 @@ namespace Flame.Compiler.Transforms
             }
         }
 
+        private static void RemoveRedundantPhis(
+            HashSet<ValueTag> phiFunctions,
+            Dictionary<ValueTag, HashSet<ValueTag>> phiArgs,
+            Dictionary<ValueTag, ValueTag> copyMap)
+        {
+            // This algorithm is based on the `removeRedundantPhis` algorithm as described
+            // by M. Braun et al in Simple and Efficient Construction of Static Single
+            // Assignment Form
+            // (https://pp.info.uni-karlsruhe.de/uploads/publikationen/braun13cc.pdf).
+
+            // Run the redundant phi elimination algorithm.
+            foreach (var scc in ComputePhiSCCs(phiFunctions, phiArgs, copyMap))
+            {
+                ProcessPhiSCC(scc, phiArgs, copyMap);
+            }
+        }
+
+        private static IReadOnlyList<HashSet<ValueTag>> ComputePhiSCCs(
+            HashSet<ValueTag> phiFunctions,
+            Dictionary<ValueTag, HashSet<ValueTag>> phiArgs,
+            Dictionary<ValueTag, ValueTag> copyMap)
+        {
+            // Computes all phi SCCs in the subgraph induced by phis.
+            return StronglyConnectedComponents.Compute(
+                phiFunctions,
+                arg => phiArgs[arg].Where(phiFunctions.Contains));
+        }
+
+        private static void ProcessPhiSCC(
+            HashSet<ValueTag> scc,
+            Dictionary<ValueTag, HashSet<ValueTag>> phiArgs,
+            Dictionary<ValueTag, ValueTag> copyMap)
+        {
+            if (scc.Count == 1)
+            {
+                // We already handled trivial phis.
+                return;
+            }
+
+            var inner = new HashSet<ValueTag>();
+            var outerOps = new HashSet<ValueTag>();
+            foreach (var phi in scc)
+            {
+                bool isInner = true;
+                foreach (var oldOperand in phiArgs[phi])
+                {
+                    var operand = GetActualCopy(oldOperand, copyMap);
+                    if (operand != null && !scc.Contains(operand))
+                    {
+                        outerOps.Add(operand);
+                        isInner = false;
+                    }
+                }
+                if (isInner)
+                {
+                    inner.Add(phi);
+                }
+            }
+
+            if (outerOps.Count == 1)
+            {
+                // Replace the entire SCC by the value.
+                foreach (var phi in scc)
+                {
+                    copyMap[phi] = outerOps.Single();
+                }
+            }
+            else if (outerOps.Count > 1)
+            {
+                // Recursively remove redundant phis in the SCC.
+                RemoveRedundantPhis(inner, phiArgs, copyMap);
+            }
+        }
+
         private static ValueTag GetActualCopy(ValueTag key, Dictionary<ValueTag, ValueTag> copyMap)
         {
             ValueTag copy;
-            if (copyMap.TryGetValue(key, out copy))
+            if (key != null && copyMap.TryGetValue(key, out copy))
             {
                 var actualCopy = GetActualCopy(copy, copyMap);
                 if (actualCopy != copy)
