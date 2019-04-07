@@ -51,9 +51,7 @@ namespace Flame.Compiler.Transforms
                 {
                     materializedReplacements[pair.Key] = entryPoint.InsertInstruction(
                         0,
-                        Instruction.CreateConstant(
-                            DefaultConstant.Instance,
-                            graphBuilder.GetValueType(pair.Key)),
+                        Instruction.CreateDefaultConstant(graphBuilder.GetValueType(pair.Key)),
                         pair.Key.Name);
                 }
                 else

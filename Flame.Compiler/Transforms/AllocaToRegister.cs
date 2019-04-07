@@ -239,9 +239,7 @@ namespace Flame.Compiler.Transforms
                         {
                             entryPoint.InsertInstruction(
                                 0,
-                                Instruction.CreateConstant(
-                                    DefaultConstant.Instance,
-                                    parameter.Type),
+                                Instruction.CreateDefaultConstant(parameter.Type),
                                 parameter.Tag);
                         }
                     }
@@ -276,9 +274,7 @@ namespace Flame.Compiler.Transforms
                         {
                             branchArgs.Add(
                                 newEntryPoint.AppendInstruction(
-                                    Instruction.CreateConstant(
-                                        DefaultConstant.Instance,
-                                        parameter.Type)).Tag);
+                                    Instruction.CreateDefaultConstant(parameter.Type)));
                         }
                     }
 

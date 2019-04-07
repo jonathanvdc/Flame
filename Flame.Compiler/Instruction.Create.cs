@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Instructions;
+using Flame.Constants;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler
@@ -135,6 +136,35 @@ namespace Flame.Compiler
         public static Instruction CreateConstant(Constant value, IType type)
         {
             return ConstantPrototype.Create(value, type).Instantiate();
+        }
+
+        /// <summary>
+        /// Creates an instruction that creates a default-value constant
+        /// of a particular type. The resulting constant need not be
+        /// an instance of DefaultConstant: it may be tailored to the type
+        /// of value to produce.
+        /// </summary>
+        /// <param name="type">
+        /// The type of value created by the instruction.
+        /// </param>
+        /// <returns>
+        /// A default-value constant instruction.
+        /// </returns>
+        public static Instruction CreateDefaultConstant(IType type)
+        {
+            var intSpec = type.GetIntegerSpecOrNull();
+            if (intSpec != null)
+            {
+                return CreateConstant(new IntegerConstant(0, intSpec), type);
+            }
+            else if (type is PointerType)
+            {
+                return CreateConstant(NullConstant.Instance, type);
+            }
+            else
+            {
+                return CreateConstant(DefaultConstant.Instance, type);
+            }
         }
 
         /// <summary>

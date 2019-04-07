@@ -181,9 +181,7 @@ namespace Flame.Clr.Analysis
             if (type == Analyzer.Assembly.Resolver.TypeEnvironment.Void)
             {
                 return Emit(
-                    Instruction.CreateConstant(
-                        DefaultConstant.Instance,
-                        type));
+                    Instruction.CreateDefaultConstant(type));
             }
             else
             {

@@ -674,7 +674,7 @@ namespace Flame.Clr.Transforms
             // Replace all 'Dispose' calls with nops.
             foreach (var call in enumeration.DisposeCalls)
             {
-                call.Instruction = Instruction.CreateConstant(DefaultConstant.Instance, call.ResultType);
+                call.Instruction = Instruction.CreateDefaultConstant(call.ResultType);
             }
 
             // Eliminate null checks.

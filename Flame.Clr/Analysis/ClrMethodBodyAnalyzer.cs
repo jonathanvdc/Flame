@@ -1234,9 +1234,7 @@ namespace Flame.Clr.Analysis
                         elementType,
                         pointer,
                         context.Emit(
-                            Instruction.CreateConstant(
-                                DefaultConstant.Instance,
-                                elementType))));
+                            Instruction.CreateDefaultConstant(elementType))));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
             {

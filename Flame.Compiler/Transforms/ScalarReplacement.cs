@@ -73,9 +73,7 @@ namespace Flame.Compiler.Transforms
                             //     _ = store(field_pointer, c);
                             //
                             var constant = instruction.InsertAfter(
-                                Instruction.CreateConstant(
-                                    DefaultConstant.Instance,
-                                    pair.Key.FieldType));
+                                Instruction.CreateDefaultConstant(pair.Key.FieldType));
 
                             constant.InsertAfter(
                                 Instruction.CreateStore(
