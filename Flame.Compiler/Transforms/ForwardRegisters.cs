@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Transforms
 {
@@ -79,11 +80,23 @@ namespace Flame.Compiler.Transforms
 
                 foreach (var value in blockImports)
                 {
+                    var rffName = value.Name + ".rff." + block.Tag.Name;
+
+                    NamedInstruction valueInstruction;
+                    if (graph.TryGetInstruction(value, out valueInstruction)
+                        && valueInstruction.Prototype is ConstantPrototype)
+                    {
+                        // Create duplicate definitions of constants instead of
+                        // importing them using phis.
+                        blockDefs[value] = block.InsertInstruction(0, valueInstruction.Instruction, rffName);
+                        continue;
+                    }
+
                     // Import a definition by introducing a new parameter and recursively
                     // importing it the value in predecessor blocks.
                     blockDefs[value] = block.AppendParameter(
                         builder.GetValueType(value),
-                        value.Name + ".rff." + block.Tag.Name);
+                        rffName);
                     blockArgs.Add(value);
 
                     foreach (var pred in predecessors.GetPredecessorsOf(block))
