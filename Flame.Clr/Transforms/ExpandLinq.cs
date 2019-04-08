@@ -568,7 +568,8 @@ namespace Flame.Clr.Transforms
                 return false;
             }
 
-            var callbackDelegateType = TypeHelpers.UnboxIfPossible(enumeration.Graph.GetValueType(callback));
+            var callbackDelegateType = TypeHelpers.UnboxIfPossible(
+                enumeration.Graph.GetValueType(callback));
             IMethod invokeMethod;
             if (!TypeHelpers.TryGetDelegateInvokeMethod(callbackDelegateType, out invokeMethod))
             {
@@ -607,7 +608,9 @@ namespace Flame.Clr.Transforms
                     inductionVarType,
                     iterationCounter,
                     enumeration.GetEnumeratorCall.InsertBefore(
-                        Instruction.CreateDefaultConstant(inductionVarType))));
+                        Instruction.CreateConstant(
+                            new IntegerConstant(-1, inductionVarType.GetIntegerSpecOrNull()),
+                            inductionVarType))));
 
             // Replace all 'Current' calls with variable loads.
             foreach (var call in enumeration.CurrentCalls)
@@ -627,8 +630,8 @@ namespace Flame.Clr.Transforms
                 //     if (!more)
                 //         return false;
                 //
-                //     current = callback(source.Current, induction_var);
                 //     induction_var++;
+                //     current = callback(source.Current, induction_var);
                 //     return true;
                 //
                 // The CFG we want to build looks like this:
@@ -639,9 +642,9 @@ namespace Flame.Clr.Transforms
                 //
                 //     MoveNext.advance()
                 //         cur = source.get_Current()
+                //         _ = store(induction_var, load(induction_var) + 1)
                 //         new_cur = callback(cur, load(induction_var))
                 //         _ = store(current, cur)
-                //         _ = store(induction_var, load(induction_var) + 1)
                 //         return true
                 //
                 //     MoveNext.empty()
@@ -683,6 +686,19 @@ namespace Flame.Clr.Transforms
                 var oldInductionVal = successBlock.AppendInstruction(
                     Instruction.CreateLoad(inductionVarType, inductionVarParam));
 
+                var newInductionVal = successBlock.AppendInstruction(
+                    Instruction.CreateBinaryArithmeticIntrinsic(
+                        ArithmeticIntrinsics.Operators.Add,
+                        InductionVariableType,
+                        oldInductionVal,
+                        successBlock.AppendInstruction(
+                            Instruction.CreateConstant(
+                                new IntegerConstant(1, InductionVariableType.GetIntegerSpecOrNull()),
+                                InductionVariableType))));
+
+                successBlock.AppendInstruction(
+                    Instruction.CreateStore(inductionVarType, inductionVarParam, newInductionVal));
+
                 NamedInstructionBuilder newCur;
                 if (invokeMethod.Parameters.Count == 1)
                 {
@@ -700,23 +716,10 @@ namespace Flame.Clr.Transforms
                             cur.ResultType,
                             new[] { cur.ResultType, inductionVarType },
                             callbackParam,
-                            new[] { cur.Tag, oldInductionVal }));
+                            new[] { cur.Tag, newInductionVal }));
                 }
 
                 successBlock.AppendInstruction(Instruction.CreateStore(newCur.ResultType, currentRefParam, newCur));
-
-                var newInductionVal = successBlock.AppendInstruction(
-                    Instruction.CreateBinaryArithmeticIntrinsic(
-                        ArithmeticIntrinsics.Operators.Add,
-                        InductionVariableType,
-                        oldInductionVal,
-                        successBlock.AppendInstruction(
-                            Instruction.CreateConstant(
-                                new IntegerConstant(1, InductionVariableType.GetIntegerSpecOrNull()),
-                                InductionVariableType))));
-
-                successBlock.AppendInstruction(
-                    Instruction.CreateStore(inductionVarType, inductionVarParam, newInductionVal));
 
                 var boolSpec = boolType.GetIntegerSpecOrNull();
                 var trueConst = Instruction.CreateConstant(new IntegerConstant(1, boolSpec), boolType);
