@@ -116,6 +116,14 @@ namespace Flame.Compiler.Transforms
         }, {
             result = call(method, lookup)(...this_value, ...args);
         });
+
+        // Propagate known array lengths.
+        #rule({
+            array = intrinsic("array.new_array", TArray, #(TLength))(length);
+            result = intrinsic("array.get_length", TLength, #(TArray))(array);
+        }, {
+            result = copy(TLength)(length);
+        });
     });
 
     /// <summary>
