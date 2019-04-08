@@ -29,6 +29,12 @@ namespace Flame.Clr.Transforms
         {
             this.BooleanType = booleanType;
             this.InductionVariableType = inductionVariableType;
+
+            this.enumerationRewriteRules = new Dictionary<string, Func<LinqEnumeration, bool>>()
+            {
+                { "Where", RewriteWhere },
+                { "Select", RewriteSelect }
+            };
         }
 
         /// <summary>
@@ -42,6 +48,8 @@ namespace Flame.Clr.Transforms
         /// </summary>
         /// <value>A type.</value>
         public IType InductionVariableType { get; private set; }
+
+        private readonly Dictionary<string, Func<LinqEnumeration, bool>> enumerationRewriteRules;
 
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
@@ -368,12 +376,6 @@ namespace Flame.Clr.Transforms
             return null;
         }
 
-        private static readonly Dictionary<string, Func<LinqEnumeration, bool>> enumerationRewriteRules =
-            new Dictionary<string, Func<LinqEnumeration, bool>>()
-        {
-            { "Where", RewriteWhere }
-        };
-
         /// <summary>
         /// Rewrites a LINQ enumeration over a 'Where' call.
         /// </summary>
@@ -525,6 +527,219 @@ namespace Flame.Clr.Transforms
             }
 
             // 'Where' never returns `null`.
+            foreach (var block in enumeration.NullChecks)
+            {
+                // Pick the 'default' branch because object reference switches
+                // can only perform `null` checks and those `null` checks must
+                // appear as switch cases.
+                var flow = (SwitchFlow)block.Flow;
+                block.Flow = new JumpFlow(flow.DefaultBranch);
+            }
+
+            // Delete the 'GetEnumerator' call and the reinterpret casts.
+            enumeration.Graph.RemoveInstructionDefinitions(
+                enumeration.Aliases
+                    .Select(x => x.Tag)
+                    .Concat(new[] { enumeration.GetEnumeratorCall.Tag }));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Rewrites a LINQ enumeration over a 'Select' call.
+        /// </summary>
+        /// <param name="enumeration">A LINQ enumeration.</param>
+        /// <returns><c>true</c> if the rewrite was successful; otherwise, <c>false</c>.</returns>
+        private bool RewriteSelect(LinqEnumeration enumeration)
+        {
+            // Grab the 'Select' call.
+            var selectCall = enumeration.Graph
+                .GetInstruction(enumeration.GetEnumeratorCall.Arguments[0]);
+
+            // Retrieve the type of the source enumerable.
+            var source = selectCall.Arguments[0];
+            var callback = selectCall.Arguments[1];
+            var sourceType = TypeHelpers.UnboxIfPossible(
+                enumeration.Graph.GetValueType(source));
+
+            EnumerationAPI api;
+            if (!EnumerationAPI.TryGet(sourceType, out api))
+            {
+                return false;
+            }
+
+            var callbackDelegateType = TypeHelpers.UnboxIfPossible(enumeration.Graph.GetValueType(callback));
+            IMethod invokeMethod;
+            if (!TypeHelpers.TryGetDelegateInvokeMethod(callbackDelegateType, out invokeMethod))
+            {
+                return false;
+            }
+
+            // Now rewrite everything. For starters, create a new 'GetEnumerator' call, but this time
+            // for the source enumerable.
+            var sourceEnumerator = enumeration.GetEnumeratorCall.InsertBefore(
+                Instruction.CreateCall(api.GetEnumerator, MethodLookup.Virtual, new[] { source }),
+                "source_enumerator");
+
+            // Allocate a variable wherein we'll store the current value of the enumerator.
+            var currentVal = enumeration.Graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(api.GetCurrent.ReturnParameter.Type),
+                "current_value");
+
+            IType inductionVarType;
+            if (invokeMethod.Parameters.Count == 2)
+            {
+                inductionVarType = invokeMethod.Parameters[1].Type;
+            }
+            else
+            {
+                inductionVarType = InductionVariableType;
+            }
+
+            // Allocate an induction variable.
+            var iterationCounter = enumeration.Graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(inductionVarType),
+                "iteration_counter");
+
+            // Initialize the induction variable.
+            enumeration.GetEnumeratorCall.InsertBefore(
+                Instruction.CreateStore(
+                    inductionVarType,
+                    iterationCounter,
+                    enumeration.GetEnumeratorCall.InsertBefore(
+                        Instruction.CreateDefaultConstant(inductionVarType))));
+
+            // Replace all 'Current' calls with variable loads.
+            foreach (var call in enumeration.CurrentCalls)
+            {
+                call.Instruction = Instruction.CreateLoad(api.GetCurrent.ReturnParameter.Type, currentVal);
+            }
+
+            // Replace all 'MoveNext' calls with a graph that calls 'MoveNext' on the
+            // source enumerator and applies the callback to the source enumerator's 'Current'
+            // value.
+            var moveNextImpl = new FlowGraphBuilder();
+            {
+                // Essentially, we want to replace `select.MoveNext()`
+                // with this pattern:
+                //
+                //     bool more = source.MoveNext();
+                //     if (!more)
+                //         return false;
+                //
+                //     current = callback(source.Current, induction_var);
+                //     induction_var++;
+                //     return true;
+                //
+                // The CFG we want to build looks like this:
+                //
+                //     entry_point(current, source, callback, induction_var)
+                //         more = source.MoveNext()
+                //         if (more) goto MoveNext.advance() else MoveNext.empty()
+                //
+                //     MoveNext.advance()
+                //         cur = source.get_Current()
+                //         new_cur = callback(cur, load(induction_var))
+                //         _ = store(current, cur)
+                //         _ = store(induction_var, load(induction_var) + 1)
+                //         return true
+                //
+                //     MoveNext.empty()
+                //         return false
+
+                var boolType = api.MoveNext.ReturnParameter.Type;
+
+                var currentRefParam = moveNextImpl.EntryPoint.AppendParameter(
+                    currentVal.ResultType,
+                    "current_value_param");
+                var sourceEnumParam = moveNextImpl.EntryPoint.AppendParameter(
+                    sourceEnumerator.ResultType,
+                    "source_enumerator_param");
+                var callbackParam = moveNextImpl.EntryPoint.AppendParameter(
+                    enumeration.Graph.GetValueType(callback),
+                    "map_param");
+                var inductionVarParam = moveNextImpl.EntryPoint.AppendParameter(
+                    inductionVarType,
+                    "induction_var_param");
+
+                var successBlock = moveNextImpl.AddBasicBlock("MoveNext.advance");
+                var failureBlock = moveNextImpl.AddBasicBlock("MoveNext.empty");
+
+                // Fill the entry point.
+                var more = moveNextImpl.EntryPoint.AppendInstruction(
+                    Instruction.CreateCall(api.MoveNext, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
+                    "more");
+
+                moveNextImpl.EntryPoint.Flow = SwitchFlow.CreateIfElse(
+                    Instruction.CreateCopy(more.ResultType, more),
+                    new Branch(successBlock),
+                    new Branch(failureBlock));
+
+                // Fill `MoveNext.advance`.
+                var cur = successBlock.AppendInstruction(
+                    Instruction.CreateCall(api.GetCurrent, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
+                    "cur");
+
+                var oldInductionVal = successBlock.AppendInstruction(
+                    Instruction.CreateLoad(inductionVarType, inductionVarParam));
+
+                NamedInstructionBuilder newCur;
+                if (invokeMethod.Parameters.Count == 1)
+                {
+                    newCur = successBlock.AppendInstruction(
+                        Instruction.CreateIndirectCall(
+                            cur.ResultType,
+                            new[] { cur.ResultType },
+                            callbackParam,
+                            new[] { cur.Tag }));
+                }
+                else
+                {
+                    newCur = successBlock.AppendInstruction(
+                        Instruction.CreateIndirectCall(
+                            cur.ResultType,
+                            new[] { cur.ResultType, inductionVarType },
+                            callbackParam,
+                            new[] { cur.Tag, oldInductionVal }));
+                }
+
+                successBlock.AppendInstruction(Instruction.CreateStore(newCur.ResultType, currentRefParam, newCur));
+
+                var newInductionVal = successBlock.AppendInstruction(
+                    Instruction.CreateBinaryArithmeticIntrinsic(
+                        ArithmeticIntrinsics.Operators.Add,
+                        InductionVariableType,
+                        oldInductionVal,
+                        successBlock.AppendInstruction(
+                            Instruction.CreateConstant(
+                                new IntegerConstant(1, InductionVariableType.GetIntegerSpecOrNull()),
+                                InductionVariableType))));
+
+                successBlock.AppendInstruction(
+                    Instruction.CreateStore(inductionVarType, inductionVarParam, newInductionVal));
+
+                var boolSpec = boolType.GetIntegerSpecOrNull();
+                var trueConst = Instruction.CreateConstant(new IntegerConstant(1, boolSpec), boolType);
+                successBlock.Flow = new ReturnFlow(trueConst);
+
+                // Fill `MoveNext.empty`.
+                var falseConst = Instruction.CreateConstant(new IntegerConstant(0, boolSpec), boolType);
+                failureBlock.Flow = new ReturnFlow(falseConst);
+            }
+
+            // Actually replace 'MoveNext' calls with the control-flow graph we synthesized.
+            foreach (var call in enumeration.MoveNextCalls)
+            {
+                call.ReplaceInstruction(moveNextImpl.ToImmutable(), new[] { currentVal, sourceEnumerator, callback, iterationCounter });
+            }
+
+            // Replace 'Dispose' calls with different 'Dispose' calls.
+            foreach (var call in enumeration.DisposeCalls)
+            {
+                call.Instruction = Instruction.CreateCall(api.Dispose, MethodLookup.Virtual, new[] { sourceEnumerator.Tag });
+            }
+
+            // 'Select' never returns `null`.
             foreach (var block in enumeration.NullChecks)
             {
                 // Pick the 'default' branch because object reference switches

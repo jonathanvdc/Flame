@@ -20,5 +20,16 @@ class IntroToLINQ
         {
             Console.Write("{0,1} ", num);
         }
+        Console.WriteLine();
+
+        // Compute the square of those numbers and add the induction variable.
+        numQuery = numbers.Select((x, i) => i + x * x);
+
+        // Print the squared numbers.
+        foreach (int num in numQuery)
+        {
+            Console.Write("{0,1} ", num);
+        }
+        Console.WriteLine();
     }
 }
