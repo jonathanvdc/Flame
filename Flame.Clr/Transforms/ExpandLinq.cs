@@ -391,42 +391,27 @@ namespace Flame.Clr.Transforms
             var sourceType = TypeHelpers.UnboxIfPossible(
                 enumeration.Graph.GetValueType(source));
 
-            // Find its 'GetEnumerator' method.
-            var getEnumeratorMethod = GetMethodOrNull(sourceType, "GetEnumerator", 0);
-            if (getEnumeratorMethod == null)
+            EnumerationAPI api;
+            if (!EnumerationAPI.TryGet(sourceType, out api))
             {
                 return false;
             }
-
-            // Also find its 'MoveNext' and 'Dispose' methods, plus its 'Current' property.
-            var enumeratorType = TypeHelpers.UnboxIfPossible(
-                getEnumeratorMethod.ReturnParameter.Type);
-            var moveNextMethod = GetMethodOrNull(enumeratorType, "MoveNext", 0);
-            var currentProperty = enumeratorType.Properties.FirstOrDefault(p => p.Name.ToString() == "Current");
-            var disposeMethod = GetMethodOrNull(enumeratorType, "Dispose", 0);
-
-            if (moveNextMethod == null || currentProperty == null || disposeMethod == null)
-            {
-                return false;
-            }
-
-            var currentMethod = currentProperty.Accessors.First(acc => acc.Kind == AccessorKind.Get);
 
             // Now rewrite everything. For starters, create a new 'GetEnumerator' call, but this time
             // for the source enumerable.
             var sourceEnumerator = enumeration.GetEnumeratorCall.InsertBefore(
-                Instruction.CreateCall(getEnumeratorMethod, MethodLookup.Virtual, new[] { source }),
+                Instruction.CreateCall(api.GetEnumerator, MethodLookup.Virtual, new[] { source }),
                 "source_enumerator");
 
             // Allocate a variable wherein we'll store the current value of the enumerator.
             var currentVal = enumeration.Graph.EntryPoint.AppendInstruction(
-                Instruction.CreateAlloca(currentMethod.ReturnParameter.Type),
+                Instruction.CreateAlloca(api.GetCurrent.ReturnParameter.Type),
                 "current_value");
 
             // Replace all 'Current' calls with variable loads.
             foreach (var call in enumeration.CurrentCalls)
             {
-                call.Instruction = Instruction.CreateLoad(currentMethod.ReturnParameter.Type, currentVal);
+                call.Instruction = Instruction.CreateLoad(api.GetCurrent.ReturnParameter.Type, currentVal);
             }
 
             // Replace all 'MoveNext' calls with loops that repeatedly call 'MoveNext'
@@ -468,7 +453,7 @@ namespace Flame.Clr.Transforms
                 //     MoveNext.empty()
                 //         return false
 
-                var boolType = moveNextMethod.ReturnParameter.Type;
+                var boolType = api.MoveNext.ReturnParameter.Type;
 
                 var currentRefParam = moveNextImpl.EntryPoint.AppendParameter(
                     currentVal.ResultType,
@@ -490,7 +475,7 @@ namespace Flame.Clr.Transforms
 
                 // Fill `MoveNext.loop`.
                 var more = loopBlock.AppendInstruction(
-                    Instruction.CreateCall(moveNextMethod, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
+                    Instruction.CreateCall(api.MoveNext, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
                     "more");
 
                 loopBlock.Flow = SwitchFlow.CreateIfElse(
@@ -500,7 +485,7 @@ namespace Flame.Clr.Transforms
 
                 // Fill `MoveNext.test`.
                 var cur = testBlock.AppendInstruction(
-                    Instruction.CreateCall(currentMethod, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
+                    Instruction.CreateCall(api.GetCurrent, MethodLookup.Virtual, new[] { sourceEnumParam.Tag }),
                     "cur");
 
                 testBlock.AppendInstruction(Instruction.CreateStore(cur.ResultType, currentRefParam, cur));
@@ -536,7 +521,7 @@ namespace Flame.Clr.Transforms
             // Replace 'Dispose' calls with different 'Dispose' calls.
             foreach (var call in enumeration.DisposeCalls)
             {
-                call.Instruction = Instruction.CreateCall(disposeMethod, MethodLookup.Virtual, new[] { sourceEnumerator.Tag });
+                call.Instruction = Instruction.CreateCall(api.Dispose, MethodLookup.Virtual, new[] { sourceEnumerator.Tag });
             }
 
             // 'Where' never returns `null`.
@@ -694,6 +679,55 @@ namespace Flame.Clr.Transforms
                     .Concat(new[] { enumeration.GetEnumeratorCall.Tag }));
 
             return true;
+        }
+
+        private struct EnumerationAPI
+        {
+            public EnumerationAPI(
+                IMethod getEnumerator,
+                IMethod moveNext,
+                IMethod getCurrent,
+                IMethod dispose)
+            {
+                this.GetEnumerator = getEnumerator;
+                this.MoveNext = moveNext;
+                this.GetCurrent = getCurrent;
+                this.Dispose = dispose;
+            }
+
+            public IMethod GetEnumerator { get; private set; }
+            public IMethod MoveNext { get; private set; }
+            public IMethod GetCurrent { get; private set; }
+            public IMethod Dispose { get; private set; }
+
+            public static bool TryGet(IType enumerable, out EnumerationAPI result)
+            {
+                // Find the enumerable's 'GetEnumerator' method.
+                var getEnumeratorMethod = GetMethodOrNull(enumerable, "GetEnumerator", 0);
+                if (getEnumeratorMethod == null)
+                {
+                    result = default(EnumerationAPI);
+                    return false;
+                }
+
+                // Also find its 'MoveNext' and 'Dispose' methods, plus its 'Current' property.
+                var enumeratorType = TypeHelpers.UnboxIfPossible(
+                    getEnumeratorMethod.ReturnParameter.Type);
+                var moveNextMethod = GetMethodOrNull(enumeratorType, "MoveNext", 0);
+                var currentProperty = enumeratorType.Properties.FirstOrDefault(p => p.Name.ToString() == "Current");
+                var disposeMethod = GetMethodOrNull(enumeratorType, "Dispose", 0);
+
+                if (moveNextMethod == null || currentProperty == null || disposeMethod == null)
+                {
+                    result = default(EnumerationAPI);
+                    return false;
+                }
+
+                var currentMethod = currentProperty.Accessors.First(acc => acc.Kind == AccessorKind.Get);
+
+                result = new EnumerationAPI(getEnumeratorMethod, moveNextMethod, currentMethod, disposeMethod);
+                return true;
+            }
         }
 
         /// <summary>
