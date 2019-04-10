@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- NuGet package specification.
+     Run `nuget pack Flame.nuspec` to build Flame.x.y.z.nupkg -->
+<package >
+  <metadata>
+    <id>Flame</id>
+    <version>$version$</version>
+    <authors>Jonathan Van der Cruysse</authors>
+    <owners>Jonathan Van der Cruysse</owners>
+    <projectUrl>https://github.com/jonathanvdc/Flame</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>A compiler framework for managed code.</summary>
+    <description>Flame is a collection of modular, open-source .NET libraries that can be leveraged to build a compiler. It provides reusable components and a common compilation pipeline, which can be extended with additional passes, to suit the specific needs of source and target languages.
+
+    This package includes the core Flame library and the compiler-oriented Flame.Compiler library.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <tags>Flame compiler</tags>
+  </metadata>
+  <files>
+    <file src="README.md" target="readme.txt" />
+    <file src="Flame.Compiler\bin\Release\Flame.dll" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\Flame.xml" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\Flame.Compiler.dll" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\Flame.Compiler.xml" target="lib\net45\" />
+  </files>
+</package>

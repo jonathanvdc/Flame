@@ -12,6 +12,12 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 build_script:
+  - set SEMVER=%APPVEYOR_BUILD_VERSION%
+  - echo %APPVEYOR_REPO_TAG%
+  # Build packages as SEMVER-ci{build}
+  - ps: if ($env:APPVEYOR_REPO_TAG -eq $True) { $env:PKG_VERSION = $env:SEMVER; } else { $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"; }
+  - echo %PKG_VERSION%
+
   # Get the C# compiler's path and put it in an environment variable.
   - where csc > csc-address.txt
   - set /p CSC_PATH=<csc-address.txt
@@ -26,3 +32,7 @@ build_script:
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
   # Run the tests.
   - UnitTests\bin\Release\UnitTests.exe all "--csc-path=%CSC_PATH%"
+
+after_build:
+  # Create NuGet packages
+  - nuget pack -Version %PKG_VERSION% Flame.nuspec
