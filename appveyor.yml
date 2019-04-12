@@ -2,7 +2,6 @@ version: 0.11.0.{build}
 
 image:
   - Visual Studio 2015
-  - Visual Studio 2017
 
 assembly_info:
   patch: true
