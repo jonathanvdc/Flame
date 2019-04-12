@@ -12,10 +12,10 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 build_script:
-  - set SEMVER=%APPVEYOR_BUILD_VERSION%
+  # Generate a NuGet package version number.
   - echo %APPVEYOR_REPO_TAG%
-  # Build packages as SEMVER-ci{build}
-  - ps: if ($env:APPVEYOR_REPO_TAG -eq $True) { $env:PKG_VERSION = $env:SEMVER; } else { $env:PKG_VERSION = "$($env:SEMVER)-ci$($env:APPVEYOR_BUILD_NUMBER)"; }
+  - python3 ./version-number.py > PKG_VERSION.txt
+  - Set /P PKG_VERSION=<PKG_VERSION.txt
   - echo %PKG_VERSION%
 
   # Get the C# compiler's path and put it in an environment variable.
