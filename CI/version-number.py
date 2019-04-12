@@ -10,7 +10,7 @@ import os
 build_number = sys.argv[1]
 split_build_number = build_number.split('.')
 base_number = '.'.join(split_build_number[0:3])
-if os.getenv('APPVEYOR_REPO_TAG', 'False') == 'True':
+if os.getenv('APPVEYOR_REPO_TAG', 'False').lower() == 'true':
     print(base_number)
 else:
     print('%s-ci%s' % (base_number, split_build_number[-1]))
