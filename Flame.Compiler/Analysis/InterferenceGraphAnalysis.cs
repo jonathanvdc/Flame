@@ -64,6 +64,7 @@ namespace Flame.Compiler.Analysis
         /// <returns>An instance of the interference graph analysis.</returns>
         public static readonly InterferenceGraphAnalysis Instance = new InterferenceGraphAnalysis();
 
+        /// <inheritdoc/>
         public InterferenceGraph Analyze(FlowGraph graph)
         {
             var interference = new SymmetricRelation<ValueTag>();
@@ -84,6 +85,7 @@ namespace Flame.Compiler.Analysis
             return new InterferenceGraph(interference);
         }
 
+        /// <inheritdoc/>
         public InterferenceGraph AnalyzeWithUpdates(
             FlowGraph graph,
             InterferenceGraph previousResult,

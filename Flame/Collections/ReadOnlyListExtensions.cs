@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Flame.Collections
 {
+    /// <summary>
+    /// Extensions that make manipulating read-only lists easier.
+    /// </summary>
     public static class ReadOnlyListExtensions
     {
         /// <summary>

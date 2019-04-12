@@ -38,6 +38,7 @@ namespace Flame.Compiler.Flow
             return this;
         }
 
+        /// <inheritdoc/>
         public override InstructionBuilder GetInstructionBuilder(BasicBlockBuilder block, int instructionIndex)
         {
             throw new IndexOutOfRangeException();

@@ -22,12 +22,6 @@ namespace Flame.Compiler.Transforms
         /// Creates a constant propagation transform that uses the default
         /// evaluation function.
         /// </summary>
-        /// <param name="evaluate">
-        /// The evaluation function to use. It evaluates an instruction that
-        /// takes a list of constant arguments. It returns <c>null</c> if the
-        /// instruction cannot be evaluated; otherwise, it returns the constant
-        /// to which it was evaluated.
-        /// </param>
         public ConstantPropagation()
             : this(EvaluateDefault)
         { }

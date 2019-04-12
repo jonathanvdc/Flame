@@ -482,7 +482,7 @@ namespace Flame
         /// generic parameters are also mapped to modified generic
         /// parameters.
         /// </summary>
-        /// <param name="type">The method to create the mapping for.</param>
+        /// <param name="method">The method to create the mapping for.</param>
         /// <returns>A mapping of generic parameters to their arguments.</returns>
         public static IReadOnlyDictionary<IType, IType> GetRecursiveGenericArgumentMapping(
             this IMethod method)

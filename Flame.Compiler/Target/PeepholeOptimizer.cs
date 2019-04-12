@@ -270,9 +270,6 @@ namespace Flame.Collections.Target
         /// <param name="newFirst">
         /// The new node pointing to the first instruction.
         /// </param>
-        /// <param name="newFirst">
-        /// The new node pointing to the first instruction.
-        /// </param>
         /// <param name="instructionArray">
         /// A temporary array for storing instructions. Must be at least
         /// as large as the pattern to match.
@@ -459,7 +456,7 @@ namespace Flame.Collections.Target
         /// Gets a "macro-pattern" that decides if a sequence of
         /// instructions can be rewritten by the rewrite rule,
         /// assuming that every instruction in the sequence
-        /// already adheres to <paramref name="pattern"/>.
+        /// already adheres to the pattern.
         /// </summary>
         /// <value>A predicate on a sequence of instructions.</value>
         public Predicate<IReadOnlyList<TInstruction>> MacroPattern { get; private set; }

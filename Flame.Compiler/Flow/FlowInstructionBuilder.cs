@@ -10,12 +10,19 @@ namespace Flame.Compiler.Flow
     /// </summary>
     public abstract class FlowInstructionBuilder : InstructionBuilder
     {
+        /// <summary>
+        /// Creates a flow instruction builder.
+        /// </summary>
+        /// <param name="block">The block that defines the flow.</param>
         public FlowInstructionBuilder(BasicBlockBuilder block)
         {
             this.block = block;
             this.Flow = block.Flow;
         }
 
+        /// <summary>
+        /// The block that defines the flow.
+        /// </summary>
         protected BasicBlockBuilder block;
 
         /// <summary>

@@ -221,7 +221,7 @@ namespace Flame.Compiler.Flow
         /// The 'if' branch, which is taken when the value produced by the
         /// Boolean condition is not false.
         /// </param>
-        /// <param name="ifBranch">
+        /// <param name="elseBranch">
         /// The 'else' branch, which is taken when the value produced by the
         /// Boolean condition is false.
         /// </param>
@@ -288,7 +288,7 @@ namespace Flame.Compiler.Flow
         /// The branch to which flow is redirected if <paramref name="value"/>
         /// equals <paramref name="constant"/>.
         /// </param>
-        /// <param name="equalBranch">
+        /// <param name="notEqualBranch">
         /// The branch to which flow is redirected if <paramref name="value"/>
         /// does not equal <paramref name="constant"/>.
         /// </param>

@@ -32,7 +32,7 @@ namespace Flame.Compiler.Target
         /// Creates a selected instruction container from a single
         /// instruction and a variable number of dependencies.
         /// </summary>
-        /// <param name="instructions">
+        /// <param name="instruction">
         /// The instruction selected for a particular value.
         /// </param>
         /// <param name="dependencies">
@@ -85,7 +85,7 @@ namespace Flame.Compiler.Target
         /// Creates a selected instruction container from a single
         /// instruction and a variable number of dependencies.
         /// </summary>
-        /// <param name="instructions">
+        /// <param name="instruction">
         /// The instruction selected for a particular value.
         /// </param>
         /// <param name="dependencies">

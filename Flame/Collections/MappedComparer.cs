@@ -49,11 +49,22 @@ namespace Flame.Collections
         /// </summary>
         public readonly IEqualityComparer<T2> ResultComparer;
 
+        /// <summary>
+        /// Tests if two values are equal.
+        /// </summary>
+        /// <param name="x">The first value to compare.</param>
+        /// <param name="y">The second value to compare.</param>
+        /// <returns></returns>
         public bool Equals(T1 x, T1 y)
         {
             return ResultComparer.Equals(Transform(x), Transform(y));
         }
 
+        /// <summary>
+        /// Computes a hash code for a value.
+        /// </summary>
+        /// <param name="obj">The value to compute a hash code for.</param>
+        /// <returns>A hash code.</returns>
         public int GetHashCode(T1 obj)
         {
             return ResultComparer.GetHashCode(Transform(obj));

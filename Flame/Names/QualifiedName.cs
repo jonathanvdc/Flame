@@ -80,7 +80,7 @@ namespace Flame
         /// Creates a qualified name from a sequence of strings that are
         /// interpreted as simple names.
         /// </summary>
-        /// <param name="path">
+        /// <param name="names">
         /// A list of strings, each of which is interpreted as a
         /// simple name.
         /// </param>
@@ -98,7 +98,7 @@ namespace Flame
         /// Creates a qualified name from an array of strings that are
         /// interpreted as simple names.
         /// </summary>
-        /// <param name="path">
+        /// <param name="names">
         /// A list of strings, each of which is interpreted as a
         /// simple name.
         /// </param>

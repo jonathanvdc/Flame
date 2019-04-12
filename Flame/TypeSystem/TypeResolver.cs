@@ -198,7 +198,7 @@ namespace Flame.TypeSystem
         /// </param>
         /// <param name="name">The unqualified name to look for.</param>
         /// <returns>
-        /// A list of generic parameters that are defined by <paramref name="parentType"/>
+        /// A list of generic parameters that are defined by <paramref name="parentMember"/>
         /// and have name <paramref name="name"/>.
         /// </returns>
         public IReadOnlyList<IType> ResolveGenericParameters(
@@ -429,7 +429,7 @@ namespace Flame.TypeSystem
         /// </param>
         /// <param name="name">The unqualified name to look for.</param>
         /// <returns>
-        /// A list of generic parameters that are defined by <paramref name="parentType"/>
+        /// A list of generic parameters that are defined by <paramref name="parentMember"/>
         /// and have name <paramref name="name"/>.
         /// </returns>
         public IReadOnlyList<IType> ResolveGenericParameters(

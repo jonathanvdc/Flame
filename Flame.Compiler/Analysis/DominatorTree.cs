@@ -77,7 +77,7 @@ namespace Flame.Compiler.Analysis
         /// An value that might be dominated by <paramref name="dominator"/>.
         /// </param>
         /// <param name="dominator">
-        /// An value that might dominate <paramref name="instruction"/>.
+        /// An value that might dominate <paramref name="value"/>.
         /// </param>
         /// <param name="graph">
         /// A graph that defines both values.
@@ -124,6 +124,9 @@ namespace Flame.Compiler.Analysis
         /// <param name="dominator">
         /// A value that might dominate <paramref name="value"/>.
         /// </param>
+        /// <param name="graph">
+        /// A control-flow graph that defines both <paramref name="value"/> and <paramref name="dominator"/>.
+        /// </param>
         /// <returns>
         /// <c>true</c> if <paramref name="value"/> is strictly dominated by
         /// <paramref name="dominator"/> or <paramref name="value"/> equals
@@ -143,10 +146,10 @@ namespace Flame.Compiler.Analysis
         /// An value that might be dominated by <paramref name="dominator"/>.
         /// </param>
         /// <param name="dominator">
-        /// An value that might dominate <paramref name="instruction"/>.
+        /// An value that might dominate <paramref name="value"/>.
         /// </param>
         /// <param name="graph">
-        /// A graph that defines both values.
+        /// A control-flow graph that defines both <paramref name="value"/> and <paramref name="dominator"/>.
         /// </param>
         /// <returns>
         /// <c>true</c> if <paramref name="value"/> is strictly dominated by
@@ -167,6 +170,9 @@ namespace Flame.Compiler.Analysis
         /// </param>
         /// <param name="dominator">
         /// A value that might dominate <paramref name="value"/>.
+        /// </param>
+        /// <param name="graph">
+        /// A control-flow graph that defines both <paramref name="value"/> and <paramref name="dominator"/>.
         /// </param>
         /// <returns>
         /// <c>true</c> if <paramref name="value"/> is strictly dominated by
@@ -232,7 +238,7 @@ namespace Flame.Compiler.Analysis
         /// An value that might be dominated by <paramref name="dominator"/>.
         /// </param>
         /// <param name="dominator">
-        /// An value that might dominate <paramref name="instruction"/>.
+        /// An value that might dominate <paramref name="value"/>.
         /// </param>
         /// <returns>
         /// <c>true</c> if <paramref name="value"/> is strictly dominated by

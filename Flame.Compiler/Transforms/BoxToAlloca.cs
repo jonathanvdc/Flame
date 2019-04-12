@@ -23,6 +23,7 @@ namespace Flame.Compiler.Transforms
         /// </summary>
         public static readonly BoxToAlloca Instance = new BoxToAlloca();
 
+        /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
         {
             var uses = graph.GetAnalysisResult<ValueUses>();

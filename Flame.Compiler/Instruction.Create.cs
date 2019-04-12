@@ -16,6 +16,9 @@ namespace Flame.Compiler
         /// <param name="elementType">
         /// The type of value to allocate storage for.
         /// </param>
+        /// <param name="elementCount">
+        /// The number of elements to allocate storage for.
+        /// </param>
         /// <returns>
         /// An alloca-array instruction.
         /// </returns>

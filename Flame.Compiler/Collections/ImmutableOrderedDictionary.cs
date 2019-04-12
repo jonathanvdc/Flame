@@ -235,6 +235,9 @@ namespace Flame.Collections
                 orderedKeyList.ToBuilder());
         }
 
+        /// <summary>
+        /// A mutable wrapper around an immutable ordered dictionary.
+        /// </summary>
         public sealed class Builder :
             IEnumerable<KeyValuePair<TKey, TValue>>,
             IReadOnlyDictionary<TKey, TValue>,
@@ -467,6 +470,10 @@ namespace Flame.Collections
                 }
             }
 
+            /// <summary>
+            /// Removes a range of keys from this ordered dictionary.
+            /// </summary>
+            /// <param name="keys">The keys to remove.</param>
             public void RemoveRange(IEnumerable<TKey> keys)
             {
                 innerDictionary.RemoveRange(keys);
