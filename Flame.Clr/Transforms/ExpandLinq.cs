@@ -103,7 +103,7 @@ namespace Flame.Clr.Transforms
                 // Not a call.
                 return false;
             }
-            else if (proto.Callee.ParentType.FullName.ToString() == "System.Linq.Enumerable")
+            else if (IsLinqCall(proto))
             {
                 // We found a LINQ call.
                 var calleeName = proto.Callee.Name is GenericName
@@ -141,6 +141,11 @@ namespace Flame.Clr.Transforms
                 // We can't expand the call.
                 return false;
             }
+        }
+
+        private static bool IsLinqCall(CallPrototype proto)
+        {
+            return proto.Callee.ParentType.FullName.ToString() == "System.Linq.Enumerable";
         }
 
         private static bool TryApplyRewriteRule(
@@ -897,6 +902,77 @@ namespace Flame.Clr.Transforms
                     .Concat(new[] { enumeration.GetEnumeratorCall.Tag }));
 
             return true;
+        }
+
+        /// <summary>
+        /// Tries to rewrite a call to 'Enumerable.ToArray'.
+        /// </summary>
+        /// <param name="toArrayCall">
+        /// A call to 'Enumerable.ToArray'.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the array can be rewritten; otherwise, <c>false</c>.
+        /// </returns>
+        private bool RewriteToArray(NamedInstructionBuilder toArrayCall)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Tries to statically determine a value that computes the length of
+        /// an enumerable.
+        /// </summary>
+        /// <param name="value">
+        /// The enumerator whose length is to be computed.
+        /// </param>
+        /// <param name="insertionPoint">
+        /// A named instruction builder before which length-computing instructions may be inserted.
+        /// </param>
+        /// <param name="length">A value that computes <paramref name="value"/>'s length.</param>
+        /// <returns>
+        /// <c>true</c> if the length can be determined; otherwise, <c>false</c>.
+        /// </returns>
+        private bool TryGetLength(
+            ValueTag value,
+            NamedInstructionBuilder insertionPoint,
+            out ValueTag length)
+        {
+            NamedInstructionBuilder instruction;
+            if (!insertionPoint.Graph.TryGetInstruction(value, out instruction))
+            {
+                length = null;
+                return false;
+            }
+
+            if (ClrArrayType.IsArrayType(TypeHelpers.UnboxIfPossible(instruction.ResultType)))
+            {
+                // Computing the length of an array is easy.
+                // TODO: maybe also handle other types that inherit from Collection
+                // or Collection<T>?
+                length = insertionPoint.InsertBefore(
+                    Instruction.CreateGetLengthIntrinsic(
+                        InductionVariableType,
+                        instruction.ResultType,
+                        instruction));
+                return true;
+            }
+            else if (instruction.Prototype is CallPrototype && IsLinqCall((CallPrototype)instruction.Prototype))
+            {
+                if (IsCallTo(instruction, "Select", true))
+                {
+                    // 'Select' preserves the length of an enumerable.
+                    return TryGetLength(instruction.Arguments[0], insertionPoint, out length);
+                }
+            }
+            else if (instruction.Prototype is ReinterpretCastPrototype
+                || instruction.Prototype is CopyPrototype)
+            {
+                // Reinterpret casts and copies don't modify the length of an enumerable.
+                return TryGetLength(instruction.Arguments[0], insertionPoint, out length);
+            }
+
+            length = null;
+            return false;
         }
 
         private struct EnumerationAPI
