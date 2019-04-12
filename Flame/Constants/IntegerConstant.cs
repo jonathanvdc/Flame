@@ -877,6 +877,12 @@ namespace Flame.Constants
     /// </summary>
     public struct UnsignedDivisionMagic
     {
+        /// <summary>
+        /// Collects unsigned division magic constants.
+        /// </summary>
+        /// <param name="multiplier">A constant factor to multiply by.</param>
+        /// <param name="shiftAmount">An amount of bits to shift.</param>
+        /// <param name="useAdd">A Boolean flag that tells if an addition should be used.</param>
         public UnsignedDivisionMagic(IntegerConstant multiplier, int shiftAmount, bool useAdd)
         {
             this.Multiplier = multiplier;
@@ -910,6 +916,11 @@ namespace Flame.Constants
     /// </summary>
     public struct SignedDivisionMagic
     {
+        /// <summary>
+        /// Collects signed division magic constants.
+        /// </summary>
+        /// <param name="multiplier">A constant factor to multiply by.</param>
+        /// <param name="shiftAmount">An amount of bits to shift.</param>
         public SignedDivisionMagic(IntegerConstant multiplier, int shiftAmount)
         {
             this.Multiplier = multiplier;

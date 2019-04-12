@@ -22,6 +22,11 @@ namespace Flame.TypeSystem
             this.Declaration = declaration;
         }
 
+        /// <summary>
+        /// Initializes a method specialization instance.
+        /// </summary>
+        /// <param name="instance">The instance to initialize.</param>
+        /// <returns><paramref name="instance"/> itself.</returns>
         protected static MethodSpecialization InitializeInstance(MethodSpecialization instance)
         {
             instance.InstantiatingVisitor = new TypeMappingVisitor(
@@ -241,6 +246,15 @@ namespace Flame.TypeSystem
     /// </summary>
     public sealed class DirectMethodSpecialization : MethodSpecialization
     {
+        /// <summary>
+        /// Creates a direct method specialization.
+        /// </summary>
+        /// <param name="declaration">
+        /// The generic method to specialize.
+        /// </param>
+        /// <param name="genericArguments">
+        /// A sequence of type arguments to specialize the method with.
+        /// </param>
         public DirectMethodSpecialization(
             IMethod declaration,
             IReadOnlyList<IType> genericArguments)
