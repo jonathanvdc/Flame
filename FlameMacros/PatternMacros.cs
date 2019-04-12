@@ -146,8 +146,12 @@ namespace FlameMacros
                             F.Var(
                                 ReadOnlyListType(F.Id("Transform")),
                                 "ApplicableRules")
-                            .PlusAttrs(F.Id(CodeSymbols.Public), F.Id(CodeSymbols.Readonly))))
+                            .PlusAttrs(
+                                CreateDocComment("<summary>The set of all applicable rules detected by the analysis.</summary>"),
+                                F.Id(CodeSymbols.Public),
+                                F.Id(CodeSymbols.Readonly))))
                     .PlusAttrs(
+                        CreateDocComment("<summary>The results produced by the analysis.</summary>"),
                         F.Id(CodeSymbols.Public),
                         F.Id(CodeSymbols.Sealed)));
 
@@ -193,7 +197,9 @@ namespace FlameMacros
                             F.Call(
                                 CodeSymbols.Return,
                                 F.Call("Analyze", F.Id(GraphParameterName)))))
-                    .PlusAttr(F.Id(CodeSymbols.Public)));
+                    .PlusAttrs(
+                        CreateDocComment("<inheritdoc/>"),
+                        F.Id(CodeSymbols.Public)));
 
                 // Generate the analysis class.
                 return F.Call(
@@ -208,6 +214,11 @@ namespace FlameMacros
             {
                 return Reject(sink, ex.At, ex.Message);
             }
+        }
+
+        private static LNode CreateDocComment(string comment)
+        {
+            return F.Call(CodeSymbols.TriviaSLComment, F.Literal("/ " + comment));
         }
 
         private static LNode SynthesizePrototypePatternMatcher(
@@ -1005,7 +1016,9 @@ namespace FlameMacros
                 GSymbol.Get("Analyze"),
                 F.List(F.Var(F.Id("FlowGraph"), GraphParameterName)),
                 F.Braces(body))
-                .PlusAttr(F.Id(CodeSymbols.Public));
+                .PlusAttrs(
+                    CreateDocComment("<inheritdoc/>"),
+                    F.Id(CodeSymbols.Public));
         }
 
         private static IEnumerable<LNode> SynthesizeRuleMatcherBody(
