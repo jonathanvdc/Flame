@@ -127,6 +127,19 @@ namespace Flame.Clr
                 return true;
             }
         }
+
+        /// <summary>
+        /// Determines if a type is a CLR array type.
+        /// </summary>
+        /// <param name="type">A type to examine.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="type"/> is an array type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsArrayType(IType type)
+        {
+            int rank;
+            return TryGetArrayRank(type, out rank);
+        }
     }
 
     /// <summary>
