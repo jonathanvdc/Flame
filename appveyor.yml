@@ -18,7 +18,7 @@ clone_script:
 build_script:
   # Generate a NuGet package version number.
   - echo %APPVEYOR_REPO_TAG%
-  - C:\Python34 CI\version-number.py > PKG_VERSION.txt
+  - C:\Python34\python.exe CI\version-number.py > PKG_VERSION.txt
   - Set /P PKG_VERSION=<PKG_VERSION.txt
   - echo %PKG_VERSION%
 
