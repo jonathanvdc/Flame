@@ -278,8 +278,9 @@ namespace Flame.Compiler
                 // after this one to the continuation block. Include this instruction
                 // as well because we'll turn it into a copy that runs in the continuation.
                 var parentBlock = Graph.GetValueParent(this);
+                int index = InstructionIndex;
                 MoveTo(continuationBlock);
-                foreach (var insn in parentBlock.NamedInstructions.Skip(InstructionIndex).ToArray())
+                foreach (var insn in parentBlock.NamedInstructions.Skip(index).ToArray())
                 {
                     insn.MoveTo(continuationBlock);
                 }
