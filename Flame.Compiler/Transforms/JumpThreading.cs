@@ -77,7 +77,7 @@ namespace Flame.Compiler.Transforms
 
             // Move out of register forwarding form by applying copy propagation
             // and dead code elimination.
-            graphBuilder.Transform(CopyPropagation.Instance, DeadValueElimination.Instance);
+            graphBuilder.Transform(CopyPropagation.Instance, DeadValueElimination.Instance, DeadBlockElimination.Instance);
 
             return graphBuilder.ToImmutable();
         }
