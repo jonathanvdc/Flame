@@ -111,6 +111,11 @@ namespace Flame.Compiler.Target
                     continue;
                 }
 
+                // Assign a dummy value (null) to the block tag so we don't fool
+                // ourselves into thinking that the block isn't being processed
+                // yet.
+                flowSelection[tag] = null;
+
                 // Add the block to the flow layout.
                 flowLayout.Add(tag);
 
