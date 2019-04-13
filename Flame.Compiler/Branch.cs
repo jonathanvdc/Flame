@@ -222,7 +222,7 @@ namespace Flame.Compiler
         /// </returns>
         public static bool operator==(Branch left, Branch right)
         {
-            return left.Equals(right);
+            return Equals(left, right);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Flame.Compiler
         /// </returns>
         public static bool operator!=(Branch left, Branch right)
         {
-            return !left.Equals(right);
+            return !Equals(left, right);
         }
     }
 
