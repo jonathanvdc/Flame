@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
@@ -35,6 +36,10 @@ namespace Flame.Clr.Transforms
                 { "Where", RewriteWhere },
                 { "Select", RewriteSelect }
             };
+            this.reductionRewriteRules = new Dictionary<string, Func<InstructionBuilder, bool>>()
+            {
+                { "ToArray", RewriteToArray }
+            };
         }
 
         /// <summary>
@@ -50,6 +55,7 @@ namespace Flame.Clr.Transforms
         public IType InductionVariableType { get; private set; }
 
         private readonly Dictionary<string, Func<LinqEnumeration, bool>> enumerationRewriteRules;
+        private readonly Dictionary<string, Func<InstructionBuilder, bool>> reductionRewriteRules;
 
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
@@ -71,7 +77,7 @@ namespace Flame.Clr.Transforms
         /// </returns>
         private bool TryExpandAny(FlowGraphBuilder graph)
         {
-            foreach (var insn in graph.NamedInstructions)
+            foreach (var insn in graph.Instructions)
             {
                 if (TryExpand(insn))
                 {
@@ -95,7 +101,7 @@ namespace Flame.Clr.Transforms
         /// <c>true</c> if the instruction was a LINQ instruction that
         /// was successfully expanded; otherwise, <c>false</c>.
         /// </returns>
-        private bool TryExpand(NamedInstructionBuilder instruction)
+        private bool TryExpand(InstructionBuilder instruction)
         {
             var proto = instruction.Prototype as CallPrototype;
             if (proto == null)
@@ -106,14 +112,19 @@ namespace Flame.Clr.Transforms
             else if (IsLinqCall(proto))
             {
                 // We found a LINQ call.
-                var calleeName = proto.Callee.Name is GenericName
-                    ? ((GenericName)proto.Callee.Name).DeclarationName.ToString()
-                    : proto.Callee.Name.ToString();
+                string calleeName = GetUnqualifiedCalleeName(proto);
 
                 Func<LinqEnumeration, bool> enumRewriteRule;
-                if (enumerationRewriteRules.TryGetValue(calleeName, out enumRewriteRule))
+                if (enumerationRewriteRules.TryGetValue(calleeName, out enumRewriteRule)
+                    && instruction is NamedInstructionBuilder)
                 {
-                    return TryApplyRewriteRule(instruction, enumRewriteRule);
+                    return TryApplyRewriteRule((NamedInstructionBuilder)instruction, enumRewriteRule);
+                }
+
+                Func<InstructionBuilder, bool> reductionRewriteRule;
+                if (reductionRewriteRules.TryGetValue(calleeName, out reductionRewriteRule))
+                {
+                    return reductionRewriteRule(instruction);
                 }
                 else
                 {
@@ -123,11 +134,12 @@ namespace Flame.Clr.Transforms
 
             ValueTag arrayValue;
             if (IsGetEnumeratorCall(instruction)
-                && IsArray(instruction.Arguments[0], instruction.Graph.ToImmutable(), out arrayValue))
+                && IsArray(instruction.Arguments[0], instruction.Graph.ToImmutable(), out arrayValue)
+                && instruction is NamedInstructionBuilder)
             {
-                // We can specialize array GetEnumerator with
+                // We can specialize array GetEnumerator.
                 LinqEnumeration linqEnum;
-                if (TryGetLinqEnumeration(instruction, out linqEnum))
+                if (TryGetLinqEnumeration((NamedInstructionBuilder)instruction, out linqEnum))
                 {
                     return RewriteArrayEnumeration(linqEnum, arrayValue);
                 }
@@ -141,6 +153,13 @@ namespace Flame.Clr.Transforms
                 // We can't expand the call.
                 return false;
             }
+        }
+
+        private static string GetUnqualifiedCalleeName(CallPrototype proto)
+        {
+            return proto.Callee.Name is GenericName
+                ? ((GenericName)proto.Callee.Name).DeclarationName.ToString()
+                : proto.Callee.Name.ToString();
         }
 
         private static bool IsLinqCall(CallPrototype proto)
@@ -356,6 +375,15 @@ namespace Flame.Clr.Transforms
             bool isStatic,
             int? arity = null)
         {
+            return IsCallTo(instruction.Instruction, methodName, isStatic, arity);
+        }
+
+        private static bool IsCallTo(
+            Instruction instruction,
+            string methodName,
+            bool isStatic,
+            int? arity = null)
+        {
             var proto = instruction.Prototype as CallPrototype;
             if (proto == null)
             {
@@ -363,7 +391,7 @@ namespace Flame.Clr.Transforms
             }
             else
             {
-                return proto.Callee.Name.ToString() == methodName
+                return GetUnqualifiedCalleeName(proto) == methodName
                     && proto.Callee.IsStatic == isStatic
                     && (arity == null || proto.ParameterCount == arity);
             }
@@ -911,11 +939,101 @@ namespace Flame.Clr.Transforms
         /// A call to 'Enumerable.ToArray'.
         /// </param>
         /// <returns>
-        /// <c>true</c> if the array can be rewritten; otherwise, <c>false</c>.
+        /// <c>true</c> if the call can be rewritten; otherwise, <c>false</c>.
         /// </returns>
-        private bool RewriteToArray(NamedInstructionBuilder toArrayCall)
+        private bool RewriteToArray(InstructionBuilder toArrayCall)
         {
-            throw new NotImplementedException();
+            var enumerableType = toArrayCall.Graph.GetValueType(toArrayCall.Arguments[0]);
+
+            // Create a new control-flow graph that represents the 'ToArray' implementation.
+            var toArrayImpl = new FlowGraphBuilder();
+            var enumerableParam = toArrayImpl.EntryPoint.AppendParameter(enumerableType);
+            var implArgs = new List<ValueTag>() { toArrayCall.Arguments[0] };
+
+            ValueTag length;
+            EnumerationAPI enumApi;
+            IType elementType;
+            if (!TryGetLength(
+                    toArrayCall.Arguments[0],
+                    toArrayCall.Graph.ToImmutable(),
+                    toArrayImpl.EntryPoint,
+                    implArgs,
+                    out length)
+                || !EnumerationAPI.TryGet(
+                    TypeHelpers.UnboxIfPossible(enumerableType),
+                    out enumApi)
+                || !ClrArrayType.TryGetArrayElementType(
+                    TypeHelpers.UnboxIfPossible(toArrayCall.ResultType),
+                    out elementType))
+            {
+                // Give up if we can't find an expression that computes the array's length.
+                // Ditto if we can't find an enumeration API or if we can't determine the
+                // element type of the resulting array.
+                return false;
+            }
+
+            var lengthType = toArrayImpl.GetValueType(length);
+
+            // We know the length of the array to create. Now all we need to do is
+            // create it and fill it. To do so, we will build a small loop.
+            var loopBlock = toArrayImpl.AddBasicBlock("ToArray.loop");
+            var inductionVar = loopBlock.AppendParameter(lengthType, "ToArray.i");
+            var exitBlock = toArrayImpl.AddBasicBlock("ToArray.done");
+
+            // Fill the entry point and branch to the loop.
+            var resultArray = toArrayImpl.EntryPoint.AppendInstruction(
+                Instruction.CreateNewArrayIntrinsic(toArrayCall.ResultType, lengthType, length));
+            var enumerator = toArrayImpl.EntryPoint.AppendInstruction(
+                Instruction.CreateCall(enumApi.GetEnumerator, MethodLookup.Virtual, new[] { enumerableParam.Tag }));
+            var zeroConstant = toArrayImpl.EntryPoint.AppendInstruction(
+                Instruction.CreateDefaultConstant(inductionVar.Type));
+            toArrayImpl.EntryPoint.Flow = new JumpFlow(loopBlock, new[] { zeroConstant.Tag });
+
+            // Repeatedly call MoveNext, get_Current in the loop. Increment the
+            // induction variable until it reaches the length of the array.
+            //
+            // TODO: catch exceptions and call Dispose if one is thrown?
+            loopBlock.AppendInstruction(
+                Instruction.CreateCall(enumApi.MoveNext, MethodLookup.Virtual, new[] { enumerator.Tag }));
+            var current = loopBlock.AppendInstruction(
+                Instruction.CreateCall(enumApi.GetCurrent, MethodLookup.Virtual, new[] { enumerator.Tag }));
+            loopBlock.AppendInstruction(
+                Instruction.CreateStoreElementIntrinsic(
+                    elementType,
+                    toArrayCall.ResultType,
+                    new[] { inductionVar.Type },
+                    current,
+                    resultArray,
+                    new[] { inductionVar.Tag }));
+            var oneConstant = loopBlock.AppendInstruction(
+                Instruction.CreateConstant(
+                    new IntegerConstant(1, inductionVar.Type.GetIntegerSpecOrNull()),
+                    inductionVar.Type));
+
+            var nextInductionVar = loopBlock.AppendInstruction(
+                Instruction.CreateBinaryArithmeticIntrinsic(
+                    ArithmeticIntrinsics.Operators.Add,
+                    inductionVar.Type,
+                    inductionVar,
+                    oneConstant));
+
+            loopBlock.Flow = SwitchFlow.CreateIfElse(
+                Instruction.CreateRelationalIntrinsic(
+                    ArithmeticIntrinsics.Operators.IsEqualTo,
+                    BooleanType,
+                    inductionVar.Type,
+                    nextInductionVar,
+                    length),
+                new Branch(exitBlock),
+                new Branch(loopBlock, new[] { nextInductionVar.Tag }));
+
+            // Return the array in the exit block.
+            exitBlock.Flow = new ReturnFlow(Instruction.CreateCopy(resultArray.ResultType, resultArray));
+
+            // We successfully synthesized a ToArray implementation. Now all we need
+            // to do is replace the ToArray call with the implementation.
+            toArrayCall.ReplaceInstruction(toArrayImpl.ToImmutable(), implArgs);
+            return true;
         }
 
         /// <summary>
@@ -925,8 +1043,14 @@ namespace Flame.Clr.Transforms
         /// <param name="value">
         /// The enumerator whose length is to be computed.
         /// </param>
+        /// <param name="graph">
+        /// The graph that defines the enumerable.
+        /// </param>
         /// <param name="insertionPoint">
-        /// A named instruction builder before which length-computing instructions may be inserted.
+        /// A basic block into which length-computing instructions may be inserted.
+        /// </param>
+        /// <param name="insertionPointArgs">
+        /// A list of arguments for the insertion point block.
         /// </param>
         /// <param name="length">A value that computes <paramref name="value"/>'s length.</param>
         /// <returns>
@@ -934,11 +1058,13 @@ namespace Flame.Clr.Transforms
         /// </returns>
         private bool TryGetLength(
             ValueTag value,
-            NamedInstructionBuilder insertionPoint,
+            FlowGraph graph,
+            BasicBlockBuilder insertionPoint,
+            List<ValueTag> insertionPointArgs,
             out ValueTag length)
         {
-            NamedInstructionBuilder instruction;
-            if (!insertionPoint.Graph.TryGetInstruction(value, out instruction))
+            NamedInstruction instruction;
+            if (!graph.TryGetInstruction(value, out instruction))
             {
                 length = null;
                 return false;
@@ -949,26 +1075,26 @@ namespace Flame.Clr.Transforms
                 // Computing the length of an array is easy.
                 // TODO: maybe also handle other types that inherit from Collection
                 // or Collection<T>?
-                length = insertionPoint.InsertBefore(
+                var param = insertionPoint.AppendParameter(instruction.ResultType);
+                insertionPointArgs.Add(instruction);
+                length = insertionPoint.AppendInstruction(
                     Instruction.CreateGetLengthIntrinsic(
-                        InductionVariableType,
-                        instruction.ResultType,
-                        instruction));
+                        InductionVariableType, param.Type, param));
                 return true;
             }
             else if (instruction.Prototype is CallPrototype && IsLinqCall((CallPrototype)instruction.Prototype))
             {
-                if (IsCallTo(instruction, "Select", true))
+                if (IsCallTo(instruction.Instruction, "Select", true))
                 {
                     // 'Select' preserves the length of an enumerable.
-                    return TryGetLength(instruction.Arguments[0], insertionPoint, out length);
+                    return TryGetLength(instruction.Arguments[0], graph, insertionPoint, insertionPointArgs, out length);
                 }
             }
             else if (instruction.Prototype is ReinterpretCastPrototype
                 || instruction.Prototype is CopyPrototype)
             {
                 // Reinterpret casts and copies don't modify the length of an enumerable.
-                return TryGetLength(instruction.Arguments[0], insertionPoint, out length);
+                return TryGetLength(instruction.Arguments[0], graph, insertionPoint, insertionPointArgs, out length);
             }
 
             length = null;
