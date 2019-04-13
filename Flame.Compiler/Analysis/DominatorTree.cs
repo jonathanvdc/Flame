@@ -451,13 +451,17 @@ namespace Flame.Compiler.Analysis
 
             var preds = graph.GetAnalysisResult<BasicBlockPredecessors>();
             var idoms = new Dictionary<BasicBlockTag, BasicBlockTag>();
+            foreach (var block in graph.BasicBlockTags)
+            {
+                idoms[block] = null;
+            }
+
             var postorderSort = SortPostorder(graph).ToArray();
             var postorderNums = new Dictionary<BasicBlockTag, int>();
             for (int i = 0; i < postorderSort.Length; i++)
             {
                 var item = postorderSort[i];
                 postorderNums[item] = i;
-                idoms[item] = null;
             }
 
             idoms[graph.EntryPointTag] = graph.EntryPointTag;
