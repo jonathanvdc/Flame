@@ -1,0 +1,508 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class GreedyRegisterAllocator&lt;TRegister&gt;
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class GreedyRegisterAllocator&lt;TRegister&gt;
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1">
+  
+  
+  <h1 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1" class="text-break">Class GreedyRegisterAllocator&lt;TRegister&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>An analysis that greedily allocates registers to values.
+The set of values is assumed to be unbounded: the analysis
+is allowed to &quot;create&quot; an arbitrarily large amount of
+registers.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">GreedyRegisterAllocator&lt;TRegister&gt;</span></div>
+      <div class="level2"><a class="xref" href="Flame.Clr.Emit.CilRegisterAllocator.html">CilRegisterAllocator</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis</a>&lt;<a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation</a>&lt;TRegister&gt;&gt;</div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Analysis.html">Flame.Compiler.Analysis</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class GreedyRegisterAllocator&lt;TRegister&gt; : object, IFlowGraphAnalysis&lt;RegisterAllocation&lt;TRegister&gt;&gt;</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TRegister</span></td>
+        <td><p>The type of register allocated to values.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_Analyze_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.Analyze(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L142">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_Analyze_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.Analyze*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_Analyze_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.Analyze(Flame.Compiler.FlowGraph)">Analyze(FlowGraph)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RegisterAllocation&lt;TRegister&gt; Analyze(FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation</a>&lt;TRegister&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_RegisterAllocation__0__IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.AnalyzeWithUpdates(Flame.Compiler.FlowGraph%2CFlame.Compiler.Analysis.RegisterAllocation%7B%600%7D%2CIReadOnlyList%7BFlame.Compiler.Analysis.FlowGraphUpdate%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L236">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_AnalyzeWithUpdates_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.AnalyzeWithUpdates*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_RegisterAllocation__0__IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.RegisterAllocation{`0},IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})">AnalyzeWithUpdates(FlowGraph, RegisterAllocation&lt;TRegister&gt;, IReadOnlyList&lt;FlowGraphUpdate&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RegisterAllocation&lt;TRegister&gt; AnalyzeWithUpdates(FlowGraph graph, RegisterAllocation&lt;TRegister&gt; previousResult, IReadOnlyList&lt;FlowGraphUpdate&gt; updates)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation</a>&lt;TRegister&gt;</td>
+        <td><span class="parametername">previousResult</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Analysis.FlowGraphUpdate.html">FlowGraphUpdate</a>&gt;</td>
+        <td><span class="parametername">updates</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation</a>&lt;TRegister&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_CreateRegister_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.CreateRegister(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L63">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_CreateRegister_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.CreateRegister*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_CreateRegister_Flame_IType_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.CreateRegister(Flame.IType)">CreateRegister(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a brand new register for a value of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract TRegister CreateRegister(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of value to create a register for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRegister</span></td>
+        <td><p>A register suitable for the value.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.RequiresRegister(Flame.Compiler.ValueTag%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L106">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_RequiresRegister_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.RequiresRegister*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.RequiresRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph)">RequiresRegister(ValueTag, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Tells if a register should be allocated for a
+particular value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool RequiresRegister(ValueTag value, FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value for which register allocation may or may
+not be necessary.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The control flow graph that defines <code data-dev-comment-type="paramref" class="paramref">value</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if a register must be allocated to
+<code data-dev-comment-type="paramref" class="paramref">value</code>; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>Implementations may override this method to suppress
+register allocation for values that are, e.g., stored
+on an evaluation stack.</p>
+</div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryGetPreallocatedRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph__0__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.TryGetPreallocatedRegister(Flame.Compiler.ValueTag%2CFlame.Compiler.FlowGraph%2C%600%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L132">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryGetPreallocatedRegister_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.TryGetPreallocatedRegister*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryGetPreallocatedRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph__0__" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.TryGetPreallocatedRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph,`0@)">TryGetPreallocatedRegister(ValueTag, FlowGraph, out TRegister)</h4>
+  <div class="markdown level1 summary"><p>Tries to get a preallocated register for a particular value.
+If it exists, then the preallocated register will be used
+for the value, no questions asked. The preallocated register
+may be reused.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool TryGetPreallocatedRegister(ValueTag value, FlowGraph graph, out TRegister register)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value that may have a preallocated register.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The graph that defines the value.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TRegister</span></td>
+        <td><span class="parametername">register</span></td>
+        <td><p>A preallocated register, if any.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if there is a preallocated register for
+<code data-dev-comment-type="paramref" class="paramref">value</code>; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryRecycleRegister_Flame_IType_IEnumerable__0___0__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601.TryRecycleRegister(Flame.IType%2CIEnumerable%7B%600%7D%2C%600%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L81">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryRecycleRegister_" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.TryRecycleRegister*"></a>
+  <h4 id="Flame_Compiler_Analysis_GreedyRegisterAllocator_1_TryRecycleRegister_Flame_IType_IEnumerable__0___0__" data-uid="Flame.Compiler.Analysis.GreedyRegisterAllocator`1.TryRecycleRegister(Flame.IType,IEnumerable{`0},`0@)">TryRecycleRegister(IType, IEnumerable&lt;TRegister&gt;, out TRegister)</h4>
+  <div class="markdown level1 summary"><p>Tries to recycle a register from a set of registers.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract bool TryRecycleRegister(IType type, IEnumerable&lt;TRegister&gt; registers, out TRegister result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of value to store in the recycled register.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;TRegister&gt;</td>
+        <td><span class="parametername">registers</span></td>
+        <td><p>A set of registers that are eligible for recycling.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TRegister</span></td>
+        <td><span class="parametername">result</span></td>
+        <td><p>A register to recycle, if any.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if a register has been selected for recyling;
+otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis&lt;T&gt;</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_Analysis_GreedyRegisterAllocator_1.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.GreedyRegisterAllocator%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/Analysis/RegisterAllocation.cs/#L54" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

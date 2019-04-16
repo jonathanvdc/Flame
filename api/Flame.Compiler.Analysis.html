@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Namespace Flame.Compiler.Analysis
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Namespace Flame.Compiler.Analysis
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Analysis">
+  
+  <h1 id="Flame_Compiler_Analysis" data-uid="Flame.Compiler.Analysis" class="text-break">Namespace Flame.Compiler.Analysis
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
+  </h3>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.AddBasicBlockUpdate.html">AddBasicBlockUpdate</a></h4>
+      <section><p>A flow graph update that adds a basic block to the flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.AddInstructionUpdate.html">AddInstructionUpdate</a></h4>
+      <section><p>A flow graph update that inserts an instruction.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.AliasAnalysisResult.html">AliasAnalysisResult</a></h4>
+      <section><p>A data structure that captures the result of applying alias
+analysis to a control-flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BasicBlockFlowUpdate.html">BasicBlockFlowUpdate</a></h4>
+      <section><p>A flow graph update that sets the outgoing flow of a basic block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BasicBlockParametersUpdate.html">BasicBlockParametersUpdate</a></h4>
+      <section><p>A flow graph update that sets the parameters of a basic block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BasicBlockUpdate.html">BasicBlockUpdate</a></h4>
+      <section><p>A flow graph update at the basic block level:
+the insertion, deletion or modification of a basic block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockLiveness.html">BlockLiveness</a></h4>
+      <section><p>Contains value liveness data for a single block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockReachability.html">BlockReachability</a></h4>
+      <section><p>A description of which blocks can reach other blocks in a
+control-flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ConservativeInstructionOrderingAnalysis.html">ConservativeInstructionOrderingAnalysis</a></h4>
+      <section><p>A conservative analysis that determines the must-run-before
+relation between instructions. The must-run-before relation
+is determined by imposing a total ordering on effectful
+instructions.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ConstantAnalysis-1.html">ConstantAnalysis&lt;T&gt;</a></h4>
+      <section><p>An analysis that always returns the same result.
+This kind of analysis is particularly useful for
+adding metadata to flow graphs that encode a
+(user-specified) configuration, such as the
+exception delayability policy.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.DefaultAnalyses.html">DefaultAnalyses</a></h4>
+      <section><p>Manages a collection of default control-flow graph analyses, which
+are used when no analysis is explicitly added to a graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.DominatorTree.html">DominatorTree</a></h4>
+      <section><p>A data structure that describes the dominator tree of a
+control-flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.DominatorTreeAnalysis.html">DominatorTreeAnalysis</a></h4>
+      <section><p>An analysis that computes dominator trees for control-flow graphs.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.EffectfulInstructionAnalysis.html">EffectfulInstructionAnalysis</a></h4>
+      <section><p>An analysis that produces the set of all effectful instructions
+in a graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ExceptionDelayability.html">ExceptionDelayability</a></h4>
+      <section><p>A base class for rules about whether or not exceptions
+thrown by particular types of instructions may be delayed
+until the value they produce is used by an effectful
+instruction.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.html">ExceptionDelayabilityExtensions</a></h4>
+      <section><p>Defines extension methods related to exception delayability.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.FlowGraphUpdate.html">FlowGraphUpdate</a></h4>
+      <section><p>Describes an update to a flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.GreedyRegisterAllocator-1.html">GreedyRegisterAllocator&lt;TRegister&gt;</a></h4>
+      <section><p>An analysis that greedily allocates registers to values.
+The set of values is assumed to be unbounded: the analysis
+is allowed to &quot;create&quot; an arbitrarily large amount of
+registers.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.InstructionExceptionSpecs.html">InstructionExceptionSpecs</a></h4>
+      <section><p>Maps instructions to their exception specifications.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.InstructionOrdering.html">InstructionOrdering</a></h4>
+      <section><p>Captures the must-run-before relation between instructions.
+All instruction orderings that respect this relation are
+legal and computationally equivalent.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.InstructionUpdate.html">InstructionUpdate</a></h4>
+      <section><p>A flow graph update at the instruction level:
+the insertion, deletion or replacement of an instruction.
+These updates don't affect the control flow graph itself.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.InterferenceGraph.html">InterferenceGraph</a></h4>
+      <section><p>A symmetric relation that tells if there is some point at which
+two arbitrary values are both live.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.InterferenceGraphAnalysis.html">InterferenceGraphAnalysis</a></h4>
+      <section><p>An analysis that constructs an interference graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.LazyBlockReachability.html">LazyBlockReachability</a></h4>
+      <section><p>A block reachability implementation that performs reachability
+analysis on an on-demand basis and caches the results.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.LazyBlockReachabilityAnalysis.html">LazyBlockReachabilityAnalysis</a></h4>
+      <section><p>An analysis that finds computes block reachability information
+on an on-demand basis.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.LivenessAnalysis.html">LivenessAnalysis</a></h4>
+      <section><p>An analysis that determines which variables are live at any location
+in a control flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.LocalMemorySSAAnalysis.html">LocalMemorySSAAnalysis</a></h4>
+      <section><p>A very simple, block-local memory SSA analysis.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MapMembersUpdate.html">MapMembersUpdate</a></h4>
+      <section><p>A flow graph update that applies a mapping to every member
+in the flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.html">MemorySSA</a></h4>
+      <section><p>A mapping of instructions to memory SSA states.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Phi.html">MemorySSA.Phi</a></h4>
+      <section><p>A memory SSA phi, which sets the memory state to one of a list of
+potential memory SSA states.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Store.html">MemorySSA.Store</a></h4>
+      <section><p>A memory SSA value that represents an update of another memory SSA
+value.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Unknown.html">MemorySSA.Unknown</a></h4>
+      <section><p>A memory SSA value that represents a completely unknown state.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a></h4>
+      <section><p>A memory SSA value, i.e., a state that memory can have.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.NullabilityAnalysis.html">NullabilityAnalysis</a></h4>
+      <section><p>A simple nullability analysis.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.NullCheckExceptionSpecification.html">NullCheckExceptionSpecification</a></h4>
+      <section><p>An exception specification for an instruction parameter null check.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.PermissiveExceptionDelayability.html">PermissiveExceptionDelayability</a></h4>
+      <section><p>Exception delayability rules that allow delaying exceptions for
+implicit checks when computing pointers.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.PredecessorAnalysis.html">PredecessorAnalysis</a></h4>
+      <section><p>An analysis that finds basic block predecessors.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.PrototypeExceptionSpecs.html">PrototypeExceptionSpecs</a></h4>
+      <section><p>Maps instruction prototypes to exception specifications.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RelatedValueAnalysis.html">RelatedValueAnalysis</a></h4>
+      <section><p>An analysis that computes the related value--relation for graphs.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RemoveBasicBlockUpdate.html">RemoveBasicBlockUpdate</a></h4>
+      <section><p>A flow graph update that removes a basic block from the flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RemoveInstructionUpdate.html">RemoveInstructionUpdate</a></h4>
+      <section><p>A flow graph update that removes an instruction.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ReplaceInstructionUpdate.html">ReplaceInstructionUpdate</a></h4>
+      <section><p>A flow graph update that replaces an instruction.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RuleBasedPrototypeExceptionSpecs.html">RuleBasedPrototypeExceptionSpecs</a></h4>
+      <section><p>Assigns exception specifications to prototypes based
+on a set of user-configurable rules.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.SetEntryPointUpdate.html">SetEntryPointUpdate</a></h4>
+      <section><p>A flow graph update that sets the graph's entry point to a new block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.StrictExceptionDelayability.html">StrictExceptionDelayability</a></h4>
+      <section><p>Exception delayability rules that disallow delaying exceptions in
+all cases.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.TrivialAliasAnalysisResult.html">TrivialAliasAnalysisResult</a></h4>
+      <section><p>A truly trivial alias analysis result implementation: all values
+are deemed to must-alias themselves and may-alias all other values.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.TrivialInstructionExceptionSpecs.html">TrivialInstructionExceptionSpecs</a></h4>
+      <section><p>An instruction exception specification mapping that trivially copies
+prototype exception specifications.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueNullability.html">ValueNullability</a></h4>
+      <section><p>An analysis result that tells if values produce non-<code>null</code>
+or dereferenceable pointers.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueNumbering.html">ValueNumbering</a></h4>
+      <section><p>A mapping of values to representative values for a particular
+control-flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueNumberingAnalysis.html">ValueNumberingAnalysis</a></h4>
+      <section><p>An analysis that computes value numbers.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueNumberingInstructionComparer.html">ValueNumberingInstructionComparer</a></h4>
+      <section><p>A specialized instruction comparer for instructions that uses value
+numbers to more accurately compare instructions. Assumes that all
+instructions being compared are defined by the same graph. The
+equality relation that arises from this comparer is that of
+semantic instruction equivalence, not of syntactic equality.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueUseAnalysis.html">ValueUseAnalysis</a></h4>
+      <section><p>An analysis that figures out where values are used.</p>
+</section>
+    <h3 id="structs">Structs
+  </h3>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BasicBlockPredecessors.html">BasicBlockPredecessors</a></h4>
+      <section><p>A data structure that can be queried to get the predecessors
+of a block, that is, the set of all blocks that have branches
+to the block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.EffectfulInstructions.html">EffectfulInstructions</a></h4>
+      <section><p>The set of instructions in a graph that may have side-effects.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation&lt;TRegister&gt;</a></h4>
+      <section><p>An allocation of values to registers.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RelatedValues.html">RelatedValues</a></h4>
+      <section><p>A symmetric relation that consists of all pairs of values
+that are direct copies of each other.</p>
+<p>A value is deemed a copy of another value if the former is
+produced by a copy instruction that references the latter or
+if the former is a block parameter and there is a branch that
+specifies the latter as the argument to the former.</p>
+<p>This information can be useful for the purpose of register
+allocation: allocating two related values to the same register
+will elide a copy.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueLiveness.html">ValueLiveness</a></h4>
+      <section><p>Describes which variables are live at any location
+in a control flow graph.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ValueUses.html">ValueUses</a></h4>
+      <section><p>A mapping that describes where values are used.</p>
+</section>
+    <h3 id="interfaces">Interfaces
+  </h3>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis&lt;T&gt;</a></h4>
+      <section><p>An analysis on a flow graph.</p>
+</section>
+    <h3 id="enums">Enums
+  </h3>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.Aliasing.html">Aliasing</a></h4>
+      <section><p>Enumerates possible aliasing relations between pointers.</p>
+</section>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1769 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class FlowGraphBuilder
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class FlowGraphBuilder
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.FlowGraphBuilder">
+  
+  
+  <h1 id="Flame_Compiler_FlowGraphBuilder" data-uid="Flame.Compiler.FlowGraphBuilder" class="text-break">Class FlowGraphBuilder
+  </h1>
+  <div class="markdown level0 summary"><p>A mutable view of an immutable control-flow graph.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">FlowGraphBuilder</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.html">Flame.Compiler</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_FlowGraphBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class FlowGraphBuilder : object</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder__ctor.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L19">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder__ctor_" data-uid="Flame.Compiler.FlowGraphBuilder.#ctor*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder__ctor" data-uid="Flame.Compiler.FlowGraphBuilder.#ctor">FlowGraphBuilder()</h4>
+  <div class="markdown level1 summary"><p>Creates a control-flow graph builder that contains
+only an empty entry point block.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FlowGraphBuilder()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder__ctor_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.%23ctor(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L28">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder__ctor_" data-uid="Flame.Compiler.FlowGraphBuilder.#ctor*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder__ctor_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.FlowGraphBuilder.#ctor(Flame.Compiler.FlowGraph)">FlowGraphBuilder(FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Creates a control-flow graph builder from an
+immutable control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FlowGraphBuilder(FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>An immutable control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_AnonymousInstructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.AnonymousInstructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L103">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_AnonymousInstructions_" data-uid="Flame.Compiler.FlowGraphBuilder.AnonymousInstructions*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_AnonymousInstructions" data-uid="Flame.Compiler.FlowGraphBuilder.AnonymousInstructions">AnonymousInstructions</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all anonymous instructions defined by block flow
+in this control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;InstructionBuilder&gt; AnonymousInstructions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.InstructionBuilder.html">InstructionBuilder</a>&gt;</td>
+        <td><p>All anonymous instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_BasicBlocks.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.BasicBlocks%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L70">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_BasicBlocks_" data-uid="Flame.Compiler.FlowGraphBuilder.BasicBlocks*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_BasicBlocks" data-uid="Flame.Compiler.FlowGraphBuilder.BasicBlocks">BasicBlocks</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all basic blocks in this control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;BasicBlockBuilder&gt; BasicBlocks { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a>&gt;</td>
+        <td><p>All basic blocks.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_BasicBlockTags.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.BasicBlockTags%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L64">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_BasicBlockTags_" data-uid="Flame.Compiler.FlowGraphBuilder.BasicBlockTags*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_BasicBlockTags" data-uid="Flame.Compiler.FlowGraphBuilder.BasicBlockTags">BasicBlockTags</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all basic block tags in this control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;BasicBlockTag&gt; BasicBlockTags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_EntryPoint.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.EntryPoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_EntryPoint_" data-uid="Flame.Compiler.FlowGraphBuilder.EntryPoint*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_EntryPoint" data-uid="Flame.Compiler.FlowGraphBuilder.EntryPoint">EntryPoint</h4>
+  <div class="markdown level1 summary"><p>Gets the entry point block.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockBuilder EntryPoint { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><p>The entry point block.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_EntryPointTag.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.EntryPointTag%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L43">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_EntryPointTag_" data-uid="Flame.Compiler.FlowGraphBuilder.EntryPointTag*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_EntryPointTag" data-uid="Flame.Compiler.FlowGraphBuilder.EntryPointTag">EntryPointTag</h4>
+  <div class="markdown level1 summary"><p>Gets the tag of the entry point block.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockTag EntryPointTag { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><p>The tag of the entry point block.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Instructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Instructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L111">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Instructions_" data-uid="Flame.Compiler.FlowGraphBuilder.Instructions*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Instructions" data-uid="Flame.Compiler.FlowGraphBuilder.Instructions">Instructions</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all instructions defined in this control-flow graph,
+including both named and anonymous instructions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;InstructionBuilder&gt; Instructions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.InstructionBuilder.html">InstructionBuilder</a>&gt;</td>
+        <td><p>All instructions in this control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_InstructionTags.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.InstructionTags%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L76">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_InstructionTags_" data-uid="Flame.Compiler.FlowGraphBuilder.InstructionTags*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_InstructionTags" data-uid="Flame.Compiler.FlowGraphBuilder.InstructionTags">InstructionTags</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all instruction tags in this control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ValueTag&gt; InstructionTags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_NamedInstructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.NamedInstructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L95">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_NamedInstructions_" data-uid="Flame.Compiler.FlowGraphBuilder.NamedInstructions*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_NamedInstructions" data-uid="Flame.Compiler.FlowGraphBuilder.NamedInstructions">NamedInstructions</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all named instructions in this control-flow graph.
+Anonymous instructions as defined by block flow are not included.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;NamedInstructionBuilder&gt; NamedInstructions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.NamedInstructionBuilder.html">NamedInstructionBuilder</a>&gt;</td>
+        <td><p>All named instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ParameterTags.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ParameterTags%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L81">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ParameterTags_" data-uid="Flame.Compiler.FlowGraphBuilder.ParameterTags*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ParameterTags" data-uid="Flame.Compiler.FlowGraphBuilder.ParameterTags">ParameterTags</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all parameter tags in this control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ValueTag&gt; ParameterTags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ValueTags.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ValueTags%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L88">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ValueTags_" data-uid="Flame.Compiler.FlowGraphBuilder.ValueTags*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ValueTags" data-uid="Flame.Compiler.FlowGraphBuilder.ValueTags">ValueTags</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all value tags in this control-flow graph.
+This sequence includes both instruction values and
+basic block parameter values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ValueTag&gt; ValueTags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_AddAnalysis__1_Flame_Compiler_Analysis_IFlowGraphAnalysis___0__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.AddAnalysis%60%601(Flame.Compiler.Analysis.IFlowGraphAnalysis%7B%60%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L121">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_AddAnalysis_" data-uid="Flame.Compiler.FlowGraphBuilder.AddAnalysis*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_AddAnalysis__1_Flame_Compiler_Analysis_IFlowGraphAnalysis___0__" data-uid="Flame.Compiler.FlowGraphBuilder.AddAnalysis``1(Flame.Compiler.Analysis.IFlowGraphAnalysis{``0})">AddAnalysis&lt;T&gt;(IFlowGraphAnalysis&lt;T&gt;)</h4>
+  <div class="markdown level1 summary"><p>Registers a flow graph analysis with this graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddAnalysis&lt;T&gt;(IFlowGraphAnalysis&lt;T&gt; analysis)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis</a>&lt;T&gt;</td>
+        <td><span class="parametername">analysis</span></td>
+        <td><p>The analysis to register.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of result produced by the analysis.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_AddBasicBlock.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.AddBasicBlock%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L205">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_AddBasicBlock_" data-uid="Flame.Compiler.FlowGraphBuilder.AddBasicBlock*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_AddBasicBlock" data-uid="Flame.Compiler.FlowGraphBuilder.AddBasicBlock">AddBasicBlock()</h4>
+  <div class="markdown level1 summary"><p>Adds an empty basic block to this flow-graph builder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockBuilder AddBasicBlock()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><p>An empty basic block builder.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_AddBasicBlock_System_String_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.AddBasicBlock(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L194">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_AddBasicBlock_" data-uid="Flame.Compiler.FlowGraphBuilder.AddBasicBlock*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_AddBasicBlock_System_String_" data-uid="Flame.Compiler.FlowGraphBuilder.AddBasicBlock(System.String)">AddBasicBlock(String)</h4>
+  <div class="markdown level1 summary"><p>Adds an empty basic block to this flow-graph builder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockBuilder AddBasicBlock(string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The (preferred) name of the basic block's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><p>An empty basic block builder.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ContainsBasicBlock_Flame_Compiler_BasicBlockTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ContainsBasicBlock(Flame.Compiler.BasicBlockTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L376">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ContainsBasicBlock_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsBasicBlock*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ContainsBasicBlock_Flame_Compiler_BasicBlockTag_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsBasicBlock(Flame.Compiler.BasicBlockTag)">ContainsBasicBlock(BasicBlockTag)</h4>
+  <div class="markdown level1 summary"><p>Checks if this control-flow graph contains a basic block
+with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ContainsBasicBlock(BasicBlockTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The basic block's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this control-flow graph contains a basic block
+with the given tag; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ContainsBlockParameter_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ContainsBlockParameter(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L404">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ContainsBlockParameter_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsBlockParameter*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ContainsBlockParameter_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsBlockParameter(Flame.Compiler.ValueTag)">ContainsBlockParameter(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Checks if this control-flow graph contains a basic block parameter
+with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ContainsBlockParameter(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The parameter's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this control-flow graph contains a basic block parameter
+with the given tag; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ContainsInstruction_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ContainsInstruction(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L390">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ContainsInstruction_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsInstruction*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ContainsInstruction_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsInstruction(Flame.Compiler.ValueTag)">ContainsInstruction(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Checks if this control-flow graph contains an instruction
+with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ContainsInstruction(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this control-flow graph contains an instruction
+with the given tag; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ContainsValue_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ContainsValue(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L418">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ContainsValue_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsValue*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ContainsValue_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.ContainsValue(Flame.Compiler.ValueTag)">ContainsValue(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Checks if this control-flow graph contains an instruction
+or basic block parameter with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ContainsValue(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The value's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this control-flow graph contains a value
+with the given tag; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetAnalysisFor__1.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetAnalysisFor%60%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L184">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetAnalysisFor_" data-uid="Flame.Compiler.FlowGraphBuilder.GetAnalysisFor*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetAnalysisFor__1" data-uid="Flame.Compiler.FlowGraphBuilder.GetAnalysisFor``1">GetAnalysisFor&lt;T&gt;()</h4>
+  <div class="markdown level1 summary"><p>Gets the analysis, registered with this control-flow graph,
+that produced a particular type of result.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IFlowGraphAnalysis&lt;T&gt; GetAnalysisFor&lt;T&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis</a>&lt;T&gt;</td>
+        <td><p>An analysis.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of analysis result that is sought.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetAnalysisResult__1.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetAnalysisResult%60%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L135">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetAnalysisResult_" data-uid="Flame.Compiler.FlowGraphBuilder.GetAnalysisResult*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetAnalysisResult__1" data-uid="Flame.Compiler.FlowGraphBuilder.GetAnalysisResult``1">GetAnalysisResult&lt;T&gt;()</h4>
+  <div class="markdown level1 summary"><p>Gets an analysis result based on its type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public T GetAnalysisResult&lt;T&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><p>An analysis result.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of analysis result to fetch or compute.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetBasicBlock_Flame_Compiler_BasicBlockTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetBasicBlock(Flame.Compiler.BasicBlockTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L320">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetBasicBlock_" data-uid="Flame.Compiler.FlowGraphBuilder.GetBasicBlock*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetBasicBlock_Flame_Compiler_BasicBlockTag_" data-uid="Flame.Compiler.FlowGraphBuilder.GetBasicBlock(Flame.Compiler.BasicBlockTag)">GetBasicBlock(BasicBlockTag)</h4>
+  <div class="markdown level1 summary"><p>Gets the basic block with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockBuilder GetBasicBlock(BasicBlockTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The basic block's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><p>A basic block.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetInstruction_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L330">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetInstruction_" data-uid="Flame.Compiler.FlowGraphBuilder.GetInstruction*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetInstruction_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.ValueTag)">GetInstruction(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Gets the instruction with a particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstructionBuilder GetInstruction(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstructionBuilder.html">NamedInstructionBuilder</a></td>
+        <td><p>A named instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetValueParent_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetValueParent(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L439">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetValueParent_" data-uid="Flame.Compiler.FlowGraphBuilder.GetValueParent*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetValueParent_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.GetValueParent(Flame.Compiler.ValueTag)">GetValueParent(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Gets basic block that defines a value with a
+particular tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockBuilder GetValueParent(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The tag of the value to look for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><p>The basic block that defines the value.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_GetValueType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.GetValueType(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L428">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_GetValueType_" data-uid="Flame.Compiler.FlowGraphBuilder.GetValueType*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_GetValueType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.GetValueType(Flame.Compiler.ValueTag)">GetValueType(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Gets the type of a value in this graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType GetValueType(ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The value's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The value's type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_HasAnalysisFor__1.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.HasAnalysisFor%60%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L169">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_HasAnalysisFor_" data-uid="Flame.Compiler.FlowGraphBuilder.HasAnalysisFor*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_HasAnalysisFor__1" data-uid="Flame.Compiler.FlowGraphBuilder.HasAnalysisFor``1">HasAnalysisFor&lt;T&gt;()</h4>
+  <div class="markdown level1 summary"><p>Tells if this flow graph has an analysis that produces
+a particular type of result.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasAnalysisFor&lt;T&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if a registered analysis produces a result of type <code>T</code>;
+otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of analysis result that is sought.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Include_Flame_Compiler_FlowGraph_Func_Flame_Compiler_Flow_ReturnFlow_Flame_Compiler_BasicBlockBuilder_Flame_Compiler_BlockFlow__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Include(Flame.Compiler.FlowGraph%2CFunc%7BFlame.Compiler.Flow.ReturnFlow%2CFlame.Compiler.BasicBlockBuilder%2CFlame.Compiler.BlockFlow%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L468">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Include_" data-uid="Flame.Compiler.FlowGraphBuilder.Include*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Include_Flame_Compiler_FlowGraph_Func_Flame_Compiler_Flow_ReturnFlow_Flame_Compiler_BasicBlockBuilder_Flame_Compiler_BlockFlow__" data-uid="Flame.Compiler.FlowGraphBuilder.Include(Flame.Compiler.FlowGraph,Func{Flame.Compiler.Flow.ReturnFlow,Flame.Compiler.BasicBlockBuilder,Flame.Compiler.BlockFlow})">Include(FlowGraph, Func&lt;ReturnFlow, BasicBlockBuilder, BlockFlow&gt;)</h4>
+  <div class="markdown level1 summary"><p>Includes a control-flow graph in this control-flow graph.
+Any values and blocks defined by the graph to include are
+renamed in order to avoid conflicts with tags in this graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockTag Include(FlowGraph graph, Func&lt;ReturnFlow, BasicBlockBuilder, BlockFlow&gt; rewriteReturnFlow)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The graph to include in this graph.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="Flame.Compiler.Flow.ReturnFlow.html">ReturnFlow</a>, <a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a>, <a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a>&gt;</td>
+        <td><span class="parametername">rewriteReturnFlow</span></td>
+        <td><p>Rewrites 'return' flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><p>The tag of the imported graph's entry point.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Include_Flame_Compiler_FlowGraph_Func_Flame_Compiler_Flow_ReturnFlow_Flame_Compiler_BasicBlockBuilder_Flame_Compiler_BlockFlow__Flame_Compiler_Branch_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Include(Flame.Compiler.FlowGraph%2CFunc%7BFlame.Compiler.Flow.ReturnFlow%2CFlame.Compiler.BasicBlockBuilder%2CFlame.Compiler.BlockFlow%7D%2CFlame.Compiler.Branch)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L496">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Include_" data-uid="Flame.Compiler.FlowGraphBuilder.Include*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Include_Flame_Compiler_FlowGraph_Func_Flame_Compiler_Flow_ReturnFlow_Flame_Compiler_BasicBlockBuilder_Flame_Compiler_BlockFlow__Flame_Compiler_Branch_" data-uid="Flame.Compiler.FlowGraphBuilder.Include(Flame.Compiler.FlowGraph,Func{Flame.Compiler.Flow.ReturnFlow,Flame.Compiler.BasicBlockBuilder,Flame.Compiler.BlockFlow},Flame.Compiler.Branch)">Include(FlowGraph, Func&lt;ReturnFlow, BasicBlockBuilder, BlockFlow&gt;, Branch)</h4>
+  <div class="markdown level1 summary"><p>Includes a control-flow graph in this control-flow graph.
+Any values and blocks defined by the graph to include are
+renamed in order to avoid conflicts with tags in this graph.
+Instructions that may throw an exception are wrapped in 'try'
+flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlockTag Include(FlowGraph graph, Func&lt;ReturnFlow, BasicBlockBuilder, BlockFlow&gt; rewriteReturnFlow, Branch exceptionBranch)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The graph to include in this graph.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="Flame.Compiler.Flow.ReturnFlow.html">ReturnFlow</a>, <a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a>, <a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a>&gt;</td>
+        <td><span class="parametername">rewriteReturnFlow</span></td>
+        <td><p>Rewrites 'return' flow.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">exceptionBranch</span></td>
+        <td><p>The branch to take when an exception is thrown by an instruction
+in <code data-dev-comment-type="paramref" class="paramref">graph</code>. Instructions are not wrapped in
+'try' flow if this parameter is set to <code>null</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><p>The tag of the imported graph's entry point.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_RemoveBasicBlock_Flame_Compiler_BasicBlockTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.RemoveBasicBlock(Flame.Compiler.BasicBlockTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L215">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_RemoveBasicBlock_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveBasicBlock*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_RemoveBasicBlock_Flame_Compiler_BasicBlockTag_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveBasicBlock(Flame.Compiler.BasicBlockTag)">RemoveBasicBlock(BasicBlockTag)</h4>
+  <div class="markdown level1 summary"><p>Removes the basic block with a particular tag from this
+control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveBasicBlock(BasicBlockTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The basic block's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_RemoveDefinitions_IEnumerable_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.RemoveDefinitions(IEnumerable%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L258">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_RemoveDefinitions_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveDefinitions*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_RemoveDefinitions_IEnumerable_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveDefinitions(IEnumerable{Flame.Compiler.ValueTag})">RemoveDefinitions(IEnumerable&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Removes the definitions for a set of values
+from this flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveDefinitions(IEnumerable&lt;ValueTag&gt; valuesToRemove)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">valuesToRemove</span></td>
+        <td><p>A set of values whose definitions are to be eliminated
+from the flow graph. These values can refer to instructions
+and basic block parameters.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_RemoveInstruction_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.RemoveInstruction(Flame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L229">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_RemoveInstruction_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveInstruction*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_RemoveInstruction_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveInstruction(Flame.Compiler.ValueTag)">RemoveInstruction(ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Removes a particular instruction from this control-flow graph.
+Returns a new control-flow graph that does not contain the
+instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveInstruction(ValueTag instructionTag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">instructionTag</span></td>
+        <td><p>The tag of the instruction to remove.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_RemoveInstructionDefinitions_IEnumerable_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.RemoveInstructionDefinitions(IEnumerable%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L277">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_RemoveInstructionDefinitions_" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveInstructionDefinitions*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_RemoveInstructionDefinitions_IEnumerable_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.FlowGraphBuilder.RemoveInstructionDefinitions(IEnumerable{Flame.Compiler.ValueTag})">RemoveInstructionDefinitions(IEnumerable&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Removes the definitions for a set of instructions
+from this flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RemoveInstructionDefinitions(IEnumerable&lt;ValueTag&gt; instructionsToRemove)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">instructionsToRemove</span></td>
+        <td><p>A set of values whose definitions are to be eliminated
+from the flow graph. These values may only refer to
+instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ReplaceUses_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ReplaceUses(IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L243">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ReplaceUses_" data-uid="Flame.Compiler.FlowGraphBuilder.ReplaceUses*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ReplaceUses_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.FlowGraphBuilder.ReplaceUses(IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.ValueTag})">ReplaceUses(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces all uses of values with other values.
+The values to replace are encoded as keys in a
+dictionary and the values to replace them with as
+values in that same dictionary.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ReplaceUses(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt; replacementMap)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">replacementMap</span></td>
+        <td><p>A mapping of values to replacement values.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_ToImmutable.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.ToImmutable%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L449">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_ToImmutable_" data-uid="Flame.Compiler.FlowGraphBuilder.ToImmutable*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_ToImmutable" data-uid="Flame.Compiler.FlowGraphBuilder.ToImmutable">ToImmutable()</h4>
+  <div class="markdown level1 summary"><p>Turns this control-flow graph builder into an immutable
+control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FlowGraph ToImmutable()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><p>An immutable control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Transform_Flame_Compiler_Transforms_IntraproceduralOptimization_.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Transform(Flame.Compiler.Transforms.IntraproceduralOptimization)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L288">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Transform_" data-uid="Flame.Compiler.FlowGraphBuilder.Transform*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Transform_Flame_Compiler_Transforms_IntraproceduralOptimization_" data-uid="Flame.Compiler.FlowGraphBuilder.Transform(Flame.Compiler.Transforms.IntraproceduralOptimization)">Transform(IntraproceduralOptimization)</h4>
+  <div class="markdown level1 summary"><p>Applies an intraprocedural optimization to this flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Transform(IntraproceduralOptimization optimization)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html">IntraproceduralOptimization</a></td>
+        <td><span class="parametername">optimization</span></td>
+        <td><p>The transform to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Transform_Flame_Compiler_Transforms_IntraproceduralOptimization___.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Transform(Flame.Compiler.Transforms.IntraproceduralOptimization%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L310">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Transform_" data-uid="Flame.Compiler.FlowGraphBuilder.Transform*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Transform_Flame_Compiler_Transforms_IntraproceduralOptimization___" data-uid="Flame.Compiler.FlowGraphBuilder.Transform(Flame.Compiler.Transforms.IntraproceduralOptimization[])">Transform(IntraproceduralOptimization[])</h4>
+  <div class="markdown level1 summary"><p>Applies a sequence of intraprocedural optimizations to this flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Transform(params IntraproceduralOptimization[] optimizations)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html">IntraproceduralOptimization</a>[]</td>
+        <td><span class="parametername">optimizations</span></td>
+        <td><p>The transforms to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_Transform_IEnumerable_Flame_Compiler_Transforms_IntraproceduralOptimization__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.Transform(IEnumerable%7BFlame.Compiler.Transforms.IntraproceduralOptimization%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L299">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_Transform_" data-uid="Flame.Compiler.FlowGraphBuilder.Transform*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_Transform_IEnumerable_Flame_Compiler_Transforms_IntraproceduralOptimization__" data-uid="Flame.Compiler.FlowGraphBuilder.Transform(IEnumerable{Flame.Compiler.Transforms.IntraproceduralOptimization})">Transform(IEnumerable&lt;IntraproceduralOptimization&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a sequence of intraprocedural optimizations to this flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Transform(IEnumerable&lt;IntraproceduralOptimization&gt; optimizations)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html">IntraproceduralOptimization</a>&gt;</td>
+        <td><span class="parametername">optimizations</span></td>
+        <td><p>The transforms to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_TryGetAnalysisResult__1___0__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.TryGetAnalysisResult%60%601(%60%600%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L153">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_TryGetAnalysisResult_" data-uid="Flame.Compiler.FlowGraphBuilder.TryGetAnalysisResult*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_TryGetAnalysisResult__1___0__" data-uid="Flame.Compiler.FlowGraphBuilder.TryGetAnalysisResult``1(``0@)">TryGetAnalysisResult&lt;T&gt;(out T)</h4>
+  <div class="markdown level1 summary"><p>Tries to get an analysis result of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TryGetAnalysisResult&lt;T&gt;(out T result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">result</span></td>
+        <td><p>The analysis result, if one can be fetched or computed.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if there is an analyzer to compute the result;
+otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of analysis result to fetch or compute.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder_TryGetInstruction_Flame_Compiler_ValueTag_Flame_Compiler_NamedInstructionBuilder__.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder.TryGetInstruction(Flame.Compiler.ValueTag%2CFlame.Compiler.NamedInstructionBuilder%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L353">View Source</a>
+  </span>
+  <a id="Flame_Compiler_FlowGraphBuilder_TryGetInstruction_" data-uid="Flame.Compiler.FlowGraphBuilder.TryGetInstruction*"></a>
+  <h4 id="Flame_Compiler_FlowGraphBuilder_TryGetInstruction_Flame_Compiler_ValueTag_Flame_Compiler_NamedInstructionBuilder__" data-uid="Flame.Compiler.FlowGraphBuilder.TryGetInstruction(Flame.Compiler.ValueTag,Flame.Compiler.NamedInstructionBuilder@)">TryGetInstruction(ValueTag, out NamedInstructionBuilder)</h4>
+  <div class="markdown level1 summary"><p>Tries to get an instruction with a particular tag, if it exists in this
+control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TryGetInstruction(ValueTag tag, out NamedInstructionBuilder result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstructionBuilder.html">NamedInstructionBuilder</a></td>
+        <td><span class="parametername">result</span></td>
+        <td><p>The named instruction, if it exists in this control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the instruction exists; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.html#Flame_Compiler_Analysis_ExceptionDelayabilityExtensions_CanDelayExceptions_Flame_Compiler_FlowGraphBuilder_Flame_Compiler_ValueTag_">ExceptionDelayabilityExtensions.CanDelayExceptions(FlowGraphBuilder, ValueTag)</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_FlowGraphBuilder.md&amp;value=---%0Auid%3A%20Flame.Compiler.FlowGraphBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/FlowGraphBuilder.cs/#L13" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,721 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ContainerType
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ContainerType
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.TypeSystem.ContainerType">
+  
+  
+  <h1 id="Flame_TypeSystem_ContainerType" data-uid="Flame.TypeSystem.ContainerType" class="text-break">Class ContainerType
+  </h1>
+  <div class="markdown level0 summary"><p>A base type for types that refer to some number of homogeneously-typed
+elements.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">ContainerType</span></div>
+      <div class="level2"><a class="xref" href="Flame.TypeSystem.ArrayType.html">ArrayType</a></div>
+      <div class="level2"><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.IType.html">IType</a></div>
+    <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
+    <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
+  <h6><strong>Assembly</strong>: Flame.dll</h6>
+  <h5 id="Flame_TypeSystem_ContainerType_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class ContainerType : object, IType, IGenericMember, IMember</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType__ctor_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.%23ctor(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L16">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType__ctor_" data-uid="Flame.TypeSystem.ContainerType.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType__ctor_Flame_IType_" data-uid="Flame.TypeSystem.ContainerType.#ctor(Flame.IType)">ContainerType(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an uninitialized container type from an element type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected ContainerType(IType elementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The element type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType__ctor_Flame_IType_Flame_UnqualifiedName_Flame_QualifiedName_Flame_AttributeMap_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.%23ctor(Flame.IType%2CFlame.UnqualifiedName%2CFlame.QualifiedName%2CFlame.AttributeMap)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L29">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType__ctor_" data-uid="Flame.TypeSystem.ContainerType.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType__ctor_Flame_IType_Flame_UnqualifiedName_Flame_QualifiedName_Flame_AttributeMap_" data-uid="Flame.TypeSystem.ContainerType.#ctor(Flame.IType,Flame.UnqualifiedName,Flame.QualifiedName,Flame.AttributeMap)">ContainerType(IType, UnqualifiedName, QualifiedName, AttributeMap)</h4>
+  <div class="markdown level1 summary"><p>Creates an initialized container type from an element type,
+a name, a full name and an attribute map.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ContainerType(IType elementType, UnqualifiedName name, QualifiedName fullName, AttributeMap attributes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The element type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.UnqualifiedName.html">UnqualifiedName</a></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The container type's name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.QualifiedName.html">QualifiedName</a></td>
+        <td><span class="parametername">fullName</span></td>
+        <td><p>The container type's fully qualified name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.AttributeMap.html">AttributeMap</a></td>
+        <td><span class="parametername">attributes</span></td>
+        <td><p>The container type's attributes.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Attributes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Attributes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L89">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Attributes_" data-uid="Flame.TypeSystem.ContainerType.Attributes*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Attributes" data-uid="Flame.TypeSystem.ContainerType.Attributes">Attributes</h4>
+  <div class="markdown level1 summary"><p>Gets the member's attributes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AttributeMap Attributes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.AttributeMap.html">AttributeMap</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_BaseTypes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.BaseTypes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L65">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_BaseTypes_" data-uid="Flame.TypeSystem.ContainerType.BaseTypes*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_BaseTypes" data-uid="Flame.TypeSystem.ContainerType.BaseTypes">BaseTypes</h4>
+  <div class="markdown level1 summary"><p>Gets this type's base types. Base types can be either classes or
+interfaces.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IType&gt; BaseTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A read-only list of base types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_ElementType.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.ElementType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_ElementType_" data-uid="Flame.TypeSystem.ContainerType.ElementType*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_ElementType" data-uid="Flame.TypeSystem.ContainerType.ElementType">ElementType</h4>
+  <div class="markdown level1 summary"><p>Gets the type of this container's elements.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType ElementType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The element type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Fields.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Fields%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L68">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Fields_" data-uid="Flame.TypeSystem.ContainerType.Fields*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Fields" data-uid="Flame.TypeSystem.ContainerType.Fields">Fields</h4>
+  <div class="markdown level1 summary"><p>Gets this type's fields.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IField&gt; Fields { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IField.html">IField</a>&gt;</td>
+        <td><p>A read-only list of fields.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_FullName.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.FullName%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L86">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_FullName_" data-uid="Flame.TypeSystem.ContainerType.FullName*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_FullName" data-uid="Flame.TypeSystem.ContainerType.FullName">FullName</h4>
+  <div class="markdown level1 summary"><p>Gets the member's full name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public QualifiedName FullName { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.QualifiedName.html">QualifiedName</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_GenericParameters.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.GenericParameters%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L77">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_GenericParameters_" data-uid="Flame.TypeSystem.ContainerType.GenericParameters*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_GenericParameters" data-uid="Flame.TypeSystem.ContainerType.GenericParameters">GenericParameters</h4>
+  <div class="markdown level1 summary"><p>Gets the list of generic parameters for this generic member.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IGenericParameter&gt; GenericParameters { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><p>The generic parameters.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Methods.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Methods%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L71">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Methods_" data-uid="Flame.TypeSystem.ContainerType.Methods*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Methods" data-uid="Flame.TypeSystem.ContainerType.Methods">Methods</h4>
+  <div class="markdown level1 summary"><p>Gets this type's methods.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IMethod&gt; Methods { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
+        <td><p>A read-only list of methods.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Name.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Name%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L83">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Name_" data-uid="Flame.TypeSystem.ContainerType.Name*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Name" data-uid="Flame.TypeSystem.ContainerType.Name">Name</h4>
+  <div class="markdown level1 summary"><p>Gets the member's unqualified name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public UnqualifiedName Name { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.UnqualifiedName.html">UnqualifiedName</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_NestedTypes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.NestedTypes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L80">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_NestedTypes_" data-uid="Flame.TypeSystem.ContainerType.NestedTypes*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_NestedTypes" data-uid="Flame.TypeSystem.ContainerType.NestedTypes">NestedTypes</h4>
+  <div class="markdown level1 summary"><p>Gets the nested types defined by this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IType&gt; NestedTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A read-only list of nested types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Parent.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Parent%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L62">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Parent_" data-uid="Flame.TypeSystem.ContainerType.Parent*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Parent" data-uid="Flame.TypeSystem.ContainerType.Parent">Parent</h4>
+  <div class="markdown level1 summary"><p>Gets the parent entity that defines and owns this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TypeParent Parent { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeParent.html">TypeParent</a></td>
+        <td><p>The parent entity.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Properties.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Properties%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L74">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Properties_" data-uid="Flame.TypeSystem.ContainerType.Properties*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Properties" data-uid="Flame.TypeSystem.ContainerType.Properties">Properties</h4>
+  <div class="markdown level1 summary"><p>Gets this type's properties.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IProperty&gt; Properties { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IProperty.html">IProperty</a>&gt;</td>
+        <td><p>A read-only list of properties.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_Initialize_Flame_UnqualifiedName_Flame_QualifiedName_Flame_AttributeMap_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.Initialize(Flame.UnqualifiedName%2CFlame.QualifiedName%2CFlame.AttributeMap)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L45">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_Initialize_" data-uid="Flame.TypeSystem.ContainerType.Initialize*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_Initialize_Flame_UnqualifiedName_Flame_QualifiedName_Flame_AttributeMap_" data-uid="Flame.TypeSystem.ContainerType.Initialize(Flame.UnqualifiedName,Flame.QualifiedName,Flame.AttributeMap)">Initialize(UnqualifiedName, QualifiedName, AttributeMap)</h4>
+  <div class="markdown level1 summary"><p>Initializes an uninitialized container type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Initialize(UnqualifiedName name, QualifiedName fullName, AttributeMap attributes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.UnqualifiedName.html">UnqualifiedName</a></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The container type's name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.QualifiedName.html">QualifiedName</a></td>
+        <td><span class="parametername">fullName</span></td>
+        <td><p>The container type's fully qualified name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.AttributeMap.html">AttributeMap</a></td>
+        <td><span class="parametername">attributes</span></td>
+        <td><p>The container type's attributes.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_ToString.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L103">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_ToString_" data-uid="Flame.TypeSystem.ContainerType.ToString*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_ToString" data-uid="Flame.TypeSystem.ContainerType.ToString">ToString()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType_WithElementType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType.WithElementType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L100">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_ContainerType_WithElementType_" data-uid="Flame.TypeSystem.ContainerType.WithElementType*"></a>
+  <h4 id="Flame_TypeSystem_ContainerType_WithElementType_Flame_IType_" data-uid="Flame.TypeSystem.ContainerType.WithElementType(Flame.IType)">WithElementType(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a container type that is identical to this one
+except for its element type, which is set to a given
+type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract ContainerType WithElementType(IType newElementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">newElementType</span></td>
+        <td><p>The element type of the new container type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.ContainerType.html">ContainerType</a></td>
+        <td><p>Another container type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.IType.html">IType</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IGenericMember.html">IGenericMember</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_ContainerType.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.ContainerType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/ContainerType.cs/#L10" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

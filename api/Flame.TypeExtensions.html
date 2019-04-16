@@ -1,0 +1,1172 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class TypeExtensions
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class TypeExtensions
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.TypeExtensions">
+  
+  
+  <h1 id="Flame_TypeExtensions" data-uid="Flame.TypeExtensions" class="text-break">Class TypeExtensions
+  </h1>
+  <div class="markdown level0 summary"><p>A collection of extension and helper methods that simplify
+working with types.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">TypeExtensions</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.html">Flame</a></h6>
+  <h6><strong>Assembly</strong>: Flame.dll</h6>
+  <h5 id="Flame_TypeExtensions_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class TypeExtensions : object</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetGenericArguments_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetGenericArguments(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L373">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetGenericArguments_" data-uid="Flame.TypeExtensions.GetGenericArguments*"></a>
+  <h4 id="Flame_TypeExtensions_GetGenericArguments_Flame_IMethod_" data-uid="Flame.TypeExtensions.GetGenericArguments(Flame.IMethod)">GetGenericArguments(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Gets the generic arguments given to a particular method, if any.
+The list returned by this method does not include arguments
+given to parent types of the provided method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;IType&gt; GetGenericArguments(this IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A list of generic argument types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetGenericArguments_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetGenericArguments(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L354">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetGenericArguments_" data-uid="Flame.TypeExtensions.GetGenericArguments*"></a>
+  <h4 id="Flame_TypeExtensions_GetGenericArguments_Flame_IType_" data-uid="Flame.TypeExtensions.GetGenericArguments(Flame.IType)">GetGenericArguments(IType)</h4>
+  <div class="markdown level1 summary"><p>Gets the generic arguments given to a particular type, if any.
+The list returned by this method does not include arguments
+given to parent types of the provided type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;IType&gt; GetGenericArguments(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A list of generic argument types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericArgumentMapping(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L487">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArgumentMapping*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IMethod_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArgumentMapping(Flame.IMethod)">GetRecursiveGenericArgumentMapping(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Creates a dictionary that maps a method's recursive generic
+parameters to their arguments. Additionally, original
+generic parameters are also mapped to modified generic
+parameters.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyDictionary&lt;IType, IType&gt; GetRecursiveGenericArgumentMapping(this IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td><p>The method to create the mapping for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>, <a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A mapping of generic parameters to their arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericArgumentMapping(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L421">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArgumentMapping*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IType_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArgumentMapping(Flame.IType)">GetRecursiveGenericArgumentMapping(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a dictionary that maps a type's recursive generic
+parameters to their arguments. Additionally, original
+generic parameters are also mapped to modified generic
+parameters.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyDictionary&lt;IType, IType&gt; GetRecursiveGenericArgumentMapping(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type to create the mapping for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>, <a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A mapping of generic parameters to their arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericArguments_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericArguments(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L310">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericArguments_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArguments*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericArguments_Flame_IType_" data-uid="Flame.TypeExtensions.GetRecursiveGenericArguments(Flame.IType)">GetRecursiveGenericArguments(IType)</h4>
+  <div class="markdown level1 summary"><p>Gets the recursive generic arguments for a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;IType&gt; GetRecursiveGenericArguments(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>The type's list of recursive generic arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L229">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IField_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IField)">GetRecursiveGenericDeclaration(IField)</h4>
+  <div class="markdown level1 summary"><p>Gets the recursive generic declaration of a field.</p>
+<p>If the field is not a recursive generic instance,
+the field itself is returned.</p>
+<p>If the field is a recursive generic instance, the
+recursive generic declaration of the field's generic
+declaration is returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IField GetRecursiveGenericDeclaration(this IField field)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td><p>A field to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><p>The field's recursive generic declaration.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L205">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IMethod_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IMethod)">GetRecursiveGenericDeclaration(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Gets the recursive generic declaration of a method.</p>
+<p>If the method is not a recursive generic instance,
+the method itself is returned.</p>
+<p>If the method is a recursive generic instance, the
+recursive generic declaration of the method's generic
+declaration is returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IMethod GetRecursiveGenericDeclaration(this IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td><p>A method to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><p>The method's recursive generic declaration.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L181">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IType_" data-uid="Flame.TypeExtensions.GetRecursiveGenericDeclaration(Flame.IType)">GetRecursiveGenericDeclaration(IType)</h4>
+  <div class="markdown level1 summary"><p>Gets the recursive generic declaration of a type.</p>
+<p>If the type is not a recursive generic instance,
+the type itself is returned.</p>
+<p>If the type is a recursive generic instance, the
+recursive generic declaration of the type's generic
+declaration is returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IType GetRecursiveGenericDeclaration(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The type's recursive generic declaration.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_GetRecursiveGenericParameters_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.GetRecursiveGenericParameters(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L393">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_GetRecursiveGenericParameters_" data-uid="Flame.TypeExtensions.GetRecursiveGenericParameters*"></a>
+  <h4 id="Flame_TypeExtensions_GetRecursiveGenericParameters_Flame_IType_" data-uid="Flame.TypeExtensions.GetRecursiveGenericParameters(Flame.IType)">GetRecursiveGenericParameters(IType)</h4>
+  <div class="markdown level1 summary"><p>Gets the recursive generic parameters for a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;IGenericParameter&gt; GetRecursiveGenericParameters(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><p>The type's list of recursive generic parameters.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_IsPointerType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.IsPointerType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L22">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_IsPointerType_" data-uid="Flame.TypeExtensions.IsPointerType*"></a>
+  <h4 id="Flame_TypeExtensions_IsPointerType_Flame_IType_" data-uid="Flame.TypeExtensions.IsPointerType(Flame.IType)">IsPointerType(IType)</h4>
+  <div class="markdown level1 summary"><p>Tests if a type is a pointer type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsPointerType(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type to inspect.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the type is a pointer type; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_IsPointerType_Flame_IType_Flame_TypeSystem_PointerKind_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.IsPointerType(Flame.IType%2CFlame.TypeSystem.PointerKind)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L36">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_IsPointerType_" data-uid="Flame.TypeExtensions.IsPointerType*"></a>
+  <h4 id="Flame_TypeExtensions_IsPointerType_Flame_IType_Flame_TypeSystem_PointerKind_" data-uid="Flame.TypeExtensions.IsPointerType(Flame.IType,Flame.TypeSystem.PointerKind)">IsPointerType(IType, PointerKind)</h4>
+  <div class="markdown level1 summary"><p>Tests if a type is a pointer type of a particular kind.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsPointerType(this IType type, PointerKind kind)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type to inspect.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerKind.html">PointerKind</a></td>
+        <td><span class="parametername">kind</span></td>
+        <td><p>The kind of pointer to test for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the type is a pointer type of the specified kind;
+otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_IsRecursiveGenericInstance_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.IsRecursiveGenericInstance(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L162">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_IsRecursiveGenericInstance_" data-uid="Flame.TypeExtensions.IsRecursiveGenericInstance*"></a>
+  <h4 id="Flame_TypeExtensions_IsRecursiveGenericInstance_Flame_IType_" data-uid="Flame.TypeExtensions.IsRecursiveGenericInstance(Flame.IType)">IsRecursiveGenericInstance(IType)</h4>
+  <div class="markdown level1 summary"><p>Tells if a particular type is either a generic instance or a
+nested type of a generic instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsRecursiveGenericInstance(this IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the type is a recursive generic instance; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeArrayType_Flame_IType_System_Int32_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeArrayType(Flame.IType%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L69">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeArrayType_" data-uid="Flame.TypeExtensions.MakeArrayType*"></a>
+  <h4 id="Flame_TypeExtensions_MakeArrayType_Flame_IType_System_Int32_" data-uid="Flame.TypeExtensions.MakeArrayType(Flame.IType,System.Int32)">MakeArrayType(IType, Int32)</h4>
+  <div class="markdown level1 summary"><p>Creates an array type of a particular rank that has a
+type as element.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ArrayType MakeArrayType(this IType type, int rank)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of values referred to by the array type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">rank</span></td>
+        <td><p>The rank of the array type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.ArrayType.html">ArrayType</a></td>
+        <td><p>A array type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_Flame_IType___.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeGenericMethod(Flame.IMethod%2CFlame.IType%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L147">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeGenericMethod_" data-uid="Flame.TypeExtensions.MakeGenericMethod*"></a>
+  <h4 id="Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_Flame_IType___" data-uid="Flame.TypeExtensions.MakeGenericMethod(Flame.IMethod,Flame.IType[])">MakeGenericMethod(IMethod, IType[])</h4>
+  <div class="markdown level1 summary"><p>Creates a generic specialization of a particular generic
+method declaration</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static DirectMethodSpecialization MakeGenericMethod(this IMethod declaration, params IType[] genericArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">declaration</span></td>
+        <td><p>The generic method declaration that is specialized into
+a concrete method.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a>[]</td>
+        <td><span class="parametername">genericArguments</span></td>
+        <td><p>The type arguments with which the generic method is
+specialized.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.DirectMethodSpecialization.html">DirectMethodSpecialization</a></td>
+        <td><p>A generic specialization.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_IReadOnlyList_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeGenericMethod(Flame.IMethod%2CIReadOnlyList%7BFlame.IType%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L127">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeGenericMethod_" data-uid="Flame.TypeExtensions.MakeGenericMethod*"></a>
+  <h4 id="Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_IReadOnlyList_Flame_IType__" data-uid="Flame.TypeExtensions.MakeGenericMethod(Flame.IMethod,IReadOnlyList{Flame.IType})">MakeGenericMethod(IMethod, IReadOnlyList&lt;IType&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a generic specialization of a particular generic
+method declaration</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static DirectMethodSpecialization MakeGenericMethod(this IMethod declaration, IReadOnlyList&lt;IType&gt; genericArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">declaration</span></td>
+        <td><p>The generic method declaration that is specialized into
+a concrete method.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">genericArguments</span></td>
+        <td><p>The type arguments with which the generic method is
+specialized.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.DirectMethodSpecialization.html">DirectMethodSpecialization</a></td>
+        <td><p>A generic specialization.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeGenericType_Flame_IType_Flame_IType___.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeGenericType(Flame.IType%2CFlame.IType%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L107">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeGenericType_" data-uid="Flame.TypeExtensions.MakeGenericType*"></a>
+  <h4 id="Flame_TypeExtensions_MakeGenericType_Flame_IType_Flame_IType___" data-uid="Flame.TypeExtensions.MakeGenericType(Flame.IType,Flame.IType[])">MakeGenericType(IType, IType[])</h4>
+  <div class="markdown level1 summary"><p>Creates a generic specialization of a particular generic
+type declaration</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static DirectTypeSpecialization MakeGenericType(this IType declaration, params IType[] genericArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">declaration</span></td>
+        <td><p>The generic type declaration that is specialized into
+a concrete type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a>[]</td>
+        <td><span class="parametername">genericArguments</span></td>
+        <td><p>The type arguments with which the generic type is
+specialized.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.DirectTypeSpecialization.html">DirectTypeSpecialization</a></td>
+        <td><p>A generic specialization.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeGenericType_Flame_IType_IReadOnlyList_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeGenericType(Flame.IType%2CIReadOnlyList%7BFlame.IType%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L87">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeGenericType_" data-uid="Flame.TypeExtensions.MakeGenericType*"></a>
+  <h4 id="Flame_TypeExtensions_MakeGenericType_Flame_IType_IReadOnlyList_Flame_IType__" data-uid="Flame.TypeExtensions.MakeGenericType(Flame.IType,IReadOnlyList{Flame.IType})">MakeGenericType(IType, IReadOnlyList&lt;IType&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a generic specialization of a particular generic
+type declaration</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static DirectTypeSpecialization MakeGenericType(this IType declaration, IReadOnlyList&lt;IType&gt; genericArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">declaration</span></td>
+        <td><p>The generic type declaration that is specialized into
+a concrete type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">genericArguments</span></td>
+        <td><p>The type arguments with which the generic type is
+specialized.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.DirectTypeSpecialization.html">DirectTypeSpecialization</a></td>
+        <td><p>A generic specialization.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakePointerType_Flame_IType_Flame_TypeSystem_PointerKind_.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakePointerType(Flame.IType%2CFlame.TypeSystem.PointerKind)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L53">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakePointerType_" data-uid="Flame.TypeExtensions.MakePointerType*"></a>
+  <h4 id="Flame_TypeExtensions_MakePointerType_Flame_IType_Flame_TypeSystem_PointerKind_" data-uid="Flame.TypeExtensions.MakePointerType(Flame.IType,Flame.TypeSystem.PointerKind)">MakePointerType(IType, PointerKind)</h4>
+  <div class="markdown level1 summary"><p>Creates a pointer type of a particular kind that has a
+type as element.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static PointerType MakePointerType(this IType type, PointerKind kind)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of values referred to by the pointer type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerKind.html">PointerKind</a></td>
+        <td><span class="parametername">kind</span></td>
+        <td><p>The kind of the pointer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><p>A pointer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions_MakeRecursiveGenericType_Flame_IType_IReadOnlyList_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions.MakeRecursiveGenericType(Flame.IType%2CIReadOnlyList%7BFlame.IType%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L249">View Source</a>
+  </span>
+  <a id="Flame_TypeExtensions_MakeRecursiveGenericType_" data-uid="Flame.TypeExtensions.MakeRecursiveGenericType*"></a>
+  <h4 id="Flame_TypeExtensions_MakeRecursiveGenericType_Flame_IType_IReadOnlyList_Flame_IType__" data-uid="Flame.TypeExtensions.MakeRecursiveGenericType(Flame.IType,IReadOnlyList{Flame.IType})">MakeRecursiveGenericType(IType, IReadOnlyList&lt;IType&gt;)</h4>
+  <div class="markdown level1 summary"><p>Turns a recursive generic declaration into a recursive generic
+instance with a particular list of recursive generic arguments.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IType MakeRecursiveGenericType(this IType type, IReadOnlyList&lt;IType&gt; recursiveGenericArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type to recursively instantiate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">recursiveGenericArguments</span></td>
+        <td><p>A list of recursive generic arguments for the type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A recursive generic instance type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeExtensions.md&amp;value=---%0Auid%3A%20Flame.TypeExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeExtensions.cs/#L13" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

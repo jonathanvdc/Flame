@@ -1,0 +1,884 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class CorlibTypeEnvironment
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class CorlibTypeEnvironment
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Clr.CorlibTypeEnvironment">
+  
+  
+  <h1 id="Flame_Clr_CorlibTypeEnvironment" data-uid="Flame.Clr.CorlibTypeEnvironment" class="text-break">Class CorlibTypeEnvironment
+  </h1>
+  <div class="markdown level0 summary"><p>A type environment that extracts relevant BCL types from a single
+core library based on their names.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></div>
+    <div class="level2"><span class="xref">CorlibTypeEnvironment</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Boolean">TypeEnvironment.Boolean</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int8">TypeEnvironment.Int8</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt8">TypeEnvironment.UInt8</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int16">TypeEnvironment.Int16</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt16">TypeEnvironment.UInt16</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int32">TypeEnvironment.Int32</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt32">TypeEnvironment.UInt32</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int64">TypeEnvironment.Int64</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt64">TypeEnvironment.UInt64</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeSignedIntegerType_System_Int32_">TypeEnvironment.MakeSignedIntegerType(Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeUnsignedIntegerType_System_Int32_">TypeEnvironment.MakeUnsignedIntegerType(Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeArrayType_Flame_IType_System_Int32_">TypeEnvironment.MakeArrayType(IType, Int32)</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
+  <h5 id="Flame_Clr_CorlibTypeEnvironment_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class CorlibTypeEnvironment : TypeEnvironment</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment__ctor_Flame_IAssembly_.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.%23ctor(Flame.IAssembly)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L22">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment__ctor_" data-uid="Flame.Clr.CorlibTypeEnvironment.#ctor*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment__ctor_Flame_IAssembly_" data-uid="Flame.Clr.CorlibTypeEnvironment.#ctor(Flame.IAssembly)">CorlibTypeEnvironment(IAssembly)</h4>
+  <div class="markdown level1 summary"><p>Creates a type system based on a core library assembly.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public CorlibTypeEnvironment(IAssembly corlib)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IAssembly.html">IAssembly</a></td>
+        <td><span class="parametername">corlib</span></td>
+        <td><p>The core library, which supplies the types in the type
+system.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment__ctor_Flame_TypeSystem_ReadOnlyTypeResolver_.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.%23ctor(Flame.TypeSystem.ReadOnlyTypeResolver)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L33">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment__ctor_" data-uid="Flame.Clr.CorlibTypeEnvironment.#ctor*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment__ctor_Flame_TypeSystem_ReadOnlyTypeResolver_" data-uid="Flame.Clr.CorlibTypeEnvironment.#ctor(Flame.TypeSystem.ReadOnlyTypeResolver)">CorlibTypeEnvironment(ReadOnlyTypeResolver)</h4>
+  <div class="markdown level1 summary"><p>Creates a type system based on a core library type resolver.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public CorlibTypeEnvironment(ReadOnlyTypeResolver corlibTypeResolver)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.ReadOnlyTypeResolver.html">ReadOnlyTypeResolver</a></td>
+        <td><span class="parametername">corlibTypeResolver</span></td>
+        <td><p>A type resolver for the core library, which supplies the
+types in the type system.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_CapturedException.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.CapturedException%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L106">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_CapturedException_" data-uid="Flame.Clr.CorlibTypeEnvironment.CapturedException*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_CapturedException" data-uid="Flame.Clr.CorlibTypeEnvironment.CapturedException">CapturedException</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a captured exception in this environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType CapturedException { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The captured exception type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_CapturedException">TypeEnvironment.CapturedException</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Char.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Char%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L82">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Char_" data-uid="Flame.Clr.CorlibTypeEnvironment.Char*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Char" data-uid="Flame.Clr.CorlibTypeEnvironment.Char">Char</h4>
+  <div class="markdown level1 summary"><p>Gets the character type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Char { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The character type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Char">TypeEnvironment.Char</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_CorlibTypeResolver.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.CorlibTypeResolver%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L67">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_CorlibTypeResolver_" data-uid="Flame.Clr.CorlibTypeEnvironment.CorlibTypeResolver*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_CorlibTypeResolver" data-uid="Flame.Clr.CorlibTypeEnvironment.CorlibTypeResolver">CorlibTypeResolver</h4>
+  <div class="markdown level1 summary"><p>Gets a type resolver for the core library from
+which types are resolved.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ReadOnlyTypeResolver CorlibTypeResolver { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.ReadOnlyTypeResolver.html">ReadOnlyTypeResolver</a></td>
+        <td><p>The core library type resolver.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_FieldToken.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.FieldToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L100">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_FieldToken_" data-uid="Flame.Clr.CorlibTypeEnvironment.FieldToken*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_FieldToken" data-uid="Flame.Clr.CorlibTypeEnvironment.FieldToken">FieldToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a field token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType FieldToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The field token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_FieldToken">TypeEnvironment.FieldToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Float32.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Float32%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L76">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Float32_" data-uid="Flame.Clr.CorlibTypeEnvironment.Float32*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Float32" data-uid="Flame.Clr.CorlibTypeEnvironment.Float32">Float32</h4>
+  <div class="markdown level1 summary"><p>Gets the 32-bit floating point type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Float32 { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A 32-bit floating point type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Float32">TypeEnvironment.Float32</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Float64.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Float64%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L79">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Float64_" data-uid="Flame.Clr.CorlibTypeEnvironment.Float64*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Float64" data-uid="Flame.Clr.CorlibTypeEnvironment.Float64">Float64</h4>
+  <div class="markdown level1 summary"><p>Gets the 64-bit floating point type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Float64 { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A 64-bit floating point type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Float64">TypeEnvironment.Float64</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_MethodToken.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.MethodToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L103">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_MethodToken_" data-uid="Flame.Clr.CorlibTypeEnvironment.MethodToken*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_MethodToken" data-uid="Flame.Clr.CorlibTypeEnvironment.MethodToken">MethodToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a method token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType MethodToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The method token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MethodToken">TypeEnvironment.MethodToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_NaturalInt.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.NaturalInt%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L88">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_NaturalInt_" data-uid="Flame.Clr.CorlibTypeEnvironment.NaturalInt*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_NaturalInt" data-uid="Flame.Clr.CorlibTypeEnvironment.NaturalInt">NaturalInt</h4>
+  <div class="markdown level1 summary"><p>Gets the natural signed integer type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType NaturalInt { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The natural signed integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_NaturalInt">TypeEnvironment.NaturalInt</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_NaturalUInt.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.NaturalUInt%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L91">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_NaturalUInt_" data-uid="Flame.Clr.CorlibTypeEnvironment.NaturalUInt*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_NaturalUInt" data-uid="Flame.Clr.CorlibTypeEnvironment.NaturalUInt">NaturalUInt</h4>
+  <div class="markdown level1 summary"><p>Gets the natural unsigned integer type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType NaturalUInt { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The natural unsigned integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_NaturalUInt">TypeEnvironment.NaturalUInt</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Object.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Object%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L94">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Object_" data-uid="Flame.Clr.CorlibTypeEnvironment.Object*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Object" data-uid="Flame.Clr.CorlibTypeEnvironment.Object">Object</h4>
+  <div class="markdown level1 summary"><p>Gets the root type for this environment, if there is a root type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Object { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The root type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Object">TypeEnvironment.Object</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_String.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.String%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L85">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_String_" data-uid="Flame.Clr.CorlibTypeEnvironment.String*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_String" data-uid="Flame.Clr.CorlibTypeEnvironment.String">String</h4>
+  <div class="markdown level1 summary"><p>Gets the character string type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType String { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The character string type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_String">TypeEnvironment.String</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Subtyping.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Subtyping%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L70">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Subtyping_" data-uid="Flame.Clr.CorlibTypeEnvironment.Subtyping*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Subtyping" data-uid="Flame.Clr.CorlibTypeEnvironment.Subtyping">Subtyping</h4>
+  <div class="markdown level1 summary"><p>Gets the subtyping rules for this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override SubtypingRules Subtyping { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.SubtypingRules.html">SubtypingRules</a></td>
+        <td><p>The subtyping rules.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Subtyping">TypeEnvironment.Subtyping</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TypeToken.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TypeToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L97">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_TypeToken_" data-uid="Flame.Clr.CorlibTypeEnvironment.TypeToken*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_TypeToken" data-uid="Flame.Clr.CorlibTypeEnvironment.TypeToken">TypeToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a type token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType TypeToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The type token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TypeToken">TypeEnvironment.TypeToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_Void.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.Void%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L73">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_Void_" data-uid="Flame.Clr.CorlibTypeEnvironment.Void*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_Void" data-uid="Flame.Clr.CorlibTypeEnvironment.Void">Void</h4>
+  <div class="markdown level1 summary"><p>Gets the Void type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Void { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The Void type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Void">TypeEnvironment.Void</a></div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TryMakeArrayType(Flame.IType%2CSystem.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L126">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeArrayType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeArrayType*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeArrayType(Flame.IType,System.Int32,Flame.IType@)">TryMakeArrayType(IType, Int32, out IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeArrayType(IType elementType, int rank, out IType arrayType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">rank</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L170">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType(System.Int32,Flame.IType@)">TryMakeSignedIntegerType(Int32, out IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeSignedIntegerType(int sizeInBits, out IType integerType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">sizeInBits</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">integerType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L176">View Source</a>
+  </span>
+  <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType*"></a>
+  <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32,Flame.IType@)">TryMakeUnsignedIntegerType(Int32, out IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeUnsignedIntegerType(int sizeInBits, out IType integerType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">sizeInBits</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">integerType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/CorlibTypeEnvironment.cs/#L13" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

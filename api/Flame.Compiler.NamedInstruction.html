@@ -1,0 +1,1036 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class NamedInstruction
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class NamedInstruction
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.NamedInstruction">
+  
+  
+  <h1 id="Flame_Compiler_NamedInstruction" data-uid="Flame.Compiler.NamedInstruction" class="text-break">Class NamedInstruction
+  </h1>
+  <div class="markdown level0 summary"><p>A named instruction in the context of a control-flow graph.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">NamedInstruction</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.html">Flame.Compiler</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_NamedInstruction_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class NamedInstruction : IEquatable&lt;NamedInstruction&gt;</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Arguments.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Arguments%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L64">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Arguments_" data-uid="Flame.Compiler.NamedInstruction.Arguments*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Arguments" data-uid="Flame.Compiler.NamedInstruction.Arguments">Arguments</h4>
+  <div class="markdown level1 summary"><p>Gets the list of values this instruction takes as arguments.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;ValueTag&gt; Arguments { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Block.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Block%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L43">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Block_" data-uid="Flame.Compiler.NamedInstruction.Block*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Block" data-uid="Flame.Compiler.NamedInstruction.Block">Block</h4>
+  <div class="markdown level1 summary"><p>Gets the basic block that defines this named instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BasicBlock Block { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlock.html">BasicBlock</a></td>
+        <td><p>The basic block.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Instruction.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Instruction%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L49">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Instruction_" data-uid="Flame.Compiler.NamedInstruction.Instruction*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Instruction" data-uid="Flame.Compiler.NamedInstruction.Instruction">Instruction</h4>
+  <div class="markdown level1 summary"><p>Gets the actual instruction behind this instruction selector.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction Instruction { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>The instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InstructionIndex.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InstructionIndex%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L73">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InstructionIndex_" data-uid="Flame.Compiler.NamedInstruction.InstructionIndex*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InstructionIndex" data-uid="Flame.Compiler.NamedInstruction.InstructionIndex">InstructionIndex</h4>
+  <div class="markdown level1 summary"><p>Gets the index of this instruction in the defining block's
+list of instructions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int InstructionIndex { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>The instruction index.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_NextInstructionOrNull.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.NextInstructionOrNull%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L112">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_NextInstructionOrNull_" data-uid="Flame.Compiler.NamedInstruction.NextInstructionOrNull*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_NextInstructionOrNull" data-uid="Flame.Compiler.NamedInstruction.NextInstructionOrNull">NextInstructionOrNull</h4>
+  <div class="markdown level1 summary"><p>Gets the next instruction in the basic block that defines
+this instruction. Returns null if there is no such instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction NextInstructionOrNull { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The next instruction or null.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_PreviousInstructionOrNull.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.PreviousInstructionOrNull%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L91">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_PreviousInstructionOrNull_" data-uid="Flame.Compiler.NamedInstruction.PreviousInstructionOrNull*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_PreviousInstructionOrNull" data-uid="Flame.Compiler.NamedInstruction.PreviousInstructionOrNull">PreviousInstructionOrNull</h4>
+  <div class="markdown level1 summary"><p>Gets the previous instruction in the basic block that defines
+this instruction. Returns null if there is no such instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction PreviousInstructionOrNull { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The previous instruction or null.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Prototype.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Prototype%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Prototype_" data-uid="Flame.Compiler.NamedInstruction.Prototype*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Prototype" data-uid="Flame.Compiler.NamedInstruction.Prototype">Prototype</h4>
+  <div class="markdown level1 summary"><p>Gets the named instruction's prototype.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public InstructionPrototype Prototype { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.InstructionPrototype.html">InstructionPrototype</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_ResultType.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.ResultType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L54">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_ResultType_" data-uid="Flame.Compiler.NamedInstruction.ResultType*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_ResultType" data-uid="Flame.Compiler.NamedInstruction.ResultType">ResultType</h4>
+  <div class="markdown level1 summary"><p>Gets the named instruction's result type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType ResultType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Tag.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Tag%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L37">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Tag_" data-uid="Flame.Compiler.NamedInstruction.Tag*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Tag" data-uid="Flame.Compiler.NamedInstruction.Tag">Tag</h4>
+  <div class="markdown level1 summary"><p>Gets the tag assigned to this instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ValueTag Tag { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Equals_Flame_Compiler_NamedInstruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Equals(Flame.Compiler.NamedInstruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L248">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Equals_" data-uid="Flame.Compiler.NamedInstruction.Equals*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Equals_Flame_Compiler_NamedInstruction_" data-uid="Flame.Compiler.NamedInstruction.Equals(Flame.Compiler.NamedInstruction)">Equals(NamedInstruction)</h4>
+  <div class="markdown level1 summary"><p>Tests if this named instruction is the same instruction
+as another named instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(NamedInstruction other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><span class="parametername">other</span></td>
+        <td><p>The other named instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this named instruction is the same as
+the other named instruction; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_Equals_System_Object_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L254">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_Equals_" data-uid="Flame.Compiler.NamedInstruction.Equals*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_Equals_System_Object_" data-uid="Flame.Compiler.NamedInstruction.Equals(System.Object)">Equals(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">obj</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_GetHashCode.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L261">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_GetHashCode_" data-uid="Flame.Compiler.NamedInstruction.GetHashCode*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_GetHashCode" data-uid="Flame.Compiler.NamedInstruction.GetHashCode">GetHashCode()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L234">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertAfter_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction)">InsertAfter(Instruction)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just after this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertAfter(Instruction instruction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L207">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertAfter_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)">InsertAfter(Instruction, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just after this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertAfter(Instruction instruction, ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_System_String_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L223">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertAfter_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertAfter_Flame_Compiler_Instruction_System_String_" data-uid="Flame.Compiler.NamedInstruction.InsertAfter(Flame.Compiler.Instruction,System.String)">InsertAfter(Instruction, String)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just after this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertAfter(Instruction instruction, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The preferred name for the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L195">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertBefore_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction)">InsertBefore(Instruction)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just before this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertBefore(Instruction instruction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L168">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertBefore_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)">InsertBefore(Instruction, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just before this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertBefore(Instruction instruction, ValueTag tag)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">tag</span></td>
+        <td><p>The instruction's tag.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_System_String_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L184">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_InsertBefore_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_InsertBefore_Flame_Compiler_Instruction_System_String_" data-uid="Flame.Compiler.NamedInstruction.InsertBefore(Flame.Compiler.Instruction,System.String)">InsertBefore(Instruction, String)</h4>
+  <div class="markdown level1 summary"><p>Inserts a particular instruction just before this instruction.
+Returns the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction InsertBefore(Instruction instruction, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to insert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The preferred name for the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>The inserted instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_ReplaceInstruction_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.ReplaceInstruction(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L154">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_ReplaceInstruction_" data-uid="Flame.Compiler.NamedInstruction.ReplaceInstruction*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_ReplaceInstruction_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.NamedInstruction.ReplaceInstruction(Flame.Compiler.FlowGraph)">ReplaceInstruction(FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Replaces this instruction with a control-flow graph that implements
+this instruction. The arity of the control-flow graph's entry point
+block must match this instruction's arity.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction ReplaceInstruction(FlowGraph implementation)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">implementation</span></td>
+        <td><p>A control-flow graph that implements the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>A new instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_ReplaceInstruction_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.ReplaceInstruction(Flame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L138">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_ReplaceInstruction_" data-uid="Flame.Compiler.NamedInstruction.ReplaceInstruction*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_ReplaceInstruction_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.NamedInstruction.ReplaceInstruction(Flame.Compiler.Instruction)">ReplaceInstruction(Instruction)</h4>
+  <div class="markdown level1 summary"><p>Replaces this instruction with another instruction. Returns
+the new instruction in a new control-flow graph.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NamedInstruction ReplaceInstruction(Instruction instruction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The other instruction to replace this instruction with.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><p>A new instruction in a new control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="operators">Operators
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction_op_Implicit_Flame_Compiler_NamedInstruction__Flame_Compiler_ValueTag.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction.op_Implicit(Flame.Compiler.NamedInstruction)~Flame.Compiler.ValueTag%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L272">View Source</a>
+  </span>
+  <a id="Flame_Compiler_NamedInstruction_op_Implicit_" data-uid="Flame.Compiler.NamedInstruction.op_Implicit*"></a>
+  <h4 id="Flame_Compiler_NamedInstruction_op_Implicit_Flame_Compiler_NamedInstruction__Flame_Compiler_ValueTag" data-uid="Flame.Compiler.NamedInstruction.op_Implicit(Flame.Compiler.NamedInstruction)~Flame.Compiler.ValueTag">Implicit(NamedInstruction to ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Implicitly converts an instruction to its tag.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static implicit operator ValueTag(NamedInstruction instruction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to convert.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Compiler_NamedInstruction.md&amp;value=---%0Auid%3A%20Flame.Compiler.NamedInstruction%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Compiler/NamedInstruction.cs/#L10" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

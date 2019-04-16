@@ -1,0 +1,419 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class CilRegisterAllocator
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class CilRegisterAllocator
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Clr.Emit.CilRegisterAllocator">
+  
+  
+  <h1 id="Flame_Clr_Emit_CilRegisterAllocator" data-uid="Flame.Clr.Emit.CilRegisterAllocator" class="text-break">Class CilRegisterAllocator
+  </h1>
+  <div class="markdown level0 summary"><p>A register allocator for the CIL backend.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.Compiler.Analysis.GreedyRegisterAllocator-1.html">GreedyRegisterAllocator</a>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a>&gt;</div>
+    <div class="level2"><span class="xref">CilRegisterAllocator</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis</a>&lt;<a class="xref" href="Flame.Compiler.Analysis.RegisterAllocation-1.html">RegisterAllocation</a>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a>&gt;&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.Compiler.Analysis.GreedyRegisterAllocator-1.html#Flame_Compiler_Analysis_GreedyRegisterAllocator_1_Analyze_Flame_Compiler_FlowGraph_">GreedyRegisterAllocator&lt;CilCodegenRegister&gt;.Analyze(FlowGraph)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Analysis.GreedyRegisterAllocator-1.html#Flame_Compiler_Analysis_GreedyRegisterAllocator_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_RegisterAllocation__0__IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__">GreedyRegisterAllocator&lt;CilCodegenRegister&gt;.AnalyzeWithUpdates(FlowGraph, RegisterAllocation&lt;CilCodegenRegister&gt;, IReadOnlyList&lt;FlowGraphUpdate&gt;)</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.Emit.html">Flame.Clr.Emit</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
+  <h5 id="Flame_Clr_Emit_CilRegisterAllocator_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class CilRegisterAllocator : GreedyRegisterAllocator&lt;CilCodegenRegister&gt;, IFlowGraphAnalysis&lt;RegisterAllocation&lt;CilCodegenRegister&gt;&gt;</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator__ctor_HashSet_Flame_Compiler_ValueTag__Dictionary_Flame_Compiler_ValueTag_ParameterDefinition__ModuleDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator.%23ctor(HashSet%7BFlame.Compiler.ValueTag%7D%2CDictionary%7BFlame.Compiler.ValueTag%2CParameterDefinition%7D%2CModuleDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L29">View Source</a>
+  </span>
+  <a id="Flame_Clr_Emit_CilRegisterAllocator__ctor_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.#ctor*"></a>
+  <h4 id="Flame_Clr_Emit_CilRegisterAllocator__ctor_HashSet_Flame_Compiler_ValueTag__Dictionary_Flame_Compiler_ValueTag_ParameterDefinition__ModuleDefinition_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.#ctor(HashSet{Flame.Compiler.ValueTag},Dictionary{Flame.Compiler.ValueTag,ParameterDefinition},ModuleDefinition)">CilRegisterAllocator(HashSet&lt;ValueTag&gt;, Dictionary&lt;ValueTag, ParameterDefinition&gt;, ModuleDefinition)</h4>
+  <div class="markdown level1 summary"><p>Creates a CIL register allocator that will only allocate
+registers to a particular set of values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public CilRegisterAllocator(HashSet&lt;ValueTag&gt; usedValues, Dictionary&lt;ValueTag, ParameterDefinition&gt; paramRegisters, ModuleDefinition module)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HashSet</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">usedValues</span></td>
+        <td><p>The values to allocate registers to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">Dictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <span class="xref">ParameterDefinition</span>&gt;</td>
+        <td><span class="parametername">paramRegisters</span></td>
+        <td><p>The registers assigned to the method's parameters.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">ModuleDefinition</span></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The module to use for importing CLR types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator_CreateRegister_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator.CreateRegister(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L71">View Source</a>
+  </span>
+  <a id="Flame_Clr_Emit_CilRegisterAllocator_CreateRegister_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.CreateRegister*"></a>
+  <h4 id="Flame_Clr_Emit_CilRegisterAllocator_CreateRegister_Flame_IType_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.CreateRegister(Flame.IType)">CreateRegister(IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override CilCodegenRegister CreateRegister(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">Flame.Compiler.Analysis.GreedyRegisterAllocator&lt;Flame.Clr.Emit.CilCodegenRegister&gt;.CreateRegister(Flame.IType)</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister(Flame.Compiler.ValueTag%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L44">View Source</a>
+  </span>
+  <a id="Flame_Clr_Emit_CilRegisterAllocator_RequiresRegister_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister*"></a>
+  <h4 id="Flame_Clr_Emit_CilRegisterAllocator_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph)">RequiresRegister(ValueTag, FlowGraph)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override bool RequiresRegister(ValueTag value, FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">Flame.Compiler.Analysis.GreedyRegisterAllocator&lt;Flame.Clr.Emit.CilCodegenRegister&gt;.RequiresRegister(Flame.Compiler.ValueTag, Flame.Compiler.FlowGraph)</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator_TryGetPreallocatedRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_Flame_Clr_Emit_CilCodegenRegister__.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag%2CFlame.Compiler.FlowGraph%2CFlame.Clr.Emit.CilCodegenRegister%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L52">View Source</a>
+  </span>
+  <a id="Flame_Clr_Emit_CilRegisterAllocator_TryGetPreallocatedRegister_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister*"></a>
+  <h4 id="Flame_Clr_Emit_CilRegisterAllocator_TryGetPreallocatedRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_Flame_Clr_Emit_CilCodegenRegister__" data-uid="Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph,Flame.Clr.Emit.CilCodegenRegister@)">TryGetPreallocatedRegister(ValueTag, FlowGraph, out CilCodegenRegister)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override bool TryGetPreallocatedRegister(ValueTag value, FlowGraph graph, out CilCodegenRegister register)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a></td>
+        <td><span class="parametername">register</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">Flame.Compiler.Analysis.GreedyRegisterAllocator&lt;Flame.Clr.Emit.CilCodegenRegister&gt;.TryGetPreallocatedRegister(Flame.Compiler.ValueTag, Flame.Compiler.FlowGraph, Flame.Clr.Emit.CilCodegenRegister)</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator_TryRecycleRegister_Flame_IType_IEnumerable_Flame_Clr_Emit_CilCodegenRegister__Flame_Clr_Emit_CilCodegenRegister__.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType%2CIEnumerable%7BFlame.Clr.Emit.CilCodegenRegister%7D%2CFlame.Clr.Emit.CilCodegenRegister%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L78">View Source</a>
+  </span>
+  <a id="Flame_Clr_Emit_CilRegisterAllocator_TryRecycleRegister_" data-uid="Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister*"></a>
+  <h4 id="Flame_Clr_Emit_CilRegisterAllocator_TryRecycleRegister_Flame_IType_IEnumerable_Flame_Clr_Emit_CilCodegenRegister__Flame_Clr_Emit_CilCodegenRegister__" data-uid="Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType,IEnumerable{Flame.Clr.Emit.CilCodegenRegister},Flame.Clr.Emit.CilCodegenRegister@)">TryRecycleRegister(IType, IEnumerable&lt;CilCodegenRegister&gt;, out CilCodegenRegister)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override bool TryRecycleRegister(IType type, IEnumerable&lt;CilCodegenRegister&gt; registers, out CilCodegenRegister result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a>&gt;</td>
+        <td><span class="parametername">registers</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Clr.Emit.CilCodegenRegister.html">CilCodegenRegister</a></td>
+        <td><span class="parametername">result</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis&lt;T&gt;</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_Clr_Emit_CilRegisterAllocator.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilRegisterAllocator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame.Clr/Emit/CilRegisterAllocator.cs/#L14" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

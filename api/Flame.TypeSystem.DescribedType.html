@@ -1,0 +1,622 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class DescribedType
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class DescribedType
+   ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.TypeSystem.DescribedType">
+  
+  
+  <h1 id="Flame_TypeSystem_DescribedType" data-uid="Flame.TypeSystem.DescribedType" class="text-break">Class DescribedType
+  </h1>
+  <div class="markdown level0 summary"><p>A type that can be constructed incrementally in an imperative fashion.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.TypeSystem.DescribedMember.html">DescribedMember</a></div>
+    <div class="level2"><a class="xref" href="Flame.TypeSystem.DescribedGenericMember.html">DescribedGenericMember</a></div>
+    <div class="level3"><span class="xref">DescribedType</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.IType.html">IType</a></div>
+    <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
+    <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedGenericMember.html#Flame_TypeSystem_DescribedGenericMember_GenericParameters">DescribedGenericMember.GenericParameters</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedGenericMember.html#Flame_TypeSystem_DescribedGenericMember_AddGenericParameter_Flame_IGenericParameter_">DescribedGenericMember.AddGenericParameter(IGenericParameter)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedMember.html#Flame_TypeSystem_DescribedMember_FullName">DescribedMember.FullName</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedMember.html#Flame_TypeSystem_DescribedMember_Name">DescribedMember.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedMember.html#Flame_TypeSystem_DescribedMember_Attributes">DescribedMember.Attributes</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedMember.html#Flame_TypeSystem_DescribedMember_AddAttribute_Flame_IAttribute_">DescribedMember.AddAttribute(IAttribute)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.DescribedMember.html#Flame_TypeSystem_DescribedMember_ToString">DescribedMember.ToString()</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
+  <h6><strong>Assembly</strong>: Flame.dll</h6>
+  <h5 id="Flame_TypeSystem_DescribedType_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class DescribedType : DescribedGenericMember, IType, IGenericMember, IMember</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType__ctor_Flame_QualifiedName_Flame_IAssembly_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.%23ctor(Flame.QualifiedName%2CFlame.IAssembly)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L15">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType__ctor_" data-uid="Flame.TypeSystem.DescribedType.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType__ctor_Flame_QualifiedName_Flame_IAssembly_" data-uid="Flame.TypeSystem.DescribedType.#ctor(Flame.QualifiedName,Flame.IAssembly)">DescribedType(QualifiedName, IAssembly)</h4>
+  <div class="markdown level1 summary"><p>Creates a type from a name and a parent assembly.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DescribedType(QualifiedName fullName, IAssembly assembly)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.QualifiedName.html">QualifiedName</a></td>
+        <td><span class="parametername">fullName</span></td>
+        <td><p>The type's full name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IAssembly.html">IAssembly</a></td>
+        <td><span class="parametername">assembly</span></td>
+        <td><p>The assembly that defines the type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType__ctor_Flame_UnqualifiedName_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.%23ctor(Flame.UnqualifiedName%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L29">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType__ctor_" data-uid="Flame.TypeSystem.DescribedType.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType__ctor_Flame_UnqualifiedName_Flame_IType_" data-uid="Flame.TypeSystem.DescribedType.#ctor(Flame.UnqualifiedName,Flame.IType)">DescribedType(UnqualifiedName, IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a type from a name and a parent type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DescribedType(UnqualifiedName name, IType parentType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.UnqualifiedName.html">UnqualifiedName</a></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>The type's unqualified name.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">parentType</span></td>
+        <td><p>The type's parent type, i.e., the type that defines it.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_BaseTypes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.BaseTypes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L55">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_BaseTypes_" data-uid="Flame.TypeSystem.DescribedType.BaseTypes*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_BaseTypes" data-uid="Flame.TypeSystem.DescribedType.BaseTypes">BaseTypes</h4>
+  <div class="markdown level1 summary"><p>Gets this type's base types. Base types can be either classes or
+interfaces.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IType&gt; BaseTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A read-only list of base types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_Fields.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.Fields%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L58">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_Fields_" data-uid="Flame.TypeSystem.DescribedType.Fields*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_Fields" data-uid="Flame.TypeSystem.DescribedType.Fields">Fields</h4>
+  <div class="markdown level1 summary"><p>Gets this type's fields.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IField&gt; Fields { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IField.html">IField</a>&gt;</td>
+        <td><p>A read-only list of fields.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_Methods.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.Methods%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L61">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_Methods_" data-uid="Flame.TypeSystem.DescribedType.Methods*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_Methods" data-uid="Flame.TypeSystem.DescribedType.Methods">Methods</h4>
+  <div class="markdown level1 summary"><p>Gets this type's methods.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IMethod&gt; Methods { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
+        <td><p>A read-only list of methods.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_NestedTypes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.NestedTypes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L67">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_NestedTypes_" data-uid="Flame.TypeSystem.DescribedType.NestedTypes*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_NestedTypes" data-uid="Flame.TypeSystem.DescribedType.NestedTypes">NestedTypes</h4>
+  <div class="markdown level1 summary"><p>Gets the nested types defined by this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IType&gt; NestedTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A read-only list of nested types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_Parent.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.Parent%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L46">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_Parent_" data-uid="Flame.TypeSystem.DescribedType.Parent*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_Parent" data-uid="Flame.TypeSystem.DescribedType.Parent">Parent</h4>
+  <div class="markdown level1 summary"><p>Gets the parent entity that defines and owns this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TypeParent Parent { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeParent.html">TypeParent</a></td>
+        <td><p>The parent entity.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_Properties.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.Properties%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L64">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_Properties_" data-uid="Flame.TypeSystem.DescribedType.Properties*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_Properties" data-uid="Flame.TypeSystem.DescribedType.Properties">Properties</h4>
+  <div class="markdown level1 summary"><p>Gets this type's properties.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IProperty&gt; Properties { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IProperty.html">IProperty</a>&gt;</td>
+        <td><p>A read-only list of properties.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_AddBaseType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.AddBaseType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L75">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_AddBaseType_" data-uid="Flame.TypeSystem.DescribedType.AddBaseType*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_AddBaseType_Flame_IType_" data-uid="Flame.TypeSystem.DescribedType.AddBaseType(Flame.IType)">AddBaseType(IType)</h4>
+  <div class="markdown level1 summary"><p>Makes a particular type a base type of this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddBaseType(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type to add to this type's base type list.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_AddField_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.AddField(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L84">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_AddField_" data-uid="Flame.TypeSystem.DescribedType.AddField*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_AddField_Flame_IField_" data-uid="Flame.TypeSystem.DescribedType.AddField(Flame.IField)">AddField(IField)</h4>
+  <div class="markdown level1 summary"><p>Adds a field to this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddField(IField field)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td><p>The field to add.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_AddMethod_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.AddMethod(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L95">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_AddMethod_" data-uid="Flame.TypeSystem.DescribedType.AddMethod*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_AddMethod_Flame_IMethod_" data-uid="Flame.TypeSystem.DescribedType.AddMethod(Flame.IMethod)">AddMethod(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Adds a method to this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddMethod(IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td><p>The method to add.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_AddNestedType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.AddNestedType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L115">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_AddNestedType_" data-uid="Flame.TypeSystem.DescribedType.AddNestedType*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_AddNestedType_Flame_IType_" data-uid="Flame.TypeSystem.DescribedType.AddNestedType(Flame.IType)">AddNestedType(IType)</h4>
+  <div class="markdown level1 summary"><p>Adds a nested type to this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddNestedType(IType nestedType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">nestedType</span></td>
+        <td><p>The nested type to add.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType_AddProperty_Flame_IProperty_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType.AddProperty(Flame.IProperty)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L105">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_DescribedType_AddProperty_" data-uid="Flame.TypeSystem.DescribedType.AddProperty*"></a>
+  <h4 id="Flame_TypeSystem_DescribedType_AddProperty_Flame_IProperty_" data-uid="Flame.TypeSystem.DescribedType.AddProperty(Flame.IProperty)">AddProperty(IProperty)</h4>
+  <div class="markdown level1 summary"><p>Adds a property to this type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddProperty(IProperty property)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IProperty.html">IProperty</a></td>
+        <td><span class="parametername">property</span></td>
+        <td><p>The property to add.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.IType.html">IType</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IGenericMember.html">IGenericMember</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/csharp-rewrite/apiSpec/new?filename=Flame_TypeSystem_DescribedType.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.DescribedType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Flame/TypeSystem/DescribedType.cs/#L8" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
