@@ -14,6 +14,10 @@ clone_script:
   - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
+before_build:
+  # Install DocFX.
+  - choco install docfx -y
+
 build_script:
   # Generate a NuGet package version number.
   - echo %APPVEYOR_REPO_TAG%
