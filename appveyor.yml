@@ -3,6 +3,12 @@ version: 0.11.0.{build}
 image:
   - Visual Studio 2015
 
+environment:
+  op_build_user: "jonathanvdc"
+  op_build_user_email: "jonathan.vdc@outlook.com"
+  access_token:
+    secure: g+uq4ZWbxSQPIvxKd2swP1ce1rKaY/OQh6Rn2emgCv3ke5QYt7uILm5JsC8CA9GE
+
 assembly_info:
   patch: true
   file: AssemblyInfo.*
@@ -43,3 +49,25 @@ build_script:
 after_build:
   # Create NuGet packages
   - nuget pack -Version %PKG_VERSION% Flame.nuspec
+  # Build docs using DocFX and deploy them to GitHub pages. (Based on https://github.com/docascode/docfx-seed/blob/master/appveyor.yml)
+  - ps: |
+        if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
+        {
+            # & nuget install docfx.console -Version 2.18.4 -Source https://www.myget.org/F/docfx/api/v3/index.json
+            # & docfx.console.2.18.4\tools\docfx docfx.json
+            & docfx docfx.json
+            if ($lastexitcode -ne 0){
+                throw [System.Exception] "docfx build failed with exit code $lastexitcode."
+            }
+            
+            git config --global credential.helper store
+            Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+            git config --global user.email $env:op_build_user_email
+            git config --global user.name $env:op_build_user
+            git clone https://github.com/jonathanvdc/flame.git -b gh-pages origin_site -q
+            Copy-Item origin_site/.git _site -recurse
+            CD _site
+            git add -A 2>&1
+            git commit -m "CI Updates" -q
+            git push origin gh-pages -q
+        }
