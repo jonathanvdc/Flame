@@ -222,3 +222,6 @@ pip-log.txt
 
 # LeMP output files
 *.out.cs
+
+# DocFX cruft
+_site
