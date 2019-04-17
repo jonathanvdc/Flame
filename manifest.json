@@ -4041,7 +4041,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/brainfuck.html",
-          "hash": "jzLQnT/x2s1VTYNE20cXPA=="
+          "hash": "6nOPeQ97XQxguy667vHuOw=="
         }
       },
       "is_incremental": false,
@@ -4077,7 +4077,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "z/gXaDmFbaGZHuBrRiBJBA=="
+          "hash": "mV1ywm0PVhKIGpDsrc8aoA=="
         }
       },
       "is_incremental": false,
@@ -4107,16 +4107,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 333,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 4,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 333,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
