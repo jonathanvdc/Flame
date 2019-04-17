@@ -1,20 +1,8 @@
 {
   "homepages": [],
-  "source_base_path": "C:/projects/flame",
+  "source_base_path": "C:/projects/flame/Documentation",
   "xrefmap": "xrefmap.yml",
   "files": [
-    {
-      "type": "Conceptual",
-      "source_relative_path": "README.md",
-      "output": {
-        ".html": {
-          "relative_path": "README.html",
-          "hash": "+7gxCPcOOR2kdfl3GnwYvg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
     {
       "type": "ManagedReference",
       "source_relative_path": "api/Flame.AccessorKind.yml",
@@ -4041,7 +4029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "sBxw+s0GwPslw6F7bhdINQ=="
+          "hash": "N3PM5/x7VV13+bOY1823aQ=="
         }
       },
       "is_incremental": false,
@@ -4065,7 +4053,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/intro.html",
-          "hash": "nYjmZAyBOlCnDP4wn6RYKQ=="
+          "hash": "iswP+L6lhBL+Lm+SRwts3w=="
         }
       },
       "is_incremental": false,
@@ -4089,7 +4077,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "EIjp3/WElr8lIiXW03dAGA=="
+          "hash": "Z7xU075RobLISvaPPlbFlw=="
         }
       },
       "is_incremental": false,
@@ -4119,16 +4107,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 3,
+          "skipped_file_count": 0
+        },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 335,
-          "skipped_file_count": 0
-        },
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 4,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
