@@ -4009,12 +4009,15 @@
       "version": ""
     },
     {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
       "type": "Conceptual",
       "source_relative_path": "api/index.md",
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "YryonvbGfiTgGtzLwrcrUA=="
+          "hash": "Nr7OiU+eG5jC8yatZ+SQtw=="
         }
       },
       "is_incremental": false,
@@ -4074,7 +4077,7 @@
       "output": {
         ".html": {
           "relative_path": "toc.html",
-          "hash": "k+/dkjFuwAVS32HduMpmBw=="
+          "hash": "Sg+nKmnHP++YKMT39ruhpw=="
         }
       },
       "is_incremental": false,
@@ -4092,16 +4095,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 333,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 3,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 333,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
