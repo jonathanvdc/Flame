@@ -44,96 +44,6 @@ references:
   commentId: F:Flame.AccessorKind.Set
   fullName: Flame.AccessorKind.Set
   nameWithType: AccessorKind.Set
-- uid: Flame.ArrayName
-  name: ArrayName
-  href: api/Flame.ArrayName.html
-  commentId: T:Flame.ArrayName
-  fullName: Flame.ArrayName
-  nameWithType: ArrayName
-- uid: Flame.ArrayName.#ctor(Flame.QualifiedName,System.Int32)
-  name: ArrayName(QualifiedName, Int32)
-  href: api/Flame.ArrayName.html#Flame_ArrayName__ctor_Flame_QualifiedName_System_Int32_
-  commentId: M:Flame.ArrayName.#ctor(Flame.QualifiedName,System.Int32)
-  fullName: Flame.ArrayName.ArrayName(Flame.QualifiedName, System.Int32)
-  nameWithType: ArrayName.ArrayName(QualifiedName, Int32)
-- uid: Flame.ArrayName.#ctor*
-  name: ArrayName
-  href: api/Flame.ArrayName.html#Flame_ArrayName__ctor_
-  commentId: Overload:Flame.ArrayName.#ctor
-  isSpec: "True"
-  fullName: Flame.ArrayName.ArrayName
-  nameWithType: ArrayName.ArrayName
-- uid: Flame.ArrayName.ElementName
-  name: ElementName
-  href: api/Flame.ArrayName.html#Flame_ArrayName_ElementName
-  commentId: P:Flame.ArrayName.ElementName
-  fullName: Flame.ArrayName.ElementName
-  nameWithType: ArrayName.ElementName
-- uid: Flame.ArrayName.ElementName*
-  name: ElementName
-  href: api/Flame.ArrayName.html#Flame_ArrayName_ElementName_
-  commentId: Overload:Flame.ArrayName.ElementName
-  isSpec: "True"
-  fullName: Flame.ArrayName.ElementName
-  nameWithType: ArrayName.ElementName
-- uid: Flame.ArrayName.Equals(Flame.ArrayName)
-  name: Equals(ArrayName)
-  href: api/Flame.ArrayName.html#Flame_ArrayName_Equals_Flame_ArrayName_
-  commentId: M:Flame.ArrayName.Equals(Flame.ArrayName)
-  fullName: Flame.ArrayName.Equals(Flame.ArrayName)
-  nameWithType: ArrayName.Equals(ArrayName)
-- uid: Flame.ArrayName.Equals(Flame.UnqualifiedName)
-  name: Equals(UnqualifiedName)
-  href: api/Flame.ArrayName.html#Flame_ArrayName_Equals_Flame_UnqualifiedName_
-  commentId: M:Flame.ArrayName.Equals(Flame.UnqualifiedName)
-  fullName: Flame.ArrayName.Equals(Flame.UnqualifiedName)
-  nameWithType: ArrayName.Equals(UnqualifiedName)
-- uid: Flame.ArrayName.Equals*
-  name: Equals
-  href: api/Flame.ArrayName.html#Flame_ArrayName_Equals_
-  commentId: Overload:Flame.ArrayName.Equals
-  isSpec: "True"
-  fullName: Flame.ArrayName.Equals
-  nameWithType: ArrayName.Equals
-- uid: Flame.ArrayName.GetHashCode
-  name: GetHashCode()
-  href: api/Flame.ArrayName.html#Flame_ArrayName_GetHashCode
-  commentId: M:Flame.ArrayName.GetHashCode
-  fullName: Flame.ArrayName.GetHashCode()
-  nameWithType: ArrayName.GetHashCode()
-- uid: Flame.ArrayName.GetHashCode*
-  name: GetHashCode
-  href: api/Flame.ArrayName.html#Flame_ArrayName_GetHashCode_
-  commentId: Overload:Flame.ArrayName.GetHashCode
-  isSpec: "True"
-  fullName: Flame.ArrayName.GetHashCode
-  nameWithType: ArrayName.GetHashCode
-- uid: Flame.ArrayName.Rank
-  name: Rank
-  href: api/Flame.ArrayName.html#Flame_ArrayName_Rank
-  commentId: P:Flame.ArrayName.Rank
-  fullName: Flame.ArrayName.Rank
-  nameWithType: ArrayName.Rank
-- uid: Flame.ArrayName.Rank*
-  name: Rank
-  href: api/Flame.ArrayName.html#Flame_ArrayName_Rank_
-  commentId: Overload:Flame.ArrayName.Rank
-  isSpec: "True"
-  fullName: Flame.ArrayName.Rank
-  nameWithType: ArrayName.Rank
-- uid: Flame.ArrayName.ToString
-  name: ToString()
-  href: api/Flame.ArrayName.html#Flame_ArrayName_ToString
-  commentId: M:Flame.ArrayName.ToString
-  fullName: Flame.ArrayName.ToString()
-  nameWithType: ArrayName.ToString()
-- uid: Flame.ArrayName.ToString*
-  name: ToString
-  href: api/Flame.ArrayName.html#Flame_ArrayName_ToString_
-  commentId: Overload:Flame.ArrayName.ToString
-  isSpec: "True"
-  fullName: Flame.ArrayName.ToString
-  nameWithType: ArrayName.ToString
 - uid: Flame.AssemblyIdentity
   name: AssemblyIdentity
   href: api/Flame.AssemblyIdentity.html
@@ -23009,19 +22919,6 @@ references:
   isSpec: "True"
   fullName: Flame.TypeExtensions.IsRecursiveGenericInstance
   nameWithType: TypeExtensions.IsRecursiveGenericInstance
-- uid: Flame.TypeExtensions.MakeArrayType(Flame.IType,System.Int32)
-  name: MakeArrayType(IType, Int32)
-  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_MakeArrayType_Flame_IType_System_Int32_
-  commentId: M:Flame.TypeExtensions.MakeArrayType(Flame.IType,System.Int32)
-  fullName: Flame.TypeExtensions.MakeArrayType(Flame.IType, System.Int32)
-  nameWithType: TypeExtensions.MakeArrayType(IType, Int32)
-- uid: Flame.TypeExtensions.MakeArrayType*
-  name: MakeArrayType
-  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_MakeArrayType_
-  commentId: Overload:Flame.TypeExtensions.MakeArrayType
-  isSpec: "True"
-  fullName: Flame.TypeExtensions.MakeArrayType
-  nameWithType: TypeExtensions.MakeArrayType
 - uid: Flame.TypeExtensions.MakeGenericMethod(Flame.IMethod,Flame.IType[])
   name: MakeGenericMethod(IMethod, IType[])
   href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_Flame_IType___
@@ -23307,38 +23204,6 @@ references:
   commentId: N:Flame.TypeSystem
   fullName: Flame.TypeSystem
   nameWithType: Flame.TypeSystem
-- uid: Flame.TypeSystem.ArrayType
-  name: ArrayType
-  href: api/Flame.TypeSystem.ArrayType.html
-  commentId: T:Flame.TypeSystem.ArrayType
-  fullName: Flame.TypeSystem.ArrayType
-  nameWithType: ArrayType
-- uid: Flame.TypeSystem.ArrayType.Rank
-  name: Rank
-  href: api/Flame.TypeSystem.ArrayType.html#Flame_TypeSystem_ArrayType_Rank
-  commentId: P:Flame.TypeSystem.ArrayType.Rank
-  fullName: Flame.TypeSystem.ArrayType.Rank
-  nameWithType: ArrayType.Rank
-- uid: Flame.TypeSystem.ArrayType.Rank*
-  name: Rank
-  href: api/Flame.TypeSystem.ArrayType.html#Flame_TypeSystem_ArrayType_Rank_
-  commentId: Overload:Flame.TypeSystem.ArrayType.Rank
-  isSpec: "True"
-  fullName: Flame.TypeSystem.ArrayType.Rank
-  nameWithType: ArrayType.Rank
-- uid: Flame.TypeSystem.ArrayType.WithElementType(Flame.IType)
-  name: WithElementType(IType)
-  href: api/Flame.TypeSystem.ArrayType.html#Flame_TypeSystem_ArrayType_WithElementType_Flame_IType_
-  commentId: M:Flame.TypeSystem.ArrayType.WithElementType(Flame.IType)
-  fullName: Flame.TypeSystem.ArrayType.WithElementType(Flame.IType)
-  nameWithType: ArrayType.WithElementType(IType)
-- uid: Flame.TypeSystem.ArrayType.WithElementType*
-  name: WithElementType
-  href: api/Flame.TypeSystem.ArrayType.html#Flame_TypeSystem_ArrayType_WithElementType_
-  commentId: Overload:Flame.TypeSystem.ArrayType.WithElementType
-  isSpec: "True"
-  fullName: Flame.TypeSystem.ArrayType.WithElementType
-  nameWithType: ArrayType.WithElementType
 - uid: Flame.TypeSystem.AssemblyResolver
   name: AssemblyResolver
   href: api/Flame.TypeSystem.AssemblyResolver.html

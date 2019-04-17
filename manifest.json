@@ -17,18 +17,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.ArrayName.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.ArrayName.html",
-          "hash": "HUKU7y5hkJI/kHEhAJsS6A=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Flame.AssemblyIdentity.yml",
       "output": {
         ".html": {
@@ -3105,7 +3093,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IGenericParameter.html",
-          "hash": "rBn+Gs3TLnClzx+8nlVflw=="
+          "hash": "sz09M89khN9L/uDQh9putw=="
         }
       },
       "is_incremental": false,
@@ -3153,7 +3141,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IType.html",
-          "hash": "/nDcNidtXACuw09rvEoMag=="
+          "hash": "XhRAnii6VLGnvmoTd/Svog=="
         }
       },
       "is_incremental": false,
@@ -3453,7 +3441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeExtensions.html",
-          "hash": "sSqKM9XJWZpfB8FQoJTrTA=="
+          "hash": "lJD9wdTdIVusPbb0gqZHFg=="
         }
       },
       "is_incremental": false,
@@ -3466,18 +3454,6 @@
         ".html": {
           "relative_path": "api/Flame.TypeParent.html",
           "hash": "c4Qz3BGv0VBypbBxn7mSUQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Flame.TypeSystem.ArrayType.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.TypeSystem.ArrayType.html",
-          "hash": "rqRP8h33covKq6/EWb1kVw=="
         }
       },
       "is_incremental": false,
@@ -3501,7 +3477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ContainerType.html",
-          "hash": "vkYO+pa8IShI2Er3vhUM4w=="
+          "hash": "jSc+69zR6RgTSy7PWV5wFA=="
         }
       },
       "is_incremental": false,
@@ -3981,7 +3957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.html",
-          "hash": "nSjl+LTbuqml3aWg+QRzmg=="
+          "hash": "NtqjaB4rHIh9Upvehw9ARg=="
         }
       },
       "is_incremental": false,
@@ -4005,7 +3981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.UnqualifiedName.html",
-          "hash": "Rus5IozhMwFtT7MBWTPz+w=="
+          "hash": "/sojDYDxwwEQr7IwOjG6ZA=="
         }
       },
       "is_incremental": false,
@@ -4017,7 +3993,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.html",
-          "hash": "7ABtpVM1a6Oh2miE10r47A=="
+          "hash": "depYvEfXkvgHSV6miVPNWw=="
         }
       },
       "is_incremental": false,
@@ -4041,7 +4017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "irczhw4fohoNGf2qJfFilg=="
+          "hash": "sPnmTW3M/EVh9vAMaJLGWw=="
         }
       },
       "is_incremental": false,
@@ -4107,16 +4083,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 333,
+          "skipped_file_count": 0
+        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 3,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 335,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
