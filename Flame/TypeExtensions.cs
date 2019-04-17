@@ -56,22 +56,6 @@ namespace Flame
         }
 
         /// <summary>
-        /// Creates an array type of a particular rank that has a
-        /// type as element.
-        /// </summary>
-        /// <param name="type">
-        /// The type of values referred to by the array type.
-        /// </param>
-        /// <param name="rank">
-        /// The rank of the array type.
-        /// </param>
-        /// <returns>A array type.</returns>
-        public static ArrayType MakeArrayType(this IType type, int rank)
-        {
-            return ArrayType.Create(type, rank);
-        }
-
-        /// <summary>
         /// Creates a generic specialization of a particular generic
         /// type declaration
         /// </summary>

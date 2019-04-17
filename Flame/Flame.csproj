@@ -80,14 +80,12 @@
     <Compile Include="Constants\NullConstant.cs" />
     <Compile Include="Constants\StringConstant.cs" />
     <Compile Include="Constants\TypeTokenConstant.cs" />
-    <Compile Include="Names\ArrayName.cs" />
     <Compile Include="Names\GenericName.cs" />
     <Compile Include="Names\PointerName.cs" />
     <Compile Include="Names\QualifiedName.cs" />
     <Compile Include="Names\SimpleName.cs" />
     <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeSystem\ArrayType.cs" />
     <Compile Include="TypeSystem\AssemblyResolver.cs" />
     <Compile Include="TypeSystem\ContainerType.cs" />
     <Compile Include="TypeSystem\DescribedAccessor.cs" />

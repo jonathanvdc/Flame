@@ -51,7 +51,7 @@ namespace UnitTests
                 return simpleType;
             }
 
-            switch (rng.Next(0, 5))
+            switch (rng.Next(0, 4))
             {
                 case 1:
                 {
@@ -74,10 +74,6 @@ namespace UnitTests
                     var result = elemType.MakePointerType(ptrKind);
                     Assert.AreSame(result, elemType.MakePointerType(ptrKind));
                     return result;
-                }
-                case 4:
-                {
-                    return GenerateType(depth - 1).MakeArrayType(rng.Next(1, 10));
                 }
                 default:
                 {
