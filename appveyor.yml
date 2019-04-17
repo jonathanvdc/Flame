@@ -27,13 +27,13 @@ before_build:
 build_script:
   # Generate a NuGet package version number.
   - echo %APPVEYOR_REPO_TAG%
-  - C:\Python34\python.exe CI\version-number.py %APPVEYOR_BUILD_VERSION% > PKG_VERSION.txt
-  - Set /P PKG_VERSION=<PKG_VERSION.txt
+  - C:\Python34\python.exe CI\version-number.py %APPVEYOR_BUILD_VERSION% > pkg-version.txt
+  - set /p PKG_VERSION=<pkg-version.txt
   - echo %PKG_VERSION%
 
   # Get the C# compiler's path and put it in an environment variable.
-  - where csc > csc-address.txt
-  - set /p CSC_PATH=<csc-address.txt
+  - where csc > csc-path.txt
+  - set /p CSC_PATH=<csc-path.txt
   - echo %CSC_PATH%
   # Restore NuGet packages.
   - nuget restore Flame.sln
