@@ -9,6 +9,8 @@ Key features include:
   * **A pluggable architecture.** Flame conveniently includes many built-in transforms and analyses, but sometimes these generic algorithms don't quite cover your use case exactly. In that case, you can easily implement your own transform or analysis.
   * **A CIL front-end and back-end.** Flame can translate CIL to Flame IR and vice-versa, allowing you to easily read and/or write CIL while operating at the optimization and analysis&ndash;focused abstraction layer afforded by Flame IR.
 
+For an introduction to Flame's main concepts see [A brief introduction to Flame](https://jonathanvdc.github.io/Flame/articles/intro.html).
+
 ## Subprojects
 
 At its core, Flame is a set of libraries designed to support tools that read, analyze, optimize and write managed languages. Additionally, Flame includes a number of projects that use Flame in a fairly straightforward way.
