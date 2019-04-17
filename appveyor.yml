@@ -55,7 +55,7 @@ after_build:
         {
             # & nuget install docfx.console -Version 2.18.4 -Source https://www.myget.org/F/docfx/api/v3/index.json
             # & docfx.console.2.18.4\tools\docfx docfx.json
-            & docfx docfx.json
+            & docfx Documentation/docfx.json
             if ($lastexitcode -ne 0){
                 throw [System.Exception] "docfx build failed with exit code $lastexitcode."
             }
@@ -65,8 +65,8 @@ after_build:
             git config --global user.email $env:op_build_user_email
             git config --global user.name $env:op_build_user
             git clone https://github.com/jonathanvdc/flame.git -b gh-pages origin_site -q
-            Copy-Item origin_site/.git _site -recurse
-            CD _site
+            Copy-Item origin_site/.git Documentation/_site -recurse
+            CD Documentation/_site
             git add -A 2>&1
             git commit -m "CI Updates" -q
             git push origin gh-pages -q
