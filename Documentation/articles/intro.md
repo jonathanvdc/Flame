@@ -70,7 +70,32 @@ public static int FactorialRecursive(int value, int accumulator)
 }
 ```
 
-When compiled by `csc` and subsequently fed to `ilopt` with the `--print-ir` option, `ilopt` reports the following optimized IR:
+After compiling this using `csc`, we get the following IL:
+
+```
+.method public static hidebysig default int32 FactorialRecursive (int32 'value', int32 accumulator) cil managed
+{
+    // Method begins at RVA 0x2076
+    // Code size 18 (0x12)
+    .maxstack 8
+    IL_0000:  ldarg.0
+    IL_0001:  ldc.i4.1
+    IL_0002:  ble.s IL_0010
+
+    IL_0004:  ldarg.0
+    IL_0005:  ldc.i4.1
+    IL_0006:  sub
+    IL_0007:  ldarg.0
+    IL_0008:  ldarg.1
+    IL_0009:  mul
+    IL_000a:  call int32 class Program::FactorialRecursive(int32, int32)
+    IL_000f:  ret
+    IL_0010:  ldarg.1
+    IL_0011:  ret
+}
+```
+
+We now feed the `csc`-compiled `exe` to `ilopt` with the `--print-ir` option. `ilopt` reports the following optimized IR. If you look carefully, you'll see that Flame eliminated the recursive call to `FactorialRecursive`, replacing it with a branch to the entry point block.
 
 ```
 {
@@ -110,4 +135,35 @@ When compiled by `csc` and subsequently fed to `ilopt` with the `--print-ir` opt
         { },
         #return(copy(System::Int32)(accumulator)));
 };
+```
+
+`ilopt` selects the following CIL for the snippet of Flame IR above.
+
+```
+.method public static hidebysig default int32 FactorialRecursive (int32 'value', int32 accumulator) cil managed
+{
+    // Method begins at RVA 0x2078
+    // Code size 24 (0x18)
+    .maxstack 3
+    IL_0000:  ldarg.0
+    IL_0001:  ldarg.1
+    IL_0002:  starg 1
+
+    IL_0006:  dup
+    IL_0007:  starg 0
+
+    IL_000b:  ldc.i4.1
+    IL_000c:  ble.s IL_0016
+
+    IL_000e:  ldarg.0
+    IL_000f:  ldc.i4.1
+    IL_0010:  sub
+    IL_0011:  ldarg.0
+    IL_0012:  ldarg.1
+    IL_0013:  mul
+    IL_0014:  br.s IL_0002
+
+    IL_0016:  ldarg.1
+    IL_0017:  ret
+}
 ```
