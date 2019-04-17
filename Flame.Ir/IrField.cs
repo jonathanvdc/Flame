@@ -3,7 +3,7 @@ using Flame.Ir;
 using Loyc.Collections;
 using Loyc.Syntax;
 
-namespace Flame
+namespace Flame.Ir
 {
     /// <summary>
     /// A field that is decoded from a Flame IR field LNode.
