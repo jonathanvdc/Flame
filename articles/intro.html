@@ -103,7 +103,94 @@
 </li>
 </ul>
 <h2 id="flame-ir">Flame IR</h2>
-<p>Flame represents method bodies as control-flow graphs of instructions in SSA form. This representation makes it easier for analyses and transformations to reason about the computations performed by a method.</p>
+<p>Flame represents method bodies as control-flow graphs (CFGs) of instructions in SSA form. This representation makes it easier for analyses and transformations to reason about the computations performed by a method.</p>
+<p>Flame IR's control-flow graphs are immutable data structures that have mutable wrappers for easy manipulation, so most concepts in Flame IR have both an immutable and mutable API. These APIs are usually very similar, with the former being geared towards analysis and the latter intended mainly for IR construction and transformation.</p>
+<p>These are the main data structures in Flame IR:</p>
+<ul>
+<li><p>A <strong>control-flow graph</strong> is a sets of basic blocks. Exactly one basic block in every control-flow graph is marked as the <strong>entry point block</strong>, which means that control is transferred to that block when the method is invoked for which the control-flow graph is its implementation.</p>
+<p><a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.FlowGraph.html">Immutable API: <code>FlowGraph</code></a>. <a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.FlowGraphBuilder.html">Mutable API: <code>FlowGraphBuilder</code></a>.</p>
+</li>
+<li><p>Conceptually, a <strong>basic block</strong> is a straight-line sequence of instructions that ends in a control-flow instruction. In Flame IR, a basic block consists of four main components:</p>
+<ol>
+<li>A <strong>unique tag</strong> that identifies the basic block.</li>
+<li>A sequence of <strong>block parameters</strong>, which allow for arbitrary values to be passed from one block to another. This is primarily a means for overcoming the limitations imposed by SSA form in a disciplined manner. Flame's block parameters roughly correspond to the phi functions found in compiler literature.</li>
+<li>A sequence of <strong>named instructions</strong>: instructions that are each identified by a unique tag.</li>
+<li>Block flow: the block's outgoing control flow.</li>
+</ol>
+<p><a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.BasicBlock.html">Immutable API: <code>BasicBlock</code></a>. <a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.BasicBlockBuilder.html">Mutable API: <code>BasicBlockBuilder</code></a>.</p>
+</li>
+<li><p>An <strong>instruction</strong> is an expression that accepts zero or more values and produces exactly one value. Every instruction consists of two components: a prototype and an argument list.</p>
+<ul>
+<li>An instruction <strong>prototype</strong> describes the instruction's semantics. For example, instructions that produce constants have prototype <a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Instructions.ConstantPrototype.html"><code>ConstantPrototype</code></a> whereas instructions that call a method have prototype <a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Instructions.CallPrototype.html"><code>CallPrototype</code></a>.
+Prototypes are never specific to the control-flow graph in which they occur.</li>
+<li>An <strong>argument list</strong> is simply a list of values defined in the enclosing control-flow graph. For this reason, argument lists are always specific to the control-flow graph in which they occur.</li>
+</ul>
+<p>Instructions are <em>named</em> if they are defined directly by a basic block. Instructions are <em>anonymous</em> if they are defined by block flow, which in turn appears in a basic block. Named instructions can be used as values by other instructions. Anonymous instructions cannot; their values are consumed immediately by the block flow that defines them. Examples of anonymous instructions include the condition of <code>switch</code> flow, the result returned by <code>return</code> flow and the &quot;dangerous&quot; instruction wrapped by <code>try</code> flow.</p>
+<p><a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Instruction.html">Immutable API: <code>Instruction</code></a>. <a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.InstructionBuilder.html">Mutable API: <code>InstructionBuilder</code></a>.</p>
+</li>
+<li><p><strong>Block flow</strong> represents the control flow that terminates a basic block. Flame defines five types of control flow:</p>
+<ol>
+<li><strong>Jump</strong> (<a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Flow.JumpFlow.html"><code>JumpFlow</code></a>): an unconditional branch to some other block in the control-flow graph. Corresponds to a <code>goto</code> statement in C#.</li>
+<li><strong>Return</strong> (<a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Flow.ReturnFlow.html"><code>ReturnFlow</code></a>): returns exactly one value to the caller. A value of type <code>void</code> can be returned to indicate that no actual value should be returned.</li>
+<li><strong>Switch</strong> (<a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Flow.SwitchFlow.html"><code>SwitchFlow</code></a>): branches to one of many blocks by comparing a condition with a number of constants. Corresponds to a <code>switch</code> statement in C#, but is also used to represent <code>if</code> statements.</li>
+<li><strong>Try</strong> (<a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Flow.TryFlow.html"><code>TryFlow</code></a>): executes an instruction and checks if that instruction throws an exception. If it does, an exception-path branch is taken. Otherwise, a success-path branch is taken.</li>
+<li><strong>Unreachable</strong> (<a href="https://jonathanvdc.github.io/Flame/api/Flame.Compiler.Flow.UnreachableFlow.html"><code>UnreachableFlow</code></a>): indicates that the end of a particular basic block is unreachable.</li>
+</ol>
+</li>
+</ul>
+<h3 id="example-a-factorial-function">Example: a factorial function</h3>
+<p>To illustrate what Flame IR looks like in practice, we'll consider the recursive factorial function below.</p>
+<pre><code class="lang-csharp">public static int FactorialRecursive(int value, int accumulator)
+{
+    if (value &gt; 1)
+    {
+        return FactorialRecursive(value - 1, value * accumulator);
+    }
+    else
+    {
+        return accumulator;
+    }
+}
+</code></pre>
+<p>When compiled by <code>csc</code> and subsequently fed to <code>ilopt</code> with the <code>--print-ir</code> option, <code>ilopt</code> reports the following optimized IR:</p>
+<pre><code>{
+    #entry_point(
+        @entry-point.thunk,
+        #(#param(System::Int32, @value.thunk), #param(System::Int32, @accumulator.thunk)),
+        { },
+        #goto(@entry-point(@value.thunk, @accumulator.thunk)));
+
+    #block(
+        @entry-point,
+        #(#param(System::Int32, value), #param(System::Int32, accumulator)),
+        {
+            IL_0000_val_1 = const(1, System::Int32)();
+            IL_0000_val_2 = intrinsic(@arith.gt, System::Boolean, #(System::Int32, System::Int32))(value, IL_0000_val_1);
+        },
+        #switch(
+            copy(System::Boolean)(IL_0000_val_2), // &lt;-- value to switch on
+            IL_0009(), // &lt;-- 'default' case
+            {
+                #case(#(@false), IL_001D()); // &lt;-- 'case false'
+            }));
+
+    #block(
+        IL_0009,
+        #(),
+        {
+            @IL_0000_val_1.rff.IL_0009 = const(1, System::Int32)();
+            IL_0009_val_2 = intrinsic(@arith.sub, System::Int32, #(System::Int32, System::Int32))(value, @IL_0000_val_1.rff.IL_0009);
+            IL_0009_val_5 = intrinsic(@arith.mul, System::Int32, #(System::Int32, System::Int32))(value, accumulator);
+        },
+        #goto(@entry-point(IL_0009_val_2, IL_0009_val_5)));
+
+    #block(
+        IL_001D,
+        #(),
+        { },
+        #return(copy(System::Int32)(accumulator)));
+};
+</code></pre>
 </article>
           </div>
           
