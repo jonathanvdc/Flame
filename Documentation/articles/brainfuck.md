@@ -6,7 +6,7 @@ This tutorial aims to be a gentle introduction to using [Flame](https://github.c
 
 If you don't know what Brainfuck is, then I recommend that you take a look at [its Wikipedia page](https://en.wikipedia.org/wiki/Brainfuck). The important bit is that it's an extremely minimal programming language, so it'll be super easy to implement.
 
-This tutorial will contain a fair amount of code but will focus mostly on a few key aspects of the Brainfuck compiler&mdash;the bits that'll hopefully help you grok Flame. If you want the full source code, then you'll find that in the [Flame GitHub repo](https://github.com/jonathanvdc/Flame/tree/csharp-rewrite/Examples/Brainfuck).
+This tutorial will contain a fair amount of code but will focus mostly on a few key aspects of the Brainfuck compiler&mdash;the bits that'll hopefully help you grok Flame. If you want the full source code, then you'll find that in the [Flame GitHub repo](https://github.com/jonathanvdc/Flame/tree/master/Examples/Brainfuck).
 
 If you have any questions or comments, feel free to open an issue&mdash;or maybe even a pull request!&mdash;on [GitHub](https://github.com/jonathanvdc/Flame/). Your feedback and/or contributions are most welcome.
 
