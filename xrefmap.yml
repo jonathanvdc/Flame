@@ -21478,6 +21478,77 @@ references:
   isSpec: "True"
   fullName: Flame.Ir.IrCodec.WithTypes
   nameWithType: IrCodec.WithTypes
+- uid: Flame.Ir.IrField
+  name: IrField
+  href: api/Flame.Ir.IrField.html
+  commentId: T:Flame.Ir.IrField
+  fullName: Flame.Ir.IrField
+  nameWithType: IrField
+- uid: Flame.Ir.IrField.Decode(LNode,Flame.Ir.DecoderState)
+  name: Decode(LNode, DecoderState)
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_Decode_LNode_Flame_Ir_DecoderState_
+  commentId: M:Flame.Ir.IrField.Decode(LNode,Flame.Ir.DecoderState)
+  fullName: Flame.Ir.IrField.Decode(LNode, Flame.Ir.DecoderState)
+  nameWithType: IrField.Decode(LNode, DecoderState)
+- uid: Flame.Ir.IrField.Decode*
+  name: Decode
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_Decode_
+  commentId: Overload:Flame.Ir.IrField.Decode
+  isSpec: "True"
+  fullName: Flame.Ir.IrField.Decode
+  nameWithType: IrField.Decode
+- uid: Flame.Ir.IrField.Encode(Flame.IField,Flame.Ir.EncoderState)
+  name: Encode(IField, EncoderState)
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_Encode_Flame_IField_Flame_Ir_EncoderState_
+  commentId: M:Flame.Ir.IrField.Encode(Flame.IField,Flame.Ir.EncoderState)
+  fullName: Flame.Ir.IrField.Encode(Flame.IField, Flame.Ir.EncoderState)
+  nameWithType: IrField.Encode(IField, EncoderState)
+- uid: Flame.Ir.IrField.Encode*
+  name: Encode
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_Encode_
+  commentId: Overload:Flame.Ir.IrField.Encode
+  isSpec: "True"
+  fullName: Flame.Ir.IrField.Encode
+  nameWithType: IrField.Encode
+- uid: Flame.Ir.IrField.FieldType
+  name: FieldType
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_FieldType
+  commentId: P:Flame.Ir.IrField.FieldType
+  fullName: Flame.Ir.IrField.FieldType
+  nameWithType: IrField.FieldType
+- uid: Flame.Ir.IrField.FieldType*
+  name: FieldType
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_FieldType_
+  commentId: Overload:Flame.Ir.IrField.FieldType
+  isSpec: "True"
+  fullName: Flame.Ir.IrField.FieldType
+  nameWithType: IrField.FieldType
+- uid: Flame.Ir.IrField.IsStatic
+  name: IsStatic
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_IsStatic
+  commentId: P:Flame.Ir.IrField.IsStatic
+  fullName: Flame.Ir.IrField.IsStatic
+  nameWithType: IrField.IsStatic
+- uid: Flame.Ir.IrField.IsStatic*
+  name: IsStatic
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_IsStatic_
+  commentId: Overload:Flame.Ir.IrField.IsStatic
+  isSpec: "True"
+  fullName: Flame.Ir.IrField.IsStatic
+  nameWithType: IrField.IsStatic
+- uid: Flame.Ir.IrField.ParentType
+  name: ParentType
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_ParentType
+  commentId: P:Flame.Ir.IrField.ParentType
+  fullName: Flame.Ir.IrField.ParentType
+  nameWithType: IrField.ParentType
+- uid: Flame.Ir.IrField.ParentType*
+  name: ParentType
+  href: api/Flame.Ir.IrField.html#Flame_Ir_IrField_ParentType_
+  commentId: Overload:Flame.Ir.IrField.ParentType
+  isSpec: "True"
+  fullName: Flame.Ir.IrField.ParentType
+  nameWithType: IrField.ParentType
 - uid: Flame.Ir.IrMember
   name: IrMember
   href: api/Flame.Ir.IrMember.html
@@ -22073,77 +22144,6 @@ references:
   commentId: F:Flame.Ir.TypeMemberDefinitionCodec.Instance
   fullName: Flame.Ir.TypeMemberDefinitionCodec.Instance
   nameWithType: TypeMemberDefinitionCodec.Instance
-- uid: Flame.IrField
-  name: IrField
-  href: api/Flame.IrField.html
-  commentId: T:Flame.IrField
-  fullName: Flame.IrField
-  nameWithType: IrField
-- uid: Flame.IrField.Decode(LNode,Flame.Ir.DecoderState)
-  name: Decode(LNode, DecoderState)
-  href: api/Flame.IrField.html#Flame_IrField_Decode_LNode_Flame_Ir_DecoderState_
-  commentId: M:Flame.IrField.Decode(LNode,Flame.Ir.DecoderState)
-  fullName: Flame.IrField.Decode(LNode, Flame.Ir.DecoderState)
-  nameWithType: IrField.Decode(LNode, DecoderState)
-- uid: Flame.IrField.Decode*
-  name: Decode
-  href: api/Flame.IrField.html#Flame_IrField_Decode_
-  commentId: Overload:Flame.IrField.Decode
-  isSpec: "True"
-  fullName: Flame.IrField.Decode
-  nameWithType: IrField.Decode
-- uid: Flame.IrField.Encode(Flame.IField,Flame.Ir.EncoderState)
-  name: Encode(IField, EncoderState)
-  href: api/Flame.IrField.html#Flame_IrField_Encode_Flame_IField_Flame_Ir_EncoderState_
-  commentId: M:Flame.IrField.Encode(Flame.IField,Flame.Ir.EncoderState)
-  fullName: Flame.IrField.Encode(Flame.IField, Flame.Ir.EncoderState)
-  nameWithType: IrField.Encode(IField, EncoderState)
-- uid: Flame.IrField.Encode*
-  name: Encode
-  href: api/Flame.IrField.html#Flame_IrField_Encode_
-  commentId: Overload:Flame.IrField.Encode
-  isSpec: "True"
-  fullName: Flame.IrField.Encode
-  nameWithType: IrField.Encode
-- uid: Flame.IrField.FieldType
-  name: FieldType
-  href: api/Flame.IrField.html#Flame_IrField_FieldType
-  commentId: P:Flame.IrField.FieldType
-  fullName: Flame.IrField.FieldType
-  nameWithType: IrField.FieldType
-- uid: Flame.IrField.FieldType*
-  name: FieldType
-  href: api/Flame.IrField.html#Flame_IrField_FieldType_
-  commentId: Overload:Flame.IrField.FieldType
-  isSpec: "True"
-  fullName: Flame.IrField.FieldType
-  nameWithType: IrField.FieldType
-- uid: Flame.IrField.IsStatic
-  name: IsStatic
-  href: api/Flame.IrField.html#Flame_IrField_IsStatic
-  commentId: P:Flame.IrField.IsStatic
-  fullName: Flame.IrField.IsStatic
-  nameWithType: IrField.IsStatic
-- uid: Flame.IrField.IsStatic*
-  name: IsStatic
-  href: api/Flame.IrField.html#Flame_IrField_IsStatic_
-  commentId: Overload:Flame.IrField.IsStatic
-  isSpec: "True"
-  fullName: Flame.IrField.IsStatic
-  nameWithType: IrField.IsStatic
-- uid: Flame.IrField.ParentType
-  name: ParentType
-  href: api/Flame.IrField.html#Flame_IrField_ParentType
-  commentId: P:Flame.IrField.ParentType
-  fullName: Flame.IrField.ParentType
-  nameWithType: IrField.ParentType
-- uid: Flame.IrField.ParentType*
-  name: ParentType
-  href: api/Flame.IrField.html#Flame_IrField_ParentType_
-  commentId: Overload:Flame.IrField.ParentType
-  isSpec: "True"
-  fullName: Flame.IrField.ParentType
-  nameWithType: IrField.ParentType
 - uid: Flame.IType
   name: IType
   href: api/Flame.IType.html
