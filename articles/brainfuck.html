@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Building a Brainfuck compiler with Flame | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Building a Brainfuck compiler with Flame | Flame ">
+    <meta name="generator" content="docfx 2.41.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="building-a-brainfuck-compiler-with-flame">Building a Brainfuck compiler with Flame</h1>
+
+<h2 id="introduction">Introduction</h2>
+<p>This tutorial aims to be a gentle introduction to using <a href="https://github.com/jonathanvdc/Flame">Flame</a>. Flame is a set of reusable libraries that can be leveraged to build a compiler. It's especially good at generating code for managed languages like C#, but it's also perfectly capable of compiling, say, Brainfuck. Which is exactly what we're going to do in this tutorial: we're going to build an AOT compiler for Brainfuck, and we'll produce executables that can be run by implementations of the .NET common language runtime (CLR), e.g., <a href="http://www.mono-project.com/">Mono</a> or the <a href="https://www.microsoft.com/net/">.NET framework</a>. I'm assuming that you're familiar with C# development and a C# IDE of your choice. You should also know how to use command-line programs, because that's what we'll be building in this tutorial.</p>
+<p>If you don't know what Brainfuck is, then I recommend that you take a look at <a href="https://en.wikipedia.org/wiki/Brainfuck">its Wikipedia page</a>. The important bit is that it's an extremely minimal programming language, so it'll be super easy to implement.</p>
+<p>This tutorial will contain a fair amount of code but will focus mostly on a few key aspects of the Brainfuck compiler—the bits that'll hopefully help you grok Flame. If you want the full source code, then you'll find that in the <a href="https://github.com/jonathanvdc/Flame/tree/csharp-rewrite/Examples/Brainfuck">Flame GitHub repo</a>.</p>
+<p>If you have any questions or comments, feel free to open an issue—or maybe even a pull request!—on <a href="https://github.com/jonathanvdc/Flame/">GitHub</a>. Your feedback and/or contributions are most welcome.</p>
+<p>Anyway, let's get started.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>TODO: actual tutorial.</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/csharp-rewrite/Documentation/articles/brainfuck.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

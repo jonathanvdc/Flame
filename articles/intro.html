@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Add your introductions here! | Flame </title>
+    <title>A brief introduction to Flame | Flame </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Add your introductions here! | Flame ">
+    <meta name="title" content="A brief introduction to Flame | Flame ">
     <meta name="generator" content="docfx 2.41.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -77,8 +77,33 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="add-your-introductions-here">Add your introductions here!</h1>
+<h1 id="a-brief-introduction-to-flame">A brief introduction to Flame</h1>
 
+<p>This article is designed to be a quick introduction to the concepts that matter most to Flame. Some previous experience with the .NET ecosystem and optimizing compilers might be useful.</p>
+<p>The two most important categories of data structures in Flame are its type system and its intermediate representation (IR). The former roughly corresponds to the type system of the .NET universe modulo some tweaks. The latter is in <a href="https://en.wikipedia.org/wiki/Static_single_assignment_form">static single assignment (SSA) form</a>, which is the state of the art in optimizing compilers.</p>
+<h2 id="flames-type-system">Flame's type system</h2>
+<p>Flame's type system is essentially a stripped-down version of the type system of the .NET universe. All types must implement the <a href="https://jonathanvdc.github.io/Flame/api/Flame.IType.html"><code>IType</code> interface</a>. Key points include:</p>
+<ul>
+<li><p>Flame has first-class support for object-oriented programming constructs.</p>
+<ul>
+<li>Types can define fields, methods and properties.</li>
+<li>Types can define other types.</li>
+<li>Types and methods can have generic parameters. Types, fields, methods and properties can be instantiate either directly if they define generic parameters and indirectly if an enclosing type defines generic parameters.</li>
+</ul>
+</li>
+<li><p>There are no built-in types in Flame. If you want to refer to, e.g., a 32-bit signed integer, then you should load <code>System.Int32</code> from a core library. This is easy in practice: the <a href="https://jonathanvdc.github.io/Flame/api/Flame.TypeSystem.TypeEnvironment.html"><code>TypeEnvironment</code> class</a> offers convenient access to primitives types such as integers, floating-point numbers, Booleans, characters and strings.</p>
+<p>Removing built-in types was a deliberate decision based on experience with a previous iteration of Flame that did have built-in types for integers—library types like <code>System.Int32</code> implement various bits of functionality that cannot easily be modeled in built-in types. When Flame had built-in types, accessing that functionality was tremendously difficult and complicated the way the type system works.</p>
+</li>
+<li><p>Flame uses a single pointer type (<a href="https://jonathanvdc.github.io/Flame/api/Flame.TypeSystem.PointerType.html"><code>PointerType</code></a>) to unify many different kinds of pointers from the .NET world.</p>
+<ul>
+<li>Regular pointers are represented as transient pointers (<a href="https://jonathanvdc.github.io/Flame/api/Flame.TypeSystem.PointerKind.html#Flame_TypeSystem_PointerKind_Transient"><code>PointerKind.Transient</code></a>).</li>
+<li>References (<code>ref</code>/<code>out</code>/<code>byref</code>) are represented as reference pointers (<a href="https://jonathanvdc.github.io/Flame/api/Flame.TypeSystem.PointerKind.html#Flame_TypeSystem_PointerKind_Reference"><code>PointerKind.Reference</code></a>).</li>
+<li>Instances of reference types (i.e., classes) and boxed values are represented as box pointers (<a href="https://jonathanvdc.github.io/Flame/api/Flame.TypeSystem.PointerKind.html#Flame_TypeSystem_PointerKind_Box"><code>PointerKind.Box</code></a>). This is a notable departure from the .NET type system, where instances of reference types are implicit pointers rather than explicit pointers. The rationale for this decision is that explicit pointers are easier to reason about in optimizations and analyses than implicit pointers—explicit pointers reduce the number of special cases there.</li>
+</ul>
+</li>
+</ul>
+<h2 id="flame-ir">Flame IR</h2>
+<p>Flame represents method bodies as control-flow graphs of instructions in SSA form. This representation makes it easier for analyses and transformations to reason about the computations performed by a method.</p>
 </article>
           </div>
           

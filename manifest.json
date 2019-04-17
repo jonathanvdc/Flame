@@ -4037,11 +4037,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/brainfuck.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/brainfuck.html",
+          "hash": "/pFYX2nLivPTiqU5vQ7AjA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/intro.md",
       "output": {
         ".html": {
           "relative_path": "articles/intro.html",
-          "hash": "wufvdSFfFMYj2Pr8bG+ymQ=="
+          "hash": "N9ScLAQRSHvVhI27Y4yryw=="
         }
       },
       "is_incremental": false,
@@ -4053,7 +4065,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "t7iiFrmuYmrKWisdq+lN6Q=="
+          "hash": "+B19PtwskKSEIfB4uAw5cg=="
         }
       },
       "is_incremental": false,
@@ -4095,16 +4107,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 3,
-          "skipped_file_count": 0
-        },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 333,
+          "skipped_file_count": 0
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 4,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
