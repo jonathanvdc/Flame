@@ -253,6 +253,7 @@ namespace Flame.Compiler.Pipeline
                     requestedHolder.Body = body;
                 }
             }
+            requestedHolder.Body = body;
             return body;
         }
 
