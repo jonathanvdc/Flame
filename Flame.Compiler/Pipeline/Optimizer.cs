@@ -1,121 +1,56 @@
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Flame.Compiler.Pipeline
 {
     /// <summary>
-    /// Provides infrastructure for method body optimization.
+    /// A base class for optimizers: objects that manage method bodies
+    /// as they are being optimized and respond to method body queries.
     /// </summary>
-    public sealed class Optimizer
+    public abstract class Optimizer
     {
         /// <summary>
-        /// Creates a method body optimizer.
+        /// Asynchronously requests a method's body. This method will never
+        /// cause a deadlock, even when methods cyclically request each other's
+        /// method bodies.
         /// </summary>
-        public Optimizer()
-            : this(GetInitialMethodBodyDefault)
-        { }
-
-        /// <summary>
-        /// Creates a method body optimizer.
-        /// </summary>
-        /// <param name="getInitialMethodBody">
-        /// A delegate that tries to find an initial method body for a
-        /// method. This initial method body is is the starting point for
-        /// further optimizations, both interprocedural and intraprocedural.
+        /// <param name="requested">The method whose body is requested.</param>
+        /// <param name="requesting">
+        /// The method that requests <paramref name="requested"/>'s method body.
         /// </param>
-        public Optimizer(Func<IMethod, MethodBody> getInitialMethodBody)
-        {
-            this.getInitMethodBody = GetOptimizedMethodBody;
-            this.optBodyHolders = new ConcurrentDictionary<IMethod, MethodBodyHolder>();
-            this.initialMethodBodies = new ConcurrentDictionary<IMethod, MethodBody>();
-        }
-
-        private Func<IMethod, MethodBody> getInitMethodBody;
-
-        private ConcurrentDictionary<IMethod, MethodBodyHolder> optBodyHolders;
-        private ConcurrentDictionary<IMethod, MethodBody> initialMethodBodies;
-
-        /// <summary>
-        /// Tries to acquire an initial method body for a method definition.
-        /// </summary>
-        /// <returns>
-        /// An initial method body if one can be found; otherwise, <c>null</c>.
-        /// </returns>
-        public MethodBody GetInitialMethodBody(IMethod method)
-        {
-            return initialMethodBodies.GetOrAdd(method, getInitMethodBody);
-        }
-
-
-        private MethodBodyHolder CreateMethodBodyHolder(IMethod method)
-        {
-            var initialBody = GetInitialMethodBody(method);
-            return initialBody == null ? null : new MethodBodyHolder(initialBody);
-        }
-
-        private MethodBodyHolder GetMethodBodyHolder(IMethod method)
-        {
-            return optBodyHolders.GetOrAdd(
-                method.GetRecursiveGenericDeclaration(),
-                CreateMethodBodyHolder);
-        }
+        /// <returns>The method's body.</returns>
+        /// <remarks>
+        /// The optimizer is free to return any method body that is
+        /// semantically equivalent to <paramref name="requested"/>'s body.
+        /// This ranges from <paramref name="requested"/>'s initial method
+        /// body to its final optimized body.
+        ///
+        /// Which version of <paramref name="requested"/>'s body is returned
+        /// depends on the optimizer. The optimizer is expected to return
+        /// a method body that is as optimized as possible given the
+        /// constraints imposed by the optimizer's implementation.
+        /// </remarks>
+        public abstract Task<MethodBody> GetBodyAsync(
+            IMethod requested,
+            IMethod requesting);
 
         /// <summary>
-        /// Fully optimizes the method body for a particular method.
+        /// Asynchronously requests a method's body. This method should only
+        /// used by external entities: if methods that are being optimized call
+        /// this method, then they might cause a deadlock.
         /// </summary>
-        /// <param name="method">
-        /// The method to optimize.
-        /// </param>
-        /// <returns>
-        /// An optimized method body if an initial method body can be found
-        /// for the argument. Otherwise, <c>null</c>..
-        /// </returns>
-        public MethodBody OptimizeMethodBody(IMethod method)
-        {
-            var holder = GetMethodBodyHolder(method);
-            // TODO: actually optimize the method body.
-            return holder.GetSpecializationBody(method);
-        }
-
-        /// <summary>
-        /// Gets the optimized method body for a particular method.
-        /// </summary>
-        /// <param name="method">
-        /// The method to find an optimized method body for.
-        /// </param>
-        /// <returns>
-        /// An optimized method body if an initial method body can be found
-        /// for the argument. Otherwise, <c>null</c>..
-        /// </returns>
-        public MethodBody GetOptimizedMethodBody(IMethod method)
-        {
-            var holder = GetMethodBodyHolder(method);
-            return holder.GetSpecializationBody(method);
-        }
-
-        /// <summary>
-        /// Gets an initial method body for a method using the default
-        /// mechanism of checking if the method is a body method and
-        /// requesting its method body if so.
-        /// </summary>
-        /// <param name="method">
-        /// The recursive generic method declaration to inspect.
-        /// </param>
-        /// <returns>
-        /// A method body if one can be found; otherwise <c>null</c>.
-        /// </returns>
-        public static MethodBody GetInitialMethodBodyDefault(IMethod method)
-        {
-            var bodyMethod = method as IBodyMethod;
-            if (bodyMethod == null)
-            {
-                return null;
-            }
-            else
-            {
-                return bodyMethod.Body;
-            }
-        }
+        /// <param name="requested">The method whose body is requested.</param>
+        /// <returns>The method's body.</returns>
+        /// <remarks>
+        /// The optimizer is free to return any method body that is
+        /// semantically equivalent to <paramref name="requested"/>'s body.
+        /// This ranges from <paramref name="requested"/>'s initial method
+        /// body to its final optimized body.
+        ///
+        /// Which version of <paramref name="requested"/>'s body is returned
+        /// depends on the optimizer. The optimizer is expected to return
+        /// a method body that is as optimized as possible given the
+        /// constraints imposed by the optimizer's implementation.
+        /// </remarks>
+        public abstract Task<MethodBody> GetBodyAsync(IMethod requested);
     }
 }

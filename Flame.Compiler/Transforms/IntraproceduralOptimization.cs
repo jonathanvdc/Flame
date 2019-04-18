@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Flame.Compiler.Pipeline;
 
 namespace Flame.Compiler.Transforms
@@ -13,11 +14,11 @@ namespace Flame.Compiler.Transforms
         public override bool IsCheckpoint => false;
 
         /// <inheritdoc/>
-        public override MethodBody Apply(
+        public override Task<MethodBody> ApplyAsync(
             MethodBody body,
             OptimizationState state)
         {
-            return body.WithImplementation(Apply(body.Implementation));
+            return Task.FromResult(body.WithImplementation(Apply(body.Implementation)));
         }
 
         /// <summary>

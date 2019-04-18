@@ -113,6 +113,7 @@
     <Compile Include="Pipeline\ITarget.cs" />
     <Compile Include="Pipeline\ITargetAssembly.cs" />
     <Compile Include="Pipeline\MethodBodyHolder.cs" />
+    <Compile Include="Pipeline\OnDemandOptimizer.cs" />
     <Compile Include="Pipeline\Optimization.cs" />
     <Compile Include="Pipeline\Optimizer.cs" />
     <Compile Include="Target\IInstructionSelector.cs" />
