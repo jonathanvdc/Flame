@@ -334,7 +334,7 @@ namespace Flame.Compiler.Pipeline
         /// <returns>
         /// A method body if one can be found; otherwise <c>null</c>.
         /// </returns>
-        private static MethodBody GetInitialMethodBodyDefault(IMethod method)
+        public static MethodBody GetInitialMethodBodyDefault(IMethod method)
         {
             var bodyMethod = method as IBodyMethod;
             if (bodyMethod == null)

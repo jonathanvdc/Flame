@@ -100,6 +100,7 @@
     <Compile Include="Flame.Compiler\FlowGraphTests.cs" />
     <Compile Include="Flame.Compiler\InterferenceGraphAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\LivenessAnalysisTests.cs" />
+    <Compile Include="Flame.Compiler\OptimizerTests.cs" />
     <Compile Include="Flame.Compiler\PredecessorAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\RelatedValueAnalysisTests.cs" />
     <Compile Include="Flame.Compiler\ValueUseAnalysisTests.cs" />

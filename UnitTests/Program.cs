@@ -207,6 +207,7 @@ namespace UnitTests
                 new FlowGraphTests(),
                 new InterferenceGraphAnalysisTests(),
                 new LivenessAnalysisTests(),
+                new OptimizerTests(testLog),
                 new PredecessorAnalysisTests(),
                 new RelatedValueAnalysisTests(),
                 new ValueUseAnalysisTests());
