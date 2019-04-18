@@ -16667,19 +16667,6 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.OnDemandOptimizer
   nameWithType: OnDemandOptimizer.OnDemandOptimizer
-- uid: Flame.Compiler.Pipeline.OnDemandOptimizer.Complete(Flame.IMethod,Flame.Compiler.MethodBody)
-  name: Complete(IMethod, MethodBody)
-  href: api/Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_Complete_Flame_IMethod_Flame_Compiler_MethodBody_
-  commentId: M:Flame.Compiler.Pipeline.OnDemandOptimizer.Complete(Flame.IMethod,Flame.Compiler.MethodBody)
-  fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.Complete(Flame.IMethod, Flame.Compiler.MethodBody)
-  nameWithType: OnDemandOptimizer.Complete(IMethod, MethodBody)
-- uid: Flame.Compiler.Pipeline.OnDemandOptimizer.Complete*
-  name: Complete
-  href: api/Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_Complete_
-  commentId: Overload:Flame.Compiler.Pipeline.OnDemandOptimizer.Complete
-  isSpec: "True"
-  fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.Complete
-  nameWithType: OnDemandOptimizer.Complete
 - uid: Flame.Compiler.Pipeline.OnDemandOptimizer.GetBodyAsync(Flame.IMethod)
   name: GetBodyAsync(IMethod)
   href: api/Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetBodyAsync_Flame_IMethod_
