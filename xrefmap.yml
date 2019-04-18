@@ -16699,6 +16699,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.GetBodyAsync
   nameWithType: OnDemandOptimizer.GetBodyAsync
+- uid: Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault(Flame.IMethod)
+  name: GetInitialMethodBodyDefault(IMethod)
+  href: api/Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetInitialMethodBodyDefault_Flame_IMethod_
+  commentId: M:Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault(Flame.IMethod)
+  fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault(Flame.IMethod)
+  nameWithType: OnDemandOptimizer.GetInitialMethodBodyDefault(IMethod)
+- uid: Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault*
+  name: GetInitialMethodBodyDefault
+  href: api/Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetInitialMethodBodyDefault_
+  commentId: Overload:Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault
+  isSpec: "True"
+  fullName: Flame.Compiler.Pipeline.OnDemandOptimizer.GetInitialMethodBodyDefault
+  nameWithType: OnDemandOptimizer.GetInitialMethodBodyDefault
 - uid: Flame.Compiler.Pipeline.Optimization
   name: Optimization
   href: api/Flame.Compiler.Pipeline.Optimization.html
