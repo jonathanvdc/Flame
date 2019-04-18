@@ -309,7 +309,7 @@ namespace Flame.Compiler.Pipeline
         /// <param name="body">
         /// <paramref name="method"/>'s fully optimized body.
         /// </param>
-        public void Complete(IMethod method, MethodBody body)
+        private void Complete(IMethod method, MethodBody body)
         {
             lock (graphLock)
             {
