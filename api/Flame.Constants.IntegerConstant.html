@@ -94,56 +94,34 @@
   </div>
   <div classs="implements">
     <h5>Implements</h5>
-    <div><span class="xref">IComparable</span>&lt;<a class="xref" href="Flame.Constants.IntegerConstant.html">IntegerConstant</a>&gt;</div>
-    <div><span class="xref">IEquatable</span>&lt;<a class="xref" href="Flame.Constants.IntegerConstant.html">IntegerConstant</a>&gt;</div>
-    <div><span class="xref">IComparable</span></div>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Constant.html">Constant</a>&gt;</div>
+    <div><span class="xref">System.IComparable</span>&lt;<a class="xref" href="Flame.Constants.IntegerConstant.html">IntegerConstant</a>&gt;</div>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Constants.IntegerConstant.html">IntegerConstant</a>&gt;</div>
+    <div><span class="xref">System.IComparable</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Constants.html">Flame.Constants</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
   <h5 id="Flame_Constants_IntegerConstant_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class IntegerConstant : Constant, IComparable&lt;IntegerConstant&gt;, IEquatable&lt;IntegerConstant&gt;, IComparable</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class IntegerConstant : Constant, IEquatable&lt;Constant&gt;, IComparable&lt;IntegerConstant&gt;, IEquatable&lt;IntegerConstant&gt;, IComparable</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Constants_IntegerConstant__ctor_BigInteger_Flame_Constants_IntegerSpec_.md&amp;value=---%0Auid%3A%20Flame.Constants.IntegerConstant.%23ctor(BigInteger%2CFlame.Constants.IntegerSpec)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/Constants/IntegerConstant.cs/#L18">View Source</a>
-  </span>
-  <a id="Flame_Constants_IntegerConstant__ctor_" data-uid="Flame.Constants.IntegerConstant.#ctor*"></a>
-  <h4 id="Flame_Constants_IntegerConstant__ctor_BigInteger_Flame_Constants_IntegerSpec_" data-uid="Flame.Constants.IntegerConstant.#ctor(BigInteger,Flame.Constants.IntegerSpec)">IntegerConstant(BigInteger, IntegerSpec)</h4>
-  <div class="markdown level1 summary"><p>Creates an integer value from the given integer and an integer spec.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IntegerConstant(BigInteger value, IntegerSpec spec)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">BigInteger</span></td>
-        <td><span class="parametername">value</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Flame.Constants.IntegerSpec.html">IntegerSpec</a></td>
-        <td><span class="parametername">spec</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Constants_IntegerConstant__ctor_System_Boolean_.md&amp;value=---%0Auid%3A%20Flame.Constants.IntegerConstant.%23ctor(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -342,6 +320,44 @@ integer.</p>
       <tr>
         <td><span class="xref">System.Int64</span></td>
         <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Constants_IntegerConstant__ctor_System_Numerics_BigInteger_Flame_Constants_IntegerSpec_.md&amp;value=---%0Auid%3A%20Flame.Constants.IntegerConstant.%23ctor(System.Numerics.BigInteger%2CFlame.Constants.IntegerSpec)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/Constants/IntegerConstant.cs/#L18">View Source</a>
+  </span>
+  <a id="Flame_Constants_IntegerConstant__ctor_" data-uid="Flame.Constants.IntegerConstant.#ctor*"></a>
+  <h4 id="Flame_Constants_IntegerConstant__ctor_System_Numerics_BigInteger_Flame_Constants_IntegerSpec_" data-uid="Flame.Constants.IntegerConstant.#ctor(System.Numerics.BigInteger,Flame.Constants.IntegerSpec)">IntegerConstant(BigInteger, IntegerSpec)</h4>
+  <div class="markdown level1 summary"><p>Creates an integer value from the given integer and an integer spec.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IntegerConstant(BigInteger value, IntegerSpec spec)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Numerics.BigInteger</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Constants.IntegerSpec.html">IntegerSpec</a></td>
+        <td><span class="parametername">spec</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -988,7 +1004,7 @@ to the integer spec.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">BigInteger</span></td>
+        <td><span class="xref">System.Numerics.BigInteger</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -2685,6 +2701,8 @@ The result retains this integer's spec.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Constants_IntegerConstant_ToUInt16.md&amp;value=---%0Auid%3A%20Flame.Constants.IntegerConstant.ToUInt16%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -2811,13 +2829,16 @@ The result retains this integer's spec.</p>
   </table>
   <h3 id="implements">Implements</h3>
   <div>
-      <span class="xref">IComparable&lt;&gt;</span>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
   </div>
   <div>
-      <span class="xref">IEquatable&lt;&gt;</span>
+      <span class="xref">System.IComparable&lt;T&gt;</span>
   </div>
   <div>
-      <span class="xref">IComparable</span>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.IComparable</span>
   </div>
 </article>
           </div>

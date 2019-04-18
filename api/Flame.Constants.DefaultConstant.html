@@ -94,17 +94,33 @@ bit pattern.</p>
     <div class="level1"><a class="xref" href="Flame.Constant.html">Constant</a></div>
     <div class="level2"><span class="xref">DefaultConstant</span></div>
   </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Constant.html">Constant</a>&gt;</div>
+  </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
       <a class="xref" href="Flame.Constant.html#Flame_Constant_Equals_System_Object_">Constant.Equals(Object)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
     </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Constants.html">Flame.Constants</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
   <h5 id="Flame_Constants_DefaultConstant_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class DefaultConstant : Constant</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class DefaultConstant : Constant, IEquatable&lt;Constant&gt;</code></pre>
   </div>
   <h3 id="fields">Fields
   </h3>
@@ -255,6 +271,12 @@ bit pattern.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  </div>
 </article>
           </div>
           

@@ -89,13 +89,38 @@ order they were added.</p>
   <div class="markdown level0 conceptual"></div>
   <div classs="implements">
     <h5>Implements</h5>
-    <div><span class="xref">IImmutableDictionary</span>&lt;TKey, TValue&gt;</div>
+    <div><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;TKey, TValue&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IReadOnlyCollection</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</div>
+    <div><span class="xref">System.Collections.IEnumerable</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.ValueType.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.ValueType.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.ValueType.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Collections.html">Flame.Collections</a></h6>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
   <h5 id="Flame_Collections_ImmutableOrderedDictionary_2_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public struct ImmutableOrderedDictionary&lt;TKey, TValue&gt; : IImmutableDictionary&lt;TKey, TValue&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public struct ImmutableOrderedDictionary&lt;TKey, TValue&gt; : IImmutableDictionary&lt;TKey, TValue&gt;, IReadOnlyDictionary&lt;TKey, TValue&gt;, IReadOnlyCollection&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;, IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;, IEnumerable</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -256,7 +281,7 @@ order they were added.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;TKey&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TKey&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -287,7 +312,7 @@ order they were added.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;TValue&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TValue&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -352,13 +377,13 @@ order they were added.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_AddRange_IEnumerable_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.AddRange(IEnumerable%7BKeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_AddRange_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.AddRange(System.Collections.Generic.IEnumerable%7BSystem.Collections.Generic.KeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L100">View Source</a>
   </span>
   <a id="Flame_Collections_ImmutableOrderedDictionary_2_AddRange_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.AddRange*"></a>
-  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_AddRange_IEnumerable_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.AddRange(IEnumerable{KeyValuePair{`0,`1}})">AddRange(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_AddRange_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">AddRange(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
   <div class="markdown level1 summary"><p>Adds a sequence of key-value pairs to this ordered dictionary.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -377,7 +402,7 @@ order they were added.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
         <td><span class="parametername">pairs</span></td>
         <td><p>The key-value pairs to add to the dictionary.</p>
 </td>
@@ -435,13 +460,13 @@ any elements.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_Contains_KeyValuePair__0__1__.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.Contains(KeyValuePair%7B%600%2C%601%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_Contains_System_Collections_Generic_KeyValuePair__0__1__.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.Contains(System.Collections.Generic.KeyValuePair%7B%600%2C%601%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L126">View Source</a>
   </span>
   <a id="Flame_Collections_ImmutableOrderedDictionary_2_Contains_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.Contains*"></a>
-  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_Contains_KeyValuePair__0__1__" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.Contains(KeyValuePair{`0,`1})">Contains(KeyValuePair&lt;TKey, TValue&gt;)</h4>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_Contains_System_Collections_Generic_KeyValuePair__0__1__" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">Contains(KeyValuePair&lt;TKey, TValue&gt;)</h4>
   <div class="markdown level1 summary"><p>Tests if this dictionary contains a particular key-value pair.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -460,7 +485,7 @@ any elements.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">KeyValuePair</span>&lt;TKey, TValue&gt;</td>
+        <td><span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;</td>
         <td><span class="parametername">pair</span></td>
         <td><p>The key-value pair to look for.</p>
 </td>
@@ -560,7 +585,7 @@ otherwise, <code>false</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerator</span>&lt;<span class="xref">KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerator</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -617,13 +642,13 @@ otherwise, <code>false</code>.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_RemoveRange_IEnumerable__0__.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.RemoveRange(IEnumerable%7B%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_RemoveRange_System_Collections_Generic_IEnumerable__0__.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.RemoveRange(System.Collections.Generic.IEnumerable%7B%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L171">View Source</a>
   </span>
   <a id="Flame_Collections_ImmutableOrderedDictionary_2_RemoveRange_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.RemoveRange*"></a>
-  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_RemoveRange_IEnumerable__0__" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.RemoveRange(IEnumerable{`0})">RemoveRange(IEnumerable&lt;TKey&gt;)</h4>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_RemoveRange_System_Collections_Generic_IEnumerable__0__" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.RemoveRange(System.Collections.Generic.IEnumerable{`0})">RemoveRange(IEnumerable&lt;TKey&gt;)</h4>
   <div class="markdown level1 summary"><p>Removes a sequence of key-value pairs from this immutable ordered dictionary.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -642,7 +667,7 @@ otherwise, <code>false</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;TKey&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TKey&gt;</td>
         <td><span class="parametername">keys</span></td>
         <td><p>The keys of the key-value pairs to remove.</p>
 </td>
@@ -724,13 +749,13 @@ with <code data-dev-comment-type="paramref" class="paramref">value</code>.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_SetItems_IEnumerable_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.SetItems(IEnumerable%7BKeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_SetItems_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.SetItems(System.Collections.Generic.IEnumerable%7BSystem.Collections.Generic.KeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L204">View Source</a>
   </span>
   <a id="Flame_Collections_ImmutableOrderedDictionary_2_SetItems_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.SetItems*"></a>
-  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_SetItems_IEnumerable_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.SetItems(IEnumerable{KeyValuePair{`0,`1}})">SetItems(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_SetItems_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.SetItems(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">SetItems(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
   <div class="markdown level1 summary"><p>Assigns values to keys.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -749,7 +774,7 @@ with <code data-dev-comment-type="paramref" class="paramref">value</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
         <td><span class="parametername">items</span></td>
         <td><p>The key-value pairs to add or update.</p>
 </td>
@@ -909,9 +934,375 @@ as key-value pairs.</p>
       </tr>
     </tbody>
   </table>
+  <h3 id="eii">Explicit Interface Implementations
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_IEnumerable_GetEnumerator.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23IEnumerable%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L532">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_IEnumerable_GetEnumerator_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_IEnumerable_GetEnumerator" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Add__0__1_.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23Add(%600%2C%601)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L544">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Add_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Add*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Add__0__1_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Add(`0,`1)">IImmutableDictionary&lt;TKey, TValue&gt;.Add(TKey, TValue)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.Add(TKey key, TValue value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TKey</span></td>
+        <td><span class="parametername">key</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">TValue</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__AddRange_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23AddRange(System.Collections.Generic.IEnumerable%7BSystem.Collections.Generic.KeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L550">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__AddRange_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#AddRange*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__AddRange_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">IImmutableDictionary&lt;TKey, TValue&gt;.AddRange(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.AddRange(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; pairs)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
+        <td><span class="parametername">pairs</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Clear.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L538">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Clear_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Clear*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Clear" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Clear">IImmutableDictionary&lt;TKey, TValue&gt;.Clear()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.Clear()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Remove__0_.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23Remove(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L575">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Remove_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Remove*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__Remove__0_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#Remove(`0)">IImmutableDictionary&lt;TKey, TValue&gt;.Remove(TKey)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.Remove(TKey key)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TKey</span></td>
+        <td><span class="parametername">key</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__RemoveRange_System_Collections_Generic_IEnumerable__0__.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23RemoveRange(System.Collections.Generic.IEnumerable%7B%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L569">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__RemoveRange_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#RemoveRange*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__RemoveRange_System_Collections_Generic_IEnumerable__0__" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#RemoveRange(System.Collections.Generic.IEnumerable{`0})">IImmutableDictionary&lt;TKey, TValue&gt;.RemoveRange(IEnumerable&lt;TKey&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.RemoveRange(IEnumerable&lt;TKey&gt; keys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;TKey&gt;</td>
+        <td><span class="parametername">keys</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItem__0__1_.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23SetItem(%600%2C%601)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L556">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItem_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#SetItem*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItem__0__1_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#SetItem(`0,`1)">IImmutableDictionary&lt;TKey, TValue&gt;.SetItem(TKey, TValue)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.SetItem(TKey key, TValue value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TKey</span></td>
+        <td><span class="parametername">key</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">TValue</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItems_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___.md&amp;value=---%0Auid%3A%20Flame.Collections.ImmutableOrderedDictionary%602.System%23Collections%23Immutable%23IImmutableDictionary%7BTKey%2CTValue%7D%23SetItems(System.Collections.Generic.IEnumerable%7BSystem.Collections.Generic.KeyValuePair%7B%600%2C%601%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Collections/ImmutableOrderedDictionary.cs/#L562">View Source</a>
+  </span>
+  <a id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItems_" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#SetItems*"></a>
+  <h4 id="Flame_Collections_ImmutableOrderedDictionary_2_System_Collections_Immutable_IImmutableDictionary_TKey_TValue__SetItems_System_Collections_Generic_IEnumerable_System_Collections_Generic_KeyValuePair__0__1___" data-uid="Flame.Collections.ImmutableOrderedDictionary`2.System#Collections#Immutable#IImmutableDictionary{TKey,TValue}#SetItems(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">IImmutableDictionary&lt;TKey, TValue&gt;.SetItems(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IImmutableDictionary&lt;TKey, TValue&gt; IImmutableDictionary&lt;TKey, TValue&gt;.SetItems(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; items)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Collections.Generic.KeyValuePair</span>&lt;TKey, TValue&gt;&gt;</td>
+        <td><span class="parametername">items</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Immutable.IImmutableDictionary</span>&lt;TKey, TValue&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="implements">Implements</h3>
   <div>
-      <span class="xref">IImmutableDictionary&lt;, &gt;</span>
+      <span class="xref">System.Collections.Immutable.IImmutableDictionary&lt;TKey, TValue&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IReadOnlyDictionary&lt;TKey, TValue&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IReadOnlyCollection&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IEnumerable&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.IEnumerable</span>
   </div>
 </article>
           </div>

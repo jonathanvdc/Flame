@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.AccessorKind.html",
-          "hash": "TojMGuN0KT9Wx0fCDbnFyA=="
+          "hash": "Ii3SNc4JSPiogZ1EZJEAVQ=="
         }
       },
       "is_incremental": false,
@@ -30,7 +30,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.AssemblyIdentity.html",
-          "hash": "4VfcaYg8/v59jxATJdWiLA=="
+          "hash": "drXPgWThthcWp6CqmBcEMg=="
         }
       },
       "is_incremental": false,
@@ -42,7 +42,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.AttributeMap.html",
-          "hash": "6hqJ4z8R3EXsenZ8gqtoyA=="
+          "hash": "GCUEWYBpiBGVWQLPlGoxGQ=="
         }
       },
       "is_incremental": false,
@@ -54,7 +54,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.AttributeMapBuilder.html",
-          "hash": "JlCxdmCm28lDQ9WxbpP4lg=="
+          "hash": "ME6xaYvk/c6eTOZqLslR9w=="
         }
       },
       "is_incremental": false,
@@ -66,7 +66,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.CilCatchHandler.html",
-          "hash": "hD6V8/4htci4ib2Gi0y9yA=="
+          "hash": "P/a4CgMnFkZi/TzAAjgbxg=="
         }
       },
       "is_incremental": false,
@@ -78,7 +78,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.CilExceptionHandler.html",
-          "hash": "Tb3XC97Ox59Q3zfchSiLCw=="
+          "hash": "OUo0L5vK90xyzH+NLjbkDg=="
         }
       },
       "is_incremental": false,
@@ -90,7 +90,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.CilFinallyHandler.html",
-          "hash": "PtSAPs3z8r3QlWb4JQQPgg=="
+          "hash": "4SUF0mUULN/38VED1PRezg=="
         }
       },
       "is_incremental": false,
@@ -102,7 +102,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.CilPrototypeExceptionSpecs.html",
-          "hash": "DScFplK9A8SvH6n5CwT1HQ=="
+          "hash": "JUaV8rC+hWw7aRLTwb6q8A=="
         }
       },
       "is_incremental": false,
@@ -114,7 +114,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.ClrInstructionSimplifier.html",
-          "hash": "fT5w6UBnBk14UF16ai1m3A=="
+          "hash": "7xEiqpfgPDg1K2uPOGePdA=="
         }
       },
       "is_incremental": false,
@@ -126,7 +126,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.ClrMethodBodyAnalyzer.html",
-          "hash": "FWngBK5Coh4ohKoisxt/dg=="
+          "hash": "PDxdo8zNwxh+nd4Z3RedGw=="
         }
       },
       "is_incremental": false,
@@ -150,7 +150,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.CecilAssemblyResolver.html",
-          "hash": "gg2UfvDtKARZod6A+oca3Q=="
+          "hash": "owFBQ/lU8fmJudVXZiw7Rg=="
         }
       },
       "is_incremental": false,
@@ -162,7 +162,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrAccessorDefinition.html",
-          "hash": "hJ40eHZpUnRq3QgmMG3XvQ=="
+          "hash": "MXmTVH+QHC6uiFKNGxdn5g=="
         }
       },
       "is_incremental": false,
@@ -174,7 +174,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrArrayType.html",
-          "hash": "GbV5fdA0K0/xTn5jWehU5w=="
+          "hash": "dSc3HrU9ahsORnJnl9Y5ww=="
         }
       },
       "is_incremental": false,
@@ -186,7 +186,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrAssembly.html",
-          "hash": "J3A670tZ8fmTGRA/w/8rEQ=="
+          "hash": "7zLpIapKTmc5vpqd3bpDMg=="
         }
       },
       "is_incremental": false,
@@ -198,7 +198,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrFieldDefinition.html",
-          "hash": "2Eq1m4h9lpiFjgHYCnMwMA=="
+          "hash": "cYY55f7x8njaQf5uoJnfBg=="
         }
       },
       "is_incremental": false,
@@ -210,7 +210,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrGenericParameter.html",
-          "hash": "WV2Qx9au9kmYxtl+OAZwbg=="
+          "hash": "jgqgVMtQAwnSH6hzg83Rvw=="
         }
       },
       "is_incremental": false,
@@ -222,7 +222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrMethodDefinition.html",
-          "hash": "rMxat3iuw6qMM9cCEBmeDA=="
+          "hash": "G5gK5226ITLLwQ8r2D5Jhg=="
         }
       },
       "is_incremental": false,
@@ -234,7 +234,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrPropertyDefinition.html",
-          "hash": "zNQLy2DAzV3/OJ/ICe6ldQ=="
+          "hash": "/N/HauVvCb1yZW9vDwaPOw=="
         }
       },
       "is_incremental": false,
@@ -246,7 +246,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrPropertySignature.html",
-          "hash": "3KoZW72UTL1mVPZZZQ/HJw=="
+          "hash": "PX4po1+7FZBy/ULUCyivCA=="
         }
       },
       "is_incremental": false,
@@ -258,7 +258,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrSubtypingRules.html",
-          "hash": "tTCt+XZfl0iatT4+NnI+VA=="
+          "hash": "d8ekT8YZy3WzuAhxTHT0wA=="
         }
       },
       "is_incremental": false,
@@ -270,7 +270,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrTypeDefinition.html",
-          "hash": "SCfq+Ysf/VOKnmF8kEzZuw=="
+          "hash": "MxgiYX9PgPhewf+ltv7vlA=="
         }
       },
       "is_incremental": false,
@@ -282,7 +282,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.CorlibTypeEnvironment.html",
-          "hash": "X7k5rgHoIWfXJOnnKsQucg=="
+          "hash": "HKt1tZqEVt+OEwZvfPqRJA=="
         }
       },
       "is_incremental": false,
@@ -294,7 +294,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html",
-          "hash": "1cHvFQobiayFHIA/95FL1A=="
+          "hash": "15tNLyZYPQYxTwnzB3VYPg=="
         }
       },
       "is_incremental": false,
@@ -306,7 +306,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilCodegenInstruction.html",
-          "hash": "0euLMONoA793PgHAu12K4g=="
+          "hash": "wMWsHI1EPGel4I7056Wctw=="
         }
       },
       "is_incremental": false,
@@ -318,7 +318,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilCodegenRegister.html",
-          "hash": "2xiRin2RizYo8vTmKv0fTg=="
+          "hash": "E3cTQQZFQMY/s7os9zKp+g=="
         }
       },
       "is_incremental": false,
@@ -330,7 +330,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html",
-          "hash": "sjepgjkPiHuLYb7ifzsGXg=="
+          "hash": "sUuuaWzprzZ/6EgCqPqKag=="
         }
       },
       "is_incremental": false,
@@ -342,7 +342,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilInstructionSelector.html",
-          "hash": "K3up1DctrRxjO7NXr46CXQ=="
+          "hash": "J/X1gaNK1YCiMpljUxFjvQ=="
         }
       },
       "is_incremental": false,
@@ -354,7 +354,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilLoadRegisterInstruction.html",
-          "hash": "URvRC4N7VE10zFHCWmm1RA=="
+          "hash": "DIAMUbJBvh/XHnfqzGxAIw=="
         }
       },
       "is_incremental": false,
@@ -366,7 +366,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilMarkTargetInstruction.html",
-          "hash": "aqRWw9UziC6VaWtVv46BWQ=="
+          "hash": "ttOxHngZ1KnNTOSEvYk1RA=="
         }
       },
       "is_incremental": false,
@@ -378,7 +378,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilOpInstruction.html",
-          "hash": "nCQcPlmloiNjMdYGINk9WA=="
+          "hash": "nu5nTXIGWCpwXjA8yzwhIQ=="
         }
       },
       "is_incremental": false,
@@ -390,7 +390,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilPeepholeOptimizer.html",
-          "hash": "CO6jKzFMKwXqz7sixXpgVg=="
+          "hash": "i8+364xpHXIxEagsaNV5cA=="
         }
       },
       "is_incremental": false,
@@ -402,7 +402,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilRegisterAllocator.html",
-          "hash": "fzsfSu+8P4uRm8+wESBC9g=="
+          "hash": "2iG8h9zGmuCPv1MELI+EGg=="
         }
       },
       "is_incremental": false,
@@ -414,7 +414,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilStoreRegisterInstruction.html",
-          "hash": "yoptVUNU9mXK+aueTEw4+g=="
+          "hash": "EdmhCMz6QZi7ufd9kc1eJQ=="
         }
       },
       "is_incremental": false,
@@ -426,7 +426,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.ClrMethodBodyEmitter.html",
-          "hash": "CGil/kvytEEEEudhwNhRNQ=="
+          "hash": "DyuvzDITyI5iuAylYCLWVA=="
         }
       },
       "is_incremental": false,
@@ -450,7 +450,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.NameConversion.html",
-          "hash": "otAfCALhbcNcM1tTEp0Nfw=="
+          "hash": "8fT17I1xgzvo/eEyFnK6ww=="
         }
       },
       "is_incremental": false,
@@ -462,7 +462,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ReferenceResolver.html",
-          "hash": "Snzzm/92/WBqvapXh0kBng=="
+          "hash": "7LeuT6vOEMhkWmVMP1Pw9g=="
         }
       },
       "is_incremental": false,
@@ -474,7 +474,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Transforms.CanonicalizeDelegates.html",
-          "hash": "cC9tavnnK1W6/TSIAtICBw=="
+          "hash": "bz1Q+hsgo0qaca78+jEJEA=="
         }
       },
       "is_incremental": false,
@@ -486,7 +486,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Transforms.ExpandLinq.html",
-          "hash": "tnFsoSUDlQQc8TS310FqIQ=="
+          "hash": "swt15jKiqn4lpoOzmq3N3A=="
         }
       },
       "is_incremental": false,
@@ -498,7 +498,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Transforms.LowerDelegates.html",
-          "hash": "5zfXEFb+TlZokY1RXKufIA=="
+          "hash": "xBEQncWtlZ6kOBkYAMB5CA=="
         }
       },
       "is_incremental": false,
@@ -522,7 +522,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.TypeHelpers.html",
-          "hash": "VSktyLzf8BE1iHByPycOtA=="
+          "hash": "ftV78eOokbN2bbHfGC368w=="
         }
       },
       "is_incremental": false,
@@ -546,7 +546,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.Betterness.html",
-          "hash": "Nesh81iTJjBEaXm6vpc8uw=="
+          "hash": "eDaH90zjhXi9HyE0sfnm7Q=="
         }
       },
       "is_incremental": false,
@@ -558,7 +558,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.BetternessExtensions.html",
-          "hash": "uTVpCAQAFatO+cGaklMJhw=="
+          "hash": "nc57XpZD3NRS1Zd8c6op9w=="
         }
       },
       "is_incremental": false,
@@ -570,7 +570,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.Cache-2.html",
-          "hash": "tNMK3RR+Ooz+4S5h+DeGDw=="
+          "hash": "YD9Vi4XWyWfZJ/Up+NMAzA=="
         }
       },
       "is_incremental": false,
@@ -582,7 +582,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.DeferredInitializer.html",
-          "hash": "0PssOn4+XryeBv4y0POkkQ=="
+          "hash": "3VPFM5sVh6GD6UWj3udAFw=="
         }
       },
       "is_incremental": false,
@@ -594,7 +594,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.EmptyArray-1.html",
-          "hash": "bEE+cifrMTioD+VNYwI+GA=="
+          "hash": "92v1Go5D+J/ZPbGPaTNenw=="
         }
       },
       "is_incremental": false,
@@ -606,7 +606,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.EnumerableComparer-1.html",
-          "hash": "LUZrAtclJ94P+mqji4K6tw=="
+          "hash": "AWswRtCIU8bHyZ1iSqQgCg=="
         }
       },
       "is_incremental": false,
@@ -618,7 +618,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.EnumerableComparer.html",
-          "hash": "GzgRnCbUKOBridLL8Btn4w=="
+          "hash": "QDgzaK+kUp2fm7Gu6QFLGA=="
         }
       },
       "is_incremental": false,
@@ -630,7 +630,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ImmutableOrderedDictionary-2.Builder.html",
-          "hash": "TtjtzUP+5+52ILbE8m3F9Q=="
+          "hash": "tLdHDe4NQzeET+jscVPPxw=="
         }
       },
       "is_incremental": false,
@@ -642,7 +642,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ImmutableOrderedDictionary-2.html",
-          "hash": "wyw+UltW/HgQfxBg1OW86g=="
+          "hash": "kdYuAkxGtbqo85iA+5LVDg=="
         }
       },
       "is_incremental": false,
@@ -654,7 +654,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ImmutableOrderedDictionary.html",
-          "hash": "vW/IOQU/M9cU9Pv3arWxvA=="
+          "hash": "FmeRiE2Vp4Bb5OO2240qrg=="
         }
       },
       "is_incremental": false,
@@ -666,7 +666,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.Index-3.html",
-          "hash": "gHCTJ3ur4pPlDatnl1LLuQ=="
+          "hash": "CJGFzmkIDCgEWGMqzGbKnQ=="
         }
       },
       "is_incremental": false,
@@ -678,7 +678,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.InterningCache-1.html",
-          "hash": "tbvB1kQ4dFM+QK/g/guWBg=="
+          "hash": "9gkchG2YLQSSFSQ6c2ycow=="
         }
       },
       "is_incremental": false,
@@ -690,7 +690,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.LruCache-2.html",
-          "hash": "BuokDaxWKYtXvDDTCSroPA=="
+          "hash": "d9vxhY5j+fMsQRamAcTRTQ=="
         }
       },
       "is_incremental": false,
@@ -702,7 +702,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.MappedComparer-2.html",
-          "hash": "6Pep3m4Rct8GBlKxpdYJ8w=="
+          "hash": "9fdgaCPMHMIxlwz/KaKhaw=="
         }
       },
       "is_incremental": false,
@@ -714,7 +714,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ReadOnlyListExtensions.html",
-          "hash": "7xYg4Hgt4kWVobpAkENlrQ=="
+          "hash": "6prE2tzjxo7p1rv3U2Q+fQ=="
         }
       },
       "is_incremental": false,
@@ -726,7 +726,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ReadOnlySlice-1.html",
-          "hash": "wOZHArk2F0mdOmFEKxQEhQ=="
+          "hash": "2WyWsRcJeztTY/ye0ry2PA=="
         }
       },
       "is_incremental": false,
@@ -738,7 +738,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.SmallMultiDictionary-2.html",
-          "hash": "hVcpfcTM67705P9DjLS6vA=="
+          "hash": "HRYNal0OJ/mi5ZElHvwTOQ=="
         }
       },
       "is_incremental": false,
@@ -750,7 +750,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.StronglyConnectedComponents.html",
-          "hash": "yKOdtpMcWLxwTInepRTzqg=="
+          "hash": "gNZeTX+VTcQYGG/PO8+6pw=="
         }
       },
       "is_incremental": false,
@@ -762,7 +762,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.SymmetricRelation-1.html",
-          "hash": "8aaFSFz+p0HjjRAFXXrdBw=="
+          "hash": "BsTT0fohhScMZu/+7GEfLQ=="
         }
       },
       "is_incremental": false,
@@ -774,7 +774,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.Target.PeepholeOptimizer-2.html",
-          "hash": "ND98r++QAAtPgV7qLGgAMg=="
+          "hash": "Bsr46DX8lvvxKUDpiSIyzQ=="
         }
       },
       "is_incremental": false,
@@ -786,7 +786,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.Target.PeepholeRewriteRule-1.html",
-          "hash": "8wRtY0a5VequqWm+tlfopA=="
+          "hash": "MLQAjRR4xnW5Taqhh0IBGA=="
         }
       },
       "is_incremental": false,
@@ -810,7 +810,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.TreeSearchAlgorithm-2.html",
-          "hash": "GAVCTcqDG1AYBK/kbdBdWQ=="
+          "hash": "Tx8ZHDqprztzi7gLczj09g=="
         }
       },
       "is_incremental": false,
@@ -822,7 +822,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.UniqueNameMap-1.html",
-          "hash": "C7QbgdPgts6uwkKjKZtDjQ=="
+          "hash": "03xdJ3QG1q3M+vbXgHla6Q=="
         }
       },
       "is_incremental": false,
@@ -834,7 +834,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.UniqueNameSet-1.html",
-          "hash": "aKZRs/yk/C7eWRGU3VNK/w=="
+          "hash": "DaWqUrRokUmRlh9jk74UYw=="
         }
       },
       "is_incremental": false,
@@ -846,7 +846,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.ValueList-1.html",
-          "hash": "8Yg+qCvSsBUL1R2EfAOb4A=="
+          "hash": "u9tbZfBR0CbeLKp4xgnO9w=="
         }
       },
       "is_incremental": false,
@@ -858,7 +858,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Collections.WeakCache-2.html",
-          "hash": "Bk52xWWKTktBv3QasG0URA=="
+          "hash": "63GMYD1gQpIjm7axY/v4tQ=="
         }
       },
       "is_incremental": false,
@@ -882,7 +882,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.AddBasicBlockUpdate.html",
-          "hash": "T+D03I6B+Abuea9NpDeLLg=="
+          "hash": "tOrxpUX2Nok2WwFp+Lw/fg=="
         }
       },
       "is_incremental": false,
@@ -894,7 +894,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.AddInstructionUpdate.html",
-          "hash": "NBpWsgs0cDJD6pzHyDj2aA=="
+          "hash": "RnbZ6/N6eHXIcVLPqkabjA=="
         }
       },
       "is_incremental": false,
@@ -906,7 +906,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.AliasAnalysisResult.html",
-          "hash": "otOwDjOiUXURSokOwBAUrQ=="
+          "hash": "o1TjSM+jCKMG1lhAFmlLcQ=="
         }
       },
       "is_incremental": false,
@@ -918,7 +918,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.Aliasing.html",
-          "hash": "8ZMU0QQP+Fl8ILrB0Zt8ZA=="
+          "hash": "Av/kDzIdm40xQ3KH7YeG4Q=="
         }
       },
       "is_incremental": false,
@@ -930,7 +930,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BasicBlockFlowUpdate.html",
-          "hash": "sZIOubqaZPkieT5EMytJbg=="
+          "hash": "meyJ+14SicKW/DJ2r/1tbw=="
         }
       },
       "is_incremental": false,
@@ -942,7 +942,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BasicBlockParametersUpdate.html",
-          "hash": "vUTd5Hfa6R1kCC6JTmFmsQ=="
+          "hash": "zweD31jMgDxGMadyk2Vaug=="
         }
       },
       "is_incremental": false,
@@ -954,7 +954,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BasicBlockPredecessors.html",
-          "hash": "2FKchTywdz1J7gIabo3olg=="
+          "hash": "hoFFWYCCyuX4vVfFEP9dYA=="
         }
       },
       "is_incremental": false,
@@ -966,7 +966,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BasicBlockUpdate.html",
-          "hash": "Fa5vQ4dZjrVPl4Cjro1T/A=="
+          "hash": "qgHMOO4pRln1dFp0alHBvQ=="
         }
       },
       "is_incremental": false,
@@ -978,7 +978,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BlockLiveness.html",
-          "hash": "liw80saEFVEnm+Azx1f2pA=="
+          "hash": "+0t8v3grzPBKjAakeST+QA=="
         }
       },
       "is_incremental": false,
@@ -990,7 +990,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.BlockReachability.html",
-          "hash": "T5PB+WShqjW54M8MkSts2A=="
+          "hash": "vlxs1e0TBTcF38OMUWmWlQ=="
         }
       },
       "is_incremental": false,
@@ -1002,7 +1002,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ConservativeInstructionOrderingAnalysis.html",
-          "hash": "xrBasor2maO8B7JZMfvs8A=="
+          "hash": "pxWy+qmGgaejlSRPHtDenA=="
         }
       },
       "is_incremental": false,
@@ -1014,7 +1014,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ConstantAnalysis-1.html",
-          "hash": "CujZN5Eb0n0rhPoLIV6NBQ=="
+          "hash": "vJJx5XddFJlgvoqcI3KL7w=="
         }
       },
       "is_incremental": false,
@@ -1026,7 +1026,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DefaultAnalyses.html",
-          "hash": "0HiOYfXdWjN+yWLV4KrP0A=="
+          "hash": "LEOK+EA9qVqqZ4oRazvsAw=="
         }
       },
       "is_incremental": false,
@@ -1038,7 +1038,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DominatorTree.html",
-          "hash": "K0pNHlOzajTjsgs9E2ugEw=="
+          "hash": "UYFa26xn7YL1Cvr/vt1MHQ=="
         }
       },
       "is_incremental": false,
@@ -1050,7 +1050,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DominatorTreeAnalysis.html",
-          "hash": "tpyhz4KU8BW0Gn2Y/qzIcQ=="
+          "hash": "y7hIPAAnXukNlJfmEX6nVA=="
         }
       },
       "is_incremental": false,
@@ -1062,7 +1062,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.EffectfulInstructionAnalysis.html",
-          "hash": "Eub5GkQ2bkju/ZJRXcK39Q=="
+          "hash": "iIwQW6e793QX0H+/G8worA=="
         }
       },
       "is_incremental": false,
@@ -1074,7 +1074,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.EffectfulInstructions.html",
-          "hash": "dVHYH97H6TjWyFJkvuvpbA=="
+          "hash": "DcD20HaZsnTxawUeLFs0ig=="
         }
       },
       "is_incremental": false,
@@ -1086,7 +1086,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ExceptionDelayability.html",
-          "hash": "C2Y2gxt+hmmjiI2ANzbm3Q=="
+          "hash": "I/PMAhbYB3EpDj4xwCrgcA=="
         }
       },
       "is_incremental": false,
@@ -1098,7 +1098,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.html",
-          "hash": "BjOACkOH/qzGT7XHGV/ASQ=="
+          "hash": "VTFin30TO09pstQ55ARUhA=="
         }
       },
       "is_incremental": false,
@@ -1110,7 +1110,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.FlowGraphUpdate.html",
-          "hash": "8kKiFiDce29l9EpOi+dR6A=="
+          "hash": "qVSNsMImDP0XXmc2Kw+wxA=="
         }
       },
       "is_incremental": false,
@@ -1122,7 +1122,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.GreedyRegisterAllocator-1.html",
-          "hash": "pYa4FCFPX/u+NxYfs1HsBg=="
+          "hash": "6oI8ITgp0NG5AZ+F5xTSrg=="
         }
       },
       "is_incremental": false,
@@ -1134,7 +1134,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html",
-          "hash": "pGcuIjggI0BDnXj8tKMyDw=="
+          "hash": "ZnRhHufIhu1UB4HmE0L66A=="
         }
       },
       "is_incremental": false,
@@ -1146,7 +1146,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InstructionExceptionSpecs.html",
-          "hash": "STD2KJLVuMFE1TLDQcKo+w=="
+          "hash": "+/xLL8SQrKLHZsI/BQWECQ=="
         }
       },
       "is_incremental": false,
@@ -1158,7 +1158,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InstructionOrdering.html",
-          "hash": "tkczves8Rmunu9hU3fXLFA=="
+          "hash": "C8EgWdxKOy5dayI2hcB0Gg=="
         }
       },
       "is_incremental": false,
@@ -1170,7 +1170,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InstructionUpdate.html",
-          "hash": "W6V33o/XRHB2iY6zL5AC6g=="
+          "hash": "CCqPGyiCJQjkFuO0BP6SuA=="
         }
       },
       "is_incremental": false,
@@ -1182,7 +1182,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InterferenceGraph.html",
-          "hash": "N5MSUdm4vsSXx+NjopM9WA=="
+          "hash": "OVuOVQtIt3UTPX0/MlDs3Q=="
         }
       },
       "is_incremental": false,
@@ -1194,7 +1194,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InterferenceGraphAnalysis.html",
-          "hash": "15Oy/uT6OhjTX+RrmKcKnA=="
+          "hash": "zAiFlSPbrm2SufY+EXWn9A=="
         }
       },
       "is_incremental": false,
@@ -1206,7 +1206,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.LazyBlockReachability.html",
-          "hash": "8f1OKugZ3oDYh0z1myWc0w=="
+          "hash": "Ew0YNCcirY0dUaMVLrPLVg=="
         }
       },
       "is_incremental": false,
@@ -1218,7 +1218,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.LazyBlockReachabilityAnalysis.html",
-          "hash": "4CbWohEGrqraRU9Eg/nZtA=="
+          "hash": "YiIuLP6ZkjmwweOae66S3Q=="
         }
       },
       "is_incremental": false,
@@ -1230,7 +1230,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.LivenessAnalysis.html",
-          "hash": "DsnEjRqqj1xZgEq3vPJlLQ=="
+          "hash": "Aegh+wNLSeNipbkQY3Nh2Q=="
         }
       },
       "is_incremental": false,
@@ -1242,7 +1242,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.LocalMemorySSAAnalysis.html",
-          "hash": "8NUQoW+a9NhqenKciDsJmw=="
+          "hash": "XLp5H5hZE2b1H4jQM1pgoQ=="
         }
       },
       "is_incremental": false,
@@ -1254,7 +1254,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MapMembersUpdate.html",
-          "hash": "wh4CSefzx4xD5Qypu++iLQ=="
+          "hash": "DrDWpA6Woup2bib+tFXkYg=="
         }
       },
       "is_incremental": false,
@@ -1266,7 +1266,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySSA.Phi.html",
-          "hash": "DVOB9SJIX91JwrbJwph+0g=="
+          "hash": "fwbEfau6+R2sqK4SFNeuDQ=="
         }
       },
       "is_incremental": false,
@@ -1278,7 +1278,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySSA.Store.html",
-          "hash": "JdMe0A26eiAjwaTSA1nFKw=="
+          "hash": "oorGoKd4AzQRjO2oQX/urQ=="
         }
       },
       "is_incremental": false,
@@ -1290,7 +1290,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySSA.Unknown.html",
-          "hash": "T0EH323ESEYvoXvmSazPVQ=="
+          "hash": "qYgZhpbjzwXKnP+M8Av4QA=="
         }
       },
       "is_incremental": false,
@@ -1302,7 +1302,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySSA.Value.html",
-          "hash": "159vG7/foe0V47KQZVP9Gg=="
+          "hash": "JE/J9zvukg/NCC4l0VrZEg=="
         }
       },
       "is_incremental": false,
@@ -1314,7 +1314,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySSA.html",
-          "hash": "cJfdfQw7MEhLrhI2Z/vRCg=="
+          "hash": "qzuSSvVPx6gsgqJcE5Dyjg=="
         }
       },
       "is_incremental": false,
@@ -1326,7 +1326,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.html",
-          "hash": "SlVjIl5qm42mdVr+1A+jlw=="
+          "hash": "S68NsJMWpf3lmsRinxMAKw=="
         }
       },
       "is_incremental": false,
@@ -1338,7 +1338,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullabilityAnalysis.html",
-          "hash": "jnUG+RceJUECHh36dpZpPg=="
+          "hash": "a9o7ObmJxbXoDxAm8/R20g=="
         }
       },
       "is_incremental": false,
@@ -1350,7 +1350,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.PermissiveExceptionDelayability.html",
-          "hash": "2M1IeosU2jqwCZ/E7Z6dzw=="
+          "hash": "xdsXfeYa+Hlc4JjmxIgSgQ=="
         }
       },
       "is_incremental": false,
@@ -1362,7 +1362,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.PredecessorAnalysis.html",
-          "hash": "dDBDt+Pjg4THq1b8Ia0egA=="
+          "hash": "bBwDEjfuIzbvh9xs4udmtg=="
         }
       },
       "is_incremental": false,
@@ -1374,7 +1374,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.PrototypeExceptionSpecs.html",
-          "hash": "5F14ZIA6AlxxqZlF6mD8yg=="
+          "hash": "5iWXDIodf20yLdhZpBIiyw=="
         }
       },
       "is_incremental": false,
@@ -1386,7 +1386,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RegisterAllocation-1.html",
-          "hash": "miqXUJf3auN/zu0tdDopfw=="
+          "hash": "9CB2Q3rnL90e4vkepbfBUA=="
         }
       },
       "is_incremental": false,
@@ -1398,7 +1398,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RelatedValueAnalysis.html",
-          "hash": "gmlco3v3REruAOt4EUsrqQ=="
+          "hash": "vxtgzO2qxpXCAHEfejN0EA=="
         }
       },
       "is_incremental": false,
@@ -1410,7 +1410,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RelatedValues.html",
-          "hash": "niuGfuuoIePpZIOIMuVRTA=="
+          "hash": "XLnVoaAnDUbbIiRIST1i8Q=="
         }
       },
       "is_incremental": false,
@@ -1422,7 +1422,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RemoveBasicBlockUpdate.html",
-          "hash": "S1qHBg0K9zfIhlqbBSdbsw=="
+          "hash": "8dLIErwD6g3dXk5RMxIEBQ=="
         }
       },
       "is_incremental": false,
@@ -1434,7 +1434,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RemoveInstructionUpdate.html",
-          "hash": "cxFG6j6pJuiSUN0mBI7FUQ=="
+          "hash": "8DB2rEAqxLw3/FexAaG1PA=="
         }
       },
       "is_incremental": false,
@@ -1446,7 +1446,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ReplaceInstructionUpdate.html",
-          "hash": "gunmZnR/aEBlOXUGCNwGsA=="
+          "hash": "mGwRPPVSzY2uXwnoVuZAIg=="
         }
       },
       "is_incremental": false,
@@ -1458,7 +1458,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RuleBasedPrototypeExceptionSpecs.html",
-          "hash": "uzItMBEdSmv9/cBPo05Dzg=="
+          "hash": "gWjMr5d3phitLwL9aopZDQ=="
         }
       },
       "is_incremental": false,
@@ -1470,7 +1470,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.SetEntryPointUpdate.html",
-          "hash": "4PcZ2yiHkVqgnzjycF5XJA=="
+          "hash": "3lXRW/lMla/2qtX3eXhbeg=="
         }
       },
       "is_incremental": false,
@@ -1482,7 +1482,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.StrictExceptionDelayability.html",
-          "hash": "zjhxaIlHCRvW/eKKc4e1qA=="
+          "hash": "UM1utCNmtK5qISHPzsJqYg=="
         }
       },
       "is_incremental": false,
@@ -1494,7 +1494,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.TrivialAliasAnalysisResult.html",
-          "hash": "5ofnF9CXSuNlcRWWlNl1kw=="
+          "hash": "X9Lb3AR7iPiRebcjpx09Cw=="
         }
       },
       "is_incremental": false,
@@ -1506,7 +1506,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.TrivialInstructionExceptionSpecs.html",
-          "hash": "vLNXNZNHItpNhyIT5xpAZg=="
+          "hash": "CyDwPIMch2b0ql54j2i2+w=="
         }
       },
       "is_incremental": false,
@@ -1518,7 +1518,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueLiveness.html",
-          "hash": "EjURze/y78gAWhQlnCfuhQ=="
+          "hash": "akbO/swJ8un2wrkHbEQjZw=="
         }
       },
       "is_incremental": false,
@@ -1530,7 +1530,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueNullability.html",
-          "hash": "1Ubx89GiPBeBL9LbLxIjZQ=="
+          "hash": "i6gDCtgpynJMzcys5XoTtg=="
         }
       },
       "is_incremental": false,
@@ -1542,7 +1542,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueNumbering.html",
-          "hash": "+44maXxCYIZOOdn3BsK8bw=="
+          "hash": "Npc1EERbTEx1guRuDjtssA=="
         }
       },
       "is_incremental": false,
@@ -1554,7 +1554,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueNumberingAnalysis.html",
-          "hash": "TL1QqLHR2CTufrtfZlorDA=="
+          "hash": "dNAJpV5jJx/Bn2E6WH+LsQ=="
         }
       },
       "is_incremental": false,
@@ -1566,7 +1566,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueNumberingInstructionComparer.html",
-          "hash": "UCotqSasVvtrqhsGwTRQ6A=="
+          "hash": "QKHjEqLjB8JIPD1edyp+pA=="
         }
       },
       "is_incremental": false,
@@ -1578,7 +1578,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueUseAnalysis.html",
-          "hash": "Qgnx54OKiV4pgjJKDU9csg=="
+          "hash": "srz37hxLN8PtS/yJUSOYyg=="
         }
       },
       "is_incremental": false,
@@ -1590,7 +1590,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueUses.html",
-          "hash": "AL+uIdaE41291MYgEw3ceA=="
+          "hash": "L7nNcVEC3gze/Bdn4RYRSQ=="
         }
       },
       "is_incremental": false,
@@ -1614,7 +1614,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BasicBlock.html",
-          "hash": "t2sYltcA93ZLuFZfb9avtA=="
+          "hash": "mIJYEOjIvNtA0j4SuhEzlw=="
         }
       },
       "is_incremental": false,
@@ -1626,7 +1626,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BasicBlockBuilder.html",
-          "hash": "+3+gIU4+ZolDvlX2cnI+tg=="
+          "hash": "Lz+WGF6daTfRXfb6RMbXpQ=="
         }
       },
       "is_incremental": false,
@@ -1638,7 +1638,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BasicBlockTag.html",
-          "hash": "WrgjE0mDeKj9kNIKG1BSqQ=="
+          "hash": "jr6LPeSA1VQcUtoBOxSp/A=="
         }
       },
       "is_incremental": false,
@@ -1650,7 +1650,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BlockFlow.html",
-          "hash": "e8s38ZI0kpCrreJV7XqLZA=="
+          "hash": "EfkLTZ8hY65U/LfADlIOog=="
         }
       },
       "is_incremental": false,
@@ -1662,7 +1662,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BlockParameter.html",
-          "hash": "IAUsgW1pFjTn+J2Wgh/AYg=="
+          "hash": "DP/JwC2/0d1Ysl2Y27JUzQ=="
         }
       },
       "is_incremental": false,
@@ -1674,7 +1674,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Branch.html",
-          "hash": "+LC6mrCMJKa/eYFT4oL3iw=="
+          "hash": "uDGJKOMofAskxLlRd326dg=="
         }
       },
       "is_incremental": false,
@@ -1686,7 +1686,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BranchArgument.html",
-          "hash": "64qAiTNofuJDh4bv+tnfBg=="
+          "hash": "TYGp9MCwMW64r9/cZzo7vg=="
         }
       },
       "is_incremental": false,
@@ -1698,7 +1698,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.BranchArgumentKind.html",
-          "hash": "8x8qcccR2fvm/WXPrSsj5g=="
+          "hash": "eC951Es6SNm/iUOylOcZrg=="
         }
       },
       "is_incremental": false,
@@ -1710,7 +1710,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.FlowInstructionBuilder.html",
-          "hash": "zoCed1jFa5bPkXfm1VLCdg=="
+          "hash": "qfk2q6E0XZ5XCsbeeHoGhQ=="
         }
       },
       "is_incremental": false,
@@ -1722,7 +1722,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.JumpFlow.html",
-          "hash": "NKXOZASdZjSNiPFZgiuWTA=="
+          "hash": "Wi0hrk3CarEBSwLBMowbGg=="
         }
       },
       "is_incremental": false,
@@ -1734,7 +1734,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.ReturnFlow.html",
-          "hash": "/Ktnwvyh82HHKUb0fFcGlg=="
+          "hash": "I/Q077/kktletjkfmWBOBQ=="
         }
       },
       "is_incremental": false,
@@ -1746,7 +1746,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.StructuralSwitchFlowComparer.html",
-          "hash": "kZodHBABMTBQ8m1zCzhTQg=="
+          "hash": "u5n3kJsd+PLKyjZemOYkIQ=="
         }
       },
       "is_incremental": false,
@@ -1758,7 +1758,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.SwitchCase.html",
-          "hash": "zALKB9YapABBNYAJOkhDUg=="
+          "hash": "rGMpDMD6WHGKsdQrOzQa2g=="
         }
       },
       "is_incremental": false,
@@ -1770,7 +1770,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.SwitchFlow.html",
-          "hash": "I7KrwjTQvbgOOVpcuMNgkA=="
+          "hash": "XPGAzRP+l0UJZJxk17x/cw=="
         }
       },
       "is_incremental": false,
@@ -1782,7 +1782,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.TryFlow.html",
-          "hash": "k0KhOPOiHou/9UScYQuRAg=="
+          "hash": "rREIHUa46UXU10SnjnV7kQ=="
         }
       },
       "is_incremental": false,
@@ -1794,7 +1794,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.UnreachableFlow.html",
-          "hash": "NILVYOdKtxD0RzHxaloPlw=="
+          "hash": "j6BvGlr9GjAe2R3q/xsVpg=="
         }
       },
       "is_incremental": false,
@@ -1818,7 +1818,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.FlowGraph.html",
-          "hash": "xNEfkAX+4nxJJlROcPALrQ=="
+          "hash": "YU874ZT51XWb2aP3VpA7OA=="
         }
       },
       "is_incremental": false,
@@ -1830,7 +1830,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.FlowGraphBuilder.html",
-          "hash": "PY0RX3VvF/De+XhvyIh5fg=="
+          "hash": "00Uw+Oky2MvCJE/SugIlfg=="
         }
       },
       "is_incremental": false,
@@ -1854,7 +1854,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instruction.html",
-          "hash": "7auoGvZMQ0m2u3+K5rDpjg=="
+          "hash": "mRbxDKXxkwOjf6bdMFil7A=="
         }
       },
       "is_incremental": false,
@@ -1866,7 +1866,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.InstructionBuilder.html",
-          "hash": "LqlNKEHobaTLCelkdRt9Uw=="
+          "hash": "QK88xtuX/1obMsi6u/wiGw=="
         }
       },
       "is_incremental": false,
@@ -1878,7 +1878,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.InstructionPrototype.html",
-          "hash": "aQEjK3AjlkYU/k09SIDuTQ=="
+          "hash": "9qq/TxACCFsv3QNXtuM9nQ=="
         }
       },
       "is_incremental": false,
@@ -1890,7 +1890,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.AllocaArrayPrototype.html",
-          "hash": "ytSx6Bja4C+4NE591FiyFA=="
+          "hash": "RfJq84HWdlXyvPbNDRzb3w=="
         }
       },
       "is_incremental": false,
@@ -1902,7 +1902,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.AllocaPrototype.html",
-          "hash": "pdeQFuYGr2ZVXsbS1Cvklw=="
+          "hash": "rSZRIe7lcEIY7lT3bOutlQ=="
         }
       },
       "is_incremental": false,
@@ -1914,7 +1914,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ArithmeticIntrinsics.Operators.html",
-          "hash": "NcAafOxxbpkiJ8/2QKrO9A=="
+          "hash": "X/cu5+AIFp0dSRP+liCAYQ=="
         }
       },
       "is_incremental": false,
@@ -1926,7 +1926,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html",
-          "hash": "I94QPIKKWM1dQI5yd32dMg=="
+          "hash": "20ooMZAAM8eK54MiOB3beA=="
         }
       },
       "is_incremental": false,
@@ -1938,7 +1938,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ArrayIntrinsics.Operators.html",
-          "hash": "RufEr4U/k/iAmyrxZMZOEg=="
+          "hash": "km1nFD9AohGbyaCvHZ9i/g=="
         }
       },
       "is_incremental": false,
@@ -1950,7 +1950,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ArrayIntrinsics.html",
-          "hash": "SZr7j2854/5IRGt0caqsBg=="
+          "hash": "7ZEhCv0GcEguzNVkSQo5eg=="
         }
       },
       "is_incremental": false,
@@ -1962,7 +1962,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.BoxPrototype.html",
-          "hash": "78gDEd6bpLL+BZnEtJ72Sg=="
+          "hash": "BQw11Q6DG5PT5fLtKqJwGA=="
         }
       },
       "is_incremental": false,
@@ -1974,7 +1974,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.CallPrototype.html",
-          "hash": "Wtzsw9885I4xBm2hXkmkaw=="
+          "hash": "TvVk0aif9sEQmG4EDWsZyQ=="
         }
       },
       "is_incremental": false,
@@ -1986,7 +1986,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ConstantPrototype.html",
-          "hash": "hXUq3beZ2yeVurK57ZLUmg=="
+          "hash": "Dh2N3XaygSCKD5x3krABPA=="
         }
       },
       "is_incremental": false,
@@ -1998,7 +1998,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ConstrainedCallPrototype.html",
-          "hash": "dCVG9ZCPlPZDsCh3OkNH1w=="
+          "hash": "rVbxrU2QrItYqgVCx+yaRA=="
         }
       },
       "is_incremental": false,
@@ -2010,7 +2010,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.CopyPrototype.html",
-          "hash": "QgUez4uRRZMgZ51F1ToUFw=="
+          "hash": "EmmoHpqCJRQR+H0oFf5JnQ=="
         }
       },
       "is_incremental": false,
@@ -2022,7 +2022,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.DynamicCastPrototype.html",
-          "hash": "gGoS0WZBk/dCeCkTlSyDWQ=="
+          "hash": "bZkm8WBM2oSkdY9QV0LMOw=="
         }
       },
       "is_incremental": false,
@@ -2034,7 +2034,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ExceptionIntrinsics.Operators.html",
-          "hash": "enmbn5NTD+C4Jf4jbaYWNg=="
+          "hash": "fjutEkj1jdl/1hTjWcOBYg=="
         }
       },
       "is_incremental": false,
@@ -2046,7 +2046,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ExceptionIntrinsics.html",
-          "hash": "yMlQhNR/WIcPA0gaReigtg=="
+          "hash": "iDsCLOape5cAqeGFPQEyMw=="
         }
       },
       "is_incremental": false,
@@ -2058,7 +2058,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.Fused.FusedInstructionPrototype.html",
-          "hash": "sOGxhELKQvkhnQFDm4IvSQ=="
+          "hash": "XsabgZf8mw010HbkmSUnlA=="
         }
       },
       "is_incremental": false,
@@ -2070,7 +2070,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.Fused.LoadFieldPrototype.html",
-          "hash": "/IluAdbbSP+D4SWVcXFyCw=="
+          "hash": "wmZlgKxaMv4am4ussqgAag=="
         }
       },
       "is_incremental": false,
@@ -2082,7 +2082,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.Fused.StoreFieldPrototype.html",
-          "hash": "Bnl3eTujmlKdtfG9mNen/A=="
+          "hash": "d5RhIhvHX4XZ3isIlnam6w=="
         }
       },
       "is_incremental": false,
@@ -2106,7 +2106,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.GetFieldPointerPrototype.html",
-          "hash": "SpRGoAfCRCoLB9RO4AfZIQ=="
+          "hash": "JbeXxjckQU7xLXF6/Zeh+Q=="
         }
       },
       "is_incremental": false,
@@ -2118,7 +2118,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.GetStaticFieldPointerPrototype.html",
-          "hash": "wxKJdWrZkthOZxU9Gy+gBQ=="
+          "hash": "f+6+3WWgpOQxcns4kLno4g=="
         }
       },
       "is_incremental": false,
@@ -2130,7 +2130,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.IndirectCallPrototype.html",
-          "hash": "7hC4KAwJJsHLcn4OqWty2A=="
+          "hash": "o3mOnz3Ixp78ku7g9QFZbw=="
         }
       },
       "is_incremental": false,
@@ -2142,7 +2142,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.IntrinsicNamespace.html",
-          "hash": "7qo5X5eEyGlZcSX5rOMoLw=="
+          "hash": "r7sk2UUxoTHEpfqKKNmRbQ=="
         }
       },
       "is_incremental": false,
@@ -2154,7 +2154,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.IntrinsicPrototype.html",
-          "hash": "o4dF+YnV3J1xNHeXvqDBPA=="
+          "hash": "v9rHd/PoMObbS1GPEIqBWw=="
         }
       },
       "is_incremental": false,
@@ -2166,7 +2166,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.LoadPrototype.html",
-          "hash": "BM24kku33+DGwNBk7/7XJg=="
+          "hash": "Yadz2d2LrfGBJoXRS/RXew=="
         }
       },
       "is_incremental": false,
@@ -2178,7 +2178,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.MethodLookup.html",
-          "hash": "NmYxc4R82xj1B08ohhmWDw=="
+          "hash": "uvUr1uawhhpuka7lG2qpqw=="
         }
       },
       "is_incremental": false,
@@ -2190,7 +2190,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.NewDelegatePrototype.html",
-          "hash": "ZubW03aygtqc0wuqPHEQ6w=="
+          "hash": "VKg2PZ3sPk7DHmtuCScIFg=="
         }
       },
       "is_incremental": false,
@@ -2202,7 +2202,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.NewObjectPrototype.html",
-          "hash": "aJiQfIz3NSu5TSAJzUvgRA=="
+          "hash": "h8UYiuuwRuXYuPkriuNpEw=="
         }
       },
       "is_incremental": false,
@@ -2214,7 +2214,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ObjectIntrinsics.Operators.html",
-          "hash": "vV9AiZbIF2ftpnf9rj6eiw=="
+          "hash": "/J+FIsx0OQszziN2PspNgQ=="
         }
       },
       "is_incremental": false,
@@ -2226,7 +2226,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ObjectIntrinsics.html",
-          "hash": "XAjwUHhvLCh95MqYMxFESg=="
+          "hash": "1BrggydUkjTNKPSBlcLRJQ=="
         }
       },
       "is_incremental": false,
@@ -2238,7 +2238,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.ReinterpretCastPrototype.html",
-          "hash": "ZZ1R14sQ7m1k9fFtR6NL+w=="
+          "hash": "wT+VQuUvQjnTznNgVABvpw=="
         }
       },
       "is_incremental": false,
@@ -2250,7 +2250,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.StorePrototype.html",
-          "hash": "ZRoUKMjom/rcNE3EJXc5Gw=="
+          "hash": "F3O0zVTLprYVkBfsxEtQQw=="
         }
       },
       "is_incremental": false,
@@ -2262,7 +2262,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.UnboxPrototype.html",
-          "hash": "OBZneIWsJBWm3tMuD3IbRg=="
+          "hash": "yKg2DMpSMYcAXOE1mXjVbw=="
         }
       },
       "is_incremental": false,
@@ -2286,7 +2286,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.MethodBody.html",
-          "hash": "cydmUNxXRq1bmPUNi3AjSg=="
+          "hash": "ytXgDtzy5n0S4qdgUEjYVg=="
         }
       },
       "is_incremental": false,
@@ -2298,7 +2298,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.NamedInstruction.html",
-          "hash": "Dxh93MNWezngYsRb4XfDUA=="
+          "hash": "ebB3FlYhiJIvLs3Qcxg0yw=="
         }
       },
       "is_incremental": false,
@@ -2310,7 +2310,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.NamedInstructionBuilder.html",
-          "hash": "K/XtMFEyk17RuheMh6+OfA=="
+          "hash": "FGpI36ol5qO6QoL+DUELrg=="
         }
       },
       "is_incremental": false,
@@ -2322,7 +2322,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.AssemblyContentDescription.html",
-          "hash": "YuhAVTY8wK61qyEJfpFioA=="
+          "hash": "6ee14nA1lJ5s7OfLdfiiew=="
         }
       },
       "is_incremental": false,
@@ -2346,7 +2346,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.ITargetAssembly.html",
-          "hash": "Iiiz5/oWxM9+6HPCt4ygUQ=="
+          "hash": "8mAzfAuJygyMDJXFQALMMg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Pipeline.OnDemandOptimizer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Pipeline.OnDemandOptimizer.html",
+          "hash": "6rJkA2ZCzw3GiK+B7JBaew=="
         }
       },
       "is_incremental": false,
@@ -2358,7 +2370,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.Optimization.html",
-          "hash": "nnOvZO1hGvtkQOU5YOqijw=="
+          "hash": "hZjzBwYTxk2A/TDcZ0Mhag=="
         }
       },
       "is_incremental": false,
@@ -2370,7 +2382,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.OptimizationState.html",
-          "hash": "iSLGsIWZjjbEbcY7LZbp2A=="
+          "hash": "mvko1JAlh8C49sjkx3OPww=="
         }
       },
       "is_incremental": false,
@@ -2382,7 +2394,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.Optimizer.html",
-          "hash": "ZdSZ+2xat5m0X648ASEX6Q=="
+          "hash": "5HabkrsGUC0DhrR2WJQguQ=="
         }
       },
       "is_incremental": false,
@@ -2394,7 +2406,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Pipeline.html",
-          "hash": "54zo6J5Ou+tlqiHBzJAy5Q=="
+          "hash": "38NSoi0AzfQeBgibaEc+CQ=="
         }
       },
       "is_incremental": false,
@@ -2418,7 +2430,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.ILinearInstructionSelector-1.html",
-          "hash": "8iJ6dpHIf5BuEENynJe4lw=="
+          "hash": "eSLKFZSKbYqKzS2GHO9vdQ=="
         }
       },
       "is_incremental": false,
@@ -2430,7 +2442,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html",
-          "hash": "eMWVbXKVfB1HNAnV1KwoDQ=="
+          "hash": "EPm8Z/BT1+qBgzmyVGLTGA=="
         }
       },
       "is_incremental": false,
@@ -2442,7 +2454,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.SelectedInstructions-1.html",
-          "hash": "ekjAS+NBmNMmxCa9pRVvGw=="
+          "hash": "IBI+xhoi8plTsbXhlIdAJw=="
         }
       },
       "is_incremental": false,
@@ -2454,7 +2466,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.SelectedInstructions.html",
-          "hash": "r08KzxqTXsCnyqQuOTM61w=="
+          "hash": "ie/VhhxtYR/jCdSyzQjUEQ=="
         }
       },
       "is_incremental": false,
@@ -2478,7 +2490,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.AllocaToRegister.html",
-          "hash": "JY+WDYmMsPhfKcW5a78fkw=="
+          "hash": "qjn0HYGo4Wfj7vSTu039uA=="
         }
       },
       "is_incremental": false,
@@ -2490,7 +2502,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.BlockFusion.html",
-          "hash": "PQYU2gumE6xhEk89af8hlA=="
+          "hash": "MiJrIWb3B8a5Y3t3nSjfKQ=="
         }
       },
       "is_incremental": false,
@@ -2502,7 +2514,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.BoxToAlloca.html",
-          "hash": "sKsekEmqVblvdH00zS2JFw=="
+          "hash": "hFO1/qPcmKS1hD7noKyEpw=="
         }
       },
       "is_incremental": false,
@@ -2514,7 +2526,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.ConstantPropagation.html",
-          "hash": "qCsydQ1KMHm9H4zfvdOy9g=="
+          "hash": "whSiguSnoeMg1lgffI0PCQ=="
         }
       },
       "is_incremental": false,
@@ -2526,7 +2538,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.CopyPropagation.html",
-          "hash": "s5IX8iWvQeYPOIp4adIJlg=="
+          "hash": "0MRmWdiMDP/LNfSi+8ku4A=="
         }
       },
       "is_incremental": false,
@@ -2538,7 +2550,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.DeadBlockElimination.html",
-          "hash": "3kU6WYVqI1JTTEC9bWLWHg=="
+          "hash": "CqeTBeWtbBHgX7RIxLg1HA=="
         }
       },
       "is_incremental": false,
@@ -2550,7 +2562,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.DeadValueElimination.html",
-          "hash": "mtQpQcqNSOlARsJKRiMzBw=="
+          "hash": "RqtPzGpfHtW5qY+d6Hl/nQ=="
         }
       },
       "is_incremental": false,
@@ -2562,7 +2574,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.DuplicateReturns.html",
-          "hash": "LMAmYTXO97NR2L3m8OjHbg=="
+          "hash": "E3XxAdWU0W4H2DXdn7/Ffg=="
         }
       },
       "is_incremental": false,
@@ -2574,7 +2586,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.ForwardRegisters.html",
-          "hash": "GF0aItb45zhmwCwR2wcsLA=="
+          "hash": "mqb0Pl+HTKArF4MxWG+E2A=="
         }
       },
       "is_incremental": false,
@@ -2586,7 +2598,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.FuseMemoryAccesses.html",
-          "hash": "73FPgtKTGgJvqhYFcQSPMw=="
+          "hash": "iIN33kOTfCbqfibnAD7a2g=="
         }
       },
       "is_incremental": false,
@@ -2598,7 +2610,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.GlobalValueNumbering.html",
-          "hash": "NnEXfWymZ9iE2oOMyl2Lfg=="
+          "hash": "I16otpg+z9B62/OCVDwZOA=="
         }
       },
       "is_incremental": false,
@@ -2610,7 +2622,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.InstructionSimplification.html",
-          "hash": "TSL2ceRapctMVMwzQoYvvA=="
+          "hash": "6blbTQAe2iy/hU3RZcco4w=="
         }
       },
       "is_incremental": false,
@@ -2622,7 +2634,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.InstructionSimplificationAnalysis.Results.html",
-          "hash": "7gUHQa+qpU8FtoAS7vmUBQ=="
+          "hash": "pCnx41ziDtYheC5T/zIQGw=="
         }
       },
       "is_incremental": false,
@@ -2634,7 +2646,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.InstructionSimplificationAnalysis.html",
-          "hash": "mco0U2eEt06UrvOLnXkYuA=="
+          "hash": "7SZmwvpoa9e8MgIwlW1EUw=="
         }
       },
       "is_incremental": false,
@@ -2646,7 +2658,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.IntraproceduralOptimization.html",
-          "hash": "m79/2xWavztVkqqIsVTFDg=="
+          "hash": "GGm3iUaW/OPU3Gy+O4hwbg=="
         }
       },
       "is_incremental": false,
@@ -2658,7 +2670,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.JumpThreading.html",
-          "hash": "MooJj4UhKk08XB7CnUXmKg=="
+          "hash": "7z5pAzysgsbZWX4JQq84vw=="
         }
       },
       "is_incremental": false,
@@ -2670,7 +2682,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.JumpToEntryRemoval.html",
-          "hash": "Wh81AV/kh72ZiPeW1N1LBw=="
+          "hash": "hO71Gw1ODCuz96162wj4zg=="
         }
       },
       "is_incremental": false,
@@ -2682,7 +2694,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.MemoryAccessElimination.html",
-          "hash": "ss3/d1W3vinYlknY/+J84w=="
+          "hash": "L64tLY+XJ4lfHJrvQvlJbw=="
         }
       },
       "is_incremental": false,
@@ -2694,7 +2706,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.ReassociateOperators.html",
-          "hash": "U2MJtRdAQn44/AUGXBtRew=="
+          "hash": "jhB5fkNAib3ZKuSFk27KXQ=="
         }
       },
       "is_incremental": false,
@@ -2706,7 +2718,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.ScalarReplacement.html",
-          "hash": "4+bWeVGmg/iXG3U+4hfx4w=="
+          "hash": "cf17WrhqDns+nuDnRrO8Xg=="
         }
       },
       "is_incremental": false,
@@ -2718,7 +2730,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.SwitchLowering.html",
-          "hash": "gpFknXIHjUyG4xgwIzg9SA=="
+          "hash": "7chNzGX8dBOm82vHUKgEiw=="
         }
       },
       "is_incremental": false,
@@ -2730,7 +2742,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.SwitchSimplification.html",
-          "hash": "9LnBvuw1FBOj1RoeC4AQcQ=="
+          "hash": "O85AonIZYa1gVTOgtS/jbQ=="
         }
       },
       "is_incremental": false,
@@ -2742,7 +2754,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.TailRecursionElimination.html",
-          "hash": "tXBR+MxrFKxlwybLjeiy3A=="
+          "hash": "0GYR6rhnKIjxB9/zWGUCCg=="
         }
       },
       "is_incremental": false,
@@ -2754,7 +2766,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.Transform.html",
-          "hash": "sZo+qNRjLI6kZoyVA6B1NA=="
+          "hash": "EBjN4eidZQraCg8tB9R+ww=="
         }
       },
       "is_incremental": false,
@@ -2778,7 +2790,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.UniqueTag.html",
-          "hash": "8w0ur2TxB5Ks3hQbZYcb4g=="
+          "hash": "lc6bisSidEYttTgHS9C4HQ=="
         }
       },
       "is_incremental": false,
@@ -2790,7 +2802,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.ValueTag.html",
-          "hash": "k17VvdKpocESJu9L38m1nQ=="
+          "hash": "hE0zr9/4ktRtxOSs7l8Kbg=="
         }
       },
       "is_incremental": false,
@@ -2814,7 +2826,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constant.html",
-          "hash": "g4jViexfoPkHIh1CJAjP3g=="
+          "hash": "/VGX4J1KiF9sf+uSsx/DqQ=="
         }
       },
       "is_incremental": false,
@@ -2826,7 +2838,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.BooleanConstant.html",
-          "hash": "/693WnMeZf1IrSq2u+0tWQ=="
+          "hash": "zxmoRwOIT8a597mJ9RkUeQ=="
         }
       },
       "is_incremental": false,
@@ -2838,7 +2850,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.DefaultConstant.html",
-          "hash": "D8AbrbAWZ1br97JJ6Ljh8g=="
+          "hash": "eJserUA3ynsd+R8bimFifA=="
         }
       },
       "is_incremental": false,
@@ -2850,7 +2862,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.FieldTokenConstant.html",
-          "hash": "0n4c9E1zvSD1bWvJ4ViQCg=="
+          "hash": "JE/Vax9Ljzd/FMznbq4CUg=="
         }
       },
       "is_incremental": false,
@@ -2862,7 +2874,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.Float32Constant.html",
-          "hash": "FAzHKUX6PiFnUTbacJpe3A=="
+          "hash": "3ZfZrvA/EglVmZG81j2AWQ=="
         }
       },
       "is_incremental": false,
@@ -2874,7 +2886,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.Float64Constant.html",
-          "hash": "9aCUcehoxQ6IU67pSw+OGQ=="
+          "hash": "cy1DtYBGXnBRMKjp3yufQw=="
         }
       },
       "is_incremental": false,
@@ -2886,7 +2898,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.IntegerConstant.html",
-          "hash": "WfsrOG8ouwK+MBnOrkSijw=="
+          "hash": "qTHcBCguxPfCP1WCSYPJ7Q=="
         }
       },
       "is_incremental": false,
@@ -2898,7 +2910,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.IntegerSpec.html",
-          "hash": "aQEZSGtE7Agw28scUhDYUQ=="
+          "hash": "WdoTdV3qRwocoMzF8GJlpg=="
         }
       },
       "is_incremental": false,
@@ -2910,7 +2922,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.MethodTokenConstant.html",
-          "hash": "KHKKdWKzLU7BT3P1BSbWmw=="
+          "hash": "lNHCXCCb6M5WQAOXlRD/6w=="
         }
       },
       "is_incremental": false,
@@ -2922,7 +2934,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.NullConstant.html",
-          "hash": "RI3PEgQHc04mv+u7N7Ri3w=="
+          "hash": "m8HV+66lTVLHPFgo4H5g/A=="
         }
       },
       "is_incremental": false,
@@ -2934,7 +2946,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.SignedDivisionMagic.html",
-          "hash": "1YVuMNCjgb5zz1Vl3MzInQ=="
+          "hash": "3sEjiSU2VnpPoHADS8ifzg=="
         }
       },
       "is_incremental": false,
@@ -2946,7 +2958,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.StringConstant.html",
-          "hash": "F33MJIBvkeJFuwnXRUylZw=="
+          "hash": "6cPbDqFCJRKfubgo+6CzPQ=="
         }
       },
       "is_incremental": false,
@@ -2958,7 +2970,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.TypeTokenConstant.html",
-          "hash": "LKnwnjBEbtZI5ufIJcF7iQ=="
+          "hash": "IFiZiw7wsOWROMQPVCoLKQ=="
         }
       },
       "is_incremental": false,
@@ -2970,7 +2982,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Constants.UnsignedDivisionMagic.html",
-          "hash": "+gCkwPrwLw/nFhT3WI+XTQ=="
+          "hash": "YSnWWu8jJLj8BTe6m0dhIA=="
         }
       },
       "is_incremental": false,
@@ -2994,7 +3006,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ContractHelpers.html",
-          "hash": "UIg1ltJ9h427zjjUzg75Jg=="
+          "hash": "U8laUyYHIUaJmlNckDpqFA=="
         }
       },
       "is_incremental": false,
@@ -3006,7 +3018,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExactExceptionSpecification.html",
-          "hash": "N+5xAqaICHdrTbrEv3wUqw=="
+          "hash": "IRZlknXqAkQnR5JdnXevHA=="
         }
       },
       "is_incremental": false,
@@ -3018,7 +3030,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExceptionSpecification.html",
-          "hash": "0yS2De28h8RNA5OgTMP32Q=="
+          "hash": "xhvfEJgSzZq0X5jfoXGn3A=="
         }
       },
       "is_incremental": false,
@@ -3030,7 +3042,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.GenericName.html",
-          "hash": "4r6BkpQhj6C/gMJdSLvNKQ=="
+          "hash": "zL70e2RRw0UDklHk6qAX0g=="
         }
       },
       "is_incremental": false,
@@ -3042,7 +3054,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IAccessor.html",
-          "hash": "2jBKsTfaYqOuproXc7E24w=="
+          "hash": "+SHV8XiHC0+ynKoOe+09NA=="
         }
       },
       "is_incremental": false,
@@ -3054,7 +3066,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IAssembly.html",
-          "hash": "Dr2Iq3BN4LatoERj4NJ6VA=="
+          "hash": "J5RxpDXge8/oRsZq+hk9Tg=="
         }
       },
       "is_incremental": false,
@@ -3090,7 +3102,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IGenericMember.html",
-          "hash": "uVuw3x/CMOWi7wWrvPa5FA=="
+          "hash": "RwCNXly5QzY2u6X5a6Nuvg=="
         }
       },
       "is_incremental": false,
@@ -3102,7 +3114,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IGenericParameter.html",
-          "hash": "b4jEpNxGTQYZ6kDro0Vp+A=="
+          "hash": "YUJbkI/1Ztk4hpq3d3H2lg=="
         }
       },
       "is_incremental": false,
@@ -3126,7 +3138,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IMethod.html",
-          "hash": "Gps6OlaIbZIQnbXSjYYy1A=="
+          "hash": "gc10lvPwHhx79pGgSfPPxg=="
         }
       },
       "is_incremental": false,
@@ -3138,7 +3150,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IProperty.html",
-          "hash": "J/g5YzR3Xsu0RcNeNZ2IgA=="
+          "hash": "vIXGiclxz2V2pCZ1jV381A=="
         }
       },
       "is_incremental": false,
@@ -3150,7 +3162,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IType.html",
-          "hash": "bteuoC+ys5gc4B+S45iN1A=="
+          "hash": "XZddG7IogLMyyVikLRPJBg=="
         }
       },
       "is_incremental": false,
@@ -3174,7 +3186,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.Codec-2.html",
-          "hash": "+yf2WPQxMb/YgrrBfKd3rA=="
+          "hash": "LNNHQFNZw0pc1b12J6TZ2A=="
         }
       },
       "is_incremental": false,
@@ -3186,7 +3198,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.CodecElement-2.html",
-          "hash": "yOZztnIinnrneiyt5C8gyw=="
+          "hash": "4q1RgF1x0dKDZ+ZV8Cy5tg=="
         }
       },
       "is_incremental": false,
@@ -3198,7 +3210,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.ConstantCodec.html",
-          "hash": "9w+gDozR8Xsb9yNsfJhtww=="
+          "hash": "QbM9twfx5D2oNjTEcLRc9w=="
         }
       },
       "is_incremental": false,
@@ -3210,7 +3222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.DecoderState.html",
-          "hash": "DicsJYKq5mLB3+jjDt5rKQ=="
+          "hash": "xizTCzdKjXaqGOViCfI4aQ=="
         }
       },
       "is_incremental": false,
@@ -3222,7 +3234,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.EncoderState.html",
-          "hash": "wVw9r8GpzRKeUoQISqvimg=="
+          "hash": "M260NcpfMvqYFa4qTpxwYg=="
         }
       },
       "is_incremental": false,
@@ -3234,7 +3246,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.FeedbackHelpers.html",
-          "hash": "elpw/drGjnqGR+QBJBd4bA=="
+          "hash": "xMXpP/fjqzinJLp3FrGWqA=="
         }
       },
       "is_incremental": false,
@@ -3246,7 +3258,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.InstructionCodecElements.html",
-          "hash": "BZnACsKc4oL2W4nnGEa2gQ=="
+          "hash": "RMe13ej7fkn12WiecTHxhw=="
         }
       },
       "is_incremental": false,
@@ -3258,7 +3270,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrAssembly.html",
-          "hash": "hV2mQzUSJtjp0WxrQ8XMwA=="
+          "hash": "ft6wqsDBIFxH2yz8bQxbNQ=="
         }
       },
       "is_incremental": false,
@@ -3270,7 +3282,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrCodec.html",
-          "hash": "eySRmRB/UWRWbe5JOL6rFw=="
+          "hash": "Rp7DWU8wEvDAJryfzgKGag=="
         }
       },
       "is_incremental": false,
@@ -3282,7 +3294,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrField.html",
-          "hash": "eTdVbVKoua3GkahRZQH3AA=="
+          "hash": "P6kB9CT8Kh7El550jyuc/A=="
         }
       },
       "is_incremental": false,
@@ -3294,7 +3306,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrMember.html",
-          "hash": "8OXVYKAq7N4ox405++3NYQ=="
+          "hash": "E5r7X2C3hMm3VE2AEy8hSw=="
         }
       },
       "is_incremental": false,
@@ -3306,7 +3318,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrMethod.html",
-          "hash": "skEC/oUPZKV0iqKu3RJonA=="
+          "hash": "73jnN1eRAHlBmp5CjyY/cQ=="
         }
       },
       "is_incremental": false,
@@ -3318,7 +3330,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrType.html",
-          "hash": "AaknvMlBfpyzP8NngWPprw=="
+          "hash": "sDP1aNMviR2raExf3ukuqg=="
         }
       },
       "is_incremental": false,
@@ -3330,7 +3342,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.PiecewiseCodec-1.html",
-          "hash": "FA0b/T2bcE04Pf6ddLrcrA=="
+          "hash": "l3HPCAspF57P8xIWlNb11g=="
         }
       },
       "is_incremental": false,
@@ -3342,7 +3354,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.TypeCodec.html",
-          "hash": "1aTngyCWMfpjSZvS1GYyvQ=="
+          "hash": "W0mps7gNKLEWTbXs1WEasw=="
         }
       },
       "is_incremental": false,
@@ -3354,7 +3366,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.TypeDefinitionCodec.html",
-          "hash": "A/wvCWgtr9AN9zeWrdrhZQ=="
+          "hash": "b49BSPsk+hMis+P/nD/TGg=="
         }
       },
       "is_incremental": false,
@@ -3366,7 +3378,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.TypeMemberCodec.html",
-          "hash": "VbLs1AQVjkNx4Cdt6cquVw=="
+          "hash": "TghY00bpZt/NFiLFGhaWyA=="
         }
       },
       "is_incremental": false,
@@ -3378,7 +3390,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.TypeMemberDefinitionCodec.html",
-          "hash": "bqk7z4N+1XHgRtcecKuZ0g=="
+          "hash": "bgh6c3s4rghk/Ud8iWV3Dg=="
         }
       },
       "is_incremental": false,
@@ -3402,7 +3414,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Parameter.html",
-          "hash": "uXUKFuY5rPmXI0EWLL2RPw=="
+          "hash": "CAxO/kr6gq1i7pMgsNafAQ=="
         }
       },
       "is_incremental": false,
@@ -3414,7 +3426,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.PointerName.html",
-          "hash": "O0JtFy+NKDfHentdtLYGGA=="
+          "hash": "MVh+wB2NeoMmNryyT4mv1g=="
         }
       },
       "is_incremental": false,
@@ -3426,7 +3438,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.QualifiedName.html",
-          "hash": "rQmME+kkm1MpyhKkDfGPgQ=="
+          "hash": "lt7CTjipQiPle6TVU2CyKw=="
         }
       },
       "is_incremental": false,
@@ -3438,7 +3450,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.SimpleName.html",
-          "hash": "KJUCI83pdyVIsBRR+tp8kg=="
+          "hash": "+8fSshKFpsaggJP8ZTEfnA=="
         }
       },
       "is_incremental": false,
@@ -3450,7 +3462,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeExtensions.html",
-          "hash": "TUfVcDokwb8ALlhIKwmgdw=="
+          "hash": "BDlV8W2k3JjeN96m5b527A=="
         }
       },
       "is_incremental": false,
@@ -3462,7 +3474,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeParent.html",
-          "hash": "q9zFw0lISod9GoDsxbm8nQ=="
+          "hash": "ihjNc2F/x5zCtuwpP8vMJw=="
         }
       },
       "is_incremental": false,
@@ -3474,7 +3486,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.AssemblyResolver.html",
-          "hash": "KpknVk+IQgfz5sxG9bSG/A=="
+          "hash": "CXQRE4g4vHVBNxYh9GHDYA=="
         }
       },
       "is_incremental": false,
@@ -3486,7 +3498,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ContainerType.html",
-          "hash": "5U30dLzmB/nQ+g+KNhZ1Sg=="
+          "hash": "YZ6nvtaHbbuaWbP4XmC8QQ=="
         }
       },
       "is_incremental": false,
@@ -3498,7 +3510,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedAccessor.html",
-          "hash": "IrII3KDayNnehUQjLBK94A=="
+          "hash": "Yk518TBDkq13Nv4o22XsOA=="
         }
       },
       "is_incremental": false,
@@ -3510,7 +3522,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedAssembly.html",
-          "hash": "vTzsRbqpTNSEoOzXQK28pw=="
+          "hash": "GHR0JCdIBUK4kJ3GU4wUJA=="
         }
       },
       "is_incremental": false,
@@ -3522,7 +3534,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedBodyAccessor.html",
-          "hash": "vzTKrx5KYthimpd93esvSA=="
+          "hash": "kdHZNIF+YeXNPj4o9v+rGQ=="
         }
       },
       "is_incremental": false,
@@ -3534,7 +3546,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedBodyMethod.html",
-          "hash": "sZkU2umKN/s84y6697R7gg=="
+          "hash": "wCInX1AGtknk62JIuS2Mhw=="
         }
       },
       "is_incremental": false,
@@ -3546,7 +3558,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedField.html",
-          "hash": "748PslHdTuI/0JkU3qjDyQ=="
+          "hash": "/Oka+BngTTdiz/xaN3Rp4Q=="
         }
       },
       "is_incremental": false,
@@ -3558,7 +3570,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedGenericMember.html",
-          "hash": "ATumrA/lpqcmz6WMxBMb4w=="
+          "hash": "aphdhRcPjCG7+f1tXOLn4Q=="
         }
       },
       "is_incremental": false,
@@ -3570,7 +3582,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedGenericParameter.html",
-          "hash": "nmtlDmF7F+jJozXW5VPFIg=="
+          "hash": "4511Dn3ber9LRC7pf1qlxQ=="
         }
       },
       "is_incremental": false,
@@ -3582,7 +3594,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedMember.html",
-          "hash": "GRRna3XogCCOvDn2KNMviQ=="
+          "hash": "1NNE/zN/BFuajgrbodsUnw=="
         }
       },
       "is_incremental": false,
@@ -3594,7 +3606,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedMethod.html",
-          "hash": "C6wdZzYhBOGZTQ4qpXCB9w=="
+          "hash": "PePr/JD5UagUt58k7MfnnA=="
         }
       },
       "is_incremental": false,
@@ -3606,7 +3618,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedType.html",
-          "hash": "IQB+jfONYiGbxRkVwHUxkw=="
+          "hash": "7X3W/u2iVO/ILEHbfeNAmw=="
         }
       },
       "is_incremental": false,
@@ -3618,7 +3630,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectMethodSpecialization.html",
-          "hash": "KLHEype/S8JLWTAIh/8Wew=="
+          "hash": "h3ko0pFdcZfRmADSNsdjNQ=="
         }
       },
       "is_incremental": false,
@@ -3630,7 +3642,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectTypeSpecialization.html",
-          "hash": "MIMaN8u69UGhuY1How0igQ=="
+          "hash": "oUnZRdrFxIHS53w9aE1n0A=="
         }
       },
       "is_incremental": false,
@@ -3642,7 +3654,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ErrorType.html",
-          "hash": "S9jqmEvQsRiUZnlNJ8VzLg=="
+          "hash": "119aYHRGCy18YWmqj1bJpQ=="
         }
       },
       "is_incremental": false,
@@ -3654,7 +3666,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.FlagAttribute.html",
-          "hash": "vqcF1VK/CjbRHcv/4V3RYg=="
+          "hash": "4r9ygfHV1kHOgFJOYV1quQ=="
         }
       },
       "is_incremental": false,
@@ -3666,7 +3678,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ImpreciseBoolean.html",
-          "hash": "m1Ulyk5hTC3vJKfn2O6gBA=="
+          "hash": "0NkjdlCw94zl9XY1Ed8Xjw=="
         }
       },
       "is_incremental": false,
@@ -3678,7 +3690,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectAccessorSpecialization.html",
-          "hash": "Wh5i3oloMUNJPGpFCDe3Cg=="
+          "hash": "dIMTIkSh1lRo/lpp3IGimw=="
         }
       },
       "is_incremental": false,
@@ -3690,7 +3702,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectFieldSpecialization.html",
-          "hash": "FZ9NfKmd18PIOYUcm2dKDA=="
+          "hash": "O35ArXtlYurtYc/5D7ldPQ=="
         }
       },
       "is_incremental": false,
@@ -3702,7 +3714,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectGenericParameterSpecialization.html",
-          "hash": "FPLhjfuMwyRwtO/mndkGNA=="
+          "hash": "ntAw8VpSL94Aj/ccIDRNCA=="
         }
       },
       "is_incremental": false,
@@ -3714,7 +3726,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectMethodSpecialization.html",
-          "hash": "MJhx1iAhYfr/+HqY8+Yhxw=="
+          "hash": "nZwyaAeg6zHdlSlzwqbm4Q=="
         }
       },
       "is_incremental": false,
@@ -3726,7 +3738,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectPropertySpecialization.html",
-          "hash": "Dae/LwGbVIZN78GgqouhHw=="
+          "hash": "/xBxZpThSgsM+Rg0Gh/bIQ=="
         }
       },
       "is_incremental": false,
@@ -3738,7 +3750,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectTypeSpecialization.html",
-          "hash": "M9cHiijTYPJrdJ1Hoj6I7g=="
+          "hash": "d3zs7DTfW6ncZ8Q1wN6I8g=="
         }
       },
       "is_incremental": false,
@@ -3750,7 +3762,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IntegerSpecAttribute.html",
-          "hash": "dwNjG9jp92ByKCtTVWf7aA=="
+          "hash": "rZEW313571CvfpclIXTO1A=="
         }
       },
       "is_incremental": false,
@@ -3762,7 +3774,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IntrinsicAttribute.html",
-          "hash": "CMPxq/JEOR3I/h9OPV0Ozg=="
+          "hash": "xABcxd91/j8MKYxym9VKZw=="
         }
       },
       "is_incremental": false,
@@ -3774,7 +3786,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.MemberMapping.html",
-          "hash": "51j5vt57NFmqIl4BRX5p3A=="
+          "hash": "2reftQi4lBKB6d6bCzhCZg=="
         }
       },
       "is_incremental": false,
@@ -3786,7 +3798,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.MethodSpecialization.html",
-          "hash": "d8AaAfWdEdnOkD41Nz/AlQ=="
+          "hash": "y8hpPlPuwNhy3esIkwJxpg=="
         }
       },
       "is_incremental": false,
@@ -3798,7 +3810,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.MutableTypeEnvironment.html",
-          "hash": "9DKVFKckpX9aT6DxWPPehQ=="
+          "hash": "kjBk4ZgZD9DiB9gXtaoDGA=="
         }
       },
       "is_incremental": false,
@@ -3810,7 +3822,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.NullAssemblyResolver.html",
-          "hash": "VkOkA/tE2yjn8GqpPTpGnA=="
+          "hash": "sXEN7y7yeEhadP6EXqfFVg=="
         }
       },
       "is_incremental": false,
@@ -3822,7 +3834,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.PointerKind.html",
-          "hash": "bZDL3gUvSmbEX1ZSbeXrOA=="
+          "hash": "b5+xDpVc2Ej1uQ2BAsUF4Q=="
         }
       },
       "is_incremental": false,
@@ -3834,7 +3846,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.PointerType.html",
-          "hash": "EpPi7Uj4LfMGZuvAAWtl9g=="
+          "hash": "KfET70PB7seERieer6wWGA=="
         }
       },
       "is_incremental": false,
@@ -3846,7 +3858,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ReadOnlyTypeResolver.html",
-          "hash": "LlrPZNlTC0pzmFcD9+pp+A=="
+          "hash": "oBCTRs5r9fv8qDfWaeR2Bw=="
         }
       },
       "is_incremental": false,
@@ -3858,7 +3870,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.SubtypingRules.html",
-          "hash": "pSK03g8Mz2rXzNQTItlVBA=="
+          "hash": "Ohgqe6D3mdki50+T/tTcOw=="
         }
       },
       "is_incremental": false,
@@ -3870,7 +3882,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeEnvironment.html",
-          "hash": "M3NLO8PfT+6tftop77uvBw=="
+          "hash": "DccV9vIINF04aphrFyFHig=="
         }
       },
       "is_incremental": false,
@@ -3882,7 +3894,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeFuncVisitor.html",
-          "hash": "Fivt3CYnFnFv7sfqK1VBLg=="
+          "hash": "CwBsWNtt923aKZKqGz1xVA=="
         }
       },
       "is_incremental": false,
@@ -3894,7 +3906,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeMappingVisitor.html",
-          "hash": "Lp5ZxYAuETidGyI1e6C6fQ=="
+          "hash": "f6PhrsbANpuv2hcApeMsiw=="
         }
       },
       "is_incremental": false,
@@ -3906,7 +3918,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeResolver.html",
-          "hash": "RQjppk7f8IrgPoaIzOL0lA=="
+          "hash": "aTuMZugwb+egvOPkAILbjA=="
         }
       },
       "is_incremental": false,
@@ -3918,7 +3930,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeResolverNamespace.html",
-          "hash": "ttANC4hLHY3U13hcOShiVQ=="
+          "hash": "9e1GlhHKllCkLibZ1lM5dA=="
         }
       },
       "is_incremental": false,
@@ -3930,7 +3942,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeSpecialization.html",
-          "hash": "gdlLu9aLKCXneTVafpj5MQ=="
+          "hash": "JccB31jCyiPl2OcD0pzaWA=="
         }
       },
       "is_incremental": false,
@@ -3942,7 +3954,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeVisitor.html",
-          "hash": "+8Z1qN7lHjtyzZ3a80awHw=="
+          "hash": "aZgbv21eE8NJ1g5L4o1Jtw=="
         }
       },
       "is_incremental": false,
@@ -3954,7 +3966,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.VirtualMethodSetExtensions.html",
-          "hash": "G8V8c9y745UguEnGa536Zg=="
+          "hash": "mAHkGar90AHouepf5j4mIQ=="
         }
       },
       "is_incremental": false,
@@ -3978,7 +3990,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.UnionExceptionSpecification.html",
-          "hash": "eeLmrQu6qj6/xSsOhBrGFQ=="
+          "hash": "NrZ+30dgMJmZMlfiKjqnrw=="
         }
       },
       "is_incremental": false,
@@ -3990,7 +4002,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.UnqualifiedName.html",
-          "hash": "AaYwEy96hiVsMdzmVwjZFw=="
+          "hash": "42TVv6GDAHHPCA1Z6OeRYg=="
         }
       },
       "is_incremental": false,
@@ -4029,7 +4041,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "sPnmTW3M/EVh9vAMaJLGWw=="
+          "hash": "iHK/JFyjVbb+yOaVOdRsgA=="
         }
       },
       "is_incremental": false,
@@ -4107,23 +4119,23 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 4,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 333,
-          "skipped_file_count": 0
-        },
         "TocDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
           "total_file_count": 0,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 334,
+          "skipped_file_count": 0
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 4,
           "skipped_file_count": 0
         }
       }

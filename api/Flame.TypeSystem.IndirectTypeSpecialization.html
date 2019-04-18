@@ -127,6 +127,24 @@
     <div>
       <a class="xref" href="Flame.TypeSystem.TypeSpecialization.html#Flame_TypeSystem_TypeSpecialization_ToString">TypeSpecialization.ToString()</a>
     </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
@@ -195,7 +213,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
         <td><p>The generic parameters.</p>
 </td>
       </tr>
@@ -311,6 +329,70 @@
   </div>
   <div>
       <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_IsPointerType_Flame_IType_">TypeExtensions.IsPointerType(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_IsPointerType_Flame_IType_Flame_TypeSystem_PointerKind_">TypeExtensions.IsPointerType(IType, PointerKind)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakePointerType_Flame_IType_Flame_TypeSystem_PointerKind_">TypeExtensions.MakePointerType(IType, PointerKind)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__">TypeExtensions.MakeGenericType(IType, IReadOnlyList&lt;IType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericType_Flame_IType_Flame_IType___">TypeExtensions.MakeGenericType(IType, IType[])</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_IsRecursiveGenericInstance_Flame_IType_">TypeExtensions.IsRecursiveGenericInstance(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IType_">TypeExtensions.GetRecursiveGenericDeclaration(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeRecursiveGenericType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__">TypeExtensions.MakeRecursiveGenericType(IType, IReadOnlyList&lt;IType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericArguments_Flame_IType_">TypeExtensions.GetRecursiveGenericArguments(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetGenericArguments_Flame_IType_">TypeExtensions.GetGenericArguments(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericParameters_Flame_IType_">TypeExtensions.GetRecursiveGenericParameters(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IType_">TypeExtensions.GetRecursiveGenericArgumentMapping(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsReferenceType_Flame_IType_">FlagAttribute.IsReferenceType(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsAbstract_Flame_IType_">FlagAttribute.IsAbstract(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsVirtual_Flame_IType_">FlagAttribute.IsVirtual(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.IntegerSpecAttribute.html#Flame_TypeSystem_IntegerSpecAttribute_GetIntegerSpecOrNull_Flame_IType_">IntegerSpecAttribute.GetIntegerSpecOrNull(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.IntegerSpecAttribute.html#Flame_TypeSystem_IntegerSpecAttribute_IsIntegerType_Flame_IType_">IntegerSpecAttribute.IsIntegerType(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.IntegerSpecAttribute.html#Flame_TypeSystem_IntegerSpecAttribute_IsSignedIntegerType_Flame_IType_">IntegerSpecAttribute.IsSignedIntegerType(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.IntegerSpecAttribute.html#Flame_TypeSystem_IntegerSpecAttribute_IsUnsignedIntegerType_Flame_IType_">IntegerSpecAttribute.IsUnsignedIntegerType(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.VirtualMethodSetExtensions.html#Flame_TypeSystem_VirtualMethodSetExtensions_GetVirtualMethodSet_Flame_IType_">VirtualMethodSetExtensions.GetVirtualMethodSet(IType)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.VirtualMethodSetExtensions.html#Flame_TypeSystem_VirtualMethodSetExtensions_GetMethodsAndAccessors_Flame_IType_">VirtualMethodSetExtensions.GetMethodsAndAccessors(IType)</a>
   </div>
 </article>
           </div>

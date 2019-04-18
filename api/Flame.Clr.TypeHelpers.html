@@ -93,11 +93,35 @@ box pointers.</p>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">TypeHelpers</span></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
   <h5 id="Flame_Clr_TypeHelpers_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static class TypeHelpers : object</code></pre>
+    <pre><code class="lang-csharp hljs">public static class TypeHelpers</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
@@ -215,14 +239,14 @@ raw reference type; otherwise, <code data-dev-comment-type="paramref" class="par
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/TypeHelpers.cs/#L210">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_GetExtendedParameters_" data-uid="Flame.Clr.TypeHelpers.GetExtendedParameters*"></a>
-  <h4 id="Flame_Clr_TypeHelpers_GetExtendedParameters_Mono_Cecil_MethodDefinition_" data-uid="Flame.Clr.TypeHelpers.GetExtendedParameters(Mono.Cecil.MethodDefinition)">GetExtendedParameters(Mono.Cecil.MethodDefinition)</h4>
+  <h4 id="Flame_Clr_TypeHelpers_GetExtendedParameters_Mono_Cecil_MethodDefinition_" data-uid="Flame.Clr.TypeHelpers.GetExtendedParameters(Mono.Cecil.MethodDefinition)">GetExtendedParameters(MethodDefinition)</h4>
   <div class="markdown level1 summary"><p>Gets a method's extended parameter list, consists of the method's
 parameter list and an optional 'this' parameter as a prefix.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;Mono.Cecil.ParameterDefinition&gt; GetExtendedParameters(Mono.Cecil.MethodDefinition method)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IReadOnlyList&lt;ParameterDefinition&gt; GetExtendedParameters(MethodDefinition method)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -252,7 +276,7 @@ parameter list and an optional 'this' parameter as a prefix.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<span class="xref">Mono.Cecil.ParameterDefinition</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<span class="xref">Mono.Cecil.ParameterDefinition</span>&gt;</td>
         <td><p>A list of parameters.</p>
 </td>
       </tr>
@@ -266,7 +290,7 @@ parameter list and an optional 'this' parameter as a prefix.</p>
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/TypeHelpers.cs/#L274">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
-  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IField_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IField)">ImportReference(Mono.Cecil.ModuleDefinition, IField)</h4>
+  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IField_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IField)">ImportReference(ModuleDefinition, IField)</h4>
   <div class="markdown level1 summary"><p>Takes a Flame field and converts it to a Cecil field reference.
 For this to work, <code data-dev-comment-type="paramref" class="paramref">field</code> cannot reference
 non-Cecil types or methods.</p>
@@ -274,7 +298,7 @@ non-Cecil types or methods.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Mono.Cecil.FieldReference ImportReference(this Mono.Cecil.ModuleDefinition module, IField field)</code></pre>
+    <pre><code class="lang-csharp hljs">public static FieldReference ImportReference(this ModuleDefinition module, IField field)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -323,7 +347,7 @@ non-Cecil types or methods.</p>
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/TypeHelpers.cs/#L229">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
-  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IMethod_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IMethod)">ImportReference(Mono.Cecil.ModuleDefinition, IMethod)</h4>
+  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IMethod_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IMethod)">ImportReference(ModuleDefinition, IMethod)</h4>
   <div class="markdown level1 summary"><p>Takes a Flame method and converts it to a Cecil method reference.
 For this to work, <code data-dev-comment-type="paramref" class="paramref">field</code> cannot reference
 non-Cecil types or methods.</p>
@@ -331,7 +355,7 @@ non-Cecil types or methods.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Mono.Cecil.MethodReference ImportReference(this Mono.Cecil.ModuleDefinition module, IMethod method)</code></pre>
+    <pre><code class="lang-csharp hljs">public static MethodReference ImportReference(this ModuleDefinition module, IMethod method)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -379,7 +403,7 @@ non-Cecil types or methods.</p>
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/TypeHelpers.cs/#L129">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
-  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IType_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IType)">ImportReference(Mono.Cecil.ModuleDefinition, IType)</h4>
+  <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IType_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IType)">ImportReference(ModuleDefinition, IType)</h4>
   <div class="markdown level1 summary"><p>Takes a Flame type and converts it to a Cecil type reference.
 For this to work, <code data-dev-comment-type="paramref" class="paramref">type</code> cannot reference
 non-Cecil types.</p>
@@ -387,7 +411,7 @@ non-Cecil types.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Mono.Cecil.TypeReference ImportReference(this Mono.Cecil.ModuleDefinition module, IType type)</code></pre>
+    <pre><code class="lang-csharp hljs">public static TypeReference ImportReference(this ModuleDefinition module, IType type)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

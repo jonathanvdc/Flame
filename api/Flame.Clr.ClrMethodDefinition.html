@@ -100,23 +100,44 @@
     <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
     <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
   <h5 id="Flame_Clr_ClrMethodDefinition_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class ClrMethodDefinition : object, IBodyMethod, IMethod, ITypeMember, IGenericMember, IMember</code></pre>
+    <pre><code class="lang-csharp hljs">public class ClrMethodDefinition : IBodyMethod, IMethod, ITypeMember, IGenericMember, IMember</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrMethodDefinition__ctor_MethodDefinition_Flame_Clr_ClrTypeDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrMethodDefinition.%23ctor(MethodDefinition%2CFlame.Clr.ClrTypeDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrMethodDefinition__ctor_Mono_Cecil_MethodDefinition_Flame_Clr_ClrTypeDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrMethodDefinition.%23ctor(Mono.Cecil.MethodDefinition%2CFlame.Clr.ClrTypeDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/ClrMethodDefinition.cs/#L27">View Source</a>
   </span>
   <a id="Flame_Clr_ClrMethodDefinition__ctor_" data-uid="Flame.Clr.ClrMethodDefinition.#ctor*"></a>
-  <h4 id="Flame_Clr_ClrMethodDefinition__ctor_MethodDefinition_Flame_Clr_ClrTypeDefinition_" data-uid="Flame.Clr.ClrMethodDefinition.#ctor(MethodDefinition,Flame.Clr.ClrTypeDefinition)">ClrMethodDefinition(MethodDefinition, ClrTypeDefinition)</h4>
+  <h4 id="Flame_Clr_ClrMethodDefinition__ctor_Mono_Cecil_MethodDefinition_Flame_Clr_ClrTypeDefinition_" data-uid="Flame.Clr.ClrMethodDefinition.#ctor(Mono.Cecil.MethodDefinition,Flame.Clr.ClrTypeDefinition)">ClrMethodDefinition(MethodDefinition, ClrTypeDefinition)</h4>
   <div class="markdown level1 summary"><p>Creates a wrapper around an IL method definition.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -135,7 +156,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">MethodDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.MethodDefinition</span></td>
         <td><span class="parametername">definition</span></td>
         <td><p>The definition to wrap in a Flame method.</p>
 </td>
@@ -190,7 +211,8 @@
   </span>
   <a id="Flame_Clr_ClrMethodDefinition_BaseMethods_" data-uid="Flame.Clr.ClrMethodDefinition.BaseMethods*"></a>
   <h4 id="Flame_Clr_ClrMethodDefinition_BaseMethods" data-uid="Flame.Clr.ClrMethodDefinition.BaseMethods">BaseMethods</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Gets the method's base methods.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -206,7 +228,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -270,7 +292,7 @@ Flame method definition.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">MethodDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.MethodDefinition</span></td>
         <td><p>An IL method definition.</p>
 </td>
       </tr>
@@ -316,7 +338,8 @@ Flame method definition.</p>
   </span>
   <a id="Flame_Clr_ClrMethodDefinition_GenericParameters_" data-uid="Flame.Clr.ClrMethodDefinition.GenericParameters*"></a>
   <h4 id="Flame_Clr_ClrMethodDefinition_GenericParameters" data-uid="Flame.Clr.ClrMethodDefinition.GenericParameters">GenericParameters</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Gets the list of generic parameters for this generic member.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -332,8 +355,9 @@ Flame method definition.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
-        <td></td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><p>The generic parameters.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -346,7 +370,8 @@ Flame method definition.</p>
   </span>
   <a id="Flame_Clr_ClrMethodDefinition_IsConstructor_" data-uid="Flame.Clr.ClrMethodDefinition.IsConstructor*"></a>
   <h4 id="Flame_Clr_ClrMethodDefinition_IsConstructor" data-uid="Flame.Clr.ClrMethodDefinition.IsConstructor">IsConstructor</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Indicates if this method is a constructor.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -363,7 +388,8 @@ Flame method definition.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if this method is a constructor; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -376,7 +402,10 @@ Flame method definition.</p>
   </span>
   <a id="Flame_Clr_ClrMethodDefinition_IsStatic_" data-uid="Flame.Clr.ClrMethodDefinition.IsStatic*"></a>
   <h4 id="Flame_Clr_ClrMethodDefinition_IsStatic" data-uid="Flame.Clr.ClrMethodDefinition.IsStatic">IsStatic</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tells if this is a static method. Non-static methods take
+a non-null pointer to their parent type as an implicit
+first arguments. Static methods do not.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -393,7 +422,8 @@ Flame method definition.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if this method is a static method; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -437,7 +467,8 @@ Flame method definition.</p>
   </span>
   <a id="Flame_Clr_ClrMethodDefinition_Parameters_" data-uid="Flame.Clr.ClrMethodDefinition.Parameters*"></a>
   <h4 id="Flame_Clr_ClrMethodDefinition_Parameters" data-uid="Flame.Clr.ClrMethodDefinition.Parameters">Parameters</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Gets the method's parameters.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -453,7 +484,7 @@ Flame method definition.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Parameter.html">Parameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Parameter.html">Parameter</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -557,6 +588,8 @@ the current <a class="xref" href="Flame.Clr.ClrMethodDefinition.html">ClrMethodD
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
   <h3 id="eii">Explicit Interface Implementations
   </h3>
   <span class="small pull-right mobile-hide">

@@ -131,6 +131,27 @@ core library based on their names.</p>
     <div>
       <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeArrayType_Flame_IType_System_Int32_">TypeEnvironment.MakeArrayType(IType, Int32)</a>
     </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
@@ -698,7 +719,9 @@ which types are resolved.</p>
   </span>
   <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeArrayType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeArrayType*"></a>
   <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeArrayType(Flame.IType,System.Int32,Flame.IType@)">TryMakeArrayType(IType, Int32, out IType)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tries to create an array type with a particular
+element type and rank.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -717,17 +740,21 @@ which types are resolved.</p>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
         <td><span class="parametername">elementType</span></td>
-        <td></td>
+        <td><p>The type of value to store in the array.</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">rank</span></td>
-        <td></td>
+        <td><p>The rank of the array, that is, the number of
+dimensions in the array.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
         <td><span class="parametername">arrayType</span></td>
-        <td></td>
+        <td><p>An array with the specified element type and rank.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -742,10 +769,14 @@ which types are resolved.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if the environment can create such an
+array type; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeArrayType(IType, Int32, out IType)</a></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -755,7 +786,9 @@ which types are resolved.</p>
   </span>
   <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType*"></a>
   <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeSignedIntegerType(System.Int32,Flame.IType@)">TryMakeSignedIntegerType(Int32, out IType)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tries to create a signed integer type with
+a particular number of bits of storage.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -774,12 +807,14 @@ which types are resolved.</p>
       <tr>
         <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">sizeInBits</span></td>
-        <td></td>
+        <td><p>The size in bits of the integer type to create.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
         <td><span class="parametername">integerType</span></td>
-        <td></td>
+        <td><p>The integer type.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -794,10 +829,14 @@ which types are resolved.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if the environment can create such an
+integer type; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeSignedIntegerType(Int32, out IType)</a></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -807,7 +846,9 @@ which types are resolved.</p>
   </span>
   <a id="Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType*"></a>
   <h4 id="Flame_Clr_CorlibTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.Clr.CorlibTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32,Flame.IType@)">TryMakeUnsignedIntegerType(Int32, out IType)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tries to create an unsigned integer type with
+a particular number of bits of storage.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -826,12 +867,14 @@ which types are resolved.</p>
       <tr>
         <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">sizeInBits</span></td>
-        <td></td>
+        <td><p>The size in bits of the integer type to create.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
         <td><span class="parametername">integerType</span></td>
-        <td></td>
+        <td><p>The integer type.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -846,10 +889,14 @@ which types are resolved.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if the environment can create such an
+integer type; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeUnsignedIntegerType(Int32, out IType)</a></div>
 </article>
           </div>
           

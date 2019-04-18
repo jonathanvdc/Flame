@@ -100,11 +100,32 @@
     <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
     <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
   <h5 id="Flame_TypeSystem_MethodSpecialization_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class MethodSpecialization : object, IMethod, ITypeMember, IGenericMember, IMember</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class MethodSpecialization : IMethod, ITypeMember, IGenericMember, IMember</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -202,7 +223,7 @@ from a generic declaration.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -297,7 +318,7 @@ a specialization.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
         <td><p>The generic parameters.</p>
 </td>
       </tr>
@@ -426,7 +447,7 @@ first arguments. Static methods do not.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Parameter.html">Parameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Parameter.html">Parameter</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -577,6 +598,8 @@ specialization.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
   <h3 id="implements">Implements</h3>
   <div>
       <a class="xref" href="Flame.IMethod.html">IMethod</a>
@@ -589,6 +612,28 @@ specialization.</p>
   </div>
   <div>
       <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_System_Collections_Generic_IReadOnlyList_Flame_IType__">TypeExtensions.MakeGenericMethod(IMethod, IReadOnlyList&lt;IType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_Flame_IType___">TypeExtensions.MakeGenericMethod(IMethod, IType[])</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IMethod_">TypeExtensions.GetRecursiveGenericDeclaration(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetGenericArguments_Flame_IMethod_">TypeExtensions.GetGenericArguments(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IMethod_">TypeExtensions.GetRecursiveGenericArgumentMapping(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsAbstract_Flame_IMethod_">FlagAttribute.IsAbstract(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsVirtual_Flame_IMethod_">FlagAttribute.IsVirtual(IMethod)</a>
   </div>
 </article>
           </div>

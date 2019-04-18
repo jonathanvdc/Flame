@@ -93,6 +93,30 @@ resolution requests to Mono.Cecil assembly resolver.</p>
     <div class="level1"><a class="xref" href="Flame.TypeSystem.AssemblyResolver.html">AssemblyResolver</a></div>
     <div class="level2"><span class="xref">CecilAssemblyResolver</span></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
   <h5 id="Flame_Clr_CecilAssemblyResolver_syntax">Syntax</h5>
@@ -109,14 +133,14 @@ resolution requests to Mono.Cecil assembly resolver.</p>
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/CecilAssemblyResolver.cs/#L17">View Source</a>
   </span>
   <a id="Flame_Clr_CecilAssemblyResolver__ctor_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor*"></a>
-  <h4 id="Flame_Clr_CecilAssemblyResolver__ctor_Mono_Cecil_IAssemblyResolver_Flame_TypeSystem_TypeEnvironment_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor(Mono.Cecil.IAssemblyResolver,Flame.TypeSystem.TypeEnvironment)">CecilAssemblyResolver(Mono.Cecil.IAssemblyResolver, TypeEnvironment)</h4>
+  <h4 id="Flame_Clr_CecilAssemblyResolver__ctor_Mono_Cecil_IAssemblyResolver_Flame_TypeSystem_TypeEnvironment_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor(Mono.Cecil.IAssemblyResolver,Flame.TypeSystem.TypeEnvironment)">CecilAssemblyResolver(IAssemblyResolver, TypeEnvironment)</h4>
   <div class="markdown level1 summary"><p>Creates a Flame assembly resolver that forwards requests
 to a Mono.Cecil assembly resolver.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CecilAssemblyResolver(Mono.Cecil.IAssemblyResolver resolver, TypeEnvironment typeEnvironment)</code></pre>
+    <pre><code class="lang-csharp hljs">public CecilAssemblyResolver(IAssemblyResolver resolver, TypeEnvironment typeEnvironment)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -150,14 +174,14 @@ to a Mono.Cecil assembly resolver.</p>
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/CecilAssemblyResolver.cs/#L30">View Source</a>
   </span>
   <a id="Flame_Clr_CecilAssemblyResolver__ctor_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor*"></a>
-  <h4 id="Flame_Clr_CecilAssemblyResolver__ctor_Mono_Cecil_IAssemblyResolver_Flame_TypeSystem_TypeEnvironment_Mono_Cecil_ReaderParameters_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor(Mono.Cecil.IAssemblyResolver,Flame.TypeSystem.TypeEnvironment,Mono.Cecil.ReaderParameters)">CecilAssemblyResolver(Mono.Cecil.IAssemblyResolver, TypeEnvironment, Mono.Cecil.ReaderParameters)</h4>
+  <h4 id="Flame_Clr_CecilAssemblyResolver__ctor_Mono_Cecil_IAssemblyResolver_Flame_TypeSystem_TypeEnvironment_Mono_Cecil_ReaderParameters_" data-uid="Flame.Clr.CecilAssemblyResolver.#ctor(Mono.Cecil.IAssemblyResolver,Flame.TypeSystem.TypeEnvironment,Mono.Cecil.ReaderParameters)">CecilAssemblyResolver(IAssemblyResolver, TypeEnvironment, ReaderParameters)</h4>
   <div class="markdown level1 summary"><p>Creates a Flame assembly resolver that forwards requests
 to a Mono.Cecil assembly resolver.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CecilAssemblyResolver(Mono.Cecil.IAssemblyResolver resolver, TypeEnvironment typeEnvironment, Mono.Cecil.ReaderParameters parameters)</code></pre>
+    <pre><code class="lang-csharp hljs">public CecilAssemblyResolver(IAssemblyResolver resolver, TypeEnvironment typeEnvironment, ReaderParameters parameters)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -205,7 +229,7 @@ to a Mono.Cecil assembly resolver.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Mono.Cecil.ReaderParameters Parameters { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ReaderParameters Parameters { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -267,7 +291,7 @@ to a Mono.Cecil assembly resolver.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Mono.Cecil.IAssemblyResolver Resolver { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IAssemblyResolver Resolver { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">

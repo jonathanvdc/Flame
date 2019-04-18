@@ -88,7 +88,22 @@
   <div class="markdown level0 conceptual"></div>
   <div classs="implements">
     <h5>Implements</h5>
-    <div><span class="xref">IEquatable</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlock.html">BasicBlock</a>&gt;</div>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlock.html">BasicBlock</a>&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.ValueType.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.html">Flame.Compiler</a></h6>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
@@ -188,7 +203,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
         <td><p>The list of all instruction tags.</p>
 </td>
       </tr>
@@ -251,7 +266,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.NamedInstruction.html">NamedInstruction</a>&gt;</td>
         <td><p>The list of all named instructions.</p>
 </td>
       </tr>
@@ -283,7 +298,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
         <td><p>The basic block's parameters.</p>
 </td>
       </tr>
@@ -315,7 +330,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
         <td><p>The basic block's parameter tags.</p>
 </td>
       </tr>
@@ -669,6 +684,8 @@ basic block; otherwise, <code>false</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.Equals(System.Object)</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_GetHashCode.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -699,6 +716,8 @@ basic block; otherwise, <code>false</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.GetHashCode()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_InsertInstruction_System_Int32_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.InsertInstruction(System.Int32%2CFlame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -987,20 +1006,20 @@ has a particular flow.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_WithParameters_ImmutableList_Flame_Compiler_BlockParameter__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.WithParameters(ImmutableList%7BFlame.Compiler.BlockParameter%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_WithParameters_System_Collections_Generic_IReadOnlyList_Flame_Compiler_BlockParameter__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.WithParameters(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.BlockParameter%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/BasicBlock.cs/#L100">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/BasicBlock.cs/#L89">View Source</a>
   </span>
   <a id="Flame_Compiler_BasicBlock_WithParameters_" data-uid="Flame.Compiler.BasicBlock.WithParameters*"></a>
-  <h4 id="Flame_Compiler_BasicBlock_WithParameters_ImmutableList_Flame_Compiler_BlockParameter__" data-uid="Flame.Compiler.BasicBlock.WithParameters(ImmutableList{Flame.Compiler.BlockParameter})">WithParameters(ImmutableList&lt;BlockParameter&gt;)</h4>
+  <h4 id="Flame_Compiler_BasicBlock_WithParameters_System_Collections_Generic_IReadOnlyList_Flame_Compiler_BlockParameter__" data-uid="Flame.Compiler.BasicBlock.WithParameters(System.Collections.Generic.IReadOnlyList{Flame.Compiler.BlockParameter})">WithParameters(IReadOnlyList&lt;BlockParameter&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates a new basic block in a new control-flow graph that
 has a particular list of parameters.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BasicBlock WithParameters(ImmutableList&lt;BlockParameter&gt; parameters)</code></pre>
+    <pre><code class="lang-csharp hljs">public BasicBlock WithParameters(IReadOnlyList&lt;BlockParameter&gt; parameters)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1013,7 +1032,7 @@ has a particular list of parameters.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
         <td><span class="parametername">parameters</span></td>
         <td><p>The new parameters.</p>
 </td>
@@ -1038,20 +1057,20 @@ has a particular list of parameters.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_WithParameters_IReadOnlyList_Flame_Compiler_BlockParameter__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.WithParameters(IReadOnlyList%7BFlame.Compiler.BlockParameter%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BasicBlock_WithParameters_System_Collections_Immutable_ImmutableList_Flame_Compiler_BlockParameter__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BasicBlock.WithParameters(System.Collections.Immutable.ImmutableList%7BFlame.Compiler.BlockParameter%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/BasicBlock.cs/#L89">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/BasicBlock.cs/#L100">View Source</a>
   </span>
   <a id="Flame_Compiler_BasicBlock_WithParameters_" data-uid="Flame.Compiler.BasicBlock.WithParameters*"></a>
-  <h4 id="Flame_Compiler_BasicBlock_WithParameters_IReadOnlyList_Flame_Compiler_BlockParameter__" data-uid="Flame.Compiler.BasicBlock.WithParameters(IReadOnlyList{Flame.Compiler.BlockParameter})">WithParameters(IReadOnlyList&lt;BlockParameter&gt;)</h4>
+  <h4 id="Flame_Compiler_BasicBlock_WithParameters_System_Collections_Immutable_ImmutableList_Flame_Compiler_BlockParameter__" data-uid="Flame.Compiler.BasicBlock.WithParameters(System.Collections.Immutable.ImmutableList{Flame.Compiler.BlockParameter})">WithParameters(ImmutableList&lt;BlockParameter&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates a new basic block in a new control-flow graph that
 has a particular list of parameters.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public BasicBlock WithParameters(IReadOnlyList&lt;BlockParameter&gt; parameters)</code></pre>
+    <pre><code class="lang-csharp hljs">public BasicBlock WithParameters(ImmutableList&lt;BlockParameter&gt; parameters)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1064,7 +1083,7 @@ has a particular list of parameters.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableList</span>&lt;<a class="xref" href="Flame.Compiler.BlockParameter.html">BlockParameter</a>&gt;</td>
         <td><span class="parametername">parameters</span></td>
         <td><p>The new parameters.</p>
 </td>
@@ -1140,7 +1159,7 @@ has a particular list of parameters.</p>
   </table>
   <h3 id="implements">Implements</h3>
   <div>
-      <span class="xref">IEquatable&lt;&gt;</span>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
   </div>
 </article>
           </div>

@@ -96,29 +96,53 @@
     <div><a class="xref" href="Flame.Compiler.Target.ILinearInstructionSelector-1.html">ILinearInstructionSelector</a>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</div>
     <div><a class="xref" href="Flame.Compiler.Target.IInstructionSelector-1.html">IInstructionSelector</a>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.Emit.html">Flame.Clr.Emit</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
   <h5 id="Flame_Clr_Emit_CilInstructionSelector_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class CilInstructionSelector : object, ILinearInstructionSelector&lt;CilCodegenInstruction&gt;, IInstructionSelector&lt;CilCodegenInstruction&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class CilInstructionSelector : ILinearInstructionSelector&lt;CilCodegenInstruction&gt;, IInstructionSelector&lt;CilCodegenInstruction&gt;</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_Emit_CilInstructionSelector__ctor_MethodDefinition_Flame_TypeSystem_TypeEnvironment_IReadOnlyDictionary_Flame_Compiler_ValueTag_Mono_Cecil_Cil_VariableDefinition__.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilInstructionSelector.%23ctor(MethodDefinition%2CFlame.TypeSystem.TypeEnvironment%2CIReadOnlyDictionary%7BFlame.Compiler.ValueTag%2CMono.Cecil.Cil.VariableDefinition%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_Emit_CilInstructionSelector__ctor_Mono_Cecil_MethodDefinition_Flame_TypeSystem_TypeEnvironment_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Mono_Cecil_Cil_VariableDefinition__.md&amp;value=---%0Auid%3A%20Flame.Clr.Emit.CilInstructionSelector.%23ctor(Mono.Cecil.MethodDefinition%2CFlame.TypeSystem.TypeEnvironment%2CSystem.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2CMono.Cecil.Cil.VariableDefinition%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/Emit/CilInstructionSelector.cs/#L39">View Source</a>
   </span>
   <a id="Flame_Clr_Emit_CilInstructionSelector__ctor_" data-uid="Flame.Clr.Emit.CilInstructionSelector.#ctor*"></a>
-  <h4 id="Flame_Clr_Emit_CilInstructionSelector__ctor_MethodDefinition_Flame_TypeSystem_TypeEnvironment_IReadOnlyDictionary_Flame_Compiler_ValueTag_Mono_Cecil_Cil_VariableDefinition__" data-uid="Flame.Clr.Emit.CilInstructionSelector.#ctor(MethodDefinition,Flame.TypeSystem.TypeEnvironment,IReadOnlyDictionary{Flame.Compiler.ValueTag,Mono.Cecil.Cil.VariableDefinition})">CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary&lt;ValueTag, Mono.Cecil.Cil.VariableDefinition&gt;)</h4>
+  <h4 id="Flame_Clr_Emit_CilInstructionSelector__ctor_Mono_Cecil_MethodDefinition_Flame_TypeSystem_TypeEnvironment_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Mono_Cecil_Cil_VariableDefinition__" data-uid="Flame.Clr.Emit.CilInstructionSelector.#ctor(Mono.Cecil.MethodDefinition,Flame.TypeSystem.TypeEnvironment,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Mono.Cecil.Cil.VariableDefinition})">CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary&lt;ValueTag, VariableDefinition&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates a CIL instruction selector.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public CilInstructionSelector(MethodDefinition method, TypeEnvironment typeEnvironment, IReadOnlyDictionary&lt;ValueTag, Mono.Cecil.Cil.VariableDefinition&gt; allocaToVariableMapping)</code></pre>
+    <pre><code class="lang-csharp hljs">public CilInstructionSelector(MethodDefinition method, TypeEnvironment typeEnvironment, IReadOnlyDictionary&lt;ValueTag, VariableDefinition&gt; allocaToVariableMapping)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -131,7 +155,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">MethodDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.MethodDefinition</span></td>
         <td><span class="parametername">method</span></td>
         <td><p>The method definition to select instructions for.</p>
 </td>
@@ -143,7 +167,7 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
         <td><span class="parametername">allocaToVariableMapping</span></td>
         <td><p>A mapping of <code>alloca</code> values to the local variables that
 are used as backing store for the <code>alloca</code>s.</p>
@@ -168,7 +192,7 @@ are used as backing store for the <code>alloca</code>s.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;ValueTag, Mono.Cecil.Cil.VariableDefinition&gt; AllocaToVariableMapping { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;ValueTag, VariableDefinition&gt; AllocaToVariableMapping { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -180,7 +204,7 @@ are used as backing store for the <code>alloca</code>s.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
         <td><p>A mapping of value tags to variable definitions.</p>
 </td>
       </tr>
@@ -212,7 +236,7 @@ are used as backing store for the <code>alloca</code>s.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">MethodDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.MethodDefinition</span></td>
         <td><p>A method definition.</p>
 </td>
       </tr>
@@ -233,7 +257,7 @@ selector.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;Mono.Cecil.Cil.VariableDefinition&gt; Temporaries { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;VariableDefinition&gt; Temporaries { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -245,7 +269,7 @@ selector.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<span class="xref">Mono.Cecil.Cil.VariableDefinition</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -326,7 +350,7 @@ selector.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -373,7 +397,7 @@ selector.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Clr.Emit.CilCodegenInstruction.html">CilCodegenInstruction</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>

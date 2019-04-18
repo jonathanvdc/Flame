@@ -91,6 +91,25 @@
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">AssemblyIdentity</span></div>
   </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.AssemblyIdentity.html">AssemblyIdentity</a>&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.html">Flame</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
   <h5 id="Flame_AssemblyIdentity_syntax">Syntax</h5>
@@ -135,13 +154,13 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity__ctor_System_String_IReadOnlyDictionary_System_String_System_String__.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.%23ctor(System.String%2CIReadOnlyDictionary%7BSystem.String%2CSystem.String%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity__ctor_System_String_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.%23ctor(System.String%2CSystem.Collections.Generic.IReadOnlyDictionary%7BSystem.String%2CSystem.String%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AssemblyIdentity.cs/#L36">View Source</a>
   </span>
   <a id="Flame_AssemblyIdentity__ctor_" data-uid="Flame.AssemblyIdentity.#ctor*"></a>
-  <h4 id="Flame_AssemblyIdentity__ctor_System_String_IReadOnlyDictionary_System_String_System_String__" data-uid="Flame.AssemblyIdentity.#ctor(System.String,IReadOnlyDictionary{System.String,System.String})">AssemblyIdentity(String, IReadOnlyDictionary&lt;String, String&gt;)</h4>
+  <h4 id="Flame_AssemblyIdentity__ctor_System_String_System_Collections_Generic_IReadOnlyDictionary_System_String_System_String__" data-uid="Flame.AssemblyIdentity.#ctor(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">AssemblyIdentity(String, IReadOnlyDictionary&lt;String, String&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates an assembly identity from a name and a set
 of annotations.</p>
 </div>
@@ -167,7 +186,7 @@ of annotations.</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">IReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
         <td><span class="parametername">annotations</span></td>
         <td><p>The assembly identity's annotations, expressed as
 a mapping of keys to values.</p>
@@ -190,7 +209,7 @@ a mapping of keys to values.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public const string IsRetargetableKey = null</code></pre>
+    <pre><code class="lang-csharp hljs">public const string IsRetargetableKey = &quot;isRetargetable&quot;</code></pre>
   </div>
   <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -220,7 +239,7 @@ a mapping of keys to values.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public const string VersionAnnotationKey = null</code></pre>
+    <pre><code class="lang-csharp hljs">public const string VersionAnnotationKey = &quot;version&quot;</code></pre>
   </div>
   <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -267,7 +286,7 @@ additional information on the assembly.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
         <td><p>Additional annotations.</p>
 </td>
       </tr>
@@ -365,7 +384,7 @@ is present; otherwise, <code>null</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Version</span></td>
+        <td><span class="xref">System.Version</span></td>
         <td><p>The value of the 'version' annotation.</p>
 </td>
       </tr>
@@ -471,6 +490,8 @@ otherwise, <code>false</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.Equals(System.Object)</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_GetHashCode.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -501,6 +522,8 @@ otherwise, <code>false</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.GetHashCode()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_HasAnnotation_System_String_.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.HasAnnotation(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -583,6 +606,8 @@ with the specified key; otherwise, <code>false</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_TryGetAnnotation_System_String_System_Boolean__.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.TryGetAnnotation(System.String%2CSystem.Boolean%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -699,13 +724,13 @@ with the specified key; otherwise, <code>false</code>.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_TryGetAnnotation_System_String_Version__.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.TryGetAnnotation(System.String%2CVersion%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_TryGetAnnotation_System_String_System_Version__.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.TryGetAnnotation(System.String%2CSystem.Version%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AssemblyIdentity.cs/#L165">View Source</a>
   </span>
   <a id="Flame_AssemblyIdentity_TryGetAnnotation_" data-uid="Flame.AssemblyIdentity.TryGetAnnotation*"></a>
-  <h4 id="Flame_AssemblyIdentity_TryGetAnnotation_System_String_Version__" data-uid="Flame.AssemblyIdentity.TryGetAnnotation(System.String,Version@)">TryGetAnnotation(String, out Version)</h4>
+  <h4 id="Flame_AssemblyIdentity_TryGetAnnotation_System_String_System_Version__" data-uid="Flame.AssemblyIdentity.TryGetAnnotation(System.String,System.Version@)">TryGetAnnotation(String, out Version)</h4>
   <div class="markdown level1 summary"><p>Tries to get an annotation's value as a version.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -730,7 +755,7 @@ with the specified key; otherwise, <code>false</code>.</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">Version</span></td>
+        <td><span class="xref">System.Version</span></td>
         <td><span class="parametername">value</span></td>
         <td><p>The value of the annotation.</p>
 </td>
@@ -870,13 +895,13 @@ particular annotation.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_WithAnnotation_System_String_Version_.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.WithAnnotation(System.String%2CVersion)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AssemblyIdentity_WithAnnotation_System_String_System_Version_.md&amp;value=---%0Auid%3A%20Flame.AssemblyIdentity.WithAnnotation(System.String%2CSystem.Version)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AssemblyIdentity.cs/#L217">View Source</a>
   </span>
   <a id="Flame_AssemblyIdentity_WithAnnotation_" data-uid="Flame.AssemblyIdentity.WithAnnotation*"></a>
-  <h4 id="Flame_AssemblyIdentity_WithAnnotation_System_String_Version_" data-uid="Flame.AssemblyIdentity.WithAnnotation(System.String,Version)">WithAnnotation(String, Version)</h4>
+  <h4 id="Flame_AssemblyIdentity_WithAnnotation_System_String_System_Version_" data-uid="Flame.AssemblyIdentity.WithAnnotation(System.String,System.Version)">WithAnnotation(String, Version)</h4>
   <div class="markdown level1 summary"><p>Creates a derived assembly identity that includes a
 particular annotation.</p>
 </div>
@@ -902,7 +927,7 @@ particular annotation.</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">Version</span></td>
+        <td><span class="xref">System.Version</span></td>
         <td><span class="parametername">value</span></td>
         <td><p>The annotation's value.</p>
 </td>
@@ -925,6 +950,10 @@ particular annotation.</p>
       </tr>
     </tbody>
   </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  </div>
 </article>
           </div>
           

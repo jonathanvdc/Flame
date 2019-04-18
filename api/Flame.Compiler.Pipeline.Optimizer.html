@@ -83,91 +83,65 @@
   
   <h1 id="Flame_Compiler_Pipeline_Optimizer" data-uid="Flame.Compiler.Pipeline.Optimizer" class="text-break">Class Optimizer
   </h1>
-  <div class="markdown level0 summary"><p>Provides infrastructure for method body optimization.</p>
+  <div class="markdown level0 summary"><p>A base class for optimizers: objects that manage method bodies
+as they are being optimized and respond to method body queries.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">Optimizer</span></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html">OnDemandOptimizer</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Pipeline.html">Flame.Compiler.Pipeline</a></h6>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
   <h5 id="Flame_Compiler_Pipeline_Optimizer_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class Optimizer : object</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class Optimizer</code></pre>
   </div>
-  <h3 id="constructors">Constructors
-  </h3>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer__ctor.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L15">View Source</a>
-  </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer__ctor_" data-uid="Flame.Compiler.Pipeline.Optimizer.#ctor*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer__ctor" data-uid="Flame.Compiler.Pipeline.Optimizer.#ctor">Optimizer()</h4>
-  <div class="markdown level1 summary"><p>Creates a method body optimizer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Optimizer()</code></pre>
-  </div>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer__ctor_Func_Flame_IMethod_Flame_Compiler_MethodBody__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.%23ctor(Func%7BFlame.IMethod%2CFlame.Compiler.MethodBody%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L27">View Source</a>
-  </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer__ctor_" data-uid="Flame.Compiler.Pipeline.Optimizer.#ctor*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer__ctor_Func_Flame_IMethod_Flame_Compiler_MethodBody__" data-uid="Flame.Compiler.Pipeline.Optimizer.#ctor(Func{Flame.IMethod,Flame.Compiler.MethodBody})">Optimizer(Func&lt;IMethod, MethodBody&gt;)</h4>
-  <div class="markdown level1 summary"><p>Creates a method body optimizer.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Optimizer(Func&lt;IMethod, MethodBody&gt; getInitialMethodBody)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Func</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>, <a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
-        <td><span class="parametername">getInitialMethodBody</span></td>
-        <td><p>A delegate that tries to find an initial method body for a
-method. This initial method body is is the starting point for
-further optimizations, both interprocedural and intraprocedural.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBody_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBody(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.GetBodyAsync(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L45">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L54">View Source</a>
   </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBody_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBody*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBody_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBody(Flame.IMethod)">GetInitialMethodBody(IMethod)</h4>
-  <div class="markdown level1 summary"><p>Tries to acquire an initial method body for a method definition.</p>
+  <a id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetBodyAsync*"></a>
+  <h4 id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetBodyAsync(Flame.IMethod)">GetBodyAsync(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Asynchronously requests a method's body. This method should only
+used by external entities: if methods that are being optimized call
+this method, then they might cause a deadlock.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MethodBody GetInitialMethodBody(IMethod method)</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract Task&lt;MethodBody&gt; GetBodyAsync(IMethod requested)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -181,8 +155,9 @@ further optimizations, both interprocedural and intraprocedural.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><span class="parametername">method</span></td>
-        <td></td>
+        <td><span class="parametername">requested</span></td>
+        <td><p>The method whose body is requested.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -196,29 +171,39 @@ further optimizations, both interprocedural and intraprocedural.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
-        <td><p>An initial method body if one can be found; otherwise, <code>null</code>.</p>
+        <td><span class="xref">System.Threading.Tasks.Task</span>&lt;<a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
+        <td><p>The method's body.</p>
 </td>
       </tr>
     </tbody>
   </table>
+  <h5 id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>The optimizer is free to return any method body that is
+semantically equivalent to <code data-dev-comment-type="paramref" class="paramref">requested</code>'s body.
+This ranges from <code data-dev-comment-type="paramref" class="paramref">requested</code>'s initial method
+body to its final optimized body.</p>
+<p>Which version of <code data-dev-comment-type="paramref" class="paramref">requested</code>'s body is returned
+depends on the optimizer. The optimizer is expected to return
+a method body that is as optimized as possible given the
+constraints imposed by the optimizer's implementation.</p>
+</div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBodyDefault_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBodyDefault(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.GetBodyAsync(Flame.IMethod%2CFlame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L108">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L32">View Source</a>
   </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBodyDefault_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBodyDefault*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer_GetInitialMethodBodyDefault_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetInitialMethodBodyDefault(Flame.IMethod)">GetInitialMethodBodyDefault(IMethod)</h4>
-  <div class="markdown level1 summary"><p>Gets an initial method body for a method using the default
-mechanism of checking if the method is a body method and
-requesting its method body if so.</p>
+  <a id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetBodyAsync*"></a>
+  <h4 id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetBodyAsync(Flame.IMethod,Flame.IMethod)">GetBodyAsync(IMethod, IMethod)</h4>
+  <div class="markdown level1 summary"><p>Asynchronously requests a method's body. This method will never
+cause a deadlock, even when methods cyclically request each other's
+method bodies.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static MethodBody GetInitialMethodBodyDefault(IMethod method)</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract Task&lt;MethodBody&gt; GetBodyAsync(IMethod requested, IMethod requesting)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -232,8 +217,14 @@ requesting its method body if so.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><span class="parametername">method</span></td>
-        <td><p>The recursive generic method declaration to inspect.</p>
+        <td><span class="parametername">requested</span></td>
+        <td><p>The method whose body is requested.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">requesting</span></td>
+        <td><p>The method that requests <code data-dev-comment-type="paramref" class="paramref">requested</code>'s method body.</p>
 </td>
       </tr>
     </tbody>
@@ -248,114 +239,22 @@ requesting its method body if so.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
-        <td><p>A method body if one can be found; otherwise <code>null</code>.</p>
+        <td><span class="xref">System.Threading.Tasks.Task</span>&lt;<a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
+        <td><p>The method's body.</p>
 </td>
       </tr>
     </tbody>
   </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_GetOptimizedMethodBody_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.GetOptimizedMethodBody(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L91">View Source</a>
-  </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer_GetOptimizedMethodBody_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetOptimizedMethodBody*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer_GetOptimizedMethodBody_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.GetOptimizedMethodBody(Flame.IMethod)">GetOptimizedMethodBody(IMethod)</h4>
-  <div class="markdown level1 summary"><p>Gets the optimized method body for a particular method.</p>
+  <h5 id="Flame_Compiler_Pipeline_Optimizer_GetBodyAsync_Flame_IMethod_Flame_IMethod__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>The optimizer is free to return any method body that is
+semantically equivalent to <code data-dev-comment-type="paramref" class="paramref">requested</code>'s body.
+This ranges from <code data-dev-comment-type="paramref" class="paramref">requested</code>'s initial method
+body to its final optimized body.</p>
+<p>Which version of <code data-dev-comment-type="paramref" class="paramref">requested</code>'s body is returned
+depends on the optimizer. The optimizer is expected to return
+a method body that is as optimized as possible given the
+constraints imposed by the optimizer's implementation.</p>
 </div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MethodBody GetOptimizedMethodBody(IMethod method)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><span class="parametername">method</span></td>
-        <td><p>The method to find an optimized method body for.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
-        <td><p>An optimized method body if an initial method body can be found
-for the argument. Otherwise, <code>null</code>..</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer_OptimizeMethodBody_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer.OptimizeMethodBody(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L74">View Source</a>
-  </span>
-  <a id="Flame_Compiler_Pipeline_Optimizer_OptimizeMethodBody_" data-uid="Flame.Compiler.Pipeline.Optimizer.OptimizeMethodBody*"></a>
-  <h4 id="Flame_Compiler_Pipeline_Optimizer_OptimizeMethodBody_Flame_IMethod_" data-uid="Flame.Compiler.Pipeline.Optimizer.OptimizeMethodBody(Flame.IMethod)">OptimizeMethodBody(IMethod)</h4>
-  <div class="markdown level1 summary"><p>Fully optimizes the method body for a particular method.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MethodBody OptimizeMethodBody(IMethod method)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><span class="parametername">method</span></td>
-        <td><p>The method to optimize.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
-        <td><p>An optimized method body if an initial method body can be found
-for the argument. Otherwise, <code>null</code>..</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
 </article>
           </div>
           
@@ -367,7 +266,7 @@ for the argument. Otherwise, <code>null</code>..</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_Optimizer.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.Optimizer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L10" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Pipeline/Optimizer.cs/#L9" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

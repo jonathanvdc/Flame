@@ -90,6 +90,12 @@
       <h4><a class="xref" href="Flame.Compiler.Pipeline.AssemblyContentDescription.html">AssemblyContentDescription</a></h4>
       <section><p>A description of a target assembly's contents.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html">OnDemandOptimizer</a></h4>
+      <section><p>An optimizer that computes optimized method bodies on an on-demand
+basis: method bodies are not optimized until they are requested.
+Optimized method bodies are cached, so method bodies are never
+optimized twice.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a></h4>
       <section><p>Describes a method body optimization.</p>
 </section>
@@ -97,7 +103,8 @@
       <section><p>A container for shared optimization state.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Pipeline.Optimizer.html">Optimizer</a></h4>
-      <section><p>Provides infrastructure for method body optimization.</p>
+      <section><p>A base class for optimizers: objects that manage method bodies
+as they are being optimized and respond to method body queries.</p>
 </section>
     <h3 id="interfaces">Interfaces
   </h3>

@@ -97,23 +97,47 @@
     <div><a class="xref" href="Flame.ITypeMember.html">ITypeMember</a></div>
     <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
   <h5 id="Flame_Clr_ClrFieldDefinition_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class ClrFieldDefinition : object, IField, ITypeMember, IMember</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class ClrFieldDefinition : IField, ITypeMember, IMember</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrFieldDefinition__ctor_FieldDefinition_Flame_Clr_ClrTypeDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrFieldDefinition.%23ctor(FieldDefinition%2CFlame.Clr.ClrTypeDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrFieldDefinition__ctor_Mono_Cecil_FieldDefinition_Flame_Clr_ClrTypeDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrFieldDefinition.%23ctor(Mono.Cecil.FieldDefinition%2CFlame.Clr.ClrTypeDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/ClrFieldDefinition.cs/#L21">View Source</a>
   </span>
   <a id="Flame_Clr_ClrFieldDefinition__ctor_" data-uid="Flame.Clr.ClrFieldDefinition.#ctor*"></a>
-  <h4 id="Flame_Clr_ClrFieldDefinition__ctor_FieldDefinition_Flame_Clr_ClrTypeDefinition_" data-uid="Flame.Clr.ClrFieldDefinition.#ctor(FieldDefinition,Flame.Clr.ClrTypeDefinition)">ClrFieldDefinition(FieldDefinition, ClrTypeDefinition)</h4>
+  <h4 id="Flame_Clr_ClrFieldDefinition__ctor_Mono_Cecil_FieldDefinition_Flame_Clr_ClrTypeDefinition_" data-uid="Flame.Clr.ClrFieldDefinition.#ctor(Mono.Cecil.FieldDefinition,Flame.Clr.ClrTypeDefinition)">ClrFieldDefinition(FieldDefinition, ClrTypeDefinition)</h4>
   <div class="markdown level1 summary"><p>Creates a Flame field definition that wraps
 around an IL field definition.</p>
 </div>
@@ -133,7 +157,7 @@ around an IL field definition.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">FieldDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.FieldDefinition</span></td>
         <td><span class="parametername">definition</span></td>
         <td><p>The IL field definition to wrap.</p>
 </td>
@@ -206,7 +230,7 @@ Flame field definition.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">FieldDefinition</span></td>
+        <td><span class="xref">Mono.Cecil.FieldDefinition</span></td>
         <td><p>An IL field definition.</p>
 </td>
       </tr>
@@ -284,7 +308,11 @@ Flame field definition.</p>
   </span>
   <a id="Flame_Clr_ClrFieldDefinition_IsStatic_" data-uid="Flame.Clr.ClrFieldDefinition.IsStatic*"></a>
   <h4 id="Flame_Clr_ClrFieldDefinition_IsStatic" data-uid="Flame.Clr.ClrFieldDefinition.IsStatic">IsStatic</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tells if this field is static. The storage for static fields
+is shared by the entire application, whereas the storage for
+instance (i.e., non-static) fields is specific to an instance
+of a type.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -301,7 +329,8 @@ Flame field definition.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if this field is static; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>

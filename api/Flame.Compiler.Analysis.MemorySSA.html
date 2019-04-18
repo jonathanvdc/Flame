@@ -91,23 +91,47 @@
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">MemorySSA</span></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Analysis.html">Flame.Compiler.Analysis</a></h6>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
   <h5 id="Flame_Compiler_Analysis_MemorySSA_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class MemorySSA : object</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class MemorySSA</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_MemorySSA__ctor_ImmutableDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_Analysis_MemorySSA_Value__ImmutableDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Analysis_MemorySSA_Value__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.MemorySSA.%23ctor(ImmutableDictionary%7BFlame.Compiler.BasicBlockTag%2CFlame.Compiler.Analysis.MemorySSA.Value%7D%2CImmutableDictionary%7BFlame.Compiler.ValueTag%2CFlame.Compiler.Analysis.MemorySSA.Value%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_MemorySSA__ctor_System_Collections_Immutable_ImmutableDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_Analysis_MemorySSA_Value__System_Collections_Immutable_ImmutableDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Analysis_MemorySSA_Value__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.MemorySSA.%23ctor(System.Collections.Immutable.ImmutableDictionary%7BFlame.Compiler.BasicBlockTag%2CFlame.Compiler.Analysis.MemorySSA.Value%7D%2CSystem.Collections.Immutable.ImmutableDictionary%7BFlame.Compiler.ValueTag%2CFlame.Compiler.Analysis.MemorySSA.Value%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/MemorySSA.cs/#L21">View Source</a>
   </span>
   <a id="Flame_Compiler_Analysis_MemorySSA__ctor_" data-uid="Flame.Compiler.Analysis.MemorySSA.#ctor*"></a>
-  <h4 id="Flame_Compiler_Analysis_MemorySSA__ctor_ImmutableDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_Analysis_MemorySSA_Value__ImmutableDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Analysis_MemorySSA_Value__" data-uid="Flame.Compiler.Analysis.MemorySSA.#ctor(ImmutableDictionary{Flame.Compiler.BasicBlockTag,Flame.Compiler.Analysis.MemorySSA.Value},ImmutableDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Analysis.MemorySSA.Value})">MemorySSA(ImmutableDictionary&lt;BasicBlockTag, MemorySSA.Value&gt;, ImmutableDictionary&lt;ValueTag, MemorySSA.Value&gt;)</h4>
+  <h4 id="Flame_Compiler_Analysis_MemorySSA__ctor_System_Collections_Immutable_ImmutableDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_Analysis_MemorySSA_Value__System_Collections_Immutable_ImmutableDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Analysis_MemorySSA_Value__" data-uid="Flame.Compiler.Analysis.MemorySSA.#ctor(System.Collections.Immutable.ImmutableDictionary{Flame.Compiler.BasicBlockTag,Flame.Compiler.Analysis.MemorySSA.Value},System.Collections.Immutable.ImmutableDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Analysis.MemorySSA.Value})">MemorySSA(ImmutableDictionary&lt;BasicBlockTag, MemorySSA.Value&gt;, ImmutableDictionary&lt;ValueTag, MemorySSA.Value&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates a memory SSA mapping.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -126,13 +150,13 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
         <td><span class="parametername">blockValues</span></td>
         <td><p>A mapping of basic block entry points to memory states.</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
         <td><span class="parametername">instructionValues</span></td>
         <td><p>A mapping of instructions to memory states.</p>
 </td>
@@ -167,7 +191,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
         <td><p>An immutable dictionary.</p>
 </td>
       </tr>
@@ -199,7 +223,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.Analysis.MemorySSA.Value.html">MemorySSA.Value</a>&gt;</td>
         <td><p>An immutable dictionary.</p>
 </td>
       </tr>

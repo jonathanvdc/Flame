@@ -118,6 +118,27 @@
     <div>
       <a class="xref" href="Flame.Ir.IrMember.html#Flame_Ir_IrMember_Attributes">IrMember.Attributes</a>
     </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Ir.html">Flame.Ir</a></h6>
   <h6><strong>Assembly</strong>: Flame.Ir.dll</h6>
@@ -168,7 +189,11 @@
   </span>
   <a id="Flame_Ir_IrField_IsStatic_" data-uid="Flame.Ir.IrField.IsStatic*"></a>
   <h4 id="Flame_Ir_IrField_IsStatic" data-uid="Flame.Ir.IrField.IsStatic">IsStatic</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Tells if this field is static. The storage for static fields
+is shared by the entire application, whereas the storage for
+instance (i.e., non-static) fields is specific to an instance
+of a type.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -185,7 +210,8 @@
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
+        <td><p><code>true</code> if this field is static; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -225,13 +251,13 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_IrField_Decode_LNode_Flame_Ir_DecoderState_.md&amp;value=---%0Auid%3A%20Flame.Ir.IrField.Decode(LNode%2CFlame.Ir.DecoderState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_IrField_Decode_Loyc_Syntax_LNode_Flame_Ir_DecoderState_.md&amp;value=---%0Auid%3A%20Flame.Ir.IrField.Decode(Loyc.Syntax.LNode%2CFlame.Ir.DecoderState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Ir/IrField.cs/#L37">View Source</a>
   </span>
   <a id="Flame_Ir_IrField_Decode_" data-uid="Flame.Ir.IrField.Decode*"></a>
-  <h4 id="Flame_Ir_IrField_Decode_LNode_Flame_Ir_DecoderState_" data-uid="Flame.Ir.IrField.Decode(LNode,Flame.Ir.DecoderState)">Decode(LNode, DecoderState)</h4>
+  <h4 id="Flame_Ir_IrField_Decode_Loyc_Syntax_LNode_Flame_Ir_DecoderState_" data-uid="Flame.Ir.IrField.Decode(Loyc.Syntax.LNode,Flame.Ir.DecoderState)">Decode(LNode, DecoderState)</h4>
   <div class="markdown level1 summary"><p>Decodes a field from an LNode.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -250,7 +276,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><span class="parametername">data</span></td>
         <td><p>The LNode to decode.</p>
 </td>
@@ -330,7 +356,7 @@ otherwise, <code>null</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents the field.</p>
 </td>
       </tr>

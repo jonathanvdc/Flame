@@ -91,11 +91,35 @@
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">EncoderState</span></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Ir.html">Flame.Ir</a></h6>
   <h6><strong>Assembly</strong>: Flame.Ir.dll</h6>
   <h5 id="Flame_Ir_EncoderState_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class EncoderState : object</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class EncoderState</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -151,13 +175,13 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_EncoderState__ctor_Flame_Ir_IrCodec_LNodeFactory_.md&amp;value=---%0Auid%3A%20Flame.Ir.EncoderState.%23ctor(Flame.Ir.IrCodec%2CLNodeFactory)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_EncoderState__ctor_Flame_Ir_IrCodec_Loyc_Syntax_LNodeFactory_.md&amp;value=---%0Auid%3A%20Flame.Ir.EncoderState.%23ctor(Flame.Ir.IrCodec%2CLoyc.Syntax.LNodeFactory)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Ir/EncoderState.cs/#L26">View Source</a>
   </span>
   <a id="Flame_Ir_EncoderState__ctor_" data-uid="Flame.Ir.EncoderState.#ctor*"></a>
-  <h4 id="Flame_Ir_EncoderState__ctor_Flame_Ir_IrCodec_LNodeFactory_" data-uid="Flame.Ir.EncoderState.#ctor(Flame.Ir.IrCodec,LNodeFactory)">EncoderState(IrCodec, LNodeFactory)</h4>
+  <h4 id="Flame_Ir_EncoderState__ctor_Flame_Ir_IrCodec_Loyc_Syntax_LNodeFactory_" data-uid="Flame.Ir.EncoderState.#ctor(Flame.Ir.IrCodec,Loyc.Syntax.LNodeFactory)">EncoderState(IrCodec, LNodeFactory)</h4>
   <div class="markdown level1 summary"><p>Instantiates a Flame IR encoder.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -182,7 +206,7 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">LNodeFactory</span></td>
+        <td><span class="xref">Loyc.Syntax.LNodeFactory</span></td>
         <td><span class="parametername">factory</span></td>
         <td><p>The node factory to use for creating nodes.</p>
 </td>
@@ -249,7 +273,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNodeFactory</span></td>
+        <td><span class="xref">Loyc.Syntax.LNodeFactory</span></td>
         <td><p>A node factory.</p>
 </td>
       </tr>
@@ -301,7 +325,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">LNode</span>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">Loyc.Syntax.LNode</span>&gt;</td>
         <td><p>A list of attribute nodes.</p>
 </td>
       </tr>
@@ -351,7 +375,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents the control-flow graph.</p>
 </td>
       </tr>
@@ -401,7 +425,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded instruction prototype.</p>
 </td>
       </tr>
@@ -451,7 +475,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents <code data-dev-comment-type="paramref" class="paramref">lookup</code>.</p>
 </td>
       </tr>
@@ -501,7 +525,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded constant value.</p>
 </td>
       </tr>
@@ -551,7 +575,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded node.</p>
 </td>
       </tr>
@@ -601,7 +625,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded field reference.</p>
 </td>
       </tr>
@@ -649,7 +673,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -698,7 +722,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded method reference.</p>
 </td>
       </tr>
@@ -748,7 +772,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded property reference.</p>
 </td>
       </tr>
@@ -798,7 +822,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded type reference.</p>
 </td>
       </tr>
@@ -850,7 +874,7 @@ names by taking their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded node.</p>
 </td>
       </tr>
@@ -902,7 +926,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded node.</p>
 </td>
       </tr>
@@ -952,7 +976,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>The encoded Boolean constant.</p>
 </td>
       </tr>
@@ -1002,7 +1026,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents the assembly definition.</p>
 </td>
       </tr>
@@ -1052,7 +1076,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents the type definition.</p>
 </td>
       </tr>
@@ -1102,7 +1126,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An LNode that represents the type member definition.</p>
 </td>
       </tr>
@@ -1152,7 +1176,7 @@ their string representation.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">LNode</span></td>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
         <td><p>An encoded node.</p>
 </td>
       </tr>

@@ -89,7 +89,22 @@ that are relevant to property reference resolution.</p>
   <div class="markdown level0 conceptual"></div>
   <div classs="implements">
     <h5>Implements</h5>
-    <div><span class="xref">IEquatable</span>&lt;<a class="xref" href="Flame.Clr.ClrPropertySignature.html">ClrPropertySignature</a>&gt;</div>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Clr.ClrPropertySignature.html">ClrPropertySignature</a>&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.ValueType.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
   <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
@@ -125,7 +140,7 @@ that are relevant to property reference resolution.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ImmutableArray</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableArray</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
         <td><p>The parameter types.</p>
 </td>
       </tr>
@@ -249,13 +264,13 @@ that are relevant to property reference resolution.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrPropertySignature_Create_System_String_Flame_IType_ImmutableArray_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrPropertySignature.Create(System.String%2CFlame.IType%2CImmutableArray%7BFlame.IType%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrPropertySignature_Create_System_String_Flame_IType_System_Collections_Immutable_ImmutableArray_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrPropertySignature.Create(System.String%2CFlame.IType%2CSystem.Collections.Immutable.ImmutableArray%7BFlame.IType%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Clr/ClrPropertySignature.cs/#L100">View Source</a>
   </span>
   <a id="Flame_Clr_ClrPropertySignature_Create_" data-uid="Flame.Clr.ClrPropertySignature.Create*"></a>
-  <h4 id="Flame_Clr_ClrPropertySignature_Create_System_String_Flame_IType_ImmutableArray_Flame_IType__" data-uid="Flame.Clr.ClrPropertySignature.Create(System.String,Flame.IType,ImmutableArray{Flame.IType})">Create(String, IType, ImmutableArray&lt;IType&gt;)</h4>
+  <h4 id="Flame_Clr_ClrPropertySignature_Create_System_String_Flame_IType_System_Collections_Immutable_ImmutableArray_Flame_IType__" data-uid="Flame.Clr.ClrPropertySignature.Create(System.String,Flame.IType,System.Collections.Immutable.ImmutableArray{Flame.IType})">Create(String, IType, ImmutableArray&lt;IType&gt;)</h4>
   <div class="markdown level1 summary"><p>Creates a property signature from a property's name,
 its property type and its indexer parameter types.</p>
 </div>
@@ -287,7 +302,7 @@ its property type and its indexer parameter types.</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">ImmutableArray</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="xref">System.Collections.Immutable.ImmutableArray</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
         <td><span class="parametername">indexerParameterTypes</span></td>
         <td><p>The types of the property signature's indexer parameters.</p>
 </td>
@@ -408,6 +423,8 @@ signature.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.Equals(System.Object)</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrPropertySignature_GetHashCode.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrPropertySignature.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
@@ -438,9 +455,11 @@ signature.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.GetHashCode()</span></div>
   <h3 id="implements">Implements</h3>
   <div>
-      <span class="xref">IEquatable&lt;&gt;</span>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
   </div>
 </article>
           </div>
