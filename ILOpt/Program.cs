@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Flame;
 using Flame.Clr;
 using Flame.Clr.Emit;
 using Flame.Clr.Transforms;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
+using Flame.Compiler.Pipeline;
 using Flame.Compiler.Transforms;
 using Flame.Ir;
 using Flame.TypeSystem;
@@ -111,7 +115,7 @@ namespace ILOpt
                 var typeSystem = flameAsm.Resolver.TypeEnvironment;
 
                 // Optimize the assembly.
-                OptimizeAssembly(cecilAsm, flameAsm, def => OptimizeBody(def, typeSystem, printIr));
+                OptimizeAssemblyAsync(flameAsm, printIr).Wait();
 
                 // Write the optimized assembly to disk.
                 cecilAsm.Write(outputPath);
@@ -125,157 +129,140 @@ namespace ILOpt
             return 0;
         }
 
-        private static LogEntry MakeDiagnostic(LogEntry entry)
+        private static Task OptimizeAssemblyAsync(ClrAssembly assembly, bool printIr)
         {
-            return DiagnosticExtractor
-                .Transform(entry, "ilopt")
-                .Map(WrapBox.WordWrap);
+            var typeSystem = assembly.Resolver.TypeEnvironment;
+            var pipeline = new Optimization[]
+            {
+                //   * Box to alloca, alloca to reg.
+                BoxToAlloca.Instance,
+                CopyPropagation.Instance,
+                AllocaToRegister.Instance,
+                CopyPropagation.Instance,
+                DeadValueElimination.Instance,
+
+                //   * Expand LINQ queries.
+                new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
+
+                //   * Aggregates to scalars, scalars to registers.
+                //     Also throw in GVN.
+                DeadValueElimination.Instance,
+                ScalarReplacement.Instance,
+                GlobalValueNumbering.Instance,
+                CopyPropagation.Instance,
+                DeadValueElimination.Instance,
+                AllocaToRegister.Instance,
+
+                //   * Optimize control flow.
+                InstructionSimplification.Instance,
+                new ConstantPropagation(),
+                DeadValueElimination.Instance,
+                new JumpThreading(true),
+                SwitchSimplification.Instance,
+                DuplicateReturns.Instance,
+                TailRecursionElimination.Instance,
+                BlockFusion.Instance
+            };
+
+            // Create an on-demand optimizer, which will optimize methods
+            // lazily.
+            var optimizer = new OnDemandOptimizer(
+                pipeline,
+                method => GetInitialMethodBody(method, typeSystem));
+
+            var tasks = new List<Task>();
+            foreach (var method in GetAllMethods(assembly))
+            {
+                tasks.Add(UpdateMethodBodyAsync(method, optimizer, typeSystem, printIr));
+            }
+            return Task.WhenAll(tasks);
         }
 
-        private static void OptimizeAssembly(
-            Mono.Cecil.AssemblyDefinition cecilAsm,
-            ClrAssembly flameAsm,
-            Func<ClrMethodDefinition, MethodBody> optimizeBody)
+        private static MethodBody GetInitialMethodBody(IMethod method, TypeEnvironment typeSystem)
         {
-            foreach (var module in cecilAsm.Modules)
+            var body = OnDemandOptimizer.GetInitialMethodBodyDefault(method);
+            if (body == null)
             {
-                foreach (var type in module.Types)
-                {
-                    OptimizeType(type, flameAsm, optimizeBody);
-                }
+                return null;
             }
-        }
 
-        private static void OptimizeType(
-            Mono.Cecil.TypeDefinition typeDefinition,
-            ClrAssembly parentAssembly,
-            Func<ClrMethodDefinition, MethodBody> optimizeBody)
-        {
-            foreach (var method in typeDefinition.Methods)
+            // Validate the method body.
+            var errors = body.Validate();
+            if (errors.Count > 0)
             {
-                OptimizeMethod(method, parentAssembly, optimizeBody);
+                var sourceIr = FormatIr(body);
+                log.Log(
+                    new LogEntry(
+                        Severity.Warning,
+                        "invalid IR",
+                        Quotation.QuoteEvenInBold(
+                            "the Flame IR produced by the CIL analyzer for ",
+                            method.FullName.ToString(),
+                            " is erroneous; skipping it."),
+
+                        CreateRemark(
+                            "errors in IR:",
+                            new BulletedList(errors.Select(x => new Text(x)).ToArray())),
+
+                        CreateRemark(
+                            "generated Flame IR:",
+                            new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length)))));
+                return null;
             }
-            foreach (var type in typeDefinition.NestedTypes)
-            {
-                OptimizeType(type, parentAssembly, optimizeBody);
-            }
-        }
 
-        private static void OptimizeMethod(
-            Mono.Cecil.MethodDefinition methodDefinition,
-            ClrAssembly parentAssembly,
-            Func<ClrMethodDefinition, MethodBody> optimizeBody)
-        {
-            if (methodDefinition.HasBody)
-            {
-                var flameMethod = (ClrMethodDefinition)parentAssembly.Resolve(methodDefinition);
-                var irBody = flameMethod.Body;
-
-                var errors = irBody.Validate();
-                if (errors.Count > 0)
-                {
-                    var sourceIr = FormatIr(irBody);
-                    log.Log(
-                        new LogEntry(
-                            Severity.Warning,
-                            "invalid IR",
-                            Quotation.QuoteEvenInBold(
-                                "the Flame IR produced by the CIL analyzer for ",
-                                flameMethod.FullName.ToString(),
-                                " is erroneous; skipping it."),
-
-                            CreateRemark(
-                                "errors in IR:",
-                                new BulletedList(errors.Select(x => new Text(x)).ToArray())),
-
-                            CreateRemark(
-                                "generated Flame IR:",
-                                new Paragraph(new WrapBox(sourceIr, 0, -sourceIr.Length)))));
-                    return;
-                }
-
-                var optBody = optimizeBody(flameMethod);
-                var emitter = new ClrMethodBodyEmitter(
-                    methodDefinition,
-                    optBody,
-                    parentAssembly.Resolver.TypeEnvironment);
-                var newCilBody = emitter.Compile();
-                methodDefinition.Body = newCilBody;
-            }
-        }
-
-        private static MethodBody OptimizeBody(
-            ClrMethodDefinition method,
-            TypeEnvironment typeSystem,
-            bool printIr)
-        {
-            var irBody = method.Body;
-
-            // Register analyses.
-            irBody = new MethodBody(
-                irBody.ReturnParameter,
-                irBody.ThisParameter,
-                irBody.Parameters,
-                irBody.Implementation
-                    .WithAnalysis(LazyBlockReachabilityAnalysis.Instance)
-                    .WithAnalysis(NullabilityAnalysis.Instance)
-                    .WithAnalysis(new EffectfulInstructionAnalysis())
-                    .WithAnalysis(PredecessorAnalysis.Instance)
-                    .WithAnalysis(RelatedValueAnalysis.Instance)
-                    .WithAnalysis(LivenessAnalysis.Instance)
-                    .WithAnalysis(InterferenceGraphAnalysis.Instance)
-                    .WithAnalysis(ValueUseAnalysis.Instance)
-                    .WithAnalysis(ConservativeInstructionOrderingAnalysis.Instance)
-                    .WithAnalysis(DominatorTreeAnalysis.Instance)
-                    .WithAnalysis(ValueNumberingAnalysis.Instance)
+            // Register some analyses and clean up the CFG before we actually start to optimize it.
+            return body.WithImplementation(
+                body.Implementation
                     .WithAnalysis(
                         new ConstantAnalysis<SubtypingRules>(
                             typeSystem.Subtyping))
                     .WithAnalysis(
                         new ConstantAnalysis<PermissiveExceptionDelayability>(
-                            PermissiveExceptionDelayability.Instance)));
+                            PermissiveExceptionDelayability.Instance))
+                    .Transform(
+                        AllocaToRegister.Instance,
+                        CopyPropagation.Instance,
+                        new ConstantPropagation(),
+                        CanonicalizeDelegates.Instance,
+                        InstructionSimplification.Instance));
+        }
 
-            // Optimize the IR a tiny bit.
-            irBody = irBody.WithImplementation(
-                irBody.Implementation.Transform(
-                    // Optimization passes.
-                    //   * Initial CFG cleanup.
-                    AllocaToRegister.Instance,
-                    CopyPropagation.Instance,
-                    new ConstantPropagation(),
-                    CanonicalizeDelegates.Instance,
-                    InstructionSimplification.Instance,
+        private static IEnumerable<ClrMethodDefinition> GetAllMethods(ClrAssembly assembly)
+        {
+            return assembly.Definition.Modules
+                .SelectMany(module => module.Types)
+                .SelectMany(type => GetAllMethods(type, assembly));
+        }
 
-                    //   * Box to alloca, alloca to reg.
-                    BoxToAlloca.Instance,
-                    CopyPropagation.Instance,
-                    AllocaToRegister.Instance,
-                    CopyPropagation.Instance,
-                    DeadValueElimination.Instance,
+        private static IEnumerable<ClrMethodDefinition> GetAllMethods(
+            Mono.Cecil.TypeDefinition typeDefinition,
+            ClrAssembly parentAssembly)
+        {
+            return typeDefinition.Methods
+                .Select(parentAssembly.Resolve)
+                .Cast<ClrMethodDefinition>()
+                .Concat(
+                    typeDefinition.NestedTypes.SelectMany(
+                        type => GetAllMethods(type, parentAssembly)));
+        }
 
-                    //   * Expand LINQ queries.
-                    new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
+        private static async Task UpdateMethodBodyAsync(
+            ClrMethodDefinition method,
+            Optimizer optimizer,
+            TypeEnvironment typeSystem,
+            bool printIr)
+        {
+            var optBody = await optimizer.GetBodyAsync(method);
+            if (optBody == null)
+            {
+                // Looks like the method either doesn't have a body or
+                // we can't handle it for some reason.
+                return;
+            }
 
-                    //   * Aggregates to scalars, scalars to registers.
-                    //     Also throw in GVN.
-                    DeadValueElimination.Instance,
-                    ScalarReplacement.Instance,
-                    GlobalValueNumbering.Instance,
-                    CopyPropagation.Instance,
-                    DeadValueElimination.Instance,
-                    AllocaToRegister.Instance,
-
-                    //   * Optimize control flow.
-                    InstructionSimplification.Instance,
-                    new ConstantPropagation(),
-                    DeadValueElimination.Instance,
-                    new JumpThreading(true),
-                    SwitchSimplification.Instance,
-                    DuplicateReturns.Instance,
-                    new TailRecursionElimination(method),
-                    BlockFusion.Instance,
-
-                    // Lowering and cleanup passes.
+            // Lower the optimized method body.
+            optBody = optBody.WithImplementation(
+                optBody.Implementation.Transform(
                     JumpToEntryRemoval.Instance,
                     DeadBlockElimination.Instance,
                     new SwitchLowering(typeSystem),
@@ -287,10 +274,16 @@ namespace ILOpt
 
             if (printIr)
             {
-                PrintIr(method, method.Body, irBody);
+                PrintIr(method, method.Body, optBody);
             }
 
-            return irBody;
+            // Select CIL instructions for the optimized method body.
+            var emitter = new ClrMethodBodyEmitter(method.Definition, optBody, typeSystem);
+            var newCilBody = emitter.Compile();
+            lock (method.Definition)
+            {
+                method.Definition.Body = newCilBody;
+            }
         }
 
         private static void PrintIr(
@@ -334,6 +327,13 @@ namespace ILOpt
                 new MarkupNode[] { DecorationSpan.MakeBold(new ColorSpan("remark: ", Colors.Gray)) }
                 .Concat(contents)
                 .ToArray());
+        }
+
+        private static LogEntry MakeDiagnostic(LogEntry entry)
+        {
+            return DiagnosticExtractor
+                .Transform(entry, "ilopt")
+                .Map(WrapBox.WordWrap);
         }
     }
 }

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
+using Flame.Compiler.Pipeline;
 
 namespace Flame.Compiler.Transforms
 {
@@ -56,25 +58,40 @@ namespace Flame.Compiler.Transforms
     /// A transform that rewrites static calls to the current method
     /// just prior to a return as unconditional jumps to the entry point.
     /// </summary>
-    public sealed class TailRecursionElimination : IntraproceduralOptimization
+    public sealed class TailRecursionElimination : Optimization
     {
+        private TailRecursionElimination()
+        { }
+
         /// <summary>
-        /// Creates a tail recursion elimination transform for a particular method.
+        /// An instance of the tail recursion elimination optimization.
         /// </summary>
-        /// <param name="method">The method to optimize.</param>
-        public TailRecursionElimination(IMethod method)
+        /// <value>A tail recursion elimination optimization.</value>
+        public static readonly TailRecursionElimination Instance
+            = new TailRecursionElimination();
+
+        /// <inheritdoc/>
+        public override bool IsCheckpoint => false;
+
+        /// <inheritdoc/>
+        public override Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
         {
-            this.Method = method;
+            return Task.FromResult(
+                body.WithImplementation(
+                    Apply(body.Implementation, state.Method)));
         }
 
         /// <summary>
-        /// Gets the method being optimized.
+        /// Applies the tail recursion elimination transform to a particular method.
         /// </summary>
-        /// <value>The method being optimized.</value>
-        public IMethod Method { get; private set; }
-
-        /// <inheritdoc/>
-        public override FlowGraph Apply(FlowGraph graph)
+        /// <param name="graph">
+        /// A control-flow graph to optimize.
+        /// </param>
+        /// <param name="method">
+        /// The method that has <paramref name="graph"/> as its body.
+        /// </param>
+        /// <returns>An optimized control-flow graph.</returns>
+        public FlowGraph Apply(FlowGraph graph, IMethod method)
         {
             var builder = graph.ToBuilder();
             var ordering = graph.GetAnalysisResult<InstructionOrdering>();
@@ -87,6 +104,7 @@ namespace Flame.Compiler.Transforms
                         block,
                         retFlow.ReturnValue,
                         builder,
+                        method,
                         ordering);
                 }
             }
@@ -106,6 +124,9 @@ namespace Flame.Compiler.Transforms
         /// <param name="graph">
         /// The graph that defines the block.
         /// </param>
+        /// <param name="method">
+        /// The method that is being optimized.
+        /// </param>
         /// <param name="ordering">
         /// An instruction ordering model.
         /// </param>
@@ -117,6 +138,7 @@ namespace Flame.Compiler.Transforms
             BasicBlockBuilder block,
             Instruction returnValue,
             FlowGraphBuilder graph,
+            IMethod method,
             InstructionOrdering ordering)
         {
             var insnsToEliminate = new HashSet<ValueTag>();
@@ -137,7 +159,7 @@ namespace Flame.Compiler.Transforms
             }
 
             if ((callTag == null || graph.GetValueParent(callTag).Tag == block.Tag)
-                && IsSelfCallPrototype(returnValue.Prototype))
+                && IsSelfCallPrototype(returnValue.Prototype, method))
             {
                 // Now all we have to do is make sure that there is no instruction
                 // that must run after the call.
@@ -176,17 +198,20 @@ namespace Flame.Compiler.Transforms
         /// Tells if a particular instruction prototype is a recursive call.
         /// </summary>
         /// <param name="prototype">The instruction prototype to inspect.</param>
+        /// <param name="method">The method that defines the current CFG being optimized.</param>
         /// <returns>
         /// <c>true</c> if <paramref name="prototype"/> describes a recursive call;
         /// otherwise, <c>false</c>.
         /// </returns>
-        private bool IsSelfCallPrototype(InstructionPrototype prototype)
+        private static bool IsSelfCallPrototype(
+            InstructionPrototype prototype,
+            IMethod method)
         {
             if (prototype is CallPrototype)
             {
                 var callProto = (CallPrototype)prototype;
                 return callProto.Lookup == MethodLookup.Static
-                    && callProto.Callee.Equals(Method);
+                    && callProto.Callee.Equals(method);
             }
             else
             {
