@@ -17772,25 +17772,12 @@ references:
   commentId: T:Flame.Compiler.Transforms.TailRecursionElimination
   fullName: Flame.Compiler.Transforms.TailRecursionElimination
   nameWithType: TailRecursionElimination
-- uid: Flame.Compiler.Transforms.TailRecursionElimination.#ctor(Flame.IMethod)
-  name: TailRecursionElimination(IMethod)
-  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination__ctor_Flame_IMethod_
-  commentId: M:Flame.Compiler.Transforms.TailRecursionElimination.#ctor(Flame.IMethod)
-  fullName: Flame.Compiler.Transforms.TailRecursionElimination.TailRecursionElimination(Flame.IMethod)
-  nameWithType: TailRecursionElimination.TailRecursionElimination(IMethod)
-- uid: Flame.Compiler.Transforms.TailRecursionElimination.#ctor*
-  name: TailRecursionElimination
-  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination__ctor_
-  commentId: Overload:Flame.Compiler.Transforms.TailRecursionElimination.#ctor
-  isSpec: "True"
-  fullName: Flame.Compiler.Transforms.TailRecursionElimination.TailRecursionElimination
-  nameWithType: TailRecursionElimination.TailRecursionElimination
-- uid: Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph)
-  name: Apply(FlowGraph)
-  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_
-  commentId: M:Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph)
-  fullName: Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph)
-  nameWithType: TailRecursionElimination.Apply(FlowGraph)
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph,Flame.IMethod)
+  name: Apply(FlowGraph, IMethod)
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_Flame_IMethod_
+  commentId: M:Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph,Flame.IMethod)
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph, Flame.IMethod)
+  nameWithType: TailRecursionElimination.Apply(FlowGraph, IMethod)
 - uid: Flame.Compiler.Transforms.TailRecursionElimination.Apply*
   name: Apply
   href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Apply_
@@ -17798,19 +17785,38 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Transforms.TailRecursionElimination.Apply
   nameWithType: TailRecursionElimination.Apply
-- uid: Flame.Compiler.Transforms.TailRecursionElimination.Method
-  name: Method
-  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Method
-  commentId: P:Flame.Compiler.Transforms.TailRecursionElimination.Method
-  fullName: Flame.Compiler.Transforms.TailRecursionElimination.Method
-  nameWithType: TailRecursionElimination.Method
-- uid: Flame.Compiler.Transforms.TailRecursionElimination.Method*
-  name: Method
-  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Method_
-  commentId: Overload:Flame.Compiler.Transforms.TailRecursionElimination.Method
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)
+  name: ApplyAsync(MethodBody, OptimizationState)
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_
+  commentId: M:Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync(Flame.Compiler.MethodBody, Flame.Compiler.Pipeline.OptimizationState)
+  nameWithType: TailRecursionElimination.ApplyAsync(MethodBody, OptimizationState)
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync*
+  name: ApplyAsync
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_ApplyAsync_
+  commentId: Overload:Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync
   isSpec: "True"
-  fullName: Flame.Compiler.Transforms.TailRecursionElimination.Method
-  nameWithType: TailRecursionElimination.Method
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync
+  nameWithType: TailRecursionElimination.ApplyAsync
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.Instance
+  name: Instance
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_Instance
+  commentId: F:Flame.Compiler.Transforms.TailRecursionElimination.Instance
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.Instance
+  nameWithType: TailRecursionElimination.Instance
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint
+  name: IsCheckpoint
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_IsCheckpoint
+  commentId: P:Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint
+  nameWithType: TailRecursionElimination.IsCheckpoint
+- uid: Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint*
+  name: IsCheckpoint
+  href: api/Flame.Compiler.Transforms.TailRecursionElimination.html#Flame_Compiler_Transforms_TailRecursionElimination_IsCheckpoint_
+  commentId: Overload:Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint
+  nameWithType: TailRecursionElimination.IsCheckpoint
 - uid: Flame.Compiler.Transforms.Transform
   name: Transform
   href: api/Flame.Compiler.Transforms.Transform.html

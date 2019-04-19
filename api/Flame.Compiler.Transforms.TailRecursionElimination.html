@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class TailRecursionElimination
    | Flame ">
-    <meta name="generator" content="docfx 2.41.0.0">
+    <meta name="generator" content="docfx 2.42.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -91,17 +91,10 @@ just prior to a return as unconditional jumps to the entry point.</p>
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a></div>
-    <div class="level2"><a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html">IntraproceduralOptimization</a></div>
-    <div class="level3"><span class="xref">TailRecursionElimination</span></div>
+    <div class="level2"><span class="xref">TailRecursionElimination</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html#Flame_Compiler_Transforms_IntraproceduralOptimization_IsCheckpoint">IntraproceduralOptimization.IsCheckpoint</a>
-    </div>
-    <div>
-      <a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html#Flame_Compiler_Transforms_IntraproceduralOptimization_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_">IntraproceduralOptimization.ApplyAsync(MethodBody, OptimizationState)</a>
-    </div>
     <div>
       <span class="xref">System.Object.ToString()</span>
     </div>
@@ -128,40 +121,37 @@ just prior to a return as unconditional jumps to the entry point.</p>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
   <h5 id="Flame_Compiler_Transforms_TailRecursionElimination_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class TailRecursionElimination : IntraproceduralOptimization</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class TailRecursionElimination : Optimization</code></pre>
   </div>
-  <h3 id="constructors">Constructors
+  <h3 id="fields">Fields
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination__ctor_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.%23ctor(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_Instance.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.Instance%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L65">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L70">View Source</a>
   </span>
-  <a id="Flame_Compiler_Transforms_TailRecursionElimination__ctor_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.#ctor*"></a>
-  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination__ctor_Flame_IMethod_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.#ctor(Flame.IMethod)">TailRecursionElimination(IMethod)</h4>
-  <div class="markdown level1 summary"><p>Creates a tail recursion elimination transform for a particular method.</p>
+  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_Instance" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Instance">Instance</h4>
+  <div class="markdown level1 summary"><p>An instance of the tail recursion elimination optimization.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TailRecursionElimination(IMethod method)</code></pre>
+    <pre><code class="lang-csharp hljs">public static readonly TailRecursionElimination Instance</code></pre>
   </div>
-  <h5 class="parameters">Parameters</h5>
+  <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
         <th>Type</th>
-        <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><span class="parametername">method</span></td>
-        <td><p>The method to optimize.</p>
+        <td><a class="xref" href="Flame.Compiler.Transforms.TailRecursionElimination.html">TailRecursionElimination</a></td>
+        <td><p>A tail recursion elimination optimization.</p>
 </td>
       </tr>
     </tbody>
@@ -170,19 +160,22 @@ just prior to a return as unconditional jumps to the entry point.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_Method.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.Method%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_IsCheckpoint.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L74">View Source</a>
   </span>
-  <a id="Flame_Compiler_Transforms_TailRecursionElimination_Method_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Method*"></a>
-  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_Method" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Method">Method</h4>
-  <div class="markdown level1 summary"><p>Gets the method being optimized.</p>
+  <a id="Flame_Compiler_Transforms_TailRecursionElimination_IsCheckpoint_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint*"></a>
+  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_IsCheckpoint" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.IsCheckpoint">IsCheckpoint</h4>
+  <div class="markdown level1 summary"><p>Tells if this optimization checkpoints its result.
+The optimizer takes care to always return the latest
+checkpointed method body is returned when a method's
+optimized method body is requested.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IMethod Method { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public override bool IsCheckpoint { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -194,29 +187,31 @@ just prior to a return as unconditional jumps to the entry point.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
-        <td><p>The method being optimized.</p>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>Tells if this optimization performs a checkpoint.</p>
 </td>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html#Flame_Compiler_Pipeline_Optimization_IsCheckpoint">Optimization.IsCheckpoint</a></div>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph%2CFlame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L77">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L94">View Source</a>
   </span>
   <a id="Flame_Compiler_Transforms_TailRecursionElimination_Apply_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Apply*"></a>
-  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph)">Apply(FlowGraph)</h4>
-  <div class="markdown level1 summary"><p>Applies this intraprocedural optimization to a flow graph.</p>
+  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_Apply_Flame_Compiler_FlowGraph_Flame_IMethod_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.Apply(Flame.Compiler.FlowGraph,Flame.IMethod)">Apply(FlowGraph, IMethod)</h4>
+  <div class="markdown level1 summary"><p>Applies the tail recursion elimination transform to a particular method.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override FlowGraph Apply(FlowGraph graph)</code></pre>
+    <pre><code class="lang-csharp hljs">public FlowGraph Apply(FlowGraph graph, IMethod method)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -231,7 +226,13 @@ just prior to a return as unconditional jumps to the entry point.</p>
       <tr>
         <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
         <td><span class="parametername">graph</span></td>
-        <td><p>The flow graph to transform.</p>
+        <td><p>A control-flow graph to optimize.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td><p>The method that has <code data-dev-comment-type="paramref" class="paramref">graph</code> as its body.</p>
 </td>
       </tr>
     </tbody>
@@ -247,13 +248,69 @@ just prior to a return as unconditional jumps to the entry point.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
-        <td><p>A transformed flow graph.</p>
+        <td><p>An optimized control-flow graph.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync(Flame.Compiler.MethodBody%2CFlame.Compiler.Pipeline.OptimizationState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L77">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_TailRecursionElimination_ApplyAsync_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync*"></a>
+  <h4 id="Flame_Compiler_Transforms_TailRecursionElimination_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_" data-uid="Flame.Compiler.Transforms.TailRecursionElimination.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)">ApplyAsync(MethodBody, OptimizationState)</h4>
+  <div class="markdown level1 summary"><p>Applies the optimization to a method body.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Task&lt;MethodBody&gt; ApplyAsync(MethodBody body, OptimizationState state)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>A method body holder to optimize.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Pipeline.OptimizationState.html">OptimizationState</a></td>
+        <td><span class="parametername">state</span></td>
+        <td><p>State associated with optimizations.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span>&lt;<a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
+        <td><p>A task that produces an optimized method body.</p>
 </td>
       </tr>
     </tbody>
   </table>
   <h5 class="overrides">Overrides</h5>
-  <div><a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html#Flame_Compiler_Transforms_IntraproceduralOptimization_Apply_Flame_Compiler_FlowGraph_">IntraproceduralOptimization.Apply(FlowGraph)</a></div>
+  <div><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html#Flame_Compiler_Pipeline_Optimization_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_">Optimization.ApplyAsync(MethodBody, OptimizationState)</a></div>
 </article>
           </div>
           
@@ -265,7 +322,7 @@ just prior to a return as unconditional jumps to the entry point.</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_TailRecursionElimination.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.TailRecursionElimination%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L59" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Transforms/TailRecursionElimination.cs/#L61" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
