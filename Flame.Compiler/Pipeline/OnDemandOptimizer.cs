@@ -254,6 +254,7 @@ namespace Flame.Compiler.Pipeline
                 }
             }
             requestedHolder.Body = body;
+            Complete(requestedDef, body);
             return body;
         }
 
