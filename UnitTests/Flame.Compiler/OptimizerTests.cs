@@ -136,6 +136,56 @@ namespace UnitTests.Flame.Compiler
                 optimizer.GetBodyAsync(factorial).Result);
         }
 
+        [Test]
+        public void OptimizeDependency()
+        {
+            var asm = DecodeAssembly(@"
+                #assembly(Test, {
+                    #type(Float64, #(), #(), {
+                        #fn(Id1, true, #(), Float64, #(#param(Float64, value)), #(), {
+                            #entry_point(ep, #(#param(Float64, value)), {
+
+                            }, #return(copy(Float64)(value)));
+                        });
+
+                        #fn(Id2, true, #(), Float64, #(#param(Float64, value)), #(), {
+                            #entry_point(ep, #(#param(Float64, value)), {
+                                ptr = alloca(Float64)();
+                                value_copy1 = store(Float64)(ptr, value);
+                                value_copy2 = load(Float64)(ptr);
+                                ret_val = call(Float64.Id1(Float64) => Float64, static)(value_copy2);
+                            }, #return(copy(Float64)(ret_val)));
+                        });
+                    });
+                });");
+
+            var id1 = asm.Types.Single().Methods.Single(m => m.Name.ToString() == "Id1");
+            var id2 = asm.Types.Single().Methods.Single(m => m.Name.ToString() == "Id2");
+
+            var optimizer1 = new OnDemandOptimizer(new Optimization[]
+            {
+                new BlockingOptimization(id1),
+                AllocaToRegister.Instance,
+                new JumpThreading(true)
+            });
+
+            optimizer1.GetBodyAsync(id1).Wait();
+            Assert.AreNotEqual(
+                OnDemandOptimizer.GetInitialMethodBodyDefault(id2),
+                optimizer1.GetBodyAsync(id2).Result);
+
+            var optimizer2 = new OnDemandOptimizer(new Optimization[]
+            {
+                new BlockingOptimization(id1),
+                AllocaToRegister.Instance,
+                new JumpThreading(true)
+            });
+
+            Assert.AreNotEqual(
+                OnDemandOptimizer.GetInitialMethodBodyDefault(id2),
+                optimizer2.GetBodyAsync(id2).Result);
+        }
+
         private IAssembly DecodeAssembly(string lesCode)
         {
             return decoder.DecodeAssembly(Les3LanguageService.Value.ParseSingle(lesCode));
