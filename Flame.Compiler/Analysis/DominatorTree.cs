@@ -363,61 +363,53 @@ namespace Flame.Compiler.Analysis
             }
         }
 
-        private static void SortPostorder(
-            FlowGraph graph,
-            BasicBlockTag tag,
-            HashSet<BasicBlockTag> processed,
-            List<BasicBlockTag> results)
+        private static void SortPostorder<T>(
+            T node,
+            HashSet<T> processed,
+            List<T> results,
+            Func<T, IEnumerable<T>> getSuccessors)
         {
-            if (!processed.Add(tag))
+            if (!processed.Add(node))
                 return;
 
-            foreach (var child in graph.GetBasicBlock(tag).Flow.BranchTargets)
+            foreach (var child in getSuccessors(node))
             {
-                SortPostorder(graph, child, processed, results);
+                SortPostorder(child, processed, results, getSuccessors);
             }
 
-            results.Add(tag);
+            results.Add(node);
         }
 
         /// <summary>
         /// Produces a postorder traversal list for this graph, starting at the
         /// given roots.
         /// </summary>
-        private static List<BasicBlockTag> SortPostorder(
-            FlowGraph graph,
-            IEnumerable<BasicBlockTag> roots)
+        private static List<T> SortPostorder<T>(
+            IEnumerable<T> roots,
+            Func<T, IEnumerable<T>> getSuccessors)
         {
-            var processed = new HashSet<BasicBlockTag>();
-            var results = new List<BasicBlockTag>();
+            var processed = new HashSet<T>();
+            var results = new List<T>();
 
             foreach (var item in roots)
             {
-                SortPostorder(graph, item, processed, results);
+                SortPostorder<T>(item, processed, results, getSuccessors);
             }
 
             return results;
         }
 
-        /// <summary>
-        /// Produces a postorder traversal list for this graph, with the entry
-        /// point as root.
-        /// </summary>
-        private static List<BasicBlockTag> SortPostorder(FlowGraph graph)
-        {
-            return SortPostorder(graph, new BasicBlockTag[] { graph.EntryPointTag });
-        }
-
-        private static BasicBlockTag IntersectImmediateDominators(
-            BasicBlockTag b1, BasicBlockTag b2,
-            Dictionary<BasicBlockTag, BasicBlockTag> idoms,
-            Dictionary<BasicBlockTag, int> PostorderNums)
+        private static T IntersectImmediateDominators<T>(
+            T b1, T b2,
+            Dictionary<T, T> idoms,
+            Dictionary<T, int> postorderNums)
+            where T : class
         {
             var finger1 = b1;
             var finger2 = b2;
             while (finger1 != finger2)
             {
-                while (PostorderNums[finger1] < PostorderNums[finger2])
+                while (postorderNums[finger1] < postorderNums[finger2])
                 {
                     finger1 = idoms[finger1];
                     if (finger1 == null)
@@ -425,8 +417,8 @@ namespace Flame.Compiler.Analysis
                         return finger2;
                     }
                 }
-                    
-                while (PostorderNums[finger2] < PostorderNums[finger1])
+
+                while (postorderNums[finger2] < postorderNums[finger1])
                 {
                     finger2 = idoms[finger2];
                     if (finger2 == null)
@@ -439,32 +431,35 @@ namespace Flame.Compiler.Analysis
         }
 
         /// <summary>
-        /// Computes a mapping from basic block tags to their immediate
-        /// dominators. The entry point block mapped to <c>null</c>.
+        /// Computes a mapping from nodes to their immediate
+        /// dominators. The root value is mapped to <c>null</c>.
         /// </summary>
-        private static IReadOnlyDictionary<BasicBlockTag, BasicBlockTag> GetImmediateDominators(
-            FlowGraph graph)
+        private static IReadOnlyDictionary<T, T> GetImmediateDominators<T>(
+            IEnumerable<T> nodes,
+            T root,
+            Func<T, IEnumerable<T>> getSuccessors,
+            Func<T, IEnumerable<T>> getPredecessors)
+            where T : class
         {
             // Based on "A Simple, Fast Dominance Algorithm" by
             // Keith D. Cooper, Timothy J. Harvey, and Ken Kennedy
             // (http://www.cs.rice.edu/~keith/Embed/dom.pdf)
 
-            var preds = graph.GetAnalysisResult<BasicBlockPredecessors>();
-            var idoms = new Dictionary<BasicBlockTag, BasicBlockTag>();
-            foreach (var block in graph.BasicBlockTags)
+            var idoms = new Dictionary<T, T>();
+            foreach (var block in nodes)
             {
                 idoms[block] = null;
             }
 
-            var postorderSort = SortPostorder(graph).ToArray();
-            var postorderNums = new Dictionary<BasicBlockTag, int>();
+            var postorderSort = SortPostorder(nodes, getSuccessors).ToArray();
+            var postorderNums = new Dictionary<T, int>();
             for (int i = 0; i < postorderSort.Length; i++)
             {
                 var item = postorderSort[i];
                 postorderNums[item] = i;
             }
 
-            idoms[graph.EntryPointTag] = graph.EntryPointTag;
+            idoms[root] = root;
 
             bool changed = true;
             while (changed)
@@ -473,11 +468,11 @@ namespace Flame.Compiler.Analysis
                 for (int i = postorderSort.Length - 1; i >= 0; i--)
                 {
                     var b = postorderSort[i];
-                    if (b == graph.EntryPointTag)
+                    if (b == root)
                         continue;
 
-                    BasicBlockTag newIdom = null;
-                    foreach (var p in preds.GetPredecessorsOf(b))
+                    T newIdom = null;
+                    foreach (var p in getPredecessors(b))
                     {
                         if (!postorderNums.ContainsKey(p))
                             continue;
@@ -501,9 +496,25 @@ namespace Flame.Compiler.Analysis
                 }
             }
 
-            idoms[graph.EntryPointTag] = null;
+            idoms[root] = null;
 
             return idoms;
+        }
+
+        /// <summary>
+        /// Computes a mapping from basic block tags to their immediate
+        /// dominators. The entry point block is mapped to <c>null</c>.
+        /// </summary>
+        private static IReadOnlyDictionary<BasicBlockTag, BasicBlockTag> GetImmediateDominators(
+            FlowGraph graph)
+        {
+            var preds = graph.GetAnalysisResult<BasicBlockPredecessors>();
+
+            return GetImmediateDominators(
+                graph.BasicBlockTags,
+                graph.EntryPointTag,
+                tag => graph.GetBasicBlock(tag).Flow.BranchTargets,
+                preds.GetPredecessorsOf);
         }
     }
 }
