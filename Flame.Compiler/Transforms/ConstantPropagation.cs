@@ -39,14 +39,21 @@ namespace Flame.Compiler.Transforms
         public ConstantPropagation(
             Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> evaluate)
         {
-            this.Evaluate = evaluate;
+            this.Analyzer = new Analysis(evaluate);
         }
+
+        /// <summary>
+        /// Gets the lattice-based analysis used to perform constant propagation.
+        /// </summary>
+        /// <value>The constant propagation analysis.</value>
+        private Analysis Analyzer { get; set; }
 
         /// <summary>
         /// Evaluates an instruction that takes a list of constant arguments.
         /// Returns <c>null</c> if the instruction cannot be evaluated.
         /// </summary>
-        public Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> Evaluate { get; private set; }
+        public Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> Evaluate
+            => Analyzer.EvaluateAsConstant;
 
         /// <summary>
         /// The default constant instruction evaluation function.
@@ -108,10 +115,10 @@ namespace Flame.Compiler.Transforms
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
         {
-            IEnumerable<BasicBlockTag> liveBlocks;
-
             // Do the fancy analysis.
-            var cells = FillCells(graph, out liveBlocks);
+            var analysis = Analyzer.Analyze(graph);
+            var cells = analysis.ValueCells;
+            var liveBlocks = analysis.LiveBlocks;
 
             // Get ready to rewrite the flow graph.
             var graphBuilder = graph.ToBuilder();
@@ -155,7 +162,7 @@ namespace Flame.Compiler.Transforms
                 bool anyChanged = false;
                 for (int i = 0; i < newFlowInstructions.Length; i++)
                 {
-                    var cell = EvaluateInstruction(flowInstructions[i], cells, graph);
+                    var cell = Analyzer.Evaluate(flowInstructions[i], cells, graph);
                     if (cell.IsConstant)
                     {
                         anyChanged = true;
@@ -215,7 +222,7 @@ namespace Flame.Compiler.Transforms
                     // We found a switch. Now we just need to figure
                     // out which branches are viable. To do so, we'll
                     // evaluate the switch's condition.
-                    var condition = EvaluateInstruction(
+                    var condition = Analyzer.Evaluate(
                         switchFlow.SwitchValue,
                         cells,
                         graphBuilder.ImmutableGraph);
@@ -259,318 +266,168 @@ namespace Flame.Compiler.Transforms
             }
         }
 
-        private Dictionary<ValueTag, LatticeCell> FillCells(
-            FlowGraph graph,
-            out IEnumerable<BasicBlockTag> liveBlocks)
+        /// <summary>
+        /// The lattice-based analysis that underpins the constant propagation optimization.
+        /// </summary>
+        private sealed class Analysis : LatticeAnalysis<LatticeCell>
         {
-            var uses = graph.GetAnalysisResult<ValueUses>();
-
-            // Create a mapping of values to their corresponding lattice cells.
-            var valueCells = new Dictionary<ValueTag, LatticeCell>();
-            var parameterArgs = new Dictionary<ValueTag, HashSet<ValueTag>>();
-            var entryPointBlock = graph.GetBasicBlock(graph.EntryPointTag);
-
-            foreach (var methodParameter in entryPointBlock.ParameterTags)
+            public Analysis(
+                Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> evaluateAsConstant)
             {
-                // The values of method parameters cannot be inferred by
-                // just looking at a method's body. Mark them as bottom cells
-                // so we don't fool ourselves into thinking they are constants.
-                valueCells[methodParameter] = LatticeCell.Bottom;
+                this.EvaluateAsConstant = evaluateAsConstant;
             }
 
-            var visitedBlocks = new HashSet<BasicBlockTag>();
-            var liveBlockSet = new HashSet<BasicBlockTag>();
-            var valueWorklist = new Queue<ValueTag>(entryPointBlock.InstructionTags);
-            var flowWorklist = new Queue<BasicBlockTag>();
-            flowWorklist.Enqueue(entryPointBlock);
-            visitedBlocks.Add(entryPointBlock);
-            liveBlockSet.Add(entryPointBlock);
+            /// <summary>
+            /// Evaluates an instruction that takes a list of constant arguments.
+            /// Returns <c>null</c> if the instruction cannot be evaluated.
+            /// </summary>
+            public Func<InstructionPrototype, IReadOnlyList<Constant>, Constant> EvaluateAsConstant { get; private set; }
 
-            while (valueWorklist.Count > 0 || flowWorklist.Count > 0)
+            public override LatticeCell Top => LatticeCell.Top;
+
+            public override LatticeCell Bottom => LatticeCell.Bottom;
+
+            public override LatticeCell Evaluate(
+                Instruction instruction,
+                IReadOnlyDictionary<ValueTag, LatticeCell> cells,
+                FlowGraph graph)
             {
-                // Process all values in the worklist.
-                while (valueWorklist.Count > 0)
+                if (instruction.Prototype is CopyPrototype)
                 {
-                    var value = valueWorklist.Dequeue();
-                    var cell = GetCellForValue(value, valueCells);
-
-                    var newCell = graph.ContainsInstruction(value)
-                        ? UpdateInstructionCell(value, valueCells, graph)
-                        : UpdateBlockParameterCell(value, valueCells, parameterArgs);
-
-                    valueCells[value] = newCell;
-                    if (cell.Kind != newCell.Kind)
-                    {
-                        // Visit all instructions and flows that depend on
-                        // this instruction.
-                        foreach (var item in uses.GetInstructionUses(value))
-                        {
-                            valueWorklist.Enqueue(item);
-                        }
-                        foreach (var item in uses.GetFlowUses(value))
-                        {
-                            flowWorklist.Enqueue(item);
-                        }
-                    }
+                    // Special case on copy instructions because they're
+                    // easy to deal with: just return the lattice cell for
+                    // the argument.
+                    return cells[instruction.Arguments[0]];
                 }
 
-                if (flowWorklist.Count > 0)
+                var foundTop = false;
+                var args = new Constant[instruction.Arguments.Count];
+                for (int i = 0; i < args.Length; i++)
                 {
-                    var block = graph.GetBasicBlock(flowWorklist.Dequeue());
-                    if (visitedBlocks.Add(block))
-                    {
-                        // When a block is visited for the first time, add
-                        // all of its instructions to the value worklist.
-                        foreach (var item in block.InstructionTags)
-                        {
-                            valueWorklist.Enqueue(item);
-                        }
-                    }
+                    var argCell = cells[instruction.Arguments[i]];
 
-                    var flow = block.Flow;
-                    IReadOnlyList<Branch> branches;
-                    if (flow is SwitchFlow)
+                    if (argCell.Kind == LatticeCellKind.Top)
                     {
-                        var switchFlow = (SwitchFlow)flow;
-                        var condition = EvaluateInstruction(switchFlow.SwitchValue, valueCells, graph);
-                        if (condition.Kind == LatticeCellKind.Top)
-                        {
-                            // Do nothing for now.
-                            branches = EmptyArray<Branch>.Value;
-                        }
-                        else if (condition.Kind == LatticeCellKind.Constant)
-                        {
-                            // If a switch flow has a constant condition (for now),
-                            // then pick a single branch.
-                            var valuesToBranches = switchFlow.ValueToBranchMap;
-                            branches = new[]
-                            {
-                                valuesToBranches.ContainsKey(condition.Value)
-                                    ? valuesToBranches[condition.Value]
-                                    : switchFlow.DefaultBranch
-                            };
-                        }
-                        else if (condition.Kind == LatticeCellKind.NonNull)
-                        {
-                            // If a switch flow has a non-null condition, then we
-                            // work on all branches except for the null branch, if
-                            // it exists.
-                            branches = switchFlow.ValueToBranchMap
-                                .Where(pair => pair.Key != NullConstant.Instance)
-                                .Select(pair => pair.Value)
-                                .Concat(new[] { switchFlow.DefaultBranch })
-                                .ToArray();
-                        }
-                        else
-                        {
-                            // If a switch flow has a bottom condition, then everything
-                            // is possible.
-                            branches = flow.Branches;
-                        }
+                        // We can't evaluate this value *yet*. Keep looking
+                        // for bottom argument cells and set a flag to record
+                        // that this value cannot be evaluated yet.
+                        foundTop = true;
+                    }
+                    else if (argCell.Kind == LatticeCellKind.Constant)
+                    {
+                        // Yay. We found a compile-time constant.
+                        args[i] = argCell.Value;
                     }
                     else
                     {
-                        branches = flow.Branches;
-                    }
-
-                    // Process the selected branches.
-                    foreach (var branch in branches)
-                    {
-                        // The target of every branch we visit is live.
-                        liveBlockSet.Add(branch.Target);
-
-                        // Add the branch target to the worklist of blocks
-                        // to process if we haven't processed it already.
-                        if (!visitedBlocks.Contains(branch.Target))
-                        {
-                            flowWorklist.Enqueue(branch.Target);
-                        }
-
-                        foreach (var pair in branch.ZipArgumentsWithParameters(graph))
-                        {
-                            if (pair.Value.IsValue)
-                            {
-                                HashSet<ValueTag> args;
-                                if (!parameterArgs.TryGetValue(pair.Key, out args))
-                                {
-                                    args = new HashSet<ValueTag>();
-                                    parameterArgs[pair.Key] = args;
-                                }
-
-                                args.Add(pair.Value.ValueOrNull);
-                                valueWorklist.Enqueue(pair.Key);
-                            }
-                            else
-                            {
-                                valueCells[pair.Key] = LatticeCell.Bottom;
-                            }
-                            valueWorklist.Enqueue(pair.Key);
-                        }
+                        // We can't evaluate this value at compile-time
+                        // because one if its arguments is unknown.
+                        // Time to early-out.
+                        return EvaluateNonConstantInstruction(instruction, graph);
                     }
                 }
-            }
 
-            liveBlocks = liveBlockSet;
-            return valueCells;
-        }
-
-        /// <summary>
-        /// Retrieves the lattice cell to which a value evaluates.
-        /// </summary>
-        /// <returns>The lattice cell for the value.</returns>
-        /// <param name="value">The value to inspect.</param>
-        /// <param name="cells">A mapping of values to lattice cells.</param>
-        private static LatticeCell GetCellForValue(
-            ValueTag value,
-            IReadOnlyDictionary<ValueTag, LatticeCell> cells)
-        {
-            LatticeCell result;
-            if (cells.TryGetValue(value, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return LatticeCell.Top;
-            }
-        }
-
-        private LatticeCell EvaluateInstruction(
-            Instruction instruction,
-            IReadOnlyDictionary<ValueTag, LatticeCell> cells,
-            FlowGraph graph)
-        {
-            if (instruction.Prototype is CopyPrototype)
-            {
-                // Special case on copy instructions because they're
-                // easy to deal with: just return the lattice cell for
-                // the argument.
-                return GetCellForValue(instruction.Arguments[0], cells);
-            }
-
-            var foundTop = false;
-            var args = new Constant[instruction.Arguments.Count];
-            for (int i = 0; i < args.Length; i++)
-            {
-                var argCell = GetCellForValue(instruction.Arguments[i], cells);
-
-                if (argCell.Kind == LatticeCellKind.Top)
+                if (foundTop)
                 {
-                    // We can't evaluate this value *yet*. Keep looking
-                    // for bottom argument cells and set a flag to record
-                    // that this value cannot be evaluated yet.
-                    foundTop = true;
-                }
-                else if (argCell.Kind == LatticeCellKind.Constant)
-                {
-                    // Yay. We found a compile-time constant.
-                    args[i] = argCell.Value;
+                    // We can't evaluate this value yet.
+                    return LatticeCell.Top;
                 }
                 else
                 {
-                    // We can't evaluate this value at compile-time
-                    // because one if its arguments is unknown.
-                    // Time to early-out.
-                    return EvaluateNonConstantInstruction(instruction, graph);
-                }
-            }
-
-            if (foundTop)
-            {
-                // We can't evaluate this value yet.
-                return LatticeCell.Top;
-            }
-            else
-            {
-                // Evaluate the instruction.
-                var constant = Evaluate(instruction.Prototype, args);
-                if (constant == null)
-                {
-                    // Turns out we can't evaluate the instruction. But maybe
-                    // we can say something sensible about its nullability?
-                    return EvaluateNonConstantInstruction(instruction, graph);
-                }
-                else
-                {
-                    return LatticeCell.Constant(constant);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Evaluates an instruction that has a non-constant value to
-        /// a lattice cell.
-        /// </summary>
-        /// <param name="instruction">The instruction to evaluate.</param>
-        /// <param name="graph">The graph that defines the instruction.</param>
-        /// <returns>A lattice cell.</returns>
-        private static LatticeCell EvaluateNonConstantInstruction(
-            Instruction instruction,
-            FlowGraph graph)
-        {
-            // We can't "evaluate" the instruction in a traditional sense,
-            // but maybe we can say something sensible about its nullability.
-
-            var nullability = graph.GetAnalysisResult<ValueNullability>();
-            if (nullability.IsNonNull(instruction))
-            {
-                return LatticeCell.NonNull;
-            }
-            else
-            {
-                return LatticeCell.Bottom;
-            }
-        }
-
-        private LatticeCell UpdateInstructionCell(
-            ValueTag value,
-            Dictionary<ValueTag, LatticeCell> cells,
-            FlowGraph graph)
-        {
-            LatticeCell cell;
-            if (!cells.TryGetValue(value, out cell))
-            {
-                cell = LatticeCell.Top;
-            }
-
-            if (cell.Kind == LatticeCellKind.Bottom)
-            {
-                // Early-out if we're already dealing
-                // with a bottom cell.
-                return cell;
-            }
-
-            var instruction = graph.GetInstruction(value).Instruction;
-            return cell.Meet(EvaluateInstruction(instruction, cells, graph));
-        }
-
-        private LatticeCell UpdateBlockParameterCell(
-            ValueTag value,
-            Dictionary<ValueTag, LatticeCell> cells,
-            Dictionary<ValueTag, HashSet<ValueTag>> parameterArguments)
-        {
-            HashSet<ValueTag> args;
-            if (!parameterArguments.TryGetValue(value, out args))
-            {
-                args = new HashSet<ValueTag>();
-                parameterArguments[value] = args;
-            }
-
-            var cell = cells.ContainsKey(value) ? cells[value] : LatticeCell.Top;
-            foreach (var arg in args)
-            {
-                LatticeCell argCell;
-                if (cells.TryGetValue(arg, out argCell))
-                {
-                    cell = cell.Meet(argCell);
-                    if (cell.Kind == LatticeCellKind.Bottom)
+                    // Evaluate the instruction.
+                    var constant = EvaluateAsConstant(instruction.Prototype, args);
+                    if (constant == null)
                     {
-                        // Cell won't change anymore. Early out here.
-                        return cell;
+                        // Turns out we can't evaluate the instruction. But maybe
+                        // we can say something sensible about its nullability?
+                        return EvaluateNonConstantInstruction(instruction, graph);
+                    }
+                    else
+                    {
+                        return LatticeCell.Constant(constant);
                     }
                 }
             }
-            return cell;
+
+            public override LatticeCell Meet(LatticeCell first, LatticeCell second)
+            {
+                return first.Meet(second);
+            }
+
+            public override IEnumerable<Branch> GetLiveBranches(
+                BlockFlow flow,
+                IReadOnlyDictionary<ValueTag, LatticeCell> cells,
+                FlowGraph graph)
+            {
+                if (flow is SwitchFlow)
+                {
+                    var switchFlow = (SwitchFlow)flow;
+                    var condition = Evaluate(switchFlow.SwitchValue, cells, graph);
+                    if (condition.Kind == LatticeCellKind.Top)
+                    {
+                        // Do nothing for now.
+                        return EmptyArray<Branch>.Value;
+                    }
+                    else if (condition.Kind == LatticeCellKind.Constant)
+                    {
+                        // If a switch flow has a constant condition (for now),
+                        // then pick a single branch.
+                        var valuesToBranches = switchFlow.ValueToBranchMap;
+                        return new[]
+                        {
+                            valuesToBranches.ContainsKey(condition.Value)
+                                ? valuesToBranches[condition.Value]
+                                : switchFlow.DefaultBranch
+                        };
+                    }
+                    else if (condition.Kind == LatticeCellKind.NonNull)
+                    {
+                        // If a switch flow has a non-null condition, then we
+                        // work on all branches except for the null branch, if
+                        // it exists.
+                        return switchFlow.ValueToBranchMap
+                            .Where(pair => pair.Key != NullConstant.Instance)
+                            .Select(pair => pair.Value)
+                            .Concat(new[] { switchFlow.DefaultBranch })
+                            .ToArray();
+                    }
+                    else
+                    {
+                        // If a switch flow has a bottom condition, then everything
+                        // is possible.
+                        return flow.Branches;
+                    }
+                }
+                else
+                {
+                    return flow.Branches;
+                }
+            }
+
+            /// <summary>
+            /// Evaluates an instruction that has a non-constant value to
+            /// a lattice cell.
+            /// </summary>
+            /// <param name="instruction">The instruction to evaluate.</param>
+            /// <param name="graph">The graph that defines the instruction.</param>
+            /// <returns>A lattice cell.</returns>
+            private static LatticeCell EvaluateNonConstantInstruction(
+                Instruction instruction,
+                FlowGraph graph)
+            {
+                // We can't "evaluate" the instruction in a traditional sense,
+                // but maybe we can say something sensible about its nullability.
+
+                var nullability = graph.GetAnalysisResult<ValueNullability>();
+                if (nullability.IsNonNull(instruction))
+                {
+                    return LatticeCell.NonNull;
+                }
+                else
+                {
+                    return LatticeCell.Bottom;
+                }
+            }
         }
 
         /// <summary>
@@ -605,7 +462,7 @@ namespace Flame.Compiler.Transforms
         /// <summary>
         /// A cell in the sparse conditional constant propagation lattice.
         /// </summary>
-        private struct LatticeCell
+        private struct LatticeCell : IEquatable<LatticeCell>
         {
             private LatticeCell(LatticeCellKind kind, Constant value)
             {
@@ -687,6 +544,29 @@ namespace Flame.Compiler.Transforms
 
             public static LatticeCell Constant(Constant value) =>
                 new LatticeCell(LatticeCellKind.Constant, value);
+
+            public bool Equals(LatticeCell other)
+            {
+                return Kind == other.Kind
+                    && Value == other.Value;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is LatticeCell && Equals((LatticeCell)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                if (Value == null)
+                {
+                    return Kind.GetHashCode();
+                }
+                else
+                {
+                    return Kind.GetHashCode() ^ Value.GetHashCode();
+                }
+            }
         }
     }
 }
