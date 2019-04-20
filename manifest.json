@@ -1202,6 +1202,30 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.LatticeAnalysis-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.LatticeAnalysis-1.html",
+          "hash": "3lZg8ZeZ8p/SHTBa+Np8ow=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html",
+          "hash": "p/8q+ieshSGUdisnn50nGA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Analysis.LazyBlockReachability.yml",
       "output": {
         ".html": {
@@ -1602,7 +1626,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.html",
-          "hash": "c3OUlJDMz/MLZPaJbL/I1g=="
+          "hash": "SrnBiqdzaR7NVY88k3O7gQ=="
         }
       },
       "is_incremental": false,
@@ -2526,7 +2550,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.ConstantPropagation.html",
-          "hash": "EsCtZrC/0V5QzZTUAVkRiA=="
+          "hash": "NSLoBCKz9SJMLNjw3wQ87g=="
         }
       },
       "is_incremental": false,
@@ -4041,7 +4065,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "iHK/JFyjVbb+yOaVOdRsgA=="
+          "hash": "7tmL1JIcKuObnekmlCTsKw=="
         }
       },
       "is_incremental": false,
@@ -4122,7 +4146,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 334,
+          "total_file_count": 336,
           "skipped_file_count": 0
         },
         "ConceptualDocumentProcessor": {

@@ -7571,6 +7571,198 @@ references:
   commentId: F:Flame.Compiler.Analysis.InterferenceGraphAnalysis.Instance
   fullName: Flame.Compiler.Analysis.InterferenceGraphAnalysis.Instance
   nameWithType: InterferenceGraphAnalysis.Instance
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1
+  name: LatticeAnalysis<TCell>
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html
+  commentId: T:Flame.Compiler.Analysis.LatticeAnalysis`1
+  name.vb: LatticeAnalysis(Of TCell)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell)
+  nameWithType: LatticeAnalysis<TCell>
+  nameWithType.vb: LatticeAnalysis(Of TCell)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze(Flame.Compiler.FlowGraph)
+  name: Analyze(FlowGraph)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Analyze_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Analyze(Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Analyze(Flame.Compiler.FlowGraph)
+  nameWithType: LatticeAnalysis<TCell>.Analyze(FlowGraph)
+  nameWithType.vb: LatticeAnalysis(Of TCell).Analyze(FlowGraph)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze*
+  name: Analyze
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Analyze_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Analyze
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Analyze
+  nameWithType: LatticeAnalysis<TCell>.Analyze
+  nameWithType.vb: LatticeAnalysis(Of TCell).Analyze
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.LatticeAnalysisResult{`0},System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name: AnalyzeWithUpdates(FlowGraph, LatticeAnalysisResult<TCell>, IReadOnlyList<FlowGraphUpdate>)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_LatticeAnalysisResult__0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.LatticeAnalysisResult{`0},System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name.vb: AnalyzeWithUpdates(FlowGraph, LatticeAnalysisResult(Of TCell), IReadOnlyList(Of FlowGraphUpdate))
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>, System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.FlowGraphUpdate>)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell), System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.FlowGraphUpdate))
+  nameWithType: LatticeAnalysis<TCell>.AnalyzeWithUpdates(FlowGraph, LatticeAnalysisResult<TCell>, IReadOnlyList<FlowGraphUpdate>)
+  nameWithType.vb: LatticeAnalysis(Of TCell).AnalyzeWithUpdates(FlowGraph, LatticeAnalysisResult(Of TCell), IReadOnlyList(Of FlowGraphUpdate))
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates*
+  name: AnalyzeWithUpdates
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_AnalyzeWithUpdates_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.AnalyzeWithUpdates
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).AnalyzeWithUpdates
+  nameWithType: LatticeAnalysis<TCell>.AnalyzeWithUpdates
+  nameWithType.vb: LatticeAnalysis(Of TCell).AnalyzeWithUpdates
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom
+  name: Bottom
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Bottom
+  commentId: P:Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Bottom
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Bottom
+  nameWithType: LatticeAnalysis<TCell>.Bottom
+  nameWithType.vb: LatticeAnalysis(Of TCell).Bottom
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom*
+  name: Bottom
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Bottom_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Bottom
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Bottom
+  nameWithType: LatticeAnalysis<TCell>.Bottom
+  nameWithType.vb: LatticeAnalysis(Of TCell).Bottom
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
+  name: Evaluate(Instruction, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
+  name.vb: Evaluate(Instruction, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Evaluate(Flame.Compiler.Instruction, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, TCell>, Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Evaluate(Flame.Compiler.Instruction, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, TCell), Flame.Compiler.FlowGraph)
+  nameWithType: LatticeAnalysis<TCell>.Evaluate(Instruction, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
+  nameWithType.vb: LatticeAnalysis(Of TCell).Evaluate(Instruction, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate*
+  name: Evaluate
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Evaluate
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Evaluate
+  nameWithType: LatticeAnalysis<TCell>.Evaluate
+  nameWithType.vb: LatticeAnalysis(Of TCell).Evaluate
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches(Flame.Compiler.BlockFlow,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
+  name: GetLiveBranches(BlockFlow, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_GetLiveBranches_Flame_Compiler_BlockFlow_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches(Flame.Compiler.BlockFlow,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
+  name.vb: GetLiveBranches(BlockFlow, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.GetLiveBranches(Flame.Compiler.BlockFlow, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, TCell>, Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).GetLiveBranches(Flame.Compiler.BlockFlow, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, TCell), Flame.Compiler.FlowGraph)
+  nameWithType: LatticeAnalysis<TCell>.GetLiveBranches(BlockFlow, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
+  nameWithType.vb: LatticeAnalysis(Of TCell).GetLiveBranches(BlockFlow, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches*
+  name: GetLiveBranches
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_GetLiveBranches_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.GetLiveBranches
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).GetLiveBranches
+  nameWithType: LatticeAnalysis<TCell>.GetLiveBranches
+  nameWithType.vb: LatticeAnalysis(Of TCell).GetLiveBranches
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Meet(`0,`0)
+  name: Meet(TCell, TCell)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Meet__0__0_
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.Meet(`0,`0)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Meet(TCell, TCell)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Meet(TCell, TCell)
+  nameWithType: LatticeAnalysis<TCell>.Meet(TCell, TCell)
+  nameWithType.vb: LatticeAnalysis(Of TCell).Meet(TCell, TCell)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Meet*
+  name: Meet
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Meet_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.Meet
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Meet
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Meet
+  nameWithType: LatticeAnalysis<TCell>.Meet
+  nameWithType.vb: LatticeAnalysis(Of TCell).Meet
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Top
+  name: Top
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Top
+  commentId: P:Flame.Compiler.Analysis.LatticeAnalysis`1.Top
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Top
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Top
+  nameWithType: LatticeAnalysis<TCell>.Top
+  nameWithType.vb: LatticeAnalysis(Of TCell).Top
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Top*
+  name: Top
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Top_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysis`1.Top
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Top
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Top
+  nameWithType: LatticeAnalysis<TCell>.Top
+  nameWithType.vb: LatticeAnalysis(Of TCell).Top
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1
+  name: LatticeAnalysisResult<TCell>
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html
+  commentId: T:Flame.Compiler.Analysis.LatticeAnalysisResult`1
+  name.vb: LatticeAnalysisResult(Of TCell)
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell)
+  nameWithType: LatticeAnalysisResult<TCell>
+  nameWithType.vb: LatticeAnalysisResult(Of TCell)
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.#ctor(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},System.Collections.Generic.IEnumerable{Flame.Compiler.BasicBlockTag})
+  name: LatticeAnalysisResult(IReadOnlyDictionary<ValueTag, TCell>, IEnumerable<BasicBlockTag>)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1__ctor_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__System_Collections_Generic_IEnumerable_Flame_Compiler_BasicBlockTag__
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysisResult`1.#ctor(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},System.Collections.Generic.IEnumerable{Flame.Compiler.BasicBlockTag})
+  name.vb: LatticeAnalysisResult(IReadOnlyDictionary(Of ValueTag, TCell), IEnumerable(Of BasicBlockTag))
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.LatticeAnalysisResult(System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, TCell>, System.Collections.Generic.IEnumerable<Flame.Compiler.BasicBlockTag>)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).LatticeAnalysisResult(System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, TCell), System.Collections.Generic.IEnumerable(Of Flame.Compiler.BasicBlockTag))
+  nameWithType: LatticeAnalysisResult<TCell>.LatticeAnalysisResult(IReadOnlyDictionary<ValueTag, TCell>, IEnumerable<BasicBlockTag>)
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).LatticeAnalysisResult(IReadOnlyDictionary(Of ValueTag, TCell), IEnumerable(Of BasicBlockTag))
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.#ctor*
+  name: LatticeAnalysisResult
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1__ctor_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysisResult`1.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.LatticeAnalysisResult
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).LatticeAnalysisResult
+  nameWithType: LatticeAnalysisResult<TCell>.LatticeAnalysisResult
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).LatticeAnalysisResult
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.LiveBlocks
+  name: LiveBlocks
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1_LiveBlocks
+  commentId: P:Flame.Compiler.Analysis.LatticeAnalysisResult`1.LiveBlocks
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.LiveBlocks
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).LiveBlocks
+  nameWithType: LatticeAnalysisResult<TCell>.LiveBlocks
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).LiveBlocks
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.LiveBlocks*
+  name: LiveBlocks
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1_LiveBlocks_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysisResult`1.LiveBlocks
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.LiveBlocks
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).LiveBlocks
+  nameWithType: LatticeAnalysisResult<TCell>.LiveBlocks
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).LiveBlocks
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.ValueCells
+  name: ValueCells
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1_ValueCells
+  commentId: P:Flame.Compiler.Analysis.LatticeAnalysisResult`1.ValueCells
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.ValueCells
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).ValueCells
+  nameWithType: LatticeAnalysisResult<TCell>.ValueCells
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).ValueCells
+- uid: Flame.Compiler.Analysis.LatticeAnalysisResult`1.ValueCells*
+  name: ValueCells
+  href: api/Flame.Compiler.Analysis.LatticeAnalysisResult-1.html#Flame_Compiler_Analysis_LatticeAnalysisResult_1_ValueCells_
+  commentId: Overload:Flame.Compiler.Analysis.LatticeAnalysisResult`1.ValueCells
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LatticeAnalysisResult<TCell>.ValueCells
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysisResult(Of TCell).ValueCells
+  nameWithType: LatticeAnalysisResult<TCell>.ValueCells
+  nameWithType.vb: LatticeAnalysisResult(Of TCell).ValueCells
 - uid: Flame.Compiler.Analysis.LazyBlockReachability
   name: LazyBlockReachability
   href: api/Flame.Compiler.Analysis.LazyBlockReachability.html

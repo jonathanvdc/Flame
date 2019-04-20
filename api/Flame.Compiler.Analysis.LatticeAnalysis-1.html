@@ -1,0 +1,562 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class LatticeAnalysis&lt;TCell&gt;
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class LatticeAnalysis&lt;TCell&gt;
+   | Flame ">
+    <meta name="generator" content="docfx 2.42.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1">
+  
+  
+  <h1 id="Flame_Compiler_Analysis_LatticeAnalysis_1" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1" class="text-break">Class LatticeAnalysis&lt;TCell&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>A base class for flow-sensitive data analyses that assign
+analysis results to values by repeatedly computing lattice
+meet operations.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">LatticeAnalysis&lt;TCell&gt;</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis</a>&lt;<a class="xref" href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html">LatticeAnalysisResult</a>&lt;TCell&gt;&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Analysis.html">Flame.Compiler.Analysis</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Analysis_LatticeAnalysis_1_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class LatticeAnalysis&lt;TCell&gt; : IFlowGraphAnalysis&lt;LatticeAnalysisResult&lt;TCell&gt;&gt;</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TCell</span></td>
+        <td><p>The type of a lattice cell. These are the cells of the
+bounded lattice on which a meet operation is defined.
+The analysis produces a mapping of values to lattice cells.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_Bottom.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.Bottom%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L67">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_Bottom_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Bottom" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Bottom">Bottom</h4>
+  <div class="markdown level1 summary"><p>Gets the bottom cell of the bounded lattice. The top cell
+is the least permissive lattice cell that can be assigned
+to a value: computing the meet of the bottom cell and any
+other cell produces the former.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TCell Bottom { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><p>The bottom cell of the bounded lattice.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_Top.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.Top%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L58">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_Top_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Top*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Top" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Top">Top</h4>
+  <div class="markdown level1 summary"><p>Gets the top cell of the bounded lattice. The top cell
+is the most permissive lattice cell that can be assigned
+to a value: computing the meet of the top cell and any
+other cell produces the latter.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TCell Top { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><p>The top cell of the bounded lattice.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_Analyze_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.Analyze(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L131">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_Analyze_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Analyze_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Analyze(Flame.Compiler.FlowGraph)">Analyze(FlowGraph)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LatticeAnalysisResult&lt;TCell&gt; Analyze(FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html">LatticeAnalysisResult</a>&lt;TCell&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_LatticeAnalysisResult__0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.AnalyzeWithUpdates(Flame.Compiler.FlowGraph%2CFlame.Compiler.Analysis.LatticeAnalysisResult%7B%600%7D%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Analysis.FlowGraphUpdate%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L137">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_AnalyzeWithUpdates_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_LatticeAnalysisResult__0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.LatticeAnalysisResult{`0},System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})">AnalyzeWithUpdates(FlowGraph, LatticeAnalysisResult&lt;TCell&gt;, IReadOnlyList&lt;FlowGraphUpdate&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LatticeAnalysisResult&lt;TCell&gt; AnalyzeWithUpdates(FlowGraph graph, LatticeAnalysisResult&lt;TCell&gt; previousResult, IReadOnlyList&lt;FlowGraphUpdate&gt; updates)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html">LatticeAnalysisResult</a>&lt;TCell&gt;</td>
+        <td><span class="parametername">previousResult</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Analysis.FlowGraphUpdate.html">FlowGraphUpdate</a>&gt;</td>
+        <td><span class="parametername">updates</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html">LatticeAnalysisResult</a>&lt;TCell&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.Evaluate(Flame.Compiler.Instruction%2CSystem.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2C%600%7D%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L103">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)">Evaluate(Instruction, IReadOnlyDictionary&lt;ValueTag, TCell&gt;, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Evaluates an instruction to a lattice cell, given the values
+other cells evaluate to.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TCell Evaluate(Instruction instruction, IReadOnlyDictionary&lt;ValueTag, TCell&gt; cells, FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">instruction</span></td>
+        <td><p>The instruction to evaluate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, TCell&gt;</td>
+        <td><span class="parametername">cells</span></td>
+        <td><p>The lattice cells currently assigned to values in the graph.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The control-flow graph that defines <code data-dev-comment-type="paramref" class="paramref">instruction</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><p>A lattice cell.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_GetLiveBranches_Flame_Compiler_BlockFlow_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.GetLiveBranches(Flame.Compiler.BlockFlow%2CSystem.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2C%600%7D%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L122">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_GetLiveBranches_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_GetLiveBranches_Flame_Compiler_BlockFlow_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.GetLiveBranches(Flame.Compiler.BlockFlow,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)">GetLiveBranches(BlockFlow, IReadOnlyDictionary&lt;ValueTag, TCell&gt;, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Given block flow, computes its live branches given the cells to
+which values evaluate.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual IEnumerable&lt;Branch&gt; GetLiveBranches(BlockFlow flow, IReadOnlyDictionary&lt;ValueTag, TCell&gt; cells, FlowGraph graph)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><span class="parametername">flow</span></td>
+        <td><p>The block flow to consider.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, TCell&gt;</td>
+        <td><span class="parametername">cells</span></td>
+        <td><p>The lattice cells currently assigned to values in the graph.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">graph</span></td>
+        <td><p>The control-flow graph that defines <code data-dev-comment-type="paramref" class="paramref">flow</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><p>A sequence of live branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1_Meet__0__0_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601.Meet(%600%2C%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L85">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Analysis_LatticeAnalysis_1_Meet_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Meet*"></a>
+  <h4 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Meet__0__0_" data-uid="Flame.Compiler.Analysis.LatticeAnalysis`1.Meet(`0,`0)">Meet(TCell, TCell)</h4>
+  <div class="markdown level1 summary"><p>Computes the meet of two lattice cells.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TCell Meet(TCell first, TCell second)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><span class="parametername">first</span></td>
+        <td><p>A lattice cell.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><span class="parametername">second</span></td>
+        <td><p>Another lattice cell.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TCell</span></td>
+        <td><p>A new lattice cell.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="Flame_Compiler_Analysis_LatticeAnalysis_1_Meet__0__0__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>The meet operator must adhere to a number of axioms; otherwise,
+the analysis might report incorrect results or end up in an infinite
+loop. See Wikipedia for the minutiae.
+<a href="https://en.wikipedia.org/wiki/Lattice_(order)#Lattices_as_algebraic_structures">https://en.wikipedia.org/wiki/Lattice_(order)#Lattices_as_algebraic_structures</a></p>
+<p>These axioms are always satisfied if the meet operator corresponds
+to the max on a total order, i.e., there are finitely many lattice
+cells E_1, E_2, ..., E_n and E_1 &lt; E_2 &lt; ... &lt; E_n.</p>
+</div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.Compiler.Analysis.IFlowGraphAnalysis-1.html">IFlowGraphAnalysis&lt;T&gt;</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_LatticeAnalysis_1.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.LatticeAnalysis%601%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/LatticeAnalysis.cs/#L49" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
