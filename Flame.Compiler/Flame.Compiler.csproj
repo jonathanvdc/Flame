@@ -66,6 +66,7 @@
     <Compile Include="Analysis\InstructionExceptionSpecs.cs" />
     <Compile Include="Analysis\InstructionOrderingAnalysis.cs" />
     <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
+    <Compile Include="Analysis\LatticeAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Analysis\MemorySSA.cs" />
