@@ -891,27 +891,15 @@ namespace Flame.Clr.Emit
                 var pointer = storeProto.GetPointer(instruction);
                 var value = storeProto.GetValue(instruction);
 
-                if (graph.ContainsInstruction(value))
+                if (IsDefaultConstant(value, graph))
                 {
-                    var valueProto = graph.GetInstruction(value).Prototype as ConstantPrototype;
-                    if (valueProto != null && valueProto.Value == DefaultConstant.Instance)
-                    {
-                        // Materializing a default constant is complicated (it requires
-                        // a temporary), so if at all possible we will set values to
-                        // the default constant by applying the `initobj` instruction to
-                        // a pointer.
-                        return SelectedInstructions.Create<CilCodegenInstruction>(
-                            new CilCodegenInstruction[]
-                            {
-                                new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                                new CilOpInstruction(
-                                    CilInstruction.Create(
-                                        OpCodes.Initobj,
-                                        Method.Module.ImportReference(storeProto.ResultType))),
-                                new CilOpInstruction(EmitLoadAddress(storeProto.ResultType))
-                            },
-                            new[] { pointer });
-                    }
+                    // Materializing a default constant is complicated (it requires
+                    // a temporary), so if at all possible we will set values to
+                    // the default constant by applying the `initobj` instruction to
+                    // a pointer.
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        DefaultInitializeAndLoad(storeProto.ResultType),
+                        new[] { pointer });
                 }
 
                 if (graph.ContainsInstruction(pointer))
@@ -964,6 +952,25 @@ namespace Flame.Clr.Emit
                 // Use the `stfld` opcode to store values in fields.
                 var basePointer = instruction.Arguments[0];
                 var value = instruction.Arguments[1];
+
+                if (IsDefaultConstant(value, graph))
+                {
+                    // Default-initializing fields uses the `initobj` opcode, so we
+                    // should load the field address and work with that instead of
+                    // trying to use the `stfld` opcode.
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new[]
+                        {
+                            new CilOpInstruction(
+                                CilInstruction.Create(
+                                    OpCodes.Ldflda,
+                                    Method.Module.ImportReference(storeProto.Field)))
+                        }
+                        .Concat(DefaultInitializeAndLoad(storeProto.ResultType))
+                        .ToArray(),
+                        new ValueTag[] { });
+                }
+
                 var stfld = CilInstruction.Create(
                     OpCodes.Stfld,
                     Method.Module.ImportReference(storeProto.Field));
@@ -993,7 +1000,7 @@ namespace Flame.Clr.Emit
             else if (proto is IntrinsicPrototype)
             {
                 var intrinsicProto = (IntrinsicPrototype)proto;
-                return SelectForIntrinsic(intrinsicProto, instruction.Arguments);
+                return SelectForIntrinsic(intrinsicProto, instruction.Arguments, graph);
             }
             else if (proto is CallPrototype)
             {
@@ -1065,6 +1072,19 @@ namespace Flame.Clr.Emit
             {
                 throw new NotImplementedException("Unknown instruction type: " + proto);
             }
+        }
+
+        private IReadOnlyList<CilCodegenInstruction> DefaultInitializeAndLoad(IType type)
+        {
+            return new CilCodegenInstruction[]
+                {
+                    new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
+                    new CilOpInstruction(
+                        CilInstruction.Create(
+                            OpCodes.Initobj,
+                            Method.Module.ImportReference(type))),
+                    new CilOpInstruction(EmitLoadAddress(type))
+                };
         }
 
         /// <summary>
@@ -1146,12 +1166,16 @@ namespace Flame.Clr.Emit
         /// <param name="arguments">
         /// The intrinsic's list of arguments.
         /// </param>
+        /// <param name="graph">
+        /// The control-flow graph that defines the intrinsic.
+        /// </param>
         /// <returns>
         /// A batch of selected instructions for the intrinsic.
         /// </returns>
         private SelectedInstructions<CilCodegenInstruction> SelectForIntrinsic(
             IntrinsicPrototype prototype,
-            IReadOnlyList<ValueTag> arguments)
+            IReadOnlyList<ValueTag> arguments,
+            FlowGraph graph)
         {
             string opName;
             if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
@@ -1544,6 +1568,31 @@ namespace Flame.Clr.Emit
                     && prototype.ParameterCount == 3)
                 {
                     var elementType = prototype.ParameterTypes[0];
+
+                    if (IsDefaultConstant(arguments[0], graph))
+                    {
+                        // Default-initializing elements uses the `initobj` opcode, so we
+                        // should load the element address and work with that instead of
+                        // trying to use one of the `stelem` opcodes.
+                        var gep = Instruction.CreateGetElementPointerIntrinsic(
+                            elementType,
+                            prototype.ParameterTypes[1],
+                            prototype.ParameterTypes.Skip(2).ToArray(),
+                            arguments[1],
+                            arguments.Skip(2).ToArray());
+
+                        var addressCodegen = SelectForIntrinsic(
+                            (IntrinsicPrototype)gep.Prototype,
+                            gep.Arguments,
+                            graph);
+
+                        return SelectedInstructions.Create<CilCodegenInstruction>(
+                            addressCodegen.Instructions
+                                .Concat(DefaultInitializeAndLoad(elementType))
+                                .ToArray(),
+                            addressCodegen.Dependencies);
+                    }
+
                     var elementPointerType = elementType as TypeSystem.PointerType;
                     CilInstruction storeInstruction = null;
                     if (elementPointerType != null)
@@ -2238,6 +2287,12 @@ namespace Flame.Clr.Emit
         {
             var proto = instruction.Prototype as ConstantPrototype;
             return proto != null && proto.Value == DefaultConstant.Instance;
+        }
+
+        private static bool IsDefaultConstant(ValueTag value, FlowGraph graph)
+        {
+            return graph.ContainsInstruction(value)
+                && IsDefaultConstant(graph.GetInstruction(value).Instruction);
         }
     }
 }

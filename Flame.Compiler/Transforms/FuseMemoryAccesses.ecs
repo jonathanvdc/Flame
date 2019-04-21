@@ -70,22 +70,6 @@ namespace Flame.Compiler.Transforms
                 result = store(T)(gfp, value);
             }, {
                 result = store_field(field)(base_ptr, value);
-            }, {
-                // Introduce an exception: when the value is a 'default' constant,
-                // we definitely *don't* want to fuse the store with the get_field_pointer.
-                // Here's why: initializing a bunch of bytes at a particular address
-                // can be done directly. We want to encourage the back-end to fuse the
-                // default-initialization of the field, which precludes fusing the get_field_pointer
-                // with the store.
-                if (graph.ContainsInstruction(value))
-                {
-                    var valueProto = graph.GetInstruction(value).Prototype as ConstantPrototype;
-                    return valueProto == null || valueProto.Value != DefaultConstant.Instance;
-                }
-                else
-                {
-                    return true;
-                }
             });
 
             // Fuse 'array.get_element_pointer' followed by 'load'.
@@ -103,22 +87,6 @@ namespace Flame.Compiler.Transforms
                 result = store(T)(gep, value);
             }, {
                 result = intrinsic("array.store_element", T, #(T, TArray, TIndex))(value, array, index);
-            }, {
-                // Introduce an exception: when the value is a 'default' constant,
-                // we definitely *don't* want to fuse the store with the pointer computation.
-                // Here's why: initializing a bunch of bytes at a particular address
-                // can be done directly. We want to encourage the back-end to fuse the
-                // default-initialization of the value, which precludes fusing the pointer
-                // computation with the store.
-                if (graph.ContainsInstruction(value))
-                {
-                    var valueProto = graph.GetInstruction(value).Prototype as ConstantPrototype;
-                    return valueProto == null || valueProto.Value != DefaultConstant.Instance;
-                }
-                else
-                {
-                    return true;
-                }
             });
         });
     }
