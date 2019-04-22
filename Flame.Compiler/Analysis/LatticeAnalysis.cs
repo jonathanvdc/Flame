@@ -94,16 +94,12 @@ namespace Flame.Compiler.Analysis
         /// <param name="cells">
         /// The lattice cells currently assigned to values in the graph.
         /// </param>
-        /// <param name="graph">
-        /// The control-flow graph that defines <paramref name="instruction"/>.
-        /// </param>
         /// <returns>
         /// A lattice cell.
         /// </returns>
         public abstract TCell Evaluate(
-            Instruction instruction,
-            IReadOnlyDictionary<ValueTag, TCell> cells,
-            FlowGraph graph);
+            NamedInstruction instruction,
+            IReadOnlyDictionary<ValueTag, TCell> cells);
 
         /// <summary>
         /// Given block flow, computes its live branches given the cells to
@@ -272,8 +268,8 @@ namespace Flame.Compiler.Analysis
                 return cell;
             }
 
-            var instruction = graph.GetInstruction(value).Instruction;
-            return Meet(cell, Evaluate(instruction, cells, graph));
+            var instruction = graph.GetInstruction(value);
+            return Meet(cell, Evaluate(instruction, cells));
         }
 
         private TCell UpdateBlockParameterCell(

@@ -288,6 +288,13 @@ namespace Flame.Compiler.Transforms
             public override LatticeCell Bottom => LatticeCell.Bottom;
 
             public override LatticeCell Evaluate(
+                NamedInstruction instruction,
+                IReadOnlyDictionary<ValueTag, LatticeCell> cells)
+            {
+                return Evaluate(instruction.Instruction, cells, instruction.Block.Graph);
+            }
+
+            public LatticeCell Evaluate(
                 Instruction instruction,
                 IReadOnlyDictionary<ValueTag, LatticeCell> cells,
                 FlowGraph graph)
