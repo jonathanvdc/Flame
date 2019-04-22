@@ -22,6 +22,7 @@ namespace Flame.Compiler.Analysis
             Register(RelatedValueAnalysis.Instance);
             Register(InterferenceGraphAnalysis.Instance);
             Register(LivenessAnalysis.Instance);
+            Register(LoopAnalysis.Instance);
             Register(new ConstantAnalysis<StrictExceptionDelayability>(StrictExceptionDelayability.Instance));
             Register(ValueNumberingAnalysis.Instance);
             Register(DominatorTreeAnalysis.Instance);
