@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler
 {
@@ -99,8 +100,25 @@ namespace Flame.Compiler
         public InstructionPrototype Prototype => Instruction.Prototype;
 
         /// <summary>
-        /// Gets the instruction's argument list.
+        /// Gets or sets the instruction's argument list.
         /// </summary>
-        public IReadOnlyList<ValueTag> Arguments => Instruction.Arguments;
+        public IReadOnlyList<ValueTag> Arguments
+        {
+            get
+            {
+                return Instruction.Arguments;
+            }
+            set
+            {
+                if (!Instruction.Arguments.SequenceEqual(value))
+                {
+                    // Only update the instruction if the new arguments
+                    // differ from the old ones. CFG updates invalidate
+                    // analyses, so we want to suppress spurious updates
+                    // as much as possible.
+                    Instruction = Instruction.WithArguments(value);
+                }
+            }
+        }
     }
 }
