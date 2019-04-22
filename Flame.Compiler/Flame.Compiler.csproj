@@ -54,6 +54,7 @@
     <Compile Include="NamedInstructionBuilder.cs" />
     <Compile Include="UniqueTag.cs" />
     <Compile Include="Analysis\AliasAnalysis.cs" />
+    <Compile Include="Analysis\BlockFixpointAnalysis.cs" />
     <Compile Include="Analysis\BlockReachability.cs" />
     <Compile Include="Analysis\ConstantAnalysis.cs" />
     <Compile Include="Analysis\DefaultAnalyses.cs" />
