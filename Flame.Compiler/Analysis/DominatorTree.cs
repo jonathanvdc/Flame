@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler.Analysis
 {
@@ -294,6 +295,62 @@ namespace Flame.Compiler.Analysis
             {
                 return IsStrictlyDominatedBy(value, dominator);
             }
+        }
+
+        internal IReadOnlyList<BasicBlockTag> GetDominators(
+            BasicBlockTag block)
+        {
+            var blockDoms = new List<BasicBlockTag>();
+            var idom = block;
+            do
+            {
+                blockDoms.Add(idom);
+                idom = GetImmediateDominator(idom);
+            } while (idom != null);
+            blockDoms.Reverse();
+            return blockDoms;
+        }
+
+        /// <summary>
+        /// Tries to find the last common dominator of a sequence of blocks.
+        /// </summary>
+        /// <param name="blocks">A sequence of blocks.</param>
+        /// <param name="dominator">
+        /// The last common dominator for <paramref name="blocks"/>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="blocks"/> have one or more common dominators; otherwise, <c>false</c>.
+        /// </returns>
+        public bool TryFindCommonDominator(
+            IEnumerable<BasicBlockTag> blocks,
+            out BasicBlockTag dominator)
+        {
+            var doms = blocks.Select(GetDominators).ToArray();
+            if (doms.Length == 0)
+            {
+                dominator = null;
+                return false;
+            }
+
+            int minLength = doms.Select(xs => xs.Count).Min();
+            for (int i = 0; i < minLength; i++)
+            {
+                if (doms.Any(xs => xs[i] != doms[0][i]))
+                {
+                    if (i > 0)
+                    {
+                        dominator = doms[0][i - 1];
+                        return true;
+                    }
+                    else
+                    {
+                        dominator = null;
+                        return false;
+                    }
+                }
+            }
+            dominator = doms[0][minLength - 1];
+            return true;
         }
     }
 
