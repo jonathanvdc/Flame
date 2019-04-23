@@ -238,10 +238,17 @@ namespace Flame.Clr
             // If we're dealing with an integer type, then we want to
             // assign that type an integer spec.
             IntegerSpec iSpec;
-            if (Definition.Namespace == "System"
-                && integerSpecMap.TryGetValue(Definition.Name, out iSpec))
+            if (Definition.Namespace == "System")
             {
-                attrBuilder.Add(IntegerSpecAttribute.Create(iSpec));
+                if (integerSpecMap.TryGetValue(Definition.Name, out iSpec))
+                {
+                    attrBuilder.Add(IntegerSpecAttribute.Create(iSpec));
+                    attrBuilder.Add(FlagAttribute.SpecialType);
+                }
+                else if (Definition.Name == "Single" || Definition.Name == "Double")
+                {
+                    attrBuilder.Add(FlagAttribute.SpecialType);
+                }
             }
 
             // If we are presented an enum type, then we need to look
@@ -270,6 +277,7 @@ namespace Flame.Clr
                         // Mark the enum type itself as an integer type because it
                         // acts like an integer type in essentially every way.
                         attrBuilder.Add(IntegerSpecAttribute.Create(enumIntSpec));
+                        attrBuilder.Add(FlagAttribute.SpecialType);
                     }
                 }
             }
