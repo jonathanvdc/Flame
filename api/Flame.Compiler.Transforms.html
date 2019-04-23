@@ -173,6 +173,11 @@ is entered once per function call.</p>
       <section><p>A pass that tries to eliminate loads and stores, replacing them with
 local value copies instead.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Transforms.PartialScalarReplacement.html">PartialScalarReplacement</a></h4>
+      <section><p>An optimization that replaces aggregates by scalars, i.e., their fields.
+Depending on the control-flow graph, aggregates might be replaced by
+scalars on some control-flow paths while remaining untouched on others.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Transforms.ReassociateOperators.html">ReassociateOperators</a></h4>
       <section><p>An optimization that reassociates operators to simplify computations.</p>
 </section>

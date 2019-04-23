@@ -6954,109 +6954,6 @@ references:
   commentId: F:Flame.Compiler.Analysis.BlockLiveness.ParameterIndex
   fullName: Flame.Compiler.Analysis.BlockLiveness.ParameterIndex
   nameWithType: BlockLiveness.ParameterIndex
-- uid: Flame.Compiler.Analysis.BlockLoop
-  name: BlockLoop
-  href: api/Flame.Compiler.Analysis.BlockLoop.html
-  commentId: T:Flame.Compiler.Analysis.BlockLoop
-  fullName: Flame.Compiler.Analysis.BlockLoop
-  nameWithType: BlockLoop
-- uid: Flame.Compiler.Analysis.BlockLoop.Body
-  name: Body
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Body
-  commentId: P:Flame.Compiler.Analysis.BlockLoop.Body
-  fullName: Flame.Compiler.Analysis.BlockLoop.Body
-  nameWithType: BlockLoop.Body
-- uid: Flame.Compiler.Analysis.BlockLoop.Body*
-  name: Body
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Body_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Body
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoop.Body
-  nameWithType: BlockLoop.Body
-- uid: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
-  name: EnclosingLoopOrNull
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_EnclosingLoopOrNull
-  commentId: P:Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
-  fullName: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
-  nameWithType: BlockLoop.EnclosingLoopOrNull
-- uid: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull*
-  name: EnclosingLoopOrNull
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_EnclosingLoopOrNull_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
-  nameWithType: BlockLoop.EnclosingLoopOrNull
-- uid: Flame.Compiler.Analysis.BlockLoop.Entries
-  name: Entries
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Entries
-  commentId: P:Flame.Compiler.Analysis.BlockLoop.Entries
-  fullName: Flame.Compiler.Analysis.BlockLoop.Entries
-  nameWithType: BlockLoop.Entries
-- uid: Flame.Compiler.Analysis.BlockLoop.Entries*
-  name: Entries
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Entries_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Entries
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoop.Entries
-  nameWithType: BlockLoop.Entries
-- uid: Flame.Compiler.Analysis.BlockLoop.Exits
-  name: Exits
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Exits
-  commentId: P:Flame.Compiler.Analysis.BlockLoop.Exits
-  fullName: Flame.Compiler.Analysis.BlockLoop.Exits
-  nameWithType: BlockLoop.Exits
-- uid: Flame.Compiler.Analysis.BlockLoop.Exits*
-  name: Exits
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Exits_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Exits
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoop.Exits
-  nameWithType: BlockLoop.Exits
-- uid: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
-  name: IsNestedLoop
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_IsNestedLoop
-  commentId: P:Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
-  fullName: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
-  nameWithType: BlockLoop.IsNestedLoop
-- uid: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop*
-  name: IsNestedLoop
-  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_IsNestedLoop_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
-  nameWithType: BlockLoop.IsNestedLoop
-- uid: Flame.Compiler.Analysis.BlockLoops
-  name: BlockLoops
-  href: api/Flame.Compiler.Analysis.BlockLoops.html
-  commentId: T:Flame.Compiler.Analysis.BlockLoops
-  fullName: Flame.Compiler.Analysis.BlockLoops
-  nameWithType: BlockLoops
-- uid: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
-  name: BlocksToLoops
-  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_BlocksToLoops
-  commentId: P:Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
-  fullName: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
-  nameWithType: BlockLoops.BlocksToLoops
-- uid: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops*
-  name: BlocksToLoops
-  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_BlocksToLoops_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
-  nameWithType: BlockLoops.BlocksToLoops
-- uid: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
-  name: GetLoopOrNull(BasicBlockTag)
-  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_GetLoopOrNull_Flame_Compiler_BasicBlockTag_
-  commentId: M:Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
-  fullName: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
-  nameWithType: BlockLoops.GetLoopOrNull(BasicBlockTag)
-- uid: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull*
-  name: GetLoopOrNull
-  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_GetLoopOrNull_
-  commentId: Overload:Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull
-  nameWithType: BlockLoops.GetLoopOrNull
 - uid: Flame.Compiler.Analysis.BlockReachability
   name: BlockReachability
   href: api/Flame.Compiler.Analysis.BlockReachability.html
@@ -7345,6 +7242,22 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.DominatorTree.IsStrictlyDominatedBy
   nameWithType: DominatorTree.IsStrictlyDominatedBy
+- uid: Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator(System.Collections.Generic.IEnumerable{Flame.Compiler.BasicBlockTag},Flame.Compiler.BasicBlockTag@)
+  name: TryFindCommonDominator(IEnumerable<BasicBlockTag>, out BasicBlockTag)
+  href: api/Flame.Compiler.Analysis.DominatorTree.html#Flame_Compiler_Analysis_DominatorTree_TryFindCommonDominator_System_Collections_Generic_IEnumerable_Flame_Compiler_BasicBlockTag__Flame_Compiler_BasicBlockTag__
+  commentId: M:Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator(System.Collections.Generic.IEnumerable{Flame.Compiler.BasicBlockTag},Flame.Compiler.BasicBlockTag@)
+  name.vb: TryFindCommonDominator(IEnumerable(Of BasicBlockTag), ByRef BasicBlockTag)
+  fullName: Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator(System.Collections.Generic.IEnumerable<Flame.Compiler.BasicBlockTag>, out Flame.Compiler.BasicBlockTag)
+  fullName.vb: Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator(System.Collections.Generic.IEnumerable(Of Flame.Compiler.BasicBlockTag), ByRef Flame.Compiler.BasicBlockTag)
+  nameWithType: DominatorTree.TryFindCommonDominator(IEnumerable<BasicBlockTag>, out BasicBlockTag)
+  nameWithType.vb: DominatorTree.TryFindCommonDominator(IEnumerable(Of BasicBlockTag), ByRef BasicBlockTag)
+- uid: Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator*
+  name: TryFindCommonDominator
+  href: api/Flame.Compiler.Analysis.DominatorTree.html#Flame_Compiler_Analysis_DominatorTree_TryFindCommonDominator_
+  commentId: Overload:Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.DominatorTree.TryFindCommonDominator
+  nameWithType: DominatorTree.TryFindCommonDominator
 - uid: Flame.Compiler.Analysis.DominatorTreeAnalysis
   name: DominatorTreeAnalysis
   href: api/Flame.Compiler.Analysis.DominatorTreeAnalysis.html
@@ -8202,47 +8115,6 @@ references:
   commentId: F:Flame.Compiler.Analysis.LocalMemorySSAAnalysis.Instance
   fullName: Flame.Compiler.Analysis.LocalMemorySSAAnalysis.Instance
   nameWithType: LocalMemorySSAAnalysis.Instance
-- uid: Flame.Compiler.Analysis.LoopAnalysis
-  name: LoopAnalysis
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html
-  commentId: T:Flame.Compiler.Analysis.LoopAnalysis
-  fullName: Flame.Compiler.Analysis.LoopAnalysis
-  nameWithType: LoopAnalysis
-- uid: Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
-  name: Analyze(FlowGraph)
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Analyze_Flame_Compiler_FlowGraph_
-  commentId: M:Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
-  fullName: Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
-  nameWithType: LoopAnalysis.Analyze(FlowGraph)
-- uid: Flame.Compiler.Analysis.LoopAnalysis.Analyze*
-  name: Analyze
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Analyze_
-  commentId: Overload:Flame.Compiler.Analysis.LoopAnalysis.Analyze
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.LoopAnalysis.Analyze
-  nameWithType: LoopAnalysis.Analyze
-- uid: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockLoops,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
-  name: AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList<FlowGraphUpdate>)
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_BlockLoops_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__
-  commentId: M:Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockLoops,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
-  name.vb: AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList(Of FlowGraphUpdate))
-  fullName: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockLoops, System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.FlowGraphUpdate>)
-  fullName.vb: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockLoops, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.FlowGraphUpdate))
-  nameWithType: LoopAnalysis.AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList<FlowGraphUpdate>)
-  nameWithType.vb: LoopAnalysis.AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList(Of FlowGraphUpdate))
-- uid: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates*
-  name: AnalyzeWithUpdates
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_AnalyzeWithUpdates_
-  commentId: Overload:Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates
-  isSpec: "True"
-  fullName: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates
-  nameWithType: LoopAnalysis.AnalyzeWithUpdates
-- uid: Flame.Compiler.Analysis.LoopAnalysis.Instance
-  name: Instance
-  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Instance
-  commentId: F:Flame.Compiler.Analysis.LoopAnalysis.Instance
-  fullName: Flame.Compiler.Analysis.LoopAnalysis.Instance
-  nameWithType: LoopAnalysis.Instance
 - uid: Flame.Compiler.Analysis.MapMembersUpdate
   name: MapMembersUpdate
   href: api/Flame.Compiler.Analysis.MapMembersUpdate.html
@@ -18098,6 +17970,54 @@ references:
   commentId: F:Flame.Compiler.Transforms.MemoryAccessElimination.Instance
   fullName: Flame.Compiler.Transforms.MemoryAccessElimination.Instance
   nameWithType: MemoryAccessElimination.Instance
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement
+  name: PartialScalarReplacement
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html
+  commentId: T:Flame.Compiler.Transforms.PartialScalarReplacement
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement
+  nameWithType: PartialScalarReplacement
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
+  name: PartialScalarReplacement(Func<IType, Boolean>)
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor_System_Func_Flame_IType_System_Boolean__
+  commentId: M:Flame.Compiler.Transforms.PartialScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
+  name.vb: PartialScalarReplacement(Func(Of IType, Boolean))
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.PartialScalarReplacement(System.Func<Flame.IType, System.Boolean>)
+  fullName.vb: Flame.Compiler.Transforms.PartialScalarReplacement.PartialScalarReplacement(System.Func(Of Flame.IType, System.Boolean))
+  nameWithType: PartialScalarReplacement.PartialScalarReplacement(Func<IType, Boolean>)
+  nameWithType.vb: PartialScalarReplacement.PartialScalarReplacement(Func(Of IType, Boolean))
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor*
+  name: PartialScalarReplacement
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor_
+  commentId: Overload:Flame.Compiler.Transforms.PartialScalarReplacement.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.PartialScalarReplacement
+  nameWithType: PartialScalarReplacement.PartialScalarReplacement
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.Apply(Flame.Compiler.FlowGraph)
+  name: Apply(FlowGraph)
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement_Apply_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.PartialScalarReplacement.Apply(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.Apply(Flame.Compiler.FlowGraph)
+  nameWithType: PartialScalarReplacement.Apply(FlowGraph)
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.Apply*
+  name: Apply
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement_Apply_
+  commentId: Overload:Flame.Compiler.Transforms.PartialScalarReplacement.Apply
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.Apply
+  nameWithType: PartialScalarReplacement.Apply
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
+  name: CanReplaceByScalars
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement_CanReplaceByScalars
+  commentId: P:Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
+  nameWithType: PartialScalarReplacement.CanReplaceByScalars
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars*
+  name: CanReplaceByScalars
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement_CanReplaceByScalars_
+  commentId: Overload:Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
+  nameWithType: PartialScalarReplacement.CanReplaceByScalars
 - uid: Flame.Compiler.Transforms.ReassociateOperators
   name: ReassociateOperators
   href: api/Flame.Compiler.Transforms.ReassociateOperators.html

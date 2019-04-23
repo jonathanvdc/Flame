@@ -1010,30 +1010,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Compiler.Analysis.BlockLoop.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Compiler.Analysis.BlockLoop.html",
-          "hash": "wsI0i5BQxvEZijK1imlZzA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Compiler.Analysis.BlockLoops.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Compiler.Analysis.BlockLoops.html",
-          "hash": "1IHjRcSc1QWUjrllg4vmog=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Analysis.BlockReachability.yml",
       "output": {
         ".html": {
@@ -1074,7 +1050,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DefaultAnalyses.html",
-          "hash": "NwqxXJ0yLA3yWnogvYge0w=="
+          "hash": "m9H/n1tv0coQB0j9HS28Ag=="
         }
       },
       "is_incremental": false,
@@ -1086,7 +1062,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DominatorTree.html",
-          "hash": "/wCv3EPLMt28lkj9/6mN8w=="
+          "hash": "E3eDx+xXFCRMX8fDAqnnIw=="
         }
       },
       "is_incremental": false,
@@ -1098,7 +1074,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DominatorTreeAnalysis.html",
-          "hash": "aTapZ5LBrOuQbUrtdISyMw=="
+          "hash": "ysSA1fGBdgPYtCrgKM3gFA=="
         }
       },
       "is_incremental": false,
@@ -1315,18 +1291,6 @@
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.LocalMemorySSAAnalysis.html",
           "hash": "uYkrjDJvDjiE5Ru3RAEADA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Compiler.Analysis.LoopAnalysis.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Compiler.Analysis.LoopAnalysis.html",
-          "hash": "qFW0ZAuaNatnQuXssDxdog=="
         }
       },
       "is_incremental": false,
@@ -1686,7 +1650,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.html",
-          "hash": "E6lgxMTy0qMcI6cZgvgm1w=="
+          "hash": "Bm54Zz5xh4icMfjvHbezTA=="
         }
       },
       "is_incremental": false,
@@ -2742,7 +2706,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.IntraproceduralOptimization.html",
-          "hash": "aMXaJFufAyZbGjRhx+C9Fw=="
+          "hash": "rU/EGjJlAUuBAFIF+OB6IA=="
         }
       },
       "is_incremental": false,
@@ -2779,6 +2743,18 @@
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.MemoryAccessElimination.html",
           "hash": "tBXGt83vPMxj4Pr5wGQvXw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Transforms.PartialScalarReplacement.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Transforms.PartialScalarReplacement.html",
+          "hash": "6Fx7v1QJ8GgKnV9K+8r66w=="
         }
       },
       "is_incremental": false,
@@ -2862,7 +2838,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.html",
-          "hash": "kXkro7USqKc2iCIQd1A1ww=="
+          "hash": "G9q+wmZsTWcsi6VAgiwA0A=="
         }
       },
       "is_incremental": false,
@@ -4125,7 +4101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "w1pW+bG3KDsCXCBPltr/tg=="
+          "hash": "+cJ6+eQwJ6EDhX1j5GfrvQ=="
         }
       },
       "is_incremental": false,
@@ -4203,16 +4179,16 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 341,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 4,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 339,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {
