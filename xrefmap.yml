@@ -17976,6 +17976,12 @@ references:
   commentId: T:Flame.Compiler.Transforms.PartialScalarReplacement
   fullName: Flame.Compiler.Transforms.PartialScalarReplacement
   nameWithType: PartialScalarReplacement
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor
+  name: PartialScalarReplacement()
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor
+  commentId: M:Flame.Compiler.Transforms.PartialScalarReplacement.#ctor
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.PartialScalarReplacement()
+  nameWithType: PartialScalarReplacement.PartialScalarReplacement()
 - uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
   name: PartialScalarReplacement(Func<IType, Boolean>)
   href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor_System_Func_Flame_IType_System_Boolean__
@@ -18018,6 +18024,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Transforms.PartialScalarReplacement.CanReplaceByScalars
   nameWithType: PartialScalarReplacement.CanReplaceByScalars
+- uid: Flame.Compiler.Transforms.PartialScalarReplacement.Instance
+  name: Instance
+  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement_Instance
+  commentId: F:Flame.Compiler.Transforms.PartialScalarReplacement.Instance
+  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.Instance
+  nameWithType: PartialScalarReplacement.Instance
 - uid: Flame.Compiler.Transforms.ReassociateOperators
   name: ReassociateOperators
   href: api/Flame.Compiler.Transforms.ReassociateOperators.html
@@ -25184,6 +25196,19 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.FlagAttribute.IsReferenceType
   nameWithType: FlagAttribute.IsReferenceType
+- uid: Flame.TypeSystem.FlagAttribute.IsSpecialType(Flame.IType)
+  name: IsSpecialType(IType)
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsSpecialType_Flame_IType_
+  commentId: M:Flame.TypeSystem.FlagAttribute.IsSpecialType(Flame.IType)
+  fullName: Flame.TypeSystem.FlagAttribute.IsSpecialType(Flame.IType)
+  nameWithType: FlagAttribute.IsSpecialType(IType)
+- uid: Flame.TypeSystem.FlagAttribute.IsSpecialType*
+  name: IsSpecialType
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsSpecialType_
+  commentId: Overload:Flame.TypeSystem.FlagAttribute.IsSpecialType
+  isSpec: "True"
+  fullName: Flame.TypeSystem.FlagAttribute.IsSpecialType
+  nameWithType: FlagAttribute.IsSpecialType
 - uid: Flame.TypeSystem.FlagAttribute.IsVirtual(Flame.IMethod)
   name: IsVirtual(IMethod)
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsVirtual_Flame_IMethod_
@@ -25209,6 +25234,12 @@ references:
   commentId: F:Flame.TypeSystem.FlagAttribute.ReferenceType
   fullName: Flame.TypeSystem.FlagAttribute.ReferenceType
   nameWithType: FlagAttribute.ReferenceType
+- uid: Flame.TypeSystem.FlagAttribute.SpecialType
+  name: SpecialType
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_SpecialType
+  commentId: F:Flame.TypeSystem.FlagAttribute.SpecialType
+  fullName: Flame.TypeSystem.FlagAttribute.SpecialType
+  nameWithType: FlagAttribute.SpecialType
 - uid: Flame.TypeSystem.FlagAttribute.Virtual
   name: Virtual
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_Virtual
