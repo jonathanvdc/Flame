@@ -69,7 +69,6 @@
     <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
     <Compile Include="Analysis\LatticeAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
-    <Compile Include="Analysis\LoopAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
     <Compile Include="Analysis\MemorySSA.cs" />
     <Compile Include="Analysis\NullabilityAnalysis.cs" />
@@ -139,6 +138,7 @@
     <Compile Include="Transforms\JumpThreading.cs" />
     <Compile Include="Transforms\JumpToEntryRemoval.cs" />
     <Compile Include="Transforms\MemoryAccessElimination.cs" />
+    <Compile Include="Transforms\PartialScalarReplacement.cs" />
     <Compile Include="Transforms\ReassociateOperators.cs" />
     <Compile Include="Transforms\ScalarReplacement.cs" />
     <Compile Include="Transforms\SwitchLowering.cs" />
