@@ -3174,7 +3174,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IGenericParameter.html",
-          "hash": "Ru8FWQeXjbJZJPsVe6dlPw=="
+          "hash": "HLbWhLCuDbNLyioFFIfRPw=="
         }
       },
       "is_incremental": false,
@@ -3222,7 +3222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IType.html",
-          "hash": "abjxmJYUKEfvn4JwENKNAA=="
+          "hash": "qGQk/SmaDQGsMs4/Kibgfg=="
         }
       },
       "is_incremental": false,
@@ -3542,6 +3542,30 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.TypeSystem.AccessModifier.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.TypeSystem.AccessModifier.html",
+          "hash": "Al/5AbqmjFI9GQ/OfZf5AA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.TypeSystem.AccessModifierAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.TypeSystem.AccessModifierAttribute.html",
+          "hash": "8P36Wu0olIEceb9aFSI6VQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.TypeSystem.AssemblyResolver.yml",
       "output": {
         ".html": {
@@ -3558,7 +3582,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ContainerType.html",
-          "hash": "4Lsb2Wsb3zEFFHmM9LbRrg=="
+          "hash": "n23K6B+jLDO/35Vx1GDR4Q=="
         }
       },
       "is_incremental": false,
@@ -3642,7 +3666,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedGenericParameter.html",
-          "hash": "bUdBXwPeEHM76kgCvK4vFg=="
+          "hash": "RXn5w4qPB4O8fYWqR9vxPA=="
         }
       },
       "is_incremental": false,
@@ -3678,7 +3702,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedType.html",
-          "hash": "Wty6kAujTJGydF27VdJ6DA=="
+          "hash": "nocgQLrkRdSbnJDvFCw7Jw=="
         }
       },
       "is_incremental": false,
@@ -3702,7 +3726,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectTypeSpecialization.html",
-          "hash": "0X8gmaYh8TsfD7Ffr6j9yQ=="
+          "hash": "jkybyUQxehoof8XzZKbKFg=="
         }
       },
       "is_incremental": false,
@@ -3714,7 +3738,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ErrorType.html",
-          "hash": "SV8EVn7KEilVNZqQ8X6FHA=="
+          "hash": "m8PUhyublIhQCkxyGEQ0lA=="
         }
       },
       "is_incremental": false,
@@ -3774,7 +3798,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectGenericParameterSpecialization.html",
-          "hash": "kvVradGYw1X+AZ0xRnGBXg=="
+          "hash": "gkRifljbEp0z/Fy/RlzbOg=="
         }
       },
       "is_incremental": false,
@@ -3810,7 +3834,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectTypeSpecialization.html",
-          "hash": "Q6spJDsOJAyhc+1fLpZqDg=="
+          "hash": "z1Hjizhuy+OlVApcn/2uxg=="
         }
       },
       "is_incremental": false,
@@ -3906,7 +3930,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.PointerType.html",
-          "hash": "UnJek2g2mOghyn6AdrOJ8Q=="
+          "hash": "360OEvOOkTQNksYkTT68ug=="
         }
       },
       "is_incremental": false,
@@ -4002,7 +4026,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeSpecialization.html",
-          "hash": "9sQ2+Hr15YqJ4T/KusUckA=="
+          "hash": "Hge8JZ+9vqhJFxzZ/PT59g=="
         }
       },
       "is_incremental": false,
@@ -4038,7 +4062,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.html",
-          "hash": "XnD5+Hbwn2/bBCR1YO7tFA=="
+          "hash": "4Wim0sL3heEvymn50D8ypQ=="
         }
       },
       "is_incremental": false,
@@ -4101,7 +4125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "+cJ6+eQwJ6EDhX1j5GfrvQ=="
+          "hash": "TN6hlFF4FamO2AkjDEWxiQ=="
         }
       },
       "is_incremental": false,
@@ -4179,23 +4203,23 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 339,
+          "total_file_count": 341,
           "skipped_file_count": 0
         },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 4,
-          "skipped_file_count": 0
-        },
-        "TocDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
-          "incrementalPhase": "build",
-          "total_file_count": 0,
           "skipped_file_count": 0
         }
       }
