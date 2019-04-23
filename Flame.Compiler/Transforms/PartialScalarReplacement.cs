@@ -19,6 +19,13 @@ namespace Flame.Compiler.Transforms
         /// <summary>
         /// Creates a partial scalar replacement pass.
         /// </summary>
+        public PartialScalarReplacement()
+            : this(DefaultCanReplaceByScalars)
+        { }
+
+        /// <summary>
+        /// Creates a partial scalar replacement pass.
+        /// </summary>
         /// <param name="canReplaceByScalars">
         /// Tells if a type is an aggregate that can be replaced by scalars.
         /// </param>
@@ -32,6 +39,11 @@ namespace Flame.Compiler.Transforms
         /// </summary>
         /// <value>A predicate function.</value>
         public Func<IType, bool> CanReplaceByScalars { get; private set; }
+
+        private static bool DefaultCanReplaceByScalars(IType type)
+        {
+            return !type.IsPointerType() && !type.IsSpecialType();
+        }
 
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
@@ -180,7 +192,7 @@ namespace Flame.Compiler.Transforms
                 }
                 else
                 {
-                    yield return instruction;
+                    yield return value;
                 }
             }
         }
