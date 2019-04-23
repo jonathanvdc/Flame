@@ -6690,6 +6690,161 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.BasicBlockUpdate.Tag
   nameWithType: BasicBlockUpdate.Tag
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1
+  name: BlockFixpointAnalysis<TBlockState>
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html
+  commentId: T:Flame.Compiler.Analysis.BlockFixpointAnalysis`1
+  name.vb: BlockFixpointAnalysis(Of TBlockState)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState)
+  nameWithType: BlockFixpointAnalysis<TBlockState>
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Analyze(Flame.Compiler.FlowGraph)
+  name: Analyze(FlowGraph)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Analyze_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Analyze(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Analyze(Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Analyze(Flame.Compiler.FlowGraph)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Analyze(FlowGraph)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Analyze(FlowGraph)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Analyze*
+  name: Analyze
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Analyze_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Analyze
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Analyze
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Analyze
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Analyze
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Analyze
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockFixpointAnalysis{`0}.Result,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name: AnalyzeWithUpdates(FlowGraph, BlockFixpointAnalysis<TBlockState>.Result, IReadOnlyList<FlowGraphUpdate>)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_BlockFixpointAnalysis__0__Result_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockFixpointAnalysis{`0}.Result,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name.vb: AnalyzeWithUpdates(FlowGraph, BlockFixpointAnalysis(Of TBlockState).Result, IReadOnlyList(Of FlowGraphUpdate))
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Result, System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.FlowGraphUpdate>)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Result, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.FlowGraphUpdate))
+  nameWithType: BlockFixpointAnalysis<TBlockState>.AnalyzeWithUpdates(FlowGraph, BlockFixpointAnalysis<TBlockState>.Result, IReadOnlyList<FlowGraphUpdate>)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).AnalyzeWithUpdates(FlowGraph, BlockFixpointAnalysis(Of TBlockState).Result, IReadOnlyList(Of FlowGraphUpdate))
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.AnalyzeWithUpdates*
+  name: AnalyzeWithUpdates
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_AnalyzeWithUpdates_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.AnalyzeWithUpdates
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.AnalyzeWithUpdates
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).AnalyzeWithUpdates
+  nameWithType: BlockFixpointAnalysis<TBlockState>.AnalyzeWithUpdates
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).AnalyzeWithUpdates
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.CreateEntryPointInput(Flame.Compiler.BasicBlock)
+  name: CreateEntryPointInput(BasicBlock)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_CreateEntryPointInput_Flame_Compiler_BasicBlock_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.CreateEntryPointInput(Flame.Compiler.BasicBlock)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.CreateEntryPointInput(Flame.Compiler.BasicBlock)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).CreateEntryPointInput(Flame.Compiler.BasicBlock)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.CreateEntryPointInput(BasicBlock)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).CreateEntryPointInput(BasicBlock)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.CreateEntryPointInput*
+  name: CreateEntryPointInput
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_CreateEntryPointInput_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.CreateEntryPointInput
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.CreateEntryPointInput
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).CreateEntryPointInput
+  nameWithType: BlockFixpointAnalysis<TBlockState>.CreateEntryPointInput
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).CreateEntryPointInput
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Equals(`0,`0)
+  name: Equals(TBlockState, TBlockState)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Equals__0__0_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Equals(`0,`0)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Equals(TBlockState, TBlockState)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Equals(TBlockState, TBlockState)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Equals(TBlockState, TBlockState)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Equals(TBlockState, TBlockState)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Equals*
+  name: Equals
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Equals_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Equals
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Equals
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Equals
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Equals
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Equals
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.GetOutgoingInputs(Flame.Compiler.BasicBlock,`0)
+  name: GetOutgoingInputs(BasicBlock, TBlockState)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_GetOutgoingInputs_Flame_Compiler_BasicBlock__0_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.GetOutgoingInputs(Flame.Compiler.BasicBlock,`0)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.GetOutgoingInputs(Flame.Compiler.BasicBlock, TBlockState)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).GetOutgoingInputs(Flame.Compiler.BasicBlock, TBlockState)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.GetOutgoingInputs(BasicBlock, TBlockState)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).GetOutgoingInputs(BasicBlock, TBlockState)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.GetOutgoingInputs*
+  name: GetOutgoingInputs
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_GetOutgoingInputs_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.GetOutgoingInputs
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.GetOutgoingInputs
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).GetOutgoingInputs
+  nameWithType: BlockFixpointAnalysis<TBlockState>.GetOutgoingInputs
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).GetOutgoingInputs
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Merge(`0,`0)
+  name: Merge(TBlockState, TBlockState)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Merge__0__0_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Merge(`0,`0)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Merge(TBlockState, TBlockState)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Merge(TBlockState, TBlockState)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Merge(TBlockState, TBlockState)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Merge(TBlockState, TBlockState)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Merge*
+  name: Merge
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Merge_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Merge
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Merge
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Merge
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Merge
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Merge
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Process(Flame.Compiler.BasicBlock,`0)
+  name: Process(BasicBlock, TBlockState)
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Process_Flame_Compiler_BasicBlock__0_
+  commentId: M:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Process(Flame.Compiler.BasicBlock,`0)
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Process(Flame.Compiler.BasicBlock, TBlockState)
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Process(Flame.Compiler.BasicBlock, TBlockState)
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Process(BasicBlock, TBlockState)
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Process(BasicBlock, TBlockState)
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Process*
+  name: Process
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Process_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Process
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Process
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Process
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Process
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Process
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result
+  name: BlockFixpointAnalysis<TBlockState>.Result
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.Result.html
+  commentId: T:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result
+  name.vb: BlockFixpointAnalysis(Of TBlockState).Result
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Result
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Result
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Result
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Result
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result.BlockResults
+  name: BlockResults
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.Result.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Result_BlockResults
+  commentId: P:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result.BlockResults
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Result.BlockResults
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Result.BlockResults
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Result.BlockResults
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Result.BlockResults
+- uid: Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result.BlockResults*
+  name: BlockResults
+  href: api/Flame.Compiler.Analysis.BlockFixpointAnalysis-1.Result.html#Flame_Compiler_Analysis_BlockFixpointAnalysis_1_Result_BlockResults_
+  commentId: Overload:Flame.Compiler.Analysis.BlockFixpointAnalysis`1.Result.BlockResults
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockFixpointAnalysis<TBlockState>.Result.BlockResults
+  fullName.vb: Flame.Compiler.Analysis.BlockFixpointAnalysis(Of TBlockState).Result.BlockResults
+  nameWithType: BlockFixpointAnalysis<TBlockState>.Result.BlockResults
+  nameWithType.vb: BlockFixpointAnalysis(Of TBlockState).Result.BlockResults
 - uid: Flame.Compiler.Analysis.BlockLiveness
   name: BlockLiveness
   href: api/Flame.Compiler.Analysis.BlockLiveness.html
@@ -6799,6 +6954,109 @@ references:
   commentId: F:Flame.Compiler.Analysis.BlockLiveness.ParameterIndex
   fullName: Flame.Compiler.Analysis.BlockLiveness.ParameterIndex
   nameWithType: BlockLiveness.ParameterIndex
+- uid: Flame.Compiler.Analysis.BlockLoop
+  name: BlockLoop
+  href: api/Flame.Compiler.Analysis.BlockLoop.html
+  commentId: T:Flame.Compiler.Analysis.BlockLoop
+  fullName: Flame.Compiler.Analysis.BlockLoop
+  nameWithType: BlockLoop
+- uid: Flame.Compiler.Analysis.BlockLoop.Body
+  name: Body
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Body
+  commentId: P:Flame.Compiler.Analysis.BlockLoop.Body
+  fullName: Flame.Compiler.Analysis.BlockLoop.Body
+  nameWithType: BlockLoop.Body
+- uid: Flame.Compiler.Analysis.BlockLoop.Body*
+  name: Body
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Body_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Body
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoop.Body
+  nameWithType: BlockLoop.Body
+- uid: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
+  name: EnclosingLoopOrNull
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_EnclosingLoopOrNull
+  commentId: P:Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
+  fullName: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
+  nameWithType: BlockLoop.EnclosingLoopOrNull
+- uid: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull*
+  name: EnclosingLoopOrNull
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_EnclosingLoopOrNull_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoop.EnclosingLoopOrNull
+  nameWithType: BlockLoop.EnclosingLoopOrNull
+- uid: Flame.Compiler.Analysis.BlockLoop.Entries
+  name: Entries
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Entries
+  commentId: P:Flame.Compiler.Analysis.BlockLoop.Entries
+  fullName: Flame.Compiler.Analysis.BlockLoop.Entries
+  nameWithType: BlockLoop.Entries
+- uid: Flame.Compiler.Analysis.BlockLoop.Entries*
+  name: Entries
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Entries_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Entries
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoop.Entries
+  nameWithType: BlockLoop.Entries
+- uid: Flame.Compiler.Analysis.BlockLoop.Exits
+  name: Exits
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Exits
+  commentId: P:Flame.Compiler.Analysis.BlockLoop.Exits
+  fullName: Flame.Compiler.Analysis.BlockLoop.Exits
+  nameWithType: BlockLoop.Exits
+- uid: Flame.Compiler.Analysis.BlockLoop.Exits*
+  name: Exits
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_Exits_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.Exits
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoop.Exits
+  nameWithType: BlockLoop.Exits
+- uid: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
+  name: IsNestedLoop
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_IsNestedLoop
+  commentId: P:Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
+  fullName: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
+  nameWithType: BlockLoop.IsNestedLoop
+- uid: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop*
+  name: IsNestedLoop
+  href: api/Flame.Compiler.Analysis.BlockLoop.html#Flame_Compiler_Analysis_BlockLoop_IsNestedLoop_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoop.IsNestedLoop
+  nameWithType: BlockLoop.IsNestedLoop
+- uid: Flame.Compiler.Analysis.BlockLoops
+  name: BlockLoops
+  href: api/Flame.Compiler.Analysis.BlockLoops.html
+  commentId: T:Flame.Compiler.Analysis.BlockLoops
+  fullName: Flame.Compiler.Analysis.BlockLoops
+  nameWithType: BlockLoops
+- uid: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
+  name: BlocksToLoops
+  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_BlocksToLoops
+  commentId: P:Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
+  fullName: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
+  nameWithType: BlockLoops.BlocksToLoops
+- uid: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops*
+  name: BlocksToLoops
+  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_BlocksToLoops_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoops.BlocksToLoops
+  nameWithType: BlockLoops.BlocksToLoops
+- uid: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
+  name: GetLoopOrNull(BasicBlockTag)
+  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_GetLoopOrNull_Flame_Compiler_BasicBlockTag_
+  commentId: M:Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
+  fullName: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull(Flame.Compiler.BasicBlockTag)
+  nameWithType: BlockLoops.GetLoopOrNull(BasicBlockTag)
+- uid: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull*
+  name: GetLoopOrNull
+  href: api/Flame.Compiler.Analysis.BlockLoops.html#Flame_Compiler_Analysis_BlockLoops_GetLoopOrNull_
+  commentId: Overload:Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.BlockLoops.GetLoopOrNull
+  nameWithType: BlockLoops.GetLoopOrNull
 - uid: Flame.Compiler.Analysis.BlockReachability
   name: BlockReachability
   href: api/Flame.Compiler.Analysis.BlockReachability.html
@@ -7632,15 +7890,15 @@ references:
   fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Bottom
   nameWithType: LatticeAnalysis<TCell>.Bottom
   nameWithType.vb: LatticeAnalysis(Of TCell).Bottom
-- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
-  name: Evaluate(Instruction, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
-  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__Flame_Compiler_FlowGraph_
-  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0},Flame.Compiler.FlowGraph)
-  name.vb: Evaluate(Instruction, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
-  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Evaluate(Flame.Compiler.Instruction, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, TCell>, Flame.Compiler.FlowGraph)
-  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Evaluate(Flame.Compiler.Instruction, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, TCell), Flame.Compiler.FlowGraph)
-  nameWithType: LatticeAnalysis<TCell>.Evaluate(Instruction, IReadOnlyDictionary<ValueTag, TCell>, FlowGraph)
-  nameWithType.vb: LatticeAnalysis(Of TCell).Evaluate(Instruction, IReadOnlyDictionary(Of ValueTag, TCell), FlowGraph)
+- uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.NamedInstruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0})
+  name: Evaluate(NamedInstruction, IReadOnlyDictionary<ValueTag, TCell>)
+  href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_Flame_Compiler_NamedInstruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag__0__
+  commentId: M:Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate(Flame.Compiler.NamedInstruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,`0})
+  name.vb: Evaluate(NamedInstruction, IReadOnlyDictionary(Of ValueTag, TCell))
+  fullName: Flame.Compiler.Analysis.LatticeAnalysis<TCell>.Evaluate(Flame.Compiler.NamedInstruction, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, TCell>)
+  fullName.vb: Flame.Compiler.Analysis.LatticeAnalysis(Of TCell).Evaluate(Flame.Compiler.NamedInstruction, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, TCell))
+  nameWithType: LatticeAnalysis<TCell>.Evaluate(NamedInstruction, IReadOnlyDictionary<ValueTag, TCell>)
+  nameWithType.vb: LatticeAnalysis(Of TCell).Evaluate(NamedInstruction, IReadOnlyDictionary(Of ValueTag, TCell))
 - uid: Flame.Compiler.Analysis.LatticeAnalysis`1.Evaluate*
   name: Evaluate
   href: api/Flame.Compiler.Analysis.LatticeAnalysis-1.html#Flame_Compiler_Analysis_LatticeAnalysis_1_Evaluate_
@@ -7944,6 +8202,47 @@ references:
   commentId: F:Flame.Compiler.Analysis.LocalMemorySSAAnalysis.Instance
   fullName: Flame.Compiler.Analysis.LocalMemorySSAAnalysis.Instance
   nameWithType: LocalMemorySSAAnalysis.Instance
+- uid: Flame.Compiler.Analysis.LoopAnalysis
+  name: LoopAnalysis
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html
+  commentId: T:Flame.Compiler.Analysis.LoopAnalysis
+  fullName: Flame.Compiler.Analysis.LoopAnalysis
+  nameWithType: LoopAnalysis
+- uid: Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  name: Analyze(FlowGraph)
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Analyze_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Analysis.LoopAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  nameWithType: LoopAnalysis.Analyze(FlowGraph)
+- uid: Flame.Compiler.Analysis.LoopAnalysis.Analyze*
+  name: Analyze
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Analyze_
+  commentId: Overload:Flame.Compiler.Analysis.LoopAnalysis.Analyze
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LoopAnalysis.Analyze
+  nameWithType: LoopAnalysis.Analyze
+- uid: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockLoops,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name: AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList<FlowGraphUpdate>)
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_BlockLoops_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__
+  commentId: M:Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.BlockLoops,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name.vb: AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList(Of FlowGraphUpdate))
+  fullName: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockLoops, System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.FlowGraphUpdate>)
+  fullName.vb: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.BlockLoops, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.FlowGraphUpdate))
+  nameWithType: LoopAnalysis.AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList<FlowGraphUpdate>)
+  nameWithType.vb: LoopAnalysis.AnalyzeWithUpdates(FlowGraph, BlockLoops, IReadOnlyList(Of FlowGraphUpdate))
+- uid: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates*
+  name: AnalyzeWithUpdates
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_AnalyzeWithUpdates_
+  commentId: Overload:Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.LoopAnalysis.AnalyzeWithUpdates
+  nameWithType: LoopAnalysis.AnalyzeWithUpdates
+- uid: Flame.Compiler.Analysis.LoopAnalysis.Instance
+  name: Instance
+  href: api/Flame.Compiler.Analysis.LoopAnalysis.html#Flame_Compiler_Analysis_LoopAnalysis_Instance
+  commentId: F:Flame.Compiler.Analysis.LoopAnalysis.Instance
+  fullName: Flame.Compiler.Analysis.LoopAnalysis.Instance
+  nameWithType: LoopAnalysis.Instance
 - uid: Flame.Compiler.Analysis.MapMembersUpdate
   name: MapMembersUpdate
   href: api/Flame.Compiler.Analysis.MapMembersUpdate.html

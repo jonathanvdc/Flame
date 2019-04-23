@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Namespace Flame.Compiler.Analysis
    | Flame ">
-    <meta name="generator" content="docfx 2.42.0.0">
+    <meta name="generator" content="docfx 2.42.1.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -107,8 +107,14 @@ analysis to a control-flow graph.</p>
       <section><p>A flow graph update at the basic block level:
 the insertion, deletion or modification of a basic block.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockFixpointAnalysis-1.html">BlockFixpointAnalysis&lt;TBlockState&gt;</a></h4>
+      <section><p>A base class for analyses that process blocks until they reach a fixpoint.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.BlockLiveness.html">BlockLiveness</a></h4>
       <section><p>Contains value liveness data for a single block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockLoop.html">BlockLoop</a></h4>
+      <section><p>Represents a loop in a control-flow graph.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.BlockReachability.html">BlockReachability</a></h4>
       <section><p>A description of which blocks can reach other blocks in a
@@ -199,6 +205,9 @@ in a control flow graph.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.LocalMemorySSAAnalysis.html">LocalMemorySSAAnalysis</a></h4>
       <section><p>A very simple, block-local memory SSA analysis.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.LoopAnalysis.html">LoopAnalysis</a></h4>
+      <section><p>An analysis that finds loop in control-flow graphs.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.MapMembersUpdate.html">MapMembersUpdate</a></h4>
       <section><p>A flow graph update that applies a mapping to every member
@@ -295,6 +304,12 @@ semantic instruction equivalence, not of syntactic equality.</p>
       <section><p>A data structure that can be queried to get the predecessors
 of a block, that is, the set of all blocks that have branches
 to the block.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockFixpointAnalysis-1.Result.html">BlockFixpointAnalysis&lt;TBlockState&gt;.Result</a></h4>
+      <section><p>The result of a block fixpoint analysis.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.BlockLoops.html">BlockLoops</a></h4>
+      <section><p>A data structure that maps blocks to the loops they are a part of.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.EffectfulInstructions.html">EffectfulInstructions</a></h4>
       <section><p>The set of instructions in a graph that may have side-effects.</p>
