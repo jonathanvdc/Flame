@@ -86,6 +86,7 @@
     <Compile Include="Names\SimpleName.cs" />
     <Compile Include="Names\UnqualifiedName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeSystem\AccessModifier.cs" />
     <Compile Include="TypeSystem\AssemblyResolver.cs" />
     <Compile Include="TypeSystem\ContainerType.cs" />
     <Compile Include="TypeSystem\DescribedAccessor.cs" />
