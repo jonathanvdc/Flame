@@ -35,6 +35,13 @@ namespace Flame.Compiler.Transforms
         }
 
         /// <summary>
+        /// An instance of the partial scalar replacement transform.
+        /// </summary>
+        /// <returns>A partial scalar replacement transform instance.</returns>
+        public static readonly PartialScalarReplacement Instance
+            = new PartialScalarReplacement();
+
+        /// <summary>
         /// Tells if a particular type is an aggregate that can be replaced by scalars.
         /// </summary>
         /// <value>A predicate function.</value>
@@ -42,7 +49,7 @@ namespace Flame.Compiler.Transforms
 
         private static bool DefaultCanReplaceByScalars(IType type)
         {
-            return !type.IsPointerType() && !type.IsSpecialType();
+            return !type.IsPointerType() && !type.IsSpecialType() && !(type is IGenericParameter);
         }
 
         /// <inheritdoc/>
@@ -99,7 +106,8 @@ namespace Flame.Compiler.Transforms
                         // we will insert at the start of the materialization point block.
                         var elementType = ((PointerType)graph.GetValueType(candidate)).ElementType;
                         var materializationBlock = graph.GetBasicBlock(materializationPoint);
-                        var dematerializedValue = graph.EntryPoint.AppendInstruction(
+                        var dematerializedValue = graph.EntryPoint.InsertInstruction(
+                            0,
                             Instruction.CreateAlloca(elementType),
                             candidate.Name + ".demat");
 
@@ -129,21 +137,20 @@ namespace Flame.Compiler.Transforms
                         // Materialize the value by performing a fieldwise copy.
                         foreach (var field in GetAllFields(elementType))
                         {
-                            var scalar = materializationBlock.InsertInstruction(
+                            var dematerializedGFP = materializationBlock.InsertInstruction(
                                 0,
-                                Instruction.CreateLoad(
-                                    field.FieldType,
-                                    materializationBlock.InsertInstruction(
-                                        0,
-                                        Instruction.CreateGetFieldPointer(field, dematerializedValue))));
+                                Instruction.CreateGetFieldPointer(field, dematerializedValue));
 
-                            materializationBlock.InsertInstruction(
-                                0,
+                            var scalar = dematerializedGFP.InsertAfter(
+                                Instruction.CreateLoad(field.FieldType, dematerializedGFP));
+
+                            var candidateGFP = scalar.InsertAfter(
+                                Instruction.CreateGetFieldPointer(field, candidate));
+
+                            candidateGFP.InsertAfter(
                                 Instruction.CreateStore(
                                     field.FieldType,
-                                    materializationBlock.InsertInstruction(
-                                        0,
-                                        Instruction.CreateGetFieldPointer(field, candidate)),
+                                    candidateGFP,
                                     scalar));
                         }
 
