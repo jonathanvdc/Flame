@@ -70,6 +70,28 @@ namespace Flame.Compiler.Analysis
         /// <returns>The block's output state.</returns>
         public abstract TBlockState Process(BasicBlock block, TBlockState input);
 
+        /// <summary>
+        /// Gets a block's outgoing inputs: a sequence of key-value pairs where the
+        /// keys list affected blocks and the values list values that should be
+        /// merged with those blocks' inputs.
+        /// </summary>
+        /// <param name="block">A basic block.</param>
+        /// <param name="output">
+        /// The output for that basic block, as computed by the <c>Process</c> method.
+        /// </param>
+        /// <returns>A sequence of key-value pairs.</returns>
+        public virtual IEnumerable<KeyValuePair<BasicBlockTag, TBlockState>> GetOutgoingInputs(
+            BasicBlock block,
+            TBlockState output)
+        {
+            var results = new Dictionary<BasicBlockTag, TBlockState>();
+            foreach (var target in block.Flow.BranchTargets)
+            {
+                results[target] = output;
+            }
+            return results;
+        }
+
         /// <inheritdoc/>
         public Result Analyze(FlowGraph graph)
         {
@@ -93,8 +115,9 @@ namespace Flame.Compiler.Analysis
                 outputs[block] = blockOutput;
 
                 // Process the block's outgoing branches.
-                foreach (var target in block.Flow.BranchTargets)
+                foreach (var pair in GetOutgoingInputs(block, blockOutput))
                 {
+                    var target = pair.Key;
                     TBlockState targetInput;
                     if (inputs.TryGetValue(target, out targetInput))
                     {
@@ -102,7 +125,7 @@ namespace Flame.Compiler.Analysis
                         // merge this block's output with the branch target's input. If
                         // they are the same, then we'll do nothing. Otherwise, we'll
                         // re-process the branch with the new input.
-                        var merged = Merge(blockOutput, targetInput);
+                        var merged = Merge(pair.Value, targetInput);
                         if (!Equals(merged, targetInput))
                         {
                             inputs[target] = merged;
@@ -113,7 +136,7 @@ namespace Flame.Compiler.Analysis
                     {
                         // If the branch target hasn't been processed yet, then it's about
                         // time that we do. Add it to the worklist.
-                        inputs[target] = blockOutput;
+                        inputs[target] = pair.Value;
                         worklist.Add(target);
                     }
                 }
