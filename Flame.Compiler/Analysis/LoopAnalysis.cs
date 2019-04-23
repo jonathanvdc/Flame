@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,6 +22,30 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <value>A mapping of basic blocks to innermost loops.</value>
         public IReadOnlyDictionary<BasicBlockTag, BlockLoop> BlocksToLoops { get; private set; }
+
+        /// <summary>
+        /// Gets the loop that defines a basic block or <c>null</c> if there is no
+        /// such loop.
+        /// </summary>
+        /// <param name="block">
+        /// A basic block.
+        /// </param>
+        /// <returns>
+        /// The innermost loop that defines <paramref name="block"/> if one exists;
+        /// otherwise, <c>null</c>.
+        /// </returns>
+        public BlockLoop GetLoopOrNull(BasicBlockTag block)
+        {
+            BlockLoop result;
+            if (BlocksToLoops.TryGetValue(block, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     /// <summary>
