@@ -144,6 +144,9 @@ namespace ILOpt
                 //   * Expand LINQ queries.
                 new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
 
+                //   * Inline direct method calls.
+                Inlining.Instance,
+
                 //   * Aggregates to scalars, scalars to registers.
                 //     Also throw in GVN.
                 DeadValueElimination.Instance,
