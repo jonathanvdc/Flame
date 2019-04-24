@@ -1,3 +1,5 @@
+//! run
+//
 // Based on the benchmark program from ".NET Struct Performance"
 // by Christopher Nahr.
 // Article and original source code at:
