@@ -50,6 +50,17 @@ namespace ILOpt
                 .WithCategory("Debugging");
 
         /// <summary>
+        /// The 'internalize' option, which makes private and protected members
+        /// internal and protected-or-internal, respectively.
+        /// </summary>
+        public static readonly FlagOption Internalize =
+            new FlagOption(OptionForm.Short("finternalize"), OptionForm.Short("fno-internalize"), true)
+                .WithDescription(
+                    "Makes private and protected types, methods and fields " +
+                    "internal and protected-or-internal, respectively.")
+                .WithCategory("Optimization");
+
+        /// <summary>
         /// A list of all named options understood by ilopt.
         /// </summary>
         public static readonly IReadOnlyList<Option> All =
@@ -57,7 +68,8 @@ namespace ILOpt
         {
             Help,
             Output,
-            PrintIr
+            PrintIr,
+            Internalize
         };
     }
 }

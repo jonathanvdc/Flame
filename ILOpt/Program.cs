@@ -15,6 +15,7 @@ using Flame.Ir;
 using Flame.TypeSystem;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
+using Mono.Cecil;
 using Pixie;
 using Pixie.Markup;
 using Pixie.Options;
@@ -55,7 +56,7 @@ namespace ILOpt
             if (parsedOptions.GetValue<bool>(Options.Help))
             {
                 // Wrap the help message into a log entry and send it to the log.
-                rawLog.Log(
+                TerminalLog.AcquireStandardOutput().Log(
                     new LogEntry(
                         Severity.Info,
                         new HelpMessage(
@@ -110,6 +111,14 @@ namespace ILOpt
 
             try
             {
+                // Make all non-public types, methods and fields in the assembly
+                // internal if the user requests it. This will work to
+                // our advantage.
+                if (parsedOptions.GetValue<bool>(Options.Internalize))
+                {
+                    MakeInternal(cecilAsm);
+                }
+
                 // Wrap the CIL assembly in a Flame assembly.
                 var flameAsm = ClrAssembly.Wrap(cecilAsm);
                 var typeSystem = flameAsm.Resolver.TypeEnvironment;
@@ -127,6 +136,61 @@ namespace ILOpt
             }
 
             return 0;
+        }
+
+        private static void MakeInternal(AssemblyDefinition assembly)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                foreach (var type in module.Types)
+                {
+                    MakeInternal(type);
+                }
+            }
+        }
+
+        private static void MakeInternal(TypeDefinition type)
+        {
+            if (type.IsNestedPrivate)
+            {
+                type.IsNestedPrivate = false;
+                type.IsNestedAssembly = true;
+            }
+            else if (type.IsNestedFamily)
+            {
+                type.IsNestedFamily = false;
+                type.IsNestedFamilyOrAssembly = true;
+            }
+            foreach (var method in type.Methods)
+            {
+                if (method.IsPrivate)
+                {
+                    method.IsPrivate = false;
+                    method.IsAssembly = true;
+                }
+                else if (method.IsFamily)
+                {
+                    method.IsFamily = false;
+                    method.IsAssembly = true;
+                }
+            }
+            foreach (var field in type.Fields)
+            {
+                if (field.IsPrivate)
+                {
+                    field.IsPrivate = false;
+                    field.IsAssembly = true;
+                }
+                else if (field.IsFamily)
+                {
+                    field.IsFamily = false;
+                    field.IsAssembly = true;
+                }
+            }
+            foreach (var nestedType in type.NestedTypes)
+            {
+                MakeInternal(nestedType);
+            }
         }
 
         private static Task OptimizeAssemblyAsync(ClrAssembly assembly, bool printIr)
