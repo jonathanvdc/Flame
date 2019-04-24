@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
 using Flame.Compiler.Instructions.Fused;
+using Flame.Compiler.Pipeline;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler.Transforms
@@ -16,13 +18,6 @@ namespace Flame.Compiler.Transforms
     /// </summary>
     public sealed class PartialScalarReplacement : IntraproceduralOptimization
     {
-        /// <summary>
-        /// Creates a partial scalar replacement pass.
-        /// </summary>
-        public PartialScalarReplacement()
-            : this(DefaultCanReplaceByScalars)
-        { }
-
         /// <summary>
         /// Creates a partial scalar replacement pass.
         /// </summary>
@@ -38,8 +33,8 @@ namespace Flame.Compiler.Transforms
         /// An instance of the partial scalar replacement transform.
         /// </summary>
         /// <returns>A partial scalar replacement transform instance.</returns>
-        public static readonly PartialScalarReplacement Instance
-            = new PartialScalarReplacement();
+        public static readonly Optimization Instance
+            = new AccessAwarePartialScalarReplacement();
 
         /// <summary>
         /// Tells if a particular type is an aggregate that can be replaced by scalars.
@@ -47,9 +42,23 @@ namespace Flame.Compiler.Transforms
         /// <value>A predicate function.</value>
         public Func<IType, bool> CanReplaceByScalars { get; private set; }
 
-        private static bool DefaultCanReplaceByScalars(IType type)
+        private sealed class AccessAwarePartialScalarReplacement : Optimization
         {
-            return !type.IsPointerType() && !type.IsSpecialType() && !(type is IGenericParameter);
+            public override bool IsCheckpoint => false;
+
+            public override Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
+            {
+                var rules = body.Implementation.GetAnalysisResult<AccessRules>();
+                var method = state.Method;
+                var pass = new PartialScalarReplacement(
+                    type =>
+                        !type.IsPointerType()
+                        && !type.IsSpecialType()
+                        && !(type is IGenericParameter)
+                        && GetAllFields(type).All(field => rules.CanAccess(method, field)));
+
+                return Task.FromResult(body.WithImplementation(pass.Apply(body.Implementation)));
+            }
         }
 
         /// <inheritdoc/>
