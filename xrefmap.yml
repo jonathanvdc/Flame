@@ -18206,6 +18206,22 @@ references:
   commentId: T:Flame.Compiler.Transforms.ScalarReplacement
   fullName: Flame.Compiler.Transforms.ScalarReplacement
   nameWithType: ScalarReplacement
+- uid: Flame.Compiler.Transforms.ScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
+  name: ScalarReplacement(Func<IType, Boolean>)
+  href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement__ctor_System_Func_Flame_IType_System_Boolean__
+  commentId: M:Flame.Compiler.Transforms.ScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
+  name.vb: ScalarReplacement(Func(Of IType, Boolean))
+  fullName: Flame.Compiler.Transforms.ScalarReplacement.ScalarReplacement(System.Func<Flame.IType, System.Boolean>)
+  fullName.vb: Flame.Compiler.Transforms.ScalarReplacement.ScalarReplacement(System.Func(Of Flame.IType, System.Boolean))
+  nameWithType: ScalarReplacement.ScalarReplacement(Func<IType, Boolean>)
+  nameWithType.vb: ScalarReplacement.ScalarReplacement(Func(Of IType, Boolean))
+- uid: Flame.Compiler.Transforms.ScalarReplacement.#ctor*
+  name: ScalarReplacement
+  href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement__ctor_
+  commentId: Overload:Flame.Compiler.Transforms.ScalarReplacement.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.ScalarReplacement.ScalarReplacement
+  nameWithType: ScalarReplacement.ScalarReplacement
 - uid: Flame.Compiler.Transforms.ScalarReplacement.Apply(Flame.Compiler.FlowGraph)
   name: Apply(FlowGraph)
   href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement_Apply_Flame_Compiler_FlowGraph_
@@ -18219,6 +18235,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Transforms.ScalarReplacement.Apply
   nameWithType: ScalarReplacement.Apply
+- uid: Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields
+  name: CanAccessFields
+  href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement_CanAccessFields
+  commentId: P:Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields
+  fullName: Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields
+  nameWithType: ScalarReplacement.CanAccessFields
+- uid: Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields*
+  name: CanAccessFields
+  href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement_CanAccessFields_
+  commentId: Overload:Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.ScalarReplacement.CanAccessFields
+  nameWithType: ScalarReplacement.CanAccessFields
 - uid: Flame.Compiler.Transforms.ScalarReplacement.Instance
   name: Instance
   href: api/Flame.Compiler.Transforms.ScalarReplacement.html#Flame_Compiler_Transforms_ScalarReplacement_Instance
