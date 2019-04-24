@@ -170,8 +170,38 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.Virtual);
             }
+            // Analyze access modifier.
+            attrBuilder.Add(AccessModifierAttribute.Create(AnalyzeAccessModifier()));
             // TODO: analyze more attributes.
             attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        private AccessModifier AnalyzeAccessModifier()
+        {
+            if (Definition.IsPublic)
+            {
+                return AccessModifier.Public;
+            }
+            else if (Definition.IsPrivate)
+            {
+                return AccessModifier.Private;
+            }
+            else if (Definition.IsFamily)
+            {
+                return AccessModifier.Protected;
+            }
+            else if (Definition.IsFamilyAndAssembly)
+            {
+                return AccessModifier.ProtectedAndInternal;
+            }
+            else if (Definition.IsFamilyOrAssembly)
+            {
+                return AccessModifier.ProtectedOrInternal;
+            }
+            else
+            {
+                return AccessModifier.Internal;
+            }
         }
 
         private MethodBody AnalyzeBody()

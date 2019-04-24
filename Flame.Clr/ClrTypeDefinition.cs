@@ -282,8 +282,39 @@ namespace Flame.Clr
                 }
             }
 
+            // Analyze access modifier.
+            attrBuilder.Add(AccessModifierAttribute.Create(AnalyzeAccessModifier()));
+
             // TODO: support more attributes.
             attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        private AccessModifier AnalyzeAccessModifier()
+        {
+            if (Definition.IsPublic || Definition.IsNestedPublic)
+            {
+                return AccessModifier.Public;
+            }
+            else if (Definition.IsNestedPrivate)
+            {
+                return AccessModifier.Private;
+            }
+            else if (Definition.IsNestedFamily)
+            {
+                return AccessModifier.Protected;
+            }
+            else if (Definition.IsNestedFamilyAndAssembly)
+            {
+                return AccessModifier.ProtectedAndInternal;
+            }
+            else if (Definition.IsNestedFamilyOrAssembly)
+            {
+                return AccessModifier.ProtectedOrInternal;
+            }
+            else
+            {
+                return AccessModifier.Internal;
+            }
         }
 
         private void AnalyzeOverrides()

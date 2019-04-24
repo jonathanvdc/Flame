@@ -1,4 +1,5 @@
 using Flame.Collections;
+using Flame.TypeSystem;
 using Mono.Cecil;
 
 namespace Flame.Clr
@@ -86,8 +87,39 @@ namespace Flame.Clr
                 ParentType.Assembly.Resolve(Definition.FieldType));
 
             var attrBuilder = new AttributeMapBuilder();
-            // TODO: analyze attributes.
+            // Analyze access modifier.
+            attrBuilder.Add(AccessModifierAttribute.Create(AnalyzeAccessModifier()));
+
+            // TODO: analyze other attributes.
             attributeMap = new AttributeMap(attrBuilder);
+        }
+
+        private AccessModifier AnalyzeAccessModifier()
+        {
+            if (Definition.IsPublic)
+            {
+                return AccessModifier.Public;
+            }
+            else if (Definition.IsPrivate)
+            {
+                return AccessModifier.Private;
+            }
+            else if (Definition.IsFamily)
+            {
+                return AccessModifier.Protected;
+            }
+            else if (Definition.IsFamilyAndAssembly)
+            {
+                return AccessModifier.ProtectedAndInternal;
+            }
+            else if (Definition.IsFamilyOrAssembly)
+            {
+                return AccessModifier.ProtectedOrInternal;
+            }
+            else
+            {
+                return AccessModifier.Internal;
+            }
         }
     }
 }
