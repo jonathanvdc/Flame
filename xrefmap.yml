@@ -13268,6 +13268,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.InstructionPrototype.Map
   nameWithType: InstructionPrototype.Map
+- uid: Flame.Compiler.InstructionPrototype.Members
+  name: Members
+  href: api/Flame.Compiler.InstructionPrototype.html#Flame_Compiler_InstructionPrototype_Members
+  commentId: P:Flame.Compiler.InstructionPrototype.Members
+  fullName: Flame.Compiler.InstructionPrototype.Members
+  nameWithType: InstructionPrototype.Members
+- uid: Flame.Compiler.InstructionPrototype.Members*
+  name: Members
+  href: api/Flame.Compiler.InstructionPrototype.html#Flame_Compiler_InstructionPrototype_Members_
+  commentId: Overload:Flame.Compiler.InstructionPrototype.Members
+  isSpec: "True"
+  fullName: Flame.Compiler.InstructionPrototype.Members
+  nameWithType: InstructionPrototype.Members
 - uid: Flame.Compiler.InstructionPrototype.ParameterCount
   name: ParameterCount
   href: api/Flame.Compiler.InstructionPrototype.html#Flame_Compiler_InstructionPrototype_ParameterCount
@@ -17113,6 +17126,22 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Pipeline.OptimizationState.OptimizationState
   nameWithType: OptimizationState.OptimizationState
+- uid: Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync(System.Collections.Generic.IEnumerable{Flame.IMethod})
+  name: GetBodiesAsync(IEnumerable<IMethod>)
+  href: api/Flame.Compiler.Pipeline.OptimizationState.html#Flame_Compiler_Pipeline_OptimizationState_GetBodiesAsync_System_Collections_Generic_IEnumerable_Flame_IMethod__
+  commentId: M:Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync(System.Collections.Generic.IEnumerable{Flame.IMethod})
+  name.vb: GetBodiesAsync(IEnumerable(Of IMethod))
+  fullName: Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync(System.Collections.Generic.IEnumerable<Flame.IMethod>)
+  fullName.vb: Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync(System.Collections.Generic.IEnumerable(Of Flame.IMethod))
+  nameWithType: OptimizationState.GetBodiesAsync(IEnumerable<IMethod>)
+  nameWithType.vb: OptimizationState.GetBodiesAsync(IEnumerable(Of IMethod))
+- uid: Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync*
+  name: GetBodiesAsync
+  href: api/Flame.Compiler.Pipeline.OptimizationState.html#Flame_Compiler_Pipeline_OptimizationState_GetBodiesAsync_
+  commentId: Overload:Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync
+  isSpec: "True"
+  fullName: Flame.Compiler.Pipeline.OptimizationState.GetBodiesAsync
+  nameWithType: OptimizationState.GetBodiesAsync
 - uid: Flame.Compiler.Pipeline.OptimizationState.GetBodyAsync(Flame.IMethod)
   name: GetBodyAsync(IMethod)
   href: api/Flame.Compiler.Pipeline.OptimizationState.html#Flame_Compiler_Pipeline_OptimizationState_GetBodyAsync_Flame_IMethod_
@@ -17758,6 +17787,128 @@ references:
   commentId: F:Flame.Compiler.Transforms.GlobalValueNumbering.Instance
   fullName: Flame.Compiler.Transforms.GlobalValueNumbering.Instance
   nameWithType: GlobalValueNumbering.Instance
+- uid: Flame.Compiler.Transforms.Inlining
+  name: Inlining
+  href: api/Flame.Compiler.Transforms.Inlining.html
+  commentId: T:Flame.Compiler.Transforms.Inlining
+  fullName: Flame.Compiler.Transforms.Inlining
+  nameWithType: Inlining
+- uid: Flame.Compiler.Transforms.Inlining.#ctor
+  name: Inlining()
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining__ctor
+  commentId: M:Flame.Compiler.Transforms.Inlining.#ctor
+  fullName: Flame.Compiler.Transforms.Inlining.Inlining()
+  nameWithType: Inlining.Inlining()
+- uid: Flame.Compiler.Transforms.Inlining.#ctor*
+  name: Inlining
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining__ctor_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.Inlining
+  nameWithType: Inlining.Inlining
+- uid: Flame.Compiler.Transforms.Inlining.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)
+  name: ApplyAsync(MethodBody, OptimizationState)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_
+  commentId: M:Flame.Compiler.Transforms.Inlining.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)
+  fullName: Flame.Compiler.Transforms.Inlining.ApplyAsync(Flame.Compiler.MethodBody, Flame.Compiler.Pipeline.OptimizationState)
+  nameWithType: Inlining.ApplyAsync(MethodBody, OptimizationState)
+- uid: Flame.Compiler.Transforms.Inlining.ApplyAsync*
+  name: ApplyAsync
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ApplyAsync_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.ApplyAsync
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.ApplyAsync
+  nameWithType: Inlining.ApplyAsync
+- uid: Flame.Compiler.Transforms.Inlining.CanInline(Flame.Compiler.MethodBody,Flame.IMethod,Flame.Compiler.FlowGraph)
+  name: CanInline(MethodBody, IMethod, FlowGraph)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_CanInline_Flame_Compiler_MethodBody_Flame_IMethod_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.Inlining.CanInline(Flame.Compiler.MethodBody,Flame.IMethod,Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Transforms.Inlining.CanInline(Flame.Compiler.MethodBody, Flame.IMethod, Flame.Compiler.FlowGraph)
+  nameWithType: Inlining.CanInline(MethodBody, IMethod, FlowGraph)
+- uid: Flame.Compiler.Transforms.Inlining.CanInline*
+  name: CanInline
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_CanInline_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.CanInline
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.CanInline
+  nameWithType: Inlining.CanInline
+- uid: Flame.Compiler.Transforms.Inlining.GetInlineCost(Flame.Compiler.MethodBody)
+  name: GetInlineCost(MethodBody)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_GetInlineCost_Flame_Compiler_MethodBody_
+  commentId: M:Flame.Compiler.Transforms.Inlining.GetInlineCost(Flame.Compiler.MethodBody)
+  fullName: Flame.Compiler.Transforms.Inlining.GetInlineCost(Flame.Compiler.MethodBody)
+  nameWithType: Inlining.GetInlineCost(MethodBody)
+- uid: Flame.Compiler.Transforms.Inlining.GetInlineCost*
+  name: GetInlineCost
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_GetInlineCost_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.GetInlineCost
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.GetInlineCost
+  nameWithType: Inlining.GetInlineCost
+- uid: Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)
+  name: GetInlineGain(MethodBody, IReadOnlyList<ValueTag>, FlowGraph)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_GetInlineGain_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)
+  name.vb: GetInlineGain(MethodBody, IReadOnlyList(Of ValueTag), FlowGraph)
+  fullName: Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody, System.Collections.Generic.IReadOnlyList<Flame.Compiler.ValueTag>, Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.ValueTag), Flame.Compiler.FlowGraph)
+  nameWithType: Inlining.GetInlineGain(MethodBody, IReadOnlyList<ValueTag>, FlowGraph)
+  nameWithType.vb: Inlining.GetInlineGain(MethodBody, IReadOnlyList(Of ValueTag), FlowGraph)
+- uid: Flame.Compiler.Transforms.Inlining.GetInlineGain*
+  name: GetInlineGain
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_GetInlineGain_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.GetInlineGain
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.GetInlineGain
+  nameWithType: Inlining.GetInlineGain
+- uid: Flame.Compiler.Transforms.Inlining.Instance
+  name: Instance
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_Instance
+  commentId: F:Flame.Compiler.Transforms.Inlining.Instance
+  fullName: Flame.Compiler.Transforms.Inlining.Instance
+  nameWithType: Inlining.Instance
+- uid: Flame.Compiler.Transforms.Inlining.IsCheckpoint
+  name: IsCheckpoint
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_IsCheckpoint
+  commentId: P:Flame.Compiler.Transforms.Inlining.IsCheckpoint
+  fullName: Flame.Compiler.Transforms.Inlining.IsCheckpoint
+  nameWithType: Inlining.IsCheckpoint
+- uid: Flame.Compiler.Transforms.Inlining.IsCheckpoint*
+  name: IsCheckpoint
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_IsCheckpoint_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.IsCheckpoint
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.IsCheckpoint
+  nameWithType: Inlining.IsCheckpoint
+- uid: Flame.Compiler.Transforms.Inlining.ShouldConsider(Flame.IMethod,Flame.IMethod)
+  name: ShouldConsider(IMethod, IMethod)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ShouldConsider_Flame_IMethod_Flame_IMethod_
+  commentId: M:Flame.Compiler.Transforms.Inlining.ShouldConsider(Flame.IMethod,Flame.IMethod)
+  fullName: Flame.Compiler.Transforms.Inlining.ShouldConsider(Flame.IMethod, Flame.IMethod)
+  nameWithType: Inlining.ShouldConsider(IMethod, IMethod)
+- uid: Flame.Compiler.Transforms.Inlining.ShouldConsider*
+  name: ShouldConsider
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ShouldConsider_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.ShouldConsider
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.ShouldConsider
+  nameWithType: Inlining.ShouldConsider
+- uid: Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)
+  name: ShouldInline(MethodBody, IReadOnlyList<ValueTag>, FlowGraph)
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ShouldInline_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)
+  name.vb: ShouldInline(MethodBody, IReadOnlyList(Of ValueTag), FlowGraph)
+  fullName: Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody, System.Collections.Generic.IReadOnlyList<Flame.Compiler.ValueTag>, Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.ValueTag), Flame.Compiler.FlowGraph)
+  nameWithType: Inlining.ShouldInline(MethodBody, IReadOnlyList<ValueTag>, FlowGraph)
+  nameWithType.vb: Inlining.ShouldInline(MethodBody, IReadOnlyList(Of ValueTag), FlowGraph)
+- uid: Flame.Compiler.Transforms.Inlining.ShouldInline*
+  name: ShouldInline
+  href: api/Flame.Compiler.Transforms.Inlining.html#Flame_Compiler_Transforms_Inlining_ShouldInline_
+  commentId: Overload:Flame.Compiler.Transforms.Inlining.ShouldInline
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.Inlining.ShouldInline
+  nameWithType: Inlining.ShouldInline
 - uid: Flame.Compiler.Transforms.InstructionSimplification
   name: InstructionSimplification
   href: api/Flame.Compiler.Transforms.InstructionSimplification.html
@@ -23469,6 +23620,12 @@ references:
   commentId: M:Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.IType)
   fullName: Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.IType)
   nameWithType: TypeExtensions.GetDefiningAssemblyOrNull(IType)
+- uid: Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.ITypeMember)
+  name: GetDefiningAssemblyOrNull(ITypeMember)
+  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetDefiningAssemblyOrNull_Flame_ITypeMember_
+  commentId: M:Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.ITypeMember)
+  fullName: Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.ITypeMember)
+  nameWithType: TypeExtensions.GetDefiningAssemblyOrNull(ITypeMember)
 - uid: Flame.TypeExtensions.GetDefiningAssemblyOrNull*
   name: GetDefiningAssemblyOrNull
   href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetDefiningAssemblyOrNull_
