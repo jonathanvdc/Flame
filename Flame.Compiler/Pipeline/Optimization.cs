@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Flame.Compiler.Pipeline
@@ -80,6 +83,33 @@ namespace Flame.Compiler.Pipeline
         public Task<MethodBody> GetBodyAsync(IMethod method)
         {
             return Optimizer.GetBodyAsync(method, this.Method);
+        }
+
+        /// <summary>
+        /// Asynchronously requests a series of method bodies. The requests may
+        /// execute concurrently.
+        /// </summary>
+        /// <param name="methods">The methods whose method bodies are requested.</param>
+        /// <returns>
+        /// A mapping of all unique methods in <paramref name="methods"/> to their bodies.
+        /// </returns>
+        public async Task<IReadOnlyDictionary<IMethod, MethodBody>> GetBodiesAsync(
+            IEnumerable<IMethod> methods)
+        {
+            var methodArray = methods.Distinct().ToArray();
+            var taskArray = new Task<MethodBody>[methodArray.Length];
+            for (int i = 0; i < methodArray.Length; i++)
+            {
+                var method = methodArray[i];
+                taskArray[i] = Task.Run(() => GetBodyAsync(method));
+            }
+            var bodyArray = await Task.WhenAll(taskArray);
+            var mapping = new Dictionary<IMethod, MethodBody>();
+            for (int i = 0; i < bodyArray.Length; i++)
+            {
+                mapping[methodArray[i]] = bodyArray[i];
+            }
+            return mapping;
         }
     }
 }
