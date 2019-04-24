@@ -14,12 +14,11 @@ namespace Flame.Compiler.Analysis
         /// Creates an empty macro analysis cache.
         /// </summary>
         public MacroAnalysisCache()
-        {
-            this.distinctCaches = new List<FlowGraphAnalysisCache>();
-            this.cacheIndices = ImmutableDictionary.Create<Type, int>();
-            this.cacheRefCounts = ImmutableDictionary.Create<int, int>();
-            this.updateLock = new ReaderWriterLockSlim();
-        }
+            : this(
+                new List<FlowGraphAnalysisCache>(),
+                ImmutableDictionary.Create<Type, int>(),
+                ImmutableDictionary.Create<int, int>())
+        { }
 
         private MacroAnalysisCache(
             List<FlowGraphAnalysisCache> distinctCaches,
@@ -29,7 +28,7 @@ namespace Flame.Compiler.Analysis
             this.distinctCaches = distinctCaches;
             this.cacheIndices = cacheIndices;
             this.cacheRefCounts = cacheRefCounts;
-            this.updateLock = new ReaderWriterLockSlim();
+            this.updateLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         }
 
         /// <summary>
