@@ -13,6 +13,19 @@ namespace Flame.Compiler.Transforms
     /// </summary>
     public class Inlining : Optimization
     {
+        /// <summary>
+        /// Creates an instance of the inlining optimization.
+        /// </summary>
+        protected Inlining()
+        { }
+
+        /// <summary>
+        /// An instance of the inlining transformation.
+        /// </summary>
+        /// <value>A call-inlining transform.</value>
+        public static readonly Inlining Instance
+            = new Inlining();
+
         /// <inheritdoc/>
         public override bool IsCheckpoint => false;
 
@@ -28,7 +41,7 @@ namespace Flame.Compiler.Transforms
             {
                 IMethod callee;
                 if (TryGetCallee(instruction, out callee)
-                    && (InlineRecursiveCalls || callee.GetRecursiveGenericDeclaration() != state.Method))
+                    && ShouldConsider(callee, state.Method))
                 {
                     candidates[instruction] = callee;
                 }
@@ -74,12 +87,44 @@ namespace Flame.Compiler.Transforms
         // override them.
 
         /// <summary>
-        /// Determines if recursive calls are candidates for inlining.
+        /// Tells if a method should be considered for inlining.
         /// </summary>
+        /// <param name="callee">A method that might be inlined.</param>
+        /// <param name="caller">
+        /// A method that calls <paramref name="callee"/>; it's not sure if it
+        /// should consider inlining <paramref name="callee"/>.
+        /// </param>
         /// <returns>
-        /// <c>true</c> if recursive calls may be inlined; otherwise, <c>false</c>.
+        /// <c>true</c> if inlining may proceed; otherwise, <c>false</c>.
         /// </returns>
-        protected virtual bool InlineRecursiveCalls => false;
+        protected virtual bool ShouldConsider(IMethod callee, IMethod caller)
+        {
+            // Don't inline recursive calls. We have the infrastructure to do
+            // so, but inlining recursive calls if often pointless.
+            callee = callee.GetRecursiveGenericDeclaration();
+            if (callee == caller)
+            {
+                return false;
+            }
+
+            // By default, we don't want to inline methods across assemblies
+            // because doing so anyway introduces dependencies on implementation
+            // details in external dependencies that may be notice to change.
+            var calleeAsm = callee.GetDefiningAssemblyOrNull();
+            if (calleeAsm == null)
+            {
+                return true;
+            }
+            var callerAsm = caller.GetDefiningAssemblyOrNull();
+            if (callerAsm == null)
+            {
+                return true;
+            }
+            else
+            {
+                return calleeAsm == callerAsm;
+            }
+        }
 
         /// <summary>
         /// Determines if a method body can be inlined, that is, if invalid

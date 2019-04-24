@@ -32,19 +32,31 @@ namespace Flame
             }
             else if (parent.IsMethod)
             {
-                var grandparent = parent.Method.ParentType;
-                if (grandparent == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return grandparent.GetDefiningAssemblyOrNull();
-                }
+                return parent.Method.GetDefiningAssemblyOrNull();
             }
             else
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets a type member's defining assembly, if one can be found.
+        /// </summary>
+        /// <param name="member">The type member to examine.</param>
+        /// <returns>
+        /// The type member's defining assembly, if it has one; otherwise, <c>null</c>.
+        /// </returns>
+        public static IAssembly GetDefiningAssemblyOrNull(this ITypeMember member)
+        {
+            var parent = member.ParentType;
+            if (parent == null)
+            {
+                return null;
+            }
+            else
+            {
+                return parent.GetDefiningAssemblyOrNull();
             }
         }
 
