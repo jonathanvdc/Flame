@@ -17976,12 +17976,6 @@ references:
   commentId: T:Flame.Compiler.Transforms.PartialScalarReplacement
   fullName: Flame.Compiler.Transforms.PartialScalarReplacement
   nameWithType: PartialScalarReplacement
-- uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor
-  name: PartialScalarReplacement()
-  href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor
-  commentId: M:Flame.Compiler.Transforms.PartialScalarReplacement.#ctor
-  fullName: Flame.Compiler.Transforms.PartialScalarReplacement.PartialScalarReplacement()
-  nameWithType: PartialScalarReplacement.PartialScalarReplacement()
 - uid: Flame.Compiler.Transforms.PartialScalarReplacement.#ctor(System.Func{Flame.IType,System.Boolean})
   name: PartialScalarReplacement(Func<IType, Boolean>)
   href: api/Flame.Compiler.Transforms.PartialScalarReplacement.html#Flame_Compiler_Transforms_PartialScalarReplacement__ctor_System_Func_Flame_IType_System_Boolean__
@@ -23469,6 +23463,19 @@ references:
   commentId: T:Flame.TypeExtensions
   fullName: Flame.TypeExtensions
   nameWithType: TypeExtensions
+- uid: Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.IType)
+  name: GetDefiningAssemblyOrNull(IType)
+  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetDefiningAssemblyOrNull_Flame_IType_
+  commentId: M:Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.IType)
+  fullName: Flame.TypeExtensions.GetDefiningAssemblyOrNull(Flame.IType)
+  nameWithType: TypeExtensions.GetDefiningAssemblyOrNull(IType)
+- uid: Flame.TypeExtensions.GetDefiningAssemblyOrNull*
+  name: GetDefiningAssemblyOrNull
+  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetDefiningAssemblyOrNull_
+  commentId: Overload:Flame.TypeExtensions.GetDefiningAssemblyOrNull
+  isSpec: "True"
+  fullName: Flame.TypeExtensions.GetDefiningAssemblyOrNull
+  nameWithType: TypeExtensions.GetDefiningAssemblyOrNull
 - uid: Flame.TypeExtensions.GetGenericArguments(Flame.IMethod)
   name: GetGenericArguments(IMethod)
   href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetGenericArguments_Flame_IMethod_
@@ -23942,12 +23949,12 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.AccessModifierAttribute.Create
   nameWithType: AccessModifierAttribute.Create
-- uid: Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IType)
-  name: GetAccessModifier(IType)
-  href: api/Flame.TypeSystem.AccessModifierAttribute.html#Flame_TypeSystem_AccessModifierAttribute_GetAccessModifier_Flame_IType_
-  commentId: M:Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IType)
-  fullName: Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IType)
-  nameWithType: AccessModifierAttribute.GetAccessModifier(IType)
+- uid: Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IMember)
+  name: GetAccessModifier(IMember)
+  href: api/Flame.TypeSystem.AccessModifierAttribute.html#Flame_TypeSystem_AccessModifierAttribute_GetAccessModifier_Flame_IMember_
+  commentId: M:Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IMember)
+  fullName: Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier(Flame.IMember)
+  nameWithType: AccessModifierAttribute.GetAccessModifier(IMember)
 - uid: Flame.TypeSystem.AccessModifierAttribute.GetAccessModifier*
   name: GetAccessModifier
   href: api/Flame.TypeSystem.AccessModifierAttribute.html#Flame_TypeSystem_AccessModifierAttribute_GetAccessModifier_
@@ -23968,6 +23975,43 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.AccessModifierAttribute.Read
   nameWithType: AccessModifierAttribute.Read
+- uid: Flame.TypeSystem.AccessRules
+  name: AccessRules
+  href: api/Flame.TypeSystem.AccessRules.html
+  commentId: T:Flame.TypeSystem.AccessRules
+  fullName: Flame.TypeSystem.AccessRules
+  nameWithType: AccessRules
+- uid: Flame.TypeSystem.AccessRules.CanAccess(Flame.IType,Flame.IType)
+  name: CanAccess(IType, IType)
+  href: api/Flame.TypeSystem.AccessRules.html#Flame_TypeSystem_AccessRules_CanAccess_Flame_IType_Flame_IType_
+  commentId: M:Flame.TypeSystem.AccessRules.CanAccess(Flame.IType,Flame.IType)
+  fullName: Flame.TypeSystem.AccessRules.CanAccess(Flame.IType, Flame.IType)
+  nameWithType: AccessRules.CanAccess(IType, IType)
+- uid: Flame.TypeSystem.AccessRules.CanAccess(Flame.IType,Flame.ITypeMember)
+  name: CanAccess(IType, ITypeMember)
+  href: api/Flame.TypeSystem.AccessRules.html#Flame_TypeSystem_AccessRules_CanAccess_Flame_IType_Flame_ITypeMember_
+  commentId: M:Flame.TypeSystem.AccessRules.CanAccess(Flame.IType,Flame.ITypeMember)
+  fullName: Flame.TypeSystem.AccessRules.CanAccess(Flame.IType, Flame.ITypeMember)
+  nameWithType: AccessRules.CanAccess(IType, ITypeMember)
+- uid: Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember,Flame.IType)
+  name: CanAccess(ITypeMember, IType)
+  href: api/Flame.TypeSystem.AccessRules.html#Flame_TypeSystem_AccessRules_CanAccess_Flame_ITypeMember_Flame_IType_
+  commentId: M:Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember,Flame.IType)
+  fullName: Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember, Flame.IType)
+  nameWithType: AccessRules.CanAccess(ITypeMember, IType)
+- uid: Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember,Flame.ITypeMember)
+  name: CanAccess(ITypeMember, ITypeMember)
+  href: api/Flame.TypeSystem.AccessRules.html#Flame_TypeSystem_AccessRules_CanAccess_Flame_ITypeMember_Flame_ITypeMember_
+  commentId: M:Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember,Flame.ITypeMember)
+  fullName: Flame.TypeSystem.AccessRules.CanAccess(Flame.ITypeMember, Flame.ITypeMember)
+  nameWithType: AccessRules.CanAccess(ITypeMember, ITypeMember)
+- uid: Flame.TypeSystem.AccessRules.CanAccess*
+  name: CanAccess
+  href: api/Flame.TypeSystem.AccessRules.html#Flame_TypeSystem_AccessRules_CanAccess_
+  commentId: Overload:Flame.TypeSystem.AccessRules.CanAccess
+  isSpec: "True"
+  fullName: Flame.TypeSystem.AccessRules.CanAccess
+  nameWithType: AccessRules.CanAccess
 - uid: Flame.TypeSystem.AssemblyResolver
   name: AssemblyResolver
   href: api/Flame.TypeSystem.AssemblyResolver.html
@@ -26778,6 +26822,79 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.ReadOnlyTypeResolver.WithAssembly
   nameWithType: ReadOnlyTypeResolver.WithAssembly
+- uid: Flame.TypeSystem.StandardAccessRules
+  name: StandardAccessRules
+  href: api/Flame.TypeSystem.StandardAccessRules.html
+  commentId: T:Flame.TypeSystem.StandardAccessRules
+  fullName: Flame.TypeSystem.StandardAccessRules
+  nameWithType: StandardAccessRules
+- uid: Flame.TypeSystem.StandardAccessRules.#ctor(Flame.TypeSystem.SubtypingRules)
+  name: StandardAccessRules(SubtypingRules)
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules__ctor_Flame_TypeSystem_SubtypingRules_
+  commentId: M:Flame.TypeSystem.StandardAccessRules.#ctor(Flame.TypeSystem.SubtypingRules)
+  fullName: Flame.TypeSystem.StandardAccessRules.StandardAccessRules(Flame.TypeSystem.SubtypingRules)
+  nameWithType: StandardAccessRules.StandardAccessRules(SubtypingRules)
+- uid: Flame.TypeSystem.StandardAccessRules.#ctor(Flame.TypeSystem.SubtypingRules,System.Func{Flame.IMember,Flame.IType,System.Boolean})
+  name: StandardAccessRules(SubtypingRules, Func<IMember, IType, Boolean>)
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules__ctor_Flame_TypeSystem_SubtypingRules_System_Func_Flame_IMember_Flame_IType_System_Boolean__
+  commentId: M:Flame.TypeSystem.StandardAccessRules.#ctor(Flame.TypeSystem.SubtypingRules,System.Func{Flame.IMember,Flame.IType,System.Boolean})
+  name.vb: StandardAccessRules(SubtypingRules, Func(Of IMember, IType, Boolean))
+  fullName: Flame.TypeSystem.StandardAccessRules.StandardAccessRules(Flame.TypeSystem.SubtypingRules, System.Func<Flame.IMember, Flame.IType, System.Boolean>)
+  fullName.vb: Flame.TypeSystem.StandardAccessRules.StandardAccessRules(Flame.TypeSystem.SubtypingRules, System.Func(Of Flame.IMember, Flame.IType, System.Boolean))
+  nameWithType: StandardAccessRules.StandardAccessRules(SubtypingRules, Func<IMember, IType, Boolean>)
+  nameWithType.vb: StandardAccessRules.StandardAccessRules(SubtypingRules, Func(Of IMember, IType, Boolean))
+- uid: Flame.TypeSystem.StandardAccessRules.#ctor*
+  name: StandardAccessRules
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules__ctor_
+  commentId: Overload:Flame.TypeSystem.StandardAccessRules.#ctor
+  isSpec: "True"
+  fullName: Flame.TypeSystem.StandardAccessRules.StandardAccessRules
+  nameWithType: StandardAccessRules.StandardAccessRules
+- uid: Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType,Flame.IType)
+  name: CanAccess(IType, IType)
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_CanAccess_Flame_IType_Flame_IType_
+  commentId: M:Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType,Flame.IType)
+  fullName: Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType, Flame.IType)
+  nameWithType: StandardAccessRules.CanAccess(IType, IType)
+- uid: Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType,Flame.ITypeMember)
+  name: CanAccess(IType, ITypeMember)
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_CanAccess_Flame_IType_Flame_ITypeMember_
+  commentId: M:Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType,Flame.ITypeMember)
+  fullName: Flame.TypeSystem.StandardAccessRules.CanAccess(Flame.IType, Flame.ITypeMember)
+  nameWithType: StandardAccessRules.CanAccess(IType, ITypeMember)
+- uid: Flame.TypeSystem.StandardAccessRules.CanAccess*
+  name: CanAccess
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_CanAccess_
+  commentId: Overload:Flame.TypeSystem.StandardAccessRules.CanAccess
+  isSpec: "True"
+  fullName: Flame.TypeSystem.StandardAccessRules.CanAccess
+  nameWithType: StandardAccessRules.CanAccess
+- uid: Flame.TypeSystem.StandardAccessRules.IsExportedTo
+  name: IsExportedTo
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_IsExportedTo
+  commentId: P:Flame.TypeSystem.StandardAccessRules.IsExportedTo
+  fullName: Flame.TypeSystem.StandardAccessRules.IsExportedTo
+  nameWithType: StandardAccessRules.IsExportedTo
+- uid: Flame.TypeSystem.StandardAccessRules.IsExportedTo*
+  name: IsExportedTo
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_IsExportedTo_
+  commentId: Overload:Flame.TypeSystem.StandardAccessRules.IsExportedTo
+  isSpec: "True"
+  fullName: Flame.TypeSystem.StandardAccessRules.IsExportedTo
+  nameWithType: StandardAccessRules.IsExportedTo
+- uid: Flame.TypeSystem.StandardAccessRules.Subtyping
+  name: Subtyping
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_Subtyping
+  commentId: P:Flame.TypeSystem.StandardAccessRules.Subtyping
+  fullName: Flame.TypeSystem.StandardAccessRules.Subtyping
+  nameWithType: StandardAccessRules.Subtyping
+- uid: Flame.TypeSystem.StandardAccessRules.Subtyping*
+  name: Subtyping
+  href: api/Flame.TypeSystem.StandardAccessRules.html#Flame_TypeSystem_StandardAccessRules_Subtyping_
+  commentId: Overload:Flame.TypeSystem.StandardAccessRules.Subtyping
+  isSpec: "True"
+  fullName: Flame.TypeSystem.StandardAccessRules.Subtyping
+  nameWithType: StandardAccessRules.Subtyping
 - uid: Flame.TypeSystem.SubtypingRules
   name: SubtypingRules
   href: api/Flame.TypeSystem.SubtypingRules.html
