@@ -13,6 +13,42 @@ namespace Flame
     public static class TypeExtensions
     {
         /// <summary>
+        /// Gets a type's defining assembly, if one can be found.
+        /// </summary>
+        /// <param name="type">The type to examine.</param>
+        /// <returns>
+        /// The type's defining assembly, if it has one; otherwise, <c>null</c>.
+        /// </returns>
+        public static IAssembly GetDefiningAssemblyOrNull(this IType type)
+        {
+            var parent = type.Parent;
+            if (parent.IsAssembly)
+            {
+                return parent.Assembly;
+            }
+            else if (parent.IsType)
+            {
+                return parent.Type.GetDefiningAssemblyOrNull();
+            }
+            else if (parent.IsMethod)
+            {
+                var grandparent = parent.Method.ParentType;
+                if (grandparent == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return grandparent.GetDefiningAssemblyOrNull();
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Tests if a type is a pointer type.
         /// </summary>
         /// <param name="type">The type to inspect.</param>
