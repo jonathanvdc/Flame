@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Analysis
 {
@@ -27,6 +28,10 @@ namespace Flame.Compiler.Analysis
             Register(DominatorTreeAnalysis.Instance);
             Register(new ConstantAnalysis<TrivialAliasAnalysisResult>(TrivialAliasAnalysisResult.Instance));
             Register(LocalMemorySSAAnalysis.Instance);
+            Register(graph =>
+                new ConstantAnalysis<AccessRules>(
+                    new StandardAccessRules(
+                        graph.GetAnalysisResult<SubtypingRules>())));
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;
