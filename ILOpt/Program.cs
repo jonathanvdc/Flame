@@ -147,7 +147,7 @@ namespace ILOpt
                 //   * Aggregates to scalars, scalars to registers.
                 //     Also throw in GVN.
                 DeadValueElimination.Instance,
-                ScalarReplacement.Instance,
+                PartialScalarReplacement.Instance,
                 GlobalValueNumbering.Instance,
                 CopyPropagation.Instance,
                 DeadValueElimination.Instance,
@@ -156,6 +156,7 @@ namespace ILOpt
                 //   * Optimize control flow.
                 InstructionSimplification.Instance,
                 new ConstantPropagation(),
+                MemoryAccessElimination.Instance,
                 DeadValueElimination.Instance,
                 new JumpThreading(true),
                 SwitchSimplification.Instance,
