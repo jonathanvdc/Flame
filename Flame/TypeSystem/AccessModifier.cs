@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Constants;
 
 namespace Flame.TypeSystem
@@ -264,7 +265,13 @@ namespace Flame.TypeSystem
         /// <inheritdoc/>
         public override bool CanAccess(IType accessor, ITypeMember accessed)
         {
-            accessor = accessor.GetRecursiveGenericDeclaration();
+            if (accessed is MethodSpecialization)
+            {
+                var methodSpecialization = (MethodSpecialization)accessed;
+                return CanAccess(accessor, methodSpecialization.Declaration)
+                    && methodSpecialization.GetRecursiveGenericArgumentMapping()
+                        .Values.All(arg => CanAccess(accessor, arg));
+            }
 
             var parent = accessed.ParentType;
             if (parent == null)
@@ -282,7 +289,16 @@ namespace Flame.TypeSystem
         public override bool CanAccess(IType accessor, IType accessed)
         {
             accessor = accessor.GetRecursiveGenericDeclaration();
-            accessed = accessed.GetRecursiveGenericDeclaration();
+
+            if (accessed is TypeSpecialization)
+            {
+                return CanAccess(accessor, accessed.GetRecursiveGenericDeclaration())
+                    && accessed.GetRecursiveGenericArguments().All(arg => CanAccess(accessor, arg));
+            }
+            else if (accessed is PointerType)
+            {
+                return CanAccess(accessor, ((PointerType)accessed).ElementType);
+            }
 
             if (accessor == accessed)
             {
