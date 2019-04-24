@@ -41,12 +41,42 @@ namespace Flame.Compiler
             MethodBody body);
 
         /// <summary>
-        /// Applies a member mapping to this instruction
-        /// prototype.
+        /// Applies a member mapping to this instruction prototype.
         /// </summary>
         /// <param name="mapping">A member mapping.</param>
         /// <returns>A transformed instruction prototype.</returns>
         public abstract InstructionPrototype Map(MemberMapping mapping);
+
+        /// <summary>
+        /// Collects all members that appear in this instruction prototype.
+        /// </summary>
+        /// <value>A sequence of members.</value>
+        public IEnumerable<IMember> Members
+        {
+            get
+            {
+                var results = new List<IMember>();
+                results.Add(ResultType);
+                Map(
+                    new MemberMapping(
+                        type =>
+                        {
+                            results.Add(type);
+                            return type;
+                        },
+                        method =>
+                        {
+                            results.Add(method);
+                            return method;
+                        },
+                        field =>
+                        {
+                            results.Add(field);
+                            return field;
+                        }));
+                return results;
+            }
+        }
 
         /// <summary>
         /// Instantiates this prototype with a list of arguments.
