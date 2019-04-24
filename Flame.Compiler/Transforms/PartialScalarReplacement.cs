@@ -55,7 +55,8 @@ namespace Flame.Compiler.Transforms
                         !type.IsPointerType()
                         && !type.IsSpecialType()
                         && !(type is IGenericParameter)
-                        && GetAllFields(type).All(field => rules.CanAccess(method, field)));
+                        && ScalarReplacement.GetAllFields(type)
+                            .All(field => rules.CanAccess(method, field)));
 
                 return Task.FromResult(body.WithImplementation(pass.Apply(body.Implementation)));
             }
@@ -74,7 +75,7 @@ namespace Flame.Compiler.Transforms
 
             var analysisResults = new MaterializationAnalysis().Analyze(graph);
             DelayMaterialization(builder, analysisResults.BlockResults);
-            builder.Transform(ScalarReplacement.Instance);
+            builder.Transform(new ScalarReplacement(CanReplaceByScalars));
 
             return builder.ToImmutable();
         }
@@ -144,7 +145,7 @@ namespace Flame.Compiler.Transforms
                         }
 
                         // Materialize the value by performing a fieldwise copy.
-                        foreach (var field in GetAllFields(elementType))
+                        foreach (var field in ScalarReplacement.GetAllFields(elementType).Reverse())
                         {
                             var dematerializedGFP = materializationBlock.InsertInstruction(
                                 0,
@@ -211,13 +212,6 @@ namespace Flame.Compiler.Transforms
                     yield return value;
                 }
             }
-        }
-
-        private static IEnumerable<IField> GetAllFields(IType elementType)
-        {
-            return elementType.BaseTypes
-                .SelectMany(GetAllFields)
-                .Concat(elementType.Fields.Where(field => !field.IsStatic));
         }
 
         private static ValueTag UnfoldAliases(ValueTag value, FlowGraph graph)

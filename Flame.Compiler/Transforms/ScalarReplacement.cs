@@ -1,6 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Instructions;
+using Flame.Compiler.Pipeline;
 using Flame.Constants;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Transforms
 {
@@ -11,14 +17,51 @@ namespace Flame.Compiler.Transforms
     /// </summary>
     public sealed class ScalarReplacement : IntraproceduralOptimization
     {
-        private ScalarReplacement()
+        /// <summary>
+        /// Creates a scalar replacement of aggregates pass.
+        /// </summary>
+        /// <param name="canAccessFields">
+        /// A predicate that tells if all fields in a type can be
+        /// accessed for the purpose of scalar replacement.
+        /// </param>
+        public ScalarReplacement(Func<IType, bool> canAccessFields)
         {
+            this.CanAccessFields = canAccessFields;
         }
+
+        /// <summary>
+        /// Tells if all fields in a type can be accessed for the purpose
+        /// of scalar replacement.
+        /// </summary>
+        /// <value>A predicate.</value>
+        public Func<IType, bool> CanAccessFields { get; private set; }
 
         /// <summary>
         /// An instance of the scalar replacement transform.
         /// </summary>
-        public static readonly ScalarReplacement Instance = new ScalarReplacement();
+        public static readonly Optimization Instance = new AccessAwareScalarReplacement();
+
+        private sealed class AccessAwareScalarReplacement : Optimization
+        {
+            public override bool IsCheckpoint => false;
+
+            public override Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
+            {
+                var rules = body.Implementation.GetAnalysisResult<AccessRules>();
+                var method = state.Method;
+                var pass = new ScalarReplacement(
+                    type => GetAllFields(type).All(field => rules.CanAccess(method, field)));
+
+                return Task.FromResult(body.WithImplementation(pass.Apply(body.Implementation)));
+            }
+        }
+
+        internal static IEnumerable<IField> GetAllFields(IType elementType)
+        {
+            return elementType.BaseTypes
+                .SelectMany(GetAllFields)
+                .Concat(elementType.Fields.Where(field => !field.IsStatic));
+        }
 
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
@@ -59,7 +102,7 @@ namespace Flame.Compiler.Transforms
                             replacements[basePointer][gfpProto.Field]);
                     }
                 }
-                else if (IsDefaultInitialization(instruction.ToImmutable()))
+                else if (IsDefaultInitialization(instruction.Instruction, graph))
                 {
                     var storeProto = (StorePrototype)proto;
                     var pointer = storeProto.GetPointer(instruction.Instruction);
@@ -88,12 +131,163 @@ namespace Flame.Compiler.Transforms
                             storeProto.GetValue(instruction.Instruction));
                     }
                 }
+                else if (proto is StorePrototype)
+                {
+                    var storeProto = (StorePrototype)proto;
+                    var pointer = storeProto.GetPointer(instruction.Instruction);
+                    if (eligible.Contains(pointer))
+                    {
+                        RewriteStore(instruction, replacements);
+
+                        // Replace the store with a copy, in case someone is
+                        // using the value it returns.
+                        instruction.Instruction = Instruction.CreateCopy(
+                            instruction.Instruction.ResultType,
+                            storeProto.GetValue(instruction.Instruction));
+                    }
+                }
+            }
+
+            var uses = builder.GetAnalysisResult<ValueUses>();
+            var killList = new HashSet<ValueTag>(eligible);
+
+            // In a second pass, also rewrite load instructions. It is crucial
+            // that they are handled *after* stores are handled, because the
+            // lowering for stores is a whole lot better if we don't lower the
+            // load to something convoluted first.
+            foreach (var instruction in builder.NamedInstructions)
+            {
+                var proto = instruction.Prototype;
+                if (proto is LoadPrototype)
+                {
+                    if (uses.GetUseCount(instruction) == 0)
+                    {
+                        // Delete dead load. Loads may die during the loop above; we
+                        // don't want to create lots of garbage code.
+                        killList.Add(instruction);
+                        continue;
+                    }
+
+                    var loadProto = (LoadPrototype)proto;
+                    var pointer = loadProto.GetPointer(instruction.Instruction);
+                    if (eligible.Contains(pointer))
+                    {
+                        // Looks like we're going to have to materialize a scalarrepl'ed
+                        // value. Create a temporary, fill it, and load it.
+                        var temporary = instruction.Graph.EntryPoint.InsertInstruction(
+                            0,
+                            Instruction.CreateAlloca(loadProto.ResultType));
+
+                        var insertionPoint = instruction;
+                        foreach (var pair in replacements[pointer].Reverse())
+                        {
+                            // Copy each field as follows:
+                            //
+                            //     val = load(field_type)(field_replacement);
+                            //     field_ptr = get_field_pointer(field)(temp);
+                            //     _ = store(field_ptr, val);
+                            //
+
+                            var value = insertionPoint.InsertBefore(
+                                Instruction.CreateLoad(pair.Key.FieldType, pair.Value));
+
+                            var fieldPointer = value.InsertAfter(
+                                Instruction.CreateGetFieldPointer(pair.Key, temporary));
+
+                            insertionPoint = fieldPointer.InsertAfter(
+                                Instruction.CreateStore(pair.Key.FieldType, fieldPointer, value));
+                        }
+
+                        instruction.Instruction = loadProto.Instantiate(temporary);
+                    }
+                }
             }
 
             // Delete the replaced allocas.
-            builder.RemoveInstructionDefinitions(eligible);
+            builder.RemoveInstructionDefinitions(killList);
 
             return builder.ToImmutable();
+        }
+
+        private static void RewriteStore(
+            NamedInstructionBuilder instruction,
+            Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements)
+        {
+            var storeProto = (StorePrototype)instruction.Prototype;
+            var pointer = storeProto.GetPointer(instruction.Instruction);
+            var value = storeProto.GetValue(instruction.Instruction);
+
+            NamedInstructionBuilder valueInstruction;
+            if (instruction.Graph.TryGetInstruction(value, out valueInstruction)
+                && valueInstruction.Prototype is LoadPrototype)
+            {
+                var loadPointer = valueInstruction.Arguments[0];
+                if (replacements.ContainsKey(loadPointer))
+                {
+                    foreach (var pair in replacements[pointer])
+                    {
+                        // Copy each field as follows:
+                        //
+                        //     val = load(field_type)(field_replacement_1);
+                        //     _ = store(field_replacement_2, val);
+                        //
+                        var fieldValue = instruction.InsertAfter(
+                            Instruction.CreateLoad(pair.Key.FieldType, replacements[loadPointer][pair.Key]));
+
+                        fieldValue.InsertAfter(
+                            Instruction.CreateStore(
+                                pair.Key.FieldType,
+                                pair.Value,
+                                fieldValue));
+                    }
+                }
+                else
+                {
+                    CreateFieldwiseCopy(instruction, replacements, pointer, loadPointer);
+                }
+            }
+            else
+            {
+                // If we're *not* dealing with a pointer-to-pointer copy, then things
+                // are going to get ugly: we'll need to store the value in a temporary
+                // and then perform a fieldwise copy from that temporary.
+                var temporary = instruction.Graph.EntryPoint.InsertInstruction(
+                    0,
+                    Instruction.CreateAlloca(storeProto.ResultType));
+
+                var tempStore = instruction.InsertAfter(
+                    storeProto.Instantiate(temporary, value));
+
+                CreateFieldwiseCopy(tempStore, replacements, pointer, tempStore);
+            }
+        }
+
+        private static void CreateFieldwiseCopy(
+            NamedInstructionBuilder insertionPoint,
+            Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements,
+            ValueTag destinationPointer,
+            ValueTag sourcePointer)
+        {
+            foreach (var pair in replacements[destinationPointer])
+            {
+                // Copy each field as follows:
+                //
+                //     field_ptr = get_field_pointer(field)(load_ptr);
+                //     val = load(field_type)(field_ptr);
+                //     _ = store(field_replacement, val);
+                //
+                var fieldPtr = insertionPoint.InsertAfter(
+                    Instruction.CreateGetFieldPointer(pair.Key, sourcePointer));
+
+                var fieldValue = fieldPtr.InsertAfter(
+                    Instruction.CreateLoad(pair.Key.FieldType, fieldPtr));
+
+                fieldValue.InsertAfter(
+                    Instruction.CreateStore(
+                        pair.Key.FieldType,
+                        pair.Value,
+                        fieldValue));
+            }
         }
 
         /// <summary>
@@ -102,7 +296,7 @@ namespace Flame.Compiler.Transforms
         /// </summary>
         /// <param name="graph">The flow graph to analyze.</param>
         /// <returns>A set of eligible values.</returns>
-        private static HashSet<ValueTag> FindEligibleAllocas(FlowGraph graph)
+        private HashSet<ValueTag> FindEligibleAllocas(FlowGraph graph)
         {
             var allocas = new HashSet<ValueTag>();
             var ineligible = new HashSet<ValueTag>();
@@ -110,22 +304,37 @@ namespace Flame.Compiler.Transforms
 
             // Allocas are eligible if they are only used as the pointer
             // argument of GetFieldPointer instructions and default-initializing
-            // store instructions.
+            // store instructions. Loads and stores are also fine if we
+            // can access fields.
             foreach (var instruction in graph.NamedInstructions)
             {
                 var proto = instruction.Prototype;
                 if (proto is AllocaPrototype)
                 {
                     allocas.Add(instruction);
+                    continue;
                 }
                 else if (proto is GetFieldPointerPrototype)
                 {
                     maybeEligible.Add(instruction.Instruction.Arguments[0]);
+                    continue;
                 }
-                else if (!IsDefaultInitialization(instruction))
+                else if (proto is LoadPrototype)
                 {
-                    ineligible.UnionWith(instruction.Instruction.Arguments);
+                    if (CanAccessFields(instruction.ResultType))
+                    {
+                        continue;
+                    }
                 }
+                else if (proto is StorePrototype)
+                {
+                    if (IsDefaultInitialization(instruction.Instruction, graph)
+                        || CanAccessFields(instruction.ResultType))
+                    {
+                        continue;
+                    }
+                }
+                ineligible.UnionWith(instruction.Instruction.Arguments);
             }
 
             // Anything related to flow is considered ineligible.
@@ -153,14 +362,13 @@ namespace Flame.Compiler.Transforms
             return allocas;
         }
 
-        private static bool IsDefaultInitialization(NamedInstruction instruction)
+        private static bool IsDefaultInitialization(Instruction instruction, FlowGraph graph)
         {
             var proto = instruction.Prototype;
             if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
-                var value = storeProto.GetValue(instruction.Instruction);
-                var graph = instruction.Block.Graph;
+                var value = storeProto.GetValue(instruction);
                 if (graph.ContainsInstruction(value))
                 {
                     var valueProto = graph.GetInstruction(value).Prototype
