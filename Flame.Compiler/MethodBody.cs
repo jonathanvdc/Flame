@@ -77,7 +77,9 @@ namespace Flame.Compiler
         public MethodBody Map(MemberMapping memberMapping)
         {
             var newRetParam = ReturnParameter.Map(memberMapping);
-            var newThisParam = ThisParameter.Map(memberMapping);
+            var newThisParam = ThisParameter.Type == null
+                ? ThisParameter
+                : ThisParameter.Map(memberMapping);
             var newParamList = Parameter.MapAll(Parameters, memberMapping);
             var newImpl = Implementation.Map(memberMapping);
             return new MethodBody(newRetParam, newThisParam, newParamList, newImpl);
