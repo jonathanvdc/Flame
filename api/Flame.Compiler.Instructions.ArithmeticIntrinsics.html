@@ -436,20 +436,19 @@ arithmetic intrinsic name.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Constant%7D%2CFlame.Constant%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_Compiler_Instructions_IntrinsicPrototype_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String%2CFlame.Compiler.Instructions.IntrinsicPrototype%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Constant%7D%2CFlame.Constant%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Instructions/ArithmeticIntrinsics.cs/#L166">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Instructions/ArithmeticIntrinsics.cs/#L164">View Source</a>
   </span>
   <a id="Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_" data-uid="Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate*"></a>
-  <h4 id="Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__" data-uid="Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)">TryEvaluate(String, IType, IReadOnlyList&lt;Constant&gt;, out Constant)</h4>
-  <div class="markdown level1 summary"><p>Tries to evaluate an application of a standard
-arithmetic operator.</p>
+  <h4 id="Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_Compiler_Instructions_IntrinsicPrototype_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__" data-uid="Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)">TryEvaluate(String, IntrinsicPrototype, IReadOnlyList&lt;Constant&gt;, out Constant)</h4>
+  <div class="markdown level1 summary"><p>Tries to evaluate an application of a standard arithmetic operator.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool TryEvaluate(string operatorName, IType resultType, IReadOnlyList&lt;Constant&gt; arguments, out Constant result)</code></pre>
+    <pre><code class="lang-csharp hljs">public static bool TryEvaluate(string operatorName, IntrinsicPrototype prototype, IReadOnlyList&lt;Constant&gt; arguments, out Constant result)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -468,9 +467,9 @@ arithmetic operator.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="Flame.IType.html">IType</a></td>
-        <td><span class="parametername">resultType</span></td>
-        <td><p>The result type of the operator.</p>
+        <td><a class="xref" href="Flame.Compiler.Instructions.IntrinsicPrototype.html">IntrinsicPrototype</a></td>
+        <td><span class="parametername">prototype</span></td>
+        <td><p>The full intrinsic prototype for the arithmetic operator.</p>
 </td>
       </tr>
       <tr>
@@ -482,8 +481,7 @@ arithmetic operator.</p>
       <tr>
         <td><a class="xref" href="Flame.Constant.html">Constant</a></td>
         <td><span class="parametername">result</span></td>
-        <td><p>The operator application's result, if it
-can be computed.</p>
+        <td><p>The operator application's result, if it can be computed.</p>
 </td>
       </tr>
     </tbody>
@@ -499,8 +497,8 @@ can be computed.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td><p><code>true</code> if the operator application can be
-evaluated; otherwise, <code>false</code>.</p>
+        <td><p><code>true</code> if the operator application can be evaluated; otherwise,
+<code>false</code>.</p>
 </td>
       </tr>
     </tbody>

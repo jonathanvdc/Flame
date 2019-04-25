@@ -13729,15 +13729,15 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.ParseArithmeticIntrinsicName
   nameWithType: ArithmeticIntrinsics.ParseArithmeticIntrinsicName
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
-  name: TryEvaluate(String, IType, IReadOnlyList<Constant>, out Constant)
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
-  name.vb: TryEvaluate(String, IType, IReadOnlyList(Of Constant), ByRef Constant)
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.Constant>, out Flame.Constant)
-  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.Constant), ByRef Flame.Constant)
-  nameWithType: ArithmeticIntrinsics.TryEvaluate(String, IType, IReadOnlyList<Constant>, out Constant)
-  nameWithType.vb: ArithmeticIntrinsics.TryEvaluate(String, IType, IReadOnlyList(Of Constant), ByRef Constant)
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
+  name: TryEvaluate(String, IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_Compiler_Instructions_IntrinsicPrototype_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
+  name.vb: TryEvaluate(String, IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList<Flame.Constant>, out Flame.Constant)
+  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList(Of Flame.Constant), ByRef Flame.Constant)
+  nameWithType: ArithmeticIntrinsics.TryEvaluate(String, IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
+  nameWithType.vb: ArithmeticIntrinsics.TryEvaluate(String, IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate*
   name: TryEvaluate
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_
