@@ -210,6 +210,7 @@ namespace ILOpt
 
                 //   * Inline direct method calls.
                 Inlining.Instance,
+                CopyPropagation.Instance,
 
                 //   * Aggregates to scalars, scalars to registers.
                 //     Also throw in GVN.
