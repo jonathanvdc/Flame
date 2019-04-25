@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -223,13 +224,53 @@ namespace Flame.Compiler.Transforms
             FlowGraph caller)
         {
             // Inline method bodies containing up to ten instructions/blocks.
-            // TODO: consider arguments. Instances where this is useful:
-            //   * Inlining a method that takes an `alloca` argument may result
-            //     in a level of memory indirection getting stripped away.
+            // TODO: be smarter about arguments:
             //   * Inlining a method that takes a more derived type as argument
             //     may result in a direct call getting turned into an indirect
             //     call.
-            return 10;
+            int gain = 10;
+            foreach (var arg in arguments)
+            {
+                NamedInstruction argInstruction;
+                if (caller.TryGetInstruction(arg, out argInstruction))
+                {
+                    if (argInstruction.Prototype is AllocaPrototype)
+                    {
+                        // Inlining a method that takes an `alloca` argument may result
+                        // in a level of memory indirection getting stripped away.
+                        gain += 4;
+                        continue;
+                    }
+                }
+
+                var type = caller.GetValueType(arg);
+
+                // Inlining means that we don't have to pass around big arguments.
+                // Encourage inlining methods that take hefty arguments.
+                gain += EstimateTypeSize(type) / 4;
+            }
+            gain += EstimateTypeSize(body.ReturnParameter.Type) / 4;
+            return gain;
+        }
+
+        private static int EstimateTypeSize(IType type)
+        {
+            var intSpec = type.GetIntegerSpecOrNull();
+            if (intSpec != null)
+            {
+                return intSpec.Size / 8;
+            }
+            else if (type is PointerType || type.IsSpecialType())
+            {
+                return 8;
+            }
+            else
+            {
+                return ScalarReplacement.GetAllFields(type)
+                    .Select(field => field.FieldType)
+                    .Select(EstimateTypeSize)
+                    .Sum();
+            }
         }
     }
 }
