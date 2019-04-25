@@ -198,7 +198,7 @@ namespace Flame.Compiler.Transforms
             return builder.ToImmutable();
         }
 
-        private static bool TryRewriteStore(
+        private bool TryRewriteStore(
             NamedInstructionBuilder instruction,
             Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements)
         {
@@ -239,6 +239,27 @@ namespace Flame.Compiler.Transforms
 
                     // Replace the store with a load, in case someone is
                     // using the value it returns.
+                    instruction.Instruction = Instruction.CreateLoad(
+                        instruction.Instruction.ResultType,
+                        pointer);
+                    return true;
+                }
+                else if (replacements.ContainsKey(loadPointer) && CanAccessFields(storeProto.ResultType))
+                {
+                    // We're not scalarrepl'ing the store's address, but we are scalarrepl'ing the store's
+                    // value. We could just leave this as-is and have the load lowering hash it out,
+                    // but we can generate better code by storing values directly into the destination.
+                    foreach (var pair in replacements[loadPointer])
+                    {
+                        var fieldValue = valueInstruction.InsertBefore(
+                            Instruction.CreateLoad(pair.Key.FieldType, pair.Value));
+
+                        var fieldPointer = instruction.InsertBefore(
+                            Instruction.CreateGetFieldPointer(pair.Key, pointer));
+
+                        instruction.InsertBefore(
+                            Instruction.CreateStore(pair.Key.FieldType, fieldPointer, fieldValue));
+                    }
                     instruction.Instruction = Instruction.CreateLoad(
                         instruction.Instruction.ResultType,
                         pointer);
