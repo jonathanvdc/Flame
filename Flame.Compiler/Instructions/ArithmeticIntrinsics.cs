@@ -143,29 +143,27 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Tries to evaluate an application of a standard
-        /// arithmetic operator.
+        /// Tries to evaluate an application of a standard arithmetic operator.
         /// </summary>
         /// <param name="operatorName">
         /// The name of the operator to evaluate.
         /// </param>
-        /// <param name="resultType">
-        /// The result type of the operator.
+        /// <param name="prototype">
+        /// The full intrinsic prototype for the arithmetic operator.
         /// </param>
         /// <param name="arguments">
         /// The operator application's arguments.
         /// </param>
         /// <param name="result">
-        /// The operator application's result, if it
-        /// can be computed.
+        /// The operator application's result, if it can be computed.
         /// </param>
         /// <returns>
-        /// <c>true</c> if the operator application can be
-        /// evaluated; otherwise, <c>false</c>.
+        /// <c>true</c> if the operator application can be evaluated; otherwise,
+        /// <c>false</c>.
         /// </returns>
         public static bool TryEvaluate(
             string operatorName,
-            IType resultType,
+            IntrinsicPrototype prototype,
             IReadOnlyList<Constant> arguments,
             out Constant result)
         {
@@ -173,11 +171,11 @@ namespace Flame.Compiler.Instructions
             {
                 var lhs = arguments[0];
                 var rhs = arguments[1];
-                if (resultType.IsIntegerType()
+                if (prototype.ResultType.IsIntegerType()
                     && lhs is IntegerConstant
                     && rhs is IntegerConstant)
                 {
-                    var resultSpec = resultType.GetIntegerSpecOrNull();
+                    var resultSpec = prototype.ResultType.GetIntegerSpecOrNull();
                     var intLhs = (IntegerConstant)lhs;
                     var intRhs = (IntegerConstant)rhs;
                     var maxIntSpec = UnionIntSpecs(
@@ -194,21 +192,49 @@ namespace Flame.Compiler.Instructions
                         return true;
                     }
                 }
+                else if (prototype.ResultType == prototype.ParameterTypes[0]
+                    && lhs is Float64Constant
+                    && rhs is Float64Constant)
+                {
+                    Func<double, double, double?> impl;
+                    if (doubleBinaryOps.TryGetValue(operatorName, out impl))
+                    {
+                        var maybeResult = impl(
+                            ((Float64Constant)lhs).Value,
+                            ((Float64Constant)rhs).Value);
+
+                        if (maybeResult.HasValue)
+                        {
+                            result = new Float64Constant(maybeResult.Value);
+                            return true;
+                        }
+                    }
+                }
             }
             else if (arguments.Count == 1)
             {
                 var operand = arguments[0];
                 if (operatorName == Operators.Convert
                     && operand is IntegerConstant
-                    && resultType.IsIntegerType())
+                    && prototype.ResultType.IsIntegerType())
                 {
-                    result = ((IntegerConstant)operand).Cast(resultType.GetIntegerSpecOrNull());
+                    result = ((IntegerConstant)operand).Cast(
+                        prototype.ResultType.GetIntegerSpecOrNull());
                     return true;
                 }
             }
             result = null;
             return false;
         }
+
+        private static Dictionary<string, Func<double, double, double?>> doubleBinaryOps =
+            new Dictionary<string, Func<double, double, double?>>()
+        {
+            { Operators.Add, (x, y) => x + y },
+            { Operators.Subtract, (x, y) => x - y },
+            { Operators.Multiply, (x, y) => x * y },
+            { Operators.Divide, (x, y) => y == 0.0 ? (double?)null : x / y }
+        };
 
         private static Dictionary<string, Func<IntegerConstant, IntegerConstant, IntegerConstant>> intBinaryOps =
             new Dictionary<string, Func<IntegerConstant, IntegerConstant, IntegerConstant>>()

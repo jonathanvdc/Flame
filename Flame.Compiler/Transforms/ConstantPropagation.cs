@@ -97,12 +97,14 @@ namespace Flame.Compiler.Transforms
                 string arithOp;
                 Constant result;
 
+                var intrinsicProto = (IntrinsicPrototype)prototype;
+
                 if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
-                    ((IntrinsicPrototype)prototype).Name,
+                    intrinsicProto.Name,
                     out arithOp)
                     && ArithmeticIntrinsics.TryEvaluate(
                         arithOp,
-                        prototype.ResultType,
+                        intrinsicProto,
                         arguments,
                         out result))
                 {
