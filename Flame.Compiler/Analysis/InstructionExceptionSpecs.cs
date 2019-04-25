@@ -82,7 +82,7 @@ namespace Flame.Compiler.Analysis
     /// An analysis that infers instruction specification specifications by refining
     /// the exception specifications for their prototypes.
     /// </summary>
-    public sealed class ReifiedInstructionExceptionAnalysis : IFlowGraphAnalysis<ExplicitInstructionExceptionSpecs>
+    public sealed class ReifiedInstructionExceptionAnalysis : IFlowGraphAnalysis<InstructionExceptionSpecs>
     {
         private ReifiedInstructionExceptionAnalysis()
         { }
@@ -95,7 +95,7 @@ namespace Flame.Compiler.Analysis
             = new ReifiedInstructionExceptionAnalysis();
 
         /// <inheritdoc/>
-        public ExplicitInstructionExceptionSpecs Analyze(FlowGraph graph)
+        public InstructionExceptionSpecs Analyze(FlowGraph graph)
         {
             var protoSpecs = graph.GetAnalysisResult<PrototypeExceptionSpecs>();
             var results = new Dictionary<Instruction, ExceptionSpecification>();
@@ -169,9 +169,9 @@ namespace Flame.Compiler.Analysis
         }
 
         /// <inheritdoc/>
-        public ExplicitInstructionExceptionSpecs AnalyzeWithUpdates(
+        public InstructionExceptionSpecs AnalyzeWithUpdates(
             FlowGraph graph,
-            ExplicitInstructionExceptionSpecs previousResult,
+            InstructionExceptionSpecs previousResult,
             IReadOnlyList<FlowGraphUpdate> updates)
         {
             return Analyze(graph);
