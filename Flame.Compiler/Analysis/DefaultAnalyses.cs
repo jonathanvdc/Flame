@@ -32,6 +32,9 @@ namespace Flame.Compiler.Analysis
                 new ConstantAnalysis<AccessRules>(
                     new StandardAccessRules(
                         graph.GetAnalysisResult<SubtypingRules>())));
+
+            Register(new ConstantAnalysis<PrototypeExceptionSpecs>(RuleBasedPrototypeExceptionSpecs.Default));
+            Register(ReifiedInstructionExceptionAnalysis.Instance);
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;
