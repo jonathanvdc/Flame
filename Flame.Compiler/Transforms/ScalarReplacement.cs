@@ -133,18 +133,7 @@ namespace Flame.Compiler.Transforms
                 }
                 else if (proto is StorePrototype)
                 {
-                    var storeProto = (StorePrototype)proto;
-                    var pointer = storeProto.GetPointer(instruction.Instruction);
-                    if (eligible.Contains(pointer))
-                    {
-                        RewriteStore(instruction, replacements);
-
-                        // Replace the store with a load, in case someone is
-                        // using the value it returns.
-                        instruction.Instruction = Instruction.CreateLoad(
-                            instruction.Instruction.ResultType,
-                            pointer);
-                    }
+                    TryRewriteStore(instruction, replacements);
                 }
             }
 
@@ -209,7 +198,7 @@ namespace Flame.Compiler.Transforms
             return builder.ToImmutable();
         }
 
-        private static void RewriteStore(
+        private static bool TryRewriteStore(
             NamedInstructionBuilder instruction,
             Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements)
         {
@@ -222,31 +211,45 @@ namespace Flame.Compiler.Transforms
                 && valueInstruction.Prototype is LoadPrototype)
             {
                 var loadPointer = valueInstruction.Arguments[0];
-                if (replacements.ContainsKey(loadPointer))
+                if (replacements.ContainsKey(pointer))
                 {
-                    foreach (var pair in replacements[pointer])
+                    if (replacements.ContainsKey(loadPointer))
                     {
-                        // Copy each field as follows:
-                        //
-                        //     val = load(field_type)(field_replacement_1);
-                        //     _ = store(field_replacement_2, val);
-                        //
-                        var fieldValue = instruction.InsertAfter(
-                            Instruction.CreateLoad(pair.Key.FieldType, replacements[loadPointer][pair.Key]));
+                        foreach (var pair in replacements[pointer].Reverse())
+                        {
+                            // Copy each field as follows:
+                            //
+                            //     val = load(field_type)(field_replacement_1);
+                            //     _ = store(field_replacement_2, val);
+                            //
+                            var fieldValue = valueInstruction.InsertAfter(
+                                Instruction.CreateLoad(pair.Key.FieldType, replacements[loadPointer][pair.Key]));
 
-                        fieldValue.InsertAfter(
-                            Instruction.CreateStore(
-                                pair.Key.FieldType,
-                                pair.Value,
-                                fieldValue));
+                            instruction.InsertAfter(
+                                Instruction.CreateStore(
+                                    pair.Key.FieldType,
+                                    pair.Value,
+                                    fieldValue));
+                        }
                     }
+                    else
+                    {
+                        CreateFieldwiseCopy(pointer, loadPointer, valueInstruction, instruction, replacements);
+                    }
+
+                    // Replace the store with a load, in case someone is
+                    // using the value it returns.
+                    instruction.Instruction = Instruction.CreateLoad(
+                        instruction.Instruction.ResultType,
+                        pointer);
+                    return true;
                 }
                 else
                 {
-                    CreateFieldwiseCopy(instruction, replacements, pointer, loadPointer);
+                    return false;
                 }
             }
-            else
+            else if (replacements.ContainsKey(pointer))
             {
                 // If we're *not* dealing with a pointer-to-pointer copy, then things
                 // are going to get ugly: we'll need to store the value in a temporary
@@ -259,17 +262,29 @@ namespace Flame.Compiler.Transforms
                 var tempStore = instruction.InsertAfter(
                     storeProto.Instantiate(temporary, value));
 
-                CreateFieldwiseCopy(tempStore, replacements, pointer, temporary);
+                CreateFieldwiseCopy(pointer, temporary, tempStore, tempStore, replacements);
+
+                // Replace the store with a load, in case someone is
+                // using the value it returns.
+                instruction.Instruction = Instruction.CreateLoad(
+                    instruction.Instruction.ResultType,
+                    pointer);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
         private static void CreateFieldwiseCopy(
-            NamedInstructionBuilder insertionPoint,
-            Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements,
             ValueTag destinationPointer,
-            ValueTag sourcePointer)
+            ValueTag sourcePointer,
+            NamedInstructionBuilder loadInsertionPoint,
+            NamedInstructionBuilder storeInsertionPoint,
+            Dictionary<ValueTag, Dictionary<IField, ValueTag>> replacements)
         {
-            foreach (var pair in replacements[destinationPointer])
+            foreach (var pair in replacements[destinationPointer].Reverse())
             {
                 // Copy each field as follows:
                 //
@@ -277,13 +292,17 @@ namespace Flame.Compiler.Transforms
                 //     val = load(field_type)(field_ptr);
                 //     _ = store(field_replacement, val);
                 //
-                var fieldPtr = insertionPoint.InsertAfter(
+                var fieldPtr = loadInsertionPoint.InsertAfter(
                     Instruction.CreateGetFieldPointer(pair.Key, sourcePointer));
 
                 var fieldValue = fieldPtr.InsertAfter(
                     Instruction.CreateLoad(pair.Key.FieldType, fieldPtr));
 
-                fieldValue.InsertAfter(
+                var storeInsert = storeInsertionPoint.Tag == loadInsertionPoint.Tag
+                    ? fieldValue
+                    : storeInsertionPoint;
+
+                storeInsert.InsertAfter(
                     Instruction.CreateStore(
                         pair.Key.FieldType,
                         pair.Value,
