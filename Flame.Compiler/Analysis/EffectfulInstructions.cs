@@ -70,20 +70,6 @@ namespace Flame.Compiler.Analysis
         public EffectfulInstructions Analyze(FlowGraph graph)
         {
             // Suggest exception spec analyses if the graph doesn't have any yet.
-            if (!graph.HasAnalysisFor<PrototypeExceptionSpecs>())
-            {
-                graph = graph.WithAnalysis(
-                    new ConstantAnalysis<PrototypeExceptionSpecs>(
-                        RuleBasedPrototypeExceptionSpecs.Default));
-            }
-            if (!graph.HasAnalysisFor<InstructionExceptionSpecs>())
-            {
-                graph = graph.WithAnalysis(
-                    new ConstantAnalysis<InstructionExceptionSpecs>(
-                        new TrivialInstructionExceptionSpecs(
-                            graph.GetAnalysisResult<PrototypeExceptionSpecs>())));
-            }
-
             var results = ImmutableHashSet.CreateBuilder<ValueTag>();
             foreach (var instruction in graph.NamedInstructions)
             {
@@ -131,25 +117,11 @@ namespace Flame.Compiler.Analysis
         {
             var instruction = selection.Instruction;
             var proto = instruction.Prototype;
-            if (proto is LoadPrototype)
+            if (proto is StorePrototype)
             {
-                // Load instructions are effectful if they may not be dereferenceable.
-                var nullAnalysis = selection.Block.Graph.GetAnalysisResult<ValueNullability>();
-                return !nullAnalysis.IsDereferenceable(((LoadPrototype)proto).GetPointer(instruction));
+                return true;
             }
-            else if (proto is GetFieldPointerPrototype)
-            {
-                // Get-field-pointer instructions are effectful if the base pointer
-                // may not be dereferenceable, _unless_ the exception may be delayed.
-                var nullAnalysis = selection.Block.Graph.GetAnalysisResult<ValueNullability>();
-                if (nullAnalysis.IsDereferenceable(((GetFieldPointerPrototype)proto).GetBasePointer(instruction)))
-                {
-                    return false;
-                }
-            }
-
-            if (proto is StorePrototype
-                || proto is CallPrototype
+            else if (proto is CallPrototype
                 || proto is NewObjectPrototype
                 || selection.Block.Graph.GetAnalysisResult<InstructionExceptionSpecs>()
                     .GetExceptionSpecification(selection.Instruction)

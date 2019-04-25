@@ -65,9 +65,6 @@ namespace Flame.Clr.Analysis
 
             this.graph.AddAnalysis(
                 new ConstantAnalysis<PrototypeExceptionSpecs>(prototypeExceptionSpecs));
-            this.graph.AddAnalysis(
-                new ConstantAnalysis<InstructionExceptionSpecs>(
-                    new TrivialInstructionExceptionSpecs(prototypeExceptionSpecs)));
             this.graph.AddAnalysis(new EffectfulInstructionAnalysis());
             this.graph.AddAnalysis(NullabilityAnalysis.Instance);
 
