@@ -82,7 +82,7 @@ namespace Flame.Compiler.Transforms
                 {
                     fieldSlots[field] = allocaInstruction.InsertAfter(
                         Instruction.CreateAlloca(field.FieldType),
-                        allocaTag.Name + "_field_" + field.Name);
+                        allocaTag.Name + ".scalarrepl.field." + field.Name);
                 }
                 replacements[allocaTag] = fieldSlots;
             }
@@ -139,11 +139,11 @@ namespace Flame.Compiler.Transforms
                     {
                         RewriteStore(instruction, replacements);
 
-                        // Replace the store with a copy, in case someone is
+                        // Replace the store with a load, in case someone is
                         // using the value it returns.
-                        instruction.Instruction = Instruction.CreateCopy(
+                        instruction.Instruction = Instruction.CreateLoad(
                             instruction.Instruction.ResultType,
-                            storeProto.GetValue(instruction.Instruction));
+                            pointer);
                     }
                 }
             }
@@ -253,12 +253,13 @@ namespace Flame.Compiler.Transforms
                 // and then perform a fieldwise copy from that temporary.
                 var temporary = instruction.Graph.EntryPoint.InsertInstruction(
                     0,
-                    Instruction.CreateAlloca(storeProto.ResultType));
+                    Instruction.CreateAlloca(storeProto.ResultType),
+                    pointer.Name + ".scalarrepl.temp");
 
                 var tempStore = instruction.InsertAfter(
                     storeProto.Instantiate(temporary, value));
 
-                CreateFieldwiseCopy(tempStore, replacements, pointer, tempStore);
+                CreateFieldwiseCopy(tempStore, replacements, pointer, temporary);
             }
         }
 
