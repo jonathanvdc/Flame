@@ -79,16 +79,20 @@ namespace Flame.Compiler.Analysis
         /// <inheritdoc/>
         public InstructionOrdering Analyze(FlowGraph graph)
         {
-            // This analysis is based on the following rules:
+            // This analysis imposes a partial ordering on instructions (the
+            // dependency relation) based on the following rules:
             //
-            //   1. There is a total ordering between effectful
-            //      instructions: effectful instructions can never
-            //      be reordered wrt each other. That is, every
-            //      effectful instruction depends on the previous
-            //      effectful instruction.
+            //   1. Non-delayable exception-throwing instructions are
+            //      totally ordered.
             //
-            //   2. `load` instructions depend on the last effectful
-            //      instruction.
+            //   2. a. Value-reading instructions depend on value-writing
+            //         instructions that refer to the same address.
+            //      b. Value-writing instructions depend on value-writing
+            //         instructions that refer to the same address.
+            //      c. Exception-throwing instructions depend on value-writing
+            //         instructions.
+            //      d. Value-writing instructions depend on exception-throwing
+            //         instructions.
             //
             //   3. All instructions depend on their arguments, provided
             //      that these arguments refer to instructions inside the
@@ -96,37 +100,106 @@ namespace Flame.Compiler.Analysis
             //
             //   4. Dependencies are transitive.
 
-            var effectfuls = graph.GetAnalysisResult<EffectfulInstructions>();
+            var memorySpecs = graph.GetAnalysisResult<PrototypeMemorySpecs>();
+            var exceptionSpecs = graph.GetAnalysisResult<InstructionExceptionSpecs>();
+            var aliasAnalysis = graph.GetAnalysisResult<AliasAnalysisResult>();
+            var delayability = graph.GetAnalysisResult<ExceptionDelayability>();
 
             var dependencies = new Dictionary<ValueTag, HashSet<ValueTag>>();
             foreach (var block in graph.BasicBlocks)
             {
-                ValueTag lastEffectfulTag = null;
+                // `knownWrites` is a mapping of value-writing instructions to the
+                // addresses they update.
+                var knownWrites = new Dictionary<ValueTag, ValueTag>();
+                // `lastUnknownWrite` is the last write to an unknown address.
+                ValueTag lastUnknownWrite = null;
+                // `lastWrite` is the last write.
+                ValueTag lastWrite = null;
+                // `lastNonDelayableThrower` is the last non-delayable exception-throwing
+                // instruction.
+                ValueTag lastNonDelayableThrower = null;
+                // `lastThrower` is the last exception-throwing instruction.
+                ValueTag lastThrower = null;
+
                 foreach (var selection in block.NamedInstructions)
                 {
                     var insnDependencies = new HashSet<ValueTag>();
 
                     var instruction = selection.Instruction;
-                    if (instruction.Prototype is LoadPrototype
-                        && lastEffectfulTag != null)
+                    var exceptionSpec = exceptionSpecs.GetExceptionSpecification(instruction);
+                    var memSpec = memorySpecs.GetMemorySpecification(instruction.Prototype);
+
+                    var oldLastThrower = lastThrower;
+
+                    if (exceptionSpec.CanThrowSomething)
                     {
-                        // Rule #2: `load` instructions depend on the last effectful
-                        // instruction.
-                        if (lastEffectfulTag != null)
+                        // Rule #2.c: Exception-throwing instructions depend on value-writing
+                        // instructions.
+                        insnDependencies.Add(lastWrite);
+                        if (delayability.CanDelayExceptions(instruction.Prototype))
                         {
-                            insnDependencies.Add(lastEffectfulTag);
+                            // Rule #1: Non-delayable exception-throwing instructions are
+                            // totally ordered.
+                            insnDependencies.Add(lastNonDelayableThrower);
+                            lastNonDelayableThrower = selection;
+                        }
+                        lastThrower = selection;
+                    }
+                    if (memSpec.MayRead)
+                    {
+                        // Rule #2.a: Value-reading instructions depend on value-writing
+                        // instructions that refer to the same address.
+                        if (memSpec is MemorySpecification.ArgumentRead)
+                        {
+                            var argReadSpec = (MemorySpecification.ArgumentRead)memSpec;
+                            var readAddress = instruction.Arguments[argReadSpec.ParameterIndex];
+                            foreach (var pair in knownWrites)
+                            {
+                                if (aliasAnalysis.GetAliasing(pair.Value, readAddress) != Aliasing.NoAlias)
+                                {
+                                    insnDependencies.Add(pair.Key);
+                                }
+                            }
+                            insnDependencies.Add(lastUnknownWrite);
+                        }
+                        else
+                        {
+                            insnDependencies.Add(lastWrite);
                         }
                     }
-
-                    if (effectfuls.Instructions.Contains(selection.Tag))
+                    if (memSpec.MayWrite)
                     {
-                        // Rule #1: every effectful instruction depends on the previous
-                        // effectful instruction.
-                        if (lastEffectfulTag != null)
+                        // Rule #2.b: Value-writing instructions depend on value-writing
+                        // instructions that refer to the same address.
+                        if (memSpec is MemorySpecification.ArgumentWrite)
                         {
-                            insnDependencies.Add(lastEffectfulTag);
+                            var argWriteSpec = (MemorySpecification.ArgumentWrite)memSpec;
+                            var writeAddress = instruction.Arguments[argWriteSpec.ParameterIndex];
+                            foreach (var pair in knownWrites)
+                            {
+                                if (aliasAnalysis.GetAliasing(pair.Value, writeAddress) != Aliasing.NoAlias)
+                                {
+                                    insnDependencies.Add(pair.Key);
+                                }
+                            }
+                            insnDependencies.Add(lastUnknownWrite);
+
+                            // Update the set of known writes.
+                            knownWrites[selection] = writeAddress;
                         }
-                        lastEffectfulTag = selection.Tag;
+                        else
+                        {
+                            insnDependencies.Add(lastWrite);
+
+                            // Update the last unknown write.
+                            lastUnknownWrite = selection;
+                        }
+                        // Rule #2.d: Value-writing instructions depend on exception-throwing
+                        // instructions.
+                        insnDependencies.Add(oldLastThrower);
+
+                        // Update the last write.
+                        lastWrite = selection;
                     }
 
                     // Rule #3: all instructions depend on their arguments, provided
@@ -134,12 +207,19 @@ namespace Flame.Compiler.Analysis
                     // same basic block.
                     foreach (var arg in instruction.Arguments)
                     {
-                        if (graph.ContainsInstruction(arg)
-                            && graph.GetInstruction(arg).Block.Tag == block.Tag)
+                        NamedInstruction argInstruction;
+                        if (graph.TryGetInstruction(arg, out argInstruction)
+                            && argInstruction.Block.Tag == block.Tag)
                         {
                             insnDependencies.Add(arg);
                         }
                     }
+
+                    // We might have added a `null` value tag to the set of dependencies.
+                    // Adding it was harmless, but we need to rid ourselves of it before
+                    // the dependency set is used in a situation where `null` is undesirable,
+                    // like in the loop below.
+                    insnDependencies.Remove(null);
 
                     // Rule #4: dependencies are transitive.
                     foreach (var item in insnDependencies.ToArray())
