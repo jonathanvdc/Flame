@@ -70,7 +70,7 @@
     <Compile Include="Analysis\LatticeAnalysis.cs" />
     <Compile Include="Analysis\LivenessAnalysis.cs" />
     <Compile Include="Analysis\MacroAnalysisCache.cs" />
-    <Compile Include="Analysis\MemoryAccessSpec.cs" />
+    <Compile Include="Analysis\MemorySpecification.cs" />
     <Compile Include="Analysis\MemorySSA.cs" />
     <Compile Include="Analysis\NullabilityAnalysis.cs" />
     <Compile Include="Analysis\PredecessorAnalysis.cs" />

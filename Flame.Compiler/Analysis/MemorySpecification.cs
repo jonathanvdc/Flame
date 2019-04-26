@@ -6,7 +6,7 @@ namespace Flame.Compiler.Analysis
     /// <summary>
     /// A base class for descriptions of how an instruction interacts with memory.
     /// </summary>
-    public abstract class MemoryAccessSpec
+    public abstract class MemorySpecification
     {
         /// <summary>
         /// Tells if this memory access spec implies that the instruction it is attached
@@ -27,24 +27,24 @@ namespace Flame.Compiler.Analysis
         /// an instruction is unknown.
         /// </summary>
         /// <value>A memory access spec that represents an unknown operation.</value>
-        public static readonly MemoryAccessSpec Unknown =
+        public static readonly MemorySpecification Unknown =
             new UnknownSpec(true, true);
 
         /// <summary>
         /// A memory access spec that identifies a read from an unknown location.
         /// </summary>
         /// <value>A memory access spec that represents an unknown read.</value>
-        public static readonly MemoryAccessSpec UnknownRead =
+        public static readonly MemorySpecification UnknownRead =
             new UnknownSpec(true, false);
 
         /// <summary>
         /// A memory access spec that identifies a write to an unknown location.
         /// </summary>
         /// <value>A memory access spec that represents an unknown write.</value>
-        public static readonly MemoryAccessSpec UnknownWrite =
+        public static readonly MemorySpecification UnknownWrite =
             new UnknownSpec(false, true);
 
-        private sealed class UnknownSpec : MemoryAccessSpec
+        private sealed class UnknownSpec : MemorySpecification
         {
             public UnknownSpec(bool mayRead, bool mayWrite)
             {
@@ -65,7 +65,7 @@ namespace Flame.Compiler.Analysis
         /// <summary>
         /// A read from an address encoded by an argument.
         /// </summary>
-        public sealed class ArgumentRead : MemoryAccessSpec
+        public sealed class ArgumentRead : MemorySpecification
         {
             private ArgumentRead(int parameterIndex)
             {
@@ -103,7 +103,7 @@ namespace Flame.Compiler.Analysis
         /// <summary>
         /// A write to an address encoded by an argument.
         /// </summary>
-        public sealed class ArgumentWrite : MemoryAccessSpec
+        public sealed class ArgumentWrite : MemorySpecification
         {
             private ArgumentWrite(int parameterIndex)
             {
@@ -141,9 +141,9 @@ namespace Flame.Compiler.Analysis
         /// <summary>
         /// A union of memory access specs.
         /// </summary>
-        public sealed class Union : MemoryAccessSpec
+        public sealed class Union : MemorySpecification
         {
-            private Union(IReadOnlyList<MemoryAccessSpec> elements)
+            private Union(IReadOnlyList<MemorySpecification> elements)
             {
                 this.Elements = elements;
             }
@@ -152,7 +152,7 @@ namespace Flame.Compiler.Analysis
             /// Gets the memory access specs whose behavior is unified.
             /// </summary>
             /// <value>A list of memory access specs.</value>
-            public IReadOnlyList<MemoryAccessSpec> Elements { get; private set; }
+            public IReadOnlyList<MemorySpecification> Elements { get; private set; }
 
             /// <inheritdoc/>
             public override bool MayRead => Elements.Any(elem => elem.MayRead);
@@ -166,10 +166,24 @@ namespace Flame.Compiler.Analysis
             /// </summary>
             /// <param name="elements">A sequence of memory access specs.</param>
             /// <returns>A union memory access spec.</returns>
-            public static Union Create(IReadOnlyList<MemoryAccessSpec> elements)
+            public static Union Create(IReadOnlyList<MemorySpecification> elements)
             {
                 return new Union(elements);
             }
         }
+    }
+
+    /// <summary>
+    /// Maps instruction prototypes to memory access specs.
+    /// </summary>
+    public abstract class PrototypeMemorySpecs
+    {
+        /// <summary>
+        /// Gets the memory access specification for a particular instruction
+        /// prototype.
+        /// </summary>
+        /// <param name="prototype">The prototype to examine.</param>
+        /// <returns>A memory specification for <paramref name="prototype"/>.</returns>
+        public abstract MemorySpecification GetMemorySpecification(InstructionPrototype prototype);
     }
 }
