@@ -70,9 +70,9 @@ namespace Flame.Compiler.Analysis
         { }
 
         /// <summary>
-        /// Gets an instance of the conservative instruction ordering analysis.
+        /// An instance of the conservative instruction ordering analysis.
         /// </summary>
-        /// <returns>An instance of the conservative instruction ordering analysis.</returns>
+        /// <value>A conservative instruction ordering analysis.</value>
         public static readonly ConservativeInstructionOrderingAnalysis Instance =
             new ConservativeInstructionOrderingAnalysis();
 
