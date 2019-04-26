@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Compiler.Instructions;
 
 namespace Flame.Compiler.Analysis
 {
@@ -21,6 +23,14 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         /// <returns><c>true</c> if the instruction might write; otherwise, <c>false</c>.</returns>
         public abstract bool MayWrite { get; }
+
+        /// <summary>
+        /// A memory access spec that indicates that an instruction neither
+        /// reads from or writes to memory.
+        /// </summary>
+        /// <value>A memory access spec that represents a memory-unrelated operation.</value>
+        public static readonly MemorySpecification Nothing =
+            new UnknownSpec(false, false);
 
         /// <summary>
         /// A memory access spec that indicates that the memory access behavior of
@@ -185,5 +195,167 @@ namespace Flame.Compiler.Analysis
         /// <param name="prototype">The prototype to examine.</param>
         /// <returns>A memory specification for <paramref name="prototype"/>.</returns>
         public abstract MemorySpecification GetMemorySpecification(InstructionPrototype prototype);
+    }
+
+    /// <summary>
+    /// Assigns memory specifications to prototypes based
+    /// on a set of user-configurable rules.
+    /// </summary>
+    public sealed class RuleBasedPrototypeMemorySpecs : PrototypeMemorySpecs
+    {
+        /// <summary>
+        /// Creates an empty set of prototype exception spec rules.
+        /// </summary>
+        public RuleBasedPrototypeMemorySpecs()
+        {
+            this.store = new RuleBasedSpecStore<MemorySpecification>(MemorySpecification.Unknown);
+        }
+
+        /// <summary>
+        /// Creates a copy of another set of prototype exception spec rules.
+        /// </summary>
+        public RuleBasedPrototypeMemorySpecs(RuleBasedPrototypeMemorySpecs other)
+        {
+            this.store = new RuleBasedSpecStore<MemorySpecification>(other.store);
+        }
+
+        private RuleBasedSpecStore<MemorySpecification> store;
+
+        /// <summary>
+        /// Registers a function that computes memory specifications
+        /// for a particular type of instruction prototype.
+        /// </summary>
+        /// <param name="getMemorySpec">
+        /// A function that computes memory specifications for all
+        /// instruction prototypes of type T.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of instruction prototypes to which
+        /// <paramref name="getMemorySpec"/> is applicable.
+        /// </typeparam>
+        public void Register<T>(Func<T, MemorySpecification> getMemorySpec)
+            where T : InstructionPrototype
+        {
+            store.Register<T>(getMemorySpec);
+        }
+
+        /// <summary>
+        /// Maps a particular type of instruction prototype
+        /// to a memory specification.
+        /// </summary>
+        /// <param name="memorySpec">
+        /// The memory specification to register.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of instruction prototypes to which
+        /// <paramref name="memorySpec"/> is applicable.
+        /// </typeparam>
+        public void Register<T>(MemorySpecification memorySpec)
+            where T : InstructionPrototype
+        {
+            store.Register<T>(memorySpec);
+        }
+
+        /// <summary>
+        /// Registers a function that computes memory specifications
+        /// for a particular type of intrinsic.
+        /// </summary>
+        /// <param name="intrinsicName">
+        /// The name of the intrinsic to compute memory
+        /// specifications for.
+        /// </param>
+        /// <param name="getMemorySpec">
+        /// A function that takes an intrinsic prototype with
+        /// name <paramref name="intrinsicName"/> and computes
+        /// the memory specification for that prototype.
+        /// </param>
+        public void Register(string intrinsicName, Func<IntrinsicPrototype, MemorySpecification> getMemorySpec)
+        {
+            store.Register(intrinsicName, getMemorySpec);
+        }
+
+        /// <summary>
+        /// Registers a function that assigns a fixed memory specification
+        /// to a particular type of intrinsic.
+        /// </summary>
+        /// <param name="intrinsicName">
+        /// The name of the intrinsic to assign the memory
+        /// specifications to.
+        /// </param>
+        /// <param name="memorySpec">
+        /// The memory specification for all intrinsic prototypes with
+        /// name <paramref name="intrinsicName"/>.
+        /// </param>
+        public void Register(string intrinsicName, MemorySpecification memorySpec)
+        {
+            store.Register(intrinsicName, memorySpec);
+        }
+
+        /// <inheritdoc/>
+        public override MemorySpecification GetMemorySpecification(InstructionPrototype prototype)
+        {
+            return store.GetSpecification(prototype);
+        }
+
+        /// <summary>
+        /// Gets the default prototype memory spec rules.
+        /// </summary>
+        /// <value>The default prototype memory spec rules.</value>
+        public static readonly RuleBasedPrototypeMemorySpecs Default;
+
+        static RuleBasedPrototypeMemorySpecs()
+        {
+            Default = new RuleBasedPrototypeMemorySpecs();
+
+            Default.Register<AllocaArrayPrototype>(MemorySpecification.Nothing);
+            Default.Register<AllocaPrototype>(MemorySpecification.Nothing);
+            Default.Register<BoxPrototype>(MemorySpecification.Nothing);
+            Default.Register<ConstantPrototype>(MemorySpecification.Nothing);
+            Default.Register<CopyPrototype>(MemorySpecification.Nothing);
+            Default.Register<DynamicCastPrototype>(MemorySpecification.Nothing);
+            Default.Register<GetStaticFieldPointerPrototype>(MemorySpecification.Nothing);
+            Default.Register<LoadPrototype>(MemorySpecification.ArgumentRead.Create(0));
+            Default.Register<ReinterpretCastPrototype>(MemorySpecification.Nothing);
+            Default.Register<StorePrototype>(MemorySpecification.ArgumentWrite.Create(0));
+            Default.Register<GetFieldPointerPrototype>(MemorySpecification.Nothing);
+            Default.Register<NewDelegatePrototype>(MemorySpecification.Nothing);
+            Default.Register<UnboxPrototype>(MemorySpecification.Nothing);
+
+            // Call-like instruction prototypes.
+            // TODO: use the callee's memory specification.
+            Default.Register<CallPrototype>(MemorySpecification.Unknown);
+            Default.Register<NewObjectPrototype>(MemorySpecification.Unknown);
+            Default.Register<IndirectCallPrototype>(MemorySpecification.Unknown);
+
+            // Arithmetic intrinsics never read or write.
+            foreach (var name in ArithmeticIntrinsics.Operators.All)
+            {
+                Default.Register(
+                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name),
+                    MemorySpecification.Nothing);
+            }
+
+            // Array intrinsics.
+            Default.Register(
+                ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetElementPointer),
+                MemorySpecification.Nothing);
+            Default.Register(
+                ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.LoadElement),
+                MemorySpecification.UnknownRead);
+            Default.Register(
+                ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.StoreElement),
+                MemorySpecification.UnknownWrite);
+            Default.Register(
+                ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetLength),
+                MemorySpecification.Nothing);
+            Default.Register(
+                ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.NewArray),
+                MemorySpecification.Nothing);
+
+            // Object intrinsics.
+            Default.Register(
+                ObjectIntrinsics.Namespace.GetIntrinsicName(ObjectIntrinsics.Operators.UnboxAny),
+                MemorySpecification.UnknownRead);
+        }
     }
 }
