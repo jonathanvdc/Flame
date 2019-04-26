@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 
-namespace Flame.Collections.Target
+namespace Flame.Compiler.Target
 {
     /// <summary>
     /// A target-specific peephole optimizer: an optimizer that walks

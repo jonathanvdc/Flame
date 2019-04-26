@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
-using Flame.Collections.Target;
+using Flame.Compiler.Target;
 using Mono.Cecil.Cil;
 
 namespace Flame.Clr.Emit
