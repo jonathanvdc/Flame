@@ -18,6 +18,122 @@ namespace Flame.Compiler.Analysis
         public abstract ExceptionSpecification GetExceptionSpecification(InstructionPrototype prototype);
     }
 
+    internal struct RuleBasedSpecStore<TSpec>
+    {
+        public RuleBasedSpecStore(TSpec defaultSpec)
+        {
+            this.DefaultSpec = defaultSpec;
+            this.instructionSpecs = new Dictionary<Type, Func<InstructionPrototype, TSpec>>();
+            this.intrinsicSpecs = new Dictionary<string, Func<IntrinsicPrototype, TSpec>>();
+        }
+
+        /// <summary>
+        /// Creates a copy of another set of spec rules.
+        /// </summary>
+        public RuleBasedSpecStore(RuleBasedSpecStore<TSpec> other)
+        {
+            this.DefaultSpec = other.DefaultSpec;
+            this.instructionSpecs = new Dictionary<Type, Func<InstructionPrototype, TSpec>>(
+                other.instructionSpecs);
+            this.intrinsicSpecs = new Dictionary<string, Func<IntrinsicPrototype, TSpec>>(
+                other.intrinsicSpecs);
+        }
+
+        public TSpec DefaultSpec { get; private set; }
+
+        private Dictionary<Type, Func<InstructionPrototype, TSpec>> instructionSpecs;
+        private Dictionary<string, Func<IntrinsicPrototype, TSpec>> intrinsicSpecs;
+
+        /// <summary>
+        /// Registers a function that computes specifications
+        /// for a particular type of instruction prototype.
+        /// </summary>
+        /// <param name="getSpec">
+        /// A function that computes specifications for all
+        /// instruction prototypes of type T.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of instruction prototypes to which
+        /// <paramref name="getSpec"/> is applicable.
+        /// </typeparam>
+        public void Register<T>(Func<T, TSpec> getSpec)
+            where T : InstructionPrototype
+        {
+            instructionSpecs[typeof(T)] = proto => getSpec((T)proto);
+        }
+
+        /// <summary>
+        /// Maps a particular type of instruction prototype
+        /// to a specification.
+        /// </summary>
+        /// <param name="spec">
+        /// The specification to register.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of instruction prototypes to which
+        /// <paramref name="spec"/> is applicable.
+        /// </typeparam>
+        public void Register<T>(TSpec spec)
+            where T : InstructionPrototype
+        {
+            instructionSpecs[typeof(T)] = proto => spec;
+        }
+
+        /// <summary>
+        /// Registers a function that computes specifications
+        /// for a particular type of intrinsic.
+        /// </summary>
+        /// <param name="intrinsicName">
+        /// The name of the intrinsic to compute specifications for.
+        /// </param>
+        /// <param name="getSpec">
+        /// A function that takes an intrinsic prototype with
+        /// name <paramref name="intrinsicName"/> and computes
+        /// the specification for that prototype.
+        /// </param>
+        public void Register(string intrinsicName, Func<IntrinsicPrototype, TSpec> getSpec)
+        {
+            intrinsicSpecs[intrinsicName] = getSpec;
+        }
+
+        /// <summary>
+        /// Registers a function that assigns a fixed specification
+        /// to a particular type of intrinsic.
+        /// </summary>
+        /// <param name="intrinsicName">
+        /// The name of the intrinsic to assign the specifications to.
+        /// </param>
+        /// <param name="spec">
+        /// The specification for all intrinsic prototypes with
+        /// name <paramref name="intrinsicName"/>.
+        /// </param>
+        public void Register(string intrinsicName, TSpec spec)
+        {
+            Register(intrinsicName, proto => spec);
+        }
+
+        public TSpec GetSpecification(InstructionPrototype prototype)
+        {
+            if (prototype is IntrinsicPrototype)
+            {
+                var intrinsic = (IntrinsicPrototype)prototype;
+                Func<IntrinsicPrototype, TSpec> getIntrinsicSpec;
+                if (intrinsicSpecs.TryGetValue(intrinsic.Name, out getIntrinsicSpec))
+                {
+                    return getIntrinsicSpec(intrinsic);
+                }
+            }
+
+            Func<InstructionPrototype, TSpec> getInstructionSpec;
+            if (instructionSpecs.TryGetValue(prototype.GetType(), out getInstructionSpec))
+            {
+                return getInstructionSpec(prototype);
+            }
+
+            return DefaultSpec;
+        }
+    }
+
     /// <summary>
     /// Assigns exception specifications to prototypes based
     /// on a set of user-configurable rules.
@@ -29,8 +145,7 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         public RuleBasedPrototypeExceptionSpecs()
         {
-            this.instructionSpecs = new Dictionary<Type, Func<InstructionPrototype, ExceptionSpecification>>();
-            this.intrinsicSpecs = new Dictionary<string, Func<IntrinsicPrototype, ExceptionSpecification>>();
+            this.store = new RuleBasedSpecStore<ExceptionSpecification>(ExceptionSpecification.ThrowAny);
         }
 
         /// <summary>
@@ -38,14 +153,10 @@ namespace Flame.Compiler.Analysis
         /// </summary>
         public RuleBasedPrototypeExceptionSpecs(RuleBasedPrototypeExceptionSpecs other)
         {
-            this.instructionSpecs = new Dictionary<Type, Func<InstructionPrototype, ExceptionSpecification>>(
-                other.instructionSpecs);
-            this.intrinsicSpecs = new Dictionary<string, Func<IntrinsicPrototype, ExceptionSpecification>>(
-                other.intrinsicSpecs);
+            this.store = new RuleBasedSpecStore<ExceptionSpecification>(other.store);
         }
 
-        private Dictionary<Type, Func<InstructionPrototype, ExceptionSpecification>> instructionSpecs;
-        private Dictionary<string, Func<IntrinsicPrototype, ExceptionSpecification>> intrinsicSpecs;
+        private RuleBasedSpecStore<ExceptionSpecification> store;
 
         /// <summary>
         /// Registers a function that computes exception specifications
@@ -62,7 +173,7 @@ namespace Flame.Compiler.Analysis
         public void Register<T>(Func<T, ExceptionSpecification> getExceptionSpec)
             where T : InstructionPrototype
         {
-            instructionSpecs[typeof(T)] = proto => getExceptionSpec((T)proto);
+            store.Register<T>(getExceptionSpec);
         }
 
         /// <summary>
@@ -79,7 +190,7 @@ namespace Flame.Compiler.Analysis
         public void Register<T>(ExceptionSpecification exceptionSpec)
             where T : InstructionPrototype
         {
-            instructionSpecs[typeof(T)] = proto => exceptionSpec;
+            store.Register<T>(exceptionSpec);
         }
 
         /// <summary>
@@ -97,7 +208,7 @@ namespace Flame.Compiler.Analysis
         /// </param>
         public void Register(string intrinsicName, Func<IntrinsicPrototype, ExceptionSpecification> getExceptionSpec)
         {
-            intrinsicSpecs[intrinsicName] = getExceptionSpec;
+            store.Register(intrinsicName, getExceptionSpec);
         }
 
         /// <summary>
@@ -114,29 +225,13 @@ namespace Flame.Compiler.Analysis
         /// </param>
         public void Register(string intrinsicName, ExceptionSpecification exceptionSpec)
         {
-            Register(intrinsicName, proto => exceptionSpec);
+            store.Register(intrinsicName, exceptionSpec);
         }
 
         /// <inheritdoc/>
         public override ExceptionSpecification GetExceptionSpecification(InstructionPrototype prototype)
         {
-            if (prototype is IntrinsicPrototype)
-            {
-                var intrinsic = (IntrinsicPrototype)prototype;
-                Func<IntrinsicPrototype, ExceptionSpecification> getIntrinsicSpec;
-                if (intrinsicSpecs.TryGetValue(intrinsic.Name, out getIntrinsicSpec))
-                {
-                    return getIntrinsicSpec(intrinsic);
-                }
-            }
-
-            Func<InstructionPrototype, ExceptionSpecification> getInstructionSpec;
-            if (instructionSpecs.TryGetValue(prototype.GetType(), out getInstructionSpec))
-            {
-                return getInstructionSpec(prototype);
-            }
-
-            return ExceptionSpecification.ThrowAny;
+            return store.GetSpecification(prototype);
         }
 
         /// <summary>
