@@ -35,6 +35,7 @@ namespace Flame.Compiler.Analysis
 
             Register(new ConstantAnalysis<PrototypeExceptionSpecs>(RuleBasedPrototypeExceptionSpecs.Default));
             Register(ReifiedInstructionExceptionAnalysis.Instance);
+            Register(new ConstantAnalysis<PrototypeMemorySpecs>(RuleBasedPrototypeMemorySpecs.Default));
         }
 
         private static readonly Dictionary<Type, Func<FlowGraph, FlowGraphAnalysisCache>> defaults;

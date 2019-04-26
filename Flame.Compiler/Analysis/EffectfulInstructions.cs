@@ -117,15 +117,18 @@ namespace Flame.Compiler.Analysis
         {
             var instruction = selection.Instruction;
             var proto = instruction.Prototype;
-            if (proto is StorePrototype)
+            var memorySpec = selection.Block.Graph
+                .GetAnalysisResult<PrototypeMemorySpecs>()
+                .GetMemorySpecification(proto);
+
+            if (memorySpec.MayWrite)
             {
+                // Instructions that may write to memory are effectful.
                 return true;
             }
-            else if (proto is CallPrototype
-                || proto is NewObjectPrototype
-                || selection.Block.Graph.GetAnalysisResult<InstructionExceptionSpecs>()
-                    .GetExceptionSpecification(selection.Instruction)
-                    .CanThrowSomething)
+            else if (selection.Block.Graph.GetAnalysisResult<InstructionExceptionSpecs>()
+                .GetExceptionSpecification(selection.Instruction)
+                .CanThrowSomething)
             {
                 // TODO: consider method attributes. Some calls may
                 // not have side-effects and may be marked as such.
