@@ -135,6 +135,7 @@
     <Compile Include="Transforms\FuseMemoryAccesses.out.cs" />
     <Compile Include="Transforms\GlobalValueNumbering.cs" />
     <Compile Include="Transforms\Inlining.cs" />
+    <Compile Include="Transforms\InstructionReordering.cs" />
     <Compile Include="Transforms\InstructionSimplification.out.cs" />
     <Compile Include="Transforms\IntraproceduralOptimization.cs" />
     <Compile Include="Transforms\JumpThreading.cs" />

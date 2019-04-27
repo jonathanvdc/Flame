@@ -336,6 +336,7 @@ namespace ILOpt
                     DeadBlockElimination.Instance,
                     new SwitchLowering(typeSystem),
                     CopyPropagation.Instance,
+                    InstructionReordering.Instance,
                     FuseMemoryAccesses.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(false),
