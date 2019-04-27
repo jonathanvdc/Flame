@@ -115,12 +115,12 @@ namespace Flame.Compiler.Analysis
                 var knownWrites = new Dictionary<ValueTag, ValueTag>();
                 // Ditto for `knownReads`, but it describes reads instead.
                 var knownReads = new Dictionary<ValueTag, ValueTag>();
-                // `lastUnknownWrite` is the last write to an unknown address.
-                ValueTag lastUnknownWrite = null;
+                // `unknownWrites` is the set of all writes to unknown addresses.
+                var unknownWrites = new HashSet<ValueTag>();
                 // `lastWrite` is the last write.
                 ValueTag lastWrite = null;
-                // `lastUnknownRead` is the last read from an unknown address.
-                ValueTag lastUnknownRead = null;
+                // `unknownReads` is the set of all reads from unknown addresses.
+                var unknownReads = new HashSet<ValueTag>();
                 // `lastRead` is the last read.
                 ValueTag lastRead = null;
                 // `lastNonDelayableThrower` is the last non-delayable exception-throwing
@@ -139,7 +139,6 @@ namespace Flame.Compiler.Analysis
 
                     var oldLastThrower = lastThrower;
                     var oldLastRead = lastRead;
-                    var oldLastUnknownRead = lastUnknownRead;
 
                     if (exceptionSpec.CanThrowSomething)
                     {
@@ -170,7 +169,7 @@ namespace Flame.Compiler.Analysis
                                     insnDependencies.Add(pair.Key);
                                 }
                             }
-                            insnDependencies.Add(lastUnknownWrite);
+                            insnDependencies.UnionWith(unknownWrites);
 
                             // Update the set of known reads.
                             knownReads[selection] = selection;
@@ -179,8 +178,8 @@ namespace Flame.Compiler.Analysis
                         {
                             insnDependencies.Add(lastWrite);
 
-                            // Update the last unknown read.
-                            lastUnknownRead = selection;
+                            // Update the unknown read set.
+                            unknownReads.Add(selection);
                         }
                         // Update the last read.
                         lastRead = selection;
@@ -207,8 +206,8 @@ namespace Flame.Compiler.Analysis
                                     insnDependencies.Add(pair.Key);
                                 }
                             }
-                            insnDependencies.Add(lastUnknownWrite);
-                            insnDependencies.Add(oldLastUnknownRead);
+                            insnDependencies.UnionWith(unknownWrites);
+                            insnDependencies.UnionWith(unknownReads);
 
                             // Update the set of known writes.
                             knownWrites[selection] = writeAddress;
@@ -218,8 +217,8 @@ namespace Flame.Compiler.Analysis
                             insnDependencies.Add(lastWrite);
                             insnDependencies.Add(oldLastRead);
 
-                            // Update the last unknown write.
-                            lastUnknownWrite = selection;
+                            // Update the unknown write set.
+                            unknownWrites.Add(selection);
                         }
                         // Rule #2.d: Value-writing instructions depend on exception-throwing
                         // instructions.
@@ -245,8 +244,9 @@ namespace Flame.Compiler.Analysis
                     // We might have added a `null` value tag to the set of dependencies.
                     // Adding it was harmless, but we need to rid ourselves of it before
                     // the dependency set is used in a situation where `null` is undesirable,
-                    // like in the loop below.
+                    // like in the loop below. Ditto for self-dependencies.
                     insnDependencies.Remove(null);
+                    insnDependencies.Remove(selection);
 
                     // Rule #4: dependencies are transitive.
                     foreach (var item in insnDependencies.ToArray())
