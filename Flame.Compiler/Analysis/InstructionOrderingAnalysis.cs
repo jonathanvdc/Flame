@@ -93,6 +93,8 @@ namespace Flame.Compiler.Analysis
             //         instructions.
             //      d. Value-writing instructions depend on exception-throwing
             //         instructions.
+            //      e. Value-writing instructions depend on value-reading
+            //         instructions that refer to the same address.
             //
             //   3. All instructions depend on their arguments, provided
             //      that these arguments refer to instructions inside the
@@ -111,10 +113,16 @@ namespace Flame.Compiler.Analysis
                 // `knownWrites` is a mapping of value-writing instructions to the
                 // addresses they update.
                 var knownWrites = new Dictionary<ValueTag, ValueTag>();
+                // Ditto for `knownReads`, but it describes reads instead.
+                var knownReads = new Dictionary<ValueTag, ValueTag>();
                 // `lastUnknownWrite` is the last write to an unknown address.
                 ValueTag lastUnknownWrite = null;
                 // `lastWrite` is the last write.
                 ValueTag lastWrite = null;
+                // `lastUnknownRead` is the last read from an unknown address.
+                ValueTag lastUnknownRead = null;
+                // `lastRead` is the last read.
+                ValueTag lastRead = null;
                 // `lastNonDelayableThrower` is the last non-delayable exception-throwing
                 // instruction.
                 ValueTag lastNonDelayableThrower = null;
@@ -130,6 +138,8 @@ namespace Flame.Compiler.Analysis
                     var memSpec = memorySpecs.GetMemorySpecification(instruction.Prototype);
 
                     var oldLastThrower = lastThrower;
+                    var oldLastRead = lastRead;
+                    var oldLastUnknownRead = lastUnknownRead;
 
                     if (exceptionSpec.CanThrowSomething)
                     {
@@ -161,28 +171,44 @@ namespace Flame.Compiler.Analysis
                                 }
                             }
                             insnDependencies.Add(lastUnknownWrite);
+
+                            // Update the set of known reads.
+                            knownReads[selection] = selection;
                         }
                         else
                         {
                             insnDependencies.Add(lastWrite);
+
+                            // Update the last unknown read.
+                            lastUnknownRead = selection;
                         }
+                        // Update the last read.
+                        lastRead = selection;
                     }
                     if (memSpec.MayWrite)
                     {
                         // Rule #2.b: Value-writing instructions depend on value-writing
                         // instructions that refer to the same address.
+                        // Rule #2.e: Value-writing instructions depend on value-reading
+                        // instructions that refer to the same address.
                         if (memSpec is MemorySpecification.ArgumentWrite)
                         {
                             var argWriteSpec = (MemorySpecification.ArgumentWrite)memSpec;
                             var writeAddress = instruction.Arguments[argWriteSpec.ParameterIndex];
-                            foreach (var pair in knownWrites)
+                            foreach (var pair in knownWrites.Concat(knownReads))
                             {
+                                if (pair.Key == selection.Tag)
+                                {
+                                    continue;
+                                }
+
                                 if (aliasAnalysis.GetAliasing(pair.Value, writeAddress) != Aliasing.NoAlias)
                                 {
                                     insnDependencies.Add(pair.Key);
                                 }
                             }
                             insnDependencies.Add(lastUnknownWrite);
+                            insnDependencies.Add(oldLastUnknownRead);
 
                             // Update the set of known writes.
                             knownWrites[selection] = writeAddress;
@@ -190,6 +216,7 @@ namespace Flame.Compiler.Analysis
                         else
                         {
                             insnDependencies.Add(lastWrite);
+                            insnDependencies.Add(oldLastRead);
 
                             // Update the last unknown write.
                             lastUnknownWrite = selection;
