@@ -968,7 +968,7 @@ namespace Flame.Clr.Emit
                         }
                         .Concat(DefaultInitializeAndLoad(storeProto.ResultType))
                         .ToArray(),
-                        new ValueTag[] { });
+                        new ValueTag[] { basePointer });
                 }
 
                 var stfld = CilInstruction.Create(
