@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flame.Compiler.Target
 {
@@ -57,6 +58,20 @@ namespace Flame.Compiler.Target
         /// </summary>
         /// <value>A list of values.</value>
         public IReadOnlyList<ValueTag> Dependencies { get; private set; }
+
+        /// <summary>
+        /// Appends a sequence of instructions to these selected instructions,
+        /// producing a new instruction selection.
+        /// </summary>
+        /// <param name="extraInstructions">Additional instructions to append.</param>
+        /// <returns>Selected instructions.</returns>
+        public SelectedInstructions<TInstruction> Append(
+            IEnumerable<TInstruction> extraInstructions)
+        {
+            return new SelectedInstructions<TInstruction>(
+                Instructions.Concat(extraInstructions).ToArray(),
+                Dependencies);
+        }
     }
 
     /// <summary>

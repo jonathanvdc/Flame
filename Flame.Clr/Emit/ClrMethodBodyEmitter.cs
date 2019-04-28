@@ -61,7 +61,7 @@ namespace Flame.Clr.Emit
 
             // Select instructions.
             var selector = new CilInstructionSelector(Method, TypeEnvironment, allocaToVarMap);
-            var streamBuilder = new LinearInstructionStreamBuilder<CilCodegenInstruction>(
+            var streamBuilder = new InstructionStreamBuilder<CilCodegenInstruction>(
                 selector);
 
             var codegenInsns = streamBuilder.ToInstructionStream(sourceGraph);

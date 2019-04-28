@@ -120,7 +120,7 @@
     <Compile Include="Pipeline\Optimization.cs" />
     <Compile Include="Pipeline\Optimizer.cs" />
     <Compile Include="Target\IInstructionSelector.cs" />
-    <Compile Include="Target\LinearInstructionStreamBuilder.cs" />
+    <Compile Include="Target\InstructionStreamBuilder.cs" />
     <Compile Include="Target\PeepholeOptimizer.cs" />
     <Compile Include="Target\SelectedInstructions.cs" />
     <Compile Include="Transforms\AllocaToRegister.cs" />

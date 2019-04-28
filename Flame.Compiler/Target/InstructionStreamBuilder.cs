@@ -7,7 +7,7 @@ namespace Flame.Compiler.Target
     /// <summary>
     /// Translates flow graphs to linear sequences of target-specific instructions.
     /// </summary>
-    public struct LinearInstructionStreamBuilder<TInstruction>
+    public class InstructionStreamBuilder<TInstruction>
     {
         /// <summary>
         /// Creates a linear instruction stream builder.
@@ -15,7 +15,7 @@ namespace Flame.Compiler.Target
         /// <param name="instructionSelector">
         /// The instruction selector to use.
         /// </param>
-        public LinearInstructionStreamBuilder(
+        public InstructionStreamBuilder(
             ILinearInstructionSelector<TInstruction> instructionSelector)
         {
             this.InstructionSelector = instructionSelector;
@@ -99,7 +99,7 @@ namespace Flame.Compiler.Target
             // Select target-specific instructions for reachable block flows.
             // Also order the basic blocks.
             var flowLayout = new List<BasicBlockTag>();
-            var flowSelection = new Dictionary<BasicBlockTag, IReadOnlyList<TInstruction>>();
+            var flowSelection = new Dictionary<BasicBlockTag, SelectedInstructions<TInstruction>>();
             var flowWorklist = new Stack<BasicBlockTag>();
             flowWorklist.Push(graph.EntryPointTag);
             while (flowWorklist.Count > 0)
@@ -114,7 +114,7 @@ namespace Flame.Compiler.Target
                 // Assign a dummy value (null) to the block tag so we don't fool
                 // ourselves into thinking that the block isn't being processed
                 // yet.
-                flowSelection[tag] = null;
+                flowSelection[tag] = default(SelectedInstructions<TInstruction>);
 
                 // Add the block to the flow layout.
                 flowLayout.Add(tag);
@@ -138,16 +138,13 @@ namespace Flame.Compiler.Target
                     flowWorklist.Push(target);
                 }
 
-                var selInstructions = selection.Instructions;
                 if (fallthrough != null)
                 {
                     if (flowSelection.ContainsKey(fallthrough))
                     {
                         // We found a fallthrough block that has already been selected.
                         // This is quite unfortunate; we'll have to introduce a branch.
-                        var insns = new List<TInstruction>(selInstructions);
-                        insns.AddRange(InstructionSelector.CreateJumpTo(fallthrough));
-                        selInstructions = insns;
+                        selection = selection.Append(InstructionSelector.CreateJumpTo(fallthrough));
                     }
                     else
                     {
@@ -158,7 +155,7 @@ namespace Flame.Compiler.Target
                     }
                 }
 
-                flowSelection[tag] = selInstructions;
+                flowSelection[tag] = selection;
                 foreach (var item in selection.Dependencies)
                 {
                     selectionWorklist.Enqueue(item);
@@ -166,7 +163,7 @@ namespace Flame.Compiler.Target
             }
 
             // Select target-specific instructions.
-            var instructionSelection = new Dictionary<ValueTag, IReadOnlyList<TInstruction>>();
+            var instructionSelection = new Dictionary<ValueTag, SelectedInstructions<TInstruction>>();
             while (selectionWorklist.Count > 0)
             {
                 var tag = selectionWorklist.Dequeue();
@@ -181,7 +178,7 @@ namespace Flame.Compiler.Target
                 var instruction = graph.GetInstruction(tag);
                 var selection = InstructionSelector.SelectInstructions(instruction);
 
-                instructionSelection[tag] = selection.Instructions;
+                instructionSelection[tag] = selection;
                 foreach (var item in selection.Dependencies)
                 {
                     selectionWorklist.Enqueue(item);
@@ -191,20 +188,77 @@ namespace Flame.Compiler.Target
             // We have selected target-specific instructions for reachable IR block
             // flows and required IR instructions. All we need to do now is patch them
             // together into a linear sequence of target-specific instructions.
+            return ToInstructionStream(
+                flowLayout.Select(graph.GetBasicBlock),
+                instructionSelection,
+                flowSelection);
+        }
+
+        /// <summary>
+        /// Creates a linear sequence of instructions for a control-flow graph based
+        /// on an order to place basic blocks in and selected instructions for named
+        /// instructions and block flow.
+        /// </summary>
+        /// <param name="layout">
+        /// The basic blocks to place, in the order they must be placed.
+        /// </param>
+        /// <param name="instructions">
+        /// A mapping of named instructions to their selected instructions. Named
+        /// instructions that do not appear in this mapping should not be selected.
+        /// </param>
+        /// <param name="flow">
+        /// A mapping of basic block tags to the selected instructions for their control
+        /// flow.
+        /// </param>
+        /// <returns>
+        /// A linear sequence of instructions.
+        /// </returns>
+        private IReadOnlyList<TInstruction> ToInstructionStream(
+            IEnumerable<BasicBlock> layout,
+            IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
+            IReadOnlyDictionary<BasicBlockTag, SelectedInstructions<TInstruction>> flow)
+        {
             var instructionStream = new List<TInstruction>();
-            foreach (var blockTag in flowLayout)
+            foreach (var block in layout)
             {
-                instructionStream.AddRange(InstructionSelector.CreateBlockMarker(graph.GetBasicBlock(blockTag)));
-                foreach (var insnTag in graph.GetBasicBlock(blockTag).InstructionTags)
-                {
-                    IReadOnlyList<TInstruction> selection;
-                    if (instructionSelection.TryGetValue(insnTag, out selection))
-                    {
-                        instructionStream.AddRange(selection);
-                    }
-                }
-                instructionStream.AddRange(flowSelection[blockTag]);
+                instructionStream.AddRange(InstructionSelector.CreateBlockMarker(block));
+                instructionStream.AddRange(ToInstructionStream(block, instructions, flow[block]));
             }
+            return instructionStream;
+        }
+
+        /// <summary>
+        /// Creates a linear sequence of instructions for a basic block based on
+        /// selected instructions for named instructions and block flow.
+        /// </summary>
+        /// <param name="block">
+        /// The basic blocks to place.
+        /// </param>
+        /// <param name="instructions">
+        /// A mapping of named instructions to their selected instructions. Named
+        /// instructions that do not appear in this mapping should not be selected.
+        /// </param>
+        /// <param name="flow">
+        /// Selected instructions for <paramref name="block"/>'s control flow.
+        /// </param>
+        /// <returns>
+        /// A linear sequence of instructions.
+        /// </returns>
+        protected virtual IReadOnlyList<TInstruction> ToInstructionStream(
+            BasicBlock block,
+            IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
+            SelectedInstructions<TInstruction> flow)
+        {
+            var instructionStream = new List<TInstruction>();
+            foreach (var insnTag in block.InstructionTags)
+            {
+                SelectedInstructions<TInstruction> selection;
+                if (instructions.TryGetValue(insnTag, out selection))
+                {
+                    instructionStream.AddRange(selection.Instructions);
+                }
+            }
+            instructionStream.AddRange(flow.Instructions);
             return instructionStream;
         }
     }
