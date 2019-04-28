@@ -87,4 +87,50 @@ namespace Flame.Compiler.Target
         /// </returns>
         IReadOnlyList<TInstruction> CreateJumpTo(BasicBlockTag target);
     }
+
+    /// <summary>
+    /// An instruction selector for a stack machine that can transfer data using either
+    /// stack slots or register loads and stores.
+    /// </summary>
+    /// <typeparam name="TInstruction">
+    /// The type of instructions to produce.
+    /// </typeparam>
+    public interface IStackInstructionSelector<TInstruction> : IInstructionSelector<TInstruction>
+    {
+        /// <summary>
+        /// Tells if instances of a particular instruction prototype
+        /// actually push a value onto the stack. Instructions that do
+        /// not push values may not be used as arguments to other instructions
+        /// or block flow.
+        /// </summary>
+        /// <param name="prototype">The instruction prototype to inspect.</param>
+        /// <returns>
+        /// <c>true</c> if instances of <paramref name="prototype"/> push a value
+        /// onto the stack; otherwise <c>false</c>.
+        /// </returns>
+        bool Pushes(InstructionPrototype prototype);
+
+        /// <summary>
+        /// Creates instructions that pop a value from the stack, discarding it.
+        /// </summary>
+        /// <param name="type">The type of value to pop.</param>
+        /// <returns>A list of selected instructions.</returns>
+        IReadOnlyList<TInstruction> CreatePop(IType type);
+
+        /// <summary>
+        /// Creates instructions that load a value from its virtual register.
+        /// </summary>
+        /// <param name="value">The value to load.</param>
+        ///  <param name="type">The type of <paramref name="value"/>.</param>
+        /// <returns>A list of selected instructions.</returns>
+        IReadOnlyList<TInstruction> CreateLoadRegister(ValueTag value, IType type);
+
+        /// <summary>
+        /// Creates instructions that stores a value into its virtual register.
+        /// </summary>
+        /// <param name="value">The value to store.</param>
+        /// <param name="type">The type of <paramref name="value"/>.</param>
+        /// <returns>A list of selected instructions.</returns>
+        IReadOnlyList<TInstruction> CreateStoreRegister(ValueTag value, IType type);
+    }
 }

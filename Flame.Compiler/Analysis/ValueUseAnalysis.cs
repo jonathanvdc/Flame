@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Flame.Compiler.Analysis
 {
@@ -60,6 +62,25 @@ namespace Flame.Compiler.Analysis
         public int GetUseCount(ValueTag tag)
         {
             return GetInstructionUses(tag).Count + GetFlowUses(tag).Count;
+        }
+
+        /// <summary>
+        /// Tests if a value is used outside of a particular block.
+        /// </summary>
+        /// <param name="value">The value to examine.</param>
+        /// <param name="block">A basic block.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="value"/> is used in some block other
+        /// than <paramref name="block"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsUsedOutsideOf(ValueTag value, BasicBlock block)
+        {
+            return GetFlowUses(value)
+                .Concat(
+                    GetInstructionUses(value)
+                    .Select(block.Graph.GetValueParent)
+                    .Select(b => b.Tag))
+                .Any(b => b != block.Tag);
         }
     }
 
