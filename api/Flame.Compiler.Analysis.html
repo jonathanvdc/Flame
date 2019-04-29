@@ -154,6 +154,9 @@ instruction.</p>
       <h4><a class="xref" href="Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.html">ExceptionDelayabilityExtensions</a></h4>
       <section><p>Defines extension methods related to exception delayability.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html">ExplicitInstructionExceptionSpecs</a></h4>
+      <section><p>An explicit mapping of instructions to their exception specifications.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.FlowGraphUpdate.html">FlowGraphUpdate</a></h4>
       <section><p>Describes an update to a flow graph.</p>
 </section>
@@ -207,6 +210,18 @@ in a control flow graph.</p>
       <section><p>A flow graph update that applies a mapping to every member
 in the flow graph.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySpecification.html">MemorySpecification</a></h4>
+      <section><p>A base class for descriptions of how an instruction interacts with memory.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html">MemorySpecification.ArgumentRead</a></h4>
+      <section><p>A read from an address encoded by an argument.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html">MemorySpecification.ArgumentWrite</a></h4>
+      <section><p>A write to an address encoded by an argument.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySpecification.Union.html">MemorySpecification.Union</a></h4>
+      <section><p>A union of memory access specs.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.MemorySSA.html">MemorySSA</a></h4>
       <section><p>A mapping of instructions to memory SSA states.</p>
 </section>
@@ -240,6 +255,13 @@ implicit checks when computing pointers.</p>
       <h4><a class="xref" href="Flame.Compiler.Analysis.PrototypeExceptionSpecs.html">PrototypeExceptionSpecs</a></h4>
       <section><p>Maps instruction prototypes to exception specifications.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.PrototypeMemorySpecs.html">PrototypeMemorySpecs</a></h4>
+      <section><p>Maps instruction prototypes to memory access specs.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html">ReifiedInstructionExceptionAnalysis</a></h4>
+      <section><p>An analysis that infers instruction specification specifications by refining
+the exception specifications for their prototypes.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.RelatedValueAnalysis.html">RelatedValueAnalysis</a></h4>
       <section><p>An analysis that computes the related value--relation for graphs.</p>
 </section>
@@ -254,6 +276,10 @@ implicit checks when computing pointers.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.RuleBasedPrototypeExceptionSpecs.html">RuleBasedPrototypeExceptionSpecs</a></h4>
       <section><p>Assigns exception specifications to prototypes based
+on a set of user-configurable rules.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html">RuleBasedPrototypeMemorySpecs</a></h4>
+      <section><p>Assigns memory specifications to prototypes based
 on a set of user-configurable rules.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Analysis.SetEntryPointUpdate.html">SetEntryPointUpdate</a></h4>

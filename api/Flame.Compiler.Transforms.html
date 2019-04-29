@@ -149,6 +149,11 @@ analyses.</p>
       <section><p>The inlining optimization: a transform that copies the function bodies
 of callees into the caller, replacing the call with its implementation.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Transforms.InstructionReordering.html">InstructionReordering</a></h4>
+      <section><p>A transformation that reorders instructions. It is intended to be used prior
+to codegen. Instruction reordering helps reduce register pressure and promotes
+register-to-stack conversion on virtual machines that use an evaluation stack.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Transforms.InstructionSimplification.html">InstructionSimplification</a></h4>
       <section><p>An intraprocedural transform that greedily applies instruction
 simplifications.</p>

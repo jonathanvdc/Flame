@@ -126,7 +126,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Analysis.ClrMethodBodyAnalyzer.html",
-          "hash": "FdPGVJOAmCkFXM9qFQqr2w=="
+          "hash": "dHLnUHQSCw/n4xWNtwiSFw=="
         }
       },
       "is_incremental": false,
@@ -390,7 +390,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilPeepholeOptimizer.html",
-          "hash": "ykg8Fi3KdmvOM9Ga8B2SZQ=="
+          "hash": "Df4R7IPxU7/G0ojZZj/3qg=="
         }
       },
       "is_incremental": false,
@@ -770,42 +770,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Collections.Target.PeepholeOptimizer-2.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Collections.Target.PeepholeOptimizer-2.html",
-          "hash": "UvXxi8MK1VZ0LeupNB8txg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Collections.Target.PeepholeRewriteRule-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Collections.Target.PeepholeRewriteRule-1.html",
-          "hash": "t6HMVrHGS5T9ujKmY9Giqg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Collections.Target.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Collections.Target.html",
-          "hash": "gsrCHRA4xmULyUHMgj+zjg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Collections.TreeSearchAlgorithm-2.yml",
       "output": {
         ".html": {
@@ -1026,7 +990,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ConservativeInstructionOrderingAnalysis.html",
-          "hash": "EFLn/KOhD4wPXKdNbmPqBQ=="
+          "hash": "TtBIo3eytfLSTjNIEA2Amg=="
         }
       },
       "is_incremental": false,
@@ -1050,7 +1014,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.DefaultAnalyses.html",
-          "hash": "oB4vysvgFKbIUhJRv0hqQw=="
+          "hash": "8eIpUFYKnbFW5/PoG1ET+Q=="
         }
       },
       "is_incremental": false,
@@ -1086,7 +1050,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.EffectfulInstructionAnalysis.html",
-          "hash": "fBAPcsIcg3bSB58ari6E8g=="
+          "hash": "TO1ABombjNI1xZ8ZtcNcsg=="
         }
       },
       "is_incremental": false,
@@ -1123,6 +1087,18 @@
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.html",
           "hash": "XLE6l666eYZKGQfHz9RIaw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html",
+          "hash": "ZiKqfE/nxTLYMSVjemUu4A=="
         }
       },
       "is_incremental": false,
@@ -1170,7 +1146,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.InstructionExceptionSpecs.html",
-          "hash": "MnHb6fviPkhkVOMt87I31w=="
+          "hash": "Kh5HqfaGABO86d1kuQN8wQ=="
         }
       },
       "is_incremental": false,
@@ -1370,11 +1346,59 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html",
+          "hash": "g3kiIuDZQEbJUVvG7us8zw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html",
+          "hash": "EMpX6lNgr3o1soHbGvfD2g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.Union.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.Union.html",
+          "hash": "J3XyuFc/Fy0KhYwWYLMOkA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.html",
+          "hash": "wCpLM2rANfQCdghovnLqzg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.yml",
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.html",
-          "hash": "3wooOlfmaCVN4Ym3liFQmg=="
+          "hash": "wlM9SB3G6JDXk60LsFLEfQ=="
         }
       },
       "is_incremental": false,
@@ -1430,11 +1454,35 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.PrototypeMemorySpecs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.PrototypeMemorySpecs.html",
+          "hash": "VSQE/BrW/KoxdYtTkoF+2g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Analysis.RegisterAllocation-1.yml",
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RegisterAllocation-1.html",
           "hash": "WRJsqeM6SqlR2qc/vno8kw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html",
+          "hash": "EB5CZlXVgUfl5bzKcdRdCA=="
         }
       },
       "is_incremental": false,
@@ -1506,7 +1554,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RuleBasedPrototypeExceptionSpecs.html",
-          "hash": "CT7s8cSwGY40CBQKbhIMGw=="
+          "hash": "nzGSi3iKsX09yaz89Z/l7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html",
+          "hash": "k6e1wCkwF7wV8fgyHb7TFw=="
         }
       },
       "is_incremental": false,
@@ -1554,7 +1614,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.TrivialInstructionExceptionSpecs.html",
-          "hash": "CrIx9wYO/fNY/VzjgP70cw=="
+          "hash": "sDlIkE4uOUvayi35qCwrGg=="
         }
       },
       "is_incremental": false,
@@ -1626,7 +1686,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueUseAnalysis.html",
-          "hash": "vZ7MNxC6Dm7jmGDiLdpKDg=="
+          "hash": "XWKEY2jaSpmyi2P0w3lDAQ=="
         }
       },
       "is_incremental": false,
@@ -1638,7 +1698,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.ValueUses.html",
-          "hash": "ixcWwATQ/RLhla7kRkcSzQ=="
+          "hash": "/Fxi9p49Pu11VByXfOQYZg=="
         }
       },
       "is_incremental": false,
@@ -1650,7 +1710,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.html",
-          "hash": "Bm54Zz5xh4icMfjvHbezTA=="
+          "hash": "kJl0THJ96e8yORg2d3+J+w=="
         }
       },
       "is_incremental": false,
@@ -2486,11 +2546,47 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.yml",
+      "source_relative_path": "api/Flame.Compiler.Target.IStackInstructionSelector-1.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html",
-          "hash": "zi2s3JHwMbVWluuXnDr7dA=="
+          "relative_path": "api/Flame.Compiler.Target.IStackInstructionSelector-1.html",
+          "hash": "xHK2fJqlHjvwo+Ll0NMf4w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Target.InstructionStreamBuilder-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Target.InstructionStreamBuilder-1.html",
+          "hash": "Jgsyxps3ZosKY9oG6TGXQg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Target.PeepholeOptimizer-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Target.PeepholeOptimizer-2.html",
+          "hash": "TtDz52cUroZAKJ5LDO8k4g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Target.PeepholeRewriteRule-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Target.PeepholeRewriteRule-1.html",
+          "hash": "JVoMd789VwOiy+yyx+h+3A=="
         }
       },
       "is_incremental": false,
@@ -2502,7 +2598,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.SelectedInstructions-1.html",
-          "hash": "Ggh+ufLHllMJLAefbeWg+A=="
+          "hash": "lKeVKnqHWbJZIKQg9cL+wA=="
         }
       },
       "is_incremental": false,
@@ -2514,7 +2610,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.SelectedInstructions.html",
-          "hash": "D9JFvcew8HQisDRvbPRghg=="
+          "hash": "6e7II02lSH25RLC6TvlWIw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html",
+          "hash": "hRXTeGxkvAKyPrn1V1ORaQ=="
         }
       },
       "is_incremental": false,
@@ -2526,7 +2634,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Target.html",
-          "hash": "kxUmoWCI4IDgG0nGEZs4Gw=="
+          "hash": "XmQN9yQP5QGs5uWpCN6tdQ=="
         }
       },
       "is_incremental": false,
@@ -2678,6 +2786,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Transforms.InstructionReordering.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Transforms.InstructionReordering.html",
+          "hash": "dUXjcz4otE6l2It/dw/QsQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Transforms.InstructionSimplification.yml",
       "output": {
         ".html": {
@@ -2718,7 +2838,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.IntraproceduralOptimization.html",
-          "hash": "rU/EGjJlAUuBAFIF+OB6IA=="
+          "hash": "VKKLMEhv9kDcc7Grg8XCmA=="
         }
       },
       "is_incremental": false,
@@ -2850,7 +2970,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.html",
-          "hash": "7nMd+XkUiAFU4rH/vu2kRQ=="
+          "hash": "I8+kpdkjtt9gxRIaMQvkow=="
         }
       },
       "is_incremental": false,
@@ -4161,7 +4281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "X5fGiGUnL8mifUM3C7Eb+w=="
+          "hash": "VhMW7b3/8MXg6DU1b/FD1w=="
         }
       },
       "is_incremental": false,
@@ -4239,23 +4359,23 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 4,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 344,
-          "skipped_file_count": 0
-        },
         "TocDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
           "total_file_count": 0,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 354,
+          "skipped_file_count": 0
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 4,
           "skipped_file_count": 0
         }
       }

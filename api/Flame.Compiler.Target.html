@@ -87,13 +87,26 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="classes">Classes
   </h3>
+      <h4><a class="xref" href="Flame.Compiler.Target.InstructionStreamBuilder-1.html">InstructionStreamBuilder&lt;TInstruction&gt;</a></h4>
+      <section><p>Translates flow graphs to linear sequences of target-specific instructions.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Target.PeepholeOptimizer-2.html">PeepholeOptimizer&lt;TInstruction, TExternalRef&gt;</a></h4>
+      <section><p>A target-specific peephole optimizer: an optimizer that walks
+through a linear sequence of target-specific instructions,
+recognizes patterns and rewrites small batches of instructions.</p>
+</section>
       <h4><a class="xref" href="Flame.Compiler.Target.SelectedInstructions.html">SelectedInstructions</a></h4>
       <section><p>A collection of selected instructions for a value.</p>
 </section>
+      <h4><a class="xref" href="Flame.Compiler.Target.StackInstructionStreamBuilder-1.html">StackInstructionStreamBuilder&lt;TInstruction&gt;</a></h4>
+      <section><p>An instruction stream builder that manages data transfer using a combination of
+stack slots and explicit register loads/stores, as commonly offered by stack
+machines.</p>
+</section>
     <h3 id="structs">Structs
   </h3>
-      <h4><a class="xref" href="Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html">LinearInstructionStreamBuilder&lt;TInstruction&gt;</a></h4>
-      <section><p>Translates flow graphs to linear sequences of target-specific instructions.</p>
+      <h4><a class="xref" href="Flame.Compiler.Target.PeepholeRewriteRule-1.html">PeepholeRewriteRule&lt;TInstruction&gt;</a></h4>
+      <section><p>A rewrite rule as used by a peephole optimizer.</p>
 </section>
       <h4><a class="xref" href="Flame.Compiler.Target.SelectedInstructions-1.html">SelectedInstructions&lt;TInstruction&gt;</a></h4>
       <section><p>A collection of selected instructions for a value.</p>
@@ -109,6 +122,10 @@ sequences of target-specific instructions.</p>
       <section><p>An instruction selection algorithm for instruction sets that produce
 linear streams of instructions, that is, control flow is expressed
 using branches to branch targets.</p>
+</section>
+      <h4><a class="xref" href="Flame.Compiler.Target.IStackInstructionSelector-1.html">IStackInstructionSelector&lt;TInstruction&gt;</a></h4>
+      <section><p>An instruction selector for a stack machine that can transfer data using either
+stack slots or register loads and stores.</p>
 </section>
 </article>
           </div>

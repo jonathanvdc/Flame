@@ -5754,240 +5754,6 @@ references:
   fullName.vb: Flame.Collections.SymmetricRelation(Of T).Remove
   nameWithType: SymmetricRelation<T>.Remove
   nameWithType.vb: SymmetricRelation(Of T).Remove
-- uid: Flame.Collections.Target
-  name: Flame.Collections.Target
-  href: api/Flame.Collections.Target.html
-  commentId: N:Flame.Collections.Target
-  fullName: Flame.Collections.Target
-  nameWithType: Flame.Collections.Target
-- uid: Flame.Collections.Target.PeepholeOptimizer`2
-  name: PeepholeOptimizer<TInstruction, TExternalRef>
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html
-  commentId: T:Flame.Collections.Target.PeepholeOptimizer`2
-  name.vb: PeepholeOptimizer(Of TInstruction, TExternalRef)
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef)
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef)
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Collections.Target.PeepholeRewriteRule{`0}})
-  name: PeepholeOptimizer(IReadOnlyList<PeepholeRewriteRule<TInstruction>>)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2__ctor_System_Collections_Generic_IReadOnlyList_Flame_Collections_Target_PeepholeRewriteRule__0___
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Collections.Target.PeepholeRewriteRule{`0}})
-  name.vb: PeepholeOptimizer(IReadOnlyList(Of PeepholeRewriteRule(Of TInstruction)))
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer(System.Collections.Generic.IReadOnlyList<Flame.Collections.Target.PeepholeRewriteRule<TInstruction>>)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer(System.Collections.Generic.IReadOnlyList(Of Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction)))
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer(IReadOnlyList<PeepholeRewriteRule<TInstruction>>)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer(IReadOnlyList(Of PeepholeRewriteRule(Of TInstruction)))
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.#ctor*
-  name: PeepholeOptimizer
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2__ctor_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.#ctor
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.GetBranchTargets(`0)
-  name: GetBranchTargets(TInstruction)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_GetBranchTargets__0_
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.GetBranchTargets(`0)
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets(TInstruction)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets(TInstruction)
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets(TInstruction)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets(TInstruction)
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.GetBranchTargets*
-  name: GetBranchTargets
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_GetBranchTargets_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.GetBranchTargets
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.GetInstructionReferences(`1)
-  name: GetInstructionReferences(TExternalRef)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_GetInstructionReferences__1_
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.GetInstructionReferences(`1)
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences(TExternalRef)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences(TExternalRef)
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences(TExternalRef)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences(TExternalRef)
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.GetInstructionReferences*
-  name: GetInstructionReferences
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_GetInstructionReferences_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.GetInstructionReferences
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0})
-  name: Optimize(IReadOnlyList<TInstruction>)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_Optimize_System_Collections_Generic_IReadOnlyList__0__
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0})
-  name.vb: Optimize(IReadOnlyList(Of TInstruction))
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(System.Collections.Generic.IReadOnlyList<TInstruction>)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(System.Collections.Generic.IReadOnlyList(Of TInstruction))
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(IReadOnlyList<TInstruction>)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(IReadOnlyList(Of TInstruction))
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`1},System.Collections.Generic.IReadOnlyList{`1}@)
-  name: Optimize(IReadOnlyList<TInstruction>, IReadOnlyList<TExternalRef>, out IReadOnlyList<TExternalRef>)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_Optimize_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__1__System_Collections_Generic_IReadOnlyList__1___
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`1},System.Collections.Generic.IReadOnlyList{`1}@)
-  name.vb: Optimize(IReadOnlyList(Of TInstruction), IReadOnlyList(Of TExternalRef), ByRef IReadOnlyList(Of TExternalRef))
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TExternalRef>, out System.Collections.Generic.IReadOnlyList<TExternalRef>)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TExternalRef), ByRef System.Collections.Generic.IReadOnlyList(Of TExternalRef))
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(IReadOnlyList<TInstruction>, IReadOnlyList<TExternalRef>, out IReadOnlyList<TExternalRef>)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(IReadOnlyList(Of TInstruction), IReadOnlyList(Of TExternalRef), ByRef IReadOnlyList(Of TExternalRef))
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.Optimize*
-  name: Optimize
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_Optimize_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.Optimize
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.RewriteBranchTargets(`0,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
-  name: RewriteBranchTargets(TInstruction, IReadOnlyDictionary<TInstruction, TInstruction>)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_RewriteBranchTargets__0_System_Collections_Generic_IReadOnlyDictionary__0__0__
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.RewriteBranchTargets(`0,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
-  name.vb: RewriteBranchTargets(TInstruction, IReadOnlyDictionary(Of TInstruction, TInstruction))
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets(TInstruction, System.Collections.Generic.IReadOnlyDictionary<TInstruction, TInstruction>)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets(TInstruction, System.Collections.Generic.IReadOnlyDictionary(Of TInstruction, TInstruction))
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets(TInstruction, IReadOnlyDictionary<TInstruction, TInstruction>)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets(TInstruction, IReadOnlyDictionary(Of TInstruction, TInstruction))
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.RewriteBranchTargets*
-  name: RewriteBranchTargets
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_RewriteBranchTargets_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.RewriteBranchTargets
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.RewriteInstructionReferences(`1,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
-  name: RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary<TInstruction, TInstruction>)
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_RewriteInstructionReferences__1_System_Collections_Generic_IReadOnlyDictionary__0__0__
-  commentId: M:Flame.Collections.Target.PeepholeOptimizer`2.RewriteInstructionReferences(`1,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
-  name.vb: RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary(Of TInstruction, TInstruction))
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences(TExternalRef, System.Collections.Generic.IReadOnlyDictionary<TInstruction, TInstruction>)
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences(TExternalRef, System.Collections.Generic.IReadOnlyDictionary(Of TInstruction, TInstruction))
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary<TInstruction, TInstruction>)
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary(Of TInstruction, TInstruction))
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.RewriteInstructionReferences*
-  name: RewriteInstructionReferences
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_RewriteInstructionReferences_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.RewriteInstructionReferences
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.Rules
-  name: Rules
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_Rules
-  commentId: P:Flame.Collections.Target.PeepholeOptimizer`2.Rules
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Rules
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Rules
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
-- uid: Flame.Collections.Target.PeepholeOptimizer`2.Rules*
-  name: Rules
-  href: api/Flame.Collections.Target.PeepholeOptimizer-2.html#Flame_Collections_Target_PeepholeOptimizer_2_Rules_
-  commentId: Overload:Flame.Collections.Target.PeepholeOptimizer`2.Rules
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Rules
-  fullName.vb: Flame.Collections.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
-  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Rules
-  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1
-  name: PeepholeRewriteRule<TInstruction>
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html
-  commentId: T:Flame.Collections.Target.PeepholeRewriteRule`1
-  name.vb: PeepholeRewriteRule(Of TInstruction)
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction)
-  nameWithType: PeepholeRewriteRule<TInstruction>
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction)
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
-  name: PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1__ctor_System_Collections_Generic_IReadOnlyList_System_Predicate__0___System_Func_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__0___
-  commentId: M:Flame.Collections.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
-  name.vb: PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList<System.Predicate<TInstruction>>, System.Func<System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TInstruction>>)
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList(Of System.Predicate(Of TInstruction)), System.Func(Of System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TInstruction)))
-  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Predicate{System.Collections.Generic.IReadOnlyList{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
-  name: PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Predicate<IReadOnlyList<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1__ctor_System_Collections_Generic_IReadOnlyList_System_Predicate__0___System_Predicate_System_Collections_Generic_IReadOnlyList__0___System_Func_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__0___
-  commentId: M:Flame.Collections.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Predicate{System.Collections.Generic.IReadOnlyList{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
-  name.vb: PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Predicate(Of IReadOnlyList(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList<System.Predicate<TInstruction>>, System.Predicate<System.Collections.Generic.IReadOnlyList<TInstruction>>, System.Func<System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TInstruction>>)
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList(Of System.Predicate(Of TInstruction)), System.Predicate(Of System.Collections.Generic.IReadOnlyList(Of TInstruction)), System.Func(Of System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TInstruction)))
-  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Predicate<IReadOnlyList<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Predicate(Of IReadOnlyList(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.#ctor*
-  name: PeepholeRewriteRule
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1__ctor_
-  commentId: Overload:Flame.Collections.Target.PeepholeRewriteRule`1.#ctor
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule
-  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.MacroPattern
-  name: MacroPattern
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_MacroPattern
-  commentId: P:Flame.Collections.Target.PeepholeRewriteRule`1.MacroPattern
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.MacroPattern
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).MacroPattern
-  nameWithType: PeepholeRewriteRule<TInstruction>.MacroPattern
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).MacroPattern
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.MacroPattern*
-  name: MacroPattern
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_MacroPattern_
-  commentId: Overload:Flame.Collections.Target.PeepholeRewriteRule`1.MacroPattern
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.MacroPattern
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).MacroPattern
-  nameWithType: PeepholeRewriteRule<TInstruction>.MacroPattern
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).MacroPattern
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.Pattern
-  name: Pattern
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_Pattern
-  commentId: P:Flame.Collections.Target.PeepholeRewriteRule`1.Pattern
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.Pattern
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).Pattern
-  nameWithType: PeepholeRewriteRule<TInstruction>.Pattern
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Pattern
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.Pattern*
-  name: Pattern
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_Pattern_
-  commentId: Overload:Flame.Collections.Target.PeepholeRewriteRule`1.Pattern
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.Pattern
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).Pattern
-  nameWithType: PeepholeRewriteRule<TInstruction>.Pattern
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Pattern
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.Rewrite
-  name: Rewrite
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_Rewrite
-  commentId: P:Flame.Collections.Target.PeepholeRewriteRule`1.Rewrite
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.Rewrite
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).Rewrite
-  nameWithType: PeepholeRewriteRule<TInstruction>.Rewrite
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Rewrite
-- uid: Flame.Collections.Target.PeepholeRewriteRule`1.Rewrite*
-  name: Rewrite
-  href: api/Flame.Collections.Target.PeepholeRewriteRule-1.html#Flame_Collections_Target_PeepholeRewriteRule_1_Rewrite_
-  commentId: Overload:Flame.Collections.Target.PeepholeRewriteRule`1.Rewrite
-  isSpec: "True"
-  fullName: Flame.Collections.Target.PeepholeRewriteRule<TInstruction>.Rewrite
-  fullName.vb: Flame.Collections.Target.PeepholeRewriteRule(Of TInstruction).Rewrite
-  nameWithType: PeepholeRewriteRule<TInstruction>.Rewrite
-  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Rewrite
 - uid: Flame.Collections.TreeSearchAlgorithm`2
   name: TreeSearchAlgorithm<TInternalNode, TLeafNode>
   href: api/Flame.Collections.TreeSearchAlgorithm-2.html
@@ -7448,6 +7214,54 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.ExceptionDelayabilityExtensions.CanDelayExceptions
   nameWithType: ExceptionDelayabilityExtensions.CanDelayExceptions
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs
+  name: ExplicitInstructionExceptionSpecs
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html
+  commentId: T:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs
+  nameWithType: ExplicitInstructionExceptionSpecs
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.#ctor(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.Instruction,Flame.ExceptionSpecification})
+  name: ExplicitInstructionExceptionSpecs(IReadOnlyDictionary<Instruction, ExceptionSpecification>)
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs__ctor_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_Instruction_Flame_ExceptionSpecification__
+  commentId: M:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.#ctor(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.Instruction,Flame.ExceptionSpecification})
+  name.vb: ExplicitInstructionExceptionSpecs(IReadOnlyDictionary(Of Instruction, ExceptionSpecification))
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs(System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.Instruction, Flame.ExceptionSpecification>)
+  fullName.vb: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs(System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.Instruction, Flame.ExceptionSpecification))
+  nameWithType: ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs(IReadOnlyDictionary<Instruction, ExceptionSpecification>)
+  nameWithType.vb: ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs(IReadOnlyDictionary(Of Instruction, ExceptionSpecification))
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.#ctor*
+  name: ExplicitInstructionExceptionSpecs
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs__ctor_
+  commentId: Overload:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs
+  nameWithType: ExplicitInstructionExceptionSpecs.ExplicitInstructionExceptionSpecs
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification(Flame.Compiler.Instruction)
+  name: GetExceptionSpecification(Instruction)
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs_GetExceptionSpecification_Flame_Compiler_Instruction_
+  commentId: M:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification(Flame.Compiler.Instruction)
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification(Flame.Compiler.Instruction)
+  nameWithType: ExplicitInstructionExceptionSpecs.GetExceptionSpecification(Instruction)
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification*
+  name: GetExceptionSpecification
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs_GetExceptionSpecification_
+  commentId: Overload:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.GetExceptionSpecification
+  nameWithType: ExplicitInstructionExceptionSpecs.GetExceptionSpecification
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications
+  name: Specifications
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs_Specifications
+  commentId: P:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications
+  nameWithType: ExplicitInstructionExceptionSpecs.Specifications
+- uid: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications*
+  name: Specifications
+  href: api/Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.html#Flame_Compiler_Analysis_ExplicitInstructionExceptionSpecs_Specifications_
+  commentId: Overload:Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ExplicitInstructionExceptionSpecs.Specifications
+  nameWithType: ExplicitInstructionExceptionSpecs.Specifications
 - uid: Flame.Compiler.Analysis.FlowGraphUpdate
   name: FlowGraphUpdate
   href: api/Flame.Compiler.Analysis.FlowGraphUpdate.html
@@ -8134,6 +7948,239 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.MapMembersUpdate.Mapping
   nameWithType: MapMembersUpdate.Mapping
+- uid: Flame.Compiler.Analysis.MemorySpecification
+  name: MemorySpecification
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html
+  commentId: T:Flame.Compiler.Analysis.MemorySpecification
+  fullName: Flame.Compiler.Analysis.MemorySpecification
+  nameWithType: MemorySpecification
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead
+  name: MemorySpecification.ArgumentRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html
+  commentId: T:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead
+  nameWithType: MemorySpecification.ArgumentRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create(System.Int32)
+  name: Create(Int32)
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_Create_System_Int32_
+  commentId: M:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create(System.Int32)
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create(System.Int32)
+  nameWithType: MemorySpecification.ArgumentRead.Create(Int32)
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create*
+  name: Create
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_Create_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.Create
+  nameWithType: MemorySpecification.ArgumentRead.Create
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_MayRead
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead
+  nameWithType: MemorySpecification.ArgumentRead.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead*
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_MayRead_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayRead
+  nameWithType: MemorySpecification.ArgumentRead.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_MayWrite
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite
+  nameWithType: MemorySpecification.ArgumentRead.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite*
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_MayWrite_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.MayWrite
+  nameWithType: MemorySpecification.ArgumentRead.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex
+  name: ParameterIndex
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_ParameterIndex
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex
+  nameWithType: MemorySpecification.ArgumentRead.ParameterIndex
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex*
+  name: ParameterIndex
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentRead_ParameterIndex_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.ParameterIndex
+  nameWithType: MemorySpecification.ArgumentRead.ParameterIndex
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite
+  name: MemorySpecification.ArgumentWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html
+  commentId: T:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite
+  nameWithType: MemorySpecification.ArgumentWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create(System.Int32)
+  name: Create(Int32)
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_Create_System_Int32_
+  commentId: M:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create(System.Int32)
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create(System.Int32)
+  nameWithType: MemorySpecification.ArgumentWrite.Create(Int32)
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create*
+  name: Create
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_Create_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.Create
+  nameWithType: MemorySpecification.ArgumentWrite.Create
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_MayRead
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead
+  nameWithType: MemorySpecification.ArgumentWrite.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead*
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_MayRead_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayRead
+  nameWithType: MemorySpecification.ArgumentWrite.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_MayWrite
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite
+  nameWithType: MemorySpecification.ArgumentWrite.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite*
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_MayWrite_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.MayWrite
+  nameWithType: MemorySpecification.ArgumentWrite.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex
+  name: ParameterIndex
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_ParameterIndex
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex
+  nameWithType: MemorySpecification.ArgumentWrite.ParameterIndex
+- uid: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex*
+  name: ParameterIndex
+  href: api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html#Flame_Compiler_Analysis_MemorySpecification_ArgumentWrite_ParameterIndex_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.ParameterIndex
+  nameWithType: MemorySpecification.ArgumentWrite.ParameterIndex
+- uid: Flame.Compiler.Analysis.MemorySpecification.MayRead
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_MayRead
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.MayRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.MayRead
+  nameWithType: MemorySpecification.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.MayRead*
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_MayRead_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.MayRead
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.MayRead
+  nameWithType: MemorySpecification.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.MayWrite
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_MayWrite
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.MayWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.MayWrite
+  nameWithType: MemorySpecification.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.MayWrite*
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_MayWrite_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.MayWrite
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.MayWrite
+  nameWithType: MemorySpecification.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.Nothing
+  name: Nothing
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_Nothing
+  commentId: F:Flame.Compiler.Analysis.MemorySpecification.Nothing
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Nothing
+  nameWithType: MemorySpecification.Nothing
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union
+  name: MemorySpecification.Union
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html
+  commentId: T:Flame.Compiler.Analysis.MemorySpecification.Union
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union
+  nameWithType: MemorySpecification.Union
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.Create(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.MemorySpecification})
+  name: Create(IReadOnlyList<MemorySpecification>)
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_Create_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_MemorySpecification__
+  commentId: M:Flame.Compiler.Analysis.MemorySpecification.Union.Create(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.MemorySpecification})
+  name.vb: Create(IReadOnlyList(Of MemorySpecification))
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.Create(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.MemorySpecification>)
+  fullName.vb: Flame.Compiler.Analysis.MemorySpecification.Union.Create(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.MemorySpecification))
+  nameWithType: MemorySpecification.Union.Create(IReadOnlyList<MemorySpecification>)
+  nameWithType.vb: MemorySpecification.Union.Create(IReadOnlyList(Of MemorySpecification))
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.Create*
+  name: Create
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_Create_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.Union.Create
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.Create
+  nameWithType: MemorySpecification.Union.Create
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.Elements
+  name: Elements
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_Elements
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.Union.Elements
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.Elements
+  nameWithType: MemorySpecification.Union.Elements
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.Elements*
+  name: Elements
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_Elements_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.Union.Elements
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.Elements
+  nameWithType: MemorySpecification.Union.Elements
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.MayRead
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_MayRead
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.Union.MayRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.MayRead
+  nameWithType: MemorySpecification.Union.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.MayRead*
+  name: MayRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_MayRead_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.Union.MayRead
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.MayRead
+  nameWithType: MemorySpecification.Union.MayRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_MayWrite
+  commentId: P:Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite
+  nameWithType: MemorySpecification.Union.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite*
+  name: MayWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.Union.html#Flame_Compiler_Analysis_MemorySpecification_Union_MayWrite_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Union.MayWrite
+  nameWithType: MemorySpecification.Union.MayWrite
+- uid: Flame.Compiler.Analysis.MemorySpecification.Unknown
+  name: Unknown
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_Unknown
+  commentId: F:Flame.Compiler.Analysis.MemorySpecification.Unknown
+  fullName: Flame.Compiler.Analysis.MemorySpecification.Unknown
+  nameWithType: MemorySpecification.Unknown
+- uid: Flame.Compiler.Analysis.MemorySpecification.UnknownRead
+  name: UnknownRead
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_UnknownRead
+  commentId: F:Flame.Compiler.Analysis.MemorySpecification.UnknownRead
+  fullName: Flame.Compiler.Analysis.MemorySpecification.UnknownRead
+  nameWithType: MemorySpecification.UnknownRead
+- uid: Flame.Compiler.Analysis.MemorySpecification.UnknownWrite
+  name: UnknownWrite
+  href: api/Flame.Compiler.Analysis.MemorySpecification.html#Flame_Compiler_Analysis_MemorySpecification_UnknownWrite
+  commentId: F:Flame.Compiler.Analysis.MemorySpecification.UnknownWrite
+  fullName: Flame.Compiler.Analysis.MemorySpecification.UnknownWrite
+  nameWithType: MemorySpecification.UnknownWrite
 - uid: Flame.Compiler.Analysis.MemorySSA
   name: MemorySSA
   href: api/Flame.Compiler.Analysis.MemorySSA.html
@@ -8576,6 +8623,25 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.PrototypeExceptionSpecs.GetExceptionSpecification
   nameWithType: PrototypeExceptionSpecs.GetExceptionSpecification
+- uid: Flame.Compiler.Analysis.PrototypeMemorySpecs
+  name: PrototypeMemorySpecs
+  href: api/Flame.Compiler.Analysis.PrototypeMemorySpecs.html
+  commentId: T:Flame.Compiler.Analysis.PrototypeMemorySpecs
+  fullName: Flame.Compiler.Analysis.PrototypeMemorySpecs
+  nameWithType: PrototypeMemorySpecs
+- uid: Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  name: GetMemorySpecification(InstructionPrototype)
+  href: api/Flame.Compiler.Analysis.PrototypeMemorySpecs.html#Flame_Compiler_Analysis_PrototypeMemorySpecs_GetMemorySpecification_Flame_Compiler_InstructionPrototype_
+  commentId: M:Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  fullName: Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  nameWithType: PrototypeMemorySpecs.GetMemorySpecification(InstructionPrototype)
+- uid: Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification*
+  name: GetMemorySpecification
+  href: api/Flame.Compiler.Analysis.PrototypeMemorySpecs.html#Flame_Compiler_Analysis_PrototypeMemorySpecs_GetMemorySpecification_
+  commentId: Overload:Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification
+  nameWithType: PrototypeMemorySpecs.GetMemorySpecification
 - uid: Flame.Compiler.Analysis.RegisterAllocation`1
   name: RegisterAllocation<TRegister>
   href: api/Flame.Compiler.Analysis.RegisterAllocation-1.html
@@ -8637,6 +8703,47 @@ references:
   fullName.vb: Flame.Compiler.Analysis.RegisterAllocation(Of TRegister).GetRegister
   nameWithType: RegisterAllocation<TRegister>.GetRegister
   nameWithType.vb: RegisterAllocation(Of TRegister).GetRegister
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis
+  name: ReifiedInstructionExceptionAnalysis
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html
+  commentId: T:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis
+  nameWithType: ReifiedInstructionExceptionAnalysis
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  name: Analyze(FlowGraph)
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html#Flame_Compiler_Analysis_ReifiedInstructionExceptionAnalysis_Analyze_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze(Flame.Compiler.FlowGraph)
+  nameWithType: ReifiedInstructionExceptionAnalysis.Analyze(FlowGraph)
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze*
+  name: Analyze
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html#Flame_Compiler_Analysis_ReifiedInstructionExceptionAnalysis_Analyze_
+  commentId: Overload:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Analyze
+  nameWithType: ReifiedInstructionExceptionAnalysis.Analyze
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.InstructionExceptionSpecs,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name: AnalyzeWithUpdates(FlowGraph, InstructionExceptionSpecs, IReadOnlyList<FlowGraphUpdate>)
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html#Flame_Compiler_Analysis_ReifiedInstructionExceptionAnalysis_AnalyzeWithUpdates_Flame_Compiler_FlowGraph_Flame_Compiler_Analysis_InstructionExceptionSpecs_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Analysis_FlowGraphUpdate__
+  commentId: M:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph,Flame.Compiler.Analysis.InstructionExceptionSpecs,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Analysis.FlowGraphUpdate})
+  name.vb: AnalyzeWithUpdates(FlowGraph, InstructionExceptionSpecs, IReadOnlyList(Of FlowGraphUpdate))
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.InstructionExceptionSpecs, System.Collections.Generic.IReadOnlyList<Flame.Compiler.Analysis.FlowGraphUpdate>)
+  fullName.vb: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(Flame.Compiler.FlowGraph, Flame.Compiler.Analysis.InstructionExceptionSpecs, System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Analysis.FlowGraphUpdate))
+  nameWithType: ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(FlowGraph, InstructionExceptionSpecs, IReadOnlyList<FlowGraphUpdate>)
+  nameWithType.vb: ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates(FlowGraph, InstructionExceptionSpecs, IReadOnlyList(Of FlowGraphUpdate))
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates*
+  name: AnalyzeWithUpdates
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html#Flame_Compiler_Analysis_ReifiedInstructionExceptionAnalysis_AnalyzeWithUpdates_
+  commentId: Overload:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates
+  nameWithType: ReifiedInstructionExceptionAnalysis.AnalyzeWithUpdates
+- uid: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Instance
+  name: Instance
+  href: api/Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.html#Flame_Compiler_Analysis_ReifiedInstructionExceptionAnalysis_Instance
+  commentId: F:Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Instance
+  fullName: Flame.Compiler.Analysis.ReifiedInstructionExceptionAnalysis.Instance
+  nameWithType: ReifiedInstructionExceptionAnalysis.Instance
 - uid: Flame.Compiler.Analysis.RelatedValueAnalysis
   name: RelatedValueAnalysis
   href: api/Flame.Compiler.Analysis.RelatedValueAnalysis.html
@@ -8825,6 +8932,90 @@ references:
   fullName.vb: Flame.Compiler.Analysis.RuleBasedPrototypeExceptionSpecs.Register(Of T)(System.Func(Of T, Flame.ExceptionSpecification))
   nameWithType: RuleBasedPrototypeExceptionSpecs.Register<T>(Func<T, ExceptionSpecification>)
   nameWithType.vb: RuleBasedPrototypeExceptionSpecs.Register(Of T)(Func(Of T, ExceptionSpecification))
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs
+  name: RuleBasedPrototypeMemorySpecs
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html
+  commentId: T:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs
+  nameWithType: RuleBasedPrototypeMemorySpecs
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor
+  name: RuleBasedPrototypeMemorySpecs()
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs__ctor
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs()
+  nameWithType: RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs()
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor(Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs)
+  name: RuleBasedPrototypeMemorySpecs(RuleBasedPrototypeMemorySpecs)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs__ctor_Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor(Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs)
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs(Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs)
+  nameWithType: RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs(RuleBasedPrototypeMemorySpecs)
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor*
+  name: RuleBasedPrototypeMemorySpecs
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs__ctor_
+  commentId: Overload:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs
+  nameWithType: RuleBasedPrototypeMemorySpecs.RuleBasedPrototypeMemorySpecs
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Default
+  name: Default
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Default
+  commentId: F:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Default
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Default
+  nameWithType: RuleBasedPrototypeMemorySpecs.Default
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  name: GetMemorySpecification(InstructionPrototype)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_GetMemorySpecification_Flame_Compiler_InstructionPrototype_
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)
+  nameWithType: RuleBasedPrototypeMemorySpecs.GetMemorySpecification(InstructionPrototype)
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification*
+  name: GetMemorySpecification
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_GetMemorySpecification_
+  commentId: Overload:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.GetMemorySpecification
+  nameWithType: RuleBasedPrototypeMemorySpecs.GetMemorySpecification
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String,Flame.Compiler.Analysis.MemorySpecification)
+  name: Register(String, MemorySpecification)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Register_System_String_Flame_Compiler_Analysis_MemorySpecification_
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String,Flame.Compiler.Analysis.MemorySpecification)
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String, Flame.Compiler.Analysis.MemorySpecification)
+  nameWithType: RuleBasedPrototypeMemorySpecs.Register(String, MemorySpecification)
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String,System.Func{Flame.Compiler.Instructions.IntrinsicPrototype,Flame.Compiler.Analysis.MemorySpecification})
+  name: Register(String, Func<IntrinsicPrototype, MemorySpecification>)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Register_System_String_System_Func_Flame_Compiler_Instructions_IntrinsicPrototype_Flame_Compiler_Analysis_MemorySpecification__
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String,System.Func{Flame.Compiler.Instructions.IntrinsicPrototype,Flame.Compiler.Analysis.MemorySpecification})
+  name.vb: Register(String, Func(Of IntrinsicPrototype, MemorySpecification))
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String, System.Func<Flame.Compiler.Instructions.IntrinsicPrototype, Flame.Compiler.Analysis.MemorySpecification>)
+  fullName.vb: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(System.String, System.Func(Of Flame.Compiler.Instructions.IntrinsicPrototype, Flame.Compiler.Analysis.MemorySpecification))
+  nameWithType: RuleBasedPrototypeMemorySpecs.Register(String, Func<IntrinsicPrototype, MemorySpecification>)
+  nameWithType.vb: RuleBasedPrototypeMemorySpecs.Register(String, Func(Of IntrinsicPrototype, MemorySpecification))
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register*
+  name: Register
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Register_
+  commentId: Overload:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register
+  nameWithType: RuleBasedPrototypeMemorySpecs.Register
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register``1(Flame.Compiler.Analysis.MemorySpecification)
+  name: Register<T>(MemorySpecification)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Register__1_Flame_Compiler_Analysis_MemorySpecification_
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register``1(Flame.Compiler.Analysis.MemorySpecification)
+  name.vb: Register(Of T)(MemorySpecification)
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register<T>(Flame.Compiler.Analysis.MemorySpecification)
+  fullName.vb: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(Of T)(Flame.Compiler.Analysis.MemorySpecification)
+  nameWithType: RuleBasedPrototypeMemorySpecs.Register<T>(MemorySpecification)
+  nameWithType.vb: RuleBasedPrototypeMemorySpecs.Register(Of T)(MemorySpecification)
+- uid: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register``1(System.Func{``0,Flame.Compiler.Analysis.MemorySpecification})
+  name: Register<T>(Func<T, MemorySpecification>)
+  href: api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html#Flame_Compiler_Analysis_RuleBasedPrototypeMemorySpecs_Register__1_System_Func___0_Flame_Compiler_Analysis_MemorySpecification__
+  commentId: M:Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register``1(System.Func{``0,Flame.Compiler.Analysis.MemorySpecification})
+  name.vb: Register(Of T)(Func(Of T, MemorySpecification))
+  fullName: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register<T>(System.Func<T, Flame.Compiler.Analysis.MemorySpecification>)
+  fullName.vb: Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.Register(Of T)(System.Func(Of T, Flame.Compiler.Analysis.MemorySpecification))
+  nameWithType: RuleBasedPrototypeMemorySpecs.Register<T>(Func<T, MemorySpecification>)
+  nameWithType.vb: RuleBasedPrototypeMemorySpecs.Register(Of T)(Func(Of T, MemorySpecification))
 - uid: Flame.Compiler.Analysis.SetEntryPointUpdate
   name: SetEntryPointUpdate
   href: api/Flame.Compiler.Analysis.SetEntryPointUpdate.html
@@ -9246,6 +9437,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Analysis.ValueUses.GetUseCount
   nameWithType: ValueUses.GetUseCount
+- uid: Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf(Flame.Compiler.ValueTag,Flame.Compiler.BasicBlock)
+  name: IsUsedOutsideOf(ValueTag, BasicBlock)
+  href: api/Flame.Compiler.Analysis.ValueUses.html#Flame_Compiler_Analysis_ValueUses_IsUsedOutsideOf_Flame_Compiler_ValueTag_Flame_Compiler_BasicBlock_
+  commentId: M:Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf(Flame.Compiler.ValueTag,Flame.Compiler.BasicBlock)
+  fullName: Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf(Flame.Compiler.ValueTag, Flame.Compiler.BasicBlock)
+  nameWithType: ValueUses.IsUsedOutsideOf(ValueTag, BasicBlock)
+- uid: Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf*
+  name: IsUsedOutsideOf
+  href: api/Flame.Compiler.Analysis.ValueUses.html#Flame_Compiler_Analysis_ValueUses_IsUsedOutsideOf_
+  commentId: Overload:Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.ValueUses.IsUsedOutsideOf
+  nameWithType: ValueUses.IsUsedOutsideOf
 - uid: Flame.Compiler.BasicBlock
   name: BasicBlock
   href: api/Flame.Compiler.BasicBlock.html
@@ -17299,67 +17503,399 @@ references:
   fullName.vb: Flame.Compiler.Target.ILinearInstructionSelector(Of TInstruction).SelectInstructions
   nameWithType: ILinearInstructionSelector<TInstruction>.SelectInstructions
   nameWithType.vb: ILinearInstructionSelector(Of TInstruction).SelectInstructions
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1
-  name: LinearInstructionStreamBuilder<TInstruction>
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html
-  commentId: T:Flame.Compiler.Target.LinearInstructionStreamBuilder`1
-  name.vb: LinearInstructionStreamBuilder(Of TInstruction)
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction)
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction)
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.#ctor(Flame.Compiler.Target.ILinearInstructionSelector{`0})
-  name: LinearInstructionStreamBuilder(ILinearInstructionSelector<TInstruction>)
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1__ctor_Flame_Compiler_Target_ILinearInstructionSelector__0__
-  commentId: M:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.#ctor(Flame.Compiler.Target.ILinearInstructionSelector{`0})
-  name.vb: LinearInstructionStreamBuilder(ILinearInstructionSelector(Of TInstruction))
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.LinearInstructionStreamBuilder(Flame.Compiler.Target.ILinearInstructionSelector<TInstruction>)
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).LinearInstructionStreamBuilder(Flame.Compiler.Target.ILinearInstructionSelector(Of TInstruction))
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.LinearInstructionStreamBuilder(ILinearInstructionSelector<TInstruction>)
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).LinearInstructionStreamBuilder(ILinearInstructionSelector(Of TInstruction))
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.#ctor*
-  name: LinearInstructionStreamBuilder
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1__ctor_
-  commentId: Overload:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.#ctor
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1
+  name: InstructionStreamBuilder<TInstruction>
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html
+  commentId: T:Flame.Compiler.Target.InstructionStreamBuilder`1
+  name.vb: InstructionStreamBuilder(Of TInstruction)
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction)
+  nameWithType: InstructionStreamBuilder<TInstruction>
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction)
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.#ctor(Flame.Compiler.Target.ILinearInstructionSelector{`0})
+  name: InstructionStreamBuilder(ILinearInstructionSelector<TInstruction>)
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1__ctor_Flame_Compiler_Target_ILinearInstructionSelector__0__
+  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.#ctor(Flame.Compiler.Target.ILinearInstructionSelector{`0})
+  name.vb: InstructionStreamBuilder(ILinearInstructionSelector(Of TInstruction))
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.InstructionStreamBuilder(Flame.Compiler.Target.ILinearInstructionSelector<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).InstructionStreamBuilder(Flame.Compiler.Target.ILinearInstructionSelector(Of TInstruction))
+  nameWithType: InstructionStreamBuilder<TInstruction>.InstructionStreamBuilder(ILinearInstructionSelector<TInstruction>)
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).InstructionStreamBuilder(ILinearInstructionSelector(Of TInstruction))
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.#ctor*
+  name: InstructionStreamBuilder
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1__ctor_
+  commentId: Overload:Flame.Compiler.Target.InstructionStreamBuilder`1.#ctor
   isSpec: "True"
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.LinearInstructionStreamBuilder
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).LinearInstructionStreamBuilder
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.LinearInstructionStreamBuilder
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).LinearInstructionStreamBuilder
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.InstructionSelector
-  name: InstructionSelector
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1_InstructionSelector
-  commentId: P:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.InstructionSelector
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.InstructionSelector
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).InstructionSelector
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.InstructionSelector
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).InstructionSelector
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.InstructionSelector*
-  name: InstructionSelector
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1_InstructionSelector_
-  commentId: Overload:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.InstructionSelector
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.InstructionStreamBuilder
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).InstructionStreamBuilder
+  nameWithType: InstructionStreamBuilder<TInstruction>.InstructionStreamBuilder
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).InstructionStreamBuilder
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.Create*
+  name: Create
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_Create_
+  commentId: Overload:Flame.Compiler.Target.InstructionStreamBuilder`1.Create
   isSpec: "True"
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.InstructionSelector
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).InstructionSelector
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.InstructionSelector
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).InstructionSelector
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.Create
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).Create
+  nameWithType: InstructionStreamBuilder<TInstruction>.Create
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).Create
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.Create``1(``0)
+  name: Create<TSelector>(TSelector)
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_Create__1___0_
+  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.Create``1(``0)
+  name.vb: Create(Of TSelector)(TSelector)
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.Create<TSelector>(TSelector)
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).Create(Of TSelector)(TSelector)
+  nameWithType: InstructionStreamBuilder<TInstruction>.Create<TSelector>(TSelector)
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).Create(Of TSelector)(TSelector)
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.InstructionSelector
+  name: InstructionSelector
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_InstructionSelector
+  commentId: P:Flame.Compiler.Target.InstructionStreamBuilder`1.InstructionSelector
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.InstructionSelector
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).InstructionSelector
+  nameWithType: InstructionStreamBuilder<TInstruction>.InstructionSelector
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).InstructionSelector
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.InstructionSelector*
+  name: InstructionSelector
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_InstructionSelector_
+  commentId: Overload:Flame.Compiler.Target.InstructionStreamBuilder`1.InstructionSelector
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.InstructionSelector
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).InstructionSelector
+  nameWithType: InstructionStreamBuilder<TInstruction>.InstructionSelector
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).InstructionSelector
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
+  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedInstructions__0__
+  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
+  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedInstructions<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedInstructions(Of TInstruction))
+  nameWithType: InstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.FlowGraph)
   name: ToInstructionStream(FlowGraph)
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_FlowGraph_
-  commentId: M:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.FlowGraph)
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.FlowGraph)
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.FlowGraph)
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.ToInstructionStream(FlowGraph)
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).ToInstructionStream(FlowGraph)
-- uid: Flame.Compiler.Target.LinearInstructionStreamBuilder`1.ToInstructionStream*
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.FlowGraph)
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.FlowGraph)
+  nameWithType: InstructionStreamBuilder<TInstruction>.ToInstructionStream(FlowGraph)
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).ToInstructionStream(FlowGraph)
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream*
   name: ToInstructionStream
-  href: api/Flame.Compiler.Target.LinearInstructionStreamBuilder-1.html#Flame_Compiler_Target_LinearInstructionStreamBuilder_1_ToInstructionStream_
-  commentId: Overload:Flame.Compiler.Target.LinearInstructionStreamBuilder`1.ToInstructionStream
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_
+  commentId: Overload:Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream
   isSpec: "True"
-  fullName: Flame.Compiler.Target.LinearInstructionStreamBuilder<TInstruction>.ToInstructionStream
-  fullName.vb: Flame.Compiler.Target.LinearInstructionStreamBuilder(Of TInstruction).ToInstructionStream
-  nameWithType: LinearInstructionStreamBuilder<TInstruction>.ToInstructionStream
-  nameWithType.vb: LinearInstructionStreamBuilder(Of TInstruction).ToInstructionStream
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.ToInstructionStream
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).ToInstructionStream
+  nameWithType: InstructionStreamBuilder<TInstruction>.ToInstructionStream
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).ToInstructionStream
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1
+  name: IStackInstructionSelector<TInstruction>
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html
+  commentId: T:Flame.Compiler.Target.IStackInstructionSelector`1
+  name.vb: IStackInstructionSelector(Of TInstruction)
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction)
+  nameWithType: IStackInstructionSelector<TInstruction>
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction)
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreateLoadRegister(Flame.Compiler.ValueTag,Flame.IType)
+  name: CreateLoadRegister(ValueTag, IType)
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreateLoadRegister_Flame_Compiler_ValueTag_Flame_IType_
+  commentId: M:Flame.Compiler.Target.IStackInstructionSelector`1.CreateLoadRegister(Flame.Compiler.ValueTag,Flame.IType)
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreateLoadRegister(Flame.Compiler.ValueTag, Flame.IType)
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreateLoadRegister(Flame.Compiler.ValueTag, Flame.IType)
+  nameWithType: IStackInstructionSelector<TInstruction>.CreateLoadRegister(ValueTag, IType)
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreateLoadRegister(ValueTag, IType)
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreateLoadRegister*
+  name: CreateLoadRegister
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreateLoadRegister_
+  commentId: Overload:Flame.Compiler.Target.IStackInstructionSelector`1.CreateLoadRegister
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreateLoadRegister
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreateLoadRegister
+  nameWithType: IStackInstructionSelector<TInstruction>.CreateLoadRegister
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreateLoadRegister
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreatePop(Flame.IType)
+  name: CreatePop(IType)
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreatePop_Flame_IType_
+  commentId: M:Flame.Compiler.Target.IStackInstructionSelector`1.CreatePop(Flame.IType)
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreatePop(Flame.IType)
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreatePop(Flame.IType)
+  nameWithType: IStackInstructionSelector<TInstruction>.CreatePop(IType)
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreatePop(IType)
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreatePop*
+  name: CreatePop
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreatePop_
+  commentId: Overload:Flame.Compiler.Target.IStackInstructionSelector`1.CreatePop
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreatePop
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreatePop
+  nameWithType: IStackInstructionSelector<TInstruction>.CreatePop
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreatePop
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreateStoreRegister(Flame.Compiler.ValueTag,Flame.IType)
+  name: CreateStoreRegister(ValueTag, IType)
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreateStoreRegister_Flame_Compiler_ValueTag_Flame_IType_
+  commentId: M:Flame.Compiler.Target.IStackInstructionSelector`1.CreateStoreRegister(Flame.Compiler.ValueTag,Flame.IType)
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreateStoreRegister(Flame.Compiler.ValueTag, Flame.IType)
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreateStoreRegister(Flame.Compiler.ValueTag, Flame.IType)
+  nameWithType: IStackInstructionSelector<TInstruction>.CreateStoreRegister(ValueTag, IType)
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreateStoreRegister(ValueTag, IType)
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.CreateStoreRegister*
+  name: CreateStoreRegister
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_CreateStoreRegister_
+  commentId: Overload:Flame.Compiler.Target.IStackInstructionSelector`1.CreateStoreRegister
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.CreateStoreRegister
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).CreateStoreRegister
+  nameWithType: IStackInstructionSelector<TInstruction>.CreateStoreRegister
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).CreateStoreRegister
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.Pushes(Flame.Compiler.InstructionPrototype)
+  name: Pushes(InstructionPrototype)
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_Pushes_Flame_Compiler_InstructionPrototype_
+  commentId: M:Flame.Compiler.Target.IStackInstructionSelector`1.Pushes(Flame.Compiler.InstructionPrototype)
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.Pushes(Flame.Compiler.InstructionPrototype)
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).Pushes(Flame.Compiler.InstructionPrototype)
+  nameWithType: IStackInstructionSelector<TInstruction>.Pushes(InstructionPrototype)
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).Pushes(InstructionPrototype)
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.Pushes*
+  name: Pushes
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_Pushes_
+  commentId: Overload:Flame.Compiler.Target.IStackInstructionSelector`1.Pushes
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.Pushes
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).Pushes
+  nameWithType: IStackInstructionSelector<TInstruction>.Pushes
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).Pushes
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2
+  name: PeepholeOptimizer<TInstruction, TExternalRef>
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html
+  commentId: T:Flame.Compiler.Target.PeepholeOptimizer`2
+  name.vb: PeepholeOptimizer(Of TInstruction, TExternalRef)
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef)
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef)
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.PeepholeRewriteRule{`0}})
+  name: PeepholeOptimizer(IReadOnlyList<PeepholeRewriteRule<TInstruction>>)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Target_PeepholeRewriteRule__0___
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.PeepholeRewriteRule{`0}})
+  name.vb: PeepholeOptimizer(IReadOnlyList(Of PeepholeRewriteRule(Of TInstruction)))
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>>)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction)))
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer(IReadOnlyList<PeepholeRewriteRule<TInstruction>>)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer(IReadOnlyList(Of PeepholeRewriteRule(Of TInstruction)))
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.#ctor*
+  name: PeepholeOptimizer
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2__ctor_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.PeepholeOptimizer
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).PeepholeOptimizer
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.GetBranchTargets(`0)
+  name: GetBranchTargets(TInstruction)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_GetBranchTargets__0_
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.GetBranchTargets(`0)
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets(TInstruction)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets(TInstruction)
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets(TInstruction)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets(TInstruction)
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.GetBranchTargets*
+  name: GetBranchTargets
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_GetBranchTargets_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.GetBranchTargets
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetBranchTargets
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetBranchTargets
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.GetInstructionReferences(`1)
+  name: GetInstructionReferences(TExternalRef)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_GetInstructionReferences__1_
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.GetInstructionReferences(`1)
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences(TExternalRef)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences(TExternalRef)
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences(TExternalRef)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences(TExternalRef)
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.GetInstructionReferences*
+  name: GetInstructionReferences
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_GetInstructionReferences_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.GetInstructionReferences
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.GetInstructionReferences
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).GetInstructionReferences
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0})
+  name: Optimize(IReadOnlyList<TInstruction>)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_Optimize_System_Collections_Generic_IReadOnlyList__0__
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0})
+  name.vb: Optimize(IReadOnlyList(Of TInstruction))
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(System.Collections.Generic.IReadOnlyList<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(System.Collections.Generic.IReadOnlyList(Of TInstruction))
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(IReadOnlyList<TInstruction>)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(IReadOnlyList(Of TInstruction))
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`1},System.Collections.Generic.IReadOnlyList{`1}@)
+  name: Optimize(IReadOnlyList<TInstruction>, IReadOnlyList<TExternalRef>, out IReadOnlyList<TExternalRef>)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_Optimize_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__1__System_Collections_Generic_IReadOnlyList__1___
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.Optimize(System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`1},System.Collections.Generic.IReadOnlyList{`1}@)
+  name.vb: Optimize(IReadOnlyList(Of TInstruction), IReadOnlyList(Of TExternalRef), ByRef IReadOnlyList(Of TExternalRef))
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TExternalRef>, out System.Collections.Generic.IReadOnlyList<TExternalRef>)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TExternalRef), ByRef System.Collections.Generic.IReadOnlyList(Of TExternalRef))
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize(IReadOnlyList<TInstruction>, IReadOnlyList<TExternalRef>, out IReadOnlyList<TExternalRef>)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize(IReadOnlyList(Of TInstruction), IReadOnlyList(Of TExternalRef), ByRef IReadOnlyList(Of TExternalRef))
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.Optimize*
+  name: Optimize
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_Optimize_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.Optimize
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Optimize
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Optimize
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Optimize
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.RewriteBranchTargets(`0,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
+  name: RewriteBranchTargets(TInstruction, IReadOnlyDictionary<TInstruction, TInstruction>)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_RewriteBranchTargets__0_System_Collections_Generic_IReadOnlyDictionary__0__0__
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.RewriteBranchTargets(`0,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
+  name.vb: RewriteBranchTargets(TInstruction, IReadOnlyDictionary(Of TInstruction, TInstruction))
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets(TInstruction, System.Collections.Generic.IReadOnlyDictionary<TInstruction, TInstruction>)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets(TInstruction, System.Collections.Generic.IReadOnlyDictionary(Of TInstruction, TInstruction))
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets(TInstruction, IReadOnlyDictionary<TInstruction, TInstruction>)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets(TInstruction, IReadOnlyDictionary(Of TInstruction, TInstruction))
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.RewriteBranchTargets*
+  name: RewriteBranchTargets
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_RewriteBranchTargets_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.RewriteBranchTargets
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteBranchTargets
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteBranchTargets
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.RewriteInstructionReferences(`1,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
+  name: RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary<TInstruction, TInstruction>)
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_RewriteInstructionReferences__1_System_Collections_Generic_IReadOnlyDictionary__0__0__
+  commentId: M:Flame.Compiler.Target.PeepholeOptimizer`2.RewriteInstructionReferences(`1,System.Collections.Generic.IReadOnlyDictionary{`0,`0})
+  name.vb: RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary(Of TInstruction, TInstruction))
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences(TExternalRef, System.Collections.Generic.IReadOnlyDictionary<TInstruction, TInstruction>)
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences(TExternalRef, System.Collections.Generic.IReadOnlyDictionary(Of TInstruction, TInstruction))
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary<TInstruction, TInstruction>)
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences(TExternalRef, IReadOnlyDictionary(Of TInstruction, TInstruction))
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.RewriteInstructionReferences*
+  name: RewriteInstructionReferences
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_RewriteInstructionReferences_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.RewriteInstructionReferences
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.RewriteInstructionReferences
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).RewriteInstructionReferences
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.Rules
+  name: Rules
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_Rules
+  commentId: P:Flame.Compiler.Target.PeepholeOptimizer`2.Rules
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Rules
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Rules
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
+- uid: Flame.Compiler.Target.PeepholeOptimizer`2.Rules*
+  name: Rules
+  href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html#Flame_Compiler_Target_PeepholeOptimizer_2_Rules_
+  commentId: Overload:Flame.Compiler.Target.PeepholeOptimizer`2.Rules
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeOptimizer<TInstruction, TExternalRef>.Rules
+  fullName.vb: Flame.Compiler.Target.PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
+  nameWithType: PeepholeOptimizer<TInstruction, TExternalRef>.Rules
+  nameWithType.vb: PeepholeOptimizer(Of TInstruction, TExternalRef).Rules
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1
+  name: PeepholeRewriteRule<TInstruction>
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html
+  commentId: T:Flame.Compiler.Target.PeepholeRewriteRule`1
+  name.vb: PeepholeRewriteRule(Of TInstruction)
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction)
+  nameWithType: PeepholeRewriteRule<TInstruction>
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction)
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
+  name: PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1__ctor_System_Collections_Generic_IReadOnlyList_System_Predicate__0___System_Func_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__0___
+  commentId: M:Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
+  name.vb: PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList<System.Predicate<TInstruction>>, System.Func<System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TInstruction>>)
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList(Of System.Predicate(Of TInstruction)), System.Func(Of System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TInstruction)))
+  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Predicate{System.Collections.Generic.IReadOnlyList{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
+  name: PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Predicate<IReadOnlyList<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1__ctor_System_Collections_Generic_IReadOnlyList_System_Predicate__0___System_Predicate_System_Collections_Generic_IReadOnlyList__0___System_Func_System_Collections_Generic_IReadOnlyList__0__System_Collections_Generic_IReadOnlyList__0___
+  commentId: M:Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor(System.Collections.Generic.IReadOnlyList{System.Predicate{`0}},System.Predicate{System.Collections.Generic.IReadOnlyList{`0}},System.Func{System.Collections.Generic.IReadOnlyList{`0},System.Collections.Generic.IReadOnlyList{`0}})
+  name.vb: PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Predicate(Of IReadOnlyList(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList<System.Predicate<TInstruction>>, System.Predicate<System.Collections.Generic.IReadOnlyList<TInstruction>>, System.Func<System.Collections.Generic.IReadOnlyList<TInstruction>, System.Collections.Generic.IReadOnlyList<TInstruction>>)
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(System.Collections.Generic.IReadOnlyList(Of System.Predicate(Of TInstruction)), System.Predicate(Of System.Collections.Generic.IReadOnlyList(Of TInstruction)), System.Func(Of System.Collections.Generic.IReadOnlyList(Of TInstruction), System.Collections.Generic.IReadOnlyList(Of TInstruction)))
+  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule(IReadOnlyList<Predicate<TInstruction>>, Predicate<IReadOnlyList<TInstruction>>, Func<IReadOnlyList<TInstruction>, IReadOnlyList<TInstruction>>)
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule(IReadOnlyList(Of Predicate(Of TInstruction)), Predicate(Of IReadOnlyList(Of TInstruction)), Func(Of IReadOnlyList(Of TInstruction), IReadOnlyList(Of TInstruction)))
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor*
+  name: PeepholeRewriteRule
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1__ctor_
+  commentId: Overload:Flame.Compiler.Target.PeepholeRewriteRule`1.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule
+  nameWithType: PeepholeRewriteRule<TInstruction>.PeepholeRewriteRule
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).PeepholeRewriteRule
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.MacroPattern
+  name: MacroPattern
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_MacroPattern
+  commentId: P:Flame.Compiler.Target.PeepholeRewriteRule`1.MacroPattern
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.MacroPattern
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).MacroPattern
+  nameWithType: PeepholeRewriteRule<TInstruction>.MacroPattern
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).MacroPattern
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.MacroPattern*
+  name: MacroPattern
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_MacroPattern_
+  commentId: Overload:Flame.Compiler.Target.PeepholeRewriteRule`1.MacroPattern
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.MacroPattern
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).MacroPattern
+  nameWithType: PeepholeRewriteRule<TInstruction>.MacroPattern
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).MacroPattern
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.Pattern
+  name: Pattern
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_Pattern
+  commentId: P:Flame.Compiler.Target.PeepholeRewriteRule`1.Pattern
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.Pattern
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).Pattern
+  nameWithType: PeepholeRewriteRule<TInstruction>.Pattern
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Pattern
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.Pattern*
+  name: Pattern
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_Pattern_
+  commentId: Overload:Flame.Compiler.Target.PeepholeRewriteRule`1.Pattern
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.Pattern
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).Pattern
+  nameWithType: PeepholeRewriteRule<TInstruction>.Pattern
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Pattern
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.Rewrite
+  name: Rewrite
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_Rewrite
+  commentId: P:Flame.Compiler.Target.PeepholeRewriteRule`1.Rewrite
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.Rewrite
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).Rewrite
+  nameWithType: PeepholeRewriteRule<TInstruction>.Rewrite
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Rewrite
+- uid: Flame.Compiler.Target.PeepholeRewriteRule`1.Rewrite*
+  name: Rewrite
+  href: api/Flame.Compiler.Target.PeepholeRewriteRule-1.html#Flame_Compiler_Target_PeepholeRewriteRule_1_Rewrite_
+  commentId: Overload:Flame.Compiler.Target.PeepholeRewriteRule`1.Rewrite
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.PeepholeRewriteRule<TInstruction>.Rewrite
+  fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).Rewrite
+  nameWithType: PeepholeRewriteRule<TInstruction>.Rewrite
+  nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Rewrite
 - uid: Flame.Compiler.Target.SelectedInstructions
   name: SelectedInstructions
   href: api/Flame.Compiler.Target.SelectedInstructions.html
@@ -17427,6 +17963,24 @@ references:
   fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).SelectedInstructions
   nameWithType: SelectedInstructions<TInstruction>.SelectedInstructions
   nameWithType.vb: SelectedInstructions(Of TInstruction).SelectedInstructions
+- uid: Flame.Compiler.Target.SelectedInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
+  name: Append(IEnumerable<TInstruction>)
+  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Append_System_Collections_Generic_IEnumerable__0__
+  commentId: M:Flame.Compiler.Target.SelectedInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
+  name.vb: Append(IEnumerable(Of TInstruction))
+  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Append(System.Collections.Generic.IEnumerable<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Append(System.Collections.Generic.IEnumerable(Of TInstruction))
+  nameWithType: SelectedInstructions<TInstruction>.Append(IEnumerable<TInstruction>)
+  nameWithType.vb: SelectedInstructions(Of TInstruction).Append(IEnumerable(Of TInstruction))
+- uid: Flame.Compiler.Target.SelectedInstructions`1.Append*
+  name: Append
+  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Append_
+  commentId: Overload:Flame.Compiler.Target.SelectedInstructions`1.Append
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Append
+  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Append
+  nameWithType: SelectedInstructions<TInstruction>.Append
+  nameWithType.vb: SelectedInstructions(Of TInstruction).Append
 - uid: Flame.Compiler.Target.SelectedInstructions`1.Dependencies
   name: Dependencies
   href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Dependencies
@@ -17461,6 +18015,51 @@ references:
   fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Instructions
   nameWithType: SelectedInstructions<TInstruction>.Instructions
   nameWithType.vb: SelectedInstructions(Of TInstruction).Instructions
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1
+  name: StackInstructionStreamBuilder<TInstruction>
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html
+  commentId: T:Flame.Compiler.Target.StackInstructionStreamBuilder`1
+  name.vb: StackInstructionStreamBuilder(Of TInstruction)
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction)
+  nameWithType: StackInstructionStreamBuilder<TInstruction>
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction)
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.Create*
+  name: Create
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_Create_
+  commentId: Overload:Flame.Compiler.Target.StackInstructionStreamBuilder`1.Create
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.Create
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).Create
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.Create
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).Create
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.Create``1(``0)
+  name: Create<TSelector>(TSelector)
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_Create__1___0_
+  commentId: M:Flame.Compiler.Target.StackInstructionStreamBuilder`1.Create``1(``0)
+  name.vb: Create(Of TSelector)(TSelector)
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.Create<TSelector>(TSelector)
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).Create(Of TSelector)(TSelector)
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.Create<TSelector>(TSelector)
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).Create(Of TSelector)(TSelector)
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
+  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedInstructions__0__
+  commentId: M:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
+  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedInstructions<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedInstructions(Of TInstruction))
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream*
+  name: ToInstructionStream
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ToInstructionStream_
+  commentId: Overload:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ToInstructionStream
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.ToInstructionStream
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream
 - uid: Flame.Compiler.Transforms
   name: Flame.Compiler.Transforms
   href: api/Flame.Compiler.Transforms.html
@@ -17909,6 +18508,57 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Transforms.Inlining.ShouldInline
   nameWithType: Inlining.ShouldInline
+- uid: Flame.Compiler.Transforms.InstructionReordering
+  name: InstructionReordering
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html
+  commentId: T:Flame.Compiler.Transforms.InstructionReordering
+  fullName: Flame.Compiler.Transforms.InstructionReordering
+  nameWithType: InstructionReordering
+- uid: Flame.Compiler.Transforms.InstructionReordering.#ctor
+  name: InstructionReordering()
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering__ctor
+  commentId: M:Flame.Compiler.Transforms.InstructionReordering.#ctor
+  fullName: Flame.Compiler.Transforms.InstructionReordering.InstructionReordering()
+  nameWithType: InstructionReordering.InstructionReordering()
+- uid: Flame.Compiler.Transforms.InstructionReordering.#ctor*
+  name: InstructionReordering
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering__ctor_
+  commentId: Overload:Flame.Compiler.Transforms.InstructionReordering.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.InstructionReordering.InstructionReordering
+  nameWithType: InstructionReordering.InstructionReordering
+- uid: Flame.Compiler.Transforms.InstructionReordering.Apply(Flame.Compiler.FlowGraph)
+  name: Apply(FlowGraph)
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering_Apply_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.InstructionReordering.Apply(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Transforms.InstructionReordering.Apply(Flame.Compiler.FlowGraph)
+  nameWithType: InstructionReordering.Apply(FlowGraph)
+- uid: Flame.Compiler.Transforms.InstructionReordering.Apply*
+  name: Apply
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering_Apply_
+  commentId: Overload:Flame.Compiler.Transforms.InstructionReordering.Apply
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.InstructionReordering.Apply
+  nameWithType: InstructionReordering.Apply
+- uid: Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments(Flame.Compiler.Instruction)
+  name: GetOrderedArguments(Instruction)
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering_GetOrderedArguments_Flame_Compiler_Instruction_
+  commentId: M:Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments(Flame.Compiler.Instruction)
+  fullName: Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments(Flame.Compiler.Instruction)
+  nameWithType: InstructionReordering.GetOrderedArguments(Instruction)
+- uid: Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments*
+  name: GetOrderedArguments
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering_GetOrderedArguments_
+  commentId: Overload:Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.InstructionReordering.GetOrderedArguments
+  nameWithType: InstructionReordering.GetOrderedArguments
+- uid: Flame.Compiler.Transforms.InstructionReordering.Instance
+  name: Instance
+  href: api/Flame.Compiler.Transforms.InstructionReordering.html#Flame_Compiler_Transforms_InstructionReordering_Instance
+  commentId: F:Flame.Compiler.Transforms.InstructionReordering.Instance
+  fullName: Flame.Compiler.Transforms.InstructionReordering.Instance
+  nameWithType: InstructionReordering.Instance
 - uid: Flame.Compiler.Transforms.InstructionSimplification
   name: InstructionSimplification
   href: api/Flame.Compiler.Transforms.InstructionSimplification.html
