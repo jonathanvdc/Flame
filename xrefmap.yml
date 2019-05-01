@@ -10734,6 +10734,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Flow.FlowInstructionBuilder.Flow
   nameWithType: FlowInstructionBuilder.Flow
+- uid: Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
+  name: InsertBefore(Instruction, ValueTag)
+  href: api/Flame.Compiler.Flow.FlowInstructionBuilder.html#Flame_Compiler_Flow_FlowInstructionBuilder_InsertBefore_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore(Flame.Compiler.Instruction, Flame.Compiler.ValueTag)
+  nameWithType: FlowInstructionBuilder.InsertBefore(Instruction, ValueTag)
+- uid: Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore*
+  name: InsertBefore
+  href: api/Flame.Compiler.Flow.FlowInstructionBuilder.html#Flame_Compiler_Flow_FlowInstructionBuilder_InsertBefore_
+  commentId: Overload:Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore
+  isSpec: "True"
+  fullName: Flame.Compiler.Flow.FlowInstructionBuilder.InsertBefore
+  nameWithType: FlowInstructionBuilder.InsertBefore
 - uid: Flame.Compiler.Flow.FlowInstructionBuilder.IsValid
   name: IsValid
   href: api/Flame.Compiler.Flow.FlowInstructionBuilder.html#Flame_Compiler_Flow_FlowInstructionBuilder_IsValid
@@ -13318,6 +13331,31 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.InstructionBuilder.Graph
   nameWithType: InstructionBuilder.Graph
+- uid: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
+  name: InsertBefore(Instruction)
+  href: api/Flame.Compiler.InstructionBuilder.html#Flame_Compiler_InstructionBuilder_InsertBefore_Flame_Compiler_Instruction_
+  commentId: M:Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
+  fullName: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
+  nameWithType: InstructionBuilder.InsertBefore(Instruction)
+- uid: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
+  name: InsertBefore(Instruction, ValueTag)
+  href: api/Flame.Compiler.InstructionBuilder.html#Flame_Compiler_InstructionBuilder_InsertBefore_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction, Flame.Compiler.ValueTag)
+  nameWithType: InstructionBuilder.InsertBefore(Instruction, ValueTag)
+- uid: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction,System.String)
+  name: InsertBefore(Instruction, String)
+  href: api/Flame.Compiler.InstructionBuilder.html#Flame_Compiler_InstructionBuilder_InsertBefore_Flame_Compiler_Instruction_System_String_
+  commentId: M:Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction,System.String)
+  fullName: Flame.Compiler.InstructionBuilder.InsertBefore(Flame.Compiler.Instruction, System.String)
+  nameWithType: InstructionBuilder.InsertBefore(Instruction, String)
+- uid: Flame.Compiler.InstructionBuilder.InsertBefore*
+  name: InsertBefore
+  href: api/Flame.Compiler.InstructionBuilder.html#Flame_Compiler_InstructionBuilder_InsertBefore_
+  commentId: Overload:Flame.Compiler.InstructionBuilder.InsertBefore
+  isSpec: "True"
+  fullName: Flame.Compiler.InstructionBuilder.InsertBefore
+  nameWithType: InstructionBuilder.InsertBefore
 - uid: Flame.Compiler.InstructionBuilder.Instruction
   name: Instruction
   href: api/Flame.Compiler.InstructionBuilder.html#Flame_Compiler_InstructionBuilder_Instruction
@@ -16889,24 +16927,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.NamedInstructionBuilder.InsertAfter
   nameWithType: NamedInstructionBuilder.InsertAfter
-- uid: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
-  name: InsertBefore(Instruction)
-  href: api/Flame.Compiler.NamedInstructionBuilder.html#Flame_Compiler_NamedInstructionBuilder_InsertBefore_Flame_Compiler_Instruction_
-  commentId: M:Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
-  fullName: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction)
-  nameWithType: NamedInstructionBuilder.InsertBefore(Instruction)
 - uid: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
   name: InsertBefore(Instruction, ValueTag)
   href: api/Flame.Compiler.NamedInstructionBuilder.html#Flame_Compiler_NamedInstructionBuilder_InsertBefore_Flame_Compiler_Instruction_Flame_Compiler_ValueTag_
   commentId: M:Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,Flame.Compiler.ValueTag)
   fullName: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction, Flame.Compiler.ValueTag)
   nameWithType: NamedInstructionBuilder.InsertBefore(Instruction, ValueTag)
-- uid: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,System.String)
-  name: InsertBefore(Instruction, String)
-  href: api/Flame.Compiler.NamedInstructionBuilder.html#Flame_Compiler_NamedInstructionBuilder_InsertBefore_Flame_Compiler_Instruction_System_String_
-  commentId: M:Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction,System.String)
-  fullName: Flame.Compiler.NamedInstructionBuilder.InsertBefore(Flame.Compiler.Instruction, System.String)
-  nameWithType: NamedInstructionBuilder.InsertBefore(Instruction, String)
 - uid: Flame.Compiler.NamedInstructionBuilder.InsertBefore*
   name: InsertBefore
   href: api/Flame.Compiler.NamedInstructionBuilder.html#Flame_Compiler_NamedInstructionBuilder_InsertBefore_
@@ -18141,6 +18167,31 @@ references:
   commentId: F:Flame.Compiler.Transforms.BoxToAlloca.Instance
   fullName: Flame.Compiler.Transforms.BoxToAlloca.Instance
   nameWithType: BoxToAlloca.Instance
+- uid: Flame.Compiler.Transforms.CallDevirtualization
+  name: CallDevirtualization
+  href: api/Flame.Compiler.Transforms.CallDevirtualization.html
+  commentId: T:Flame.Compiler.Transforms.CallDevirtualization
+  fullName: Flame.Compiler.Transforms.CallDevirtualization
+  nameWithType: CallDevirtualization
+- uid: Flame.Compiler.Transforms.CallDevirtualization.Apply(Flame.Compiler.FlowGraph)
+  name: Apply(FlowGraph)
+  href: api/Flame.Compiler.Transforms.CallDevirtualization.html#Flame_Compiler_Transforms_CallDevirtualization_Apply_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Compiler.Transforms.CallDevirtualization.Apply(Flame.Compiler.FlowGraph)
+  fullName: Flame.Compiler.Transforms.CallDevirtualization.Apply(Flame.Compiler.FlowGraph)
+  nameWithType: CallDevirtualization.Apply(FlowGraph)
+- uid: Flame.Compiler.Transforms.CallDevirtualization.Apply*
+  name: Apply
+  href: api/Flame.Compiler.Transforms.CallDevirtualization.html#Flame_Compiler_Transforms_CallDevirtualization_Apply_
+  commentId: Overload:Flame.Compiler.Transforms.CallDevirtualization.Apply
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.CallDevirtualization.Apply
+  nameWithType: CallDevirtualization.Apply
+- uid: Flame.Compiler.Transforms.CallDevirtualization.Instance
+  name: Instance
+  href: api/Flame.Compiler.Transforms.CallDevirtualization.html#Flame_Compiler_Transforms_CallDevirtualization_Instance
+  commentId: F:Flame.Compiler.Transforms.CallDevirtualization.Instance
+  fullName: Flame.Compiler.Transforms.CallDevirtualization.Instance
+  nameWithType: CallDevirtualization.Instance
 - uid: Flame.Compiler.Transforms.ConstantPropagation
   name: ConstantPropagation
   href: api/Flame.Compiler.Transforms.ConstantPropagation.html
@@ -24331,6 +24382,19 @@ references:
   isSpec: "True"
   fullName: Flame.TypeExtensions.GetGenericArguments
   nameWithType: TypeExtensions.GetGenericArguments
+- uid: Flame.TypeExtensions.GetImplementationOf(Flame.IType,Flame.IMethod)
+  name: GetImplementationOf(IType, IMethod)
+  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetImplementationOf_Flame_IType_Flame_IMethod_
+  commentId: M:Flame.TypeExtensions.GetImplementationOf(Flame.IType,Flame.IMethod)
+  fullName: Flame.TypeExtensions.GetImplementationOf(Flame.IType, Flame.IMethod)
+  nameWithType: TypeExtensions.GetImplementationOf(IType, IMethod)
+- uid: Flame.TypeExtensions.GetImplementationOf*
+  name: GetImplementationOf
+  href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetImplementationOf_
+  commentId: Overload:Flame.TypeExtensions.GetImplementationOf
+  isSpec: "True"
+  fullName: Flame.TypeExtensions.GetImplementationOf
+  nameWithType: TypeExtensions.GetImplementationOf
 - uid: Flame.TypeExtensions.GetRecursiveGenericArgumentMapping(Flame.IMethod)
   name: GetRecursiveGenericArgumentMapping(IMethod)
   href: api/Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IMethod_

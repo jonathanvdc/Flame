@@ -1818,7 +1818,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Flow.FlowInstructionBuilder.html",
-          "hash": "yLncWJX/s6niIwNI0+if9A=="
+          "hash": "QznYiDGKdGiDOFewOnYKDA=="
         }
       },
       "is_incremental": false,
@@ -1974,7 +1974,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.InstructionBuilder.html",
-          "hash": "5awQX1xSIyLtAMXst0wvJg=="
+          "hash": "9sF78wwth0Ox+6aFoJ09dw=="
         }
       },
       "is_incremental": false,
@@ -2418,7 +2418,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.NamedInstructionBuilder.html",
-          "hash": "7bECnvcn0KrINKYwoXiWNA=="
+          "hash": "S2jMV8cy2Wcb4x36H7eohQ=="
         }
       },
       "is_incremental": false,
@@ -2678,6 +2678,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Transforms.CallDevirtualization.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Transforms.CallDevirtualization.html",
+          "hash": "4crtnyXv1Gxmg/dVMlewFw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Transforms.ConstantPropagation.yml",
       "output": {
         ".html": {
@@ -2838,7 +2850,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.IntraproceduralOptimization.html",
-          "hash": "VKKLMEhv9kDcc7Grg8XCmA=="
+          "hash": "TNxLyqfOyaQ5d3Od6yEhtA=="
         }
       },
       "is_incremental": false,
@@ -2970,7 +2982,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.html",
-          "hash": "I8+kpdkjtt9gxRIaMQvkow=="
+          "hash": "fyL7aA1GrK2QfrDoX6+bSw=="
         }
       },
       "is_incremental": false,
@@ -3306,7 +3318,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IGenericParameter.html",
-          "hash": "r2zy0iYwM4Y9elh7WltNUA=="
+          "hash": "XoRVxs4gJGNH5VXAu9pb1Q=="
         }
       },
       "is_incremental": false,
@@ -3354,7 +3366,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IType.html",
-          "hash": "R/m/T2tDgdNGSnjKXpiBOA=="
+          "hash": "iGbFhsCN6AwpaHz08VotPg=="
         }
       },
       "is_incremental": false,
@@ -3654,7 +3666,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeExtensions.html",
-          "hash": "H0ciel9h/5I7XdVl1wR/Nw=="
+          "hash": "OekWJPefg37MGA1KgusUlA=="
         }
       },
       "is_incremental": false,
@@ -3726,7 +3738,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ContainerType.html",
-          "hash": "c6ka+mkyWdsobfSNNKdXAQ=="
+          "hash": "QfZmfEoNEW3pZCWk58GXFQ=="
         }
       },
       "is_incremental": false,
@@ -3810,7 +3822,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedGenericParameter.html",
-          "hash": "l6UbWfgk+GOuStFVqfzqxg=="
+          "hash": "Jbn2MB5SNTPQt16AfN3pFQ=="
         }
       },
       "is_incremental": false,
@@ -3846,7 +3858,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedType.html",
-          "hash": "OLTU8nm/1MbUgj8iM65BoQ=="
+          "hash": "z33Xt43cEuNsSRBIPYIKxQ=="
         }
       },
       "is_incremental": false,
@@ -3870,7 +3882,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectTypeSpecialization.html",
-          "hash": "Cym/fdzsyqh1QCHANROk+A=="
+          "hash": "YcPlykcJK5tFGhLo1KXjEQ=="
         }
       },
       "is_incremental": false,
@@ -3882,7 +3894,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ErrorType.html",
-          "hash": "sBKliiLOhhbnksaPSQ95AA=="
+          "hash": "CBGvw8+rbzhdsX7EFaqn0Q=="
         }
       },
       "is_incremental": false,
@@ -3942,7 +3954,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectGenericParameterSpecialization.html",
-          "hash": "VIJq7ZG5RWGd2L6npMlNvA=="
+          "hash": "VbnO/haTkKNHcRFrj30U8w=="
         }
       },
       "is_incremental": false,
@@ -3978,7 +3990,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectTypeSpecialization.html",
-          "hash": "egwUJkcWfEsu8rHB2KjhuQ=="
+          "hash": "DziuUDBh4XA2uLp1o9rfMg=="
         }
       },
       "is_incremental": false,
@@ -4074,7 +4086,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.PointerType.html",
-          "hash": "iw7QzZyGOVR5ozOnQg9AKg=="
+          "hash": "D/OrE11oTkHflxO5TstglQ=="
         }
       },
       "is_incremental": false,
@@ -4182,7 +4194,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.TypeSpecialization.html",
-          "hash": "vi5WSgqndpTbn50Fo5cICw=="
+          "hash": "me+rDIl/+5UMfgNf3FAJGw=="
         }
       },
       "is_incremental": false,
@@ -4281,7 +4293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "VhMW7b3/8MXg6DU1b/FD1w=="
+          "hash": "edsweMlBzVIfG5X2pc5QCw=="
         }
       },
       "is_incremental": false,
@@ -4366,16 +4378,16 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 354,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 4,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 355,
           "skipped_file_count": 0
         }
       }
