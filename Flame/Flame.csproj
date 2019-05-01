@@ -116,6 +116,7 @@
     <Compile Include="TypeSystem\TypeSpecialization.cs" />
     <Compile Include="TypeSystem\TypeVisitor.cs" />
     <Compile Include="TypeSystem\VirtualMethodSetExtensions.cs" />
+    <Compile Include="TypeSystem\VTable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

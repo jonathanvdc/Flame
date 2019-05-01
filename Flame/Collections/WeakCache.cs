@@ -78,7 +78,7 @@ namespace Flame.Collections
             this.initializedBucketCount = 0;
             this.accessCounters = new int[maxConcurrency];
             this.domainLocks = new object[maxConcurrency];
-            this.resizeLock = new ReaderWriterLockSlim();
+            this.resizeLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
             for (int i = 0; i < maxConcurrency; i++)
             {

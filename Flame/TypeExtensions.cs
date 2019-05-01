@@ -13,6 +13,21 @@ namespace Flame
     public static class TypeExtensions
     {
         /// <summary>
+        /// Gets most derived implementation of a particular method in a type.
+        /// </summary>
+        /// <param name="type">
+        /// The type that implements the method.
+        /// </param>
+        /// <param name="method">
+        /// A method to find a more derived implementation for.
+        /// </param>
+        /// <returns>A direct or indirect implementation of <paramref name="method"/>.</returns>
+        public static IMethod GetImplementationOf(this IType type, IMethod method)
+        {
+            return VTable.Get(type).GetImplementation(method);
+        }
+
+        /// <summary>
         /// Gets a type's defining assembly, if one can be found.
         /// </summary>
         /// <param name="type">The type to examine.</param>
