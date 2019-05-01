@@ -208,9 +208,10 @@ namespace ILOpt
                 //   * Expand LINQ queries.
                 new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
 
-                //   * Inline direct method calls.
+                //   * Inline direct method calls and devirtualize calls.
                 Inlining.Instance,
                 CopyPropagation.Instance,
+                CallDevirtualization.Instance,
 
                 //   * Aggregates to scalars, scalars to registers.
                 //     Also throw in GVN.
