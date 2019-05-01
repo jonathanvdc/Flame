@@ -38,6 +38,18 @@ namespace Flame.Compiler.Flow
 
         /// <inheritdoc/>
         public override bool IsValid => Flow == Block.Flow;
+
+        /// <inheritdoc/>
+        public override NamedInstructionBuilder InsertBefore(Instruction instruction, ValueTag tag)
+        {
+            if (!IsValid)
+            {
+                throw new InvalidOperationException(
+                    "Cannot prepend an instruction to an invalid instruction builder.");
+            }
+
+            return block.AppendInstruction(instruction, tag);
+        }
     }
 
     /// <summary>

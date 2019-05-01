@@ -118,43 +118,12 @@ namespace Flame.Compiler
             }
         }
 
-        /// <summary>
-        /// Inserts a particular instruction just before this instruction.
-        /// Returns the inserted instruction builder.
-        /// </summary>
-        /// <param name="instruction">The instruction to insert.</param>
-        /// <param name="tag">The tag to assign to the instruction.</param>
-        /// <returns>The inserted instruction.</returns>
-        public NamedInstructionBuilder InsertBefore(Instruction instruction, ValueTag tag)
+        /// <inheritdoc/>
+        public override NamedInstructionBuilder InsertBefore(Instruction instruction, ValueTag tag)
         {
             var selInsn = ImmutableInstruction.InsertBefore(instruction, tag);
             Graph.ImmutableGraph = selInsn.Block.Graph;
             return Graph.GetInstruction(selInsn.Tag);
-        }
-
-        /// <summary>
-        /// Inserts a particular instruction just before this instruction.
-        /// Returns the inserted instruction builder.
-        /// </summary>
-        /// <param name="instruction">The instruction to insert.</param>
-        /// <param name="name">The preferred name for the instruction.</param>
-        /// <returns>The inserted instruction.</returns>
-        public NamedInstructionBuilder InsertBefore(Instruction instruction, string name)
-        {
-            var selInsn = ImmutableInstruction.InsertBefore(instruction, name);
-            Graph.ImmutableGraph = selInsn.Block.Graph;
-            return Graph.GetInstruction(selInsn.Tag);
-        }
-
-        /// <summary>
-        /// Inserts a particular instruction just before this instruction.
-        /// Returns the inserted instruction builder.
-        /// </summary>
-        /// <param name="instruction">The instruction to insert.</param>
-        /// <returns>The inserted instruction.</returns>
-        public NamedInstructionBuilder InsertBefore(Instruction instruction)
-        {
-            return InsertBefore(instruction, "");
         }
 
         /// <summary>

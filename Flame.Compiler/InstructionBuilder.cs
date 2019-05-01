@@ -90,6 +90,38 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the inserted instruction builder.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="tag">The tag to assign to the instruction.</param>
+        /// <returns>The inserted instruction.</returns>
+        public abstract NamedInstructionBuilder InsertBefore(Instruction instruction, ValueTag tag);
+
+        /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the inserted instruction builder.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <param name="name">The preferred name for the instruction.</param>
+        /// <returns>The inserted instruction.</returns>
+        public NamedInstructionBuilder InsertBefore(Instruction instruction, string name)
+        {
+            return InsertBefore(instruction, new ValueTag(name));
+        }
+
+        /// <summary>
+        /// Inserts a particular instruction just before this instruction.
+        /// Returns the inserted instruction builder.
+        /// </summary>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction.</returns>
+        public NamedInstructionBuilder InsertBefore(Instruction instruction)
+        {
+            return InsertBefore(instruction, "");
+        }
+
+        /// <summary>
         /// Gets the instruction's result type.
         /// </summary>
         public IType ResultType => Instruction.ResultType;
