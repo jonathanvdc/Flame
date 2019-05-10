@@ -63,57 +63,63 @@ namespace Flame.Compiler.Transforms
                     continue;
                 }
 
-                var proto = instruction.Prototype;
-                if (proto is CallPrototype)
-                {
-                    if (ShouldInline(calleeBody, instruction.Arguments, graph.ImmutableGraph))
-                    {
-                        instruction.ReplaceInstruction(calleeBody.Implementation, instruction.Arguments);
-                    }
-                }
-                else if (proto is NewObjectPrototype)
-                {
-                    graph.TryForkAndMerge(builder =>
-                    {
-                        // Synthesize a sequence of instructions that creates a zero-filled
-                        // object of the right type.
-                        var builderInsn = builder.GetInstruction(instruction);
-                        var elementType = ((NewObjectPrototype)proto).Constructor.ParentType;
-                        var defaultConst = builderInsn.InsertBefore(
-                            Instruction.CreateConstant(DefaultConstant.Instance, elementType));
-                        var objInstance = builderInsn.InsertBefore(
-                            Instruction.CreateBox(elementType, defaultConst));
-
-                        var allArgs = new ValueTag[] { objInstance }.Concat(builderInsn.Arguments).ToArray();
-                        if (ShouldInline(calleeBody, allArgs, builder.ImmutableGraph))
-                        {
-                            // Actually inline the newobj call. To do so, we'll rewrite all 'return'
-                            // flows in the callee to return the 'this' pointer and then inline that
-                            // like a regular method call.
-                            var modifiedImpl = calleeBody.Implementation.ToBuilder();
-                            foreach (var block in modifiedImpl.BasicBlocks)
-                            {
-                                if (block.Flow is ReturnFlow)
-                                {
-                                    block.Flow = new ReturnFlow(
-                                        Instruction.CreateCopy(
-                                            modifiedImpl.EntryPoint.Parameters[0].Type,
-                                            modifiedImpl.EntryPoint.Parameters[0].Tag));
-                                }
-                            }
-                            builderInsn.ReplaceInstruction(modifiedImpl.ToImmutable(), allArgs);
-                            return true;
-                        }
-                        else
-                        {
-                            // We won't be inlining after all. Nix our changes.
-                            return false;
-                        }
-                    });
-                }
+                TryInlineCall(instruction, calleeBody);
             }
 
             return body.WithImplementation(graph.ToImmutable());
+        }
+
+        private void TryInlineCall(InstructionBuilder instruction, MethodBody calleeBody)
+        {
+            var graph = instruction.Graph;
+            var proto = instruction.Prototype;
+            if (proto is CallPrototype)
+            {
+                if (ShouldInline(calleeBody, instruction.Arguments, graph.ImmutableGraph))
+                {
+                    instruction.ReplaceInstruction(calleeBody.Implementation, instruction.Arguments);
+                }
+            }
+            else if (proto is NewObjectPrototype)
+            {
+                graph.TryForkAndMerge(builder =>
+                {
+                    // Synthesize a sequence of instructions that creates a zero-filled
+                    // object of the right type.
+                    var builderInsn = builder.GetInstruction(instruction);
+                    var elementType = ((NewObjectPrototype)proto).Constructor.ParentType;
+                    var defaultConst = builderInsn.InsertBefore(
+                        Instruction.CreateConstant(DefaultConstant.Instance, elementType));
+                    var objInstance = builderInsn.InsertBefore(
+                        Instruction.CreateBox(elementType, defaultConst));
+
+                    var allArgs = new ValueTag[] { objInstance }.Concat(builderInsn.Arguments).ToArray();
+                    if (ShouldInline(calleeBody, allArgs, builder.ImmutableGraph))
+                    {
+                        // Actually inline the newobj call. To do so, we'll rewrite all 'return'
+                        // flows in the callee to return the 'this' pointer and then inline that
+                        // like a regular method call.
+                        var modifiedImpl = calleeBody.Implementation.ToBuilder();
+                        foreach (var block in modifiedImpl.BasicBlocks)
+                        {
+                            if (block.Flow is ReturnFlow)
+                            {
+                                block.Flow = new ReturnFlow(
+                                    Instruction.CreateCopy(
+                                        modifiedImpl.EntryPoint.Parameters[0].Type,
+                                        modifiedImpl.EntryPoint.Parameters[0].Tag));
+                            }
+                        }
+                        builderInsn.ReplaceInstruction(modifiedImpl.ToImmutable(), allArgs);
+                        return true;
+                    }
+                    else
+                    {
+                        // We won't be inlining after all. Nix our changes.
+                        return false;
+                    }
+                });
+            }
         }
 
         private bool TryGetCallee(InstructionBuilder instruction, out IMethod callee)
