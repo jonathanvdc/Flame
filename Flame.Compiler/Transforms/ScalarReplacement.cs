@@ -76,9 +76,9 @@ namespace Flame.Compiler.Transforms
             foreach (var allocaTag in eligible)
             {
                 var allocaInstruction = builder.GetInstruction(allocaTag);
-                var allocaProto = (AllocaPrototype)allocaInstruction.Prototype;
+                var elementType = ((PointerType)allocaInstruction.ResultType).ElementType;
                 var fieldSlots = new Dictionary<IField, ValueTag>();
-                foreach (var field in allocaProto.ElementType.Fields)
+                foreach (var field in elementType.Fields)
                 {
                     fieldSlots[field] = allocaInstruction.InsertAfter(
                         Instruction.CreateAlloca(field.FieldType),
@@ -332,8 +332,8 @@ namespace Flame.Compiler.Transforms
         }
 
         /// <summary>
-        /// Finds all allocas in the graph that are eligible for
-        /// the scalar replacement transform.
+        /// Finds all allocas and box instructions in the graph that
+        /// are eligible for the scalar replacement transform.
         /// </summary>
         /// <param name="graph">The flow graph to analyze.</param>
         /// <returns>A set of eligible values.</returns>
@@ -350,7 +350,7 @@ namespace Flame.Compiler.Transforms
             foreach (var instruction in graph.NamedInstructions)
             {
                 var proto = instruction.Prototype;
-                if (proto is AllocaPrototype)
+                if (proto is AllocaPrototype || proto is BoxPrototype)
                 {
                     allocas.Add(instruction);
                     continue;
