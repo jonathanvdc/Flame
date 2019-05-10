@@ -342,6 +342,30 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets this control flow graph builder's equivalent of a shared
+        /// instruction in another control flow graph.
+        /// </summary>
+        /// <param name="instruction">
+        /// The instruction builder to find an equivalent for.
+        /// </param>
+        /// <returns>An instruction builder.</returns>
+        /// <remark>
+        /// This method is designed to be used in conjuction with <c>TryForkAndMerge</c>.
+        /// </remark>
+        public InstructionBuilder GetInstruction(InstructionBuilder instruction)
+        {
+            if (instruction is NamedInstructionBuilder)
+            {
+                return GetInstruction(((NamedInstructionBuilder)instruction).Tag);
+            }
+            else
+            {
+                var anonymous = (FlowInstructionBuilder)instruction;
+                return GetBasicBlock(anonymous.Block).Flow.GetInstructionBuilder(anonymous.Block, 0);
+            }
+        }
+
+        /// <summary>
         /// Tries to get an instruction with a particular tag, if it exists in this
         /// control-flow graph.
         /// </summary>
@@ -589,6 +613,35 @@ namespace Flame.Compiler
             }
 
             return blockRenameMap[graph.EntryPointTag];
+        }
+
+        /// <summary>
+        /// Applies a function to a copy of this control-flow graph and
+        /// either incorporates those changes into this control-flow graph
+        /// or discards them, depending on the Boolean value returned by the
+        /// transforming function.
+        /// </summary>
+        /// <param name="transform">
+        /// A function that takes a copy of this control-flow graph and modifies it.
+        /// If the function returns <c>true</c>, then this control-flow graph is
+        /// set to the modified version created by the function; otherwise, this
+        /// control-flow graph is left unchanged.
+        /// </param>
+        /// <returns>
+        /// <paramref name="transform"/>'s return value.
+        /// </returns>
+        public bool TryForkAndMerge(Func<FlowGraphBuilder, bool> transform)
+        {
+            var copy = new FlowGraphBuilder(ImmutableGraph);
+            if (transform(copy))
+            {
+                ImmutableGraph = copy.ImmutableGraph;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
