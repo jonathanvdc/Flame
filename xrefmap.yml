@@ -3570,6 +3570,76 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.Transforms.ExpandLinq.InductionVariableType
   nameWithType: ExpandLinq.InductionVariableType
+- uid: Flame.Clr.Transforms.LowerBox
+  name: LowerBox
+  href: api/Flame.Clr.Transforms.LowerBox.html
+  commentId: T:Flame.Clr.Transforms.LowerBox
+  fullName: Flame.Clr.Transforms.LowerBox
+  nameWithType: LowerBox
+- uid: Flame.Clr.Transforms.LowerBox.#ctor(Flame.IAssembly)
+  name: LowerBox(IAssembly)
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox__ctor_Flame_IAssembly_
+  commentId: M:Flame.Clr.Transforms.LowerBox.#ctor(Flame.IAssembly)
+  fullName: Flame.Clr.Transforms.LowerBox.LowerBox(Flame.IAssembly)
+  nameWithType: LowerBox.LowerBox(IAssembly)
+- uid: Flame.Clr.Transforms.LowerBox.#ctor(Flame.IMethod,Flame.IMethod)
+  name: LowerBox(IMethod, IMethod)
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox__ctor_Flame_IMethod_Flame_IMethod_
+  commentId: M:Flame.Clr.Transforms.LowerBox.#ctor(Flame.IMethod,Flame.IMethod)
+  fullName: Flame.Clr.Transforms.LowerBox.LowerBox(Flame.IMethod, Flame.IMethod)
+  nameWithType: LowerBox.LowerBox(IMethod, IMethod)
+- uid: Flame.Clr.Transforms.LowerBox.#ctor(Flame.TypeSystem.TypeResolver)
+  name: LowerBox(TypeResolver)
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox__ctor_Flame_TypeSystem_TypeResolver_
+  commentId: M:Flame.Clr.Transforms.LowerBox.#ctor(Flame.TypeSystem.TypeResolver)
+  fullName: Flame.Clr.Transforms.LowerBox.LowerBox(Flame.TypeSystem.TypeResolver)
+  nameWithType: LowerBox.LowerBox(TypeResolver)
+- uid: Flame.Clr.Transforms.LowerBox.#ctor*
+  name: LowerBox
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox__ctor_
+  commentId: Overload:Flame.Clr.Transforms.LowerBox.#ctor
+  isSpec: "True"
+  fullName: Flame.Clr.Transforms.LowerBox.LowerBox
+  nameWithType: LowerBox.LowerBox
+- uid: Flame.Clr.Transforms.LowerBox.Apply(Flame.Compiler.FlowGraph)
+  name: Apply(FlowGraph)
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_Apply_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Clr.Transforms.LowerBox.Apply(Flame.Compiler.FlowGraph)
+  fullName: Flame.Clr.Transforms.LowerBox.Apply(Flame.Compiler.FlowGraph)
+  nameWithType: LowerBox.Apply(FlowGraph)
+- uid: Flame.Clr.Transforms.LowerBox.Apply*
+  name: Apply
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_Apply_
+  commentId: Overload:Flame.Clr.Transforms.LowerBox.Apply
+  isSpec: "True"
+  fullName: Flame.Clr.Transforms.LowerBox.Apply
+  nameWithType: LowerBox.Apply
+- uid: Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod
+  name: CreateUninitializedObjectMethod
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_CreateUninitializedObjectMethod
+  commentId: P:Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod
+  fullName: Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod
+  nameWithType: LowerBox.CreateUninitializedObjectMethod
+- uid: Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod*
+  name: CreateUninitializedObjectMethod
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_CreateUninitializedObjectMethod_
+  commentId: Overload:Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod
+  isSpec: "True"
+  fullName: Flame.Clr.Transforms.LowerBox.CreateUninitializedObjectMethod
+  nameWithType: LowerBox.CreateUninitializedObjectMethod
+- uid: Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod
+  name: GetTypeFromHandleMethod
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_GetTypeFromHandleMethod
+  commentId: P:Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod
+  fullName: Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod
+  nameWithType: LowerBox.GetTypeFromHandleMethod
+- uid: Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod*
+  name: GetTypeFromHandleMethod
+  href: api/Flame.Clr.Transforms.LowerBox.html#Flame_Clr_Transforms_LowerBox_GetTypeFromHandleMethod_
+  commentId: Overload:Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod
+  isSpec: "True"
+  fullName: Flame.Clr.Transforms.LowerBox.GetTypeFromHandleMethod
+  nameWithType: LowerBox.GetTypeFromHandleMethod
 - uid: Flame.Clr.Transforms.LowerDelegates
   name: LowerDelegates
   href: api/Flame.Clr.Transforms.LowerDelegates.html
@@ -12353,6 +12423,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.FlowGraphBuilder.GetBasicBlock
   nameWithType: FlowGraphBuilder.GetBasicBlock
+- uid: Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.InstructionBuilder)
+  name: GetInstruction(InstructionBuilder)
+  href: api/Flame.Compiler.FlowGraphBuilder.html#Flame_Compiler_FlowGraphBuilder_GetInstruction_Flame_Compiler_InstructionBuilder_
+  commentId: M:Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.InstructionBuilder)
+  fullName: Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.InstructionBuilder)
+  nameWithType: FlowGraphBuilder.GetInstruction(InstructionBuilder)
 - uid: Flame.Compiler.FlowGraphBuilder.GetInstruction(Flame.Compiler.ValueTag)
   name: GetInstruction(ValueTag)
   href: api/Flame.Compiler.FlowGraphBuilder.html#Flame_Compiler_FlowGraphBuilder_GetInstruction_Flame_Compiler_ValueTag_
@@ -12603,6 +12679,22 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.FlowGraphBuilder.Transform
   nameWithType: FlowGraphBuilder.Transform
+- uid: Flame.Compiler.FlowGraphBuilder.TryForkAndMerge(System.Func{Flame.Compiler.FlowGraphBuilder,System.Boolean})
+  name: TryForkAndMerge(Func<FlowGraphBuilder, Boolean>)
+  href: api/Flame.Compiler.FlowGraphBuilder.html#Flame_Compiler_FlowGraphBuilder_TryForkAndMerge_System_Func_Flame_Compiler_FlowGraphBuilder_System_Boolean__
+  commentId: M:Flame.Compiler.FlowGraphBuilder.TryForkAndMerge(System.Func{Flame.Compiler.FlowGraphBuilder,System.Boolean})
+  name.vb: TryForkAndMerge(Func(Of FlowGraphBuilder, Boolean))
+  fullName: Flame.Compiler.FlowGraphBuilder.TryForkAndMerge(System.Func<Flame.Compiler.FlowGraphBuilder, System.Boolean>)
+  fullName.vb: Flame.Compiler.FlowGraphBuilder.TryForkAndMerge(System.Func(Of Flame.Compiler.FlowGraphBuilder, System.Boolean))
+  nameWithType: FlowGraphBuilder.TryForkAndMerge(Func<FlowGraphBuilder, Boolean>)
+  nameWithType.vb: FlowGraphBuilder.TryForkAndMerge(Func(Of FlowGraphBuilder, Boolean))
+- uid: Flame.Compiler.FlowGraphBuilder.TryForkAndMerge*
+  name: TryForkAndMerge
+  href: api/Flame.Compiler.FlowGraphBuilder.html#Flame_Compiler_FlowGraphBuilder_TryForkAndMerge_
+  commentId: Overload:Flame.Compiler.FlowGraphBuilder.TryForkAndMerge
+  isSpec: "True"
+  fullName: Flame.Compiler.FlowGraphBuilder.TryForkAndMerge
+  nameWithType: FlowGraphBuilder.TryForkAndMerge
 - uid: Flame.Compiler.FlowGraphBuilder.TryGetAnalysisResult*
   name: TryGetAnalysisResult
   href: api/Flame.Compiler.FlowGraphBuilder.html#Flame_Compiler_FlowGraphBuilder_TryGetAnalysisResult_
