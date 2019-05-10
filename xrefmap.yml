@@ -26357,6 +26357,12 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.FlagAttribute.IsVirtual
   nameWithType: FlagAttribute.IsVirtual
+- uid: Flame.TypeSystem.FlagAttribute.Nop
+  name: Nop
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_Nop
+  commentId: F:Flame.TypeSystem.FlagAttribute.Nop
+  fullName: Flame.TypeSystem.FlagAttribute.Nop
+  nameWithType: FlagAttribute.Nop
 - uid: Flame.TypeSystem.FlagAttribute.ReferenceType
   name: ReferenceType
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_ReferenceType
