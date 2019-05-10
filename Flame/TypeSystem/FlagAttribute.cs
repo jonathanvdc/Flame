@@ -38,6 +38,15 @@ namespace Flame.TypeSystem
             new IntrinsicAttribute("SpecialType");
 
         /// <summary>
+        /// An attribute that identifies a method as a nop: a method
+        /// that does not have any side effects and returns a default
+        /// constant.
+        /// </summary>
+        /// <returns>An intrinsic attribute.</returns>
+        public static readonly IntrinsicAttribute Nop =
+            new IntrinsicAttribute("Nop");
+
+        /// <summary>
         /// Tests if a particular type is definitely a reference type.
         /// </summary>
         /// <param name="type">The type to test.</param>
