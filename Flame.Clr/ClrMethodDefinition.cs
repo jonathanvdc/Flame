@@ -170,6 +170,19 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.Virtual);
             }
+
+            // The default 'object' constructor is a nop. Taking that
+            // into account can significantly improve constructor inlining
+            // results.
+            var declaringType = Definition.DeclaringType;
+            if (declaringType.Namespace == "System"
+                && declaringType.Name == "Object"
+                && Definition.IsConstructor
+                && Definition.Parameters.Count == 0)
+            {
+                attrBuilder.Add(FlagAttribute.Nop);
+            }
+
             // Analyze access modifier.
             attrBuilder.Add(AccessModifierAttribute.Create(AnalyzeAccessModifier()));
             // TODO: analyze more attributes.
