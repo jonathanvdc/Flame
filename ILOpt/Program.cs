@@ -198,13 +198,6 @@ namespace ILOpt
             var typeSystem = assembly.Resolver.TypeEnvironment;
             var pipeline = new Optimization[]
             {
-                //   * Box to alloca, alloca to reg.
-                BoxToAlloca.Instance,
-                CopyPropagation.Instance,
-                AllocaToRegister.Instance,
-                CopyPropagation.Instance,
-                DeadValueElimination.Instance,
-
                 //   * Expand LINQ queries.
                 new ExpandLinq(typeSystem.Boolean, typeSystem.Int32),
 
@@ -212,10 +205,12 @@ namespace ILOpt
                 Inlining.Instance,
                 CopyPropagation.Instance,
                 CallDevirtualization.Instance,
-
-                //   * Aggregates to scalars, scalars to registers.
-                //     Also throw in GVN.
                 DeadValueElimination.Instance,
+
+                //   * Box to alloca, aggregates to scalars, scalars to registers.
+                //     Also throw in GVN.
+                BoxToAlloca.Instance,
+                CopyPropagation.Instance,
                 PartialScalarReplacement.Instance,
                 GlobalValueNumbering.Instance,
                 CopyPropagation.Instance,
