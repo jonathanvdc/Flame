@@ -339,6 +339,7 @@ namespace ILOpt
                     CopyPropagation.Instance,
                     InstructionReordering.Instance,
                     FuseMemoryAccesses.Instance,
+                    new LowerBox(typeSystem.Object.GetDefiningAssemblyOrNull()),
                     DeadValueElimination.Instance,
                     new JumpThreading(false),
                     LowerDelegates.Instance));
