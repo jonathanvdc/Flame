@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class PrototypeMemorySpecs
+    <title>Class MemorySpecificationExtensions
    | Flame </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class PrototypeMemorySpecs
+    <meta name="title" content="Class MemorySpecificationExtensions
    | Flame ">
     <meta name="generator" content="docfx 2.42.2.0">
     
@@ -78,19 +78,18 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Analysis.PrototypeMemorySpecs">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Analysis.MemorySpecificationExtensions">
   
   
-  <h1 id="Flame_Compiler_Analysis_PrototypeMemorySpecs" data-uid="Flame.Compiler.Analysis.PrototypeMemorySpecs" class="text-break">Class PrototypeMemorySpecs
+  <h1 id="Flame_Compiler_Analysis_MemorySpecificationExtensions" data-uid="Flame.Compiler.Analysis.MemorySpecificationExtensions" class="text-break">Class MemorySpecificationExtensions
   </h1>
-  <div class="markdown level0 summary"><p>Maps instruction prototypes to memory access specs.</p>
+  <div class="markdown level0 summary"><p>Extension methods that make working with memory specifications easier.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">PrototypeMemorySpecs</span></div>
-      <div class="level2"><a class="xref" href="Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html">RuleBasedPrototypeMemorySpecs</a></div>
+    <div class="level1"><span class="xref">MemorySpecificationExtensions</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -118,28 +117,27 @@
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Analysis.html">Flame.Compiler.Analysis</a></h6>
   <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
-  <h5 id="Flame_Compiler_Analysis_PrototypeMemorySpecs_syntax">Syntax</h5>
+  <h5 id="Flame_Compiler_Analysis_MemorySpecificationExtensions_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class PrototypeMemorySpecs</code></pre>
+    <pre><code class="lang-csharp hljs">public static class MemorySpecificationExtensions</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_PrototypeMemorySpecs_GetMemorySpecification_Flame_Compiler_InstructionPrototype_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/MemorySpecification.cs/#L225">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/MemorySpecification.cs/#L200">View Source</a>
   </span>
-  <a id="Flame_Compiler_Analysis_PrototypeMemorySpecs_GetMemorySpecification_" data-uid="Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification*"></a>
-  <h4 id="Flame_Compiler_Analysis_PrototypeMemorySpecs_GetMemorySpecification_Flame_Compiler_InstructionPrototype_" data-uid="Flame.Compiler.Analysis.PrototypeMemorySpecs.GetMemorySpecification(Flame.Compiler.InstructionPrototype)">GetMemorySpecification(InstructionPrototype)</h4>
-  <div class="markdown level1 summary"><p>Gets the memory access specification for a particular instruction
-prototype.</p>
+  <a id="Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_" data-uid="Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification*"></a>
+  <h4 id="Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_Flame_IMethod_" data-uid="Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification(Flame.IMethod)">GetMemorySpecification(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Gets a method's memory specification.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract MemorySpecification GetMemorySpecification(InstructionPrototype prototype)</code></pre>
+    <pre><code class="lang-csharp hljs">public static MemorySpecification GetMemorySpecification(this IMethod method)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -152,9 +150,9 @@ prototype.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.Compiler.InstructionPrototype.html">InstructionPrototype</a></td>
-        <td><span class="parametername">prototype</span></td>
-        <td><p>The prototype to examine.</p>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td><p>The method to examine.</p>
 </td>
       </tr>
     </tbody>
@@ -170,7 +168,8 @@ prototype.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.Compiler.Analysis.MemorySpecification.html">MemorySpecification</a></td>
-        <td><p>A memory specification for <code data-dev-comment-type="paramref" class="paramref">prototype</code>.</p>
+        <td><p>The explicit memory specification encoded in <code data-dev-comment-type="paramref" class="paramref">method</code>'s memory specification
+attribute, if it has one; otherwise, an unknown read/write specification.</p>
 </td>
       </tr>
     </tbody>
@@ -183,10 +182,10 @@ prototype.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_PrototypeMemorySpecs.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.PrototypeMemorySpecs%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Analysis_MemorySpecificationExtensions.md&amp;value=---%0Auid%3A%20Flame.Compiler.Analysis.MemorySpecificationExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/MemorySpecification.cs/#L217" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Analysis/MemorySpecification.cs/#L190" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

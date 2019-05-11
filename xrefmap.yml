@@ -8251,6 +8251,25 @@ references:
   commentId: F:Flame.Compiler.Analysis.MemorySpecification.UnknownWrite
   fullName: Flame.Compiler.Analysis.MemorySpecification.UnknownWrite
   nameWithType: MemorySpecification.UnknownWrite
+- uid: Flame.Compiler.Analysis.MemorySpecificationExtensions
+  name: MemorySpecificationExtensions
+  href: api/Flame.Compiler.Analysis.MemorySpecificationExtensions.html
+  commentId: T:Flame.Compiler.Analysis.MemorySpecificationExtensions
+  fullName: Flame.Compiler.Analysis.MemorySpecificationExtensions
+  nameWithType: MemorySpecificationExtensions
+- uid: Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification(Flame.IMethod)
+  name: GetMemorySpecification(IMethod)
+  href: api/Flame.Compiler.Analysis.MemorySpecificationExtensions.html#Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_Flame_IMethod_
+  commentId: M:Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification(Flame.IMethod)
+  fullName: Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification(Flame.IMethod)
+  nameWithType: MemorySpecificationExtensions.GetMemorySpecification(IMethod)
+- uid: Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification*
+  name: GetMemorySpecification
+  href: api/Flame.Compiler.Analysis.MemorySpecificationExtensions.html#Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_
+  commentId: Overload:Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification
+  isSpec: "True"
+  fullName: Flame.Compiler.Analysis.MemorySpecificationExtensions.GetMemorySpecification
+  nameWithType: MemorySpecificationExtensions.GetMemorySpecification
 - uid: Flame.Compiler.Analysis.MemorySSA
   name: MemorySSA
   href: api/Flame.Compiler.Analysis.MemorySSA.html
@@ -26431,12 +26450,6 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.FlagAttribute.IsVirtual
   nameWithType: FlagAttribute.IsVirtual
-- uid: Flame.TypeSystem.FlagAttribute.Nop
-  name: Nop
-  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_Nop
-  commentId: F:Flame.TypeSystem.FlagAttribute.Nop
-  fullName: Flame.TypeSystem.FlagAttribute.Nop
-  nameWithType: FlagAttribute.Nop
 - uid: Flame.TypeSystem.FlagAttribute.ReferenceType
   name: ReferenceType
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_ReferenceType
@@ -27184,6 +27197,61 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.MemberMapping.MapType
   nameWithType: MemberMapping.MapType
+- uid: Flame.TypeSystem.MemorySpecificationAttribute
+  name: MemorySpecificationAttribute
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html
+  commentId: T:Flame.TypeSystem.MemorySpecificationAttribute
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute
+  nameWithType: MemorySpecificationAttribute
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.#ctor(Flame.Compiler.Analysis.MemorySpecification)
+  name: MemorySpecificationAttribute(MemorySpecification)
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute__ctor_Flame_Compiler_Analysis_MemorySpecification_
+  commentId: M:Flame.TypeSystem.MemorySpecificationAttribute.#ctor(Flame.Compiler.Analysis.MemorySpecification)
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.MemorySpecificationAttribute(Flame.Compiler.Analysis.MemorySpecification)
+  nameWithType: MemorySpecificationAttribute.MemorySpecificationAttribute(MemorySpecification)
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.#ctor*
+  name: MemorySpecificationAttribute
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute__ctor_
+  commentId: Overload:Flame.TypeSystem.MemorySpecificationAttribute.#ctor
+  isSpec: "True"
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.MemorySpecificationAttribute
+  nameWithType: MemorySpecificationAttribute.MemorySpecificationAttribute
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.AttributeType
+  name: AttributeType
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute_AttributeType
+  commentId: F:Flame.TypeSystem.MemorySpecificationAttribute.AttributeType
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.AttributeType
+  nameWithType: MemorySpecificationAttribute.AttributeType
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.Flame#IAttribute#AttributeType
+  name: IAttribute.AttributeType
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute_Flame_IAttribute_AttributeType
+  commentId: P:Flame.TypeSystem.MemorySpecificationAttribute.Flame#IAttribute#AttributeType
+  name.vb: Flame.IAttribute.AttributeType
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.Flame.IAttribute.AttributeType
+  nameWithType: MemorySpecificationAttribute.IAttribute.AttributeType
+  nameWithType.vb: MemorySpecificationAttribute.Flame.IAttribute.AttributeType
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.Flame#IAttribute#AttributeType*
+  name: IAttribute.AttributeType
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute_Flame_IAttribute_AttributeType_
+  commentId: Overload:Flame.TypeSystem.MemorySpecificationAttribute.Flame#IAttribute#AttributeType
+  isSpec: "True"
+  name.vb: Flame.IAttribute.AttributeType
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.Flame.IAttribute.AttributeType
+  nameWithType: MemorySpecificationAttribute.IAttribute.AttributeType
+  nameWithType.vb: MemorySpecificationAttribute.Flame.IAttribute.AttributeType
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.Specification
+  name: Specification
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute_Specification
+  commentId: P:Flame.TypeSystem.MemorySpecificationAttribute.Specification
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.Specification
+  nameWithType: MemorySpecificationAttribute.Specification
+- uid: Flame.TypeSystem.MemorySpecificationAttribute.Specification*
+  name: Specification
+  href: api/Flame.TypeSystem.MemorySpecificationAttribute.html#Flame_TypeSystem_MemorySpecificationAttribute_Specification_
+  commentId: Overload:Flame.TypeSystem.MemorySpecificationAttribute.Specification
+  isSpec: "True"
+  fullName: Flame.TypeSystem.MemorySpecificationAttribute.Specification
+  nameWithType: MemorySpecificationAttribute.Specification
 - uid: Flame.TypeSystem.MethodSpecialization
   name: MethodSpecialization
   href: api/Flame.TypeSystem.MethodSpecialization.html

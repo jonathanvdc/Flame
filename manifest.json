@@ -162,7 +162,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrAccessorDefinition.html",
-          "hash": "glnWBYLmtCWNbv9g7RMAyQ=="
+          "hash": "PgcZo9hJCV5GF5PUCRH0/A=="
         }
       },
       "is_incremental": false,
@@ -222,7 +222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrMethodDefinition.html",
-          "hash": "y6LPmypwwJkWs77zQdGNNQ=="
+          "hash": "j0RRCdwkb1vPQqKYYyMuWw=="
         }
       },
       "is_incremental": false,
@@ -1362,7 +1362,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html",
-          "hash": "cT2GmQ6WdBkyapNIBtBIkg=="
+          "hash": "XkOE3srTwpfzTGR5xLGHQQ=="
         }
       },
       "is_incremental": false,
@@ -1374,7 +1374,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html",
-          "hash": "rUKY7cI0WevV3YtYKvwY7Q=="
+          "hash": "SxCeQaOWq9NLRHsaB7mC/g=="
         }
       },
       "is_incremental": false,
@@ -1386,7 +1386,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.Union.html",
-          "hash": "QLndCQ2LfZYt44WEh2bxFA=="
+          "hash": "op40Atz4YXnL1MZKQ4nXvw=="
         }
       },
       "is_incremental": false,
@@ -1398,7 +1398,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.MemorySpecification.html",
-          "hash": "FQfTyJVvDihJIlIt5ayVsA=="
+          "hash": "rTjwRr1hieTfYYP1KXvYDw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Analysis.MemorySpecificationExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Analysis.MemorySpecificationExtensions.html",
+          "hash": "NoDe3WsOKRCZqmLnwfXhAA=="
         }
       },
       "is_incremental": false,
@@ -1470,7 +1482,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.PrototypeMemorySpecs.html",
-          "hash": "Vom4OfY5wdCaE4aVzOz09w=="
+          "hash": "KFg2W25RacqT3aHtHwDyyw=="
         }
       },
       "is_incremental": false,
@@ -1578,7 +1590,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.RuleBasedPrototypeMemorySpecs.html",
-          "hash": "8qwVpSWJ85SiLA9S3Bho3w=="
+          "hash": "9/mjBiy95Sf3xVq52kIZkA=="
         }
       },
       "is_incremental": false,
@@ -1722,7 +1734,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.html",
-          "hash": "HTqkieCOCsD9ocqwox4k3Q=="
+          "hash": "AEH1uecaoapLbVZBwhoYHw=="
         }
       },
       "is_incremental": false,
@@ -1962,7 +1974,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.IBodyMethod.html",
-          "hash": "opKqmmmVSttQUAdc8dAGwg=="
+          "hash": "eErBG6RP1aqG+k7O2/SJzQ=="
         }
       },
       "is_incremental": false,
@@ -2802,7 +2814,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Transforms.Inlining.html",
-          "hash": "8/VhAQWpS8OWSXNkXjgPLQ=="
+          "hash": "rf0gyWWUsS7EYFvcTjuGXw=="
         }
       },
       "is_incremental": false,
@@ -3258,7 +3270,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExceptionSpecificationExtensions.html",
-          "hash": "vJKdyQ9P632YrUP/fGTCGg=="
+          "hash": "s2jOs1yY/URJ/JTzN/35QA=="
         }
       },
       "is_incremental": false,
@@ -3282,7 +3294,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IAccessor.html",
-          "hash": "90M/ZG5eHgAI25VQP7LUSw=="
+          "hash": "5Q1moF+m6VEQVvj2AapwKw=="
         }
       },
       "is_incremental": false,
@@ -3366,7 +3378,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IMethod.html",
-          "hash": "hkCZMrn1V6VbzNVnJ1WRmg=="
+          "hash": "/mrJBPVpNMkIS1Jm0l5rsw=="
         }
       },
       "is_incremental": false,
@@ -3546,7 +3558,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Ir.IrMethod.html",
-          "hash": "ntwJophWCxaLWhwSntYAZQ=="
+          "hash": "HtuiMPc5Khl2JreorX2HNw=="
         }
       },
       "is_incremental": false,
@@ -3774,7 +3786,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedAccessor.html",
-          "hash": "Og50KNyFjTIrTmxSWUOBjQ=="
+          "hash": "SUPTXkSb/MKhTES0cwdsNw=="
         }
       },
       "is_incremental": false,
@@ -3798,7 +3810,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedBodyAccessor.html",
-          "hash": "iOLj/67JS0XJIg5umLEuVQ=="
+          "hash": "TQP7bnuj/4s8jxmvLJknVA=="
         }
       },
       "is_incremental": false,
@@ -3810,7 +3822,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedBodyMethod.html",
-          "hash": "/yOOrOcxSgENv+TzsV/QxA=="
+          "hash": "kdcBw6/v3En2HQOjD6JC5A=="
         }
       },
       "is_incremental": false,
@@ -3870,7 +3882,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedMethod.html",
-          "hash": "imJHVJaHV1DFID71YQpBSw=="
+          "hash": "m5OJOjTUkMn5/SRqhonnjw=="
         }
       },
       "is_incremental": false,
@@ -3894,7 +3906,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectMethodSpecialization.html",
-          "hash": "bquvsvWhs7K/fMSEh7Lj5w=="
+          "hash": "lTArVYid50WHOrMy0G4oOw=="
         }
       },
       "is_incremental": false,
@@ -3930,7 +3942,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ExceptionSpecificationAttribute.html",
-          "hash": "KSglbG8udfQo5sfh4Fgsqg=="
+          "hash": "kAU6VW819xkw01zR4Lp9vQ=="
         }
       },
       "is_incremental": false,
@@ -3942,7 +3954,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.FlagAttribute.html",
-          "hash": "NSHYhlbols4ccJxaD2VhAg=="
+          "hash": "DuI2U6/B9I6AYYBClZYx4A=="
         }
       },
       "is_incremental": false,
@@ -3966,7 +3978,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectAccessorSpecialization.html",
-          "hash": "wUx4xZfjo6Q9A3EBE/D06w=="
+          "hash": "NcaxqUAPJctv+KxgXCDApg=="
         }
       },
       "is_incremental": false,
@@ -4002,7 +4014,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectMethodSpecialization.html",
-          "hash": "/R3Fwoo7A2hw/hMFuKbZMA=="
+          "hash": "G0yuY4hhl7jXaD6YXmUjXg=="
         }
       },
       "is_incremental": false,
@@ -4070,11 +4082,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.TypeSystem.MemorySpecificationAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.TypeSystem.MemorySpecificationAttribute.html",
+          "hash": "X0LtHvjZPYEwkNp05mJVSA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.TypeSystem.MethodSpecialization.yml",
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.MethodSpecialization.html",
-          "hash": "RGEDcEPeGF8XAjgVwxyFzA=="
+          "hash": "+SLld6bLAtc1EB+UnDM7qg=="
         }
       },
       "is_incremental": false,
@@ -4266,7 +4290,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.html",
-          "hash": "O5HGXVBO+ag1WqV5iHMXTg=="
+          "hash": "fypP8LRILWsJtaEK84oe3A=="
         }
       },
       "is_incremental": false,
@@ -4329,7 +4353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "ihgKR0ctU8zcJRYlmOZIFQ=="
+          "hash": "dLEMSVIoBqj3xyOiTBBY8w=="
         }
       },
       "is_incremental": false,
@@ -4414,16 +4438,16 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 358,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 4,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 360,
           "skipped_file_count": 0
         }
       }
