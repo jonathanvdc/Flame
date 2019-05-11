@@ -21235,51 +21235,6 @@ references:
   isSpec: "True"
   fullName: Flame.ContractHelpers.CheckPositive
   nameWithType: ContractHelpers.CheckPositive
-- uid: Flame.ExactExceptionSpecification
-  name: ExactExceptionSpecification
-  href: api/Flame.ExactExceptionSpecification.html
-  commentId: T:Flame.ExactExceptionSpecification
-  fullName: Flame.ExactExceptionSpecification
-  nameWithType: ExactExceptionSpecification
-- uid: Flame.ExactExceptionSpecification.CanThrow(Flame.IType)
-  name: CanThrow(IType)
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_CanThrow_Flame_IType_
-  commentId: M:Flame.ExactExceptionSpecification.CanThrow(Flame.IType)
-  fullName: Flame.ExactExceptionSpecification.CanThrow(Flame.IType)
-  nameWithType: ExactExceptionSpecification.CanThrow(IType)
-- uid: Flame.ExactExceptionSpecification.CanThrow*
-  name: CanThrow
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_CanThrow_
-  commentId: Overload:Flame.ExactExceptionSpecification.CanThrow
-  isSpec: "True"
-  fullName: Flame.ExactExceptionSpecification.CanThrow
-  nameWithType: ExactExceptionSpecification.CanThrow
-- uid: Flame.ExactExceptionSpecification.CanThrowSomething
-  name: CanThrowSomething
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_CanThrowSomething
-  commentId: P:Flame.ExactExceptionSpecification.CanThrowSomething
-  fullName: Flame.ExactExceptionSpecification.CanThrowSomething
-  nameWithType: ExactExceptionSpecification.CanThrowSomething
-- uid: Flame.ExactExceptionSpecification.CanThrowSomething*
-  name: CanThrowSomething
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_CanThrowSomething_
-  commentId: Overload:Flame.ExactExceptionSpecification.CanThrowSomething
-  isSpec: "True"
-  fullName: Flame.ExactExceptionSpecification.CanThrowSomething
-  nameWithType: ExactExceptionSpecification.CanThrowSomething
-- uid: Flame.ExactExceptionSpecification.ExceptionType
-  name: ExceptionType
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_ExceptionType
-  commentId: P:Flame.ExactExceptionSpecification.ExceptionType
-  fullName: Flame.ExactExceptionSpecification.ExceptionType
-  nameWithType: ExactExceptionSpecification.ExceptionType
-- uid: Flame.ExactExceptionSpecification.ExceptionType*
-  name: ExceptionType
-  href: api/Flame.ExactExceptionSpecification.html#Flame_ExactExceptionSpecification_ExceptionType_
-  commentId: Overload:Flame.ExactExceptionSpecification.ExceptionType
-  isSpec: "True"
-  fullName: Flame.ExactExceptionSpecification.ExceptionType
-  nameWithType: ExactExceptionSpecification.ExceptionType
 - uid: Flame.ExceptionSpecification
   name: ExceptionSpecification
   href: api/Flame.ExceptionSpecification.html
@@ -21312,19 +21267,64 @@ references:
   isSpec: "True"
   fullName: Flame.ExceptionSpecification.CanThrowSomething
   nameWithType: ExceptionSpecification.CanThrowSomething
-- uid: Flame.ExceptionSpecification.Exactly(Flame.IType)
-  name: Exactly(IType)
-  href: api/Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Exactly_Flame_IType_
-  commentId: M:Flame.ExceptionSpecification.Exactly(Flame.IType)
-  fullName: Flame.ExceptionSpecification.Exactly(Flame.IType)
-  nameWithType: ExceptionSpecification.Exactly(IType)
-- uid: Flame.ExceptionSpecification.Exactly*
-  name: Exactly
-  href: api/Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Exactly_
-  commentId: Overload:Flame.ExceptionSpecification.Exactly
+- uid: Flame.ExceptionSpecification.Exact
+  name: ExceptionSpecification.Exact
+  href: api/Flame.ExceptionSpecification.Exact.html
+  commentId: T:Flame.ExceptionSpecification.Exact
+  fullName: Flame.ExceptionSpecification.Exact
+  nameWithType: ExceptionSpecification.Exact
+- uid: Flame.ExceptionSpecification.Exact.CanThrow(Flame.IType)
+  name: CanThrow(IType)
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_CanThrow_Flame_IType_
+  commentId: M:Flame.ExceptionSpecification.Exact.CanThrow(Flame.IType)
+  fullName: Flame.ExceptionSpecification.Exact.CanThrow(Flame.IType)
+  nameWithType: ExceptionSpecification.Exact.CanThrow(IType)
+- uid: Flame.ExceptionSpecification.Exact.CanThrow*
+  name: CanThrow
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_CanThrow_
+  commentId: Overload:Flame.ExceptionSpecification.Exact.CanThrow
   isSpec: "True"
-  fullName: Flame.ExceptionSpecification.Exactly
-  nameWithType: ExceptionSpecification.Exactly
+  fullName: Flame.ExceptionSpecification.Exact.CanThrow
+  nameWithType: ExceptionSpecification.Exact.CanThrow
+- uid: Flame.ExceptionSpecification.Exact.CanThrowSomething
+  name: CanThrowSomething
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_CanThrowSomething
+  commentId: P:Flame.ExceptionSpecification.Exact.CanThrowSomething
+  fullName: Flame.ExceptionSpecification.Exact.CanThrowSomething
+  nameWithType: ExceptionSpecification.Exact.CanThrowSomething
+- uid: Flame.ExceptionSpecification.Exact.CanThrowSomething*
+  name: CanThrowSomething
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_CanThrowSomething_
+  commentId: Overload:Flame.ExceptionSpecification.Exact.CanThrowSomething
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Exact.CanThrowSomething
+  nameWithType: ExceptionSpecification.Exact.CanThrowSomething
+- uid: Flame.ExceptionSpecification.Exact.Create(Flame.IType)
+  name: Create(IType)
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_Create_Flame_IType_
+  commentId: M:Flame.ExceptionSpecification.Exact.Create(Flame.IType)
+  fullName: Flame.ExceptionSpecification.Exact.Create(Flame.IType)
+  nameWithType: ExceptionSpecification.Exact.Create(IType)
+- uid: Flame.ExceptionSpecification.Exact.Create*
+  name: Create
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_Create_
+  commentId: Overload:Flame.ExceptionSpecification.Exact.Create
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Exact.Create
+  nameWithType: ExceptionSpecification.Exact.Create
+- uid: Flame.ExceptionSpecification.Exact.ExceptionType
+  name: ExceptionType
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_ExceptionType
+  commentId: P:Flame.ExceptionSpecification.Exact.ExceptionType
+  fullName: Flame.ExceptionSpecification.Exact.ExceptionType
+  nameWithType: ExceptionSpecification.Exact.ExceptionType
+- uid: Flame.ExceptionSpecification.Exact.ExceptionType*
+  name: ExceptionType
+  href: api/Flame.ExceptionSpecification.Exact.html#Flame_ExceptionSpecification_Exact_ExceptionType_
+  commentId: Overload:Flame.ExceptionSpecification.Exact.ExceptionType
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Exact.ExceptionType
+  nameWithType: ExceptionSpecification.Exact.ExceptionType
 - uid: Flame.ExceptionSpecification.NoThrow
   name: NoThrow
   href: api/Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_NoThrow
@@ -21337,22 +21337,67 @@ references:
   commentId: F:Flame.ExceptionSpecification.ThrowAny
   fullName: Flame.ExceptionSpecification.ThrowAny
   nameWithType: ExceptionSpecification.ThrowAny
-- uid: Flame.ExceptionSpecification.Union(Flame.ExceptionSpecification[])
-  name: Union(ExceptionSpecification[])
-  href: api/Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Union_Flame_ExceptionSpecification___
-  commentId: M:Flame.ExceptionSpecification.Union(Flame.ExceptionSpecification[])
-  name.vb: Union(ExceptionSpecification())
-  fullName: Flame.ExceptionSpecification.Union(Flame.ExceptionSpecification[])
-  fullName.vb: Flame.ExceptionSpecification.Union(Flame.ExceptionSpecification())
-  nameWithType: ExceptionSpecification.Union(ExceptionSpecification[])
-  nameWithType.vb: ExceptionSpecification.Union(ExceptionSpecification())
-- uid: Flame.ExceptionSpecification.Union*
-  name: Union
-  href: api/Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Union_
-  commentId: Overload:Flame.ExceptionSpecification.Union
-  isSpec: "True"
+- uid: Flame.ExceptionSpecification.Union
+  name: ExceptionSpecification.Union
+  href: api/Flame.ExceptionSpecification.Union.html
+  commentId: T:Flame.ExceptionSpecification.Union
   fullName: Flame.ExceptionSpecification.Union
   nameWithType: ExceptionSpecification.Union
+- uid: Flame.ExceptionSpecification.Union.CanThrow(Flame.IType)
+  name: CanThrow(IType)
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_CanThrow_Flame_IType_
+  commentId: M:Flame.ExceptionSpecification.Union.CanThrow(Flame.IType)
+  fullName: Flame.ExceptionSpecification.Union.CanThrow(Flame.IType)
+  nameWithType: ExceptionSpecification.Union.CanThrow(IType)
+- uid: Flame.ExceptionSpecification.Union.CanThrow*
+  name: CanThrow
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_CanThrow_
+  commentId: Overload:Flame.ExceptionSpecification.Union.CanThrow
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Union.CanThrow
+  nameWithType: ExceptionSpecification.Union.CanThrow
+- uid: Flame.ExceptionSpecification.Union.CanThrowSomething
+  name: CanThrowSomething
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_CanThrowSomething
+  commentId: P:Flame.ExceptionSpecification.Union.CanThrowSomething
+  fullName: Flame.ExceptionSpecification.Union.CanThrowSomething
+  nameWithType: ExceptionSpecification.Union.CanThrowSomething
+- uid: Flame.ExceptionSpecification.Union.CanThrowSomething*
+  name: CanThrowSomething
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_CanThrowSomething_
+  commentId: Overload:Flame.ExceptionSpecification.Union.CanThrowSomething
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Union.CanThrowSomething
+  nameWithType: ExceptionSpecification.Union.CanThrowSomething
+- uid: Flame.ExceptionSpecification.Union.Create(Flame.ExceptionSpecification[])
+  name: Create(ExceptionSpecification[])
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_Create_Flame_ExceptionSpecification___
+  commentId: M:Flame.ExceptionSpecification.Union.Create(Flame.ExceptionSpecification[])
+  name.vb: Create(ExceptionSpecification())
+  fullName: Flame.ExceptionSpecification.Union.Create(Flame.ExceptionSpecification[])
+  fullName.vb: Flame.ExceptionSpecification.Union.Create(Flame.ExceptionSpecification())
+  nameWithType: ExceptionSpecification.Union.Create(ExceptionSpecification[])
+  nameWithType.vb: ExceptionSpecification.Union.Create(ExceptionSpecification())
+- uid: Flame.ExceptionSpecification.Union.Create*
+  name: Create
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_Create_
+  commentId: Overload:Flame.ExceptionSpecification.Union.Create
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Union.Create
+  nameWithType: ExceptionSpecification.Union.Create
+- uid: Flame.ExceptionSpecification.Union.Operands
+  name: Operands
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_Operands
+  commentId: P:Flame.ExceptionSpecification.Union.Operands
+  fullName: Flame.ExceptionSpecification.Union.Operands
+  nameWithType: ExceptionSpecification.Union.Operands
+- uid: Flame.ExceptionSpecification.Union.Operands*
+  name: Operands
+  href: api/Flame.ExceptionSpecification.Union.html#Flame_ExceptionSpecification_Union_Operands_
+  commentId: Overload:Flame.ExceptionSpecification.Union.Operands
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecification.Union.Operands
+  nameWithType: ExceptionSpecification.Union.Operands
 - uid: Flame.ExceptionSpecificationExtensions
   name: ExceptionSpecificationExtensions
   href: api/Flame.ExceptionSpecificationExtensions.html
@@ -29109,51 +29154,6 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.VirtualMethodSetExtensions.GetVirtualMethodSet
   nameWithType: VirtualMethodSetExtensions.GetVirtualMethodSet
-- uid: Flame.UnionExceptionSpecification
-  name: UnionExceptionSpecification
-  href: api/Flame.UnionExceptionSpecification.html
-  commentId: T:Flame.UnionExceptionSpecification
-  fullName: Flame.UnionExceptionSpecification
-  nameWithType: UnionExceptionSpecification
-- uid: Flame.UnionExceptionSpecification.CanThrow(Flame.IType)
-  name: CanThrow(IType)
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_CanThrow_Flame_IType_
-  commentId: M:Flame.UnionExceptionSpecification.CanThrow(Flame.IType)
-  fullName: Flame.UnionExceptionSpecification.CanThrow(Flame.IType)
-  nameWithType: UnionExceptionSpecification.CanThrow(IType)
-- uid: Flame.UnionExceptionSpecification.CanThrow*
-  name: CanThrow
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_CanThrow_
-  commentId: Overload:Flame.UnionExceptionSpecification.CanThrow
-  isSpec: "True"
-  fullName: Flame.UnionExceptionSpecification.CanThrow
-  nameWithType: UnionExceptionSpecification.CanThrow
-- uid: Flame.UnionExceptionSpecification.CanThrowSomething
-  name: CanThrowSomething
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_CanThrowSomething
-  commentId: P:Flame.UnionExceptionSpecification.CanThrowSomething
-  fullName: Flame.UnionExceptionSpecification.CanThrowSomething
-  nameWithType: UnionExceptionSpecification.CanThrowSomething
-- uid: Flame.UnionExceptionSpecification.CanThrowSomething*
-  name: CanThrowSomething
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_CanThrowSomething_
-  commentId: Overload:Flame.UnionExceptionSpecification.CanThrowSomething
-  isSpec: "True"
-  fullName: Flame.UnionExceptionSpecification.CanThrowSomething
-  nameWithType: UnionExceptionSpecification.CanThrowSomething
-- uid: Flame.UnionExceptionSpecification.Operands
-  name: Operands
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_Operands
-  commentId: P:Flame.UnionExceptionSpecification.Operands
-  fullName: Flame.UnionExceptionSpecification.Operands
-  nameWithType: UnionExceptionSpecification.Operands
-- uid: Flame.UnionExceptionSpecification.Operands*
-  name: Operands
-  href: api/Flame.UnionExceptionSpecification.html#Flame_UnionExceptionSpecification_Operands_
-  commentId: Overload:Flame.UnionExceptionSpecification.Operands
-  isSpec: "True"
-  fullName: Flame.UnionExceptionSpecification.Operands
-  nameWithType: UnionExceptionSpecification.Operands
 - uid: Flame.UnqualifiedName
   name: UnqualifiedName
   href: api/Flame.UnqualifiedName.html

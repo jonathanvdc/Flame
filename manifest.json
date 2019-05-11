@@ -1422,7 +1422,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.html",
-          "hash": "RUQEQJHXcP/Xfw1Mv6juNQ=="
+          "hash": "2YePfW37ZWNm5BMIKQA91g=="
         }
       },
       "is_incremental": false,
@@ -3242,11 +3242,23 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.ExactExceptionSpecification.yml",
+      "source_relative_path": "api/Flame.ExceptionSpecification.Exact.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Flame.ExactExceptionSpecification.html",
-          "hash": "DhKm0D+xJZvD7XYoA591HA=="
+          "relative_path": "api/Flame.ExceptionSpecification.Exact.html",
+          "hash": "l0jefA0HKsuHB7p8D7LR7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.ExceptionSpecification.Union.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.ExceptionSpecification.Union.html",
+          "hash": "7mBZfu8BVzd4IAiAMtzeNA=="
         }
       },
       "is_incremental": false,
@@ -3258,7 +3270,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExceptionSpecification.html",
-          "hash": "Fc+R21nQOJWtHGyc6MACWA=="
+          "hash": "wsusertHBNkkDUUCgEiM+w=="
         }
       },
       "is_incremental": false,
@@ -3270,7 +3282,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExceptionSpecificationExtensions.html",
-          "hash": "s2jOs1yY/URJ/JTzN/35QA=="
+          "hash": "jnGPKICEv82xjmE7HL74Gg=="
         }
       },
       "is_incremental": false,
@@ -4298,18 +4310,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.UnionExceptionSpecification.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.UnionExceptionSpecification.html",
-          "hash": "k2I+sX8ZkCyMv2adQL4mLA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Flame.UnqualifiedName.yml",
       "output": {
         ".html": {
@@ -4326,7 +4326,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.html",
-          "hash": "NBtPwdYeXyYLfUMN6gcx7Q=="
+          "hash": "aoqT3Fb0Ba3SUAbqfOux2Q=="
         }
       },
       "is_incremental": false,
@@ -4353,7 +4353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "dLEMSVIoBqj3xyOiTBBY8w=="
+          "hash": "Ri9ScTM0A9i6hFcDejhYZg=="
         }
       },
       "is_incremental": false,

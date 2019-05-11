@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class UnionExceptionSpecification
+    <title>Class ExceptionSpecification.Exact
    | Flame </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class UnionExceptionSpecification
+    <meta name="title" content="Class ExceptionSpecification.Exact
    | Flame ">
     <meta name="generator" content="docfx 2.42.2.0">
     
@@ -78,21 +78,20 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Flame.UnionExceptionSpecification">
+            <article class="content wrap" id="_content" data-uid="Flame.ExceptionSpecification.Exact">
   
   
-  <h1 id="Flame_UnionExceptionSpecification" data-uid="Flame.UnionExceptionSpecification" class="text-break">Class UnionExceptionSpecification
+  <h1 id="Flame_ExceptionSpecification_Exact" data-uid="Flame.ExceptionSpecification.Exact" class="text-break">Class ExceptionSpecification.Exact
   </h1>
-  <div class="markdown level0 summary"><p>An exception specification that is the union of a sequence of other
-exception specifications: the union can throw an exception iff said
-exception is throwable by any of the operands.</p>
+  <div class="markdown level0 summary"><p>An exception specification that can throw an exception
+of exactly one type.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><a class="xref" href="Flame.ExceptionSpecification.html">ExceptionSpecification</a></div>
-    <div class="level2"><span class="xref">UnionExceptionSpecification</span></div>
+    <div class="level2"><span class="xref">ExceptionSpecification.Exact</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -101,12 +100,6 @@ exception is throwable by any of the operands.</p>
     </div>
     <div>
       <a class="xref" href="Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_ThrowAny">ExceptionSpecification.ThrowAny</a>
-    </div>
-    <div>
-      <a class="xref" href="Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Exactly_Flame_IType_">ExceptionSpecification.Exactly(IType)</a>
-    </div>
-    <div>
-      <a class="xref" href="Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_Union_Flame_ExceptionSpecification___">ExceptionSpecification.Union(ExceptionSpecification[])</a>
     </div>
     <div>
       <span class="xref">System.Object.ToString()</span>
@@ -132,21 +125,21 @@ exception is throwable by any of the operands.</p>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Flame.html">Flame</a></h6>
   <h6><strong>Assembly</strong>: Flame.dll</h6>
-  <h5 id="Flame_UnionExceptionSpecification_syntax">Syntax</h5>
+  <h5 id="Flame_ExceptionSpecification_Exact_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class UnionExceptionSpecification : ExceptionSpecification</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class Exact : ExceptionSpecification</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_UnionExceptionSpecification_CanThrowSomething.md&amp;value=---%0Auid%3A%20Flame.UnionExceptionSpecification.CanThrowSomething%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_ExceptionSpecification_Exact_CanThrowSomething.md&amp;value=---%0Auid%3A%20Flame.ExceptionSpecification.Exact.CanThrowSomething%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L189">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L95">View Source</a>
   </span>
-  <a id="Flame_UnionExceptionSpecification_CanThrowSomething_" data-uid="Flame.UnionExceptionSpecification.CanThrowSomething*"></a>
-  <h4 id="Flame_UnionExceptionSpecification_CanThrowSomething" data-uid="Flame.UnionExceptionSpecification.CanThrowSomething">CanThrowSomething</h4>
+  <a id="Flame_ExceptionSpecification_Exact_CanThrowSomething_" data-uid="Flame.ExceptionSpecification.Exact.CanThrowSomething*"></a>
+  <h4 id="Flame_ExceptionSpecification_Exact_CanThrowSomething" data-uid="Flame.ExceptionSpecification.Exact.CanThrowSomething">CanThrowSomething</h4>
   <div class="markdown level1 summary"><p>Tells if this exception specification allows for any exceptions
 at all to be thrown.</p>
 </div>
@@ -176,20 +169,20 @@ at least one type of exception to be thrown; otherwise, <code>false</code>.</p>
   <div><a class="xref" href="Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_CanThrowSomething">ExceptionSpecification.CanThrowSomething</a></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_UnionExceptionSpecification_Operands.md&amp;value=---%0Auid%3A%20Flame.UnionExceptionSpecification.Operands%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_ExceptionSpecification_Exact_ExceptionType.md&amp;value=---%0Auid%3A%20Flame.ExceptionSpecification.Exact.ExceptionType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L186">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L92">View Source</a>
   </span>
-  <a id="Flame_UnionExceptionSpecification_Operands_" data-uid="Flame.UnionExceptionSpecification.Operands*"></a>
-  <h4 id="Flame_UnionExceptionSpecification_Operands" data-uid="Flame.UnionExceptionSpecification.Operands">Operands</h4>
-  <div class="markdown level1 summary"><p>Gets the list of exception specifications to which the
-union operator is applied.</p>
+  <a id="Flame_ExceptionSpecification_Exact_ExceptionType_" data-uid="Flame.ExceptionSpecification.Exact.ExceptionType*"></a>
+  <h4 id="Flame_ExceptionSpecification_Exact_ExceptionType" data-uid="Flame.ExceptionSpecification.Exact.ExceptionType">ExceptionType</h4>
+  <div class="markdown level1 summary"><p>Gets the type of exception that can be thrown by this
+exception specification.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;ExceptionSpecification&gt; Operands { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IType ExceptionType { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -201,8 +194,8 @@ union operator is applied.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.ExceptionSpecification.html">ExceptionSpecification</a>&gt;</td>
-        <td><p>A list of exception specifications.</p>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The type of exception that can be thrown.</p>
 </td>
       </tr>
     </tbody>
@@ -211,13 +204,13 @@ union operator is applied.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_UnionExceptionSpecification_CanThrow_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.UnionExceptionSpecification.CanThrow(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_ExceptionSpecification_Exact_CanThrow_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.ExceptionSpecification.Exact.CanThrow(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L192">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L98">View Source</a>
   </span>
-  <a id="Flame_UnionExceptionSpecification_CanThrow_" data-uid="Flame.UnionExceptionSpecification.CanThrow*"></a>
-  <h4 id="Flame_UnionExceptionSpecification_CanThrow_Flame_IType_" data-uid="Flame.UnionExceptionSpecification.CanThrow(Flame.IType)">CanThrow(IType)</h4>
+  <a id="Flame_ExceptionSpecification_Exact_CanThrow_" data-uid="Flame.ExceptionSpecification.Exact.CanThrow*"></a>
+  <h4 id="Flame_ExceptionSpecification_Exact_CanThrow_Flame_IType_" data-uid="Flame.ExceptionSpecification.Exact.CanThrow(Flame.IType)">CanThrow(IType)</h4>
   <div class="markdown level1 summary"><p>Tells if this exception specification allows for an exception
 of a particular type or a derived type to be thrown.</p>
 </div>
@@ -263,6 +256,55 @@ or a derived type can be thrown; otherwise, <code>false</code>.</p>
   </table>
   <h5 class="overrides">Overrides</h5>
   <div><a class="xref" href="Flame.ExceptionSpecification.html#Flame_ExceptionSpecification_CanThrow_Flame_IType_">ExceptionSpecification.CanThrow(IType)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_ExceptionSpecification_Exact_Create_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.ExceptionSpecification.Exact.Create(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L109">View Source</a>
+  </span>
+  <a id="Flame_ExceptionSpecification_Exact_Create_" data-uid="Flame.ExceptionSpecification.Exact.Create*"></a>
+  <h4 id="Flame_ExceptionSpecification_Exact_Create_Flame_IType_" data-uid="Flame.ExceptionSpecification.Exact.Create(Flame.IType)">Create(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an exception specification that can throw exactly one type of exception.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ExceptionSpecification.Exact Create(IType exceptionType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">exceptionType</span></td>
+        <td><p>The single exception type that can be thrown.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.ExceptionSpecification.Exact.html">ExceptionSpecification.Exact</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           
@@ -271,10 +313,10 @@ or a derived type can be thrown; otherwise, <code>false</code>.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_UnionExceptionSpecification.md&amp;value=---%0Auid%3A%20Flame.UnionExceptionSpecification%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_ExceptionSpecification_Exact.md&amp;value=---%0Auid%3A%20Flame.ExceptionSpecification.Exact%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L166" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/ExceptionSpecification.cs/#L73" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
