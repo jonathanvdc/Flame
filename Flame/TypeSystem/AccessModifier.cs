@@ -112,7 +112,7 @@ namespace Flame.TypeSystem
         /// <returns>The member's access modifier if it has one; otherwise, internal.</returns>
         public static AccessModifier GetAccessModifier(this IMember member)
         {
-            var attr = member.Attributes.Get(
+            var attr = member.Attributes.GetOrNull(
                 IntrinsicAttribute.GetIntrinsicAttributeType(AttributeName));
             if (attr == null)
             {

@@ -182,7 +182,7 @@ namespace Flame
         /// </returns>
         public static ExceptionSpecification GetExceptionSpecification(this IMethod method)
         {
-            var attr = method.Attributes.Get(ExceptionSpecificationAttribute.AttributeType);
+            var attr = method.Attributes.GetOrNull(ExceptionSpecificationAttribute.AttributeType);
             if (attr == null)
             {
                 return ExceptionSpecification.ThrowAny;

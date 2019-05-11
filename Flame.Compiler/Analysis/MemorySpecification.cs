@@ -199,7 +199,7 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         public static MemorySpecification GetMemorySpecification(this IMethod method)
         {
-            var attr = method.Attributes.Get(MemorySpecificationAttribute.AttributeType);
+            var attr = method.Attributes.GetOrNull(MemorySpecificationAttribute.AttributeType);
             if (attr == null)
             {
                 return MemorySpecification.Unknown;

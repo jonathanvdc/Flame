@@ -52,7 +52,7 @@ namespace Flame.TypeSystem
         /// </returns>
         public static IntegerSpec GetIntegerSpecOrNull(this IType type)
         {
-            var attr = type.Attributes.Get(
+            var attr = type.Attributes.GetOrNull(
                 IntrinsicAttribute.GetIntrinsicAttributeType(AttributeName));
             if (attr == null)
             {
@@ -74,7 +74,7 @@ namespace Flame.TypeSystem
         /// </returns>
         public static bool IsIntegerType(this IType type)
         {
-            var attr = type.Attributes.Get(
+            var attr = type.Attributes.GetOrNull(
                 IntrinsicAttribute.GetIntrinsicAttributeType(AttributeName));
             return attr != null;
         }

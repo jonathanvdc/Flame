@@ -194,7 +194,7 @@ namespace Flame
         /// Gets an attribute with the given type. If no such attribute exists,
         /// then null is returned.
         /// </summary>
-        public IAttribute Get(IType Type)
+        public IAttribute GetOrNull(IType Type)
         {
             return attributeDict.PeekOrDefault(Type);
         }
