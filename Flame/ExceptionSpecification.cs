@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Flame.TypeSystem;
 
 namespace Flame
 {
@@ -72,6 +73,33 @@ namespace Flame
             params ExceptionSpecification[] operands)
         {
             return new UnionExceptionSpecification(operands);
+        }
+    }
+
+    /// <summary>
+    /// Extension methods that make working with exception specifications easier.
+    /// </summary>
+    public static class ExceptionSpecificationExtensions
+    {
+        /// <summary>
+        /// Gets a method's exception specification.
+        /// </summary>
+        /// <param name="method">The method to examine.</param>
+        /// <returns>
+        /// The explicit method specification encoded in <paramref name="method"/>'s exception specification
+        /// attribute, if it has one; otherwise, a throw-any specification.
+        /// </returns>
+        public static ExceptionSpecification GetExceptionSpecification(this IMethod method)
+        {
+            var attr = method.Attributes.Get(ExceptionSpecificationAttribute.AttributeType);
+            if (attr == null)
+            {
+                return ExceptionSpecification.ThrowAny;
+            }
+            else
+            {
+                return ((ExceptionSpecificationAttribute)attr).Specification;
+            }
         }
     }
 
