@@ -267,9 +267,12 @@ namespace Flame.Compiler.Analysis
                 new NullCheckExceptionSpecification(0, ExceptionSpecification.ThrowAny));
 
             // Call-like instruction prototypes.
-            // TODO: use the callee's exception specification.
-            Default.Register<CallPrototype>(ExceptionSpecification.ThrowAny);
-            Default.Register<NewObjectPrototype>(ExceptionSpecification.ThrowAny);
+            Default.Register<CallPrototype>(
+                proto => proto.Lookup == MethodLookup.Static
+                    ? proto.Callee.GetExceptionSpecification()
+                    : ExceptionSpecification.ThrowAny);
+            Default.Register<NewObjectPrototype>(
+                proto => proto.Constructor.GetExceptionSpecification());
             Default.Register<IndirectCallPrototype>(ExceptionSpecification.ThrowAny);
 
             // Arithmetic intrinsics never throw.
