@@ -4,6 +4,7 @@ using System.Linq;
 using Flame.Clr.Analysis;
 using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Analysis;
 using Flame.TypeSystem;
 using Mono.Cecil;
 using Mono.Cecil.Rocks;
@@ -180,8 +181,8 @@ namespace Flame.Clr
                 && Definition.IsConstructor
                 && Definition.Parameters.Count == 0)
             {
-                attrBuilder.Add(FlagAttribute.Nop);
                 attrBuilder.Add(new ExceptionSpecificationAttribute(ExceptionSpecification.NoThrow));
+                attrBuilder.Add(new MemorySpecificationAttribute(MemorySpecification.Nothing));
             }
 
             // Analyze access modifier.
