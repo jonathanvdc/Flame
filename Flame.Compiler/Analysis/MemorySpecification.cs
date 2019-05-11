@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler.Instructions;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Analysis
 {
@@ -184,6 +185,33 @@ namespace Flame.Compiler.Analysis
     }
 
     /// <summary>
+    /// Extension methods that make working with memory specifications easier.
+    /// </summary>
+    public static class MemorySpecificationExtensions
+    {
+        /// <summary>
+        /// Gets a method's memory specification.
+        /// </summary>
+        /// <param name="method">The method to examine.</param>
+        /// <returns>
+        /// The explicit memory specification encoded in <paramref name="method"/>'s memory specification
+        /// attribute, if it has one; otherwise, an unknown read/write specification.
+        /// </returns>
+        public static MemorySpecification GetMemorySpecification(this IMethod method)
+        {
+            var attr = method.Attributes.Get(MemorySpecificationAttribute.AttributeType);
+            if (attr == null)
+            {
+                return MemorySpecification.Unknown;
+            }
+            else
+            {
+                return ((MemorySpecificationAttribute)attr).Specification;
+            }
+        }
+    }
+
+    /// <summary>
     /// Maps instruction prototypes to memory access specs.
     /// </summary>
     public abstract class PrototypeMemorySpecs
@@ -322,9 +350,12 @@ namespace Flame.Compiler.Analysis
             Default.Register<UnboxPrototype>(MemorySpecification.Nothing);
 
             // Call-like instruction prototypes.
-            // TODO: use the callee's memory specification.
-            Default.Register<CallPrototype>(MemorySpecification.Unknown);
-            Default.Register<NewObjectPrototype>(MemorySpecification.Unknown);
+            Default.Register<CallPrototype>(
+                proto => proto.Lookup == MethodLookup.Static
+                    ? proto.Callee.GetMemorySpecification()
+                    : MemorySpecification.Unknown);
+            Default.Register<NewObjectPrototype>(
+                proto => proto.Constructor.GetMemorySpecification());
             Default.Register<IndirectCallPrototype>(MemorySpecification.Unknown);
 
             // Arithmetic intrinsics never read or write.

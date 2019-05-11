@@ -86,7 +86,7 @@ namespace Flame
         /// </summary>
         /// <param name="method">The method to examine.</param>
         /// <returns>
-        /// The explicit method specification encoded in <paramref name="method"/>'s exception specification
+        /// The explicit exception specification encoded in <paramref name="method"/>'s exception specification
         /// attribute, if it has one; otherwise, a throw-any specification.
         /// </returns>
         public static ExceptionSpecification GetExceptionSpecification(this IMethod method)

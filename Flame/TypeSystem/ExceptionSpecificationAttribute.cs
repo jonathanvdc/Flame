@@ -15,7 +15,7 @@ namespace Flame.TypeSystem
         }
 
         /// <summary>
-        /// The attribute type of an exception specification attribute.
+        /// The attribute type of exception specification attributes.
         /// </summary>
         /// <value>An attribute type.</value>
         public static readonly IType AttributeType = new DescribedType(
