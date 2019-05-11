@@ -1923,7 +1923,9 @@ namespace Flame.Clr.Analysis
             { Mono.Cecil.Cil.OpCodes.Neg, ArithmeticIntrinsics.Operators.Not },
             { Mono.Cecil.Cil.OpCodes.And, ArithmeticIntrinsics.Operators.And },
             { Mono.Cecil.Cil.OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
-            { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor }
+            { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor },
+            { Mono.Cecil.Cil.OpCodes.Shl, ArithmeticIntrinsics.Operators.LeftShift },
+            { Mono.Cecil.Cil.OpCodes.Shr, ArithmeticIntrinsics.Operators.RightShift }
         };
 
         private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> unsignedBinaryOperators =
@@ -1932,7 +1934,8 @@ namespace Flame.Clr.Analysis
             { Mono.Cecil.Cil.OpCodes.Div_Un, ArithmeticIntrinsics.Operators.Divide },
             { Mono.Cecil.Cil.OpCodes.Rem_Un, ArithmeticIntrinsics.Operators.Remainder },
             { Mono.Cecil.Cil.OpCodes.Cgt_Un, ArithmeticIntrinsics.Operators.IsGreaterThan },
-            { Mono.Cecil.Cil.OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan }
+            { Mono.Cecil.Cil.OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan },
+            { Mono.Cecil.Cil.OpCodes.Shr_Un, ArithmeticIntrinsics.Operators.RightShift }
         };
     }
 }
