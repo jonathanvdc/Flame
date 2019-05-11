@@ -66,20 +66,6 @@ namespace Flame.Compiler.Transforms
                 TryInlineCall(instruction, calleeBody);
             }
 
-            // Delete nops that may arise due to inlining.
-            foreach (var instruction in graph.Instructions)
-            {
-                var proto = instruction.Prototype as CallPrototype;
-                if (proto != null
-                    && proto.Lookup == MethodLookup.Static
-                    && proto.Callee.Attributes.Contains(FlagAttribute.Nop.AttributeType))
-                {
-                    instruction.Instruction = Instruction.CreateConstant(
-                        DefaultConstant.Instance,
-                        instruction.ResultType);
-                }
-            }
-
             return body.WithImplementation(graph.ToImmutable());
         }
 
