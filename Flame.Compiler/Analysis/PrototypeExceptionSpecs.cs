@@ -313,7 +313,7 @@ namespace Flame.Compiler.Analysis
                 ExceptionSpecification.ThrowAny);
             Default.Register(
                 ExceptionIntrinsics.Namespace.GetIntrinsicName(ExceptionIntrinsics.Operators.Throw),
-                proto => ExceptionSpecification.Exactly(proto.ParameterTypes[0]));
+                proto => ExceptionSpecification.Exact.Create(proto.ParameterTypes[0]));
 
             // Object intrinsics.
             // TODO: model exception thrown by type check.
@@ -359,7 +359,7 @@ namespace Flame.Compiler.Analysis
         public NullCheckExceptionSpecification(
             int parameterIndex,
             IType exceptionType)
-            : this(parameterIndex, ExceptionSpecification.Exactly(exceptionType))
+            : this(parameterIndex, ExceptionSpecification.Exact.Create(exceptionType))
         { }
 
         /// <summary>

@@ -57,21 +57,21 @@ namespace Flame.Clr.Analysis
             // Array intrinsics are worth refining, too.
             result.Register(
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetElementPointer),
-                ExceptionSpecification.Union(
+                ExceptionSpecification.Union.Create(
                     new NullCheckExceptionSpecification(0, nullRefException),
-                    ExceptionSpecification.Exactly(outOfRangeException),
-                    ExceptionSpecification.Exactly(arrayTypeMismatchException)));
+                    ExceptionSpecification.Exact.Create(outOfRangeException),
+                    ExceptionSpecification.Exact.Create(arrayTypeMismatchException)));
             result.Register(
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.LoadElement),
-                ExceptionSpecification.Union(
+                ExceptionSpecification.Union.Create(
                     new NullCheckExceptionSpecification(0, nullRefException),
-                    ExceptionSpecification.Exactly(outOfRangeException)));
+                    ExceptionSpecification.Exact.Create(outOfRangeException)));
             result.Register(
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.StoreElement),
-                ExceptionSpecification.Union(
+                ExceptionSpecification.Union.Create(
                     new NullCheckExceptionSpecification(0, nullRefException),
-                    ExceptionSpecification.Exactly(outOfRangeException),
-                    ExceptionSpecification.Exactly(arrayTypeMismatchException)));
+                    ExceptionSpecification.Exact.Create(outOfRangeException),
+                    ExceptionSpecification.Exact.Create(arrayTypeMismatchException)));
             result.Register(
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.GetLength),
                 new NullCheckExceptionSpecification(0, nullRefException));

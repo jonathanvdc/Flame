@@ -122,9 +122,9 @@ namespace Flame.Compiler.Analysis
             Instruction instruction,
             FlowGraph graph)
         {
-            if (prototypeSpec is UnionExceptionSpecification)
+            if (prototypeSpec is ExceptionSpecification.Union)
             {
-                var unionSpec = (UnionExceptionSpecification)prototypeSpec;
+                var unionSpec = (ExceptionSpecification.Union)prototypeSpec;
                 var newOperands = new List<ExceptionSpecification>();
                 foreach (var operand in unionSpec.Operands)
                 {
@@ -138,7 +138,7 @@ namespace Flame.Compiler.Analysis
                         newOperands.Add(newOp);
                     }
                 }
-                return ExceptionSpecification.Union(newOperands.ToArray());
+                return ExceptionSpecification.Union.Create(newOperands.ToArray());
             }
             else if (prototypeSpec is NullCheckExceptionSpecification)
             {
