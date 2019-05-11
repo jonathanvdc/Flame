@@ -309,19 +309,6 @@ references:
   commentId: F:Flame.AttributeMap.Empty
   fullName: Flame.AttributeMap.Empty
   nameWithType: AttributeMap.Empty
-- uid: Flame.AttributeMap.Get(Flame.IType)
-  name: Get(IType)
-  href: api/Flame.AttributeMap.html#Flame_AttributeMap_Get_Flame_IType_
-  commentId: M:Flame.AttributeMap.Get(Flame.IType)
-  fullName: Flame.AttributeMap.Get(Flame.IType)
-  nameWithType: AttributeMap.Get(IType)
-- uid: Flame.AttributeMap.Get*
-  name: Get
-  href: api/Flame.AttributeMap.html#Flame_AttributeMap_Get_
-  commentId: Overload:Flame.AttributeMap.Get
-  isSpec: "True"
-  fullName: Flame.AttributeMap.Get
-  nameWithType: AttributeMap.Get
 - uid: Flame.AttributeMap.GetAll
   name: GetAll()
   href: api/Flame.AttributeMap.html#Flame_AttributeMap_GetAll
@@ -341,6 +328,35 @@ references:
   isSpec: "True"
   fullName: Flame.AttributeMap.GetAll
   nameWithType: AttributeMap.GetAll
+- uid: Flame.AttributeMap.GetOrNull(Flame.IType)
+  name: GetOrNull(IType)
+  href: api/Flame.AttributeMap.html#Flame_AttributeMap_GetOrNull_Flame_IType_
+  commentId: M:Flame.AttributeMap.GetOrNull(Flame.IType)
+  fullName: Flame.AttributeMap.GetOrNull(Flame.IType)
+  nameWithType: AttributeMap.GetOrNull(IType)
+- uid: Flame.AttributeMap.GetOrNull*
+  name: GetOrNull
+  href: api/Flame.AttributeMap.html#Flame_AttributeMap_GetOrNull_
+  commentId: Overload:Flame.AttributeMap.GetOrNull
+  isSpec: "True"
+  fullName: Flame.AttributeMap.GetOrNull
+  nameWithType: AttributeMap.GetOrNull
+- uid: Flame.AttributeMap.TryGet(Flame.IType,Flame.IAttribute@)
+  name: TryGet(IType, out IAttribute)
+  href: api/Flame.AttributeMap.html#Flame_AttributeMap_TryGet_Flame_IType_Flame_IAttribute__
+  commentId: M:Flame.AttributeMap.TryGet(Flame.IType,Flame.IAttribute@)
+  name.vb: TryGet(IType, ByRef IAttribute)
+  fullName: Flame.AttributeMap.TryGet(Flame.IType, out Flame.IAttribute)
+  fullName.vb: Flame.AttributeMap.TryGet(Flame.IType, ByRef Flame.IAttribute)
+  nameWithType: AttributeMap.TryGet(IType, out IAttribute)
+  nameWithType.vb: AttributeMap.TryGet(IType, ByRef IAttribute)
+- uid: Flame.AttributeMap.TryGet*
+  name: TryGet
+  href: api/Flame.AttributeMap.html#Flame_AttributeMap_TryGet_
+  commentId: Overload:Flame.AttributeMap.TryGet
+  isSpec: "True"
+  fullName: Flame.AttributeMap.TryGet
+  nameWithType: AttributeMap.TryGet
 - uid: Flame.AttributeMapBuilder
   name: AttributeMapBuilder
   href: api/Flame.AttributeMapBuilder.html
@@ -453,19 +469,6 @@ references:
   isSpec: "True"
   fullName: Flame.AttributeMapBuilder.Contains
   nameWithType: AttributeMapBuilder.Contains
-- uid: Flame.AttributeMapBuilder.Get(Flame.IType)
-  name: Get(IType)
-  href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_Get_Flame_IType_
-  commentId: M:Flame.AttributeMapBuilder.Get(Flame.IType)
-  fullName: Flame.AttributeMapBuilder.Get(Flame.IType)
-  nameWithType: AttributeMapBuilder.Get(IType)
-- uid: Flame.AttributeMapBuilder.Get*
-  name: Get
-  href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_Get_
-  commentId: Overload:Flame.AttributeMapBuilder.Get
-  isSpec: "True"
-  fullName: Flame.AttributeMapBuilder.Get
-  nameWithType: AttributeMapBuilder.Get
 - uid: Flame.AttributeMapBuilder.GetAll(Flame.IType)
   name: GetAll(IType)
   href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_GetAll_Flame_IType_
@@ -479,6 +482,19 @@ references:
   isSpec: "True"
   fullName: Flame.AttributeMapBuilder.GetAll
   nameWithType: AttributeMapBuilder.GetAll
+- uid: Flame.AttributeMapBuilder.GetOrNull(Flame.IType)
+  name: GetOrNull(IType)
+  href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_GetOrNull_Flame_IType_
+  commentId: M:Flame.AttributeMapBuilder.GetOrNull(Flame.IType)
+  fullName: Flame.AttributeMapBuilder.GetOrNull(Flame.IType)
+  nameWithType: AttributeMapBuilder.GetOrNull(IType)
+- uid: Flame.AttributeMapBuilder.GetOrNull*
+  name: GetOrNull
+  href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_GetOrNull_
+  commentId: Overload:Flame.AttributeMapBuilder.GetOrNull
+  isSpec: "True"
+  fullName: Flame.AttributeMapBuilder.GetOrNull
+  nameWithType: AttributeMapBuilder.GetOrNull
 - uid: Flame.AttributeMapBuilder.RemoveAll(Flame.IType)
   name: RemoveAll(IType)
   href: api/Flame.AttributeMapBuilder.html#Flame_AttributeMapBuilder_RemoveAll_Flame_IType_

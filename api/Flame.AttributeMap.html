@@ -120,17 +120,17 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap__ctor_Flame_AttributeMapBuilder_.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.%23ctor(Flame.AttributeMapBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L170">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L194">View Source</a>
   </span>
   <a id="Flame_AttributeMap__ctor_" data-uid="Flame.AttributeMap.#ctor*"></a>
   <h4 id="Flame_AttributeMap__ctor_Flame_AttributeMapBuilder_" data-uid="Flame.AttributeMap.#ctor(Flame.AttributeMapBuilder)">AttributeMap(AttributeMapBuilder)</h4>
-  <div class="markdown level1 summary"><p>Creates this attribute map as a read-only view of the given
+  <div class="markdown level1 summary"><p>Creates this attribute map as a read-only view of an
 attribute map builder.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public AttributeMap(AttributeMapBuilder Builder)</code></pre>
+    <pre><code class="lang-csharp hljs">public AttributeMap(AttributeMapBuilder builder)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -144,8 +144,9 @@ attribute map builder.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.AttributeMapBuilder.html">AttributeMapBuilder</a></td>
-        <td><span class="parametername">Builder</span></td>
-        <td></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An attribute map builder to create a read-only view of.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -154,11 +155,11 @@ attribute map builder.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap__ctor_Flame_IAttribute___.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.%23ctor(Flame.IAttribute%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L161">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L182">View Source</a>
   </span>
   <a id="Flame_AttributeMap__ctor_" data-uid="Flame.AttributeMap.#ctor*"></a>
   <h4 id="Flame_AttributeMap__ctor_Flame_IAttribute___" data-uid="Flame.AttributeMap.#ctor(Flame.IAttribute[])">AttributeMap(IAttribute[])</h4>
-  <div class="markdown level1 summary"><p>Creates a new attribute map from the given sequence of attributes.</p>
+  <div class="markdown level1 summary"><p>Creates a new attribute map from a sequence of attributes.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -178,7 +179,8 @@ attribute map builder.</p>
       <tr>
         <td><a class="xref" href="Flame.IAttribute.html">IAttribute</a>[]</td>
         <td><span class="parametername">attributes</span></td>
-        <td></td>
+        <td><p>A sequence of attributes to wrap in an attribute map.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -187,11 +189,11 @@ attribute map builder.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap__ctor_System_Collections_Generic_IEnumerable_Flame_IAttribute__.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.%23ctor(System.Collections.Generic.IEnumerable%7BFlame.IAttribute%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L153">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L171">View Source</a>
   </span>
   <a id="Flame_AttributeMap__ctor_" data-uid="Flame.AttributeMap.#ctor*"></a>
   <h4 id="Flame_AttributeMap__ctor_System_Collections_Generic_IEnumerable_Flame_IAttribute__" data-uid="Flame.AttributeMap.#ctor(System.Collections.Generic.IEnumerable{Flame.IAttribute})">AttributeMap(IEnumerable&lt;IAttribute&gt;)</h4>
-  <div class="markdown level1 summary"><p>Creates a new attribute map from the given sequence of attributes.</p>
+  <div class="markdown level1 summary"><p>Creates a new attribute map from a sequence of attributes.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -211,7 +213,8 @@ attribute map builder.</p>
       <tr>
         <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.IAttribute.html">IAttribute</a>&gt;</td>
         <td><span class="parametername">attributes</span></td>
-        <td></td>
+        <td><p>A sequence of attributes to wrap in an attribute map.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -222,7 +225,7 @@ attribute map builder.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_Empty.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.Empty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L214">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L275">View Source</a>
   </span>
   <h4 id="Flame_AttributeMap_Empty" data-uid="Flame.AttributeMap.Empty">Empty</h4>
   <div class="markdown level1 summary"><p>An empty attribute map.</p>
@@ -243,7 +246,8 @@ attribute map builder.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.AttributeMap.html">AttributeMap</a></td>
-        <td></td>
+        <td><p>An attribute map.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -254,17 +258,17 @@ attribute map builder.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_Contains_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.Contains(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L206">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L266">View Source</a>
   </span>
   <a id="Flame_AttributeMap_Contains_" data-uid="Flame.AttributeMap.Contains*"></a>
   <h4 id="Flame_AttributeMap_Contains_Flame_IType_" data-uid="Flame.AttributeMap.Contains(Flame.IType)">Contains(IType)</h4>
   <div class="markdown level1 summary"><p>Checks if this attribute map contains at least one attribute
-with the given type.</p>
+of a particular type.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool Contains(IType Type)</code></pre>
+    <pre><code class="lang-csharp hljs">public bool Contains(IType type)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -278,8 +282,9 @@ with the given type.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
-        <td><span class="parametername">Type</span></td>
-        <td></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of attribute to look for.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -294,56 +299,9 @@ with the given type.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_Get_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.Get(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L197">View Source</a>
-  </span>
-  <a id="Flame_AttributeMap_Get_" data-uid="Flame.AttributeMap.Get*"></a>
-  <h4 id="Flame_AttributeMap_Get_Flame_IType_" data-uid="Flame.AttributeMap.Get(Flame.IType)">Get(IType)</h4>
-  <div class="markdown level1 summary"><p>Gets an attribute with the given type. If no such attribute exists,
-then null is returned.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IAttribute Get(IType Type)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.IType.html">IType</a></td>
-        <td><span class="parametername">Type</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.IAttribute.html">IAttribute</a></td>
-        <td></td>
+        <td><p><code>true</code> if an attribute of type <code data-dev-comment-type="paramref" class="paramref">type</code>
+is in this attribute map; otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -352,7 +310,7 @@ then null is returned.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_GetAll.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.GetAll%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L180">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L207">View Source</a>
   </span>
   <a id="Flame_AttributeMap_GetAll_" data-uid="Flame.AttributeMap.GetAll*"></a>
   <h4 id="Flame_AttributeMap_GetAll" data-uid="Flame.AttributeMap.GetAll">GetAll()</h4>
@@ -374,7 +332,8 @@ then null is returned.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.IAttribute.html">IAttribute</a>&gt;</td>
-        <td></td>
+        <td><p>A sequence that contains all attributes in this attribute map.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -383,7 +342,7 @@ then null is returned.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_GetAll_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.GetAll(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L188">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L220">View Source</a>
   </span>
   <a id="Flame_AttributeMap_GetAll_" data-uid="Flame.AttributeMap.GetAll*"></a>
   <h4 id="Flame_AttributeMap_GetAll_Flame_IType_" data-uid="Flame.AttributeMap.GetAll(Flame.IType)">GetAll(IType)</h4>
@@ -392,7 +351,7 @@ then null is returned.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IEnumerable&lt;IAttribute&gt; GetAll(IType Type)</code></pre>
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;IAttribute&gt; GetAll(IType type)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -406,8 +365,9 @@ then null is returned.</p>
     <tbody>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
-        <td><span class="parametername">Type</span></td>
-        <td></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of attribute to look for.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -422,7 +382,119 @@ then null is returned.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.IAttribute.html">IAttribute</a>&gt;</td>
-        <td></td>
+        <td><p>A sequence that contains all attributes of type <code data-dev-comment-type="paramref" class="paramref">type</code>
+defined in this attribute map.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_GetOrNull_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.GetOrNull(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L234">View Source</a>
+  </span>
+  <a id="Flame_AttributeMap_GetOrNull_" data-uid="Flame.AttributeMap.GetOrNull*"></a>
+  <h4 id="Flame_AttributeMap_GetOrNull_Flame_IType_" data-uid="Flame.AttributeMap.GetOrNull(Flame.IType)">GetOrNull(IType)</h4>
+  <div class="markdown level1 summary"><p>Finds the first attribute of a particular type. Returns <code>null</code>
+if no such attribute exists.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IAttribute GetOrNull(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of attribute to look for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IAttribute.html">IAttribute</a></td>
+        <td><p>An attribute of type <code data-dev-comment-type="paramref" class="paramref">type</code>, if one is defined in
+this attribute map; otherwise, <code>null</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap_TryGet_Flame_IType_Flame_IAttribute__.md&amp;value=---%0Auid%3A%20Flame.AttributeMap.TryGet(Flame.IType%2CFlame.IAttribute%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L251">View Source</a>
+  </span>
+  <a id="Flame_AttributeMap_TryGet_" data-uid="Flame.AttributeMap.TryGet*"></a>
+  <h4 id="Flame_AttributeMap_TryGet_Flame_IType_Flame_IAttribute__" data-uid="Flame.AttributeMap.TryGet(Flame.IType,Flame.IAttribute@)">TryGet(IType, out IAttribute)</h4>
+  <div class="markdown level1 summary"><p>Tries to find an attribute of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TryGet(IType type, out IAttribute attribute)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of attribute to look for.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IAttribute.html">IAttribute</a></td>
+        <td><span class="parametername">attribute</span></td>
+        <td><p>A variable to store the attribute in, if one is found.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if an attribute of type <code data-dev-comment-type="paramref" class="paramref">type</code>
+is found in this attribute map and stored in <code data-dev-comment-type="paramref" class="paramref">attribute</code>;
+otherwise, <code>false</code>.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -437,7 +509,7 @@ then null is returned.</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_AttributeMap.md&amp;value=---%0Auid%3A%20Flame.AttributeMap%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L148" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame/AttributeMap.cs/#L163" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
