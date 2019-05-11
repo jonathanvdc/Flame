@@ -110,35 +110,50 @@ namespace Flame
         /// <summary>
         /// Removes all attributes that have the given type.
         /// </summary>
-        public void RemoveAll(IType Type)
+        public void RemoveAll(IType type)
         {
-            attributeDict.Remove(Type);
+            attributeDict.Remove(type);
         }
 
         /// <summary>
-        /// Gets all attributes in this attribute map with the given type.
+        /// Gets all attributes of a particular type in this attribute map.
         /// </summary>
-        public IEnumerable<IAttribute> GetAll(IType Type)
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// A sequence that contains all attributes of type <paramref name="type"/>
+        /// defined in this attribute map.
+        /// </returns>
+        public IEnumerable<IAttribute> GetAll(IType type)
         {
-            return attributeDict.GetAll(Type);
+            return attributeDict.GetAll(type);
         }
 
         /// <summary>
-        /// Gets the first attribute with the given type. If no such attribute exists,
-        /// then null is returned.
+        /// Finds the first attribute of a particular type. Returns <c>null</c>
+        /// if no such attribute exists.
         /// </summary>
-        public IAttribute GetOrNull(IType Type)
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// An attribute of type <paramref name="type"/>, if one is defined in
+        /// this attribute map; otherwise, <c>null</c>.
+        /// </returns>
+        public IAttribute GetOrNull(IType type)
         {
-            return attributeDict.PeekOrDefault(Type);
+            return attributeDict.PeekOrDefault(type);
         }
 
         /// <summary>
         /// Checks if this attribute map contains at least one attribute
-        /// with the given type.
+        /// of a particular type.
         /// </summary>
-        public bool Contains(IType Type)
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// <c>true</c> if an attribute of type <paramref name="type"/>
+        /// is in this attribute map; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(IType type)
         {
-            return attributeDict.ContainsKey(Type);
+            return attributeDict.ContainsKey(type);
         }
     }
 
@@ -148,25 +163,34 @@ namespace Flame
     public struct AttributeMap
     {
         /// <summary>
-        /// Creates a new attribute map from the given sequence of attributes.
+        /// Creates a new attribute map from a sequence of attributes.
         /// </summary>
+        /// <param name="attributes">
+        /// A sequence of attributes to wrap in an attribute map.
+        /// </param>
         public AttributeMap(IEnumerable<IAttribute> attributes)
         {
             this.attributeDict = new AttributeMapBuilder(attributes).attributeDict;
         }
 
         /// <summary>
-        /// Creates a new attribute map from the given sequence of attributes.
+        /// Creates a new attribute map from a sequence of attributes.
         /// </summary>
+        /// <param name="attributes">
+        /// A sequence of attributes to wrap in an attribute map.
+        /// </param>
         public AttributeMap(params IAttribute[] attributes)
         {
             this.attributeDict = new AttributeMapBuilder(attributes).attributeDict;
         }
 
         /// <summary>
-        /// Creates this attribute map as a read-only view of the given
+        /// Creates this attribute map as a read-only view of an
         /// attribute map builder.
         /// </summary>
+        /// <param name="builder">
+        /// An attribute map builder to create a read-only view of.
+        /// </param>
         public AttributeMap(AttributeMapBuilder builder)
         {
             this.attributeDict = builder.attributeDict;
@@ -177,6 +201,9 @@ namespace Flame
         /// <summary>
         /// Gets all attributes in this attribute map.
         /// </summary>
+        /// <returns>
+        /// A sequence that contains all attributes in this attribute map.
+        /// </returns>
         public IEnumerable<IAttribute> GetAll()
         {
             return attributeDict.Values;
@@ -185,15 +212,25 @@ namespace Flame
         /// <summary>
         /// Gets all attributes of a particular type in this attribute map.
         /// </summary>
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// A sequence that contains all attributes of type <paramref name="type"/>
+        /// defined in this attribute map.
+        /// </returns>
         public IEnumerable<IAttribute> GetAll(IType type)
         {
             return attributeDict.GetAll(type);
         }
 
         /// <summary>
-        /// Gets an attribute with the given type. If no such attribute exists,
-        /// then null is returned.
+        /// Finds the first attribute of a particular type. Returns <c>null</c>
+        /// if no such attribute exists.
         /// </summary>
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// An attribute of type <paramref name="type"/>, if one is defined in
+        /// this attribute map; otherwise, <c>null</c>.
+        /// </returns>
         public IAttribute GetOrNull(IType type)
         {
             return attributeDict.PeekOrDefault(type);
@@ -202,16 +239,14 @@ namespace Flame
         /// <summary>
         /// Tries to find an attribute of a particular type.
         /// </summary>
-        /// <param name="type">
-        /// The type of attribute to look for.
-        /// </param>
+        /// <param name="type">The type of attribute to look for.</param>
         /// <param name="attribute">
         /// A variable to store the attribute in, if one is found.
         /// </param>
         /// <returns>
-        /// <c>true</c> if an attribute with type <paramref name="type"/>
-        /// is found and stored in <paramref name="attribute"/>; otherwise,
-        /// <c>false</c>.
+        /// <c>true</c> if an attribute of type <paramref name="type"/>
+        /// is found in this attribute map and stored in <paramref name="attribute"/>;
+        /// otherwise, <c>false</c>.
         /// </returns>
         public bool TryGet(IType type, out IAttribute attribute)
         {
@@ -221,8 +256,13 @@ namespace Flame
 
         /// <summary>
         /// Checks if this attribute map contains at least one attribute
-        /// with the given type.
+        /// of a particular type.
         /// </summary>
+        /// <param name="type">The type of attribute to look for.</param>
+        /// <returns>
+        /// <c>true</c> if an attribute of type <paramref name="type"/>
+        /// is in this attribute map; otherwise, <c>false</c>.
+        /// </returns>
         public bool Contains(IType type)
         {
             return attributeDict.ContainsKey(type);
@@ -231,6 +271,7 @@ namespace Flame
         /// <summary>
         /// An empty attribute map.
         /// </summary>
+        /// <value>An attribute map.</value>
         public static readonly AttributeMap Empty = new AttributeMap(new IAttribute[] { });
     }
 }
