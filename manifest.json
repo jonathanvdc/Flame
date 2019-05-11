@@ -222,7 +222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.ClrMethodDefinition.html",
-          "hash": "EFryt7a8f3AgIrN3jx8P4A=="
+          "hash": "y6LPmypwwJkWs77zQdGNNQ=="
         }
       },
       "is_incremental": false,
@@ -1410,7 +1410,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.html",
-          "hash": "vAFddjeADp6ab3pM4m41/w=="
+          "hash": "RUQEQJHXcP/Xfw1Mv6juNQ=="
         }
       },
       "is_incremental": false,
@@ -3234,7 +3234,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExactExceptionSpecification.html",
-          "hash": "q7PJsjpVXlJd1kbSMQ8aCg=="
+          "hash": "DhKm0D+xJZvD7XYoA591HA=="
         }
       },
       "is_incremental": false,
@@ -3246,7 +3246,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.ExceptionSpecification.html",
-          "hash": "koHQaDbD63wkxrtc9JUjvA=="
+          "hash": "Fc+R21nQOJWtHGyc6MACWA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.ExceptionSpecificationExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.ExceptionSpecificationExtensions.html",
+          "hash": "vJKdyQ9P632YrUP/fGTCGg=="
         }
       },
       "is_incremental": false,
@@ -3270,7 +3282,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IAccessor.html",
-          "hash": "kARBlqLcyBadv/zDwTaemA=="
+          "hash": "90M/ZG5eHgAI25VQP7LUSw=="
         }
       },
       "is_incremental": false,
@@ -3354,7 +3366,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.IMethod.html",
-          "hash": "PhAZUe1pybm+JQjdYWYjgQ=="
+          "hash": "hkCZMrn1V6VbzNVnJ1WRmg=="
         }
       },
       "is_incremental": false,
@@ -3762,7 +3774,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedAccessor.html",
-          "hash": "wIsqW+FAos8oeHoJxnvskA=="
+          "hash": "Og50KNyFjTIrTmxSWUOBjQ=="
         }
       },
       "is_incremental": false,
@@ -3858,7 +3870,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DescribedMethod.html",
-          "hash": "ygUkgL2WJfEHUWqqHozG6g=="
+          "hash": "imJHVJaHV1DFID71YQpBSw=="
         }
       },
       "is_incremental": false,
@@ -3882,7 +3894,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.DirectMethodSpecialization.html",
-          "hash": "wiAUajtAHeXjTA6OHvDfOA=="
+          "hash": "bquvsvWhs7K/fMSEh7Lj5w=="
         }
       },
       "is_incremental": false,
@@ -3907,6 +3919,18 @@
         ".html": {
           "relative_path": "api/Flame.TypeSystem.ErrorType.html",
           "hash": "nLyZM1qnJWW64YsmCW7VAA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.TypeSystem.ExceptionSpecificationAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.TypeSystem.ExceptionSpecificationAttribute.html",
+          "hash": "KSglbG8udfQo5sfh4Fgsqg=="
         }
       },
       "is_incremental": false,
@@ -3942,7 +3966,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectAccessorSpecialization.html",
-          "hash": "BgYmfA7ZCXCo3SHLfGf4+Q=="
+          "hash": "wUx4xZfjo6Q9A3EBE/D06w=="
         }
       },
       "is_incremental": false,
@@ -3978,7 +4002,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.IndirectMethodSpecialization.html",
-          "hash": "tdw7LL8vl5dCw8HNrkEV7g=="
+          "hash": "/R3Fwoo7A2hw/hMFuKbZMA=="
         }
       },
       "is_incremental": false,
@@ -4050,7 +4074,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.MethodSpecialization.html",
-          "hash": "pbSqX2850Z+gFvHuICFmgA=="
+          "hash": "RGEDcEPeGF8XAjgVwxyFzA=="
         }
       },
       "is_incremental": false,
@@ -4242,7 +4266,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.TypeSystem.html",
-          "hash": "MK0ft/q4GeVcLzyNtyKSwg=="
+          "hash": "O5HGXVBO+ag1WqV5iHMXTg=="
         }
       },
       "is_incremental": false,
@@ -4254,7 +4278,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.UnionExceptionSpecification.html",
-          "hash": "IfpUZkIqAvYclN+rOrsTzg=="
+          "hash": "k2I+sX8ZkCyMv2adQL4mLA=="
         }
       },
       "is_incremental": false,
@@ -4278,7 +4302,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.html",
-          "hash": "TUmNMQlNoAtKO54mndXwfA=="
+          "hash": "NBtPwdYeXyYLfUMN6gcx7Q=="
         }
       },
       "is_incremental": false,
@@ -4305,7 +4329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "8c9TdLJ77sZeJH5ActxGXw=="
+          "hash": "ihgKR0ctU8zcJRYlmOZIFQ=="
         }
       },
       "is_incremental": false,
@@ -4383,23 +4407,23 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 4,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 356,
-          "skipped_file_count": 0
-        },
         "TocDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
           "total_file_count": 0,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 358,
+          "skipped_file_count": 0
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 4,
           "skipped_file_count": 0
         }
       }

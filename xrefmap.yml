@@ -21334,6 +21334,25 @@ references:
   isSpec: "True"
   fullName: Flame.ExceptionSpecification.Union
   nameWithType: ExceptionSpecification.Union
+- uid: Flame.ExceptionSpecificationExtensions
+  name: ExceptionSpecificationExtensions
+  href: api/Flame.ExceptionSpecificationExtensions.html
+  commentId: T:Flame.ExceptionSpecificationExtensions
+  fullName: Flame.ExceptionSpecificationExtensions
+  nameWithType: ExceptionSpecificationExtensions
+- uid: Flame.ExceptionSpecificationExtensions.GetExceptionSpecification(Flame.IMethod)
+  name: GetExceptionSpecification(IMethod)
+  href: api/Flame.ExceptionSpecificationExtensions.html#Flame_ExceptionSpecificationExtensions_GetExceptionSpecification_Flame_IMethod_
+  commentId: M:Flame.ExceptionSpecificationExtensions.GetExceptionSpecification(Flame.IMethod)
+  fullName: Flame.ExceptionSpecificationExtensions.GetExceptionSpecification(Flame.IMethod)
+  nameWithType: ExceptionSpecificationExtensions.GetExceptionSpecification(IMethod)
+- uid: Flame.ExceptionSpecificationExtensions.GetExceptionSpecification*
+  name: GetExceptionSpecification
+  href: api/Flame.ExceptionSpecificationExtensions.html#Flame_ExceptionSpecificationExtensions_GetExceptionSpecification_
+  commentId: Overload:Flame.ExceptionSpecificationExtensions.GetExceptionSpecification
+  isSpec: "True"
+  fullName: Flame.ExceptionSpecificationExtensions.GetExceptionSpecification
+  nameWithType: ExceptionSpecificationExtensions.GetExceptionSpecification
 - uid: Flame.GenericName
   name: GenericName
   href: api/Flame.GenericName.html
@@ -26281,6 +26300,61 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.ErrorType.Properties
   nameWithType: ErrorType.Properties
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute
+  name: ExceptionSpecificationAttribute
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html
+  commentId: T:Flame.TypeSystem.ExceptionSpecificationAttribute
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute
+  nameWithType: ExceptionSpecificationAttribute
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.#ctor(Flame.ExceptionSpecification)
+  name: ExceptionSpecificationAttribute(ExceptionSpecification)
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute__ctor_Flame_ExceptionSpecification_
+  commentId: M:Flame.TypeSystem.ExceptionSpecificationAttribute.#ctor(Flame.ExceptionSpecification)
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.ExceptionSpecificationAttribute(Flame.ExceptionSpecification)
+  nameWithType: ExceptionSpecificationAttribute.ExceptionSpecificationAttribute(ExceptionSpecification)
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.#ctor*
+  name: ExceptionSpecificationAttribute
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute__ctor_
+  commentId: Overload:Flame.TypeSystem.ExceptionSpecificationAttribute.#ctor
+  isSpec: "True"
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.ExceptionSpecificationAttribute
+  nameWithType: ExceptionSpecificationAttribute.ExceptionSpecificationAttribute
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.AttributeType
+  name: AttributeType
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute_AttributeType
+  commentId: F:Flame.TypeSystem.ExceptionSpecificationAttribute.AttributeType
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.AttributeType
+  nameWithType: ExceptionSpecificationAttribute.AttributeType
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.Flame#IAttribute#AttributeType
+  name: IAttribute.AttributeType
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute_Flame_IAttribute_AttributeType
+  commentId: P:Flame.TypeSystem.ExceptionSpecificationAttribute.Flame#IAttribute#AttributeType
+  name.vb: Flame.IAttribute.AttributeType
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.Flame.IAttribute.AttributeType
+  nameWithType: ExceptionSpecificationAttribute.IAttribute.AttributeType
+  nameWithType.vb: ExceptionSpecificationAttribute.Flame.IAttribute.AttributeType
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.Flame#IAttribute#AttributeType*
+  name: IAttribute.AttributeType
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute_Flame_IAttribute_AttributeType_
+  commentId: Overload:Flame.TypeSystem.ExceptionSpecificationAttribute.Flame#IAttribute#AttributeType
+  isSpec: "True"
+  name.vb: Flame.IAttribute.AttributeType
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.Flame.IAttribute.AttributeType
+  nameWithType: ExceptionSpecificationAttribute.IAttribute.AttributeType
+  nameWithType.vb: ExceptionSpecificationAttribute.Flame.IAttribute.AttributeType
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.Specification
+  name: Specification
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute_Specification
+  commentId: P:Flame.TypeSystem.ExceptionSpecificationAttribute.Specification
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.Specification
+  nameWithType: ExceptionSpecificationAttribute.Specification
+- uid: Flame.TypeSystem.ExceptionSpecificationAttribute.Specification*
+  name: Specification
+  href: api/Flame.TypeSystem.ExceptionSpecificationAttribute.html#Flame_TypeSystem_ExceptionSpecificationAttribute_Specification_
+  commentId: Overload:Flame.TypeSystem.ExceptionSpecificationAttribute.Specification
+  isSpec: "True"
+  fullName: Flame.TypeSystem.ExceptionSpecificationAttribute.Specification
+  nameWithType: ExceptionSpecificationAttribute.Specification
 - uid: Flame.TypeSystem.FlagAttribute
   name: FlagAttribute
   href: api/Flame.TypeSystem.FlagAttribute.html
