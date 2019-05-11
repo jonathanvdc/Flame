@@ -788,6 +788,31 @@ namespace Flame.Clr.Analysis
             {
                 EmitUnsignedArithmeticBinary(opName, context);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Not)
+            {
+                var operand = context.Pop();
+                var operandType = context.GetValueType(operand);
+                context.Push(
+                    ArithmeticIntrinsics.CreatePrototype(
+                        ArithmeticIntrinsics.Operators.Not,
+                        operandType,
+                        operandType)
+                    .Instantiate(operand));
+            }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Neg)
+            {
+                var operand = context.Pop();
+                var operandType = context.GetValueType(operand);
+                context.Push(
+                    ArithmeticIntrinsics.CreatePrototype(
+                        ArithmeticIntrinsics.Operators.Subtract,
+                        operandType,
+                        operandType,
+                        operandType)
+                    .Instantiate(
+                        context.Emit(Instruction.CreateDefaultConstant(operandType)),
+                        operand));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
             {
                 context.Push(
@@ -1919,8 +1944,6 @@ namespace Flame.Clr.Analysis
             { Mono.Cecil.Cil.OpCodes.Cgt, ArithmeticIntrinsics.Operators.IsGreaterThan },
             { Mono.Cecil.Cil.OpCodes.Ceq, ArithmeticIntrinsics.Operators.IsEqualTo },
             { Mono.Cecil.Cil.OpCodes.Clt, ArithmeticIntrinsics.Operators.IsLessThan },
-            { Mono.Cecil.Cil.OpCodes.Not, ArithmeticIntrinsics.Operators.Not },
-            { Mono.Cecil.Cil.OpCodes.Neg, ArithmeticIntrinsics.Operators.Not },
             { Mono.Cecil.Cil.OpCodes.And, ArithmeticIntrinsics.Operators.And },
             { Mono.Cecil.Cil.OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
             { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor },
