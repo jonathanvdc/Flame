@@ -181,6 +181,7 @@ namespace Flame.Clr
                 && Definition.Parameters.Count == 0)
             {
                 attrBuilder.Add(FlagAttribute.Nop);
+                attrBuilder.Add(new ExceptionSpecificationAttribute(ExceptionSpecification.NoThrow));
             }
 
             // Analyze access modifier.
