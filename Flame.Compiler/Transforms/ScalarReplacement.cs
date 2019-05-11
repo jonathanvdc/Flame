@@ -78,7 +78,7 @@ namespace Flame.Compiler.Transforms
                 var allocaInstruction = builder.GetInstruction(allocaTag);
                 var elementType = ((PointerType)allocaInstruction.ResultType).ElementType;
                 var fieldSlots = new Dictionary<IField, ValueTag>();
-                foreach (var field in elementType.Fields)
+                foreach (var field in GetAllFields(elementType))
                 {
                     fieldSlots[field] = allocaInstruction.InsertAfter(
                         Instruction.CreateAlloca(field.FieldType),
