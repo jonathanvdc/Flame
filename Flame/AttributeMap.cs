@@ -127,7 +127,7 @@ namespace Flame
         /// Gets the first attribute with the given type. If no such attribute exists,
         /// then null is returned.
         /// </summary>
-        public IAttribute Get(IType Type)
+        public IAttribute GetOrNull(IType Type)
         {
             return attributeDict.PeekOrDefault(Type);
         }
@@ -167,9 +167,9 @@ namespace Flame
         /// Creates this attribute map as a read-only view of the given
         /// attribute map builder.
         /// </summary>
-        public AttributeMap(AttributeMapBuilder Builder)
+        public AttributeMap(AttributeMapBuilder builder)
         {
-            this.attributeDict = Builder.attributeDict;
+            this.attributeDict = builder.attributeDict;
         }
 
         internal SmallMultiDictionary<IType, IAttribute> attributeDict;
@@ -185,27 +185,47 @@ namespace Flame
         /// <summary>
         /// Gets all attributes of a particular type in this attribute map.
         /// </summary>
-        public IEnumerable<IAttribute> GetAll(IType Type)
+        public IEnumerable<IAttribute> GetAll(IType type)
         {
-            return attributeDict.GetAll(Type);
+            return attributeDict.GetAll(type);
         }
 
         /// <summary>
         /// Gets an attribute with the given type. If no such attribute exists,
         /// then null is returned.
         /// </summary>
-        public IAttribute GetOrNull(IType Type)
+        public IAttribute GetOrNull(IType type)
         {
-            return attributeDict.PeekOrDefault(Type);
+            return attributeDict.PeekOrDefault(type);
+        }
+
+        /// <summary>
+        /// Tries to find an attribute of a particular type.
+        /// </summary>
+        /// <param name="type">
+        /// The type of attribute to look for.
+        /// </param>
+        /// <param name="attribute">
+        /// A variable to store the attribute in, if one is found.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if an attribute with type <paramref name="type"/>
+        /// is found and stored in <paramref name="attribute"/>; otherwise,
+        /// <c>false</c>.
+        /// </returns>
+        public bool TryGet(IType type, out IAttribute attribute)
+        {
+            attribute = GetOrNull(type);
+            return attribute != null;
         }
 
         /// <summary>
         /// Checks if this attribute map contains at least one attribute
         /// with the given type.
         /// </summary>
-        public bool Contains(IType Type)
+        public bool Contains(IType type)
         {
-            return attributeDict.ContainsKey(Type);
+            return attributeDict.ContainsKey(type);
         }
 
         /// <summary>
