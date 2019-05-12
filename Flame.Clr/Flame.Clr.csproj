@@ -69,6 +69,7 @@
     <Compile Include="Analysis\ClrMethodBodyAnalyzer.cs" />
     <Compile Include="Emit\CilCodegenInstruction.cs" />
     <Compile Include="Emit\CilInstructionSelector.cs" />
+    <Compile Include="Emit\CilInstructionStreamBuilder.cs" />
     <Compile Include="Emit\CilPeepholeOptimizer.cs" />
     <Compile Include="Emit\CilRegisterAllocator.cs" />
     <Compile Include="Emit\ClrMethodBodyEmitter.cs" />

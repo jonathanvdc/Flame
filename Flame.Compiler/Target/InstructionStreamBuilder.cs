@@ -298,8 +298,11 @@ namespace Flame.Compiler.Target
         /// <summary>
         /// Creates a stack machine instruction stream builder.
         /// </summary>
-        /// <param name="instructionSelector">The instruction selector to use.</param>
-        private StackInstructionStreamBuilder(
+        /// <param name="instructionSelector">
+        /// The instruction selector to use. This instruction selector must
+        /// also be a stack instruction selector.
+        /// </param>
+        protected StackInstructionStreamBuilder(
             ILinearInstructionSelector<TInstruction> instructionSelector)
             : base(instructionSelector)
         { }
