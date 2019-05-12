@@ -21,7 +21,9 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction selector for CIL codegen instructions.
     /// </summary>
-    public sealed class CilInstructionSelector : ILinearInstructionSelector<CilCodegenInstruction>
+    public sealed class CilInstructionSelector :
+        ILinearInstructionSelector<CilCodegenInstruction>,
+        IStackInstructionSelector<CilCodegenInstruction>
     {
         /// <summary>
         /// Creates a CIL instruction selector.
@@ -1647,6 +1649,39 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown intrinsic '{prototype.Name}'.");
             }
+        }
+
+        /// <inheritdoc/>
+        public bool Pushes(InstructionPrototype prototype)
+        {
+            return prototype.ResultType != TypeEnvironment.Void;
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<CilCodegenInstruction> CreatePop(IType type)
+        {
+            return new CilCodegenInstruction[]
+            {
+                new CilOpInstruction(OpCodes.Pop)
+            };
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<CilCodegenInstruction> CreateLoadRegister(ValueTag value, IType type)
+        {
+            return new CilCodegenInstruction[]
+            {
+                new CilLoadRegisterInstruction(value)
+            };
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<CilCodegenInstruction> CreateStoreRegister(ValueTag value, IType type)
+        {
+            return new CilCodegenInstruction[]
+            {
+                new CilStoreRegisterInstruction(value)
+            };
         }
 
         private static Dictionary<string, OpCode[]> signedArithmeticBinaries =
