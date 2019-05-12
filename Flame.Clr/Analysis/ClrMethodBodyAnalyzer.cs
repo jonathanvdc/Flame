@@ -1186,10 +1186,11 @@ namespace Flame.Clr.Analysis
                 var targetType = convTypes[instruction.OpCode];
                 EmitConvertTo(targetType, context);
 
-                // We do need to take care to convert integers < 32 bits
-                // to 32-bit integers.
+                // We need to take care to convert integers < 32 bits
+                // to 32-bit integers; CIL never keeps < 32 bits integers
+                // on the stack.
                 var intSpec = targetType.GetIntegerSpecOrNull();
-                if (intSpec.Size < 32)
+                if (intSpec != null && intSpec.Size < 32)
                 {
                     if (intSpec.IsSigned)
                     {
