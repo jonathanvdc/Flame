@@ -293,7 +293,7 @@ namespace Flame.Compiler.Target
     /// machines.
     /// </summary>
     /// <typeparam name="TInstruction">The type of instruction to generate.</typeparam>
-    public sealed class StackInstructionStreamBuilder<TInstruction> : InstructionStreamBuilder<TInstruction>
+    public class StackInstructionStreamBuilder<TInstruction> : InstructionStreamBuilder<TInstruction>
     {
         /// <summary>
         /// Creates a stack machine instruction stream builder.
@@ -320,6 +320,17 @@ namespace Flame.Compiler.Target
         private IStackInstructionSelector<TInstruction> StackSelector =>
             (IStackInstructionSelector<TInstruction>)InstructionSelector;
 
+        /// <summary>
+        /// Gets the contents of the evaluation stack just before a basic block's
+        /// first instruction is executed.
+        /// </summary>
+        /// <param name="block">The basic block to inspect.</param>
+        /// <returns>A sequence of values that represent the contents of the stack.</returns>
+        protected virtual IEnumerable<ValueTag> GetStackContentsOnEntry(BasicBlock block)
+        {
+            return Enumerable.Empty<ValueTag>();
+        }
+
         /// <inheritdoc/>
         protected override IReadOnlyList<TInstruction> ToInstructionStream(
             BasicBlock block,
@@ -330,8 +341,7 @@ namespace Flame.Compiler.Target
 
             // We will maintain an evaluation stack as we generate instructions
             // for the basic block.
-            // TODO: support stacks that are initially nonempty?
-            var evalStack = new Stack<ValueTag>();
+            var evalStack = new Stack<ValueTag>(GetStackContentsOnEntry(block));
 
             // We will maintain a linked list of sequences of selected instructions.
             // The idea behind this data structure is that we'll be able to insert
