@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Instructions;
 using Flame.Compiler.Target;
+using Flame.Constants;
 
 namespace Flame.Clr.Emit
 {
@@ -18,15 +20,18 @@ namespace Flame.Clr.Emit
             : base(selector)
         { }
 
-        /// <summary>
-        /// Gets the contents of the evaluation stack just before a basic block's
-        /// first instruction is executed.
-        /// </summary>
-        /// <param name="block">The basic block to inspect.</param>
-        /// <returns>A sequence of values that represent the contents of the stack.</returns>
+        /// <inheritdoc/>
         protected override IEnumerable<ValueTag> GetStackContentsOnEntry(BasicBlock block)
         {
             return block.ParameterTags;
+        }
+
+        /// <inheritdoc/>
+        protected override bool ShouldMaterializeOnUse(NamedInstruction instruction)
+        {
+            // Materialize trivial constants on use.
+            var proto = instruction.Prototype as ConstantPrototype;
+            return proto != null && proto.Value != DefaultConstant.Instance;
         }
     }
 }

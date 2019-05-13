@@ -334,6 +334,24 @@ namespace Flame.Compiler.Target
             return Enumerable.Empty<ValueTag>();
         }
 
+        /// <summary>
+        /// Tells if an instruction should always be materialized when it is
+        /// used rather than when it is defined.
+        /// </summary>
+        /// <param name="instruction">An instruction to inspect.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="instruction"/> should be materialized
+        /// when it is used instead of when it is defined; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remark>
+        /// An instruction that is materialized on use may only depend on other
+        /// instructions that are materialized on use.
+        /// </remark>
+        protected virtual bool ShouldMaterializeOnUse(NamedInstruction instruction)
+        {
+            return false;
+        }
+
         /// <inheritdoc/>
         protected override IReadOnlyList<TInstruction> ToInstructionStream(
             BasicBlock block,
@@ -356,42 +374,53 @@ namespace Flame.Compiler.Target
             // at which these values may be spilled or popped.
             var spillPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
 
-            foreach (var insnTag in block.InstructionTags)
+            foreach (var insn in block.NamedInstructions)
             {
                 SelectedInstructions<TInstruction> selection;
-                if (instructions.TryGetValue(insnTag, out selection))
+                if (instructions.TryGetValue(insn, out selection) && !ShouldMaterializeOnUse(insn))
                 {
                     // Line up arguments.
-                    PrepareArguments(selection.Dependencies, evalStack, instructionBlobs, spillPoints, block.Graph);
+                    PrepareArguments(
+                        selection.Dependencies,
+                        evalStack,
+                        instructionBlobs,
+                        spillPoints,
+                        instructions,
+                        block.Graph);
 
                     // Emit the instruction's implementation.
                     instructionBlobs.AddLast(selection.Instructions);
 
                     // Push the result on the stack, if there is a result.
-                    var insn = block.Graph.GetInstruction(insnTag);
                     if (StackSelector.Pushes(insn.Prototype))
                     {
-                        if (uses.IsUsedOutsideOf(insnTag, block))
+                        if (uses.IsUsedOutsideOf(insn, block))
                         {
                             // We need to spill this value.
                             instructionBlobs.AddLast(
                                 StackSelector.CreateStoreRegister(
-                                    insnTag,
+                                    insn,
                                     insn.ResultType));
                         }
                         else
                         {
                             // Otherwise, we'll put it on the stack. We also want to set up a
                             // spill point so this value can be spilled efficiently if need be.
-                            evalStack.Push(insnTag);
-                            spillPoints[insnTag] = instructionBlobs.Last;
+                            evalStack.Push(insn);
+                            spillPoints[insn] = instructionBlobs.Last;
                         }
                     }
                 }
             }
 
             // Prepare arguments for the block's outgoing flow.
-            PrepareArguments(flow.Dependencies, evalStack, instructionBlobs, spillPoints, block.Graph);
+            PrepareArguments(
+                flow.Dependencies,
+                evalStack,
+                instructionBlobs,
+                spillPoints,
+                instructions,
+                block.Graph);
 
             // Spill everything else that's still on the stack.
             while (evalStack.Count > 0)
@@ -414,10 +443,27 @@ namespace Flame.Compiler.Target
             Stack<ValueTag> evalStack,
             LinkedList<IReadOnlyList<TInstruction>> instructionBlobs,
             IReadOnlyDictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> spillPoints,
+            IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
             FlowGraph graph)
         {
             foreach (var dependency in dependencies.Reverse())
             {
+                NamedInstruction instruction;
+                if (graph.TryGetInstruction(dependency, out instruction)
+                    && ShouldMaterializeOnUse(instruction))
+                {
+                    var isel = instructions[instruction];
+                    PrepareArguments(
+                        isel.Dependencies,
+                        evalStack,
+                        instructionBlobs,
+                        spillPoints,
+                        instructions,
+                        graph);
+                    instructionBlobs.AddLast(isel.Instructions);
+                    continue;
+                }
+
                 if (evalStack.Contains(dependency))
                 {
                     if (evalStack.Peek() == dependency)
