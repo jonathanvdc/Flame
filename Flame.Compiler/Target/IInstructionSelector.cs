@@ -58,7 +58,7 @@ namespace Flame.Compiler.Target
         /// <returns>
         /// A batch of selected instructions.
         /// </returns>
-        SelectedInstructions<TInstruction> SelectInstructions(
+        SelectedFlowInstructions<TInstruction> SelectInstructions(
             BlockFlow flow,
             BasicBlockTag blockTag,
             FlowGraph graph,
@@ -118,10 +118,24 @@ namespace Flame.Compiler.Target
         IReadOnlyList<TInstruction> CreatePop(IType type);
 
         /// <summary>
+        /// Tries to create instructions that duplicate the top-of-stack value.
+        /// </summary>
+        /// <param name="type">The type of value to duplicate.</param>
+        /// <param name="dup">
+        /// A sequence of instructions that duplicate the top-of-stack value, if
+        /// they can be created.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if a sequence of instructions exists that can efficiently
+        /// duplicate the top-of-stack value; otherwise, <c>false</c>.
+        /// </returns>
+        bool TryCreateDup(IType type, out IReadOnlyList<TInstruction> dup);
+
+        /// <summary>
         /// Creates instructions that load a value from its virtual register.
         /// </summary>
         /// <param name="value">The value to load.</param>
-        ///  <param name="type">The type of <paramref name="value"/>.</param>
+        /// <param name="type">The type of <paramref name="value"/>.</param>
         /// <returns>A list of selected instructions.</returns>
         IReadOnlyList<TInstruction> CreateLoadRegister(ValueTag value, IType type);
 

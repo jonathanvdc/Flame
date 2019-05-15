@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler.Analysis;
 
 namespace Flame.Compiler.Target
@@ -123,7 +125,7 @@ namespace Flame.Compiler.Target
             // Select target-specific instructions for reachable block flows.
             // Also order the basic blocks.
             var flowLayout = new List<BasicBlockTag>();
-            var flowSelection = new Dictionary<BasicBlockTag, SelectedInstructions<TInstruction>>();
+            var flowSelection = new Dictionary<BasicBlockTag, SelectedFlowInstructions<TInstruction>>();
             var flowWorklist = new Stack<BasicBlockTag>();
             flowWorklist.Push(graph.EntryPointTag);
             while (flowWorklist.Count > 0)
@@ -138,7 +140,7 @@ namespace Flame.Compiler.Target
                 // Assign a dummy value (null) to the block tag so we don't fool
                 // ourselves into thinking that the block isn't being processed
                 // yet.
-                flowSelection[tag] = default(SelectedInstructions<TInstruction>);
+                flowSelection[tag] = default(SelectedFlowInstructions<TInstruction>);
 
                 // Add the block to the flow layout.
                 flowLayout.Add(tag);
@@ -240,7 +242,7 @@ namespace Flame.Compiler.Target
         private IReadOnlyList<TInstruction> ToInstructionStream(
             IEnumerable<BasicBlock> layout,
             IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            IReadOnlyDictionary<BasicBlockTag, SelectedInstructions<TInstruction>> flow)
+            IReadOnlyDictionary<BasicBlockTag, SelectedFlowInstructions<TInstruction>> flow)
         {
             var instructionStream = new List<TInstruction>();
             foreach (var block in layout)
@@ -271,7 +273,7 @@ namespace Flame.Compiler.Target
         protected virtual IReadOnlyList<TInstruction> ToInstructionStream(
             BasicBlock block,
             IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            SelectedInstructions<TInstruction> flow)
+            SelectedFlowInstructions<TInstruction> flow)
         {
             var instructionStream = new List<TInstruction>();
             foreach (var insnTag in block.InstructionTags)
@@ -282,7 +284,10 @@ namespace Flame.Compiler.Target
                     instructionStream.AddRange(selection.Instructions);
                 }
             }
-            instructionStream.AddRange(flow.Instructions);
+            foreach (var chunk in flow.Chunks)
+            {
+                instructionStream.AddRange(chunk.Instructions);
+            }
             return instructionStream;
         }
     }
@@ -356,159 +361,363 @@ namespace Flame.Compiler.Target
         protected override IReadOnlyList<TInstruction> ToInstructionStream(
             BasicBlock block,
             IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            SelectedInstructions<TInstruction> flow)
+            SelectedFlowInstructions<TInstruction> flow)
         {
-            var uses = block.Graph.GetAnalysisResult<ValueUses>();
+            var builder = new StackBlockBuilder(this, block, instructions);
 
-            // We will maintain an evaluation stack as we generate instructions
-            // for the basic block.
-            var evalStack = new Stack<ValueTag>(GetStackContentsOnEntry(block));
-
-            // We will maintain a linked list of sequences of selected instructions.
-            // The idea behind this data structure is that we'll be able to insert
-            // instructions later.
-            var instructionBlobs = new LinkedList<IReadOnlyList<TInstruction>>();
-
-            // Create a mapping of values to linked list nodes after which we may
-            // spill those values. These "spill points" are the earliest opportunity
-            // at which these values may be spilled or popped.
-            var spillPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
+            // Move basic block arguments into their virtual registers.
+            foreach (var value in GetStackContentsOnEntry(block))
+            {
+                builder.Store(value);
+            }
 
             foreach (var insn in block.NamedInstructions)
             {
                 SelectedInstructions<TInstruction> selection;
-                if (instructions.TryGetValue(insn, out selection) && !ShouldMaterializeOnUse(insn))
+                if (instructions.TryGetValue(insn, out selection))
                 {
-                    // Line up arguments.
-                    PrepareArguments(
-                        selection.Dependencies,
-                        evalStack,
-                        instructionBlobs,
-                        spillPoints,
-                        instructions,
-                        block.Graph);
-
-                    // Emit the instruction's implementation.
-                    instructionBlobs.AddLast(selection.Instructions);
-
-                    // Push the result on the stack, if there is a result.
-                    if (StackSelector.Pushes(insn.Prototype))
-                    {
-                        if (uses.IsUsedOutsideOf(insn, block))
-                        {
-                            // We need to spill this value.
-                            instructionBlobs.AddLast(
-                                StackSelector.CreateStoreRegister(
-                                    insn,
-                                    insn.ResultType));
-                        }
-                        else
-                        {
-                            // Otherwise, we'll put it on the stack. We also want to set up a
-                            // spill point so this value can be spilled efficiently if need be.
-                            evalStack.Push(insn);
-                            spillPoints[insn] = instructionBlobs.Last;
-                        }
-                    }
+                    // Place the instruction.
+                    builder.Emit(insn, selection);
                 }
             }
 
-            // Prepare arguments for the block's outgoing flow.
-            PrepareArguments(
-                flow.Dependencies,
-                evalStack,
-                instructionBlobs,
-                spillPoints,
-                instructions,
-                block.Graph);
+            builder.Emit(flow);
 
-            // Spill everything else that's still on the stack.
-            while (evalStack.Count > 0)
-            {
-                var stackValue = evalStack.Pop();
-                instructionBlobs.AddAfter(
-                    spillPoints[stackValue],
-                    StackSelector.CreateStoreRegister(
-                        stackValue,
-                        block.Graph.GetValueType(stackValue)));
-            }
-
-            // Append the block's outgoing flow instructions.
-            instructionBlobs.AddLast(flow.Instructions);
-            return instructionBlobs.SelectMany(list => list).ToArray();
+            return builder.ToInstructions();
         }
 
-        private void PrepareArguments(
-            IReadOnlyList<ValueTag> dependencies,
-            Stack<ValueTag> evalStack,
-            LinkedList<IReadOnlyList<TInstruction>> instructionBlobs,
-            IReadOnlyDictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> spillPoints,
-            IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            FlowGraph graph)
+        /// <summary>
+        /// A data structure that constructs a basic block that relies on an
+        /// evaluation stack for passing values around.
+        /// It is also responsible for loading instruction dependencies.
+        /// </summary>
+        private struct StackBlockBuilder
         {
-            foreach (var dependency in dependencies.Reverse())
+            public StackBlockBuilder(
+                StackInstructionStreamBuilder<TInstruction> parent,
+                BasicBlock block,
+                IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions)
             {
-                NamedInstruction instruction;
-                if (graph.TryGetInstruction(dependency, out instruction)
-                    && ShouldMaterializeOnUse(instruction))
+                this.Block = block;
+                this.parent = parent;
+                this.instructions = instructions;
+                this.instructionBlobs = new LinkedList<IReadOnlyList<TInstruction>>();
+                this.resurrectionList = ImmutableList.CreateBuilder<ValueTag>();
+                this.resurrectionPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
+                this.uses = block.Graph.GetAnalysisResult<ValueUses>();
+                this.refCount = new Dictionary<ValueTag, int>();
+
+                this.insertionPointInBlobs = null;
+                this.insertionPointInResurrections = null;
+                this.firstResurrectedValue = null;
+            }
+
+            /// <summary>
+            /// Gets the basic block whose stack is managed.
+            /// </summary>
+            /// <value>A basic block.</value>
+            public BasicBlock Block { get; private set; }
+
+            private StackInstructionStreamBuilder<TInstruction> parent;
+
+            private IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions;
+
+            private ValueUses uses;
+
+            private Dictionary<ValueTag, int> refCount;
+
+            /// <summary>
+            /// A linked list of instruction sequences.
+            /// </summary>
+            private LinkedList<IReadOnlyList<TInstruction>> instructionBlobs;
+
+            /// <summary>
+            /// A mapping of values to the instructions that store them in their registers.
+            /// </summary>
+            private Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> resurrectionPoints;
+
+            /// <summary>
+            /// A list of values that have been spilled or used but may still be "resurrected"
+            /// in a way that makes them appear on the top of the stack.
+            /// </summary>
+            private ImmutableList<ValueTag>.Builder resurrectionList;
+
+            #region Instruction-specific codegen variables
+
+            /// <summary>
+            /// The point to insert instructions at, as an entry in the instruction blobs list.
+            /// </summary>
+            private LinkedListNode<IReadOnlyList<TInstruction>> insertionPointInBlobs;
+
+            /// <summary>
+            /// The point to insert instructions at, as an entry in the resurrection list.
+            /// </summary>
+            private ValueTag insertionPointInResurrections;
+
+            /// <summary>
+            /// The first resurrected value.
+            /// </summary>
+            private ValueTag firstResurrectedValue;
+
+            #endregion
+
+            public IReadOnlyList<TInstruction> ToInstructions()
+            {
+                return instructionBlobs.SelectMany(list => list).ToArray();
+            }
+
+            /// <summary>
+            /// Emits an instruction and its implementation.
+            /// </summary>
+            /// <param name="instruction">The instruction to emit.</param>
+            /// <param name="selection">The instruction's implementation.</param>
+            public void Emit(NamedInstruction instruction, SelectedInstructions<TInstruction> selection)
+            {
+                if (parent.ShouldMaterializeOnUse(instruction))
                 {
-                    var isel = instructions[instruction];
-                    PrepareArguments(
-                        isel.Dependencies,
-                        evalStack,
-                        instructionBlobs,
-                        spillPoints,
-                        instructions,
-                        graph);
-                    instructionBlobs.AddLast(isel.Instructions);
-                    continue;
+                    return;
                 }
 
-                if (evalStack.Contains(dependency))
+                // Line up arguments.
+                LoadDependencies(selection.Dependencies);
+
+                // Emit the instruction's implementation.
+                instructionBlobs.AddLast(selection.Instructions);
+
+                // Push the result on the stack, if there is a result.
+                if (parent.StackSelector.Pushes(instruction.Prototype))
                 {
-                    if (evalStack.Peek() == dependency)
+                    Store(instruction);
+                }
+            }
+
+            /// <summary>
+            /// Emits selected control-flow instructions.
+            /// </summary>
+            /// <param name="flow">The instructions to emit.</param>
+            public void Emit(SelectedFlowInstructions<TInstruction> flow)
+            {
+                // Selecting flow instructions is kind of tricky. We can readily
+                // use the stack for the first logical instruction, but we can't
+                // use it after that.
+                foreach (var chunk in flow.Chunks)
+                {
+                    // Prepare arguments.
+                    LoadDependencies(chunk.Dependencies);
+
+                    // Clear the resurrection list.
+                    resurrectionList.Clear();
+
+                    // Append the instruction itself.
+                    instructionBlobs.AddLast(chunk.Instructions);
+                }
+            }
+
+            /// <summary>
+            /// Takes a value that has been placed on the stack and puts it in its
+            /// virtual register.
+            /// </summary>
+            /// <param name="value">The value to store.</param>
+            public void Store(ValueTag value)
+            {
+                var resultType = Block.Graph.GetValueType(value);
+                var useCount = uses.GetUseCount(value);
+                if (useCount == 0)
+                {
+                    // If the instruction's result is never used, then we can just pop it right away.
+                    instructionBlobs.AddLast(parent.StackSelector.CreatePop(resultType));
+                }
+                else
+                {
+                    // Otherwise, we spill it right away but place both a resurrection point
+                    // and a spill point. The former can be used to insert a duplication instruction.
+                    // The latter can be used to delete the store.
+                    refCount[value] = useCount;
+
+                    var spillPoint = instructionBlobs.AddLast(
+                        parent.StackSelector.CreateStoreRegister(value, resultType));
+                    resurrectionPoints[value] = spillPoint;
+                    resurrectionList.Add(value);
+                }
+            }
+
+            /// <summary>
+            /// Loads a sequence of values onto the stack in the order they
+            /// are specified.
+            /// </summary>
+            /// <param name="dependencies">A sequence of values to load.</param>
+            private void LoadDependencies(IReadOnlyList<ValueTag> dependencies)
+            {
+                // We want to take a copy of the old resurrection list so we can
+                // restore it once we're done.
+                var oldResurrectionList = resurrectionList.ToImmutable();
+
+                // Ditto for the first resurrected value.
+                var oldFirstRezValue = firstResurrectedValue;
+
+                // Set the new resurrection list to a slice of the old resurrection
+                // list that starts at the instruction just before the first in-list
+                // dependency.
+                resurrectionList = oldResurrectionList.ToBuilder();
+                var firstDependencyIndex = resurrectionList.FindIndex(dependencies.Contains);
+                if (firstDependencyIndex >= 0)
+                {
+                    for (int i = 0; i < firstDependencyIndex - 1; i++)
                     {
-                        // We already have this argument right where we want it.
-                        evalStack.Pop();
-                        continue;
+                        resurrectionList.RemoveAt(0);
+                    }
+                    insertionPointInBlobs = resurrectionPoints[resurrectionList[0]];
+                    insertionPointInResurrections = null;
+                    resurrectionList.RemoveAt(0);
+                }
+                else
+                {
+                    // Looks like we won't have a whole lot of resurrecting to do. Just pass an
+                    // empty resurrection list. Load/materialize values at the end of the
+                    // instruction stream.
+                    resurrectionList.Clear();
+                    insertionPointInBlobs = instructionBlobs.AddLast(EmptyArray<TInstruction>.Value);
+                    insertionPointInResurrections = null;
+                }
+                firstResurrectedValue = null;
+                foreach (var value in dependencies)
+                {
+                    Load(value);
+                }
+
+                // Restore the old resurrection list, but remove a range of values that starts
+                // at the first value resurrected by the instruction.
+                resurrectionList = oldResurrectionList.ToBuilder();
+                if (firstResurrectedValue != null)
+                {
+                    int index = resurrectionList.IndexOf(firstResurrectedValue) + 1;
+                    while (index < resurrectionList.Count)
+                    {
+                        resurrectionList.RemoveAt(resurrectionList.Count - 1);
+                    }
+                }
+                firstResurrectedValue = oldFirstRezValue;
+            }
+
+            /// <summary>
+            /// Loads a value onto the stack.
+            /// </summary>
+            /// <param name="value">The value to load.</param>
+            private void Load(ValueTag value)
+            {
+                // If at all possible, we want to get the value on the stack instead
+                // of grabbing it from a register. To do so, we can try and resurrect
+                // it.
+                if (!TryResurrect(value))
+                {
+                    // Otherwise, we just load or materialize the register.
+                    LoadFromRegisterOrMaterialize(value);
+                }
+            }
+
+            private bool TryResurrect(ValueTag value)
+            {
+                var valueIndex = resurrectionList.IndexOf(value);
+                if (valueIndex >= 0)
+                {
+                    // We should be able to resurrect this value.
+                    var resurrectionPoint = resurrectionPoints[value];
+                    if (refCount[value] == 1)
+                    {
+                        // We don't even have to duplicate the value. We can simply delete the
+                        // instruction that spills it.
+                        resurrectionPoint.Value = EmptyArray<TInstruction>.Value;
+                        refCount.Remove(value);
                     }
                     else
                     {
-                        // The argument is on the stack but not in the place where
-                        // we want it. We can do one of two things.
-                        //   1. Spill stack values until the value appears right where
-                        //      we want it.
-                        //   2. Spill the value itself, leaving the rest of the stack
-                        //      alone. We then load the value.
-                        //
-                        // For now, we'll just always go with option two.
-
-                        // Spill the value.
-                        instructionBlobs.AddAfter(
-                            spillPoints[dependency],
-                            StackSelector.CreateStoreRegister(
-                                dependency,
-                                graph.GetValueType(dependency)));
-
-                        // Remove it from the stack.
-                        var tempStack = new Stack<ValueTag>();
-                        while (evalStack.Peek() != dependency)
+                        // Looks like we'll have to insert a dup instruction.
+                        var valueType = Block.Graph.GetValueType(value);
+                        IReadOnlyList<TInstruction> dup;
+                        if (!parent.StackSelector.TryCreateDup(valueType, out dup))
                         {
-                            tempStack.Push(evalStack.Pop());
+                            // Instruction selector won't let us create a dup instruction,
+                            // so it would appear that we can't resurrect this value after
+                            // all.
+                            return false;
                         }
-                        evalStack.Pop();
-                        while (tempStack.Count > 0)
-                        {
-                            evalStack.Push(tempStack.Pop());
-                        }
+                        // Insert the dup.
+                        resurrectionPoint.List.AddBefore(resurrectionPoint, dup);
+
+                        // Decrement the value's reference count.
+                        refCount[value]--;
                     }
-                }
 
-                // Argument is not on the stack. Load it from its register.
-                instructionBlobs.AddLast(
-                    StackSelector.CreateLoadRegister(
-                        dependency,
-                        graph.GetValueType(dependency)));
+                    if (firstResurrectedValue == null)
+                    {
+                        firstResurrectedValue = value;
+                    }
+
+                    // We now note that all values that precede 'value' in the resurrection
+                    // list cannot be resurrected anymore for the current instruction; doing
+                    // so anyway would mess up the stack.
+                    for (int i = 0; i < valueIndex; i++)
+                    {
+                        resurrectionList.RemoveAt(0);
+                    }
+                    insertionPointInBlobs = resurrectionPoint;
+                    insertionPointInResurrections = value;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            private void LoadFromRegisterOrMaterialize(ValueTag value)
+            {
+                // Loading a value from a register or materializing it is essentially easy.
+                // The only hard part is deciding where we should load it.
+                // There are two conflicting goals here:
+                //
+                //   * We want to load or materialize the value as early as possible so
+                //     this instruction can resurrect values that are defined after the
+                //     point at which the value is loaded/materialized.
+                //
+                //   * We also want to load or materialize the value as late as possible
+                //     so future instructions can resurrect values that are defined prior
+                //     to the load/materialization.
+                //
+                // We will go with the "as early as possible" solution but remove non-dependency
+                // instructions from the resurrection list in LoadDependencies.
+
+                IReadOnlyList<TInstruction> selection;
+                NamedInstruction instruction;
+                if (Block.Graph.TryGetInstruction(value, out instruction)
+                    && parent.ShouldMaterializeOnUse(instruction))
+                {
+                    var isel = instructions[instruction];
+                    LoadDependencies(isel.Dependencies);
+                    selection = isel.Instructions;
+                }
+                else
+                {
+                    selection = parent.StackSelector.CreateLoadRegister(
+                        value,
+                        Block.Graph.GetValueType(value));
+                }
+                insertionPointInBlobs = insertionPointInBlobs.List.AddAfter(insertionPointInBlobs, selection);
+
+                // If the insertion point corresponded to a resurrection point, then we now
+                // need to remove that resurrection point from the resurrection list as well
+                // as all resurrection points that precede it. Failing to do so might
+                // destabilize the stack.
+                if (insertionPointInResurrections != null)
+                {
+                    int index = resurrectionList.IndexOf(insertionPointInResurrections);
+                    for (int i = 0; i <= index; i++)
+                    {
+                        resurrectionList.RemoveAt(0);
+                    }
+
+                    insertionPointInResurrections = null;
+                }
             }
         }
     }
