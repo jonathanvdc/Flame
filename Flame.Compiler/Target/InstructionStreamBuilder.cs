@@ -530,7 +530,7 @@ namespace Flame.Compiler.Target
                 // them eligible for resurrection.
                 //
                 // TODO: try to keep branch arguments on the stack somehow.
-                foreach (var arg in arguments)
+                foreach (var arg in arguments.Reverse())
                 {
                     Store(arg);
                 }
