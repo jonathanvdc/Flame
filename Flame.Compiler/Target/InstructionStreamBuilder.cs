@@ -366,10 +366,7 @@ namespace Flame.Compiler.Target
             var builder = new StackBlockBuilder(this, block, instructions);
 
             // Move basic block arguments into their virtual registers.
-            foreach (var value in GetStackContentsOnEntry(block))
-            {
-                builder.Store(value);
-            }
+            builder.EmitBlockPrologue(GetStackContentsOnEntry(block));
 
             foreach (var insn in block.NamedInstructions)
             {
@@ -406,6 +403,7 @@ namespace Flame.Compiler.Target
                 this.resurrectionPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
                 this.uses = block.Graph.GetAnalysisResult<ValueUses>();
                 this.refCount = new Dictionary<ValueTag, int>();
+                this.emptyStackPoints = new HashSet<LinkedListNode<IReadOnlyList<TInstruction>>>();
 
                 this.insertionPointInBlobs = null;
                 this.insertionPointInResurrections = null;
@@ -442,12 +440,17 @@ namespace Flame.Compiler.Target
             /// </summary>
             private ImmutableList<ValueTag>.Builder resurrectionList;
 
+            /// <summary>
+            /// A set of points in the instruction stream at which the stack is empty.
+            /// </summary>
+            private HashSet<LinkedListNode<IReadOnlyList<TInstruction>>> emptyStackPoints;
+
             #region Instruction-specific codegen variables
 
             /// <summary>
             /// The point to insert instructions at, as an entry in the instruction blobs list.
             /// </summary>
-            private LinkedListNode<IReadOnlyList<TInstruction>> insertionPointInBlobs;
+            private LinkedListNode<IReadOnlyList<TInstruction>> insertionPointInBlobs; 
 
             /// <summary>
             /// The point to insert instructions at, as an entry in the resurrection list.
@@ -514,11 +517,34 @@ namespace Flame.Compiler.Target
             }
 
             /// <summary>
+            /// Emits the basic block's prologue.
+            /// </summary>
+            /// <param name="arguments">
+            /// A sequence of branch arguments that are passed to the basic block.
+            /// </param>
+            public void EmitBlockPrologue(IEnumerable<ValueTag> arguments)
+            {
+                // Branch arguments are hard to handle: they can't be resurrected without
+                // potentially messing up the stack like regular instructions can.
+                // We'll just eagerly store them in their virtual registers and not make
+                // them eligible for resurrection.
+                //
+                // TODO: try to keep branch arguments on the stack somehow.
+                foreach (var arg in arguments)
+                {
+                    Store(arg);
+                }
+                resurrectionList.Clear();
+                emptyStackPoints.Clear();
+                emptyStackPoints.Add(instructionBlobs.AddLast(EmptyArray<TInstruction>.Value));
+            }
+
+            /// <summary>
             /// Takes a value that has been placed on the stack and puts it in its
             /// virtual register.
             /// </summary>
             /// <param name="value">The value to store.</param>
-            public void Store(ValueTag value)
+            private void Store(ValueTag value)
             {
                 var resultType = Block.Graph.GetValueType(value);
                 var useCount = uses.GetUseCount(value);
@@ -539,6 +565,7 @@ namespace Flame.Compiler.Target
                     resurrectionPoints[value] = spillPoint;
                     resurrectionList.Add(value);
                 }
+                emptyStackPoints.Add(instructionBlobs.Last);
             }
 
             /// <summary>
@@ -552,23 +579,30 @@ namespace Flame.Compiler.Target
                 // restore it once we're done.
                 var oldResurrectionList = resurrectionList.ToImmutable();
 
-                // Ditto for the first resurrected value.
+                // Ditto for the first resurrected value and the old insertion point.
                 var oldFirstRezValue = firstResurrectedValue;
+                var oldInsertionPoint = insertionPointInBlobs;
 
                 // Set the new resurrection list to a slice of the old resurrection
-                // list that starts at the instruction just before the first in-list
-                // dependency.
+                // list that starts at first in-list dependency.
                 resurrectionList = oldResurrectionList.ToBuilder();
                 var firstDependencyIndex = resurrectionList.FindIndex(dependencies.Contains);
                 if (firstDependencyIndex >= 0)
                 {
-                    for (int i = 0; i < firstDependencyIndex - 1; i++)
+                    for (int i = 0; i < firstDependencyIndex; i++)
                     {
                         resurrectionList.RemoveAt(0);
                     }
-                    insertionPointInBlobs = resurrectionPoints[resurrectionList[0]];
+                    // The initial insertion point for loads/materializations is the last point
+                    // before the first dependency at which the stack is empty.
+                    var finger = resurrectionPoints[oldResurrectionList[firstDependencyIndex]];
+                    do
+                    {
+                        finger = finger.Previous;
+                    }
+                    while (!emptyStackPoints.Contains(finger));
+                    insertionPointInBlobs = finger;
                     insertionPointInResurrections = null;
-                    resurrectionList.RemoveAt(0);
                 }
                 else
                 {
@@ -597,6 +631,7 @@ namespace Flame.Compiler.Target
                     }
                 }
                 firstResurrectedValue = oldFirstRezValue;
+                insertionPointInBlobs = oldInsertionPoint;
             }
 
             /// <summary>
@@ -662,6 +697,9 @@ namespace Flame.Compiler.Target
                     }
                     insertionPointInBlobs = resurrectionPoint;
                     insertionPointInResurrections = value;
+
+                    // Also, the stack is nonempty after the resurrection point.
+                    PushValueAt(resurrectionPoint);
                     return true;
                 }
                 else
@@ -717,6 +755,28 @@ namespace Flame.Compiler.Target
                     }
 
                     insertionPointInResurrections = null;
+                }
+
+                // Delete empty stack points that appear after the insertion point, if the
+                // insertion point is an empty stack point.
+                PushValueAt(insertionPointInBlobs);
+            }
+
+            private void PushValueAt(LinkedListNode<IReadOnlyList<TInstruction>> point)
+            {
+                bool encountered = false;
+                var finger = point.List.First;
+                while (finger != null)
+                {
+                    if (finger == point)
+                    {
+                        encountered = true;
+                    }
+                    if (encountered)
+                    {
+                        emptyStackPoints.Remove(finger);
+                    }
+                    finger = finger.Next;
                 }
             }
         }
