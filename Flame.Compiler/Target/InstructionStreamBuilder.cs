@@ -772,11 +772,12 @@ namespace Flame.Compiler.Target
                     {
                         encountered = true;
                     }
+                    var next = finger.Next;
                     if (encountered)
                     {
                         emptyStackPoints.Remove(finger);
                     }
-                    finger = finger.Next;
+                    finger = next;
                 }
             }
         }
