@@ -547,8 +547,7 @@ namespace Flame.Compiler.Target
             private void Store(ValueTag value)
             {
                 var resultType = Block.Graph.GetValueType(value);
-                var useCount = uses.GetUseCount(value);
-                if (useCount == 0)
+                if (uses.GetUseCount(value) == 0)
                 {
                     // If the instruction's result is never used, then we can just pop it right away.
                     instructionBlobs.AddLast(parent.StackSelector.CreatePop(resultType));
@@ -558,7 +557,15 @@ namespace Flame.Compiler.Target
                     // Otherwise, we spill it right away but place both a resurrection point
                     // and a spill point. The former can be used to insert a duplication instruction.
                     // The latter can be used to delete the store.
-                    refCount[value] = useCount;
+                    refCount[value] = 0;
+                    foreach (var insnUser in uses.GetInstructionUses(value))
+                    {
+                        refCount[value] += Block.Graph.GetInstruction(insnUser).Arguments.Count(arg => arg == value);
+                    }
+                    foreach (var flowUser in uses.GetFlowUses(value))
+                    {
+                        refCount[value] += Block.Graph.GetBasicBlock(flowUser).Flow.Values.Count(arg => arg == value);
+                    }
 
                     var spillPoint = instructionBlobs.AddLast(
                         parent.StackSelector.CreateStoreRegister(value, resultType));
