@@ -100,8 +100,9 @@ namespace Flame.Compiler.Target
         /// <summary>
         /// Tells if instances of a particular instruction prototype
         /// actually push a value onto the stack. Instructions that do
-        /// not push values may not be used as arguments to other instructions
-        /// or block flow.
+        /// not push values must either ensure that their result is
+        /// never used or spill their result into the appropriate virtual
+        /// register on their own.
         /// </summary>
         /// <param name="prototype">The instruction prototype to inspect.</param>
         /// <returns>

@@ -644,7 +644,8 @@ namespace Flame.Clr.Emit
             }
             else if (IsDefaultConstant(instruction.Instruction))
             {
-                // 'Default' constants are special.
+                // 'Default' constants are special. We put their results directly
+                // in the appropriate register.
                 var resultType = instruction.Instruction.ResultType;
                 if (resultType.Equals(TypeEnvironment.Void))
                 {
@@ -1610,7 +1611,8 @@ namespace Flame.Clr.Emit
         /// <inheritdoc/>
         public bool Pushes(InstructionPrototype prototype)
         {
-            return prototype.ResultType != TypeEnvironment.Void;
+            return prototype.ResultType != TypeEnvironment.Void
+                && !IsDefaultConstant(prototype);
         }
 
         /// <inheritdoc/>
@@ -1940,10 +1942,15 @@ namespace Flame.Clr.Emit
             }
         }
 
+        private static bool IsDefaultConstant(InstructionPrototype prototype)
+        {
+            var proto = prototype as ConstantPrototype;
+            return proto != null && proto.Value == DefaultConstant.Instance;
+        }
+
         private static bool IsDefaultConstant(Instruction instruction)
         {
-            var proto = instruction.Prototype as ConstantPrototype;
-            return proto != null && proto.Value == DefaultConstant.Instance;
+            return IsDefaultConstant(instruction.Prototype);
         }
 
         private static bool IsDefaultConstant(ValueTag value, FlowGraph graph)
