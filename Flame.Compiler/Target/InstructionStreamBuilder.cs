@@ -589,6 +589,7 @@ namespace Flame.Compiler.Target
                 // Ditto for the first resurrected value and the old insertion point.
                 var oldFirstRezValue = firstResurrectedValue;
                 var oldInsertionPoint = insertionPointInBlobs;
+                var oldFirstNonEmptyStackPoint = firstNonEmptyStackPoint;
 
                 // Set the new resurrection list to a slice of the old resurrection
                 // list that starts at first in-list dependency.
@@ -619,6 +620,7 @@ namespace Flame.Compiler.Target
                     insertionPointInBlobs = instructionBlobs.AddLast(EmptyArray<TInstruction>.Value);
                 }
                 firstResurrectedValue = null;
+                firstNonEmptyStackPoint = null;
                 foreach (var value in dependencies)
                 {
                     Load(value);
@@ -644,6 +646,7 @@ namespace Flame.Compiler.Target
                 }
                 firstResurrectedValue = oldFirstRezValue;
                 insertionPointInBlobs = oldInsertionPoint;
+                firstNonEmptyStackPoint = oldFirstNonEmptyStackPoint;
             }
 
             /// <summary>
@@ -699,6 +702,7 @@ namespace Flame.Compiler.Target
                     {
                         firstResurrectedValue = value;
                     }
+                    MakeStackNonEmptyAt(resurrectionPoint);
 
                     // Now find an insertion point: the first point at which the stack is empty
                     // after the resurrection point.
@@ -712,7 +716,7 @@ namespace Flame.Compiler.Target
                     // We now note that all values that precede the insertion point in the
                     // resurrection list cannot be resurrected anymore for the current
                     // instruction; doing so anyway would mess up the stack.
-                    MakeStackNonEmptyAt(insertionPointInBlobs);
+                    DropResurrectionListUntil(insertionPointInBlobs);
                     return true;
                 }
                 else
@@ -760,6 +764,7 @@ namespace Flame.Compiler.Target
                 // as all resurrection points that precede it. Failing to do so might
                 // destabilize the stack.
                 MakeStackNonEmptyAt(insertionPointInBlobs);
+                DropResurrectionListUntil(insertionPointInBlobs);
             }
 
             private void MakeStackNonEmptyAt(LinkedListNode<IReadOnlyList<TInstruction>> point)
@@ -769,7 +774,10 @@ namespace Flame.Compiler.Target
                 {
                     firstNonEmptyStackPoint = point;
                 }
+            }
 
+            private void DropResurrectionListUntil(LinkedListNode<IReadOnlyList<TInstruction>> point)
+            {
                 if (resurrectionList.Count == 0)
                 {
                     return;
@@ -803,20 +811,11 @@ namespace Flame.Compiler.Target
 
             private void ProcessNonEmptyStackPoint(LinkedListNode<IReadOnlyList<TInstruction>> point)
             {
-                bool encountered = false;
-                var finger = point.List.First;
+                var finger = point;
                 while (finger != null)
                 {
-                    if (finger == point)
-                    {
-                        encountered = true;
-                    }
-                    var next = finger.Next;
-                    if (encountered)
-                    {
-                        emptyStackPoints.Remove(finger);
-                    }
-                    finger = next;
+                    emptyStackPoints.Remove(finger);
+                    finger = finger.Next;
                 }
             }
         }
