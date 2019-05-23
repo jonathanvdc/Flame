@@ -22,6 +22,8 @@ namespace Flame.Clr.Emit
             : base(selector)
         { }
 
+        private CilInstructionSelector CilSelector => (CilInstructionSelector)InstructionSelector;
+
         /// <summary>
         /// Creates a CIL instruction stream builder.
         /// </summary>
@@ -49,6 +51,12 @@ namespace Flame.Clr.Emit
         /// <inheritdoc/>
         protected override bool ShouldMaterializeOnUse(NamedInstruction instruction)
         {
+            if (CilSelector.AllocaToVariableMapping.ContainsKey(instruction))
+            {
+                // Materialize ldloca instructions on use.
+                return true;
+            }
+
             // Materialize trivial constants on use.
             var proto = instruction.Prototype as ConstantPrototype;
             return proto != null && proto.Value != DefaultConstant.Instance;
