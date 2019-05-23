@@ -257,8 +257,6 @@ namespace Flame.Clr.Emit
             var successThunkTag = new BasicBlockTag("success_thunk");
             var exceptionThunkTag = new BasicBlockTag("exception_thunk");
 
-            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
-
             // Select CIL instructions for the 'risky' Flame IR instruction,
             // i.e., the instruction that might throw.
             var riskyInstruction = SelectInstructionsImpl(flow.Instruction, graph);
@@ -354,6 +352,15 @@ namespace Flame.Clr.Emit
                     }
                 });
             var exceptionThunkBody = exceptionArgs.Prepend(new CilMarkTargetInstruction(exceptionThunkTag));
+
+            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
+
+            // Insert a nop that clears the stack ('try' regions cannot be entered
+            // if the stack is nonempty).
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    EmptyArray<CilCodegenInstruction>.Value,
+                    EmptyArray<ValueTag>.Value));
 
             // Now compose the final instruction stream.
             chunks.Add(
