@@ -123,6 +123,7 @@
     <Compile Include="Target\InstructionStreamBuilder.cs" />
     <Compile Include="Target\PeepholeOptimizer.cs" />
     <Compile Include="Target\SelectedInstructions.cs" />
+    <Compile Include="Target\StackInstructionStreamBuilder.cs" />
     <Compile Include="Transforms\AllocaToRegister.cs" />
     <Compile Include="Transforms\BlockFusion.cs" />
     <Compile Include="Transforms\BoxToAlloca.cs" />
