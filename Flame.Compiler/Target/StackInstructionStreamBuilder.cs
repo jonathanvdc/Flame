@@ -103,7 +103,7 @@ namespace Flame.Compiler.Target
         /// evaluation stack for passing values around.
         /// It is also responsible for loading instruction dependencies.
         /// </summary>
-        private struct StackBlockBuilder
+        private class StackBlockBuilder
         {
             public StackBlockBuilder(
                 StackInstructionStreamBuilder<TInstruction> parent,
@@ -116,13 +116,10 @@ namespace Flame.Compiler.Target
                 this.instructionBlobs = new LinkedList<IReadOnlyList<TInstruction>>();
                 this.resurrectionList = ImmutableList.CreateBuilder<ValueTag>();
                 this.resurrectionPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
+                this.invResurrectionPoints = new Dictionary<LinkedListNode<IReadOnlyList<TInstruction>>, ValueTag>();
                 this.uses = block.Graph.GetAnalysisResult<ValueUses>();
                 this.refCount = new Dictionary<ValueTag, int>();
                 this.emptyStackPoints = new HashSet<LinkedListNode<IReadOnlyList<TInstruction>>>();
-
-                this.insertionPointInBlobs = null;
-                this.firstResurrectedValue = null;
-                this.firstNonEmptyStackPoint = null;
             }
 
             /// <summary>
@@ -150,6 +147,11 @@ namespace Flame.Compiler.Target
             private Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> resurrectionPoints;
 
             /// <summary>
+            /// The inverse of resurrectionPoints.
+            /// </summary>
+            private Dictionary<LinkedListNode<IReadOnlyList<TInstruction>>, ValueTag> invResurrectionPoints;
+
+            /// <summary>
             /// A list of values that have been spilled or used but may still be "resurrected"
             /// in a way that makes them appear on the top of the stack.
             /// </summary>
@@ -159,25 +161,6 @@ namespace Flame.Compiler.Target
             /// A set of points in the instruction stream at which the stack is empty.
             /// </summary>
             private HashSet<LinkedListNode<IReadOnlyList<TInstruction>>> emptyStackPoints;
-
-            #region Instruction-specific codegen variables
-
-            /// <summary>
-            /// The point to insert instructions at, as an entry in the instruction blobs list.
-            /// </summary>
-            private LinkedListNode<IReadOnlyList<TInstruction>> insertionPointInBlobs;
-
-            /// <summary>
-            /// The first resurrected value.
-            /// </summary>
-            private ValueTag firstResurrectedValue;
-
-            /// <summary>
-            /// The first point at which the stack becomes nonempty for this instruction selection.
-            /// </summary>
-            private LinkedListNode<IReadOnlyList<TInstruction>> firstNonEmptyStackPoint;
-
-            #endregion
 
             public IReadOnlyList<TInstruction> ToInstructions()
             {
@@ -285,6 +268,7 @@ namespace Flame.Compiler.Target
                     var spillPoint = instructionBlobs.AddLast(
                         parent.StackSelector.CreateStoreRegister(value, resultType));
                     resurrectionPoints[value] = spillPoint;
+                    invResurrectionPoints[spillPoint] = value;
                     resurrectionList.Add(value);
                 }
                 emptyStackPoints.Add(instructionBlobs.Last);
@@ -297,240 +281,349 @@ namespace Flame.Compiler.Target
             /// <param name="dependencies">A sequence of values to load.</param>
             private void LoadDependencies(IReadOnlyList<ValueTag> dependencies)
             {
-                // We want to take a copy of the old resurrection list so we can
-                // restore it once we're done.
-                var oldResurrectionList = resurrectionList.ToImmutable();
-
-                // Ditto for the first resurrected value and the old insertion point.
-                var oldFirstRezValue = firstResurrectedValue;
-                var oldInsertionPoint = insertionPointInBlobs;
-                var oldFirstNonEmptyStackPoint = firstNonEmptyStackPoint;
-
                 // Set the new resurrection list to a slice of the old resurrection
                 // list that starts at first in-list dependency.
-                resurrectionList = oldResurrectionList.ToBuilder();
+                var localResurrectionList = resurrectionList.ToImmutable().ToBuilder();
                 var firstDependencyIndex = resurrectionList.FindIndex(dependencies.Contains);
+                LinkedListNode<IReadOnlyList<TInstruction>> insertionPoint;
                 if (firstDependencyIndex >= 0)
                 {
                     for (int i = 0; i < firstDependencyIndex; i++)
                     {
-                        resurrectionList.RemoveAt(0);
+                        localResurrectionList.RemoveAt(0);
                     }
+
                     // The initial insertion point for loads/materializations is the last point
                     // before the first dependency at which the stack is empty.
-                    var finger = resurrectionPoints[oldResurrectionList[firstDependencyIndex]];
+                    var finger = resurrectionPoints[resurrectionList[firstDependencyIndex]];
                     do
                     {
                         finger = finger.Previous;
                     }
                     while (!emptyStackPoints.Contains(finger));
-                    insertionPointInBlobs = finger;
+                    insertionPoint = finger;
                 }
                 else
                 {
                     // Looks like we won't have a whole lot of resurrecting to do. Just pass an
                     // empty resurrection list. Load/materialize values at the end of the
                     // instruction stream.
-                    resurrectionList.Clear();
-                    insertionPointInBlobs = instructionBlobs.AddLast(EmptyArray<TInstruction>.Value);
+                    localResurrectionList.Clear();
+                    insertionPoint = instructionBlobs.AddLast(EmptyArray<TInstruction>.Value);
                 }
-                firstResurrectedValue = null;
-                firstNonEmptyStackPoint = null;
+
+                var loader = new LoadSequenceBuilder(this, insertionPoint, localResurrectionList);
+
                 foreach (var value in dependencies)
                 {
-                    Load(value);
+                    loader.Load(value);
                 }
 
                 // Make the stack nonempty starting at the first point where a value is pushed onto
                 // the stack.
-                if (firstNonEmptyStackPoint != null)
+                if (!loader.IsStackEmpty)
                 {
-                    ProcessNonEmptyStackPoint(firstNonEmptyStackPoint);
+                    ProcessPush(loader.FirstPush, loader.FirstPushValue);
+                }
+            }
+
+            private void ProcessPush(
+                LinkedListNode<IReadOnlyList<TInstruction>> point,
+                ValueTag valueResurrectedAtPoint)
+            {
+                var finger = point;
+                int firstRezToDelete = -1;
+                while (finger != null)
+                {
+                    emptyStackPoints.Remove(finger);
+
+                    ValueTag rezValue;
+                    if (firstRezToDelete < 0
+                        && invResurrectionPoints.TryGetValue(finger, out rezValue)
+                        && rezValue != valueResurrectedAtPoint)
+                    {
+                        // Make sure that no values are resurrected after the push point.
+                        firstRezToDelete = resurrectionList.IndexOf(rezValue);
+                    }
+
+                    finger = finger.Next;
                 }
 
-                // Restore the old resurrection list, but remove a range of values that starts
-                // at the first value resurrected by the instruction.
-                resurrectionList = oldResurrectionList.ToBuilder();
-                if (firstResurrectedValue != null)
+                if (firstRezToDelete >= 0)
                 {
-                    int index = resurrectionList.IndexOf(firstResurrectedValue) + 1;
-                    while (index < resurrectionList.Count)
+                    while (firstRezToDelete < resurrectionList.Count)
                     {
                         resurrectionList.RemoveAt(resurrectionList.Count - 1);
                     }
                 }
-                firstResurrectedValue = oldFirstRezValue;
-                insertionPointInBlobs = oldInsertionPoint;
-                firstNonEmptyStackPoint = oldFirstNonEmptyStackPoint;
             }
 
             /// <summary>
-            /// Loads a value onto the stack.
+            /// A data structure that defines state and behavior related to loading a
+            /// sequence of values on the stack.
             /// </summary>
-            /// <param name="value">The value to load.</param>
-            private void Load(ValueTag value)
+            private struct LoadSequenceBuilder
             {
-                // If at all possible, we want to get the value on the stack instead
-                // of grabbing it from a register. To do so, we can try and resurrect
-                // it.
-                if (!TryResurrect(value))
+                public LoadSequenceBuilder(
+                    StackBlockBuilder blockBuilder,
+                    LinkedListNode<IReadOnlyList<TInstruction>> insertionPoint,
+                    ImmutableList<ValueTag>.Builder resurrectionList)
                 {
-                    // Otherwise, we just load or materialize the register.
-                    LoadFromRegisterOrMaterialize(value);
-                }
-            }
+                    this.blockBuilder = blockBuilder;
+                    this.insertionPoint = insertionPoint;
+                    this.resurrectionList = resurrectionList;
 
-            private bool TryResurrect(ValueTag value)
-            {
-                var valueIndex = resurrectionList.IndexOf(value);
-                if (valueIndex >= 0)
+                    this.FirstPush = null;
+                    this.FirstPushValue = null;
+                }
+
+                /// <summary>
+                /// The stack block builder.
+                /// </summary>
+                private StackBlockBuilder blockBuilder;
+
+                /// <summary>
+                /// The point to insert instructions at, as an entry in the instruction blobs list.
+                /// </summary>
+                private LinkedListNode<IReadOnlyList<TInstruction>> insertionPoint;
+
+                private ImmutableList<ValueTag>.Builder resurrectionList;
+
+                /// <summary>
+                /// Gets the first point at which the stack becomes nonempty.
+                /// </summary>
+                public LinkedListNode<IReadOnlyList<TInstruction>> FirstPush { get; private set; }
+
+                /// <summary>
+                /// Gets the value that is resurrected to first make the stack nonempty,
+                /// if a resurrection made the stack nonempty.
+                /// </summary>
+                public ValueTag FirstPushValue { get; private set; }
+
+                /// <summary>
+                /// Tells if loading the sequence of instructions has left the stack unchanged.
+                /// </summary>
+                public bool IsStackEmpty => FirstPush == null;
+
+                // Shorthand properties.
+                private Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> resurrectionPoints
+                    => blockBuilder.resurrectionPoints;
+
+                private Dictionary<LinkedListNode<IReadOnlyList<TInstruction>>, ValueTag> invResurrectionPoints
+                    => blockBuilder.invResurrectionPoints;
+
+                private BasicBlock Block => blockBuilder.Block;
+
+                private IStackInstructionSelector<TInstruction> StackSelector => blockBuilder.parent.StackSelector;
+
+                private Dictionary<ValueTag, int> refCount => blockBuilder.refCount;
+
+                private HashSet<LinkedListNode<IReadOnlyList<TInstruction>>> emptyStackPoints
+                    => blockBuilder.emptyStackPoints;
+
+                /// <summary>
+                /// Loads a value onto the stack.
+                /// </summary>
+                /// <param name="value">The value to load.</param>
+                public void Load(ValueTag value)
                 {
-                    // We should be able to resurrect this value.
-                    var resurrectionPoint = resurrectionPoints[value];
-                    if (refCount[value] == 1)
+                    // If at all possible, we want to get the value on the stack instead
+                    // of grabbing it from a register. To do so, we can try and resurrect
+                    // it.
+                    if (!TryResurrect(value))
                     {
-                        // We don't even have to duplicate the value. We can simply delete the
-                        // instruction that spills it.
-                        resurrectionPoint.Value = EmptyArray<TInstruction>.Value;
-                        refCount.Remove(value);
+                        // Otherwise, we just load or materialize the register.
+                        LoadFromRegisterOrMaterialize(value);
+                    }
+                }
+
+                private bool TryResurrect(ValueTag value)
+                {
+                    var valueIndex = resurrectionList.IndexOf(value);
+                    if (valueIndex >= 0)
+                    {
+                        // We should be able to resurrect this value.
+                        var resurrectionPoint = resurrectionPoints[value];
+                        if (refCount[value] == 1)
+                        {
+                            // We don't even have to duplicate the value. We can simply delete the
+                            // instruction that spills it.
+                            resurrectionPoint.Value = EmptyArray<TInstruction>.Value;
+                            refCount.Remove(value);
+                        }
+                        else
+                        {
+                            // Looks like we'll have to insert a dup instruction.
+                            var valueType = Block.Graph.GetValueType(value);
+                            IReadOnlyList<TInstruction> dup;
+                            if (!StackSelector.TryCreateDup(valueType, out dup))
+                            {
+                                // Instruction selector won't let us create a dup instruction,
+                                // so it would appear that we can't resurrect this value after
+                                // all.
+                                return false;
+                            }
+                            // Insert the dup.
+                            resurrectionPoint.List.AddBefore(resurrectionPoint, dup);
+
+                            // Decrement the value's reference count.
+                            refCount[value]--;
+                        }
+
+                        MakeStackNonEmptyAt(resurrectionPoint, value);
+
+                        // Now find an insertion point: the first point at which the stack is empty
+                        // after the resurrection point.
+                        insertionPoint = FindNextInsertionPoint(resurrectionPoint);
+
+                        // We now note that all values that precede the insertion point in the
+                        // resurrection list cannot be resurrected anymore for the current
+                        // instruction; doing so anyway would mess up the stack.
+                        DropResurrectionListUntil(insertionPoint);
+                        return true;
                     }
                     else
                     {
-                        // Looks like we'll have to insert a dup instruction.
-                        var valueType = Block.Graph.GetValueType(value);
-                        IReadOnlyList<TInstruction> dup;
-                        if (!parent.StackSelector.TryCreateDup(valueType, out dup))
-                        {
-                            // Instruction selector won't let us create a dup instruction,
-                            // so it would appear that we can't resurrect this value after
-                            // all.
-                            return false;
-                        }
-                        // Insert the dup.
-                        resurrectionPoint.List.AddBefore(resurrectionPoint, dup);
-
-                        // Decrement the value's reference count.
-                        refCount[value]--;
+                        return false;
                     }
+                }
 
-                    if (firstResurrectedValue == null)
-                    {
-                        firstResurrectedValue = value;
-                    }
-                    MakeStackNonEmptyAt(resurrectionPoint);
-
-                    // Now find an insertion point: the first point at which the stack is empty
-                    // after the resurrection point.
-                    var finger = resurrectionPoint;
+                private LinkedListNode<IReadOnlyList<TInstruction>> FindNextInsertionPoint(
+                    LinkedListNode<IReadOnlyList<TInstruction>> start)
+                {
+                    var finger = start;
                     while (!emptyStackPoints.Contains(finger) && finger.Next != null)
                     {
                         finger = finger.Next;
                     }
-                    insertionPointInBlobs = finger;
 
-                    // We now note that all values that precede the insertion point in the
-                    // resurrection list cannot be resurrected anymore for the current
-                    // instruction; doing so anyway would mess up the stack.
-                    DropResurrectionListUntil(insertionPointInBlobs);
-                    return true;
+                    return finger;
                 }
-                else
-                {
-                    return false;
-                }
-            }
 
-            private void LoadFromRegisterOrMaterialize(ValueTag value)
-            {
-                // Loading a value from a register or materializing it is essentially easy.
-                // The only hard part is deciding where we should load it.
-                // There are two conflicting goals here:
-                //
-                //   * We want to load or materialize the value as early as possible so
-                //     this instruction can resurrect values that are defined after the
-                //     point at which the value is loaded/materialized.
-                //
-                //   * We also want to load or materialize the value as late as possible
-                //     so future instructions can resurrect values that are defined prior
-                //     to the load/materialization.
-                //
-                // We will go with the "as early as possible" solution but remove non-dependency
-                // instructions from the resurrection list in LoadDependencies.
+                private void LoadFromRegisterOrMaterialize(ValueTag value)
+                {
+                    // Loading a value from a register or materializing it is essentially easy.
+                    // The only hard part is deciding where we should load it.
+                    // There are two conflicting goals here:
+                    //
+                    //   * We want to load or materialize the value as early as possible so
+                    //     this instruction can resurrect values that are defined after the
+                    //     point at which the value is loaded/materialized.
+                    //
+                    //   * We also want to load or materialize the value as late as possible
+                    //     so future instructions can resurrect values that are defined prior
+                    //     to the load/materialization.
+                    //
+                    // We will go with the "as early as possible" solution but remove non-dependency
+                    // instructions from the resurrection list in LoadDependencies.
 
-                IReadOnlyList<TInstruction> selection;
-                NamedInstruction instruction;
-                if (Block.Graph.TryGetInstruction(value, out instruction)
-                    && parent.ShouldMaterializeOnUse(instruction))
-                {
-                    var isel = instructions[instruction];
-                    LoadDependencies(isel.Dependencies);
-                    selection = isel.Instructions;
+                    NamedInstruction instruction;
+                    if (Block.Graph.TryGetInstruction(value, out instruction)
+                        && blockBuilder.parent.ShouldMaterializeOnUse(instruction))
+                    {
+                        Materialize(instruction);
+                    }
+                    else
+                    {
+                        LoadFromRegister(value);
+                    }
+
+                    // If the insertion point corresponded to a resurrection point, then we now
+                    // need to remove that resurrection point from the resurrection list as well
+                    // as all resurrection points that precede it. Failing to do so might
+                    // destabilize the stack.
+                    DropResurrectionListUntil(insertionPoint);
                 }
-                else
+
+                private void Materialize(ValueTag instruction)
                 {
-                    selection = parent.StackSelector.CreateLoadRegister(
+                    var isel = blockBuilder.instructions[instruction];
+                    foreach (var item in isel.Dependencies)
+                    {
+                        Materialize(instruction);
+                    }
+                    insertionPoint = insertionPoint.List.AddAfter(insertionPoint, isel.Instructions);
+                    MakeStackNonEmptyAt(insertionPoint, null);
+                }
+
+                private void LoadFromRegister(ValueTag value)
+                {
+                    // Make sure we don't reorder reads and writes by moving the
+                    // insertion point if necessary.
+                    if (!IsDominatedByDefinition(insertionPoint, value))
+                    {
+                        insertionPoint = FindNextInsertionPoint(resurrectionPoints[value]);
+                    }
+
+                    var selection = StackSelector.CreateLoadRegister(
                         value,
                         Block.Graph.GetValueType(value));
-                }
-                insertionPointInBlobs = insertionPointInBlobs.List.AddAfter(insertionPointInBlobs, selection);
 
-                // If the insertion point corresponded to a resurrection point, then we now
-                // need to remove that resurrection point from the resurrection list as well
-                // as all resurrection points that precede it. Failing to do so might
-                // destabilize the stack.
-                MakeStackNonEmptyAt(insertionPointInBlobs);
-                DropResurrectionListUntil(insertionPointInBlobs);
-            }
-
-            private void MakeStackNonEmptyAt(LinkedListNode<IReadOnlyList<TInstruction>> point)
-            {
-                // Record that the stack becomes nonempty.
-                if (firstNonEmptyStackPoint == null)
-                {
-                    firstNonEmptyStackPoint = point;
-                }
-            }
-
-            private void DropResurrectionListUntil(LinkedListNode<IReadOnlyList<TInstruction>> point)
-            {
-                if (resurrectionList.Count == 0)
-                {
-                    return;
+                    insertionPoint = insertionPoint.List.AddAfter(insertionPoint, selection);
+                    MakeStackNonEmptyAt(insertionPoint, null);
                 }
 
-                // Remove items from the resurrection list if they precede the insertion point.
-                var finger = instructionBlobs.First;
-                var nextFinger = resurrectionPoints[resurrectionList[0]];
-                while (finger != null)
+                private bool IsDominatedByDefinition(
+                    LinkedListNode<IReadOnlyList<TInstruction>> point,
+                    ValueTag value)
                 {
-                    if (finger == point)
+                    point = point.Next;
+                    while (point != null)
+                    {
+                        ValueTag resurrectible;
+                        if (invResurrectionPoints.TryGetValue(point, out resurrectible)
+                            && resurrectible == value)
+                        {
+                            return false;
+                        }
+                        point = point.Next;
+                    }
+                    return true;
+                }
+
+                private void MakeStackNonEmptyAt(
+                    LinkedListNode<IReadOnlyList<TInstruction>> point,
+                    ValueTag resurrectedValue)
+                {
+                    // Record that the stack becomes nonempty.
+                    if (IsStackEmpty)
+                    {
+                        FirstPush = point;
+                        FirstPushValue = resurrectedValue;
+                    }
+                }
+
+                private void DropResurrectionListUntil(LinkedListNode<IReadOnlyList<TInstruction>> point)
+                {
+                    if (resurrectionList.Count == 0)
                     {
                         return;
                     }
-                    else if (finger == nextFinger)
+
+                    // Remove items from the resurrection list if they precede the insertion point.
+                    var finger = blockBuilder.instructionBlobs.First;
+                    var nextFinger = resurrectionPoints[resurrectionList[0]];
+                    while (finger != null)
                     {
-                        resurrectionList.RemoveAt(0);
-                        if (resurrectionList.Count == 0)
+                        if (finger == point)
                         {
                             return;
                         }
-                        else
+                        else if (finger == nextFinger)
                         {
-                            nextFinger = resurrectionPoints[resurrectionList[0]];
+                            resurrectionList.RemoveAt(0);
+                            if (resurrectionList.Count == 0)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                nextFinger = resurrectionPoints[resurrectionList[0]];
+                            }
                         }
+
+                        finger = finger.Next;
                     }
-
-                    finger = finger.Next;
-                }
-            }
-
-            private void ProcessNonEmptyStackPoint(LinkedListNode<IReadOnlyList<TInstruction>> point)
-            {
-                var finger = point;
-                while (finger != null)
-                {
-                    emptyStackPoints.Remove(finger);
-                    finger = finger.Next;
                 }
             }
         }
