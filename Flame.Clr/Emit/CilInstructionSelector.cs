@@ -46,8 +46,6 @@ namespace Flame.Clr.Emit
             this.Method = method;
             this.TypeEnvironment = typeEnvironment;
             this.AllocaToVariableMapping = allocaToVariableMapping;
-            this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
-            this.selectedInstructions = new HashSet<ValueTag>();
             this.tempDefs = new List<VariableDefinition>();
             this.freeTempsByType = new Dictionary<IType, HashSet<VariableDefinition>>();
             this.tempTypes = new Dictionary<VariableDefinition, IType>();
@@ -78,8 +76,6 @@ namespace Flame.Clr.Emit
         /// </summary>
         public IReadOnlyList<VariableDefinition> Temporaries => tempDefs;
 
-        private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
-        private HashSet<ValueTag> selectedInstructions;
         private List<VariableDefinition> tempDefs;
         private Dictionary<IType, HashSet<VariableDefinition>> freeTempsByType;
         private Dictionary<VariableDefinition, IType> tempTypes;
@@ -628,15 +624,6 @@ namespace Flame.Clr.Emit
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             NamedInstruction instruction)
         {
-            if (!selectedInstructions.Add(instruction.Tag))
-            {
-                // Never ever re-select instructions that have already
-                // been selected inline.
-                return new SelectedInstructions<CilCodegenInstruction>(
-                    EmptyArray<CilCodegenInstruction>.Value,
-                    EmptyArray<ValueTag>.Value);
-            }
-
             VariableDefinition allocaVarDef;
             if (AllocaToVariableMapping.TryGetValue(instruction.Tag, out allocaVarDef))
             {

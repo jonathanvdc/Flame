@@ -535,12 +535,12 @@ namespace Flame.Compiler.Target
                     DropResurrectionListUntil(insertionPoint);
                 }
 
-                private void Materialize(ValueTag instruction)
+                private void Materialize(NamedInstruction instruction)
                 {
-                    var isel = blockBuilder.instructions[instruction];
+                    var isel = blockBuilder.parent.InstructionSelector.SelectInstructions(instruction);
                     foreach (var item in isel.Dependencies)
                     {
-                        Materialize(instruction);
+                        Materialize(Block.Graph.GetInstruction(item));
                     }
                     insertionPoint = insertionPoint.List.AddAfter(insertionPoint, isel.Instructions);
                     MakeStackNonEmptyAt(insertionPoint, null);
