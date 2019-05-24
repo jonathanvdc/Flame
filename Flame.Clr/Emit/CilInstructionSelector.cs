@@ -257,12 +257,16 @@ namespace Flame.Clr.Emit
             var successThunkTag = new BasicBlockTag("success_thunk");
             var exceptionThunkTag = new BasicBlockTag("exception_thunk");
 
+            // Compose the flow codegen chunks.
+            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
+
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CilTryStartMarker.Instance));
+
             // Select CIL instructions for the 'risky' Flame IR instruction,
             // i.e., the instruction that might throw.
-            var riskyInstruction = SelectInstructionsImpl(flow.Instruction, graph);
-
-            // Compose the 'try' body.
-            var tryBody = new List<CilCodegenInstruction>(riskyInstruction.Instructions);
+            chunks.Add(SelectInstructionsImpl(flow.Instruction, graph));
 
             if (flow.Instruction.ResultType != TypeEnvironment.Void)
             {
@@ -274,41 +278,48 @@ namespace Flame.Clr.Emit
                     //
                     // This is an okay thing to do because the success branch is indeed
                     // allowed to write to the parameter.
-                    tryBody.Add(new CilStoreRegisterInstruction(resultParam));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilStoreRegisterInstruction(resultParam)));
                 }
                 else
                 {
                     // Pop unused result values.
-                    tryBody.Add(new CilOpInstruction(OpCodes.Pop));
+                    chunks.Add(CreateSelection(OpCodes.Pop));
                 }
             }
 
             // Generate the `leave success_thunk` instruction.
-            tryBody.Add(CreateBranchInstruction(OpCodes.Leave, successThunkTag));
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CreateBranchInstruction(OpCodes.Leave, successThunkTag)));
 
             // Compose the 'catch' body. Our main job here is to capture
             // the exception and send control to a thunk that implements
             // the exception branch.
-            var catchBody = new List<CilCodegenInstruction>();
+            var handler = new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Catch);
+            handler.CatchType = captureMethod == null
+                ? Method.Module.ImportReference(TypeEnvironment.Object)
+                : Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType);
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    new CilHandlerStartMarker(handler)));
             if (captureMethod != null)
             {
-                catchBody.Add(
-                    new CilOpInstruction(
-                        CilInstruction.Create(OpCodes.Call, captureMethod)));
-                catchBody.Add(new CilStoreRegisterInstruction(capturedExceptionParam));
+                chunks.Add(CreateSelection(CilInstruction.Create(OpCodes.Call, captureMethod)));
+                chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilStoreRegisterInstruction(capturedExceptionParam)));
             }
 
             // Generate the `leave exception_thunk` instruction.
-            catchBody.Add(CreateBranchInstruction(OpCodes.Leave, exceptionThunkTag));
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CreateBranchInstruction(OpCodes.Leave, exceptionThunkTag)));
 
-            // Construct the try/catch block.
-            var tryCatchBlock = new CilExceptionHandlerInstruction(
-                Mono.Cecil.Cil.ExceptionHandlerType.Catch,
-                captureMethod == null
-                    ? Method.Module.ImportReference(TypeEnvironment.Object)
-                    : Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType),
-                tryBody,
-                catchBody);
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CilHandlerEndMarker.Instance));
 
             // Generate the success thunk.
             var successArgs = SelectBranchArguments(
@@ -353,21 +364,7 @@ namespace Flame.Clr.Emit
                 });
             var exceptionThunkBody = exceptionArgs.Prepend(new CilMarkTargetInstruction(exceptionThunkTag));
 
-            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
-
-            // Insert a nop that clears the stack ('try' regions cannot be entered
-            // if the stack is nonempty).
-            chunks.Add(
-                SelectedInstructions.Create<CilCodegenInstruction>(
-                    EmptyArray<CilCodegenInstruction>.Value,
-                    EmptyArray<ValueTag>.Value));
-
-            // Now compose the final instruction stream.
-            chunks.Add(
-                SelectedInstructions.Create<CilCodegenInstruction>(
-                    EmptyArray<CilCodegenInstruction>.Value,
-                    riskyInstruction.Dependencies));
-            chunks.Add(SelectedInstructions.Create<CilCodegenInstruction>(tryCatchBlock));
+            // Emit the thunks.
             if (preferredFallthrough == flow.ExceptionBranch.Target)
             {
                 chunks.AddRange(successThunkBody.Chunks);
