@@ -21,7 +21,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction selector for CIL codegen instructions.
     /// </summary>
-    public sealed class CilInstructionSelector :
+    internal sealed class CilInstructionSelector :
         ILinearInstructionSelector<CilCodegenInstruction>,
         IStackInstructionSelector<CilCodegenInstruction>
     {
@@ -46,8 +46,6 @@ namespace Flame.Clr.Emit
             this.Method = method;
             this.TypeEnvironment = typeEnvironment;
             this.AllocaToVariableMapping = allocaToVariableMapping;
-            this.instructionOrder = new Dictionary<BasicBlockTag, LinkedList<ValueTag>>();
-            this.selectedInstructions = new HashSet<ValueTag>();
             this.tempDefs = new List<VariableDefinition>();
             this.freeTempsByType = new Dictionary<IType, HashSet<VariableDefinition>>();
             this.tempTypes = new Dictionary<VariableDefinition, IType>();
@@ -78,8 +76,6 @@ namespace Flame.Clr.Emit
         /// </summary>
         public IReadOnlyList<VariableDefinition> Temporaries => tempDefs;
 
-        private Dictionary<BasicBlockTag, LinkedList<ValueTag>> instructionOrder;
-        private HashSet<ValueTag> selectedInstructions;
         private List<VariableDefinition> tempDefs;
         private Dictionary<IType, HashSet<VariableDefinition>> freeTempsByType;
         private Dictionary<VariableDefinition, IType> tempTypes;
@@ -101,20 +97,10 @@ namespace Flame.Clr.Emit
                         results.Add(new CilStoreRegisterInstruction(tag));
                     }
                     results.Add(new CilMarkTargetInstruction(tempTag));
-                }
-                else
-                {
-                    results.Add(new CilMarkTargetInstruction(block.Tag));
+                    return results;
                 }
             }
-            else
-            {
-                results.Add(new CilMarkTargetInstruction(block.Tag));
-                foreach (var tag in block.ParameterTags.Reverse())
-                {
-                    results.Add(new CilStoreRegisterInstruction(tag));
-                }
-            }
+            results.Add(new CilMarkTargetInstruction(block.Tag));
             return results;
         }
 
@@ -128,7 +114,7 @@ namespace Flame.Clr.Emit
         }
 
         /// <inheritdoc/>
-        public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
+        public SelectedFlowInstructions<CilCodegenInstruction> SelectInstructions(
             BlockFlow flow,
             BasicBlockTag blockTag,
             FlowGraph graph,
@@ -138,18 +124,11 @@ namespace Flame.Clr.Emit
             if (flow is ReturnFlow)
             {
                 var retFlow = (ReturnFlow)flow;
-                var retValSelection = SelectInstructionsAndWrap(
-                    retFlow.ReturnValue,
-                    null,
-                    blockTag,
-                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
-                    graph);
-                var insns = new List<CilCodegenInstruction>(retValSelection.Instructions);
-                insns.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Ret)));
                 fallthrough = null;
-                return SelectedInstructions.Create(
-                    insns,
-                    retValSelection.Dependencies);
+                return SelectedFlowInstructions.Create(
+                    SelectInstructionsImpl(retFlow.ReturnValue, graph),
+                    SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilOpInstruction(CilInstruction.Create(OpCodes.Ret))));
             }
             else if (flow is UnreachableFlow)
             {
@@ -163,23 +142,15 @@ namespace Flame.Clr.Emit
                 // So, what we want is a short sequence of instructions that terminates
                 // control flow. `ldnull; throw` should do the trick.
                 fallthrough = null;
-                return SelectedInstructions.Create<CilCodegenInstruction>(
-                    new CilCodegenInstruction[]
-                    {
-                        new CilOpInstruction(OpCodes.Ldnull),
-                        new CilOpInstruction(OpCodes.Throw)
-                    },
-                    EmptyArray<ValueTag>.Value);
+                return SelectedFlowInstructions.Create<CilCodegenInstruction>(
+                    new CilOpInstruction(OpCodes.Ldnull),
+                    new CilOpInstruction(OpCodes.Throw));
             }
             else if (flow is JumpFlow)
             {
                 var branch = ((JumpFlow)flow).Branch;
                 fallthrough = branch.Target;
-                return SelectBranchArguments(
-                    branch,
-                    graph,
-                    blockTag,
-                    GetInstructionList(graph.GetBasicBlock(blockTag)).Last);
+                return SelectBranchArguments(branch);
             }
             else if (flow is SwitchFlow)
             {
@@ -221,7 +192,7 @@ namespace Flame.Clr.Emit
         /// if any.
         /// </param>
         /// <returns>Selected instructions for the 'try' flow.</returns>
-        private SelectedInstructions<CilCodegenInstruction> SelectForTryFlow(
+        private SelectedFlowInstructions<CilCodegenInstruction> SelectForTryFlow(
             TryFlow flow,
             BasicBlockTag blockTag,
             FlowGraph graph,
@@ -285,22 +256,17 @@ namespace Flame.Clr.Emit
 
             var successThunkTag = new BasicBlockTag("success_thunk");
             var exceptionThunkTag = new BasicBlockTag("exception_thunk");
-            var dependencies = new List<ValueTag>();
+
+            // Compose the flow codegen chunks.
+            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
+
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CilTryStartMarker.Instance));
 
             // Select CIL instructions for the 'risky' Flame IR instruction,
             // i.e., the instruction that might throw.
-            var riskyInstruction = SelectInstructionsAndWrap(
-                flow.Instruction,
-                null,
-                blockTag,
-                GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
-                graph,
-                GetArgumentValues(flow));
-
-            dependencies.AddRange(riskyInstruction.Dependencies);
-
-            // Compose the 'try' body.
-            var tryBody = new List<CilCodegenInstruction>(riskyInstruction.Instructions);
+            chunks.Add(SelectInstructionsImpl(flow.Instruction, graph));
 
             if (flow.Instruction.ResultType != TypeEnvironment.Void)
             {
@@ -312,49 +278,53 @@ namespace Flame.Clr.Emit
                     //
                     // This is an okay thing to do because the success branch is indeed
                     // allowed to write to the parameter.
-                    tryBody.Add(new CilStoreRegisterInstruction(resultParam));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilStoreRegisterInstruction(resultParam)));
                 }
                 else
                 {
                     // Pop unused result values.
-                    tryBody.Add(new CilOpInstruction(OpCodes.Pop));
+                    chunks.Add(CreateSelection(OpCodes.Pop));
                 }
             }
 
             // Generate the `leave success_thunk` instruction.
-            tryBody.Add(CreateBranchInstruction(OpCodes.Leave, successThunkTag));
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CreateBranchInstruction(OpCodes.Leave, successThunkTag)));
 
             // Compose the 'catch' body. Our main job here is to capture
             // the exception and send control to a thunk that implements
             // the exception branch.
-            var catchBody = new List<CilCodegenInstruction>();
+            var handler = new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Catch);
+            handler.CatchType = captureMethod == null
+                ? Method.Module.ImportReference(TypeEnvironment.Object)
+                : Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType);
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    new CilHandlerStartMarker(handler)));
             if (captureMethod != null)
             {
-                catchBody.Add(
-                    new CilOpInstruction(
-                        CilInstruction.Create(OpCodes.Call, captureMethod)));
-                catchBody.Add(new CilStoreRegisterInstruction(capturedExceptionParam));
+                chunks.Add(CreateSelection(CilInstruction.Create(OpCodes.Call, captureMethod)));
+                chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilStoreRegisterInstruction(capturedExceptionParam)));
             }
 
             // Generate the `leave exception_thunk` instruction.
-            catchBody.Add(CreateBranchInstruction(OpCodes.Leave, exceptionThunkTag));
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CreateBranchInstruction(OpCodes.Leave, exceptionThunkTag)));
 
-            // Construct the try/catch block.
-            var tryCatchBlock = new CilExceptionHandlerInstruction(
-                Mono.Cecil.Cil.ExceptionHandlerType.Catch,
-                captureMethod == null
-                    ? Method.Module.ImportReference(TypeEnvironment.Object)
-                    : Method.Module.ImportReference(captureMethod.Parameters[0].ParameterType),
-                tryBody,
-                catchBody);
+            chunks.Add(
+                SelectedInstructions.Create<CilCodegenInstruction>(
+                    CilHandlerEndMarker.Instance));
 
             // Generate the success thunk.
-            var successThunkBody = new List<CilCodegenInstruction>();
-            successThunkBody.Add(new CilMarkTargetInstruction(successThunkTag));
             var successArgs = SelectBranchArguments(
                 flow.SuccessBranch,
-                graph,
-                selectForNonValueArg: arg =>
+                arg =>
                 {
                     if (arg.IsTryResult)
                     {
@@ -374,16 +344,12 @@ namespace Flame.Clr.Emit
                             $"Illegal branch argument '{arg}' in success branch of try flow.");
                     }
                 });
-            successThunkBody.AddRange(successArgs.Instructions);
-            dependencies.AddRange(successArgs.Dependencies);
+            var successThunkBody = successArgs.Prepend(new CilMarkTargetInstruction(successThunkTag));
 
             // Generate the exception thunk.
-            var exceptionThunkBody = new List<CilCodegenInstruction>();
-            exceptionThunkBody.Add(new CilMarkTargetInstruction(exceptionThunkTag));
             var exceptionArgs = SelectBranchArguments(
                 flow.ExceptionBranch,
-                graph,
-                selectForNonValueArg: arg =>
+                arg =>
                 {
                     if (arg.IsTryException)
                     {
@@ -396,30 +362,29 @@ namespace Flame.Clr.Emit
                             $"Illegal branch argument '{arg}' in exception branch of try flow.");
                     }
                 });
-            exceptionThunkBody.AddRange(exceptionArgs.Instructions);
-            dependencies.AddRange(exceptionArgs.Dependencies);
+            var exceptionThunkBody = exceptionArgs.Prepend(new CilMarkTargetInstruction(exceptionThunkTag));
 
-            // Now compose the final instruction stream.
-            var selectedInsns = new List<CilCodegenInstruction>();
-            selectedInsns.Add(tryCatchBlock);
+            // Emit the thunks.
             if (preferredFallthrough == flow.ExceptionBranch.Target)
             {
-                selectedInsns.AddRange(successThunkBody);
-                selectedInsns.Add(CreateBranchInstruction(OpCodes.Br, flow.SuccessBranch.Target));
-                selectedInsns.AddRange(exceptionThunkBody);
+                chunks.AddRange(successThunkBody.Chunks);
+                chunks.Add(
+                    SelectedInstructions.Create<CilCodegenInstruction>(
+                        CreateBranchInstruction(OpCodes.Br, flow.SuccessBranch.Target)));
+                chunks.AddRange(exceptionThunkBody.Chunks);
                 fallthrough = flow.ExceptionBranch.Target;
             }
             else
             {
-                selectedInsns.AddRange(exceptionThunkBody);
-                selectedInsns.Add(CreateBranchInstruction(OpCodes.Br, flow.ExceptionBranch.Target));
-                selectedInsns.AddRange(successThunkBody);
+                chunks.AddRange(exceptionThunkBody.Chunks);
+                chunks.Add(
+                    SelectedInstructions.Create<CilCodegenInstruction>(
+                        CreateBranchInstruction(OpCodes.Br, flow.ExceptionBranch.Target)));
+                chunks.AddRange(successThunkBody.Chunks);
                 fallthrough = flow.SuccessBranch.Target;
             }
 
-            return new SelectedInstructions<CilCodegenInstruction>(
-                selectedInsns,
-                dependencies);
+            return SelectedFlowInstructions.Create<CilCodegenInstruction>(chunks);
         }
 
         /// <summary>
@@ -437,7 +402,7 @@ namespace Flame.Clr.Emit
                 .Select(arg => arg.ValueOrNull));
         }
 
-        private SelectedInstructions<CilCodegenInstruction> SelectForSwitchFlow(
+        private SelectedFlowInstructions<CilCodegenInstruction> SelectForSwitchFlow(
             SwitchFlow flow,
             BasicBlockTag blockTag,
             FlowGraph graph,
@@ -446,16 +411,10 @@ namespace Flame.Clr.Emit
         {
             var switchFlow = (SwitchFlow)flow;
 
-            var switchArgSelection = SelectInstructionsAndWrap(
-                switchFlow.SwitchValue,
-                null,
-                blockTag,
-                GetInstructionList(graph.GetBasicBlock(blockTag)).Last,
-                graph,
-                GetArgumentValues(switchFlow));
+            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
 
-            var instructions = new List<CilCodegenInstruction>(switchArgSelection.Instructions);
-            var dependencies = new List<ValueTag>(switchArgSelection.Dependencies);
+            // Select instructions for the switch value.
+            chunks.Add(SelectInstructionsImpl(switchFlow.SwitchValue, graph));
 
             if (switchFlow.IsIfElseFlow)
             {
@@ -465,37 +424,39 @@ namespace Flame.Clr.Emit
                 var elseBranch = switchFlow.DefaultBranch;
 
                 // Emit the value to compare the condition to.
-                instructions.AddRange(
-                    CreatePushConstant(ifValue, switchFlow.SwitchValue.ResultType)
-                    .Select(insn => new CilOpInstruction(insn)));
+                chunks.Add(
+                    SelectedInstructions.Create<CilCodegenInstruction>(
+                        CreatePushConstant(ifValue, switchFlow.SwitchValue.ResultType)
+                        .Select(insn => new CilOpInstruction(insn))
+                        .ToArray<CilCodegenInstruction>()));
 
                 if (ifBranch.Arguments.Count == 0)
                 {
                     // If the 'if' branch does not take any arguments, then we can use a
                     // simple construction: branch directly to the 'if' target if the condition
                     // equals the value we just emitted.
-                    instructions.Add(CreateBranchInstruction(OpCodes.Beq, ifBranch.Target));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            CreateBranchInstruction(OpCodes.Beq, ifBranch.Target)));
 
                     // Emit branch arguments and make the 'else' branch target the fallthrough block.
-                    var elseArgs = SelectBranchArguments(elseBranch, graph);
-                    instructions.AddRange(elseArgs.Instructions);
-                    dependencies.AddRange(elseArgs.Dependencies);
+                    chunks.AddRange(SelectBranchArguments(elseBranch).Chunks);
                     fallthrough = elseBranch.Target;
-                    return SelectedInstructions.Create(instructions, dependencies);
+                    return SelectedFlowInstructions.Create<CilCodegenInstruction>(chunks);
                 }
                 else if (elseBranch.Arguments.Count == 0)
                 {
                     // Similarly, if the 'else' branch does not take any arguments, then
                     // we can branch directly to the 'else' branch if the condition does not
                     // equal the value on top of the stack.
-                    instructions.Add(CreateBranchInstruction(OpCodes.Bne_Un, elseBranch.Target));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            CreateBranchInstruction(OpCodes.Bne_Un, elseBranch.Target)));
 
                     // Emit branch arguments and make the 'if' branch target the fallthrough block.
-                    var ifArgs = SelectBranchArguments(ifBranch, graph);
-                    instructions.AddRange(ifArgs.Instructions);
-                    dependencies.AddRange(ifArgs.Dependencies);
+                    chunks.AddRange(SelectBranchArguments(ifBranch).Chunks);
                     fallthrough = ifBranch.Target;
-                    return SelectedInstructions.Create(instructions, dependencies);
+                    return SelectedFlowInstructions.Create<CilCodegenInstruction>(chunks);
                 }
                 else
                 {
@@ -506,21 +467,24 @@ namespace Flame.Clr.Emit
 
                     // Branch to the 'if' thunk if the condition value equals the top-of-stack
                     // value we just pushed.
-                    instructions.Add(CreateBranchInstruction(OpCodes.Bne_Un, elseThunk));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            CreateBranchInstruction(OpCodes.Bne_Un, elseThunk)));
 
                     // Emit the 'if' branch.
-                    var ifArgs = SelectBranchArguments(ifBranch, graph);
-                    instructions.AddRange(ifArgs.Instructions);
-                    dependencies.AddRange(ifArgs.Dependencies);
-                    instructions.Add(CreateBranchInstruction(OpCodes.Br, ifBranch.Target));
+                    chunks.AddRange(SelectBranchArguments(ifBranch).Chunks);
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            CreateBranchInstruction(OpCodes.Br, ifBranch.Target)));
 
                     // Emit the 'else' thunk and make the 'else' branch target the fallthrough block.
-                    instructions.Add(new CilMarkTargetInstruction(elseThunk));
-                    var elseArgs = SelectBranchArguments(elseBranch, graph);
-                    instructions.AddRange(elseArgs.Instructions);
-                    dependencies.AddRange(elseArgs.Dependencies);
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilMarkTargetInstruction(elseThunk)));
+
+                    chunks.AddRange(SelectBranchArguments(elseBranch).Chunks);
                     fallthrough = elseBranch.Target;
-                    return SelectedInstructions.Create(instructions, dependencies);
+                    return SelectedFlowInstructions.Create<CilCodegenInstruction>(chunks);
                 }
             }
             else if (flow.IsJumpTable)
@@ -570,31 +534,33 @@ namespace Flame.Clr.Emit
                 // Tweak the value being switched on if necessary.
                 if (!minValue.IsZero)
                 {
-                    instructions.AddRange(
-                        CreatePushConstant(minValue, switchFlow.SwitchValue.ResultType)
-                        .Select(insn => new CilOpInstruction(insn)));
-                    instructions.Add(new CilOpInstruction(OpCodes.Sub));
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            CreatePushConstant(minValue, switchFlow.SwitchValue.ResultType)
+                            .Select(insn => new CilOpInstruction(insn))
+                            .ToArray<CilCodegenInstruction>()));
+
+                    chunks.Add(CreateSelection(OpCodes.Sub));
                 }
 
                 // Generate the actual switch instruction.
-                instructions.Add(
-                    new CilOpInstruction(
-                        CilInstruction.Create(OpCodes.Switch, new CilInstruction[0]),
-                        (insn, branchTargets) =>
-                            insn.Operand = targetList.Select(target => branchTargets[target]).ToArray()));
+                chunks.Add(
+                    SelectedInstructions.Create<CilCodegenInstruction>(
+                        new CilOpInstruction(
+                            CilInstruction.Create(OpCodes.Switch, new CilInstruction[0]),
+                            (insn, branchTargets) =>
+                                insn.Operand = targetList.Select(target => branchTargets[target]).ToArray())));
 
                 // Select branch arguments if the default branch has any.
                 if (defaultHasArguments)
                 {
-                    instructions.Add(new CilMarkTargetInstruction(defaultTarget));
-                    var defaultBranchSelection = SelectBranchArguments(
-                        switchFlow.DefaultBranch,
-                        graph);
-                    instructions.AddRange(defaultBranchSelection.Instructions);
-                    dependencies.AddRange(defaultBranchSelection.Dependencies);
+                    chunks.Add(
+                        SelectedInstructions.Create<CilCodegenInstruction>(
+                            new CilMarkTargetInstruction(defaultTarget)));
+                    chunks.AddRange(SelectBranchArguments(switchFlow.DefaultBranch).Chunks);
                 }
                 fallthrough = switchFlow.DefaultBranch.Target;
-                return SelectedInstructions.Create(instructions, dependencies);
+                return SelectedFlowInstructions.Create<CilCodegenInstruction>(chunks);
             }
             else
             {
@@ -605,20 +571,10 @@ namespace Flame.Clr.Emit
         }
 
         /// <summary>
-        /// Selects instructions for a branch argument.
+        /// Selects instructions for a branch's argument list.
         /// </summary>
         /// <param name="branch">
         /// The branch whose arguments are selected for.
-        /// </param>
-        /// <param name="graph">
-        /// The graph that contains the branch.
-        /// </param>
-        /// <param name="blockTag">
-        /// The tag of the block that defines the branch.
-        /// </param>
-        /// <param name="insertionPoint">
-        /// The index at which instructions are inserted into the
-        /// defining basic block's instruction list.
         /// </param>
         /// <param name="selectForNonValueArg">
         /// An optional function that selects instructions for non-value
@@ -627,57 +583,51 @@ namespace Flame.Clr.Emit
         /// <returns>
         /// Selected instructions for all branch arguments.
         /// </returns>
-        private SelectedInstructions<CilCodegenInstruction> SelectBranchArguments(
+        private SelectedFlowInstructions<CilCodegenInstruction> SelectBranchArguments(
             Branch branch,
-            FlowGraph graph,
-            BasicBlockTag blockTag = null,
-            LinkedListNode<ValueTag> insertionPoint = null,
             Func<BranchArgument, SelectedInstructions<CilCodegenInstruction>> selectForNonValueArg = null)
         {
-            var instructions = new List<CilCodegenInstruction>();
-            var dependencies = new HashSet<ValueTag>();
+            var chunks = new List<SelectedInstructions<CilCodegenInstruction>>();
+            var dependencies = new List<ValueTag>();
             foreach (var arg in branch.Arguments)
             {
-                SelectedInstructions<CilCodegenInstruction> insnSelection;
                 if (arg.IsValue)
                 {
-                    var argInsn = Instruction.CreateCopy(
-                        graph.GetValueType(arg.ValueOrNull),
-                        arg.ValueOrNull);
-
-                    insnSelection = SelectInstructionsAndWrap(argInsn, null, blockTag, insertionPoint, graph);
+                    dependencies.Add(arg.ValueOrNull);
                 }
                 else if (selectForNonValueArg == null)
                 {
                     throw new NotSupportedException(
-                        $"Non-value argument '{arg}' is not supported here.");
+                        $"Non-value argument '{arg}' is used in block flow that doesn't support it.");
                 }
                 else
                 {
-                    insnSelection = selectForNonValueArg(arg);
-                }
+                    if (dependencies.Count > 0)
+                    {
+                        chunks.Add(
+                            SelectedInstructions.Create(
+                                EmptyArray<CilCodegenInstruction>.Value,
+                                dependencies));
+                        dependencies = new List<ValueTag>();
+                    }
 
-                instructions.AddRange(insnSelection.Instructions);
-                dependencies.UnionWith(insnSelection.Dependencies);
+                    chunks.Add(selectForNonValueArg(arg));
+                }
             }
-            return SelectedInstructions.Create<CilCodegenInstruction>(
-                instructions,
-                dependencies.ToArray());
+            if (dependencies.Count > 0)
+            {
+                chunks.Add(
+                    SelectedInstructions.Create(
+                        EmptyArray<CilCodegenInstruction>.Value,
+                        dependencies));
+            }
+            return new SelectedFlowInstructions<CilCodegenInstruction>(chunks);
         }
 
         /// <inheritdoc/>
         public SelectedInstructions<CilCodegenInstruction> SelectInstructions(
             NamedInstruction instruction)
         {
-            if (!selectedInstructions.Add(instruction.Tag))
-            {
-                // Never ever re-select instructions that have already
-                // been selected inline.
-                return new SelectedInstructions<CilCodegenInstruction>(
-                    EmptyArray<CilCodegenInstruction>.Value,
-                    EmptyArray<ValueTag>.Value);
-            }
-
             VariableDefinition allocaVarDef;
             if (AllocaToVariableMapping.TryGetValue(instruction.Tag, out allocaVarDef))
             {
@@ -685,7 +635,8 @@ namespace Flame.Clr.Emit
             }
             else if (IsDefaultConstant(instruction.Instruction))
             {
-                // 'Default' constants are special.
+                // 'Default' constants are special. We put their results directly
+                // in the appropriate register.
                 var resultType = instruction.Instruction.ResultType;
                 if (resultType.Equals(TypeEnvironment.Void))
                 {
@@ -710,13 +661,10 @@ namespace Flame.Clr.Emit
             }
             else
             {
-                var block = instruction.Block;
-                return SelectInstructionsAndWrap(
-                    instruction.Instruction,
-                    instruction.Tag,
-                    block.Tag,
-                    GetInstructionNode(instruction.Tag, block.Graph),
-                    block.Graph);
+                var graph = instruction.Block.Graph;
+                var uses = graph.GetAnalysisResult<ValueUses>();
+                var isDiscarded = uses.GetUseCount(instruction) == 0;
+                return SelectInstructionsImpl(instruction.Instruction, graph, isDiscarded);
             }
         }
 
@@ -745,7 +693,7 @@ namespace Flame.Clr.Emit
         private SelectedInstructions<CilCodegenInstruction> SelectInstructionsImpl(
             Instruction instruction,
             FlowGraph graph,
-            bool discardResult)
+            bool discardResult = false)
         {
             var proto = instruction.Prototype;
             if (proto is ConstantPrototype)
@@ -1654,7 +1602,8 @@ namespace Flame.Clr.Emit
         /// <inheritdoc/>
         public bool Pushes(InstructionPrototype prototype)
         {
-            return prototype.ResultType != TypeEnvironment.Void;
+            return prototype.ResultType != TypeEnvironment.Void
+                && !IsDefaultConstant(prototype);
         }
 
         /// <inheritdoc/>
@@ -1664,6 +1613,16 @@ namespace Flame.Clr.Emit
             {
                 new CilOpInstruction(OpCodes.Pop)
             };
+        }
+
+        /// <inheritdoc/>
+        public bool TryCreateDup(IType type, out IReadOnlyList<CilCodegenInstruction> dup)
+        {
+            dup = new CilCodegenInstruction[]
+            {
+                new CilOpInstruction(OpCodes.Dup)
+            };
+            return true;
         }
 
         /// <inheritdoc/>
@@ -1777,165 +1736,6 @@ namespace Flame.Clr.Emit
             { IntegerSpec.UInt32, OpCodes.Stelem_I4 },
             { IntegerSpec.UInt64, OpCodes.Stelem_I8 }
         };
-
-        /// <summary>
-        /// Selects CIL instructions for a particular Flame IR instruction,
-        /// prepends dependency-loading instructions and appends a result-storing
-        /// instruction if the result is non-void and the instruction has a non-null
-        /// tag.
-        /// </summary>
-        /// <param name="instruction">
-        /// The Flame IR instruction to select instructions for.
-        /// </param>
-        /// <param name="instructionTag">
-        /// The tag assigned to <paramref name="instruction"/>.
-        /// </param>
-        /// <param name="blockTag">
-        /// The tag of the block that defines <paramref name="instruction"/>.
-        /// </param>
-        /// <param name="insertionPoint">
-        /// The index at which the instruction is inserted in the
-        /// defining basic block's instruction list.
-        /// </param>
-        /// <param name="graph">
-        /// The graph that defines the basic block and the instruction.
-        /// </param>
-        /// <param name="uninlineableValues">
-        /// An optional hash set of uninlineable values: these values
-        /// will never be loaded inline if they are used as dependencies.
-        /// </param>
-        /// <returns>
-        /// CIL instructions that implement <paramref name="instruction"/>,
-        /// sandwiched between dependency-loading instructions and a result-storing
-        /// instruction. The result-storing instruction is elided if either
-        /// the instruction produces a <c>void</c> result (in which case there
-        /// is no result to store) or if <paramref name="instructionTag"/> is <c>null</c>
-        /// (in which case the result is left on the stack if there is a result).
-        /// </returns>
-        private SelectedInstructions<CilCodegenInstruction> SelectInstructionsAndWrap(
-            Instruction instruction,
-            ValueTag instructionTag,
-            BasicBlockTag blockTag,
-            LinkedListNode<ValueTag> insertionPoint,
-            FlowGraph graph,
-            HashSet<ValueTag> uninlineableValues = null)
-        {
-            var wrapper = new InstructionWrapper(
-                this,
-                instruction,
-                instructionTag,
-                blockTag,
-                insertionPoint,
-                graph,
-                uninlineableValues ?? new HashSet<ValueTag>());
-
-            return wrapper.SelectAndWrap();
-        }
-
-        /// <summary>
-        /// Tries to move an instruction from its
-        /// current location to just before another instruction.
-        /// </summary>
-        /// <param name="instruction">
-        /// The instruction to try and move.
-        /// </param>
-        /// <param name="insertionPoint">
-        /// An instruction to which the instruction should
-        /// be moved. It must be defined in the same basic
-        /// block as <paramref name="instruction"/>.
-        /// </param>
-        /// <param name="graph">
-        /// The graph that defines both instructions.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if <paramref name="instruction"/> was
-        /// successfully reordered; otherwise, <c>false</c>.
-        /// </returns>
-        private bool TryReorder(
-            ValueTag instruction,
-            LinkedListNode<ValueTag> insertionPoint,
-            FlowGraph graph)
-        {
-            if (selectedInstructions.Contains(instruction))
-            {
-                // Never ever allow selected instructions to be "reordered."
-                // They have already been selected so any "reordering" is
-                // bound to be a form of duplication.
-                return false;
-            }
-
-            // Grab the ordering to which we should adhere.
-            var ordering = graph.GetAnalysisResult<InstructionOrdering>();
-
-            // Start at the linked list node belonging to the instruction
-            // to move and work our way toward the insertion point.
-            // Check the must-run-before relation as we traverse the list.
-            var instructionNode = GetInstructionNode(instruction, graph);
-            var currentNode = instructionNode;
-            while (currentNode != insertionPoint)
-            {
-                if (ordering.MustRunBefore(instruction, currentNode.Value))
-                {
-                    // Aw snap, we encountered a dependency.
-                    // Time to abandon ship.
-                    return false;
-                }
-
-                currentNode = currentNode.Next;
-            }
-
-            // Looks like we can reorder the instruction!
-            if (insertionPoint != instructionNode)
-            {
-                insertionPoint.List.Remove(instructionNode);
-                insertionPoint.List.AddBefore(insertionPoint, instructionNode);
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Gets the linked list node of an instruction in
-        /// the instruction list of the instruction's block.
-        /// </summary>
-        /// <param name="instruction">
-        /// The tag of the instruction whose node should be found.
-        /// </param>
-        /// <param name="graph">
-        /// The graph that defines the instruction.
-        /// </param>
-        /// <returns>
-        /// A linked list node.
-        /// </returns>
-        private LinkedListNode<ValueTag> GetInstructionNode(
-            ValueTag instruction,
-            FlowGraph graph)
-        {
-            var block = graph.GetInstruction(instruction).Block;
-            return GetInstructionList(block).Find(instruction);
-        }
-
-        /// <summary>
-        /// Gets the linked list of (reordered) instructions
-        /// in a basic block.
-        /// </summary>
-        /// <param name="block">
-        /// The block to find a list of (reordered) instructions for.
-        /// </param>
-        /// <returns>
-        /// A linked list of value tags referring to instructions.
-        /// </returns>
-        private LinkedList<ValueTag> GetInstructionList(
-            BasicBlock block)
-        {
-            LinkedList<ValueTag> blockInstructionList;
-            if (!instructionOrder.TryGetValue(block.Tag, out blockInstructionList))
-            {
-                blockInstructionList = new LinkedList<ValueTag>(block.InstructionTags);
-                blockInstructionList.AddLast(new LinkedListNode<ValueTag>(null));
-                instructionOrder[block.Tag] = blockInstructionList;
-            }
-            return blockInstructionList;
-        }
 
         private IReadOnlyList<CilInstruction> CreatePushConstant(
             Constant constant,
@@ -2058,6 +1858,13 @@ namespace Flame.Clr.Emit
             return CreateSelection(CilInstruction.Create(instruction), dependencies);
         }
 
+        private static SelectedInstructions<CilCodegenInstruction> CreateSelection(
+            OpCode instruction,
+            params ValueTag[] dependencies)
+        {
+            return CreateSelection(CilInstruction.Create(instruction), dependencies);
+        }
+
         private static SelectedInstructions<CilCodegenInstruction> CreateNopSelection(
             IReadOnlyList<ValueTag> dependencies)
         {
@@ -2126,202 +1933,15 @@ namespace Flame.Clr.Emit
             }
         }
 
-        /// <summary>
-        /// A data structure that helps with wrapping selected instructions.
-        /// </summary>
-        private struct InstructionWrapper
+        private static bool IsDefaultConstant(InstructionPrototype prototype)
         {
-            public InstructionWrapper(
-                CilInstructionSelector instructionSelector,
-                Instruction instruction,
-                ValueTag instructionTag,
-                BasicBlockTag blockTag,
-                LinkedListNode<ValueTag> insertionPoint,
-                FlowGraph graph,
-                HashSet<ValueTag> uninlineableValues)
-            {
-                this.InstructionSelector = instructionSelector;
-                this.instruction = instruction;
-                this.instructionTag = instructionTag;
-                this.blockTag = blockTag;
-                this.insertionPoint = insertionPoint;
-                this.graph = graph;
-                this.uninlineableValues = uninlineableValues;
-                this.dependencyWorklist = null;
-                this.dependencyArities = null;
-                this.updatedInsns = null;
-                this.updatedDependencies = null;
-                this.uses = graph.GetAnalysisResult<ValueUses>();
-            }
-
-            public CilInstructionSelector InstructionSelector { get; private set; }
-
-            private Instruction instruction;
-            private ValueTag instructionTag;
-            private BasicBlockTag blockTag;
-            private LinkedListNode<ValueTag> insertionPoint;
-            private FlowGraph graph;
-            private HashSet<ValueTag> uninlineableValues;
-            private Stack<ValueTag> dependencyWorklist;
-            private Dictionary<ValueTag, int> dependencyArities;
-            private ValueUses uses;
-            private List<CilCodegenInstruction> updatedInsns;
-            private List<ValueTag> updatedDependencies;
-
-            /// <summary>
-            /// Selects instructions and wraps them in dependency-loading +
-            /// result-saving instructions.
-            /// </summary>
-            /// <returns>Selected and wrapped instructions.</returns>
-            public SelectedInstructions<CilCodegenInstruction> SelectAndWrap()
-            {
-                var impl = InstructionSelector.SelectInstructionsImpl(
-                    instruction,
-                    graph,
-                    instructionTag == null ? false : uses.GetUseCount(instructionTag) == 0);
-
-                updatedInsns = new List<CilCodegenInstruction>();
-                updatedDependencies = new List<ValueTag>();
-
-                // Load or select each dependency.
-                dependencyWorklist = new Stack<ValueTag>(impl.Dependencies);
-                dependencyArities = impl.Dependencies
-                    .GroupBy(tag => tag)
-                    .ToDictionary(group => group.Key, group => group.Count());
-
-                while (dependencyWorklist.Count > 0)
-                {
-                    LoadDependency(dependencyWorklist.Pop());
-                }
-                updatedInsns.Reverse();
-                updatedDependencies.Reverse();
-
-                // Actually run the instructions.
-                updatedInsns.AddRange(impl.Instructions);
-
-                // Store the result if it's not a `void` value.
-                if (instruction.ResultType != InstructionSelector.TypeEnvironment.Void
-                    && instructionTag != null)
-                {
-                    updatedInsns.Add(new CilStoreRegisterInstruction(instructionTag));
-                }
-                return SelectedInstructions.Create(updatedInsns, updatedDependencies);
-            }
-
-            private void LoadDependency(ValueTag dependency)
-            {
-                VariableDefinition allocaVarDef;
-                if (InstructionSelector.AllocaToVariableMapping.TryGetValue(dependency, out allocaVarDef))
-                {
-                    // Replace references to `alloca` instructions that use
-                    // local variables as backing storage with `ldloca` opcodes.
-                    updatedInsns.Add(
-                        new CilOpInstruction(
-                            CilInstruction.Create(OpCodes.Ldloca,
-                            allocaVarDef)));
-                    return;
-                }
-
-                if (graph.ContainsInstruction(dependency))
-                {
-                    var dependencyImpl = graph.GetInstruction(dependency);
-                    if (IsDefaultConstant(dependencyImpl.Instruction))
-                    {
-                        // Fall through to the default implementation.
-                    }
-                    else if (ShouldAlwaysInlineInstruction(dependencyImpl.Instruction))
-                    {
-                        // Some instructions should always be selected inline.
-                        SelectDependencyInline(dependencyImpl);
-                        return;
-                    }
-                    else if (insertionPoint != null
-                        && uses.GetUseCount(dependency) == 1
-                        && dependencyArities[dependency] == 1
-                        && blockTag == dependencyImpl.Block.Tag
-                        && !uninlineableValues.Contains(dependency)
-                        && InstructionSelector.TryReorder(dependency, insertionPoint, graph))
-                    {
-                        // Selecting instructions inline allows us to keep values
-                        // on the stack instead of pushing them into variables.
-                        //
-                        // However, we need to be really careful when doing so
-                        // because it's easy to accidentally reorder instructions
-                        // in a way that produces a non-equivalent program.
-                        //
-                        // These are the rules we'll adhere to:
-                        //
-                        //   1. Only same-block instructions that are used exactly
-                        //      once are candidates for inline selection.
-                        //
-                        //   2. An instruction can only be selected inline if doing
-                        //      so respects the must-run-before relation on instructions.
-                        //      Specifically, a dependency can only be selected inline
-                        //      if there is no instruction between the dependent instruction
-                        //      and the new insertion point such that the dependency
-                        //      must run before that instruction.
-                        //
-                        // We got this far, which means that the conditions above hold for
-                        // the dependency. We can (actually, we kind of have to now) select
-                        // the dependency inline.
-
-                        SelectDependencyInline(dependencyImpl);
-                        insertionPoint = insertionPoint.Previous;
-                        return;
-                    }
-                }
-
-                // If all else fails, just insert a `load` instruction.
-                if (graph.GetValueType(dependency) != InstructionSelector.TypeEnvironment.Void)
-                {
-                    updatedInsns.Add(new CilLoadRegisterInstruction(dependency));
-                }
-                updatedDependencies.Add(dependency);
-            }
-
-            /// <summary>
-            /// Selects instructions that compute a dependency inline.
-            /// </summary>
-            /// <param name="dependency">The dependency to select instructions for.</param>
-            private void SelectDependencyInline(NamedInstruction dependency)
-            {
-                // Select instructions for the dependency.
-                var dependencySelection = InstructionSelector.SelectInstructionsImpl(
-                    dependency.Instruction,
-                    graph,
-                    false);
-
-                // Note that the dependency has been selected inline.
-                InstructionSelector.selectedInstructions.Add(dependency.Tag);
-
-                // Add the dependency's instructions to the list of instructions.
-                updatedInsns.AddRange(dependencySelection.Instructions.Reverse());
-
-                // Load the dependency's dependencies.
-                foreach (var subdependency in dependencySelection.Dependencies)
-                {
-                    dependencyWorklist.Push(subdependency);
-                    int arity;
-                    if (!dependencyArities.TryGetValue(subdependency, out arity))
-                    {
-                        arity = 0;
-                    }
-                    arity++;
-                    dependencyArities[subdependency] = arity;
-                }
-            }
-
-            private static bool ShouldAlwaysInlineInstruction(Instruction instruction)
-            {
-                var proto = instruction.Prototype as ConstantPrototype;
-                return proto != null && proto.Value != DefaultConstant.Instance;
-            }
+            var proto = prototype as ConstantPrototype;
+            return proto != null && proto.Value == DefaultConstant.Instance;
         }
 
         private static bool IsDefaultConstant(Instruction instruction)
         {
-            var proto = instruction.Prototype as ConstantPrototype;
-            return proto != null && proto.Value == DefaultConstant.Instance;
+            return IsDefaultConstant(instruction.Prototype);
         }
 
         private static bool IsDefaultConstant(ValueTag value, FlowGraph graph)

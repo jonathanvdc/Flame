@@ -11,7 +11,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// A register allocator for the CIL backend.
     /// </summary>
-    public sealed class CilRegisterAllocator : GreedyRegisterAllocator<CilCodegenRegister>
+    internal sealed class CilRegisterAllocator : GreedyRegisterAllocator<CilCodegenRegister>
     {
         /// <summary>
         /// Creates a CIL register allocator that will only allocate

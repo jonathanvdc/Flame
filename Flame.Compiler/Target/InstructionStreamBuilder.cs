@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using Flame.Collections;
 using Flame.Compiler.Analysis;
 
 namespace Flame.Compiler.Target
@@ -123,7 +125,7 @@ namespace Flame.Compiler.Target
             // Select target-specific instructions for reachable block flows.
             // Also order the basic blocks.
             var flowLayout = new List<BasicBlockTag>();
-            var flowSelection = new Dictionary<BasicBlockTag, SelectedInstructions<TInstruction>>();
+            var flowSelection = new Dictionary<BasicBlockTag, SelectedFlowInstructions<TInstruction>>();
             var flowWorklist = new Stack<BasicBlockTag>();
             flowWorklist.Push(graph.EntryPointTag);
             while (flowWorklist.Count > 0)
@@ -138,7 +140,7 @@ namespace Flame.Compiler.Target
                 // Assign a dummy value (null) to the block tag so we don't fool
                 // ourselves into thinking that the block isn't being processed
                 // yet.
-                flowSelection[tag] = default(SelectedInstructions<TInstruction>);
+                flowSelection[tag] = default(SelectedFlowInstructions<TInstruction>);
 
                 // Add the block to the flow layout.
                 flowLayout.Add(tag);
@@ -240,7 +242,7 @@ namespace Flame.Compiler.Target
         private IReadOnlyList<TInstruction> ToInstructionStream(
             IEnumerable<BasicBlock> layout,
             IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            IReadOnlyDictionary<BasicBlockTag, SelectedInstructions<TInstruction>> flow)
+            IReadOnlyDictionary<BasicBlockTag, SelectedFlowInstructions<TInstruction>> flow)
         {
             var instructionStream = new List<TInstruction>();
             foreach (var block in layout)
@@ -271,7 +273,7 @@ namespace Flame.Compiler.Target
         protected virtual IReadOnlyList<TInstruction> ToInstructionStream(
             BasicBlock block,
             IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            SelectedInstructions<TInstruction> flow)
+            SelectedFlowInstructions<TInstruction> flow)
         {
             var instructionStream = new List<TInstruction>();
             foreach (var insnTag in block.InstructionTags)
@@ -282,188 +284,11 @@ namespace Flame.Compiler.Target
                     instructionStream.AddRange(selection.Instructions);
                 }
             }
-            instructionStream.AddRange(flow.Instructions);
+            foreach (var chunk in flow.Chunks)
+            {
+                instructionStream.AddRange(chunk.Instructions);
+            }
             return instructionStream;
-        }
-    }
-
-    /// <summary>
-    /// An instruction stream builder that manages data transfer using a combination of
-    /// stack slots and explicit register loads/stores, as commonly offered by stack
-    /// machines.
-    /// </summary>
-    /// <typeparam name="TInstruction">The type of instruction to generate.</typeparam>
-    public class StackInstructionStreamBuilder<TInstruction> : InstructionStreamBuilder<TInstruction>
-    {
-        /// <summary>
-        /// Creates a stack machine instruction stream builder.
-        /// </summary>
-        /// <param name="instructionSelector">
-        /// The instruction selector to use. This instruction selector must
-        /// also be a stack instruction selector.
-        /// </param>
-        protected StackInstructionStreamBuilder(
-            ILinearInstructionSelector<TInstruction> instructionSelector)
-            : base(instructionSelector)
-        { }
-
-        /// <summary>
-        /// Creates a linear instruction stream builder.
-        /// </summary>
-        /// <param name="instructionSelector">
-        /// The instruction selector to use.
-        /// </param>
-        public static new StackInstructionStreamBuilder<TInstruction> Create<TSelector>(
-            TSelector instructionSelector)
-            where TSelector : ILinearInstructionSelector<TInstruction>, IStackInstructionSelector<TInstruction>
-        {
-            return new StackInstructionStreamBuilder<TInstruction>(instructionSelector);
-        }
-
-        private IStackInstructionSelector<TInstruction> StackSelector =>
-            (IStackInstructionSelector<TInstruction>)InstructionSelector;
-
-        /// <summary>
-        /// Gets the contents of the evaluation stack just before a basic block's
-        /// first instruction is executed.
-        /// </summary>
-        /// <param name="block">The basic block to inspect.</param>
-        /// <returns>A sequence of values that represent the contents of the stack.</returns>
-        protected virtual IEnumerable<ValueTag> GetStackContentsOnEntry(BasicBlock block)
-        {
-            return Enumerable.Empty<ValueTag>();
-        }
-
-        /// <inheritdoc/>
-        protected override IReadOnlyList<TInstruction> ToInstructionStream(
-            BasicBlock block,
-            IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>> instructions,
-            SelectedInstructions<TInstruction> flow)
-        {
-            var uses = block.Graph.GetAnalysisResult<ValueUses>();
-
-            // We will maintain an evaluation stack as we generate instructions
-            // for the basic block.
-            var evalStack = new Stack<ValueTag>(GetStackContentsOnEntry(block));
-
-            // We will maintain a linked list of sequences of selected instructions.
-            // The idea behind this data structure is that we'll be able to insert
-            // instructions later.
-            var instructionBlobs = new LinkedList<IReadOnlyList<TInstruction>>();
-
-            // Create a mapping of values to linked list nodes after which we may
-            // spill those values. These "spill points" are the earliest opportunity
-            // at which these values may be spilled or popped.
-            var spillPoints = new Dictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>>();
-
-            foreach (var insnTag in block.InstructionTags)
-            {
-                SelectedInstructions<TInstruction> selection;
-                if (instructions.TryGetValue(insnTag, out selection))
-                {
-                    // Line up arguments.
-                    PrepareArguments(selection.Dependencies, evalStack, instructionBlobs, spillPoints, block.Graph);
-
-                    // Emit the instruction's implementation.
-                    instructionBlobs.AddLast(selection.Instructions);
-
-                    // Push the result on the stack, if there is a result.
-                    var insn = block.Graph.GetInstruction(insnTag);
-                    if (StackSelector.Pushes(insn.Prototype))
-                    {
-                        if (uses.IsUsedOutsideOf(insnTag, block))
-                        {
-                            // We need to spill this value.
-                            instructionBlobs.AddLast(
-                                StackSelector.CreateStoreRegister(
-                                    insnTag,
-                                    insn.ResultType));
-                        }
-                        else
-                        {
-                            // Otherwise, we'll put it on the stack. We also want to set up a
-                            // spill point so this value can be spilled efficiently if need be.
-                            evalStack.Push(insnTag);
-                            spillPoints[insnTag] = instructionBlobs.Last;
-                        }
-                    }
-                }
-            }
-
-            // Prepare arguments for the block's outgoing flow.
-            PrepareArguments(flow.Dependencies, evalStack, instructionBlobs, spillPoints, block.Graph);
-
-            // Spill everything else that's still on the stack.
-            while (evalStack.Count > 0)
-            {
-                var stackValue = evalStack.Pop();
-                instructionBlobs.AddAfter(
-                    spillPoints[stackValue],
-                    StackSelector.CreateStoreRegister(
-                        stackValue,
-                        block.Graph.GetValueType(stackValue)));
-            }
-
-            // Append the block's outgoing flow instructions.
-            instructionBlobs.AddLast(flow.Instructions);
-            return instructionBlobs.SelectMany(list => list).ToArray();
-        }
-
-        private void PrepareArguments(
-            IReadOnlyList<ValueTag> dependencies,
-            Stack<ValueTag> evalStack,
-            LinkedList<IReadOnlyList<TInstruction>> instructionBlobs,
-            IReadOnlyDictionary<ValueTag, LinkedListNode<IReadOnlyList<TInstruction>>> spillPoints,
-            FlowGraph graph)
-        {
-            foreach (var dependency in dependencies.Reverse())
-            {
-                if (evalStack.Contains(dependency))
-                {
-                    if (evalStack.Peek() == dependency)
-                    {
-                        // We already have this argument right where we want it.
-                        evalStack.Pop();
-                        continue;
-                    }
-                    else
-                    {
-                        // The argument is on the stack but not in the place where
-                        // we want it. We can do one of two things.
-                        //   1. Spill stack values until the value appears right where
-                        //      we want it.
-                        //   2. Spill the value itself, leaving the rest of the stack
-                        //      alone. We then load the value.
-                        //
-                        // For now, we'll just always go with option two.
-
-                        // Spill the value.
-                        instructionBlobs.AddAfter(
-                            spillPoints[dependency],
-                            StackSelector.CreateStoreRegister(
-                                dependency,
-                                graph.GetValueType(dependency)));
-
-                        // Remove it from the stack.
-                        var tempStack = new Stack<ValueTag>();
-                        while (evalStack.Peek() != dependency)
-                        {
-                            tempStack.Push(evalStack.Pop());
-                        }
-                        evalStack.Pop();
-                        while (tempStack.Count > 0)
-                        {
-                            evalStack.Push(tempStack.Pop());
-                        }
-                    }
-                }
-
-                // Argument is not on the stack. Load it from its register.
-                instructionBlobs.AddLast(
-                    StackSelector.CreateLoadRegister(
-                        dependency,
-                        graph.GetValueType(dependency)));
-            }
         }
     }
 }

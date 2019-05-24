@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flame.Collections;
 
 namespace Flame.Compiler.Target
 {
@@ -7,7 +9,7 @@ namespace Flame.Compiler.Target
     /// A collection of selected instructions for a value.
     /// </summary>
     /// <typeparam name="TInstruction">
-    /// The type of instructions.
+    /// The type of a target instruction.
     /// </typeparam>
     public struct SelectedInstructions<TInstruction>
     {
@@ -53,25 +55,10 @@ namespace Flame.Compiler.Target
         public IReadOnlyList<TInstruction> Instructions { get; private set; }
 
         /// <summary>
-        /// Gets the list of values these selected
-        /// instructions depend on.
+        /// Gets the list of values these selected instructions depend on.
         /// </summary>
         /// <value>A list of values.</value>
         public IReadOnlyList<ValueTag> Dependencies { get; private set; }
-
-        /// <summary>
-        /// Appends a sequence of instructions to these selected instructions,
-        /// producing a new instruction selection.
-        /// </summary>
-        /// <param name="extraInstructions">Additional instructions to append.</param>
-        /// <returns>Selected instructions.</returns>
-        public SelectedInstructions<TInstruction> Append(
-            IEnumerable<TInstruction> extraInstructions)
-        {
-            return new SelectedInstructions<TInstruction>(
-                Instructions.Concat(extraInstructions).ToArray(),
-                Dependencies);
-        }
     }
 
     /// <summary>
@@ -112,6 +99,178 @@ namespace Flame.Compiler.Target
             params ValueTag[] dependencies)
         {
             return new SelectedInstructions<TInstruction>(instruction, dependencies);
+        }
+
+        /// <summary>
+        /// Creates a selected instruction container from a sequence of instructions
+        /// and no dependencies.
+        /// </summary>
+        /// <param name="instructions">
+        /// A sequence of instructions as selected for a particular value.
+        /// </param>
+        public static SelectedInstructions<TInstruction> Create<TInstruction>(
+            IReadOnlyList<TInstruction> instructions)
+        {
+            return new SelectedInstructions<TInstruction>(instructions, EmptyArray<ValueTag>.Value);
+        }
+    }
+
+    /// <summary>
+    /// A collection of selected instructions for block flow.
+    /// </summary>
+    /// <typeparam name="TInstruction">
+    /// The type of a target instruction.
+    /// </typeparam>
+    public struct SelectedFlowInstructions<TInstruction>
+    {
+        /// <summary>
+        /// Creates an instruction selection for block flow.
+        /// </summary>
+        /// <param name="chunks">
+        /// A sequence of instruction selection chunks.
+        /// Every chunk represents an logical instruction that loads its
+        /// dependencies in order and performs some action.
+        /// </param>
+        public SelectedFlowInstructions(
+            IReadOnlyList<SelectedInstructions<TInstruction>> chunks)
+        {
+            this.Chunks = chunks;
+        }
+
+        /// <summary>
+        /// Gets the sequence of instruction selection chunks that constitutes this
+        /// instruction selection.
+        /// </summary>
+        /// <value>
+        /// A sequence of instruction selection chunks.
+        /// Every chunk represents an logical instruction that loads its
+        /// dependencies in order and performs some action.
+        /// </value>
+        public IReadOnlyList<SelectedInstructions<TInstruction>> Chunks { get; private set; }
+
+        /// <summary>
+        /// Gets the sequence of values these selected instructions depend on.
+        /// </summary>
+        /// <value>A sequence of values.</value>
+        public IEnumerable<ValueTag> Dependencies => Chunks.SelectMany(c => c.Dependencies);
+
+        /// <summary>
+        /// Appends a sequence of instructions to these selected flow instructions,
+        /// producing a new flow instruction selection.
+        /// </summary>
+        /// <param name="extraInstructions">Additional instructions to append.</param>
+        /// <returns>A flow instruction selection.</returns>
+        public SelectedFlowInstructions<TInstruction> Append(
+            IEnumerable<TInstruction> extraInstructions)
+        {
+            return new SelectedFlowInstructions<TInstruction>(
+                Chunks.Concat(
+                    new[]
+                    {
+                        new SelectedInstructions<TInstruction>(
+                            extraInstructions.ToArray(),
+                            EmptyArray<ValueTag>.Value)
+                    })
+                    .ToArray());
+        }
+
+        /// <summary>
+        /// Appends a sequence of instructions to these selected flow instructions,
+        /// producing a new flow instruction selection.
+        /// </summary>
+        /// <param name="extraInstructions">Additional instructions to append.</param>
+        /// <returns>A flow instruction selection.</returns>
+        public SelectedFlowInstructions<TInstruction> Append(
+            params TInstruction[] extraInstructions)
+        {
+            return Append((IEnumerable<TInstruction>)extraInstructions);
+        }
+
+        /// <summary>
+        /// Prepends a sequence of instructions to these selected flow instructions,
+        /// producing a new flow instruction selection.
+        /// </summary>
+        /// <param name="extraInstructions">Additional instructions to prepend.</param>
+        /// <returns>A flow instruction selection.</returns>
+        public SelectedFlowInstructions<TInstruction> Prepend(
+            IEnumerable<TInstruction> extraInstructions)
+        {
+            return new SelectedFlowInstructions<TInstruction>(
+                new[]
+                {
+                    new SelectedInstructions<TInstruction>(
+                        extraInstructions.ToArray(),
+                        EmptyArray<ValueTag>.Value)
+                }
+                .Concat(Chunks)
+                .ToArray());
+        }
+
+        /// <summary>
+        /// Prepends a sequence of instructions to these selected flow instructions,
+        /// producing a new flow instruction selection.
+        /// </summary>
+        /// <param name="extraInstructions">Additional instructions to prepend.</param>
+        /// <returns>A flow instruction selection.</returns>
+        public SelectedFlowInstructions<TInstruction> Prepend(
+            params TInstruction[] extraInstructions)
+        {
+            return Prepend((IEnumerable<TInstruction>)extraInstructions);
+        }
+    }
+
+    /// <summary>
+    /// A collection of selected instructions for block flow.
+    /// </summary>
+    public static class SelectedFlowInstructions
+    {
+        /// <summary>
+        /// Creates a flow instruction selection from a sequence of logical instructions.
+        /// </summary>
+        /// <param name="chunks">
+        /// A sequence of logical instructions.
+        /// </param>
+        /// <typeparam name="TInstruction">
+        /// The type of a target instruction.
+        /// </typeparam>
+        /// <returns>A flow instruction selection.</returns>
+        public static SelectedFlowInstructions<TInstruction> Create<TInstruction>(
+            IReadOnlyList<SelectedInstructions<TInstruction>> chunks)
+        {
+            return new SelectedFlowInstructions<TInstruction>(chunks);
+        }
+
+        /// <summary>
+        /// Creates a flow instruction selection from a sequence of logical instructions.
+        /// </summary>
+        /// <param name="chunks">
+        /// A sequence of logical instructions.
+        /// </param>
+        /// <typeparam name="TInstruction">
+        /// The type of a target instruction.
+        /// </typeparam>
+        /// <returns>A flow instruction selection.</returns>
+        public static SelectedFlowInstructions<TInstruction> Create<TInstruction>(
+            params SelectedInstructions<TInstruction>[] chunks)
+        {
+            return new SelectedFlowInstructions<TInstruction>(chunks);
+        }
+
+        /// <summary>
+        /// Creates a flow instruction selection from a sequence of target instructions.
+        /// </summary>
+        /// <param name="instructions">A sequence of instructions to wrap.</param>
+        /// <typeparam name="TInstruction">
+        /// The type of a target instruction.
+        /// </typeparam>
+        /// <returns>A flow instruction selection.</returns>
+        public static SelectedFlowInstructions<TInstruction> Create<TInstruction>(
+            params TInstruction[] instructions)
+        {
+            return Create(
+                SelectedInstructions.Create<TInstruction>(
+                    instructions,
+                    EmptyArray<ValueTag>.Value));
         }
     }
 }

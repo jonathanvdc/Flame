@@ -65,6 +65,24 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets a sequence of all values that are used in this block flow.
+        /// Multiply used values are appropriately duplicated.
+        /// </summary>
+        /// <value>A sequence of values.</value>
+        public IEnumerable<ValueTag> Values
+        {
+            get
+            {
+                return Instructions.SelectMany(insn => insn.Arguments)
+                    .Concat(
+                        Branches.SelectMany(branch =>
+                            branch.Arguments
+                                .Where(arg => arg.IsValue)
+                                .Select(arg => arg.ValueOrNull)));
+            }
+        }
+
+        /// <summary>
         /// Gets instruction builders for all anonymous instructions
         /// in this block flow.
         /// </summary>

@@ -5,48 +5,23 @@ using OpCode = Mono.Cecil.Cil.OpCode;
 using CilInstruction = Mono.Cecil.Cil.Instruction;
 using Flame.Collections;
 using System.Linq;
+using Mono.Cecil;
 
 namespace Flame.Clr.Emit
 {
     /// <summary>
     /// An instruction type for CIL instruction selection.
     /// </summary>
-    public abstract class CilCodegenInstruction
+    internal abstract class CilCodegenInstruction
     {
         internal CilCodegenInstruction()
         { }
-
-        /// <summary>
-        /// Gets a sequence that represents a preorder traversal
-        /// of this CIL instruction and all of its children,
-        /// immediate or otherwise.
-        /// </summary>
-        /// <value>A pre-order traversal.</value>
-        public IEnumerable<CilCodegenInstruction> Traversal
-        {
-            get
-            {
-                return new[] { this }.Concat(Children.SelectMany(c => c.Traversal));
-            }
-        }
-
-        /// <summary>
-        /// Gets this CIL codegen instruction's immediate children.
-        /// </summary>
-        /// <value>A sequence of child instructions.</value>
-        public virtual IEnumerable<CilCodegenInstruction> Children
-        {
-            get
-            {
-                return EmptyArray<CilCodegenInstruction>.Value;
-            }
-        }
     }
 
     /// <summary>
     /// An actual CIL instruction that is emitted as-is.
     /// </summary>
-    public sealed class CilOpInstruction : CilCodegenInstruction
+    internal sealed class CilOpInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates a CIL instruction that is emitted as-is.
@@ -97,80 +72,51 @@ namespace Flame.Clr.Emit
     }
 
     /// <summary>
-    /// An instruction that sets up an exception handler.
+    /// A codegen instruction that marks the start of a try block.
     /// </summary>
-    public sealed class CilExceptionHandlerInstruction : CilCodegenInstruction
+    internal sealed class CilTryStartMarker : CilCodegenInstruction
     {
-        /// <summary>
-        /// Creates an instruction that sets up an exception handler.
-        /// </summary>
-        /// <param name="type">
-        /// The type of exception handler to create.
-        /// </param>
-        /// <param name="catchType">
-        /// The type of exception that can be caught by the exception
-        /// handler. Only applies to 'catch' exception handlers.
-        /// </param>
-        /// <param name="tryBlock">
-        /// The contents of the 'try' block of the exception handler.
-        /// </param>
-        /// <param name="handlerBlock">
-        /// The contents of the actual exception handler block.
-        /// </param>
-        public CilExceptionHandlerInstruction(
-            Mono.Cecil.Cil.ExceptionHandlerType type,
-            Mono.Cecil.TypeReference catchType,
-            IReadOnlyList<CilCodegenInstruction> tryBlock,
-            IReadOnlyList<CilCodegenInstruction> handlerBlock)
+        private CilTryStartMarker()
+        { }
+
+        public static readonly CilTryStartMarker Instance =
+            new CilTryStartMarker();
+    }
+
+    /// <summary>
+    /// A codegen instruction that marks the point at which a try block
+    /// transitions to its handler.
+    /// </summary>
+    internal sealed class CilHandlerStartMarker : CilCodegenInstruction
+    {
+        public CilHandlerStartMarker(Mono.Cecil.Cil.ExceptionHandler handler)
         {
-            this.Type = type;
-            this.CatchType = catchType;
-            this.TryBlock = tryBlock;
-            this.HandlerBlock = handlerBlock;
+            this.Handler = handler;
         }
 
         /// <summary>
-        /// Gets the type of exception handler represented
-        /// by this instruction.
+        /// Gets the exception handler.
         /// </summary>
-        /// <value>An exception handler type.</value>
-        public Mono.Cecil.Cil.ExceptionHandlerType Type { get; private set; }
+        /// <value>An exception handler.</value>
+        public Mono.Cecil.Cil.ExceptionHandler Handler { get; private set; }
+    }
 
-        /// <summary>
-        /// Gets the type of exception that can be caught by this exception
-        /// handler. This property only applies to 'catch' exception handlers.
-        /// </summary>
-        /// <value>The type of caught exceptions.</value>
-        public Mono.Cecil.TypeReference CatchType { get; private set; } 
+    /// <summary>
+    /// A codegen instruction that marks the end of an exception handler.
+    /// </summary>
+    internal sealed class CilHandlerEndMarker : CilCodegenInstruction
+    {
+        private CilHandlerEndMarker()
+        { }
 
-        /// <summary>
-        /// Gets the 'try' block of the exception handler,
-        /// as a list of instructions.
-        /// </summary>
-        /// <value>The 'try' block of the exception handler.</value>
-        public IReadOnlyList<CilCodegenInstruction> TryBlock { get; private set; }
-
-        /// <summary>
-        /// Gets the exception handler implementation that is
-        /// invoked if and when the 'try' block throws an exception.
-        /// </summary>
-        /// <value>The exception handler block itself.</value>
-        public IReadOnlyList<CilCodegenInstruction> HandlerBlock { get; private set; }
-
-        /// <inheritdoc/>
-        public override IEnumerable<CilCodegenInstruction> Children
-        {
-            get
-            {
-                return TryBlock.Concat(HandlerBlock);
-            }
-        }
+        public static readonly CilHandlerEndMarker Instance =
+            new CilHandlerEndMarker();
     }
 
     /// <summary>
     /// An instruction that marks an instruction as a branch target.
     /// </summary>
-    public sealed class CilMarkTargetInstruction : CilCodegenInstruction
+    internal sealed class CilMarkTargetInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that marks a branch target.
@@ -191,7 +137,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that reads from a virtual register.
     /// </summary>
-    public sealed class CilLoadRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilLoadRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that reads from a virtual register.
@@ -212,7 +158,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that writes to a virtual register.
     /// </summary>
-    public sealed class CilStoreRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilStoreRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that writes to a virtual register.
@@ -233,7 +179,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that computes the address of a virtual register.
     /// </summary>
-    public sealed class CilAddressOfRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilAddressOfRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that computes the address of a virtual register.

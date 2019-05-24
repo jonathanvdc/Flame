@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# This script tests if feeding a working C# file to ilopt either
+# changes its semantics or makes it break.
+#
+# Use it like so:
+#
+#     creduce --not-c test.sh main.cs
+#
+
+csc /o+ main.cs && \
+$(dirname $0)/../../ILOpt/bin/Release/ilopt.exe main.exe && \
+(! mono main.opt.exe > opt-output.txt || \
+ ! mono main.exe > normal-output.txt || \
+ ! diff normal-output.txt opt-output.txt)

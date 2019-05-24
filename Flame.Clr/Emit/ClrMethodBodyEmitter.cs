@@ -61,7 +61,7 @@ namespace Flame.Clr.Emit
 
             // Select instructions.
             var selector = new CilInstructionSelector(Method, TypeEnvironment, allocaToVarMap);
-            var streamBuilder = InstructionStreamBuilder<CilCodegenInstruction>.Create(selector);
+            var streamBuilder = CilInstructionStreamBuilder.Create(selector);
 
             var codegenInsns = streamBuilder.ToInstructionStream(sourceGraph);
             codegenInsns = OptimizeRegisterAccesses(codegenInsns);
@@ -69,12 +69,10 @@ namespace Flame.Clr.Emit
             // Find the set of loaded values so we can allocate registers to them.
             var loadedValues = new HashSet<ValueTag>(
                 codegenInsns
-                    .SelectMany(insn => insn.Traversal)
                     .OfType<CilLoadRegisterInstruction>()
                     .Select(insn => insn.Value));
             loadedValues.UnionWith(
                 codegenInsns
-                .SelectMany(insn => insn.Traversal)
                 .OfType<CilAddressOfRegisterInstruction>()
                 .Select(insn => insn.Value));
 
@@ -216,6 +214,9 @@ namespace Flame.Clr.Emit
                 this.pendingTargets = new List<BasicBlockTag>();
                 this.patches = new List<CilOpInstruction>();
                 this.registerUseCounters = new Dictionary<Mono.Cecil.Cil.VariableDefinition, int>();
+
+                this.pendingTryHandlers = new Stack<BasicBlockTag>();
+                this.pendingHandlers = new Stack<Tuple<BasicBlockTag, BasicBlockTag, Mono.Cecil.Cil.ExceptionHandler>>();
             }
 
             public Mono.Cecil.Cil.ILProcessor Processor { get; private set; }
@@ -226,6 +227,9 @@ namespace Flame.Clr.Emit
             private List<BasicBlockTag> pendingTargets;
             private List<CilOpInstruction> patches;
             private Dictionary<Mono.Cecil.Cil.VariableDefinition, int> registerUseCounters;
+
+            private Stack<BasicBlockTag> pendingTryHandlers;
+            private Stack<Tuple<BasicBlockTag, BasicBlockTag, Mono.Cecil.Cil.ExceptionHandler>> pendingHandlers;
 
             public void Emit(IReadOnlyList<CilCodegenInstruction> instructions)
             {
@@ -261,42 +265,35 @@ namespace Flame.Clr.Emit
                         patches.Add(opInsn);
                     }
                 }
-                else if (instruction is CilExceptionHandlerInstruction)
+                else if (instruction is CilTryStartMarker)
                 {
-                    var handlerInsn = (CilExceptionHandlerInstruction)instruction;
+                    var tag = new BasicBlockTag("try-start");
+                    pendingTargets.Add(tag);
+                    pendingTryHandlers.Push(tag);
+                }
+                else if (instruction is CilHandlerStartMarker)
+                {
+                    var tryStart = pendingTryHandlers.Pop();
+                    var catchStart = new BasicBlockTag("catch-start");
+                    pendingTargets.Add(catchStart);
+                    pendingHandlers.Push(
+                        Tuple.Create(
+                            tryStart,
+                            catchStart,
+                            ((CilHandlerStartMarker)instruction).Handler));
+                }
+                else if (instruction is CilHandlerEndMarker)
+                {
+                    var handlerTriple = pendingHandlers.Pop();
 
-                    // Create the actual exception handler.
-                    var handler = new Mono.Cecil.Cil.ExceptionHandler(handlerInsn.Type);
-                    if (handlerInsn.Type == Mono.Cecil.Cil.ExceptionHandlerType.Catch)
-                    {
-                        handler.CatchType = handlerInsn.CatchType;
-                    }
+                    var tryStart = handlerTriple.Item1;
+                    var handlerStart = handlerTriple.Item2;
+                    var handler = handlerTriple.Item3;
                     Processor.Body.ExceptionHandlers.Add(handler);
 
-                    // Emit the try block's contents. Record the last instruction
-                    // prior to the try block. We'll use it to find the first instruction
-                    // inside the try block when we add a handler to the 
-                    var preTryInstruction = Processor.Body.Instructions.LastOrDefault();
-                    foreach (var insn in handlerInsn.TryBlock)
-                    {
-                        Emit(insn);
-                    }
-
-                    // Similarly, record the last instruction of the 'try' block and then
-                    // proceed by emitting the handler block.
-                    var lastTryInstruction = Processor.Body.Instructions.LastOrDefault();
-                    foreach (var insn in handlerInsn.HandlerBlock)
-                    {
-                        Emit(insn);
-                    }
-
                     // Populate the exception handler's start/end fields.
-                    handler.TryStart = preTryInstruction == null
-                        ? Processor.Body.Instructions.First()
-                        : preTryInstruction.Next;
-                    handler.TryEnd = lastTryInstruction == null
-                        ? Processor.Body.Instructions.First()
-                        : lastTryInstruction.Next;
+                    handler.TryStart = branchTargets[tryStart];
+                    handler.TryEnd = branchTargets[handlerStart];
                     handler.HandlerStart = handler.TryEnd;
                     handler.HandlerEnd = Processor.Create(OpCodes.Nop);
                     Processor.Append(handler.HandlerEnd);
