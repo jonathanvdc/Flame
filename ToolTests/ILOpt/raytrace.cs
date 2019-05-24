@@ -1,4 +1,4 @@
-// TODO: fix codegen/opt issue with this test, then add //! run
+//! run
 
 // A raytracing benchmark, adapted from https://github.com/zezba9000/RayTraceBenchmark .
 // Licensed under the GPL-2.0 license.
