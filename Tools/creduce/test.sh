@@ -9,7 +9,7 @@
 #
 
 csc /o+ main.cs && \
+mono main.exe > normal-output.txt && \
 $(dirname $0)/../../ILOpt/bin/Release/ilopt.exe main.exe && \
 (! mono main.opt.exe > opt-output.txt || \
- ! mono main.exe > normal-output.txt || \
  ! diff normal-output.txt opt-output.txt)
