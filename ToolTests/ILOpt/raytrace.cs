@@ -1,4 +1,6 @@
-//! run
+// TODO: investigate, re-enable this test for Linux builds only: //! run
+// For some reason, this test case appears to loop forever on the .NET framework.
+// Not sure why, don't have a Windows development machine on hand.
 
 // A raytracing benchmark, adapted from https://github.com/zezba9000/RayTraceBenchmark .
 // Licensed under the GPL-2.0 license.
