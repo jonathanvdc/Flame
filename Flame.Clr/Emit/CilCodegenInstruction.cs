@@ -16,32 +16,6 @@ namespace Flame.Clr.Emit
     {
         internal CilCodegenInstruction()
         { }
-
-        /// <summary>
-        /// Gets a sequence that represents a preorder traversal
-        /// of this CIL instruction and all of its children,
-        /// immediate or otherwise.
-        /// </summary>
-        /// <value>A pre-order traversal.</value>
-        public IEnumerable<CilCodegenInstruction> Traversal
-        {
-            get
-            {
-                return new[] { this }.Concat(Children.SelectMany(c => c.Traversal));
-            }
-        }
-
-        /// <summary>
-        /// Gets this CIL codegen instruction's immediate children.
-        /// </summary>
-        /// <value>A sequence of child instructions.</value>
-        public virtual IEnumerable<CilCodegenInstruction> Children
-        {
-            get
-            {
-                return EmptyArray<CilCodegenInstruction>.Value;
-            }
-        }
     }
 
     /// <summary>

@@ -69,12 +69,10 @@ namespace Flame.Clr.Emit
             // Find the set of loaded values so we can allocate registers to them.
             var loadedValues = new HashSet<ValueTag>(
                 codegenInsns
-                    .SelectMany(insn => insn.Traversal)
                     .OfType<CilLoadRegisterInstruction>()
                     .Select(insn => insn.Value));
             loadedValues.UnionWith(
                 codegenInsns
-                .SelectMany(insn => insn.Traversal)
                 .OfType<CilAddressOfRegisterInstruction>()
                 .Select(insn => insn.Value));
 
