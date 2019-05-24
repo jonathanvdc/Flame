@@ -185,10 +185,17 @@ namespace Flame.Compiler.Target
                 // Emit the instruction's implementation.
                 instructionBlobs.AddLast(selection.Instructions);
 
-                // Push the result on the stack, if there is a result.
                 if (parent.StackSelector.Pushes(instruction.Prototype))
                 {
+                    // Push the result on the stack, if there is a result.
                     Store(instruction);
+                }
+                else
+                {
+                    // Otherwise, we still want to indicate that `instruction` is defined
+                    // here, to keep us from reordering loads and stores in a bad way.
+                    resurrectionPoints[instruction] = instructionBlobs.Last;
+                    invResurrectionPoints[instructionBlobs.Last] = instruction;
                 }
             }
 
