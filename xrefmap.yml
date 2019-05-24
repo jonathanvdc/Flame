@@ -2622,70 +2622,6 @@ references:
   commentId: N:Flame.Clr.Emit
   fullName: Flame.Clr.Emit
   nameWithType: Flame.Clr.Emit
-- uid: Flame.Clr.Emit.CilAddressOfRegisterInstruction
-  name: CilAddressOfRegisterInstruction
-  href: api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html
-  commentId: T:Flame.Clr.Emit.CilAddressOfRegisterInstruction
-  fullName: Flame.Clr.Emit.CilAddressOfRegisterInstruction
-  nameWithType: CilAddressOfRegisterInstruction
-- uid: Flame.Clr.Emit.CilAddressOfRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  name: CilAddressOfRegisterInstruction(ValueTag)
-  href: api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html#Flame_Clr_Emit_CilAddressOfRegisterInstruction__ctor_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Clr.Emit.CilAddressOfRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  fullName: Flame.Clr.Emit.CilAddressOfRegisterInstruction.CilAddressOfRegisterInstruction(Flame.Compiler.ValueTag)
-  nameWithType: CilAddressOfRegisterInstruction.CilAddressOfRegisterInstruction(ValueTag)
-- uid: Flame.Clr.Emit.CilAddressOfRegisterInstruction.#ctor*
-  name: CilAddressOfRegisterInstruction
-  href: api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html#Flame_Clr_Emit_CilAddressOfRegisterInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilAddressOfRegisterInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilAddressOfRegisterInstruction.CilAddressOfRegisterInstruction
-  nameWithType: CilAddressOfRegisterInstruction.CilAddressOfRegisterInstruction
-- uid: Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value
-  name: Value
-  href: api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html#Flame_Clr_Emit_CilAddressOfRegisterInstruction_Value
-  commentId: P:Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value
-  fullName: Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value
-  nameWithType: CilAddressOfRegisterInstruction.Value
-- uid: Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value*
-  name: Value
-  href: api/Flame.Clr.Emit.CilAddressOfRegisterInstruction.html#Flame_Clr_Emit_CilAddressOfRegisterInstruction_Value_
-  commentId: Overload:Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilAddressOfRegisterInstruction.Value
-  nameWithType: CilAddressOfRegisterInstruction.Value
-- uid: Flame.Clr.Emit.CilCodegenInstruction
-  name: CilCodegenInstruction
-  href: api/Flame.Clr.Emit.CilCodegenInstruction.html
-  commentId: T:Flame.Clr.Emit.CilCodegenInstruction
-  fullName: Flame.Clr.Emit.CilCodegenInstruction
-  nameWithType: CilCodegenInstruction
-- uid: Flame.Clr.Emit.CilCodegenInstruction.Children
-  name: Children
-  href: api/Flame.Clr.Emit.CilCodegenInstruction.html#Flame_Clr_Emit_CilCodegenInstruction_Children
-  commentId: P:Flame.Clr.Emit.CilCodegenInstruction.Children
-  fullName: Flame.Clr.Emit.CilCodegenInstruction.Children
-  nameWithType: CilCodegenInstruction.Children
-- uid: Flame.Clr.Emit.CilCodegenInstruction.Children*
-  name: Children
-  href: api/Flame.Clr.Emit.CilCodegenInstruction.html#Flame_Clr_Emit_CilCodegenInstruction_Children_
-  commentId: Overload:Flame.Clr.Emit.CilCodegenInstruction.Children
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilCodegenInstruction.Children
-  nameWithType: CilCodegenInstruction.Children
-- uid: Flame.Clr.Emit.CilCodegenInstruction.Traversal
-  name: Traversal
-  href: api/Flame.Clr.Emit.CilCodegenInstruction.html#Flame_Clr_Emit_CilCodegenInstruction_Traversal
-  commentId: P:Flame.Clr.Emit.CilCodegenInstruction.Traversal
-  fullName: Flame.Clr.Emit.CilCodegenInstruction.Traversal
-  nameWithType: CilCodegenInstruction.Traversal
-- uid: Flame.Clr.Emit.CilCodegenInstruction.Traversal*
-  name: Traversal
-  href: api/Flame.Clr.Emit.CilCodegenInstruction.html#Flame_Clr_Emit_CilCodegenInstruction_Traversal_
-  commentId: Overload:Flame.Clr.Emit.CilCodegenInstruction.Traversal
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilCodegenInstruction.Traversal
-  nameWithType: CilCodegenInstruction.Traversal
 - uid: Flame.Clr.Emit.CilCodegenRegister
   name: CilCodegenRegister
   href: api/Flame.Clr.Emit.CilCodegenRegister.html
@@ -2808,391 +2744,6 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.Emit.CilCodegenRegister.VariableOrNull
   nameWithType: CilCodegenRegister.VariableOrNull
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction
-  name: CilExceptionHandlerInstruction
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html
-  commentId: T:Flame.Clr.Emit.CilExceptionHandlerInstruction
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction
-  nameWithType: CilExceptionHandlerInstruction
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.#ctor(Mono.Cecil.Cil.ExceptionHandlerType,Mono.Cecil.TypeReference,System.Collections.Generic.IReadOnlyList{Flame.Clr.Emit.CilCodegenInstruction},System.Collections.Generic.IReadOnlyList{Flame.Clr.Emit.CilCodegenInstruction})
-  name: CilExceptionHandlerInstruction(ExceptionHandlerType, TypeReference, IReadOnlyList<CilCodegenInstruction>, IReadOnlyList<CilCodegenInstruction>)
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction__ctor_Mono_Cecil_Cil_ExceptionHandlerType_Mono_Cecil_TypeReference_System_Collections_Generic_IReadOnlyList_Flame_Clr_Emit_CilCodegenInstruction__System_Collections_Generic_IReadOnlyList_Flame_Clr_Emit_CilCodegenInstruction__
-  commentId: M:Flame.Clr.Emit.CilExceptionHandlerInstruction.#ctor(Mono.Cecil.Cil.ExceptionHandlerType,Mono.Cecil.TypeReference,System.Collections.Generic.IReadOnlyList{Flame.Clr.Emit.CilCodegenInstruction},System.Collections.Generic.IReadOnlyList{Flame.Clr.Emit.CilCodegenInstruction})
-  name.vb: CilExceptionHandlerInstruction(ExceptionHandlerType, TypeReference, IReadOnlyList(Of CilCodegenInstruction), IReadOnlyList(Of CilCodegenInstruction))
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.CilExceptionHandlerInstruction(Mono.Cecil.Cil.ExceptionHandlerType, Mono.Cecil.TypeReference, System.Collections.Generic.IReadOnlyList<Flame.Clr.Emit.CilCodegenInstruction>, System.Collections.Generic.IReadOnlyList<Flame.Clr.Emit.CilCodegenInstruction>)
-  fullName.vb: Flame.Clr.Emit.CilExceptionHandlerInstruction.CilExceptionHandlerInstruction(Mono.Cecil.Cil.ExceptionHandlerType, Mono.Cecil.TypeReference, System.Collections.Generic.IReadOnlyList(Of Flame.Clr.Emit.CilCodegenInstruction), System.Collections.Generic.IReadOnlyList(Of Flame.Clr.Emit.CilCodegenInstruction))
-  nameWithType: CilExceptionHandlerInstruction.CilExceptionHandlerInstruction(ExceptionHandlerType, TypeReference, IReadOnlyList<CilCodegenInstruction>, IReadOnlyList<CilCodegenInstruction>)
-  nameWithType.vb: CilExceptionHandlerInstruction.CilExceptionHandlerInstruction(ExceptionHandlerType, TypeReference, IReadOnlyList(Of CilCodegenInstruction), IReadOnlyList(Of CilCodegenInstruction))
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.#ctor*
-  name: CilExceptionHandlerInstruction
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.CilExceptionHandlerInstruction
-  nameWithType: CilExceptionHandlerInstruction.CilExceptionHandlerInstruction
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType
-  name: CatchType
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_CatchType
-  commentId: P:Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType
-  nameWithType: CilExceptionHandlerInstruction.CatchType
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType*
-  name: CatchType
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_CatchType_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.CatchType
-  nameWithType: CilExceptionHandlerInstruction.CatchType
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.Children
-  name: Children
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_Children
-  commentId: P:Flame.Clr.Emit.CilExceptionHandlerInstruction.Children
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.Children
-  nameWithType: CilExceptionHandlerInstruction.Children
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.Children*
-  name: Children
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_Children_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.Children
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.Children
-  nameWithType: CilExceptionHandlerInstruction.Children
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock
-  name: HandlerBlock
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_HandlerBlock
-  commentId: P:Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock
-  nameWithType: CilExceptionHandlerInstruction.HandlerBlock
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock*
-  name: HandlerBlock
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_HandlerBlock_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.HandlerBlock
-  nameWithType: CilExceptionHandlerInstruction.HandlerBlock
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock
-  name: TryBlock
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_TryBlock
-  commentId: P:Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock
-  nameWithType: CilExceptionHandlerInstruction.TryBlock
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock*
-  name: TryBlock
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_TryBlock_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.TryBlock
-  nameWithType: CilExceptionHandlerInstruction.TryBlock
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.Type
-  name: Type
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_Type
-  commentId: P:Flame.Clr.Emit.CilExceptionHandlerInstruction.Type
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.Type
-  nameWithType: CilExceptionHandlerInstruction.Type
-- uid: Flame.Clr.Emit.CilExceptionHandlerInstruction.Type*
-  name: Type
-  href: api/Flame.Clr.Emit.CilExceptionHandlerInstruction.html#Flame_Clr_Emit_CilExceptionHandlerInstruction_Type_
-  commentId: Overload:Flame.Clr.Emit.CilExceptionHandlerInstruction.Type
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilExceptionHandlerInstruction.Type
-  nameWithType: CilExceptionHandlerInstruction.Type
-- uid: Flame.Clr.Emit.CilInstructionSelector
-  name: CilInstructionSelector
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html
-  commentId: T:Flame.Clr.Emit.CilInstructionSelector
-  fullName: Flame.Clr.Emit.CilInstructionSelector
-  nameWithType: CilInstructionSelector
-- uid: Flame.Clr.Emit.CilInstructionSelector.#ctor(Mono.Cecil.MethodDefinition,Flame.TypeSystem.TypeEnvironment,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Mono.Cecil.Cil.VariableDefinition})
-  name: CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary<ValueTag, VariableDefinition>)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector__ctor_Mono_Cecil_MethodDefinition_Flame_TypeSystem_TypeEnvironment_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Mono_Cecil_Cil_VariableDefinition__
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.#ctor(Mono.Cecil.MethodDefinition,Flame.TypeSystem.TypeEnvironment,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Mono.Cecil.Cil.VariableDefinition})
-  name.vb: CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary(Of ValueTag, VariableDefinition))
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CilInstructionSelector(Mono.Cecil.MethodDefinition, Flame.TypeSystem.TypeEnvironment, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Mono.Cecil.Cil.VariableDefinition>)
-  fullName.vb: Flame.Clr.Emit.CilInstructionSelector.CilInstructionSelector(Mono.Cecil.MethodDefinition, Flame.TypeSystem.TypeEnvironment, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Mono.Cecil.Cil.VariableDefinition))
-  nameWithType: CilInstructionSelector.CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary<ValueTag, VariableDefinition>)
-  nameWithType.vb: CilInstructionSelector.CilInstructionSelector(MethodDefinition, TypeEnvironment, IReadOnlyDictionary(Of ValueTag, VariableDefinition))
-- uid: Flame.Clr.Emit.CilInstructionSelector.#ctor*
-  name: CilInstructionSelector
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CilInstructionSelector
-  nameWithType: CilInstructionSelector.CilInstructionSelector
-- uid: Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping
-  name: AllocaToVariableMapping
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_AllocaToVariableMapping
-  commentId: P:Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping
-  fullName: Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping
-  nameWithType: CilInstructionSelector.AllocaToVariableMapping
-- uid: Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping*
-  name: AllocaToVariableMapping
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_AllocaToVariableMapping_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.AllocaToVariableMapping
-  nameWithType: CilInstructionSelector.AllocaToVariableMapping
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker(Flame.Compiler.BasicBlock)
-  name: CreateBlockMarker(BasicBlock)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateBlockMarker_Flame_Compiler_BasicBlock_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker(Flame.Compiler.BasicBlock)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker(Flame.Compiler.BasicBlock)
-  nameWithType: CilInstructionSelector.CreateBlockMarker(BasicBlock)
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker*
-  name: CreateBlockMarker
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateBlockMarker_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateBlockMarker
-  nameWithType: CilInstructionSelector.CreateBlockMarker
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo(Flame.Compiler.BasicBlockTag)
-  name: CreateJumpTo(BasicBlockTag)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateJumpTo_Flame_Compiler_BasicBlockTag_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo(Flame.Compiler.BasicBlockTag)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo(Flame.Compiler.BasicBlockTag)
-  nameWithType: CilInstructionSelector.CreateJumpTo(BasicBlockTag)
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo*
-  name: CreateJumpTo
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateJumpTo_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateJumpTo
-  nameWithType: CilInstructionSelector.CreateJumpTo
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister(Flame.Compiler.ValueTag,Flame.IType)
-  name: CreateLoadRegister(ValueTag, IType)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateLoadRegister_Flame_Compiler_ValueTag_Flame_IType_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister(Flame.Compiler.ValueTag,Flame.IType)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister(Flame.Compiler.ValueTag, Flame.IType)
-  nameWithType: CilInstructionSelector.CreateLoadRegister(ValueTag, IType)
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister*
-  name: CreateLoadRegister
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateLoadRegister_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateLoadRegister
-  nameWithType: CilInstructionSelector.CreateLoadRegister
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreatePop(Flame.IType)
-  name: CreatePop(IType)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreatePop_Flame_IType_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.CreatePop(Flame.IType)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreatePop(Flame.IType)
-  nameWithType: CilInstructionSelector.CreatePop(IType)
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreatePop*
-  name: CreatePop
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreatePop_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.CreatePop
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreatePop
-  nameWithType: CilInstructionSelector.CreatePop
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister(Flame.Compiler.ValueTag,Flame.IType)
-  name: CreateStoreRegister(ValueTag, IType)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateStoreRegister_Flame_Compiler_ValueTag_Flame_IType_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister(Flame.Compiler.ValueTag,Flame.IType)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister(Flame.Compiler.ValueTag, Flame.IType)
-  nameWithType: CilInstructionSelector.CreateStoreRegister(ValueTag, IType)
-- uid: Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister*
-  name: CreateStoreRegister
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_CreateStoreRegister_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.CreateStoreRegister
-  nameWithType: CilInstructionSelector.CreateStoreRegister
-- uid: Flame.Clr.Emit.CilInstructionSelector.Method
-  name: Method
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Method
-  commentId: P:Flame.Clr.Emit.CilInstructionSelector.Method
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Method
-  nameWithType: CilInstructionSelector.Method
-- uid: Flame.Clr.Emit.CilInstructionSelector.Method*
-  name: Method
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Method_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.Method
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Method
-  nameWithType: CilInstructionSelector.Method
-- uid: Flame.Clr.Emit.CilInstructionSelector.Pushes(Flame.Compiler.InstructionPrototype)
-  name: Pushes(InstructionPrototype)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Pushes_Flame_Compiler_InstructionPrototype_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.Pushes(Flame.Compiler.InstructionPrototype)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Pushes(Flame.Compiler.InstructionPrototype)
-  nameWithType: CilInstructionSelector.Pushes(InstructionPrototype)
-- uid: Flame.Clr.Emit.CilInstructionSelector.Pushes*
-  name: Pushes
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Pushes_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.Pushes
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Pushes
-  nameWithType: CilInstructionSelector.Pushes
-- uid: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.BlockFlow,Flame.Compiler.BasicBlockTag,Flame.Compiler.FlowGraph,Flame.Compiler.BasicBlockTag,Flame.Compiler.BasicBlockTag@)
-  name: SelectInstructions(BlockFlow, BasicBlockTag, FlowGraph, BasicBlockTag, out BasicBlockTag)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_SelectInstructions_Flame_Compiler_BlockFlow_Flame_Compiler_BasicBlockTag_Flame_Compiler_FlowGraph_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.BlockFlow,Flame.Compiler.BasicBlockTag,Flame.Compiler.FlowGraph,Flame.Compiler.BasicBlockTag,Flame.Compiler.BasicBlockTag@)
-  name.vb: SelectInstructions(BlockFlow, BasicBlockTag, FlowGraph, BasicBlockTag, ByRef BasicBlockTag)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.BlockFlow, Flame.Compiler.BasicBlockTag, Flame.Compiler.FlowGraph, Flame.Compiler.BasicBlockTag, out Flame.Compiler.BasicBlockTag)
-  fullName.vb: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.BlockFlow, Flame.Compiler.BasicBlockTag, Flame.Compiler.FlowGraph, Flame.Compiler.BasicBlockTag, ByRef Flame.Compiler.BasicBlockTag)
-  nameWithType: CilInstructionSelector.SelectInstructions(BlockFlow, BasicBlockTag, FlowGraph, BasicBlockTag, out BasicBlockTag)
-  nameWithType.vb: CilInstructionSelector.SelectInstructions(BlockFlow, BasicBlockTag, FlowGraph, BasicBlockTag, ByRef BasicBlockTag)
-- uid: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.NamedInstruction)
-  name: SelectInstructions(NamedInstruction)
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_SelectInstructions_Flame_Compiler_NamedInstruction_
-  commentId: M:Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.NamedInstruction)
-  fullName: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions(Flame.Compiler.NamedInstruction)
-  nameWithType: CilInstructionSelector.SelectInstructions(NamedInstruction)
-- uid: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions*
-  name: SelectInstructions
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_SelectInstructions_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.SelectInstructions
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.SelectInstructions
-  nameWithType: CilInstructionSelector.SelectInstructions
-- uid: Flame.Clr.Emit.CilInstructionSelector.Temporaries
-  name: Temporaries
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Temporaries
-  commentId: P:Flame.Clr.Emit.CilInstructionSelector.Temporaries
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Temporaries
-  nameWithType: CilInstructionSelector.Temporaries
-- uid: Flame.Clr.Emit.CilInstructionSelector.Temporaries*
-  name: Temporaries
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_Temporaries_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.Temporaries
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.Temporaries
-  nameWithType: CilInstructionSelector.Temporaries
-- uid: Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment
-  name: TypeEnvironment
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_TypeEnvironment
-  commentId: P:Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment
-  fullName: Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment
-  nameWithType: CilInstructionSelector.TypeEnvironment
-- uid: Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment*
-  name: TypeEnvironment
-  href: api/Flame.Clr.Emit.CilInstructionSelector.html#Flame_Clr_Emit_CilInstructionSelector_TypeEnvironment_
-  commentId: Overload:Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilInstructionSelector.TypeEnvironment
-  nameWithType: CilInstructionSelector.TypeEnvironment
-- uid: Flame.Clr.Emit.CilLoadRegisterInstruction
-  name: CilLoadRegisterInstruction
-  href: api/Flame.Clr.Emit.CilLoadRegisterInstruction.html
-  commentId: T:Flame.Clr.Emit.CilLoadRegisterInstruction
-  fullName: Flame.Clr.Emit.CilLoadRegisterInstruction
-  nameWithType: CilLoadRegisterInstruction
-- uid: Flame.Clr.Emit.CilLoadRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  name: CilLoadRegisterInstruction(ValueTag)
-  href: api/Flame.Clr.Emit.CilLoadRegisterInstruction.html#Flame_Clr_Emit_CilLoadRegisterInstruction__ctor_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Clr.Emit.CilLoadRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  fullName: Flame.Clr.Emit.CilLoadRegisterInstruction.CilLoadRegisterInstruction(Flame.Compiler.ValueTag)
-  nameWithType: CilLoadRegisterInstruction.CilLoadRegisterInstruction(ValueTag)
-- uid: Flame.Clr.Emit.CilLoadRegisterInstruction.#ctor*
-  name: CilLoadRegisterInstruction
-  href: api/Flame.Clr.Emit.CilLoadRegisterInstruction.html#Flame_Clr_Emit_CilLoadRegisterInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilLoadRegisterInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilLoadRegisterInstruction.CilLoadRegisterInstruction
-  nameWithType: CilLoadRegisterInstruction.CilLoadRegisterInstruction
-- uid: Flame.Clr.Emit.CilLoadRegisterInstruction.Value
-  name: Value
-  href: api/Flame.Clr.Emit.CilLoadRegisterInstruction.html#Flame_Clr_Emit_CilLoadRegisterInstruction_Value
-  commentId: P:Flame.Clr.Emit.CilLoadRegisterInstruction.Value
-  fullName: Flame.Clr.Emit.CilLoadRegisterInstruction.Value
-  nameWithType: CilLoadRegisterInstruction.Value
-- uid: Flame.Clr.Emit.CilLoadRegisterInstruction.Value*
-  name: Value
-  href: api/Flame.Clr.Emit.CilLoadRegisterInstruction.html#Flame_Clr_Emit_CilLoadRegisterInstruction_Value_
-  commentId: Overload:Flame.Clr.Emit.CilLoadRegisterInstruction.Value
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilLoadRegisterInstruction.Value
-  nameWithType: CilLoadRegisterInstruction.Value
-- uid: Flame.Clr.Emit.CilMarkTargetInstruction
-  name: CilMarkTargetInstruction
-  href: api/Flame.Clr.Emit.CilMarkTargetInstruction.html
-  commentId: T:Flame.Clr.Emit.CilMarkTargetInstruction
-  fullName: Flame.Clr.Emit.CilMarkTargetInstruction
-  nameWithType: CilMarkTargetInstruction
-- uid: Flame.Clr.Emit.CilMarkTargetInstruction.#ctor(Flame.Compiler.BasicBlockTag)
-  name: CilMarkTargetInstruction(BasicBlockTag)
-  href: api/Flame.Clr.Emit.CilMarkTargetInstruction.html#Flame_Clr_Emit_CilMarkTargetInstruction__ctor_Flame_Compiler_BasicBlockTag_
-  commentId: M:Flame.Clr.Emit.CilMarkTargetInstruction.#ctor(Flame.Compiler.BasicBlockTag)
-  fullName: Flame.Clr.Emit.CilMarkTargetInstruction.CilMarkTargetInstruction(Flame.Compiler.BasicBlockTag)
-  nameWithType: CilMarkTargetInstruction.CilMarkTargetInstruction(BasicBlockTag)
-- uid: Flame.Clr.Emit.CilMarkTargetInstruction.#ctor*
-  name: CilMarkTargetInstruction
-  href: api/Flame.Clr.Emit.CilMarkTargetInstruction.html#Flame_Clr_Emit_CilMarkTargetInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilMarkTargetInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilMarkTargetInstruction.CilMarkTargetInstruction
-  nameWithType: CilMarkTargetInstruction.CilMarkTargetInstruction
-- uid: Flame.Clr.Emit.CilMarkTargetInstruction.Target
-  name: Target
-  href: api/Flame.Clr.Emit.CilMarkTargetInstruction.html#Flame_Clr_Emit_CilMarkTargetInstruction_Target
-  commentId: P:Flame.Clr.Emit.CilMarkTargetInstruction.Target
-  fullName: Flame.Clr.Emit.CilMarkTargetInstruction.Target
-  nameWithType: CilMarkTargetInstruction.Target
-- uid: Flame.Clr.Emit.CilMarkTargetInstruction.Target*
-  name: Target
-  href: api/Flame.Clr.Emit.CilMarkTargetInstruction.html#Flame_Clr_Emit_CilMarkTargetInstruction_Target_
-  commentId: Overload:Flame.Clr.Emit.CilMarkTargetInstruction.Target
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilMarkTargetInstruction.Target
-  nameWithType: CilMarkTargetInstruction.Target
-- uid: Flame.Clr.Emit.CilOpInstruction
-  name: CilOpInstruction
-  href: api/Flame.Clr.Emit.CilOpInstruction.html
-  commentId: T:Flame.Clr.Emit.CilOpInstruction
-  fullName: Flame.Clr.Emit.CilOpInstruction
-  nameWithType: CilOpInstruction
-- uid: Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.Instruction)
-  name: CilOpInstruction(Instruction)
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction__ctor_Mono_Cecil_Cil_Instruction_
-  commentId: M:Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.Instruction)
-  fullName: Flame.Clr.Emit.CilOpInstruction.CilOpInstruction(Mono.Cecil.Cil.Instruction)
-  nameWithType: CilOpInstruction.CilOpInstruction(Instruction)
-- uid: Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.Instruction,System.Action{Mono.Cecil.Cil.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.BasicBlockTag,Mono.Cecil.Cil.Instruction}})
-  name: CilOpInstruction(Instruction, Action<Instruction, IReadOnlyDictionary<BasicBlockTag, Instruction>>)
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction__ctor_Mono_Cecil_Cil_Instruction_System_Action_Mono_Cecil_Cil_Instruction_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BasicBlockTag_Mono_Cecil_Cil_Instruction___
-  commentId: M:Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.Instruction,System.Action{Mono.Cecil.Cil.Instruction,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.BasicBlockTag,Mono.Cecil.Cil.Instruction}})
-  name.vb: CilOpInstruction(Instruction, Action(Of Instruction, IReadOnlyDictionary(Of BasicBlockTag, Instruction)))
-  fullName: Flame.Clr.Emit.CilOpInstruction.CilOpInstruction(Mono.Cecil.Cil.Instruction, System.Action<Mono.Cecil.Cil.Instruction, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.BasicBlockTag, Mono.Cecil.Cil.Instruction>>)
-  fullName.vb: Flame.Clr.Emit.CilOpInstruction.CilOpInstruction(Mono.Cecil.Cil.Instruction, System.Action(Of Mono.Cecil.Cil.Instruction, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.BasicBlockTag, Mono.Cecil.Cil.Instruction)))
-  nameWithType: CilOpInstruction.CilOpInstruction(Instruction, Action<Instruction, IReadOnlyDictionary<BasicBlockTag, Instruction>>)
-  nameWithType.vb: CilOpInstruction.CilOpInstruction(Instruction, Action(Of Instruction, IReadOnlyDictionary(Of BasicBlockTag, Instruction)))
-- uid: Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.OpCode)
-  name: CilOpInstruction(OpCode)
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction__ctor_Mono_Cecil_Cil_OpCode_
-  commentId: M:Flame.Clr.Emit.CilOpInstruction.#ctor(Mono.Cecil.Cil.OpCode)
-  fullName: Flame.Clr.Emit.CilOpInstruction.CilOpInstruction(Mono.Cecil.Cil.OpCode)
-  nameWithType: CilOpInstruction.CilOpInstruction(OpCode)
-- uid: Flame.Clr.Emit.CilOpInstruction.#ctor*
-  name: CilOpInstruction
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilOpInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilOpInstruction.CilOpInstruction
-  nameWithType: CilOpInstruction.CilOpInstruction
-- uid: Flame.Clr.Emit.CilOpInstruction.Op
-  name: Op
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction_Op
-  commentId: P:Flame.Clr.Emit.CilOpInstruction.Op
-  fullName: Flame.Clr.Emit.CilOpInstruction.Op
-  nameWithType: CilOpInstruction.Op
-- uid: Flame.Clr.Emit.CilOpInstruction.Op*
-  name: Op
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction_Op_
-  commentId: Overload:Flame.Clr.Emit.CilOpInstruction.Op
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilOpInstruction.Op
-  nameWithType: CilOpInstruction.Op
-- uid: Flame.Clr.Emit.CilOpInstruction.Patch
-  name: Patch
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction_Patch
-  commentId: P:Flame.Clr.Emit.CilOpInstruction.Patch
-  fullName: Flame.Clr.Emit.CilOpInstruction.Patch
-  nameWithType: CilOpInstruction.Patch
-- uid: Flame.Clr.Emit.CilOpInstruction.Patch*
-  name: Patch
-  href: api/Flame.Clr.Emit.CilOpInstruction.html#Flame_Clr_Emit_CilOpInstruction_Patch_
-  commentId: Overload:Flame.Clr.Emit.CilOpInstruction.Patch
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilOpInstruction.Patch
-  nameWithType: CilOpInstruction.Patch
 - uid: Flame.Clr.Emit.CilPeepholeOptimizer
   name: CilPeepholeOptimizer
   href: api/Flame.Clr.Emit.CilPeepholeOptimizer.html
@@ -3276,118 +2827,6 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.Emit.CilPeepholeOptimizer.RewriteInstructionReferences
   nameWithType: CilPeepholeOptimizer.RewriteInstructionReferences
-- uid: Flame.Clr.Emit.CilRegisterAllocator
-  name: CilRegisterAllocator
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html
-  commentId: T:Flame.Clr.Emit.CilRegisterAllocator
-  fullName: Flame.Clr.Emit.CilRegisterAllocator
-  nameWithType: CilRegisterAllocator
-- uid: Flame.Clr.Emit.CilRegisterAllocator.#ctor(System.Collections.Generic.HashSet{Flame.Compiler.ValueTag},System.Collections.Generic.Dictionary{Flame.Compiler.ValueTag,Mono.Cecil.ParameterDefinition},Mono.Cecil.ModuleDefinition)
-  name: CilRegisterAllocator(HashSet<ValueTag>, Dictionary<ValueTag, ParameterDefinition>, ModuleDefinition)
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator__ctor_System_Collections_Generic_HashSet_Flame_Compiler_ValueTag__System_Collections_Generic_Dictionary_Flame_Compiler_ValueTag_Mono_Cecil_ParameterDefinition__Mono_Cecil_ModuleDefinition_
-  commentId: M:Flame.Clr.Emit.CilRegisterAllocator.#ctor(System.Collections.Generic.HashSet{Flame.Compiler.ValueTag},System.Collections.Generic.Dictionary{Flame.Compiler.ValueTag,Mono.Cecil.ParameterDefinition},Mono.Cecil.ModuleDefinition)
-  name.vb: CilRegisterAllocator(HashSet(Of ValueTag), Dictionary(Of ValueTag, ParameterDefinition), ModuleDefinition)
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.CilRegisterAllocator(System.Collections.Generic.HashSet<Flame.Compiler.ValueTag>, System.Collections.Generic.Dictionary<Flame.Compiler.ValueTag, Mono.Cecil.ParameterDefinition>, Mono.Cecil.ModuleDefinition)
-  fullName.vb: Flame.Clr.Emit.CilRegisterAllocator.CilRegisterAllocator(System.Collections.Generic.HashSet(Of Flame.Compiler.ValueTag), System.Collections.Generic.Dictionary(Of Flame.Compiler.ValueTag, Mono.Cecil.ParameterDefinition), Mono.Cecil.ModuleDefinition)
-  nameWithType: CilRegisterAllocator.CilRegisterAllocator(HashSet<ValueTag>, Dictionary<ValueTag, ParameterDefinition>, ModuleDefinition)
-  nameWithType.vb: CilRegisterAllocator.CilRegisterAllocator(HashSet(Of ValueTag), Dictionary(Of ValueTag, ParameterDefinition), ModuleDefinition)
-- uid: Flame.Clr.Emit.CilRegisterAllocator.#ctor*
-  name: CilRegisterAllocator
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilRegisterAllocator.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.CilRegisterAllocator
-  nameWithType: CilRegisterAllocator.CilRegisterAllocator
-- uid: Flame.Clr.Emit.CilRegisterAllocator.CreateRegister(Flame.IType)
-  name: CreateRegister(IType)
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_CreateRegister_Flame_IType_
-  commentId: M:Flame.Clr.Emit.CilRegisterAllocator.CreateRegister(Flame.IType)
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.CreateRegister(Flame.IType)
-  nameWithType: CilRegisterAllocator.CreateRegister(IType)
-- uid: Flame.Clr.Emit.CilRegisterAllocator.CreateRegister*
-  name: CreateRegister
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_CreateRegister_
-  commentId: Overload:Flame.Clr.Emit.CilRegisterAllocator.CreateRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.CreateRegister
-  nameWithType: CilRegisterAllocator.CreateRegister
-- uid: Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph)
-  name: RequiresRegister(ValueTag, FlowGraph)
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_RequiresRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_
-  commentId: M:Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph)
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister(Flame.Compiler.ValueTag, Flame.Compiler.FlowGraph)
-  nameWithType: CilRegisterAllocator.RequiresRegister(ValueTag, FlowGraph)
-- uid: Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister*
-  name: RequiresRegister
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_RequiresRegister_
-  commentId: Overload:Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.RequiresRegister
-  nameWithType: CilRegisterAllocator.RequiresRegister
-- uid: Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph,Flame.Clr.Emit.CilCodegenRegister@)
-  name: TryGetPreallocatedRegister(ValueTag, FlowGraph, out CilCodegenRegister)
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_TryGetPreallocatedRegister_Flame_Compiler_ValueTag_Flame_Compiler_FlowGraph_Flame_Clr_Emit_CilCodegenRegister__
-  commentId: M:Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag,Flame.Compiler.FlowGraph,Flame.Clr.Emit.CilCodegenRegister@)
-  name.vb: TryGetPreallocatedRegister(ValueTag, FlowGraph, ByRef CilCodegenRegister)
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag, Flame.Compiler.FlowGraph, out Flame.Clr.Emit.CilCodegenRegister)
-  fullName.vb: Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister(Flame.Compiler.ValueTag, Flame.Compiler.FlowGraph, ByRef Flame.Clr.Emit.CilCodegenRegister)
-  nameWithType: CilRegisterAllocator.TryGetPreallocatedRegister(ValueTag, FlowGraph, out CilCodegenRegister)
-  nameWithType.vb: CilRegisterAllocator.TryGetPreallocatedRegister(ValueTag, FlowGraph, ByRef CilCodegenRegister)
-- uid: Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister*
-  name: TryGetPreallocatedRegister
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_TryGetPreallocatedRegister_
-  commentId: Overload:Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.TryGetPreallocatedRegister
-  nameWithType: CilRegisterAllocator.TryGetPreallocatedRegister
-- uid: Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType,System.Collections.Generic.IEnumerable{Flame.Clr.Emit.CilCodegenRegister},Flame.Clr.Emit.CilCodegenRegister@)
-  name: TryRecycleRegister(IType, IEnumerable<CilCodegenRegister>, out CilCodegenRegister)
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_TryRecycleRegister_Flame_IType_System_Collections_Generic_IEnumerable_Flame_Clr_Emit_CilCodegenRegister__Flame_Clr_Emit_CilCodegenRegister__
-  commentId: M:Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType,System.Collections.Generic.IEnumerable{Flame.Clr.Emit.CilCodegenRegister},Flame.Clr.Emit.CilCodegenRegister@)
-  name.vb: TryRecycleRegister(IType, IEnumerable(Of CilCodegenRegister), ByRef CilCodegenRegister)
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType, System.Collections.Generic.IEnumerable<Flame.Clr.Emit.CilCodegenRegister>, out Flame.Clr.Emit.CilCodegenRegister)
-  fullName.vb: Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister(Flame.IType, System.Collections.Generic.IEnumerable(Of Flame.Clr.Emit.CilCodegenRegister), ByRef Flame.Clr.Emit.CilCodegenRegister)
-  nameWithType: CilRegisterAllocator.TryRecycleRegister(IType, IEnumerable<CilCodegenRegister>, out CilCodegenRegister)
-  nameWithType.vb: CilRegisterAllocator.TryRecycleRegister(IType, IEnumerable(Of CilCodegenRegister), ByRef CilCodegenRegister)
-- uid: Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister*
-  name: TryRecycleRegister
-  href: api/Flame.Clr.Emit.CilRegisterAllocator.html#Flame_Clr_Emit_CilRegisterAllocator_TryRecycleRegister_
-  commentId: Overload:Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilRegisterAllocator.TryRecycleRegister
-  nameWithType: CilRegisterAllocator.TryRecycleRegister
-- uid: Flame.Clr.Emit.CilStoreRegisterInstruction
-  name: CilStoreRegisterInstruction
-  href: api/Flame.Clr.Emit.CilStoreRegisterInstruction.html
-  commentId: T:Flame.Clr.Emit.CilStoreRegisterInstruction
-  fullName: Flame.Clr.Emit.CilStoreRegisterInstruction
-  nameWithType: CilStoreRegisterInstruction
-- uid: Flame.Clr.Emit.CilStoreRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  name: CilStoreRegisterInstruction(ValueTag)
-  href: api/Flame.Clr.Emit.CilStoreRegisterInstruction.html#Flame_Clr_Emit_CilStoreRegisterInstruction__ctor_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Clr.Emit.CilStoreRegisterInstruction.#ctor(Flame.Compiler.ValueTag)
-  fullName: Flame.Clr.Emit.CilStoreRegisterInstruction.CilStoreRegisterInstruction(Flame.Compiler.ValueTag)
-  nameWithType: CilStoreRegisterInstruction.CilStoreRegisterInstruction(ValueTag)
-- uid: Flame.Clr.Emit.CilStoreRegisterInstruction.#ctor*
-  name: CilStoreRegisterInstruction
-  href: api/Flame.Clr.Emit.CilStoreRegisterInstruction.html#Flame_Clr_Emit_CilStoreRegisterInstruction__ctor_
-  commentId: Overload:Flame.Clr.Emit.CilStoreRegisterInstruction.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilStoreRegisterInstruction.CilStoreRegisterInstruction
-  nameWithType: CilStoreRegisterInstruction.CilStoreRegisterInstruction
-- uid: Flame.Clr.Emit.CilStoreRegisterInstruction.Value
-  name: Value
-  href: api/Flame.Clr.Emit.CilStoreRegisterInstruction.html#Flame_Clr_Emit_CilStoreRegisterInstruction_Value
-  commentId: P:Flame.Clr.Emit.CilStoreRegisterInstruction.Value
-  fullName: Flame.Clr.Emit.CilStoreRegisterInstruction.Value
-  nameWithType: CilStoreRegisterInstruction.Value
-- uid: Flame.Clr.Emit.CilStoreRegisterInstruction.Value*
-  name: Value
-  href: api/Flame.Clr.Emit.CilStoreRegisterInstruction.html#Flame_Clr_Emit_CilStoreRegisterInstruction_Value_
-  commentId: Overload:Flame.Clr.Emit.CilStoreRegisterInstruction.Value
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.CilStoreRegisterInstruction.Value
-  nameWithType: CilStoreRegisterInstruction.Value
 - uid: Flame.Clr.Emit.ClrMethodBodyEmitter
   name: ClrMethodBodyEmitter
   href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html
@@ -10353,6 +9792,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.BlockFlow.MapValues
   nameWithType: BlockFlow.MapValues
+- uid: Flame.Compiler.BlockFlow.Values
+  name: Values
+  href: api/Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_Values
+  commentId: P:Flame.Compiler.BlockFlow.Values
+  fullName: Flame.Compiler.BlockFlow.Values
+  nameWithType: BlockFlow.Values
+- uid: Flame.Compiler.BlockFlow.Values*
+  name: Values
+  href: api/Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_Values_
+  commentId: Overload:Flame.Compiler.BlockFlow.Values
+  isSpec: "True"
+  fullName: Flame.Compiler.BlockFlow.Values
+  nameWithType: BlockFlow.Values
 - uid: Flame.Compiler.BlockFlow.WithBranches(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Branch})
   name: WithBranches(IReadOnlyList<Branch>)
   href: api/Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__
@@ -17770,15 +17222,15 @@ references:
   fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).InstructionSelector
   nameWithType: InstructionStreamBuilder<TInstruction>.InstructionSelector
   nameWithType.vb: InstructionStreamBuilder(Of TInstruction).InstructionSelector
-- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
-  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
-  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedInstructions__0__
-  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
-  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
-  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedInstructions<TInstruction>)
-  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedInstructions(Of TInstruction))
-  nameWithType: InstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
-  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+- uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedFlowInstructions{`0})
+  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedFlowInstructions<TInstruction>)
+  href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedFlowInstructions__0__
+  commentId: M:Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedFlowInstructions{`0})
+  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedFlowInstructions(Of TInstruction))
+  fullName: Flame.Compiler.Target.InstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.InstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction))
+  nameWithType: InstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedFlowInstructions<TInstruction>)
+  nameWithType.vb: InstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedFlowInstructions(Of TInstruction))
 - uid: Flame.Compiler.Target.InstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.FlowGraph)
   name: ToInstructionStream(FlowGraph)
   href: api/Flame.Compiler.Target.InstructionStreamBuilder-1.html#Flame_Compiler_Target_InstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_FlowGraph_
@@ -17873,6 +17325,24 @@ references:
   fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).Pushes
   nameWithType: IStackInstructionSelector<TInstruction>.Pushes
   nameWithType.vb: IStackInstructionSelector(Of TInstruction).Pushes
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.TryCreateDup(Flame.IType,System.Collections.Generic.IReadOnlyList{`0}@)
+  name: TryCreateDup(IType, out IReadOnlyList<TInstruction>)
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_TryCreateDup_Flame_IType_System_Collections_Generic_IReadOnlyList__0___
+  commentId: M:Flame.Compiler.Target.IStackInstructionSelector`1.TryCreateDup(Flame.IType,System.Collections.Generic.IReadOnlyList{`0}@)
+  name.vb: TryCreateDup(IType, ByRef IReadOnlyList(Of TInstruction))
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.TryCreateDup(Flame.IType, out System.Collections.Generic.IReadOnlyList<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).TryCreateDup(Flame.IType, ByRef System.Collections.Generic.IReadOnlyList(Of TInstruction))
+  nameWithType: IStackInstructionSelector<TInstruction>.TryCreateDup(IType, out IReadOnlyList<TInstruction>)
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).TryCreateDup(IType, ByRef IReadOnlyList(Of TInstruction))
+- uid: Flame.Compiler.Target.IStackInstructionSelector`1.TryCreateDup*
+  name: TryCreateDup
+  href: api/Flame.Compiler.Target.IStackInstructionSelector-1.html#Flame_Compiler_Target_IStackInstructionSelector_1_TryCreateDup_
+  commentId: Overload:Flame.Compiler.Target.IStackInstructionSelector`1.TryCreateDup
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.IStackInstructionSelector<TInstruction>.TryCreateDup
+  fullName.vb: Flame.Compiler.Target.IStackInstructionSelector(Of TInstruction).TryCreateDup
+  nameWithType: IStackInstructionSelector<TInstruction>.TryCreateDup
+  nameWithType.vb: IStackInstructionSelector(Of TInstruction).TryCreateDup
 - uid: Flame.Compiler.Target.PeepholeOptimizer`2
   name: PeepholeOptimizer<TInstruction, TExternalRef>
   href: api/Flame.Compiler.Target.PeepholeOptimizer-2.html
@@ -18101,6 +17571,161 @@ references:
   fullName.vb: Flame.Compiler.Target.PeepholeRewriteRule(Of TInstruction).Rewrite
   nameWithType: PeepholeRewriteRule<TInstruction>.Rewrite
   nameWithType.vb: PeepholeRewriteRule(Of TInstruction).Rewrite
+- uid: Flame.Compiler.Target.SelectedFlowInstructions
+  name: SelectedFlowInstructions
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions.html
+  commentId: T:Flame.Compiler.Target.SelectedFlowInstructions
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions
+  nameWithType: SelectedFlowInstructions
+- uid: Flame.Compiler.Target.SelectedFlowInstructions.Create*
+  name: Create
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions.html#Flame_Compiler_Target_SelectedFlowInstructions_Create_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions.Create
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions.Create
+  nameWithType: SelectedFlowInstructions.Create
+- uid: Flame.Compiler.Target.SelectedFlowInstructions.Create``1(``0[])
+  name: Create<TInstruction>(TInstruction[])
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions.html#Flame_Compiler_Target_SelectedFlowInstructions_Create__1___0___
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions.Create``1(``0[])
+  name.vb: Create(Of TInstruction)(TInstruction())
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions.Create<TInstruction>(TInstruction[])
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions.Create(Of TInstruction)(TInstruction())
+  nameWithType: SelectedFlowInstructions.Create<TInstruction>(TInstruction[])
+  nameWithType.vb: SelectedFlowInstructions.Create(Of TInstruction)(TInstruction())
+- uid: Flame.Compiler.Target.SelectedFlowInstructions.Create``1(Flame.Compiler.Target.SelectedInstructions{``0}[])
+  name: Create<TInstruction>(SelectedInstructions<TInstruction>[])
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions.html#Flame_Compiler_Target_SelectedFlowInstructions_Create__1_Flame_Compiler_Target_SelectedInstructions___0____
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions.Create``1(Flame.Compiler.Target.SelectedInstructions{``0}[])
+  name.vb: Create(Of TInstruction)(SelectedInstructions(Of TInstruction)())
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions.Create<TInstruction>(Flame.Compiler.Target.SelectedInstructions<TInstruction>[])
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions.Create(Of TInstruction)(Flame.Compiler.Target.SelectedInstructions(Of TInstruction)())
+  nameWithType: SelectedFlowInstructions.Create<TInstruction>(SelectedInstructions<TInstruction>[])
+  nameWithType.vb: SelectedFlowInstructions.Create(Of TInstruction)(SelectedInstructions(Of TInstruction)())
+- uid: Flame.Compiler.Target.SelectedFlowInstructions.Create``1(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.SelectedInstructions{``0}})
+  name: Create<TInstruction>(IReadOnlyList<SelectedInstructions<TInstruction>>)
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions.html#Flame_Compiler_Target_SelectedFlowInstructions_Create__1_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Target_SelectedInstructions___0___
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions.Create``1(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.SelectedInstructions{``0}})
+  name.vb: Create(Of TInstruction)(IReadOnlyList(Of SelectedInstructions(Of TInstruction)))
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions.Create<TInstruction>(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Target.SelectedInstructions<TInstruction>>)
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions.Create(Of TInstruction)(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Target.SelectedInstructions(Of TInstruction)))
+  nameWithType: SelectedFlowInstructions.Create<TInstruction>(IReadOnlyList<SelectedInstructions<TInstruction>>)
+  nameWithType.vb: SelectedFlowInstructions.Create(Of TInstruction)(IReadOnlyList(Of SelectedInstructions(Of TInstruction)))
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1
+  name: SelectedFlowInstructions<TInstruction>
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html
+  commentId: T:Flame.Compiler.Target.SelectedFlowInstructions`1
+  name.vb: SelectedFlowInstructions(Of TInstruction)
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction)
+  nameWithType: SelectedFlowInstructions<TInstruction>
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction)
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.SelectedInstructions{`0}})
+  name: SelectedFlowInstructions(IReadOnlyList<SelectedInstructions<TInstruction>>)
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Target_SelectedInstructions__0___
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions`1.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Target.SelectedInstructions{`0}})
+  name.vb: SelectedFlowInstructions(IReadOnlyList(Of SelectedInstructions(Of TInstruction)))
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.SelectedFlowInstructions(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Target.SelectedInstructions<TInstruction>>)
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).SelectedFlowInstructions(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Target.SelectedInstructions(Of TInstruction)))
+  nameWithType: SelectedFlowInstructions<TInstruction>.SelectedFlowInstructions(IReadOnlyList<SelectedInstructions<TInstruction>>)
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).SelectedFlowInstructions(IReadOnlyList(Of SelectedInstructions(Of TInstruction)))
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.#ctor*
+  name: SelectedFlowInstructions
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1__ctor_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions`1.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.SelectedFlowInstructions
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).SelectedFlowInstructions
+  nameWithType: SelectedFlowInstructions<TInstruction>.SelectedFlowInstructions
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).SelectedFlowInstructions
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Append(`0[])
+  name: Append(TInstruction[])
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Append__0___
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions`1.Append(`0[])
+  name.vb: Append(TInstruction())
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Append(TInstruction[])
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Append(TInstruction())
+  nameWithType: SelectedFlowInstructions<TInstruction>.Append(TInstruction[])
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Append(TInstruction())
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
+  name: Append(IEnumerable<TInstruction>)
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Append_System_Collections_Generic_IEnumerable__0__
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
+  name.vb: Append(IEnumerable(Of TInstruction))
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Append(System.Collections.Generic.IEnumerable<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Append(System.Collections.Generic.IEnumerable(Of TInstruction))
+  nameWithType: SelectedFlowInstructions<TInstruction>.Append(IEnumerable<TInstruction>)
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Append(IEnumerable(Of TInstruction))
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Append*
+  name: Append
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Append_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions`1.Append
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Append
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Append
+  nameWithType: SelectedFlowInstructions<TInstruction>.Append
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Append
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Chunks
+  name: Chunks
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Chunks
+  commentId: P:Flame.Compiler.Target.SelectedFlowInstructions`1.Chunks
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Chunks
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Chunks
+  nameWithType: SelectedFlowInstructions<TInstruction>.Chunks
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Chunks
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Chunks*
+  name: Chunks
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Chunks_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions`1.Chunks
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Chunks
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Chunks
+  nameWithType: SelectedFlowInstructions<TInstruction>.Chunks
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Chunks
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Dependencies
+  name: Dependencies
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Dependencies
+  commentId: P:Flame.Compiler.Target.SelectedFlowInstructions`1.Dependencies
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Dependencies
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Dependencies
+  nameWithType: SelectedFlowInstructions<TInstruction>.Dependencies
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Dependencies
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Dependencies*
+  name: Dependencies
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Dependencies_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions`1.Dependencies
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Dependencies
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Dependencies
+  nameWithType: SelectedFlowInstructions<TInstruction>.Dependencies
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Dependencies
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend(`0[])
+  name: Prepend(TInstruction[])
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Prepend__0___
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend(`0[])
+  name.vb: Prepend(TInstruction())
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Prepend(TInstruction[])
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Prepend(TInstruction())
+  nameWithType: SelectedFlowInstructions<TInstruction>.Prepend(TInstruction[])
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Prepend(TInstruction())
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend(System.Collections.Generic.IEnumerable{`0})
+  name: Prepend(IEnumerable<TInstruction>)
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Prepend_System_Collections_Generic_IEnumerable__0__
+  commentId: M:Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend(System.Collections.Generic.IEnumerable{`0})
+  name.vb: Prepend(IEnumerable(Of TInstruction))
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Prepend(System.Collections.Generic.IEnumerable<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Prepend(System.Collections.Generic.IEnumerable(Of TInstruction))
+  nameWithType: SelectedFlowInstructions<TInstruction>.Prepend(IEnumerable<TInstruction>)
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Prepend(IEnumerable(Of TInstruction))
+- uid: Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend*
+  name: Prepend
+  href: api/Flame.Compiler.Target.SelectedFlowInstructions-1.html#Flame_Compiler_Target_SelectedFlowInstructions_1_Prepend_
+  commentId: Overload:Flame.Compiler.Target.SelectedFlowInstructions`1.Prepend
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>.Prepend
+  fullName.vb: Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction).Prepend
+  nameWithType: SelectedFlowInstructions<TInstruction>.Prepend
+  nameWithType.vb: SelectedFlowInstructions(Of TInstruction).Prepend
 - uid: Flame.Compiler.Target.SelectedInstructions
   name: SelectedInstructions
   href: api/Flame.Compiler.Target.SelectedInstructions.html
@@ -18123,6 +17748,15 @@ references:
   fullName.vb: Flame.Compiler.Target.SelectedInstructions.Create(Of TInstruction)(TInstruction, Flame.Compiler.ValueTag())
   nameWithType: SelectedInstructions.Create<TInstruction>(TInstruction, ValueTag[])
   nameWithType.vb: SelectedInstructions.Create(Of TInstruction)(TInstruction, ValueTag())
+- uid: Flame.Compiler.Target.SelectedInstructions.Create``1(System.Collections.Generic.IReadOnlyList{``0})
+  name: Create<TInstruction>(IReadOnlyList<TInstruction>)
+  href: api/Flame.Compiler.Target.SelectedInstructions.html#Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__
+  commentId: M:Flame.Compiler.Target.SelectedInstructions.Create``1(System.Collections.Generic.IReadOnlyList{``0})
+  name.vb: Create(Of TInstruction)(IReadOnlyList(Of TInstruction))
+  fullName: Flame.Compiler.Target.SelectedInstructions.Create<TInstruction>(System.Collections.Generic.IReadOnlyList<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.SelectedInstructions.Create(Of TInstruction)(System.Collections.Generic.IReadOnlyList(Of TInstruction))
+  nameWithType: SelectedInstructions.Create<TInstruction>(IReadOnlyList<TInstruction>)
+  nameWithType.vb: SelectedInstructions.Create(Of TInstruction)(IReadOnlyList(Of TInstruction))
 - uid: Flame.Compiler.Target.SelectedInstructions.Create``1(System.Collections.Generic.IReadOnlyList{``0},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
   name: Create<TInstruction>(IReadOnlyList<TInstruction>, IReadOnlyList<ValueTag>)
   href: api/Flame.Compiler.Target.SelectedInstructions.html#Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__
@@ -18168,24 +17802,6 @@ references:
   fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).SelectedInstructions
   nameWithType: SelectedInstructions<TInstruction>.SelectedInstructions
   nameWithType.vb: SelectedInstructions(Of TInstruction).SelectedInstructions
-- uid: Flame.Compiler.Target.SelectedInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
-  name: Append(IEnumerable<TInstruction>)
-  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Append_System_Collections_Generic_IEnumerable__0__
-  commentId: M:Flame.Compiler.Target.SelectedInstructions`1.Append(System.Collections.Generic.IEnumerable{`0})
-  name.vb: Append(IEnumerable(Of TInstruction))
-  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Append(System.Collections.Generic.IEnumerable<TInstruction>)
-  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Append(System.Collections.Generic.IEnumerable(Of TInstruction))
-  nameWithType: SelectedInstructions<TInstruction>.Append(IEnumerable<TInstruction>)
-  nameWithType.vb: SelectedInstructions(Of TInstruction).Append(IEnumerable(Of TInstruction))
-- uid: Flame.Compiler.Target.SelectedInstructions`1.Append*
-  name: Append
-  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Append_
-  commentId: Overload:Flame.Compiler.Target.SelectedInstructions`1.Append
-  isSpec: "True"
-  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Append
-  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Append
-  nameWithType: SelectedInstructions<TInstruction>.Append
-  nameWithType.vb: SelectedInstructions(Of TInstruction).Append
 - uid: Flame.Compiler.Target.SelectedInstructions`1.Dependencies
   name: Dependencies
   href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Dependencies
@@ -18282,15 +17898,32 @@ references:
   fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).GetStackContentsOnEntry
   nameWithType: StackInstructionStreamBuilder<TInstruction>.GetStackContentsOnEntry
   nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).GetStackContentsOnEntry
-- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
-  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
-  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedInstructions__0__
-  commentId: M:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedInstructions{`0})
-  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
-  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedInstructions<TInstruction>)
-  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedInstructions(Of TInstruction))
-  nameWithType: StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedInstructions<TInstruction>)
-  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedInstructions(Of TInstruction))
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ShouldMaterializeOnUse(Flame.Compiler.NamedInstruction)
+  name: ShouldMaterializeOnUse(NamedInstruction)
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ShouldMaterializeOnUse_Flame_Compiler_NamedInstruction_
+  commentId: M:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ShouldMaterializeOnUse(Flame.Compiler.NamedInstruction)
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ShouldMaterializeOnUse(Flame.Compiler.NamedInstruction)
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ShouldMaterializeOnUse(Flame.Compiler.NamedInstruction)
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.ShouldMaterializeOnUse(NamedInstruction)
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ShouldMaterializeOnUse(NamedInstruction)
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ShouldMaterializeOnUse*
+  name: ShouldMaterializeOnUse
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ShouldMaterializeOnUse_
+  commentId: Overload:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ShouldMaterializeOnUse
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ShouldMaterializeOnUse
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ShouldMaterializeOnUse
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.ShouldMaterializeOnUse
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ShouldMaterializeOnUse
+- uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedFlowInstructions{`0})
+  name: ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedFlowInstructions<TInstruction>)
+  href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ToInstructionStream_Flame_Compiler_BasicBlock_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_Target_SelectedInstructions__0___Flame_Compiler_Target_SelectedFlowInstructions__0__
+  commentId: M:Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream(Flame.Compiler.BasicBlock,System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.Target.SelectedInstructions{`0}},Flame.Compiler.Target.SelectedFlowInstructions{`0})
+  name.vb: ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedFlowInstructions(Of TInstruction))
+  fullName: Flame.Compiler.Target.StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary<Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions<TInstruction>>, Flame.Compiler.Target.SelectedFlowInstructions<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(Flame.Compiler.BasicBlock, System.Collections.Generic.IReadOnlyDictionary(Of Flame.Compiler.ValueTag, Flame.Compiler.Target.SelectedInstructions(Of TInstruction)), Flame.Compiler.Target.SelectedFlowInstructions(Of TInstruction))
+  nameWithType: StackInstructionStreamBuilder<TInstruction>.ToInstructionStream(BasicBlock, IReadOnlyDictionary<ValueTag, SelectedInstructions<TInstruction>>, SelectedFlowInstructions<TInstruction>)
+  nameWithType.vb: StackInstructionStreamBuilder(Of TInstruction).ToInstructionStream(BasicBlock, IReadOnlyDictionary(Of ValueTag, SelectedInstructions(Of TInstruction)), SelectedFlowInstructions(Of TInstruction))
 - uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1.ToInstructionStream*
   name: ToInstructionStream
   href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html#Flame_Compiler_Target_StackInstructionStreamBuilder_1_ToInstructionStream_

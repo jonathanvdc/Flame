@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class SelectedInstructions
    | Flame ">
-    <meta name="generator" content="docfx 2.42.2.0">
+    <meta name="generator" content="docfx 2.42.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -128,7 +128,7 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Target_SelectedInstructions_Create__1___0_Flame_Compiler_ValueTag___.md&amp;value=---%0Auid%3A%20Flame.Compiler.Target.SelectedInstructions.Create%60%601(%60%600%2CFlame.Compiler.ValueTag%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L110">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L97">View Source</a>
   </span>
   <a id="Flame_Compiler_Target_SelectedInstructions_Create_" data-uid="Flame.Compiler.Target.SelectedInstructions.Create*"></a>
   <h4 id="Flame_Compiler_Target_SelectedInstructions_Create__1___0_Flame_Compiler_ValueTag___" data-uid="Flame.Compiler.Target.SelectedInstructions.Create``1(``0,Flame.Compiler.ValueTag[])">Create&lt;TInstruction&gt;(TInstruction, ValueTag[])</h4>
@@ -197,10 +197,75 @@ depend on.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Target.SelectedInstructions.Create%60%601(System.Collections.Generic.IReadOnlyList%7B%60%600%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L111">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Target_SelectedInstructions_Create_" data-uid="Flame.Compiler.Target.SelectedInstructions.Create*"></a>
+  <h4 id="Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__" data-uid="Flame.Compiler.Target.SelectedInstructions.Create``1(System.Collections.Generic.IReadOnlyList{``0})">Create&lt;TInstruction&gt;(IReadOnlyList&lt;TInstruction&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a selected instruction container from a sequence of instructions
+and no dependencies.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static SelectedInstructions&lt;TInstruction&gt; Create&lt;TInstruction&gt;(IReadOnlyList&lt;TInstruction&gt; instructions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;TInstruction&gt;</td>
+        <td><span class="parametername">instructions</span></td>
+        <td><p>A sequence of instructions as selected for a particular value.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Target.SelectedInstructions-1.html">SelectedInstructions</a>&lt;TInstruction&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TInstruction</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Target.SelectedInstructions.Create%60%601(System.Collections.Generic.IReadOnlyList%7B%60%600%7D%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L92">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L79">View Source</a>
   </span>
   <a id="Flame_Compiler_Target_SelectedInstructions_Create_" data-uid="Flame.Compiler.Target.SelectedInstructions.Create*"></a>
   <h4 id="Flame_Compiler_Target_SelectedInstructions_Create__1_System_Collections_Generic_IReadOnlyList___0__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Target.SelectedInstructions.Create``1(System.Collections.Generic.IReadOnlyList{``0},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">Create&lt;TInstruction&gt;(IReadOnlyList&lt;TInstruction&gt;, IReadOnlyList&lt;ValueTag&gt;)</h4>
@@ -277,7 +342,7 @@ depend on.</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Target_SelectedInstructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.Target.SelectedInstructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L80" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/Flame.Compiler/Target/SelectedInstructions.cs/#L67" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
