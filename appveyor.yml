@@ -51,7 +51,7 @@ after_build:
   - nuget pack -Version %PKG_VERSION% Flame.nuspec
   # Build docs using DocFX and deploy them to GitHub pages. (Based on https://github.com/docascode/docfx-seed/blob/master/appveyor.yml)
   - ps: |
-        if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
+        if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE -and $env:APPVEYOR_REPO_BRANCH -eq "master")
         {
             # & nuget install docfx.console -Version 2.18.4 -Source https://www.myget.org/F/docfx/api/v3/index.json
             # & docfx.console.2.18.4\tools\docfx docfx.json
@@ -59,7 +59,7 @@ after_build:
             if ($lastexitcode -ne 0){
                 throw [System.Exception] "docfx build failed with exit code $lastexitcode."
             }
-            
+
             git config --global credential.helper store
             Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
             git config --global user.email $env:op_build_user_email
