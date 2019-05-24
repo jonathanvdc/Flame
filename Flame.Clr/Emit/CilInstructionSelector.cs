@@ -21,7 +21,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction selector for CIL codegen instructions.
     /// </summary>
-    public sealed class CilInstructionSelector :
+    internal sealed class CilInstructionSelector :
         ILinearInstructionSelector<CilCodegenInstruction>,
         IStackInstructionSelector<CilCodegenInstruction>
     {

@@ -12,7 +12,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction type for CIL instruction selection.
     /// </summary>
-    public abstract class CilCodegenInstruction
+    internal abstract class CilCodegenInstruction
     {
         internal CilCodegenInstruction()
         { }
@@ -21,7 +21,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An actual CIL instruction that is emitted as-is.
     /// </summary>
-    public sealed class CilOpInstruction : CilCodegenInstruction
+    internal sealed class CilOpInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates a CIL instruction that is emitted as-is.
@@ -116,7 +116,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that marks an instruction as a branch target.
     /// </summary>
-    public sealed class CilMarkTargetInstruction : CilCodegenInstruction
+    internal sealed class CilMarkTargetInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that marks a branch target.
@@ -137,7 +137,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that reads from a virtual register.
     /// </summary>
-    public sealed class CilLoadRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilLoadRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that reads from a virtual register.
@@ -158,7 +158,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that writes to a virtual register.
     /// </summary>
-    public sealed class CilStoreRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilStoreRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that writes to a virtual register.
@@ -179,7 +179,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// An instruction that computes the address of a virtual register.
     /// </summary>
-    public sealed class CilAddressOfRegisterInstruction : CilCodegenInstruction
+    internal sealed class CilAddressOfRegisterInstruction : CilCodegenInstruction
     {
         /// <summary>
         /// Creates an instruction that computes the address of a virtual register.
