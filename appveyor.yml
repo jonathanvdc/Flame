@@ -36,15 +36,15 @@ build_script:
   - set /p CSC_PATH=<csc-path.txt
   - echo %CSC_PATH%
   # Restore NuGet packages.
-  - nuget restore Flame.sln
+  - nuget restore src/Flame.sln
   # Build supporting macros.
-  - msbuild /p:Configuration=Release /verbosity:quiet /nologo FlameMacros/FlameMacros.csproj
+  - msbuild /p:Configuration=Release /verbosity:quiet /nologo src/FlameMacros/FlameMacros.csproj
   # Compile macro applications.
   - C:\cygwin\bin\make dsl RUN_EXE=""
   # Build Flame.
-  - msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
+  - msbuild /p:Configuration=Release /verbosity:quiet /nologo src/Flame.sln
   # Run the tests.
-  - UnitTests\bin\Release\UnitTests.exe all "--csc-path=%CSC_PATH%"
+  - src\UnitTests\bin\Release\UnitTests.exe all "--csc-path=%CSC_PATH%"
 
 after_build:
   # Create NuGet packages

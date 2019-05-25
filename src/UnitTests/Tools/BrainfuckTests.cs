@@ -13,7 +13,7 @@ namespace UnitTests
         public void RunTests()
         {
             foreach (var file in Directory.GetFiles(
-                Path.Combine(ProjectPath, "ToolTests", "Brainfuck"),
+                Path.Combine(ILOptTests.ToolTestPath, "Brainfuck"),
                 "*.bf",
                 SearchOption.TopDirectoryOnly))
             {
@@ -75,8 +75,5 @@ namespace UnitTests
                 throw new Exception($"Error while compiling {inputPath}: {stderr}");
             }
         }
-
-        private static readonly string ProjectPath = Directory.GetParent(
-            System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.FullName;
     }
 }

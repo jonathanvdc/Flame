@@ -13,7 +13,7 @@ namespace UnitTests
         public void RunTests()
         {
             foreach (var file in Directory.GetFiles(
-                Path.Combine(ProjectPath, "ToolTests", "ILOpt"),
+                Path.Combine(ToolTestPath, "ILOpt"),
                 "*.cs",
                 SearchOption.TopDirectoryOnly))
             {
@@ -124,8 +124,11 @@ namespace UnitTests
             }
         }
 
-        private static readonly string ProjectPath = Directory.GetParent(
+        internal static readonly string ProjectPath = Directory.GetParent(
             System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.FullName;
+
+        internal static readonly string ToolTestPath = Path.Combine(
+            Directory.GetParent(ProjectPath).FullName, "ToolTests");
 
         private static readonly string ILOptPath = Path.Combine(
             ProjectPath,
