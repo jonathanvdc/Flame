@@ -22,7 +22,11 @@ clone_script:
 
 before_build:
   # Install DocFX.
-  - choco install docfx -y
+  - ps: |
+        if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE -and $env:APPVEYOR_REPO_BRANCH -eq "master")
+        {
+            choco install docfx -y
+        }
 
 build_script:
   # Generate a NuGet package version number.
