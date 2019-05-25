@@ -241,10 +241,10 @@ namespace Flame.Clr
                 {
                     var genInstType = (GenericInstanceType)typeSpec;
                     return elemType.MakeRecursiveGenericType(
-                        genInstType.GenericArguments.Select(
-                            arg => TypeHelpers.BoxIfReferenceType(
-                                Resolve(arg, assembly, enclosingMember, useStandins)))
-                        .ToArray());
+                        genInstType.GenericArguments
+                            .Select(arg => Resolve(arg, assembly, enclosingMember, useStandins))
+                            .Zip(elemType.GetRecursiveGenericParameters(), BoxTypeArgumentIfNecessary)
+                            .ToArray());
                 }
                 else if (typeSpec is Mono.Cecil.PointerType)
                 {
@@ -351,6 +351,19 @@ namespace Flame.Clr
             }
         }
 
+        private IType BoxTypeArgumentIfNecessary(IType typeArgument, IGenericParameter parameter)
+        {
+            if (parameter.IsReferenceType())
+            {
+                // Already pre-boxed.
+                return typeArgument;
+            }
+            else
+            {
+                return TypeHelpers.BoxIfReferenceType(typeArgument);
+            }
+        }
+
         private IType FindInAssembly(TypeReference typeRef, IAssembly assembly)
         {
             var qualName = NameConversion.ParseSimpleName(typeRef.Name)
@@ -412,7 +425,8 @@ namespace Flame.Clr
                     var elemMethod = Resolve(genInstMethod.ElementMethod, assembly);
                     return elemMethod.MakeGenericMethod(
                         genInstMethod.GenericArguments
-                        .Select(arg => TypeHelpers.BoxIfReferenceType(Resolve(arg, assembly)))
+                        .Select(arg => Resolve(arg, assembly))
+                        .Zip(elemMethod.GenericParameters, BoxTypeArgumentIfNecessary)
                         .ToArray());
                 }
                 else
