@@ -158,6 +158,7 @@ namespace Flame.Compiler.Analysis
                     {
                         // Rule #2.a: Value-reading instructions depend on value-writing
                         // instructions that refer to the same address.
+                        insnDependencies.UnionWith(unknownWrites);
                         if (memSpec is MemorySpecification.ArgumentRead)
                         {
                             var argReadSpec = (MemorySpecification.ArgumentRead)memSpec;
@@ -169,7 +170,6 @@ namespace Flame.Compiler.Analysis
                                     insnDependencies.Add(pair.Key);
                                 }
                             }
-                            insnDependencies.UnionWith(unknownWrites);
 
                             // Update the set of known reads.
                             knownReads[selection] = selection;
@@ -190,6 +190,8 @@ namespace Flame.Compiler.Analysis
                         // instructions that refer to the same address.
                         // Rule #2.e: Value-writing instructions depend on value-reading
                         // instructions that refer to the same address.
+                        insnDependencies.UnionWith(unknownWrites);
+                        insnDependencies.UnionWith(unknownReads);
                         if (memSpec is MemorySpecification.ArgumentWrite)
                         {
                             var argWriteSpec = (MemorySpecification.ArgumentWrite)memSpec;
@@ -206,8 +208,6 @@ namespace Flame.Compiler.Analysis
                                     insnDependencies.Add(pair.Key);
                                 }
                             }
-                            insnDependencies.UnionWith(unknownWrites);
-                            insnDependencies.UnionWith(unknownReads);
 
                             // Update the set of known writes.
                             knownWrites[selection] = writeAddress;
