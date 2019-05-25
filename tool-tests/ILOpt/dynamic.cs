@@ -1,5 +1,8 @@
 //! run
 
+// This test case is based on Nick Craver's DLR benchmark, which is hosted
+// at https://github.com/NickCraver/PerfBenchmarks/blob/master/Benchmarks/DLR.cs .
+
 using System;
 
 namespace Benchmarks
