@@ -1886,6 +1886,77 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.ClrMethodDefinition.ToString
   nameWithType: ClrMethodDefinition.ToString
+- uid: Flame.Clr.ClrModifierType
+  name: ClrModifierType
+  href: api/Flame.Clr.ClrModifierType.html
+  commentId: T:Flame.Clr.ClrModifierType
+  fullName: Flame.Clr.ClrModifierType
+  nameWithType: ClrModifierType
+- uid: Flame.Clr.ClrModifierType.CreateOptional(Flame.IType,Flame.IType)
+  name: CreateOptional(IType, IType)
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_CreateOptional_Flame_IType_Flame_IType_
+  commentId: M:Flame.Clr.ClrModifierType.CreateOptional(Flame.IType,Flame.IType)
+  fullName: Flame.Clr.ClrModifierType.CreateOptional(Flame.IType, Flame.IType)
+  nameWithType: ClrModifierType.CreateOptional(IType, IType)
+- uid: Flame.Clr.ClrModifierType.CreateOptional*
+  name: CreateOptional
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_CreateOptional_
+  commentId: Overload:Flame.Clr.ClrModifierType.CreateOptional
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.CreateOptional
+  nameWithType: ClrModifierType.CreateOptional
+- uid: Flame.Clr.ClrModifierType.CreateRequired(Flame.IType,Flame.IType)
+  name: CreateRequired(IType, IType)
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_CreateRequired_Flame_IType_Flame_IType_
+  commentId: M:Flame.Clr.ClrModifierType.CreateRequired(Flame.IType,Flame.IType)
+  fullName: Flame.Clr.ClrModifierType.CreateRequired(Flame.IType, Flame.IType)
+  nameWithType: ClrModifierType.CreateRequired(IType, IType)
+- uid: Flame.Clr.ClrModifierType.CreateRequired*
+  name: CreateRequired
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_CreateRequired_
+  commentId: Overload:Flame.Clr.ClrModifierType.CreateRequired
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.CreateRequired
+  nameWithType: ClrModifierType.CreateRequired
+- uid: Flame.Clr.ClrModifierType.IsRequired
+  name: IsRequired
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_IsRequired
+  commentId: P:Flame.Clr.ClrModifierType.IsRequired
+  fullName: Flame.Clr.ClrModifierType.IsRequired
+  nameWithType: ClrModifierType.IsRequired
+- uid: Flame.Clr.ClrModifierType.IsRequired*
+  name: IsRequired
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_IsRequired_
+  commentId: Overload:Flame.Clr.ClrModifierType.IsRequired
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.IsRequired
+  nameWithType: ClrModifierType.IsRequired
+- uid: Flame.Clr.ClrModifierType.ModifierType
+  name: ModifierType
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_ModifierType
+  commentId: P:Flame.Clr.ClrModifierType.ModifierType
+  fullName: Flame.Clr.ClrModifierType.ModifierType
+  nameWithType: ClrModifierType.ModifierType
+- uid: Flame.Clr.ClrModifierType.ModifierType*
+  name: ModifierType
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_ModifierType_
+  commentId: Overload:Flame.Clr.ClrModifierType.ModifierType
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.ModifierType
+  nameWithType: ClrModifierType.ModifierType
+- uid: Flame.Clr.ClrModifierType.WithElementType(Flame.IType)
+  name: WithElementType(IType)
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_WithElementType_Flame_IType_
+  commentId: M:Flame.Clr.ClrModifierType.WithElementType(Flame.IType)
+  fullName: Flame.Clr.ClrModifierType.WithElementType(Flame.IType)
+  nameWithType: ClrModifierType.WithElementType(IType)
+- uid: Flame.Clr.ClrModifierType.WithElementType*
+  name: WithElementType
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_WithElementType_
+  commentId: Overload:Flame.Clr.ClrModifierType.WithElementType
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.WithElementType
+  nameWithType: ClrModifierType.WithElementType
 - uid: Flame.Clr.ClrPropertyDefinition
   name: ClrPropertyDefinition
   href: api/Flame.Clr.ClrPropertyDefinition.html

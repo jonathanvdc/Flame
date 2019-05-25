@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ClrModifierType
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ClrModifierType
+   | Flame ">
+    <meta name="generator" content="docfx 2.42.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Clr.ClrModifierType">
+  
+  
+  <h1 id="Flame_Clr_ClrModifierType" data-uid="Flame.Clr.ClrModifierType" class="text-break">Class ClrModifierType
+  </h1>
+  <div class="markdown level0 summary"><p>An IL type that modifies a type by slapping on a required
+or optional modifier.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.TypeSystem.ContainerType.html">ContainerType</a></div>
+    <div class="level2"><span class="xref">ClrModifierType</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.IType.html">IType</a></div>
+    <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
+    <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Initialize_Flame_UnqualifiedName_Flame_QualifiedName_Flame_AttributeMap_">ContainerType.Initialize(UnqualifiedName, QualifiedName, AttributeMap)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_ElementType">ContainerType.ElementType</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Parent">ContainerType.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_BaseTypes">ContainerType.BaseTypes</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Fields">ContainerType.Fields</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Methods">ContainerType.Methods</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Properties">ContainerType.Properties</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_GenericParameters">ContainerType.GenericParameters</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_NestedTypes">ContainerType.NestedTypes</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Name">ContainerType.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_FullName">ContainerType.FullName</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_Attributes">ContainerType.Attributes</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_ToString">ContainerType.ToString()</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
+  <h5 id="Flame_Clr_ClrModifierType_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class ClrModifierType : ContainerType, IType, IGenericMember, IMember</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType_IsRequired.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType.IsRequired%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L34">View Source</a>
+  </span>
+  <a id="Flame_Clr_ClrModifierType_IsRequired_" data-uid="Flame.Clr.ClrModifierType.IsRequired*"></a>
+  <h4 id="Flame_Clr_ClrModifierType_IsRequired" data-uid="Flame.Clr.ClrModifierType.IsRequired">IsRequired</h4>
+  <div class="markdown level1 summary"><p>Tells if this type is a modreq type; if it is not, then it must
+be a modopt type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsRequired { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this type is a modreq type; <code>false</code> if this type is a modopt type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType_ModifierType.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType.ModifierType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L25">View Source</a>
+  </span>
+  <a id="Flame_Clr_ClrModifierType_ModifierType_" data-uid="Flame.Clr.ClrModifierType.ModifierType*"></a>
+  <h4 id="Flame_Clr_ClrModifierType_ModifierType" data-uid="Flame.Clr.ClrModifierType.ModifierType">ModifierType</h4>
+  <div class="markdown level1 summary"><p>Gets the modifier type that is applied to the element type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType ModifierType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The modifier type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType_CreateOptional_Flame_IType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType.CreateOptional(Flame.IType%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L77">View Source</a>
+  </span>
+  <a id="Flame_Clr_ClrModifierType_CreateOptional_" data-uid="Flame.Clr.ClrModifierType.CreateOptional*"></a>
+  <h4 id="Flame_Clr_ClrModifierType_CreateOptional_Flame_IType_Flame_IType_" data-uid="Flame.Clr.ClrModifierType.CreateOptional(Flame.IType,Flame.IType)">CreateOptional(IType, IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a modopt type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ClrModifierType CreateOptional(IType elementType, IType modifierType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>An element type to associate with a modifier type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">modifierType</span></td>
+        <td><p>A modifier type to slap onto <code data-dev-comment-type="paramref" class="paramref">elementType</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Clr.ClrModifierType.html">ClrModifierType</a></td>
+        <td><p>A modopt type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType_CreateRequired_Flame_IType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType.CreateRequired(Flame.IType%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L62">View Source</a>
+  </span>
+  <a id="Flame_Clr_ClrModifierType_CreateRequired_" data-uid="Flame.Clr.ClrModifierType.CreateRequired*"></a>
+  <h4 id="Flame_Clr_ClrModifierType_CreateRequired_Flame_IType_Flame_IType_" data-uid="Flame.Clr.ClrModifierType.CreateRequired(Flame.IType,Flame.IType)">CreateRequired(IType, IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a modreq type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ClrModifierType CreateRequired(IType elementType, IType modifierType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>An element type to associate with a modifier type.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">modifierType</span></td>
+        <td><p>A modifier type to slap onto <code data-dev-comment-type="paramref" class="paramref">elementType</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Clr.ClrModifierType.html">ClrModifierType</a></td>
+        <td><p>A modreq type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType_WithElementType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType.WithElementType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L37">View Source</a>
+  </span>
+  <a id="Flame_Clr_ClrModifierType_WithElementType_" data-uid="Flame.Clr.ClrModifierType.WithElementType*"></a>
+  <h4 id="Flame_Clr_ClrModifierType_WithElementType_Flame_IType_" data-uid="Flame.Clr.ClrModifierType.WithElementType(Flame.IType)">WithElementType(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates a container type that is identical to this one
+except for its element type, which is set to a given
+type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ContainerType WithElementType(IType newElementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">newElementType</span></td>
+        <td><p>The element type of the new container type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.ContainerType.html">ContainerType</a></td>
+        <td><p>Another container type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.ContainerType.html#Flame_TypeSystem_ContainerType_WithElementType_Flame_IType_">ContainerType.WithElementType(IType)</a></div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.IType.html">IType</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IGenericMember.html">IGenericMember</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_ClrModifierType.md&amp;value=---%0Auid%3A%20Flame.Clr.ClrModifierType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/ClrModifierType.cs/#L12" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
