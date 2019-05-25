@@ -18,6 +18,7 @@ public static class Program
     {
         var containers = new StringContainer[1];
         containers[0] = new StringContainer(args[0]);
-        Console.WriteLine(containers[0].Contents);
+        ref var containerRef = ref containers[0];
+        Console.WriteLine(containerRef.Contents);
     }
 }
