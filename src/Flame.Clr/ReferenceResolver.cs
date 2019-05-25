@@ -302,8 +302,7 @@ namespace Flame.Clr
                 {
                     return ClrGenericParameterStandin.Create(
                         genericParam.Type,
-                        genericParam.Position,
-                        genericParam.HasReferenceTypeConstraint);
+                        genericParam.Position);
                 }
                 else if (genericParam.DeclaringMethod == null)
                 {
@@ -531,10 +530,7 @@ namespace Flame.Clr
 
             for (int i = 0; i < typeArgs.Count; i++)
             {
-                var standin = ClrGenericParameterStandin.Create(
-                    GenericParameterType.Type,
-                    i,
-                    typeArgs[i].IsReferenceType());
+                var standin = ClrGenericParameterStandin.Create(GenericParameterType.Type, i);
                 standinMap[standin] = typeArgs[i];
             }
 

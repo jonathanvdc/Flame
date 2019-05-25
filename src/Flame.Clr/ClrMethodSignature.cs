@@ -163,12 +163,10 @@ namespace Flame.Clr
     {
         private ClrGenericParameterStandin(
             GenericParameterType kind,
-            int position,
-            bool isReferenceType)
+            int position)
         {
             this.Kind = kind;
             this.Position = position;
-            this.IsReferenceType = isReferenceType;
         }
 
         /// <summary>
@@ -184,15 +182,6 @@ namespace Flame.Clr
         /// </summary>
         /// <returns>The generic parameter's position.</returns>
         public int Position { get; private set; }
-
-        /// <summary>
-        /// Tells if this generic parameter stand-in is always a reference type.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the generic parameter represented by this stand-in is
-        /// always a reference type; otherwise, <c>false</c>.
-        /// </returns>
-        public bool IsReferenceType { get; private set; }
 
         /// <inheritdoc/>
         public AttributeMap Attributes { get; private set; }
@@ -212,9 +201,7 @@ namespace Flame.Clr
         private static ClrGenericParameterStandin InitializeInstance(
             ClrGenericParameterStandin standin)
         {
-            standin.Attributes = standin.IsReferenceType
-                ? new AttributeMap(FlagAttribute.ReferenceType)
-                : AttributeMap.Empty;
+            standin.Attributes = AttributeMap.Empty;
             standin.FullName = new SimpleName(
                 (standin.Kind == GenericParameterType.Method
                     ? "!!"
@@ -240,14 +227,12 @@ namespace Flame.Clr
         /// <returns>A generic parameter stand-in.</returns>
         internal static ClrGenericParameterStandin Create(
             GenericParameterType kind,
-            int position,
-            bool isReferenceType)
+            int position)
         {
             return instanceCache.Intern(
                 new ClrGenericParameterStandin(
                     kind,
-                    position,
-                    isReferenceType));
+                    position));
         }
 
         public TypeParent Parent
@@ -312,15 +297,13 @@ namespace Flame.Clr
         public bool Equals(ClrGenericParameterStandin x, ClrGenericParameterStandin y)
         {
             return x.Kind == y.Kind
-                && x.Position == y.Position
-                && x.IsReferenceType == y.IsReferenceType;
+                && x.Position == y.Position;
         }
 
         public int GetHashCode(ClrGenericParameterStandin obj)
         {
             return (obj.Position << 2)
-                ^ (obj.Kind.GetHashCode() << 1)
-                ^ obj.IsReferenceType.GetHashCode();
+                ^ (obj.Kind.GetHashCode() << 1);
         }
     }
 
@@ -368,8 +351,7 @@ namespace Flame.Clr
                     memoizedStandins[genParams[i]] =
                         ClrGenericParameterStandin.Create(
                             GenericParameterType.Type,
-                            i,
-                            genParams[i].IsReferenceType());
+                            i);
                 }
             }
         }
@@ -385,8 +367,7 @@ namespace Flame.Clr
                     memoizedStandins[genParams[i]] =
                         ClrGenericParameterStandin.Create(
                             GenericParameterType.Method,
-                            i,
-                            genParams[i].IsReferenceType());
+                            i);
                 }
             }
         }
