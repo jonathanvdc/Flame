@@ -19,7 +19,7 @@
     <tags>Flame compiler</tags>
   </metadata>
   <files>
-    <file src="README.md" target="readme.txt" />
+    <file src="..\README.md" target="readme.txt" />
     <file src="Flame.Compiler\bin\Release\Flame.dll" target="lib\net45\" />
     <file src="Flame.Compiler\bin\Release\Flame.xml" target="lib\net45\" />
     <file src="Flame.Compiler\bin\Release\Flame.Compiler.dll" target="lib\net45\" />
