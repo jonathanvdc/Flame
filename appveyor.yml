@@ -48,7 +48,8 @@ build_script:
 
 after_build:
   # Create NuGet packages
-  - nuget pack -Version %PKG_VERSION% Flame.nuspec
+  - nuget pack -Version %PKG_VERSION% src/Flame.nuspec
+
   # Build docs using DocFX and deploy them to GitHub pages. (Based on https://github.com/docascode/docfx-seed/blob/master/appveyor.yml)
   - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE -and $env:APPVEYOR_REPO_BRANCH -eq "master")
