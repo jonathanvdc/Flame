@@ -54,6 +54,7 @@
     <Compile Include="ClrGenericParameter.cs" />
     <Compile Include="ClrMethodDefinition.cs" />
     <Compile Include="ClrMethodSignature.cs" />
+    <Compile Include="ClrModifierType.cs" />
     <Compile Include="ClrPropertyDefinition.cs" />
     <Compile Include="ClrPropertySignature.cs" />
     <Compile Include="ClrSubtypingRules.cs" />

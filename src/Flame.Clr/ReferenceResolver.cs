@@ -276,6 +276,18 @@ namespace Flame.Clr
                             "does not support arrays with that element type and rank.");
                     }
                 }
+                else if (typeSpec is Mono.Cecil.IModifierType)
+                {
+                    var modType = Resolve(
+                        ((Mono.Cecil.IModifierType)typeSpec).ModifierType,
+                        assembly,
+                        enclosingMember,
+                        useStandins);
+
+                    return typeSpec.IsRequiredModifier
+                        ? ClrModifierType.CreateRequired(elemType, modType)
+                        : ClrModifierType.CreateOptional(elemType, modType);
+                }
                 else
                 {
                     throw new NotSupportedException(
