@@ -125,7 +125,6 @@ namespace Flame.Clr.Emit
             ElideNop,
             ElideDupPop,
             ElideLdlocStloc,
-            DupUsePopToUse,
             LdcZeroBeqToBrfalse,
             LdcZeroConvBeqToBrfalse,
             LdcZeroBneToBrtrue,
@@ -200,24 +199,6 @@ namespace Flame.Clr.Emit
                     },
                     insns => insns[0].Operand == insns[1].Operand,
                     insns => EmptyArray<Instruction>.Value);
-            }
-        }
-
-        /// <summary>
-        /// A rewrite use that transforms the `dup; use n; pop` pattern to `use n`.
-        /// </summary>
-        private static PeepholeRewriteRule<Instruction> DupUsePopToUse
-        {
-            get
-            {
-                return new PeepholeRewriteRule<Instruction>(
-                    new Predicate<Instruction>[]
-                    {
-                        HasOpCode(OpCodes.Dup),
-                        HasOutputArity(0),
-                        HasOpCode(OpCodes.Pop)
-                    },
-                    insns => new[] { insns[1] });
             }
         }
 

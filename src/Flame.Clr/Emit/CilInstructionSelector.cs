@@ -847,9 +847,9 @@ namespace Flame.Clr.Emit
                     // a temporary), so if at all possible we will set values to
                     // the default constant by applying the `initobj` instruction to
                     // a pointer.
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        DefaultInitializeAndLoad(storeProto.ResultType),
-                        new[] { pointer });
+                    return CreateSelection(
+                        DefaultInitialize(storeProto.ResultType),
+                        pointer);
                 }
 
                 if (graph.ContainsInstruction(pointer))
@@ -858,41 +858,27 @@ namespace Flame.Clr.Emit
                     var pointerProto = pointerInstruction.Prototype;
                     if (pointerProto is GetStaticFieldPointerPrototype)
                     {
-                        return SelectedInstructions.Create<CilCodegenInstruction>(
-                            new CilCodegenInstruction[]
-                            {
-                                new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                                new CilOpInstruction(
-                                    CilInstruction.Create(
-                                        OpCodes.Stsfld,
-                                        Method.Module.ImportReference(
-                                            ((GetStaticFieldPointerPrototype)pointerProto).Field)))
-                            },
-                            new[] { value });
+                        return CreateSelection(
+                            CilInstruction.Create(
+                                OpCodes.Stsfld,
+                                Method.Module.ImportReference(
+                                    ((GetStaticFieldPointerPrototype)pointerProto).Field)),
+                            value);
                     }
                 }
 
                 VariableDefinition allocaVarDef;
                 if (AllocaToVariableMapping.TryGetValue(pointer, out allocaVarDef))
                 {
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new CilCodegenInstruction[]
-                        {
-                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                            new CilOpInstruction(
-                                CilInstruction.Create(OpCodes.Stloc, allocaVarDef))
-                        },
-                        new[] { value });
+                    return CreateSelection(
+                        CilInstruction.Create(OpCodes.Stloc, allocaVarDef),
+                        value);
                 }
                 else
                 {
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new CilCodegenInstruction[]
-                        {
-                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                            new CilOpInstruction(EmitStoreAddress(storeProto.ResultType))
-                        },
-                        new[] { pointer, value });
+                    return CreateSelection(
+                        EmitStoreAddress(storeProto.ResultType),
+                        pointer, value);
                 }
             }
             else if (proto is StoreFieldPrototype)
@@ -914,10 +900,9 @@ namespace Flame.Clr.Emit
                             new CilOpInstruction(
                                 CilInstruction.Create(
                                     OpCodes.Ldflda,
-                                    Method.Module.ImportReference(storeProto.Field)))
-                        }
-                        .Concat(DefaultInitializeAndLoad(storeProto.ResultType))
-                        .ToArray(),
+                                    Method.Module.ImportReference(storeProto.Field))),
+                            new CilOpInstruction(DefaultInitialize(storeProto.ResultType))
+                        },
                         new ValueTag[] { basePointer });
                 }
 
@@ -925,27 +910,9 @@ namespace Flame.Clr.Emit
                     OpCodes.Stfld,
                     Method.Module.ImportReference(storeProto.Field));
 
-                if (discardResult)
-                {
-                    // HACK: Just push some garbage on the stack if we know that the
-                    // result won't be used anyway. The peephole optimizer will
-                    // delete the garbage afterward.
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new CilCodegenInstruction[]
-                        {
-                            new CilOpInstruction(OpCodes.Dup),
-                            new CilOpInstruction(stfld)
-                        },
-                        new[] { basePointer, value });
-                }
-                else
-                {
-                    return CreateSelection(
-                        stfld,
-                        value,
-                        basePointer,
-                        value);
-                }
+                return CreateSelection(
+                    stfld,
+                    basePointer, value);
             }
             else if (proto is IntrinsicPrototype)
             {
@@ -1024,15 +991,19 @@ namespace Flame.Clr.Emit
             }
         }
 
+        private CilInstruction DefaultInitialize(IType type)
+        {
+            return CilInstruction.Create(
+                OpCodes.Initobj,
+                Method.Module.ImportReference(type));
+        }
+
         private IReadOnlyList<CilCodegenInstruction> DefaultInitializeAndLoad(IType type)
         {
             return new CilCodegenInstruction[]
                 {
                     new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                    new CilOpInstruction(
-                        CilInstruction.Create(
-                            OpCodes.Initobj,
-                            Method.Module.ImportReference(type))),
+                    new CilOpInstruction(DefaultInitialize(type)),
                     new CilOpInstruction(EmitLoadAddress(type))
                 };
         }
@@ -1194,6 +1165,10 @@ namespace Flame.Clr.Emit
                         // of instructions emitted.
 
                         var resultType = prototype.ResultType;
+
+                        // Before we get started, we want to remove modopt/modreq from types.
+                        resultType = StripModifiers(resultType);
+                        paramType = StripModifiers(paramType);
 
                         if (paramType == resultType)
                         {
@@ -1571,7 +1546,7 @@ namespace Flame.Clr.Emit
 
                         return SelectedInstructions.Create<CilCodegenInstruction>(
                             addressCodegen.Instructions
-                                .Concat(DefaultInitializeAndLoad(elementType))
+                                .Concat(new[] { new CilOpInstruction(DefaultInitialize(elementType)) })
                                 .ToArray(),
                             addressCodegen.Dependencies);
                     }
@@ -1606,12 +1581,8 @@ namespace Flame.Clr.Emit
                         }
                     }
 
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new CilCodegenInstruction[]
-                        {
-                            new CilOpInstruction(CilInstruction.Create(OpCodes.Dup)),
-                            new CilOpInstruction(storeInstruction)
-                        },
+                    return CreateSelection(
+                        storeInstruction,
                         new[]
                         {
                             // Load the array.
@@ -1632,11 +1603,29 @@ namespace Flame.Clr.Emit
             }
         }
 
+        private static IType StripModifiers(IType type)
+        {
+            while (type is ClrModifierType)
+            {
+                type = ((ClrModifierType)type).ElementType;
+            }
+
+            return type;
+        }
+
         /// <inheritdoc/>
         public bool Pushes(InstructionPrototype prototype)
         {
             return prototype.ResultType != TypeEnvironment.Void
-                && !IsDefaultConstant(prototype);
+                && !IsDefaultConstant(prototype)
+                && !(prototype is StorePrototype)
+                && !(prototype is StoreFieldPrototype)
+                && !MemoryIntrinsics.Namespace.IsIntrinsicPrototype(
+                    prototype,
+                    MemoryIntrinsics.Operators.VolatileStore)
+                && !ArrayIntrinsics.Namespace.IsIntrinsicPrototype(
+                    prototype,
+                    ArrayIntrinsics.Operators.StoreElement);
         }
 
         /// <inheritdoc/>
