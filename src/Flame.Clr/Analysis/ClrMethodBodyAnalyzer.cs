@@ -1084,6 +1084,11 @@ namespace Flame.Clr.Analysis
                         pointer,
                         value));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Volatile)
+            {
+                // Register the 'volatile' prefix with the context.
+                context.RequestVolatile();
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(

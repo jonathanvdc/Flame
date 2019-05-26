@@ -4,6 +4,7 @@ using System.Linq;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
+using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
 
@@ -39,6 +40,7 @@ namespace Flame.Clr.Analysis
             this.stack = new Stack<ValueTag>(
                 block.Parameters.Select(param => param.Tag));
             this.IsTerminated = false;
+            this.isVolatileRequested = false;
         }
 
         /// <summary>
@@ -80,11 +82,25 @@ namespace Flame.Clr.Analysis
         /// </value>
         public bool IsTerminated { get; private set; }
 
+        /// <summary>
+        /// Tells if the next load or store instruction should be turned into a volatile
+        /// load or store.
+        /// </summary>
+        private bool isVolatileRequested;
+
         private Stack<ValueTag> stack;
 
         private string GenerateInstructionName()
         {
             return Block.Tag.Name + "_val_" + Block.InstructionTags.Count;
+        }
+
+        /// <summary>
+        /// Requests that the next load or store be made volatile.
+        /// </summary>
+        public void RequestVolatile()
+        {
+            isVolatileRequested = true;
         }
 
         /// <summary>
@@ -94,6 +110,27 @@ namespace Flame.Clr.Analysis
         /// <returns>The value computed by <paramref name="instruction"/>.</returns>
         public ValueTag Emit(Instruction instruction)
         {
+            if (isVolatileRequested)
+            {
+                // Make the instruction volatile if that's what the CIL stream
+                // requested.
+                if (instruction.Prototype is LoadPrototype)
+                {
+                    instruction = Instruction.CreateVolatileLoadIntrinsic(
+                        (PointerType)Block.Graph.GetValueType(instruction.Arguments[0]),
+                        instruction.Arguments[0]);
+                    isVolatileRequested = false;
+                }
+                else if (instruction.Prototype is StorePrototype)
+                {
+                    instruction = Instruction.CreateVolatileStoreIntrinsic(
+                        (PointerType)Block.Graph.GetValueType(instruction.Arguments[0]),
+                        instruction.Arguments[0],
+                        instruction.Arguments[1]);
+                    isVolatileRequested = false;
+                }
+            }
+
             var name = GenerateInstructionName();
 
             // Our first step is to figure out if there's an exception handler
