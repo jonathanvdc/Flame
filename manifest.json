@@ -318,7 +318,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.CilPeepholeOptimizer.html",
-          "hash": "HsX2ZNuvFy7ZVp03dwq0Jw=="
+          "hash": "D5SS/z3ARLjCIMmDshocyQ=="
         }
       },
       "is_incremental": false,
@@ -438,7 +438,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.TypeHelpers.html",
-          "hash": "5KxXokYhgrR/k99AMa3SmA=="
+          "hash": "J/xqHcQ0OYy/2WKIXhN8Pw=="
         }
       },
       "is_incremental": false,
@@ -1326,7 +1326,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Analysis.NullCheckExceptionSpecification.html",
-          "hash": "w+SEljL+j9a8722deWM28g=="
+          "hash": "zVkVtIA/ioKtZ8+NQvkcuQ=="
         }
       },
       "is_incremental": false,
@@ -1890,7 +1890,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instruction.html",
-          "hash": "Ydc2/nPUAHMOr7O40s9s0g=="
+          "hash": "ShTXg8Xh8vU3aH+alGP4lg=="
         }
       },
       "is_incremental": false,
@@ -2210,6 +2210,30 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html",
+          "hash": "6gIxQ8NmyWgT/GTLaTXSaA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Flame.Compiler.Instructions.MemoryIntrinsics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Flame.Compiler.Instructions.MemoryIntrinsics.html",
+          "hash": "oxuA2HqdKsH622DnDORlRg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Compiler.Instructions.MethodLookup.yml",
       "output": {
         ".html": {
@@ -2310,7 +2334,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.html",
-          "hash": "VOZZa0Rrm5sfXURpNzWzRw=="
+          "hash": "KwOij7IiJPkqW5Is8vsjPA=="
         }
       },
       "is_incremental": false,
@@ -4281,7 +4305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "9kMmXIeA/IAE8aIXIrOD2g=="
+          "hash": "m8wmJb8apIMz/nPa8g/yOg=="
         }
       },
       "is_incremental": false,
@@ -4368,7 +4392,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 354,
+          "total_file_count": 356,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

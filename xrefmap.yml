@@ -12837,6 +12837,32 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateUnboxAnyIntrinsic
   nameWithType: Instruction.CreateUnboxAnyIntrinsic
+- uid: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)
+  name: CreateVolatileLoadIntrinsic(PointerType, ValueTag)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType, Flame.Compiler.ValueTag)
+  nameWithType: Instruction.CreateVolatileLoadIntrinsic(PointerType, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic*
+  name: CreateVolatileLoadIntrinsic
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_
+  commentId: Overload:Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic
+  isSpec: "True"
+  fullName: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic
+  nameWithType: Instruction.CreateVolatileLoadIntrinsic
+- uid: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
+  name: CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag)
+  nameWithType: Instruction.CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic*
+  name: CreateVolatileStoreIntrinsic
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_
+  commentId: Overload:Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic
+  isSpec: "True"
+  fullName: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic
+  nameWithType: Instruction.CreateVolatileStoreIntrinsic
 - uid: Flame.Compiler.Instruction.Equals(Flame.Compiler.Instruction)
   name: Equals(Instruction)
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_Equals_Flame_Compiler_Instruction_
@@ -15544,6 +15570,84 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.LoadPrototype.ResultType
   nameWithType: LoadPrototype.ResultType
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics
+  name: MemoryIntrinsics
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html
+  commentId: T:Flame.Compiler.Instructions.MemoryIntrinsics
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics
+  nameWithType: MemoryIntrinsics
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
+  name: CreatePrototype(String, IType, IReadOnlyList<IType>)
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreatePrototype_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__
+  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
+  name.vb: CreatePrototype(String, IType, IReadOnlyList(Of IType))
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.IType>)
+  fullName.vb: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.IType))
+  nameWithType: MemoryIntrinsics.CreatePrototype(String, IType, IReadOnlyList<IType>)
+  nameWithType.vb: MemoryIntrinsics.CreatePrototype(String, IType, IReadOnlyList(Of IType))
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype*
+  name: CreatePrototype
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreatePrototype_
+  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype
+  nameWithType: MemoryIntrinsics.CreatePrototype
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
+  name: CreateVolatileLoadPrototype(PointerType)
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileLoadPrototype_Flame_TypeSystem_PointerType_
+  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
+  nameWithType: MemoryIntrinsics.CreateVolatileLoadPrototype(PointerType)
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype*
+  name: CreateVolatileLoadPrototype
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileLoadPrototype_
+  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype
+  nameWithType: MemoryIntrinsics.CreateVolatileLoadPrototype
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
+  name: CreateVolatileStorePrototype(PointerType)
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileStorePrototype_Flame_TypeSystem_PointerType_
+  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
+  nameWithType: MemoryIntrinsics.CreateVolatileStorePrototype(PointerType)
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype*
+  name: CreateVolatileStorePrototype
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileStorePrototype_
+  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype
+  nameWithType: MemoryIntrinsics.CreateVolatileStorePrototype
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Namespace
+  name: Namespace
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_Namespace
+  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Namespace
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Namespace
+  nameWithType: MemoryIntrinsics.Namespace
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators
+  name: MemoryIntrinsics.Operators
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html
+  commentId: T:Flame.Compiler.Instructions.MemoryIntrinsics.Operators
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators
+  nameWithType: MemoryIntrinsics.Operators
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All
+  name: All
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_All
+  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All
+  nameWithType: MemoryIntrinsics.Operators.All
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
+  name: VolatileLoad
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileLoad
+  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
+  nameWithType: MemoryIntrinsics.Operators.VolatileLoad
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
+  name: VolatileStore
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileStore
+  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
+  nameWithType: MemoryIntrinsics.Operators.VolatileStore
 - uid: Flame.Compiler.Instructions.MethodLookup
   name: MethodLookup
   href: api/Flame.Compiler.Instructions.MethodLookup.html

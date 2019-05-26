@@ -2277,6 +2277,128 @@ return type.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L786">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)">CreateVolatileLoadIntrinsic(PointerType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a volatile load instruction. A volatile load is exactly like a
+regular load, except for the fact that volatile loads must not be reorder
+with regard to other memory operations.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateVolatileLoadIntrinsic(PointerType pointerType, ValueTag pointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">pointerType</span></td>
+        <td><p>The type of the pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>The pointer to dereference.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A volatile load.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L803">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)">CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a volatile store instruction. A volatile store is exactly like a
+regular store, except for the fact that volatile stores must not be reorder
+with regard to other memory operations.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateVolatileStoreIntrinsic(PointerType pointerType, ValueTag pointer, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">pointerType</span></td>
+        <td><p>The type of the pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>The pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to store at <code data-dev-comment-type="paramref" class="paramref">pointer</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A volatile store.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Equals_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Equals(Flame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
