@@ -1443,6 +1443,39 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown object-oriented intrinsic '{prototype.Name}'.");
             }
+            else if (MemoryIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == MemoryIntrinsics.Operators.VolatileLoad
+                    && prototype.ParameterCount == 1)
+                {
+                    var elementType = prototype.ResultType;
+
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new[]
+                        {
+                            new CilOpInstruction(OpCodes.Volatile),
+                            new CilOpInstruction(EmitLoadAddress(elementType))
+                        },
+                        arguments);
+                }
+                else if (opName == MemoryIntrinsics.Operators.VolatileStore
+                    && prototype.ParameterCount == 2)
+                {
+                    var elementType = prototype.ResultType;
+
+                    return SelectedInstructions.Create<CilCodegenInstruction>(
+                        new[]
+                        {
+                            new CilOpInstruction(OpCodes.Volatile),
+                            new CilOpInstruction(EmitStoreAddress(elementType))
+                        },
+                        arguments);
+                }
+                throw new NotSupportedException(
+                    $"Cannot select instructions for call to unknown memory intrinsic '{prototype.Name}'.");
+            }
             else if (ArrayIntrinsics.Namespace.TryParseIntrinsicName(
                 prototype.Name,
                 out opName))
