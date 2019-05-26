@@ -177,6 +177,22 @@ namespace Flame.Clr
                 ClrArrayType.TryGetArrayRank(type, out rank);
                 return new Mono.Cecil.ArrayType(module.ImportReference(elementType), rank);
             }
+            else if (type is ClrModifierType)
+            {
+                var modType = (ClrModifierType)type;
+                if (modType.IsRequired)
+                {
+                    return new Mono.Cecil.RequiredModifierType(
+                        module.ImportReference(modType.ModifierType),
+                        module.ImportReference(modType.ElementType));
+                }
+                else
+                {
+                    return new Mono.Cecil.OptionalModifierType(
+                        module.ImportReference(modType.ModifierType),
+                        module.ImportReference(modType.ElementType));
+                }
+            }
             else if (type is TypeSpecialization)
             {
                 // Handle generics.
