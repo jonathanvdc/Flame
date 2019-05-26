@@ -102,6 +102,7 @@
     <Compile Include="Instructions\IntrinsicNamespace.cs" />
     <Compile Include="Instructions\IntrinsicPrototype.cs" />
     <Compile Include="Instructions\LoadPrototype.cs" />
+    <Compile Include="Instructions\MemoryIntrinsics.cs" />
     <Compile Include="Instructions\MethodLookup.cs" />
     <Compile Include="Instructions\NewDelegatePrototype.cs" />
     <Compile Include="Instructions\NewObjectPrototype.cs" />

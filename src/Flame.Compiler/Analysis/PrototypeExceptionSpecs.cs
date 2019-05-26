@@ -320,6 +320,14 @@ namespace Flame.Compiler.Analysis
             Default.Register(
                 ObjectIntrinsics.Namespace.GetIntrinsicName(ObjectIntrinsics.Operators.UnboxAny),
                 ExceptionSpecification.ThrowAny);
+
+            // Memory intrinsics.
+            Default.Register(
+                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileLoad),
+                ExceptionSpecification.NoThrow);
+            Default.Register(
+                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileStore),
+                ExceptionSpecification.NoThrow);
         }
     }
 

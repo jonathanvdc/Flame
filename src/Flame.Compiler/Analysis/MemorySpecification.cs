@@ -387,6 +387,16 @@ namespace Flame.Compiler.Analysis
             Default.Register(
                 ObjectIntrinsics.Namespace.GetIntrinsicName(ObjectIntrinsics.Operators.UnboxAny),
                 MemorySpecification.UnknownRead);
+
+            // Memory intrinsics.
+            // Mark volatile loads and stores as unknown to ensure that they are never reordered
+            // with regard to other memory operations.
+            Default.Register(
+                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileLoad),
+                MemorySpecification.Unknown);
+            Default.Register(
+                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileStore),
+                MemorySpecification.Unknown);
         }
     }
 }

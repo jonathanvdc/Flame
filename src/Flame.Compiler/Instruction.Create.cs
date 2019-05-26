@@ -542,7 +542,7 @@ namespace Flame.Compiler
             ValueTag value)
         {
             return ObjectIntrinsics.CreateUnboxAnyPrototype(targetType, sourceType)
-                .Instantiate(new[] { value });
+                .Instantiate(value);
         }
 
         /// <summary>
@@ -662,7 +662,7 @@ namespace Flame.Compiler
             ValueTag arrayValue)
         {
             return ArrayIntrinsics.CreateGetLengthPrototype(sizeType, arrayType)
-                .Instantiate(new[] { arrayValue });
+                .Instantiate(arrayValue);
         }
 
         /// <summary>
@@ -686,7 +686,7 @@ namespace Flame.Compiler
             ValueTag sizeValue)
         {
             return ArrayIntrinsics.CreateNewArrayPrototype(arrayType, sizeType)
-                .Instantiate(new[] { sizeValue });
+                .Instantiate(sizeValue);
         }
 
         /// <summary>
@@ -709,7 +709,7 @@ namespace Flame.Compiler
             ValueTag argument)
         {
             return ExceptionIntrinsics.CreateCapturePrototype(resultType, argumentType)
-                .Instantiate(new[] { argument });
+                .Instantiate(argument);
         }
 
         /// <summary>
@@ -732,7 +732,7 @@ namespace Flame.Compiler
             ValueTag argument)
         {
             return ExceptionIntrinsics.CreateGetCapturedExceptionPrototype(resultType, argumentType)
-                .Instantiate(new[] { argument });
+                .Instantiate(argument);
         }
 
         /// <summary>
@@ -750,7 +750,7 @@ namespace Flame.Compiler
             ValueTag exception)
         {
             return ExceptionIntrinsics.CreateThrowPrototype(exceptionType)
-                .Instantiate(new[] { exception });
+                .Instantiate(exception);
         }
 
         /// <summary>
@@ -772,7 +772,41 @@ namespace Flame.Compiler
             ValueTag capturedException)
         {
             return ExceptionIntrinsics.CreateRethrowPrototype(capturedExceptionType)
-                .Instantiate(new[] { capturedException });
+                .Instantiate(capturedException);
+        }
+
+        /// <summary>
+        /// Creates a volatile load instruction. A volatile load is exactly like a
+        /// regular load, except for the fact that volatile loads must not be reorder
+        /// with regard to other memory operations.
+        /// </summary>
+        /// <param name="pointerType">The type of the pointer to dereference.</param>
+        /// <param name="pointer">The pointer to dereference.</param>
+        /// <returns>A volatile load.</returns>
+        public static Instruction CreateVolatileLoadIntrinsic(
+            PointerType pointerType,
+            ValueTag pointer)
+        {
+            return MemoryIntrinsics.CreateVolatileLoadPrototype(pointerType)
+                .Instantiate(pointer);
+        }
+
+        /// <summary>
+        /// Creates a volatile store instruction. A volatile store is exactly like a
+        /// regular store, except for the fact that volatile stores must not be reorder
+        /// with regard to other memory operations.
+        /// </summary>
+        /// <param name="pointerType">The type of the pointer to dereference.</param>
+        /// <param name="pointer">The pointer to dereference.</param>
+        /// <param name="value">The value to store at <paramref name="pointer"/>.</param>
+        /// <returns>A volatile store.</returns>
+        public static Instruction CreateVolatileStoreIntrinsic(
+            PointerType pointerType,
+            ValueTag pointer,
+            ValueTag value)
+        {
+            return MemoryIntrinsics.CreateVolatileStorePrototype(pointerType)
+                .Instantiate(pointer, value);
         }
     }
 }
