@@ -88,7 +88,7 @@ namespace Flame.Clr.Emit
     /// <summary>
     /// A register as produced by the CIL register allocator.
     /// </summary>
-    public struct CilCodegenRegister : IEquatable<CilCodegenRegister>
+    internal struct CilCodegenRegister : IEquatable<CilCodegenRegister>
     {
         /// <summary>
         /// Creates a register from a parameter definition.
