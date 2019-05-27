@@ -302,18 +302,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Flame.Clr.Emit.CilCodegenRegister.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Flame.Clr.Emit.CilCodegenRegister.html",
-          "hash": "83jVG7bxvrBPGuUg8xAdzg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Flame.Clr.Emit.CilPeepholeOptimizer.yml",
       "output": {
         ".html": {
@@ -342,7 +330,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Clr.Emit.html",
-          "hash": "JfdlYbEF2G49UpqTqsPTtg=="
+          "hash": "y3SIHAcr2lhIkGHz5LeZOw=="
         }
       },
       "is_incremental": false,
@@ -4305,7 +4293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "m8wmJb8apIMz/nPa8g/yOg=="
+          "hash": "wF0E/Vfda3uk24wujDF66A=="
         }
       },
       "is_incremental": false,
@@ -4383,6 +4371,13 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
@@ -4392,14 +4387,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 356,
-          "skipped_file_count": 0
-        },
-        "TocDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
-          "incrementalPhase": "build",
-          "total_file_count": 0,
+          "total_file_count": 355,
           "skipped_file_count": 0
         }
       }
