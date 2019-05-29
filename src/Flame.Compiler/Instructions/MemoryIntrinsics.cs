@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Flame.Collections;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler.Instructions
@@ -39,6 +40,24 @@ namespace Flame.Compiler.Instructions
                 Namespace.GetIntrinsicName(operatorName),
                 resultType,
                 parameterTypes);
+        }
+
+        /// <summary>
+        /// Creates an instruction prototype that allocates a function-local
+        /// variable that is pinned; the GC is not allowed to move the contents
+        /// of the local.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of value to store in the pinned variable.
+        /// </param>
+        /// <returns>An alloca-pinned instruction prototype.</returns>
+        public static IntrinsicPrototype CreateAllocaPinnedPrototype(
+            IType elementType)
+        {
+            return CreatePrototype(
+                Operators.AllocaPinned,
+                elementType.MakePointerType(PointerKind.Reference),
+                EmptyArray<IType>.Value);
         }
 
         /// <summary>
@@ -83,6 +102,12 @@ namespace Flame.Compiler.Instructions
         public static class Operators
         {
             /// <summary>
+            /// An operator that allocates a function-local variable containing a pinned
+            /// pointer.
+            /// </summary>
+            public const string AllocaPinned = "alloca_pinned";
+
+            /// <summary>
             /// The volatile load operator, which loads a value from an address.
             /// Volatile loads must not be reordered with regard to other memory
             /// operations.
@@ -90,7 +115,7 @@ namespace Flame.Compiler.Instructions
             public const string VolatileLoad = "volatile_load";
 
             /// <summary>
-            /// The volatile stores operator, which stores a value at an address.
+            /// The volatile store operator, which stores a value at an address.
             /// Volatile stores must not be reordered with regard to other memory
             /// operations.
             /// </summary>
@@ -103,6 +128,7 @@ namespace Flame.Compiler.Instructions
                 ImmutableArray.Create(
                     new[]
                     {
+                        AllocaPinned,
                         VolatileLoad,
                         VolatileStore
                     });

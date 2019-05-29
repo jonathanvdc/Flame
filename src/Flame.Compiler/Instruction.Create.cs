@@ -776,6 +776,21 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates an instruction that allocates a function-local variable
+        /// that is pinned; the GC is not allowed to move the contents
+        /// of the local.
+        /// </summary>
+        /// <param name="elementType">
+        /// The type of value to store in the pinned variable.
+        /// </param>
+        /// <returns>An alloca-pinned instruction prototype.</returns>
+        public static Instruction CreateAllocaPinnedIntrinsic(IType elementType)
+        {
+            return MemoryIntrinsics.CreateAllocaPinnedPrototype(elementType)
+                .Instantiate();
+        }
+
+        /// <summary>
         /// Creates a volatile load instruction. A volatile load is exactly like a
         /// regular load, except for the fact that volatile loads must not be reorder
         /// with regard to other memory operations.
