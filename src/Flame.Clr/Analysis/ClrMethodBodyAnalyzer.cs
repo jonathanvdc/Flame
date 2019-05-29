@@ -79,7 +79,9 @@ namespace Flame.Clr.Analysis
                 { Mono.Cecil.Cil.OpCodes.Conv_U4, TypeEnvironment.UInt32 },
                 { Mono.Cecil.Cil.OpCodes.Conv_U8, TypeEnvironment.UInt64 },
                 { Mono.Cecil.Cil.OpCodes.Conv_R4, TypeEnvironment.Float32 },
-                { Mono.Cecil.Cil.OpCodes.Conv_R8, TypeEnvironment.Float64 }
+                { Mono.Cecil.Cil.OpCodes.Conv_R8, TypeEnvironment.Float64 },
+                { Mono.Cecil.Cil.OpCodes.Conv_I, TypeEnvironment.NaturalInt },
+                { Mono.Cecil.Cil.OpCodes.Conv_U, TypeEnvironment.NaturalUInt },
             };
 
             this.leaveTokens = new Dictionary<BasicBlockTag, int>();
@@ -741,9 +743,12 @@ namespace Flame.Clr.Analysis
             var pointerType = context.GetValueType(pointer) as PointerType;
             if (pointerType == null)
             {
-                // Just return the pointer for now.
-                // TODO: maybe throw an exception instead?
-                return pointer;
+                // Convert the value to a transient pointer.
+                return context.Emit(
+                    Instruction.CreateConvertIntrinsic(
+                        elementType.MakePointerType(PointerKind.Transient),
+                        context.GetValueType(pointer),
+                        pointer));
             }
             else if (pointerType.ElementType != elementType)
             {
