@@ -389,6 +389,9 @@ namespace Flame.Compiler.Analysis
                 MemorySpecification.UnknownRead);
 
             // Memory intrinsics.
+            Default.Register(
+                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.AllocaPinned),
+                MemorySpecification.Nothing);
             // Mark volatile loads and stores as unknown to ensure that they are never reordered
             // with regard to other memory operations.
             Default.Register(
