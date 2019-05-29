@@ -18,9 +18,9 @@ namespace UnitTests
                 SearchOption.TopDirectoryOnly))
             {
                 Console.WriteLine($" - {Path.GetFileName(file)} (optimized)");
-                CompileOptimizeAndRun(file, "/optimize+", RunCommand);
+                CompileOptimizeAndRun(file, "/optimize+ /unsafe", RunCommand);
                 Console.WriteLine($" - {Path.GetFileName(file)} (not optimized)");
-                CompileOptimizeAndRun(file, "/optimize-", RunCommand);
+                CompileOptimizeAndRun(file, "/optimize- /unsafe", RunCommand);
             }
         }
 
