@@ -128,7 +128,7 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_MemoryIntrinsics_Operators_All.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L102">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L127">View Source</a>
   </span>
   <h4 id="Flame_Compiler_Instructions_MemoryIntrinsics_Operators_All" data-uid="Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All">All</h4>
   <div class="markdown level1 summary"><p>An immutable array containing all standard memory intrinsics.</p>
@@ -155,10 +155,41 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_MemoryIntrinsics_Operators_AllocaPinned.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L108">View Source</a>
+  </span>
+  <h4 id="Flame_Compiler_Instructions_MemoryIntrinsics_Operators_AllocaPinned" data-uid="Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned">AllocaPinned</h4>
+  <div class="markdown level1 summary"><p>An operator that allocates a function-local variable containing a pinned
+pointer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public const string AllocaPinned = &quot;alloca_pinned&quot;</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileLoad.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L90">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L115">View Source</a>
   </span>
   <h4 id="Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileLoad" data-uid="Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad">VolatileLoad</h4>
   <div class="markdown level1 summary"><p>The volatile load operator, which loads a value from an address.
@@ -190,10 +221,10 @@ operations.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileStore.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L97">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L122">View Source</a>
   </span>
   <h4 id="Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileStore" data-uid="Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore">VolatileStore</h4>
-  <div class="markdown level1 summary"><p>The volatile stores operator, which stores a value at an address.
+  <div class="markdown level1 summary"><p>The volatile store operator, which stores a value at an address.
 Volatile stores must not be reordered with regard to other memory
 operations.</p>
 </div>
@@ -228,7 +259,7 @@ operations.</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instructions_MemoryIntrinsics_Operators.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instructions.MemoryIntrinsics.Operators%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L83" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instructions/MemoryIntrinsics.cs/#L102" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

@@ -12292,6 +12292,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateAllocaArray
   nameWithType: Instruction.CreateAllocaArray
+- uid: Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic(Flame.IType)
+  name: CreateAllocaPinnedIntrinsic(IType)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateAllocaPinnedIntrinsic_Flame_IType_
+  commentId: M:Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic(Flame.IType)
+  fullName: Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic(Flame.IType)
+  nameWithType: Instruction.CreateAllocaPinnedIntrinsic(IType)
+- uid: Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic*
+  name: CreateAllocaPinnedIntrinsic
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateAllocaPinnedIntrinsic_
+  commentId: Overload:Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic
+  isSpec: "True"
+  fullName: Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic
+  nameWithType: Instruction.CreateAllocaPinnedIntrinsic
 - uid: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
   name: CreateArithmeticIntrinsic(String, IType, IReadOnlyList<IType>, IReadOnlyList<ValueTag>)
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateArithmeticIntrinsic_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__
@@ -15454,6 +15467,19 @@ references:
   commentId: T:Flame.Compiler.Instructions.MemoryIntrinsics
   fullName: Flame.Compiler.Instructions.MemoryIntrinsics
   nameWithType: MemoryIntrinsics
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype(Flame.IType)
+  name: CreateAllocaPinnedPrototype(IType)
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateAllocaPinnedPrototype_Flame_IType_
+  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype(Flame.IType)
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype(Flame.IType)
+  nameWithType: MemoryIntrinsics.CreateAllocaPinnedPrototype(IType)
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype*
+  name: CreateAllocaPinnedPrototype
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateAllocaPinnedPrototype_
+  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateAllocaPinnedPrototype
+  nameWithType: MemoryIntrinsics.CreateAllocaPinnedPrototype
 - uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
   name: CreatePrototype(String, IType, IReadOnlyList<IType>)
   href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreatePrototype_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__
@@ -15514,6 +15540,12 @@ references:
   commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All
   fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.All
   nameWithType: MemoryIntrinsics.Operators.All
+- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned
+  name: AllocaPinned
+  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_AllocaPinned
+  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned
+  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned
+  nameWithType: MemoryIntrinsics.Operators.AllocaPinned
 - uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
   name: VolatileLoad
   href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileLoad
