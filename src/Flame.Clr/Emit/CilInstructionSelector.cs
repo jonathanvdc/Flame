@@ -1209,7 +1209,8 @@ namespace Flame.Clr.Emit
                             }
                         }
                         else if (resultType == TypeEnvironment.NaturalUInt
-                            || resultType.IsPointerType(PointerKind.Transient))
+                            || resultType.IsPointerType(PointerKind.Transient)
+                            || resultType.IsPointerType(PointerKind.Reference))
                         {
                             if (IsNativePointerlike(paramType))
                             {
