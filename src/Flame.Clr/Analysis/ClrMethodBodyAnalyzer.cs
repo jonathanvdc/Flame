@@ -762,7 +762,7 @@ namespace Flame.Clr.Analysis
 
         private static IType GetAllocaElementType(Instruction alloca)
         {
-            return ((AllocaPrototype)alloca.Prototype).ElementType;
+            return ((PointerType)alloca.ResultType).ElementType;
         }
 
         private NamedInstructionBuilder GetParameterSlot(
@@ -1762,10 +1762,19 @@ namespace Flame.Clr.Analysis
             this.localStackSlots = new List<NamedInstructionBuilder>();
             foreach (var local in cilMethodBody.Variables)
             {
+                var varType = local.VariableType;
+                bool isPinned = varType is Mono.Cecil.PinnedType;
+                if (isPinned)
+                {
+                    varType = ((Mono.Cecil.PinnedType)varType).ElementType;
+                }
+
+                var elemType = TypeHelpers.BoxIfReferenceType(Assembly.Resolve(varType));
+                var name = "local_" + local.Index + "_slot";
+
                 var alloca = entryPoint.AppendInstruction(
-                    Instruction.CreateAlloca(
-                        TypeHelpers.BoxIfReferenceType(Assembly.Resolve(local.VariableType))),
-                    new ValueTag("local_" + local.Index + "_slot"));
+                    isPinned ? Instruction.CreateAllocaPinnedIntrinsic(elemType) : Instruction.CreateAlloca(elemType),
+                    name);
 
                 this.localStackSlots.Add(alloca);
             }
