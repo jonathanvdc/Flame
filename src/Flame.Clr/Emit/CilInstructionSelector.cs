@@ -1015,6 +1015,9 @@ namespace Flame.Clr.Emit
         /// <returns>A CIL instruction.</returns>
         private CilInstruction EmitLoadAddress(IType elementType)
         {
+            // Strip modopt/modreq: those don't matter for loads and stores.
+            elementType = StripModifiers(elementType);
+
             // If at all possible, use `ldind.*` instead of `ldobj`. The former
             // category of opcodes has a more compact representation.
             var intSpec = elementType.GetIntegerSpecOrNull();
@@ -1050,6 +1053,9 @@ namespace Flame.Clr.Emit
         /// <returns>A CIL instruction.</returns>
         private CilInstruction EmitStoreAddress(IType elementType)
         {
+            // Strip modopt/modreq: those don't matter for loads and stores.
+            elementType = StripModifiers(elementType);
+
             // If at all possible, use `stind.*` instead of `stobj`. The former
             // category of opcodes has a more compact representation.
             var intSpec = elementType.GetIntegerSpecOrNull();
