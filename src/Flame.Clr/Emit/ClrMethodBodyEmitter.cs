@@ -193,6 +193,15 @@ namespace Flame.Clr.Emit
                     results[insn.Tag] = new Mono.Cecil.Cil.VariableDefinition(
                         Method.Module.ImportReference(((AllocaPrototype)proto).ElementType));
                 }
+                else if (MemoryIntrinsics.Namespace.IsIntrinsicPrototype(
+                    proto,
+                    MemoryIntrinsics.Operators.AllocaPinned))
+                {
+                    results[insn.Tag] = new Mono.Cecil.Cil.VariableDefinition(
+                        Method.Module.ImportReference(
+                            new Mono.Cecil.PinnedType(
+                                Method.Module.ImportReference(((PointerType)proto.ResultType).ElementType))));
+                }
             }
 
             return results;
