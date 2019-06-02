@@ -1,4 +1,4 @@
-// TODO: investigate, re-enable this test for Linux builds only: //! run
+//! run
 // For some reason, this test case appears to loop forever on the .NET framework.
 // Not sure why, don't have a Windows development machine on hand.
 
