@@ -17,6 +17,7 @@
     </description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
+    <license type="expression">GPL-3.0-or-later</license>
     <tags>Flame Compiler</tags>
     <dependencies>
       <dependency id="System.Collections.Immutable" version="1.5.0" />

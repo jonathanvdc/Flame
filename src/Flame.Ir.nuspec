@@ -17,6 +17,7 @@
     </description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
+    <license type="expression">GPL-3.0-or-later</license>
     <tags>Flame Compiler Loyc IR</tags>
     <dependencies>
       <dependency id="Flame" version="$version$" />
