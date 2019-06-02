@@ -349,14 +349,12 @@ namespace Flame.Collections
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
-                    var inv = bucket.EnterInvariant();
                     if (bucket.IsEmpty)
                     {
                         Interlocked.Increment(ref initializedBucketCount);
                     }
                     bucket.OverwriteOrAdd(keyComparer, hashCode, key, value);
                     buckets[bucketIndex] = bucket;
-                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
@@ -394,7 +392,6 @@ namespace Flame.Collections
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
-                    var inv = bucket.EnterInvariant();
                     bool wasEmpty = bucket.IsEmpty;
                     result = bucket.TryFindValue(keyComparer, hashCode, key, out value);
                     if (!wasEmpty && bucket.IsEmpty)
@@ -402,7 +399,6 @@ namespace Flame.Collections
                         Interlocked.Decrement(ref initializedBucketCount);
                     }
                     buckets[bucketIndex] = bucket;
-                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
@@ -436,30 +432,47 @@ namespace Flame.Collections
                 resizeLock.EnterReadLock();
 
                 int bucketIndex = TruncateHashCode(hashCode);
+                bool mustCreate = false;
 
                 try
                 {
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
-                    var inv = bucket.EnterInvariant();
-                    if (bucket.IsEmpty)
-                    {
-                        Interlocked.Increment(ref initializedBucketCount);
-                    }
-
                     if (!bucket.TryFindValue(keyComparer, hashCode, key, out result))
                     {
-                        result = createValue(key);
-                        bucket.Add(hashCode, key, result);
+                        mustCreate = true;
                     }
-
-                    buckets[bucketIndex] = bucket;
-                    buckets[bucketIndex].LeaveInvariant(inv);
                 }
                 finally
                 {
                     ReleaseBucket(bucketIndex);
+                }
+
+                if (mustCreate)
+                {
+                    var newValue = createValue(key);
+                    try
+                    {
+                        mustResize = AcquireBucket(bucketIndex, out resizeSize);
+
+                        var bucket = buckets[bucketIndex];
+                        if (bucket.IsEmpty)
+                        {
+                            Interlocked.Increment(ref initializedBucketCount);
+                        }
+
+                        if (!bucket.TryFindValue(keyComparer, hashCode, key, out result))
+                        {
+                            result = newValue;
+                            bucket.Add(hashCode, key, result);
+                            buckets[bucketIndex] = bucket;
+                        }
+                    }
+                    finally
+                    {
+                        ReleaseBucket(bucketIndex);
+                    }
                 }
             }
             finally
@@ -688,23 +701,6 @@ namespace Flame.Collections
                     spilloverList.contents = newSpilloverContents;
                 }
             }
-        }
-
-        public HashSet<TKey> EnterInvariant()
-        {
-#if DEBUG
-            return GetLiveKeys();
-#else
-            return null;
-#endif
-        }
-
-        public void LeaveInvariant(HashSet<TKey> keys)
-        {
-#if DEBUG
-            var liveKeys = GetLiveKeys();
-            ContractHelpers.Assert(keys.IsSubsetOf(liveKeys));
-#endif
         }
 
         private HashSet<TKey> GetLiveKeys()
