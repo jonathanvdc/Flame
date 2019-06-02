@@ -13,7 +13,8 @@
     <summary>A CIL front-end and back-end for Flame.</summary>
     <description>Flame is a collection of C# libraries for building tools that read, analyze, optimize and write managed languages.
 
-    This package contains a Common Intermediate Representation (CIL) front-end and back-end for Flame. It allows you to build Flame-based tools that consume and/or produce CIL.</description>
+    This package contains a Common Intermediate Representation (CIL) front-end and back-end for Flame. It allows you to build Flame-based tools that consume and/or produce CIL.
+    </description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>Flame Compiler Cecil IL</tags>

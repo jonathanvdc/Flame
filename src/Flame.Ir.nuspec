@@ -3,30 +3,34 @@
      Run `nuget pack Flame.nuspec` to build Flame.x.y.z.nupkg -->
 <package >
   <metadata>
-    <id>Flame</id>
+    <id>Flame.Ir</id>
     <version>$version$</version>
     <authors>Jonathan Van der Cruysse</authors>
     <owners>Jonathan Van der Cruysse</owners>
     <projectUrl>https://github.com/jonathanvdc/Flame</projectUrl>
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>A compiler framework for managed code.</summary>
+    <summary>A textual representation for Flame IR.</summary>
     <description>Flame is a collection of C# libraries for building tools that read, analyze, optimize and write managed languages.
 
-    This package includes the core Flame library and the compiler-oriented Flame.Compiler library.
+    This package defines a textual representation for Flame IR, allowing you to read and write Flame IR.
     </description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
-    <tags>Flame Compiler</tags>
+    <tags>Flame Compiler Loyc IR</tags>
     <dependencies>
+      <dependency id="Flame" version="$version$" />
+      <dependency id="Loyc.Collections" version="26.5.0" />
+      <dependency id="Loyc.Essentials" version="26.5.0" />
+      <dependency id="Loyc.Syntax" version="26.5.0" />
+      <dependency id="Pixie" version="0.1.5" />
+      <dependency id="Pixie.Loyc" version="0.1.5" />
       <dependency id="System.Collections.Immutable" version="1.5.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="..\README.md" target="readme.txt" />
-    <file src="Flame.Compiler\bin\Release\Flame.dll" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.xml" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.Compiler.dll" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.Compiler.xml" target="lib\net45\" />
+    <file src="Flame.Ir\bin\Release\Flame.Ir.dll" target="lib\net45\" />
+    <file src="Flame.Ir\bin\Release\Flame.Ir.xml" target="lib\net45\" />
   </files>
 </package>
