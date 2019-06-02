@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- NuGet package specification.
+     Run `nuget pack Flame.nuspec` to build Flame.x.y.z.nupkg -->
+<package >
+  <metadata>
+    <id>Flame.Clr</id>
+    <version>$version$</version>
+    <authors>Jonathan Van der Cruysse</authors>
+    <owners>Jonathan Van der Cruysse</owners>
+    <projectUrl>https://github.com/jonathanvdc/Flame</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>A CIL front-end and back-end for Flame.</summary>
+    <description>Flame is a collection of modular, open-source .NET libraries that can be leveraged to build a compiler.
+
+    This package contains a Common Intermediate Representation (CIL) front-end and back-end for Flame. It allows you to build Flame-based tools that consume and/or produce CIL.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2019</copyright>
+    <tags>Flame Compiler Cecil IL</tags>
+    <dependencies>
+      <dependency id="Flame" version="$version$" />
+      <dependency id="Mono.Cecil" version="0.10.3" />
+      <dependency id="System.Collections.Immutable" version="1.5.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\README.md" target="readme.txt" />
+    <file src="Flame.Clr\bin\Release\Flame.Clr.dll" target="lib\net45\" />
+    <file src="Flame.Clr\bin\Release\Flame.Clr.xml" target="lib\net45\" />
+  </files>
+</package>

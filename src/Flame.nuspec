@@ -16,7 +16,10 @@
     This package includes the core Flame library and the compiler-oriented Flame.Compiler library.</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2019</copyright>
-    <tags>Flame compiler</tags>
+    <tags>Flame Compiler</tags>
+    <dependencies>
+      <dependency id="System.Collections.Immutable" version="1.5.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\README.md" target="readme.txt" />
