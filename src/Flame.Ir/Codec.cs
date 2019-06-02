@@ -20,9 +20,6 @@ namespace Flame.Ir
         /// <summary>
         /// Decodes a particular piece of data.
         /// </summary>
-        /// <param name="identifier">
-        /// A symbol that identifies the type of data that is encoded.
-        /// </param>
         /// <param name="data">
         /// Encoded data to decode.
         /// </param>

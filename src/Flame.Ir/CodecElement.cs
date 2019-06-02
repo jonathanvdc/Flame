@@ -14,7 +14,7 @@ namespace Flame.Ir
         /// <summary>
         /// Creates a codec for a specific type of object.
         /// </summary>
-        /// <param name="prototypeName">
+        /// <param name="identifier">
         /// An identifier for encoded objects.
         /// </param>
         /// <param name="encode">
@@ -33,7 +33,7 @@ namespace Flame.Ir
         /// <summary>
         /// Creates a codec for a specific type of object.
         /// </summary>
-        /// <param name="prototypeName">
+        /// <param name="identifier">
         /// An identifier for encoded objects.
         /// </param>
         /// <param name="encode">

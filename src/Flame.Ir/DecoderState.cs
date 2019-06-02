@@ -469,7 +469,6 @@ namespace Flame.Ir
         /// process fails.
         /// </summary>
         /// <param name="node">A node to decode as a simple name.</param>
-        /// <param name="name">The name described by <paramref name="node"/>.</param>
         /// <returns>
         /// The name described by <paramref name="node"/> if <paramref name="node"/> can
         /// be decoded as a simple name; otherwise, a sensible default simple name.
@@ -545,7 +544,6 @@ namespace Flame.Ir
         /// process fails.
         /// </summary>
         /// <param name="node">A node to decode as a qualified name.</param>
-        /// <param name="name">The name described by <paramref name="node"/>.</param>
         /// <returns>
         /// The name described by <paramref name="node"/> if <paramref name="node"/> can
         /// be decoded as a qualified name; otherwise, a default qualified name.
@@ -574,7 +572,7 @@ namespace Flame.Ir
         /// Logs an error if the decoding process fails.
         /// </summary>
         /// <param name="node">A node to decode as a generic member.</param>
-        /// <param name="name">The name described by <paramref name="node"/>.</param>
+        /// <param name="genericMember">The generic member described by <paramref name="node"/>.</param>
         /// <returns>
         /// <c>true</c> if <paramref name="node"/> can be decoded as a
         /// generic member; otherwise, <c>false</c>.

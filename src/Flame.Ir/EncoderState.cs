@@ -125,6 +125,11 @@ namespace Flame.Ir
             return Codec.TypeMembers.Encode(property, this);
         }
 
+        /// <summary>
+        /// Encodes a generic member reference.
+        /// </summary>
+        /// <returns>An encoded generic member reference.</returns>
+        /// <param name="genericMember">The generic member to encode.</param>
         public LNode Encode(IGenericMember genericMember)
         {
             if (genericMember is IType)

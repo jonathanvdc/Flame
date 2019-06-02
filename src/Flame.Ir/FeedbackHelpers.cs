@@ -24,9 +24,9 @@ namespace Flame.Ir
         /// <returns>
         /// A string that identifies the node kind.
         /// </returns>
-        public static string SpellNodeKind(LNodeKind node)
+        public static string SpellNodeKind(LNodeKind kind)
         {
-            return node.ToString().ToLower();
+            return kind.ToString().ToLower();
         }
 
         /// <summary>
