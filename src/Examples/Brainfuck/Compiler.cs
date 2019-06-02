@@ -127,8 +127,7 @@ namespace Flame.Brainfuck
             program.Methods.Add(main);
 
             // Compile the method body down to CIL and assign it to the method.
-            var emitter = new ClrMethodBodyEmitter(main, body, Environment);
-            main.Body = emitter.Compile();
+            main.Body = ClrMethodBodyEmitter.Compile(body, main, Environment);
 
             // Set the entry point.
             Assembly.Definition.MainModule.EntryPoint = main;

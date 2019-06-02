@@ -120,6 +120,9 @@ namespace Flame.Clr
         /// For this to work, <paramref name="type"/> cannot reference
         /// non-Cecil types.
         /// </summary>
+        /// <param name="module">
+        /// The module to import <paramref name="type"/> into.
+        /// </param>
         /// <param name="type">
         /// The type to convert to a type reference.
         /// </param>
@@ -233,10 +236,13 @@ namespace Flame.Clr
 
         /// <summary>
         /// Takes a Flame method and converts it to a Cecil method reference.
-        /// For this to work, <paramref name="field"/> cannot reference
+        /// For this to work, <paramref name="method"/> cannot reference
         /// non-Cecil types or methods.
         /// </summary>
-        /// <param name="field">
+        /// <param name="module">
+        /// The module to import <paramref name="method"/> into.
+        /// </param>
+        /// <param name="method">
         /// The method to convert to a method reference.
         /// </param>
         /// <returns>
@@ -281,6 +287,9 @@ namespace Flame.Clr
         /// For this to work, <paramref name="field"/> cannot reference
         /// non-Cecil types or methods.
         /// </summary>
+        /// <param name="module">
+        /// The module to import <paramref name="field"/> into.
+        /// </param>
         /// <param name="field">
         /// The field to convert to a field reference.
         /// </param>

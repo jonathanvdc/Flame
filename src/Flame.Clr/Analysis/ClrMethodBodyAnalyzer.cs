@@ -614,6 +614,9 @@ namespace Flame.Clr.Analysis
         /// <param name="falseInstruction">
         /// The instruction to branch to if the condition is false/zero.
         /// </param>
+        /// <param name="cilMethodBody">
+        /// The method body that defines the conditional branch.
+        /// </param>
         /// <param name="context">
         /// The current CIL analysis context.
         /// </param>

@@ -17,7 +17,23 @@ namespace Flame.Clr.Emit
     /// </summary>
     public sealed class ClrMethodBodyEmitter
     {
-        public ClrMethodBodyEmitter(
+        /// <summary>
+        /// Compiles Flame IR to CIL.
+        /// </summary>
+        /// <returns>A CIL method body.</returns>
+        /// <param name="sourceBody">A Flame IR method body to compile to a CIL method body.</param>
+        /// <param name="method">The method to which the CIL method body can be assigned.</param>
+        /// <param name="typeEnvironment">A type environment.</param>
+        public static Mono.Cecil.Cil.MethodBody Compile(
+            MethodBody sourceBody,
+            Mono.Cecil.MethodDefinition method,
+            TypeEnvironment typeEnvironment)
+        {
+            var instance = new ClrMethodBodyEmitter(method, sourceBody, typeEnvironment);
+            return instance.Compile();
+        }
+
+        private ClrMethodBodyEmitter(
             Mono.Cecil.MethodDefinition method,
             MethodBody sourceBody,
             TypeEnvironment typeEnvironment)
@@ -31,25 +47,25 @@ namespace Flame.Clr.Emit
         /// Gets the method definition that defines the method body being emitted.
         /// </summary>
         /// <value>A method definition.</value>
-        public Mono.Cecil.MethodDefinition Method { get; private set; }
+        private Mono.Cecil.MethodDefinition Method { get; set; }
 
         /// <summary>
         /// Gets the source method body that is emitted as a CLR method body.
         /// </summary>
         /// <value>The source method body.</value>
-        public MethodBody SourceBody { get; private set; }
+        private MethodBody SourceBody { get; set; }
 
         /// <summary>
         /// Gets the type environment to use.
         /// </summary>
         /// <value>A type environment.</value>
-        public TypeEnvironment TypeEnvironment { get; private set; }
+        private TypeEnvironment TypeEnvironment { get; set; }
 
         /// <summary>
         /// Compiles the source body to a CIL method body.
         /// </summary>
         /// <returns>A CIL method body.</returns>
-        public Mono.Cecil.Cil.MethodBody Compile()
+        private Mono.Cecil.Cil.MethodBody Compile()
         {
             // Create a method body.
             var result = new Mono.Cecil.Cil.MethodBody(Method);

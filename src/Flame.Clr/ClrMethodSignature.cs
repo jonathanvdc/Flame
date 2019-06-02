@@ -221,9 +221,6 @@ namespace Flame.Clr
         /// The position of the generic parameter in the generic
         /// parameter list.
         /// </param>
-        /// <param name="isReferenceType">
-        /// Tells if the generic parameter is always a reference type.
-        /// </param>
         /// <returns>A generic parameter stand-in.</returns>
         internal static ClrGenericParameterStandin Create(
             GenericParameterType kind,

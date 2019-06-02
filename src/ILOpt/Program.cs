@@ -345,8 +345,7 @@ namespace ILOpt
             }
 
             // Select CIL instructions for the optimized method body.
-            var emitter = new ClrMethodBodyEmitter(method.Definition, optBody, typeSystem);
-            var newCilBody = emitter.Compile();
+            var newCilBody = ClrMethodBodyEmitter.Compile(optBody, method.Definition, typeSystem);
             lock (method.Definition)
             {
                 method.Definition.Body = newCilBody;

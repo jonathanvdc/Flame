@@ -125,6 +125,7 @@ namespace Flame.Clr
         /// <inheritdoc/>
         public IReadOnlyList<IType> NestedTypes => EmptyArray<IType>.Value;
 
+        /// <inheritdoc/>
         public IReadOnlyList<IType> BaseTypes
         {
             get

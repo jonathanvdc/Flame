@@ -86,6 +86,17 @@ namespace Flame.Clr.Analysis
     /// </summary>
     public sealed class CilFinallyHandler : CilExceptionHandler
     {
+        /// <summary>
+        /// Creates a 'finally' exception handler.
+        /// </summary>
+        /// <param name="landingPad">
+        /// The landing pad to redirect flow to when an exception gets thrown.
+        /// </param>
+        /// <param name="leavePad">
+        /// A special landing pad with zero parameters that is jumped
+        /// to when the finally handler is to be run in the absence
+        /// of an exception. The leave pad corresponds to the happy path.
+        /// </param>
         public CilFinallyHandler(BasicBlockTag landingPad, BasicBlockTag leavePad)
         {
             this.landingPadTag = landingPad;

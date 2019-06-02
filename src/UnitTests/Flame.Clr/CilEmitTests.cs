@@ -704,8 +704,7 @@ IL_0002: ret");
                     new JumpThreading(false)));
 
             // Turn Flame IR back into CIL.
-            var emitter = new ClrMethodBodyEmitter(methodDef, irBody, corlib.Resolver.TypeEnvironment);
-            var newCilBody = emitter.Compile();
+            var newCilBody = ClrMethodBodyEmitter.Compile(irBody, methodDef, corlib.Resolver.TypeEnvironment);
 
             // Check that the resulting CIL matches the expected CIL.
             var actual = FormatMethodBody(newCilBody);
