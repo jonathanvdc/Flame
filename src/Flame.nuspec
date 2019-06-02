@@ -11,7 +11,7 @@
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>A compiler framework for managed code.</summary>
-    <description>Flame is a collection of modular, open-source .NET libraries that can be leveraged to build a compiler. It provides reusable components and a common compilation pipeline, which can be extended with additional passes, to suit the specific needs of source and target languages.
+    <description>Flame is a collection of C# libraries for building tools that read, analyze, optimize and write managed languages.
 
     This package includes the core Flame library and the compiler-oriented Flame.Compiler library.</description>
     <releaseNotes></releaseNotes>
