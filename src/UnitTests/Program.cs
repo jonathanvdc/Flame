@@ -35,6 +35,7 @@ namespace UnitTests
 
         public static int Main(string[] args)
         {
+            InitializeLogs();
             // Parse command-line options.
             var parser = new GnuOptionSetParser(
                 Options.All, Options.Input);
@@ -159,15 +160,22 @@ namespace UnitTests
 
         private static Random globalRng = new Random();
 
-        private static ILog rawLog = Pixie.Terminal.TerminalLog.Acquire();
+        private static ILog rawLog;
 
-        private static ILog ioLog = new TransformLog(
-            rawLog,
-            entry => DiagnosticExtractor.Transform(entry, new Text("unit-tests")));
+        private static ILog ioLog;
 
-        private static ILog testLog = new TestLog(
-            ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
-            ioLog);
+        private static ILog testLog;
+
+        private static void InitializeLogs()
+        {
+            rawLog = Pixie.Terminal.TerminalLog.Acquire();
+            ioLog = new TransformLog(
+                rawLog,
+                entry => DiagnosticExtractor.Transform(entry, new Text("unit-tests")));
+            testLog = new TestLog(
+                ImmutableHashSet<Pixie.Severity>.Empty.Add(Pixie.Severity.Error),
+                ioLog);
+        }
 
         internal static OptionSet parsedOptions;
 
