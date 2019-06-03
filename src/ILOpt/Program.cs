@@ -235,12 +235,9 @@ namespace ILOpt
                 pipeline,
                 method => GetInitialMethodBody(method, typeSystem));
 
-            var tasks = new List<Task>();
-            foreach (var method in GetAllMethods(assembly))
-            {
-                tasks.Add(UpdateMethodBodyAsync(method, optimizer, typeSystem, printIr));
-            }
-            return Task.WhenAll(tasks);
+            return optimizer.RunAllAsync(
+                GetAllMethods(assembly).Select(
+                    method => UpdateMethodBodyAsync(method, optimizer, typeSystem, printIr)));
         }
 
         private static MethodBody GetInitialMethodBody(IMethod method, TypeEnvironment typeSystem)

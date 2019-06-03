@@ -209,7 +209,7 @@ namespace UnitTests.Flame.Compiler
 
             public override async Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
             {
-                await Task.WhenAll(Dependencies.Select(state.GetBodyAsync).ToArray());
+                await state.GetBodiesAsync(Dependencies);
                 return body;
             }
         }
