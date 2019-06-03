@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -28,6 +28,14 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Pixie, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Pixie.0.1.6\lib\net45\Pixie.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Pixie.Terminal, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Pixie.0.1.6\lib\net45\Pixie.Terminal.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="Mono.Cecil">
       <HintPath>..\..\packages\Mono.Cecil.0.10.3\lib\net40\Mono.Cecil.dll</HintPath>
@@ -43,12 +51,6 @@
     </Reference>
     <Reference Include="System.Collections.Immutable">
       <HintPath>..\..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie">
-      <HintPath>..\..\packages\Pixie.0.1.5\lib\net45\Pixie.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie.Terminal">
-      <HintPath>..\..\packages\Pixie.0.1.5\lib\net45\Pixie.Terminal.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Essentials">
       <HintPath>..\..\packages\Loyc.Essentials.26.5.0\lib\net45\Loyc.Essentials.dll</HintPath>
@@ -87,6 +89,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
