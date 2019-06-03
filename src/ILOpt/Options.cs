@@ -42,6 +42,20 @@ namespace ILOpt
                 .WithParameter(new SymbolicOptionParameter("path"));
 
         /// <summary>
+        /// The 'parallel' option, which uses multiple threads for analysis, optimization
+        /// and code generation.
+        /// </summary>
+        public static readonly FlagOption Parallel =
+            FlagOption.CreateFlagOption(
+                new OptionForm[]
+                {
+                    OptionForm.Short("j"),
+                    OptionForm.Long("parallel")
+                })
+            .WithDescription(
+                "Use multiple threads for analysis, optimization and code generation.");
+
+        /// <summary>
         /// The 'print-ir' option, which prints method body IR.
         /// </summary>
         public static readonly FlagOption PrintIr =
@@ -68,6 +82,7 @@ namespace ILOpt
         {
             Help,
             Output,
+            Parallel,
             PrintIr,
             Internalize
         };

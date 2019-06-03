@@ -124,7 +124,10 @@ namespace ILOpt
                 var typeSystem = flameAsm.Resolver.TypeEnvironment;
 
                 // Optimize the assembly.
-                OptimizeAssemblyAsync(flameAsm, printIr).Wait();
+                OptimizeAssemblyAsync(
+                    flameAsm,
+                    printIr,
+                    parsedOptions.GetValue<bool>(Options.Parallel)).Wait();
 
                 // Write the optimized assembly to disk.
                 cecilAsm.Write(outputPath);
@@ -193,7 +196,10 @@ namespace ILOpt
             }
         }
 
-        private static Task OptimizeAssemblyAsync(ClrAssembly assembly, bool printIr)
+        private static Task OptimizeAssemblyAsync(
+            ClrAssembly assembly,
+            bool printIr,
+            bool parallelOptimization)
         {
             var typeSystem = assembly.Resolver.TypeEnvironment;
             var pipeline = new Optimization[]
@@ -231,9 +237,19 @@ namespace ILOpt
 
             // Create an on-demand optimizer, which will optimize methods
             // lazily.
-            var optimizer = new OnDemandOptimizer(
-                pipeline,
-                method => GetInitialMethodBody(method, typeSystem));
+            Optimizer optimizer;
+            if (parallelOptimization)
+            {
+                optimizer = new ParallelOnDemandOptimizer(
+                    pipeline,
+                    method => GetInitialMethodBody(method, typeSystem));
+            }
+            else
+            {
+                optimizer = new OnDemandOptimizer(
+                    pipeline,
+                    method => GetInitialMethodBody(method, typeSystem));
+            }
 
             return optimizer.RunAllAsync(
                 GetAllMethods(assembly).Select(
