@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using System;
+using System.Runtime.Serialization;
 
 namespace Flame
 {
@@ -7,6 +8,17 @@ namespace Flame
     /// </summary>
     public static class ContractHelpers
     {
+        [Serializable]
+        private class AssertionException : Exception
+        {
+            public AssertionException() { }
+            public AssertionException(string message) : base(message) { }
+            public AssertionException(string message, Exception inner) : base(message, inner) { }
+            protected AssertionException(
+                SerializationInfo info,
+                StreamingContext context) : base(info, context) { }
+        }
+
         /// <summary>
         /// Asserts that a condition must always hold.
         /// </summary>
@@ -15,7 +27,10 @@ namespace Flame
         /// </param>
         public static void Assert(bool condition)
         {
-            Debug.Assert(condition);
+            if (!condition)
+            {
+                throw new AssertionException("An assertion was unexpectedly false.");
+            }
         }
 
         /// <summary>
@@ -29,7 +44,10 @@ namespace Flame
         /// </param>
         public static void Assert(bool condition, string message)
         {
-            Debug.Assert(condition, message);
+            if (!condition)
+            {
+                throw new AssertionException(message);
+            }
         }
 
         /// <summary>
@@ -40,7 +58,7 @@ namespace Flame
         /// <param name="valueName">The name of the value to check.</param>
         public static void CheckPositive(int value, string valueName)
         {
-            Debug.Assert(
+            Assert(
                 value >= 0,
                 "'" + valueName + "' should be positive. (value: " + value + ").");
         }
