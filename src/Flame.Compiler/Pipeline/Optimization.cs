@@ -97,15 +97,10 @@ namespace Flame.Compiler.Pipeline
             IEnumerable<IMethod> methods)
         {
             var methodArray = methods.Distinct().ToArray();
-            var taskArray = new Task<MethodBody>[methodArray.Length];
-            for (int i = 0; i < methodArray.Length; i++)
-            {
-                var method = methodArray[i];
-                taskArray[i] = Task.Run(() => GetBodyAsync(method));
-            }
-            var bodyArray = await Task.WhenAll(taskArray);
+            var bodyArray = await Optimizer.RunAllAsync(
+                methodArray.Select(GetBodyAsync));
             var mapping = new Dictionary<IMethod, MethodBody>();
-            for (int i = 0; i < bodyArray.Length; i++)
+            for (int i = 0; i < bodyArray.Count; i++)
             {
                 mapping[methodArray[i]] = bodyArray[i];
             }

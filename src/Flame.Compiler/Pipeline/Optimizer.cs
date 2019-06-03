@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Flame.Compiler.Pipeline
@@ -52,5 +55,57 @@ namespace Flame.Compiler.Pipeline
         /// constraints imposed by the optimizer's implementation.
         /// </remarks>
         public abstract Task<MethodBody> GetBodyAsync(IMethod requested);
+
+        /// <summary>
+        /// Runs a sequence of tasks and combines their results.
+        /// Whether these tasks are run in sequence or in parallel depends
+        /// on the optimizer.
+        /// </summary>
+        /// <param name="tasks">A sequence of tasks to run.</param>
+        /// <typeparam name="T">The type of value returned by a task.</typeparam>
+        /// <returns>A single task that combines the results from all tasks.</returns>
+        public virtual async Task<IReadOnlyList<T>> RunAllAsync<T>(IEnumerable<Func<Task<T>>> tasks)
+        {
+            // By default, run the tasks in sequence.
+            var results = new List<T>();
+            foreach (var item in tasks)
+            {
+                results.Add(await item());
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Runs a sequence of tasks and waits for them to complete.
+        /// </summary>
+        /// <param name="tasks">A sequence of tasks to run.</param>
+        /// <returns>A single task that waits for all tasks to complete.</returns>
+        public Task RunAllAsync(IEnumerable<Func<Task>> tasks)
+        {
+            return RunAllAsync(tasks.Select<Func<Task>, Func<Task<bool>>>(t => () => t().ContinueWith(x => true)));
+        }
+
+        /// <summary>
+        /// Runs a sequence of tasks and waits for them to complete.
+        /// </summary>
+        /// <param name="tasks">A sequence of tasks to run.</param>
+        /// <returns>A single task that waits for all tasks to complete.</returns>
+        public Task RunAllAsync(IEnumerable<Task> tasks)
+        {
+            return RunAllAsync(tasks.Select(t => t.ContinueWith(x => true)));
+        }
+
+        /// <summary>
+        /// Runs a sequence of tasks and combines their results.
+        /// Whether these tasks are run in sequence or in parallel depends
+        /// on the optimizer.
+        /// </summary>
+        /// <param name="tasks">A sequence of tasks to run.</param>
+        /// <typeparam name="T">The type of value returned by a task.</typeparam>
+        /// <returns>A single task that combines the results from all tasks.</returns>
+        public Task<IReadOnlyList<T>> RunAllAsync<T>(IEnumerable<Task<T>> tasks)
+        {
+            return RunAllAsync(tasks.Select<Task<T>, Func<Task<T>>>(t => () => t));
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace Flame.Compiler.Pipeline
     /// Optimized method bodies are cached, so method bodies are never
     /// optimized twice.
     /// </summary>
-    public sealed class OnDemandOptimizer : Optimizer
+    public class OnDemandOptimizer : Optimizer
     {
         /// <summary>
         /// Creates a method body optimizer.
@@ -347,6 +348,50 @@ namespace Flame.Compiler.Pipeline
             {
                 return bodyMethod.Body;
             }
+        }
+    }
+
+    /// <summary>
+    /// A variant of the on-demand method optimizer that runs batches of tasks
+    /// in parallel rather than in sequence.
+    /// </summary>
+    public class ParallelOnDemandOptimizer : OnDemandOptimizer
+    {
+        /// <summary>
+        /// Creates a method body optimizer.
+        /// </summary>
+        /// <param name="pipeline">
+        /// A pass pipeline: a sequence of optimizations to apply to every
+        /// method body.
+        /// </param>
+        public ParallelOnDemandOptimizer(IReadOnlyList<Optimization> pipeline)
+            : base(pipeline)
+        {
+        }
+
+        /// <summary>
+        /// Creates a method body optimizer.
+        /// </summary>
+        /// <param name="pipeline">
+        /// A pass pipeline: a sequence of optimizations to apply to every
+        /// method body.
+        /// </param>
+        /// <param name="getInitialMethodBody">
+        /// A delegate that tries to find an initial method body for a
+        /// method. This initial method body is is the starting point for
+        /// further optimizations, both interprocedural and intraprocedural.
+        /// </param>
+        public ParallelOnDemandOptimizer(
+            IReadOnlyList<Optimization> pipeline,
+            Func<IMethod, MethodBody> getInitialMethodBody)
+            : base(pipeline, getInitialMethodBody)
+        {
+        }
+
+        /// <inheritdoc/>
+        public override async Task<IReadOnlyList<T>> RunAllAsync<T>(IEnumerable<Func<Task<T>>> tasks)
+        {
+            return await Task.WhenAll(tasks.Select(Task.Run).ToArray());
         }
     }
 }
