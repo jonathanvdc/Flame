@@ -236,7 +236,7 @@ raw reference type; otherwise, <code data-dev-comment-type="paramref" class="par
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_TypeHelpers_GetExtendedParameters_Mono_Cecil_MethodDefinition_.md&amp;value=---%0Auid%3A%20Flame.Clr.TypeHelpers.GetExtendedParameters(Mono.Cecil.MethodDefinition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L226">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L229">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_GetExtendedParameters_" data-uid="Flame.Clr.TypeHelpers.GetExtendedParameters*"></a>
   <h4 id="Flame_Clr_TypeHelpers_GetExtendedParameters_Mono_Cecil_MethodDefinition_" data-uid="Flame.Clr.TypeHelpers.GetExtendedParameters(Mono.Cecil.MethodDefinition)">GetExtendedParameters(MethodDefinition)</h4>
@@ -287,7 +287,7 @@ parameter list and an optional 'this' parameter as a prefix.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition%2CFlame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L290">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L299">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
   <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IField_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IField)">ImportReference(ModuleDefinition, IField)</h4>
@@ -313,7 +313,8 @@ non-Cecil types or methods.</p>
       <tr>
         <td><span class="xref">Mono.Cecil.ModuleDefinition</span></td>
         <td><span class="parametername">module</span></td>
-        <td></td>
+        <td><p>The module to import <code data-dev-comment-type="paramref" class="paramref">field</code> into.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IField.html">IField</a></td>
@@ -344,12 +345,12 @@ non-Cecil types or methods.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition%2CFlame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L245">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L251">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
   <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IMethod_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IMethod)">ImportReference(ModuleDefinition, IMethod)</h4>
   <div class="markdown level1 summary"><p>Takes a Flame method and converts it to a Cecil method reference.
-For this to work, <code data-dev-comment-type="paramref" class="paramref">field</code> cannot reference
+For this to work, <code data-dev-comment-type="paramref" class="paramref">method</code> cannot reference
 non-Cecil types or methods.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -370,12 +371,14 @@ non-Cecil types or methods.</p>
       <tr>
         <td><span class="xref">Mono.Cecil.ModuleDefinition</span></td>
         <td><span class="parametername">module</span></td>
-        <td></td>
+        <td><p>The module to import <code data-dev-comment-type="paramref" class="paramref">method</code> into.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
         <td><span class="parametername">method</span></td>
-        <td></td>
+        <td><p>The method to convert to a method reference.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -400,7 +403,7 @@ non-Cecil types or methods.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L129">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L132">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_ImportReference_" data-uid="Flame.Clr.TypeHelpers.ImportReference*"></a>
   <h4 id="Flame_Clr_TypeHelpers_ImportReference_Mono_Cecil_ModuleDefinition_Flame_IType_" data-uid="Flame.Clr.TypeHelpers.ImportReference(Mono.Cecil.ModuleDefinition,Flame.IType)">ImportReference(ModuleDefinition, IType)</h4>
@@ -426,7 +429,8 @@ non-Cecil types.</p>
       <tr>
         <td><span class="xref">Mono.Cecil.ModuleDefinition</span></td>
         <td><span class="parametername">module</span></td>
-        <td></td>
+        <td><p>The module to import <code data-dev-comment-type="paramref" class="paramref">type</code> into.</p>
+</td>
       </tr>
       <tr>
         <td><a class="xref" href="Flame.IType.html">IType</a></td>
@@ -457,7 +461,7 @@ non-Cecil types.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_TypeHelpers_TryGetDelegateInvokeMethod_Flame_IType_Flame_IMethod__.md&amp;value=---%0Auid%3A%20Flame.Clr.TypeHelpers.TryGetDelegateInvokeMethod(Flame.IType%2CFlame.IMethod%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L376">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/TypeHelpers.cs/#L385">View Source</a>
   </span>
   <a id="Flame_Clr_TypeHelpers_TryGetDelegateInvokeMethod_" data-uid="Flame.Clr.TypeHelpers.TryGetDelegateInvokeMethod*"></a>
   <h4 id="Flame_Clr_TypeHelpers_TryGetDelegateInvokeMethod_Flame_IType_Flame_IMethod__" data-uid="Flame.Clr.TypeHelpers.TryGetDelegateInvokeMethod(Flame.IType,Flame.IMethod@)">TryGetDelegateInvokeMethod(IType, out IMethod)</h4>

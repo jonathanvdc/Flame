@@ -2782,25 +2782,12 @@ references:
   commentId: T:Flame.Clr.Emit.ClrMethodBodyEmitter
   fullName: Flame.Clr.Emit.ClrMethodBodyEmitter
   nameWithType: ClrMethodBodyEmitter
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.#ctor(Mono.Cecil.MethodDefinition,Flame.Compiler.MethodBody,Flame.TypeSystem.TypeEnvironment)
-  name: ClrMethodBodyEmitter(MethodDefinition, MethodBody, TypeEnvironment)
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter__ctor_Mono_Cecil_MethodDefinition_Flame_Compiler_MethodBody_Flame_TypeSystem_TypeEnvironment_
-  commentId: M:Flame.Clr.Emit.ClrMethodBodyEmitter.#ctor(Mono.Cecil.MethodDefinition,Flame.Compiler.MethodBody,Flame.TypeSystem.TypeEnvironment)
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.ClrMethodBodyEmitter(Mono.Cecil.MethodDefinition, Flame.Compiler.MethodBody, Flame.TypeSystem.TypeEnvironment)
-  nameWithType: ClrMethodBodyEmitter.ClrMethodBodyEmitter(MethodDefinition, MethodBody, TypeEnvironment)
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.#ctor*
-  name: ClrMethodBodyEmitter
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter__ctor_
-  commentId: Overload:Flame.Clr.Emit.ClrMethodBodyEmitter.#ctor
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.ClrMethodBodyEmitter
-  nameWithType: ClrMethodBodyEmitter.ClrMethodBodyEmitter
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile
-  name: Compile()
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_Compile
-  commentId: M:Flame.Clr.Emit.ClrMethodBodyEmitter.Compile
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile()
-  nameWithType: ClrMethodBodyEmitter.Compile()
+- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile(Flame.Compiler.MethodBody,Mono.Cecil.MethodDefinition,Flame.TypeSystem.TypeEnvironment)
+  name: Compile(MethodBody, MethodDefinition, TypeEnvironment)
+  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_Compile_Flame_Compiler_MethodBody_Mono_Cecil_MethodDefinition_Flame_TypeSystem_TypeEnvironment_
+  commentId: M:Flame.Clr.Emit.ClrMethodBodyEmitter.Compile(Flame.Compiler.MethodBody,Mono.Cecil.MethodDefinition,Flame.TypeSystem.TypeEnvironment)
+  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile(Flame.Compiler.MethodBody, Mono.Cecil.MethodDefinition, Flame.TypeSystem.TypeEnvironment)
+  nameWithType: ClrMethodBodyEmitter.Compile(MethodBody, MethodDefinition, TypeEnvironment)
 - uid: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile*
   name: Compile
   href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_Compile_
@@ -2808,45 +2795,6 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.Compile
   nameWithType: ClrMethodBodyEmitter.Compile
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.Method
-  name: Method
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_Method
-  commentId: P:Flame.Clr.Emit.ClrMethodBodyEmitter.Method
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.Method
-  nameWithType: ClrMethodBodyEmitter.Method
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.Method*
-  name: Method
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_Method_
-  commentId: Overload:Flame.Clr.Emit.ClrMethodBodyEmitter.Method
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.Method
-  nameWithType: ClrMethodBodyEmitter.Method
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody
-  name: SourceBody
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_SourceBody
-  commentId: P:Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody
-  nameWithType: ClrMethodBodyEmitter.SourceBody
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody*
-  name: SourceBody
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_SourceBody_
-  commentId: Overload:Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.SourceBody
-  nameWithType: ClrMethodBodyEmitter.SourceBody
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment
-  name: TypeEnvironment
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_TypeEnvironment
-  commentId: P:Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment
-  nameWithType: ClrMethodBodyEmitter.TypeEnvironment
-- uid: Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment*
-  name: TypeEnvironment
-  href: api/Flame.Clr.Emit.ClrMethodBodyEmitter.html#Flame_Clr_Emit_ClrMethodBodyEmitter_TypeEnvironment_
-  commentId: Overload:Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment
-  isSpec: "True"
-  fullName: Flame.Clr.Emit.ClrMethodBodyEmitter.TypeEnvironment
-  nameWithType: ClrMethodBodyEmitter.TypeEnvironment
 - uid: Flame.Clr.NameConversion
   name: NameConversion
   href: api/Flame.Clr.NameConversion.html
@@ -17152,6 +17100,96 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Pipeline.Optimizer.GetBodyAsync
   nameWithType: Optimizer.GetBodyAsync
+- uid: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task}})
+  name: RunAllAsync(IEnumerable<Func<Task>>)
+  href: api/Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___
+  commentId: M:Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task}})
+  name.vb: RunAllAsync(IEnumerable(Of Func(Of Task)))
+  fullName: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable<System.Func<System.Threading.Tasks.Task>>)
+  fullName.vb: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable(Of System.Func(Of System.Threading.Tasks.Task)))
+  nameWithType: Optimizer.RunAllAsync(IEnumerable<Func<Task>>)
+  nameWithType.vb: Optimizer.RunAllAsync(IEnumerable(Of Func(Of Task)))
+- uid: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Task})
+  name: RunAllAsync(IEnumerable<Task>)
+  href: api/Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync_System_Collections_Generic_IEnumerable_System_Threading_Tasks_Task__
+  commentId: M:Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Task})
+  name.vb: RunAllAsync(IEnumerable(Of Task))
+  fullName: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable<System.Threading.Tasks.Task>)
+  fullName.vb: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(System.Collections.Generic.IEnumerable(Of System.Threading.Tasks.Task))
+  nameWithType: Optimizer.RunAllAsync(IEnumerable<Task>)
+  nameWithType.vb: Optimizer.RunAllAsync(IEnumerable(Of Task))
+- uid: Flame.Compiler.Pipeline.Optimizer.RunAllAsync*
+  name: RunAllAsync
+  href: api/Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync_
+  commentId: Overload:Flame.Compiler.Pipeline.Optimizer.RunAllAsync
+  isSpec: "True"
+  fullName: Flame.Compiler.Pipeline.Optimizer.RunAllAsync
+  nameWithType: Optimizer.RunAllAsync
+- uid: Flame.Compiler.Pipeline.Optimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task{``0}}})
+  name: RunAllAsync<T>(IEnumerable<Func<Task<T>>>)
+  href: api/Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___0____
+  commentId: M:Flame.Compiler.Pipeline.Optimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task{``0}}})
+  name.vb: RunAllAsync(Of T)(IEnumerable(Of Func(Of Task(Of T))))
+  fullName: Flame.Compiler.Pipeline.Optimizer.RunAllAsync<T>(System.Collections.Generic.IEnumerable<System.Func<System.Threading.Tasks.Task<T>>>)
+  fullName.vb: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(Of T)(System.Collections.Generic.IEnumerable(Of System.Func(Of System.Threading.Tasks.Task(Of T))))
+  nameWithType: Optimizer.RunAllAsync<T>(IEnumerable<Func<Task<T>>>)
+  nameWithType.vb: Optimizer.RunAllAsync(Of T)(IEnumerable(Of Func(Of Task(Of T))))
+- uid: Flame.Compiler.Pipeline.Optimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Task{``0}})
+  name: RunAllAsync<T>(IEnumerable<Task<T>>)
+  href: api/Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Threading_Tasks_Task___0___
+  commentId: M:Flame.Compiler.Pipeline.Optimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Threading.Tasks.Task{``0}})
+  name.vb: RunAllAsync(Of T)(IEnumerable(Of Task(Of T)))
+  fullName: Flame.Compiler.Pipeline.Optimizer.RunAllAsync<T>(System.Collections.Generic.IEnumerable<System.Threading.Tasks.Task<T>>)
+  fullName.vb: Flame.Compiler.Pipeline.Optimizer.RunAllAsync(Of T)(System.Collections.Generic.IEnumerable(Of System.Threading.Tasks.Task(Of T)))
+  nameWithType: Optimizer.RunAllAsync<T>(IEnumerable<Task<T>>)
+  nameWithType.vb: Optimizer.RunAllAsync(Of T)(IEnumerable(Of Task(Of T)))
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer
+  name: ParallelOnDemandOptimizer
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html
+  commentId: T:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer
+  nameWithType: ParallelOnDemandOptimizer
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization})
+  name: ParallelOnDemandOptimizer(IReadOnlyList<Optimization>)
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html#Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__
+  commentId: M:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization})
+  name.vb: ParallelOnDemandOptimizer(IReadOnlyList(Of Optimization))
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Pipeline.Optimization>)
+  fullName.vb: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Pipeline.Optimization))
+  nameWithType: ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(IReadOnlyList<Optimization>)
+  nameWithType.vb: ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(IReadOnlyList(Of Optimization))
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization},System.Func{Flame.IMethod,Flame.Compiler.MethodBody})
+  name: ParallelOnDemandOptimizer(IReadOnlyList<Optimization>, Func<IMethod, MethodBody>)
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html#Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__System_Func_Flame_IMethod_Flame_Compiler_MethodBody__
+  commentId: M:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization},System.Func{Flame.IMethod,Flame.Compiler.MethodBody})
+  name.vb: ParallelOnDemandOptimizer(IReadOnlyList(Of Optimization), Func(Of IMethod, MethodBody))
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(System.Collections.Generic.IReadOnlyList<Flame.Compiler.Pipeline.Optimization>, System.Func<Flame.IMethod, Flame.Compiler.MethodBody>)
+  fullName.vb: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.Pipeline.Optimization), System.Func(Of Flame.IMethod, Flame.Compiler.MethodBody))
+  nameWithType: ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(IReadOnlyList<Optimization>, Func<IMethod, MethodBody>)
+  nameWithType.vb: ParallelOnDemandOptimizer.ParallelOnDemandOptimizer(IReadOnlyList(Of Optimization), Func(Of IMethod, MethodBody))
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor*
+  name: ParallelOnDemandOptimizer
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html#Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_
+  commentId: Overload:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.ParallelOnDemandOptimizer
+  nameWithType: ParallelOnDemandOptimizer.ParallelOnDemandOptimizer
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync*
+  name: RunAllAsync
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html#Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_RunAllAsync_
+  commentId: Overload:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync
+  isSpec: "True"
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync
+  nameWithType: ParallelOnDemandOptimizer.RunAllAsync
+- uid: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task{``0}}})
+  name: RunAllAsync<T>(IEnumerable<Func<Task<T>>>)
+  href: api/Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.html#Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___0____
+  commentId: M:Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task{``0}}})
+  name.vb: RunAllAsync(Of T)(IEnumerable(Of Func(Of Task(Of T))))
+  fullName: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync<T>(System.Collections.Generic.IEnumerable<System.Func<System.Threading.Tasks.Task<T>>>)
+  fullName.vb: Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync(Of T)(System.Collections.Generic.IEnumerable(Of System.Func(Of System.Threading.Tasks.Task(Of T))))
+  nameWithType: ParallelOnDemandOptimizer.RunAllAsync<T>(IEnumerable<Func<Task<T>>>)
+  nameWithType.vb: ParallelOnDemandOptimizer.RunAllAsync(Of T)(IEnumerable(Of Func(Of Task(Of T))))
 - uid: Flame.Compiler.Target
   name: Flame.Compiler.Target
   href: api/Flame.Compiler.Target.html
