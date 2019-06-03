@@ -421,6 +421,19 @@ namespace Flame.Collections
         /// <inheritdoc/>
         public override TValue Get(TKey key, Func<TKey, TValue> createValue)
         {
+            TValue result;
+            if (TryGet(key, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return TryAddNew(key, createValue(key));
+            }
+        }
+
+        private TValue TryAddNew(TKey key, TValue newValue)
+        {
             var hashCode = keyComparer.GetHashCode(key);
 
             bool mustResize;
@@ -432,47 +445,27 @@ namespace Flame.Collections
                 resizeLock.EnterReadLock();
 
                 int bucketIndex = TruncateHashCode(hashCode);
-                bool mustCreate = false;
 
                 try
                 {
                     mustResize = AcquireBucket(bucketIndex, out resizeSize);
 
                     var bucket = buckets[bucketIndex];
+                    if (bucket.IsEmpty)
+                    {
+                        Interlocked.Increment(ref initializedBucketCount);
+                    }
+
                     if (!bucket.TryFindValue(keyComparer, hashCode, key, out result))
                     {
-                        mustCreate = true;
+                        result = newValue;
+                        bucket.Add(hashCode, key, result);
+                        buckets[bucketIndex] = bucket;
                     }
                 }
                 finally
                 {
                     ReleaseBucket(bucketIndex);
-                }
-
-                if (mustCreate)
-                {
-                    var newValue = createValue(key);
-                    try
-                    {
-                        mustResize = AcquireBucket(bucketIndex, out resizeSize);
-
-                        var bucket = buckets[bucketIndex];
-                        if (bucket.IsEmpty)
-                        {
-                            Interlocked.Increment(ref initializedBucketCount);
-                        }
-
-                        if (!bucket.TryFindValue(keyComparer, hashCode, key, out result))
-                        {
-                            result = newValue;
-                            bucket.Add(hashCode, key, result);
-                            buckets[bucketIndex] = bucket;
-                        }
-                    }
-                    finally
-                    {
-                        ReleaseBucket(bucketIndex);
-                    }
                 }
             }
             finally
