@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using Pixie.Markup;
 using Pixie.Options;
 
 namespace UnitTests
@@ -29,14 +32,21 @@ namespace UnitTests
             .WithDescription("A path to the assembly to optimize.")
             .WithParameters(new SymbolicOptionParameter("path", true));
 
+        private static string DefaultCscPath =
+            Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "csc.exe");
+
         /// <summary>
         /// The 'csc-path' option, which specifies the path to the C# compiler.
         /// </summary>
         public static readonly ValueOption<string> CscPath =
             ValueOption.CreateStringOption(
                     OptionForm.Long("csc-path"),
-                    "csc")
-                .WithDescription("The path to the C# compiler.")
+                    DefaultCscPath)
+                .WithDescription(
+                    Quotation.QuoteEvenInBold(
+                        "The path to the C# compiler. This is ",
+                        DefaultCscPath,
+                        " by default."))
                 .WithParameter(new SymbolicOptionParameter("path"));
 
         /// <summary>
