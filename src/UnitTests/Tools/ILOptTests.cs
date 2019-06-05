@@ -114,7 +114,7 @@ namespace UnitTests
             string stdout, stderr;
             int exitCode = RunProcess(
                 compilerName,
-                $"\"{inputPath}\" \"/out:{outputPath}\" /nologo {flags}",
+                $"\"/out:{outputPath}\" /nologo {flags} \"{inputPath}\"",
                 out stdout,
                 out stderr);
 
