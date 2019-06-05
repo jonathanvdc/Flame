@@ -125,7 +125,7 @@ namespace UnitTests
         }
 
         internal static readonly string ProjectPath = Directory.GetParent(
-            System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.FullName;
+            System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.Parent.FullName;
 
         internal static readonly string ToolTestPath = Path.Combine(
             Directory.GetParent(ProjectPath).FullName, "tool-tests");
