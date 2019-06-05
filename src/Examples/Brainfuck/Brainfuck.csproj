@@ -28,13 +28,11 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pixie, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Pixie.0.1.6\lib\net45\Pixie.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Pixie">
+      <HintPath>..\..\packages\Pixie.0.1.7\lib\net45\Pixie.dll</HintPath>
     </Reference>
-    <Reference Include="Pixie.Terminal, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Pixie.0.1.6\lib\net45\Pixie.Terminal.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Pixie.Terminal">
+      <HintPath>..\..\packages\Pixie.0.1.7\lib\net45\Pixie.Terminal.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable">
