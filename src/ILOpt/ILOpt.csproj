@@ -28,14 +28,13 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pixie, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Pixie">
       <HintPath>..\packages\Pixie.0.1.6\lib\net45\Pixie.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="Pixie.Terminal, Version=0.1.6.128, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Pixie.Terminal">
       <HintPath>..\packages\Pixie.0.1.6\lib\net45\Pixie.Terminal.dll</HintPath>
-      <Private>True</Private>
     </Reference>
+    <PackageReference Include="Pixie" Version="0.1.6.128" />
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable">
       <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -86,7 +85,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
