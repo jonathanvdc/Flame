@@ -9,12 +9,14 @@ environment:
   access_token:
     secure: g+uq4ZWbxSQPIvxKd2swP1ce1rKaY/OQh6Rn2emgCv3ke5QYt7uILm5JsC8CA9GE
 
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: AssemblyInfo.*
-  assembly_version: "{version}"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
 
 clone_depth: 10
 
