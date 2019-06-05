@@ -6,6 +6,7 @@ public struct Point
 {
     public Point(double x, double y)
     {
+        this = default(Point);
         X = x;
         Y = y;
     }
