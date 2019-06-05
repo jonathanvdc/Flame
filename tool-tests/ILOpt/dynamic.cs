@@ -11,8 +11,8 @@ namespace Benchmarks
     {
         private static SomeType _type = new SomeType
         {
-            Foo = nameof(SomeType.Foo),
-            Foo2 = nameof(SomeType.Foo2),
+            Foo = "Foo",
+            Foo2 = "Foo2",
             Conn = new DbConn
             {
                 Name = "Test",
