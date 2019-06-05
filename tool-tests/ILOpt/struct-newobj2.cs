@@ -6,6 +6,7 @@ public struct StringWrapper
 {
     public StringWrapper(string value)
     {
+        this = default(StringWrapper);
         this.Value = value;
     }
 
