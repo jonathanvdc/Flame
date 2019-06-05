@@ -42,6 +42,7 @@ build_script:
   # Build Flame.
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo src/Flame.sln
   # Run the tests.
+  - src\UnitTests\bin\Release\UnitTests.exe -h
   - src\UnitTests\bin\Release\UnitTests.exe all
 
 after_build:
