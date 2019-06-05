@@ -6,7 +6,7 @@ public struct StringContainer
 {
     public StringContainer(string contents)
     {
-        this = default(StringWrapper);
+        this = default(StringContainer);
         this.Contents = contents;
     }
 
