@@ -33,10 +33,6 @@ build_script:
   - set /p PKG_VERSION=<pkg-version.txt
   - echo %PKG_VERSION%
 
-  # Get the C# compiler's path and put it in an environment variable.
-  - where csc > csc-path.txt
-  - set /p CSC_PATH=<csc-path.txt
-  - echo %CSC_PATH%
   # Restore NuGet packages.
   - nuget restore src/Flame.sln
   # Build supporting macros.
@@ -46,7 +42,7 @@ build_script:
   # Build Flame.
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo src/Flame.sln
   # Run the tests.
-  - src\UnitTests\bin\Release\UnitTests.exe all "--csc-path=%CSC_PATH%"
+  - src\UnitTests\bin\Release\UnitTests.exe all
 
 after_build:
   # Create NuGet packages
