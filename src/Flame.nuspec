@@ -25,9 +25,13 @@
   </metadata>
   <files>
     <file src="..\README.md" target="readme.txt" />
-    <file src="Flame.Compiler\bin\Release\Flame.dll" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.xml" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.Compiler.dll" target="lib\net45\" />
-    <file src="Flame.Compiler\bin\Release\Flame.Compiler.xml" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\net45\Flame.dll" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\netstandard2.0\Flame.dll" target="lib\netstandard2.0\" />
+    <file src="Flame.Compiler\bin\Release\net45\Flame.xml" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\netstandard2.0\Flame.xml" target="lib\netstandard2.0\" />
+    <file src="Flame.Compiler\bin\Release\net45\Flame.Compiler.dll" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\netstandard2.0\Flame.Compiler.dll" target="lib\netstandard2.0\" />
+    <file src="Flame.Compiler\bin\Release\net45\Flame.Compiler.xml" target="lib\net45\" />
+    <file src="Flame.Compiler\bin\Release\netstandard2.0\Flame.Compiler.xml" target="lib\netstandard2.0\" />
   </files>
 </package>

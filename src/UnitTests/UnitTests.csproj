@@ -1,151 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5202A5A4-69CB-4795-A998-4BAC410900F0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Externalconsole>true</Externalconsole>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Externalconsole>true</Externalconsole>
+    <TargetFramework>net45</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pixie">
-      <HintPath>..\packages\Pixie.0.1.7\lib\net45\Pixie.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie.Loyc">
-      <HintPath>..\packages\Pixie.Loyc.0.1.7\lib\net45\Pixie.Loyc.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie.Terminal">
-      <HintPath>..\packages\Pixie.0.1.7\lib\net45\Pixie.Terminal.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Essentials">
-      <HintPath>..\packages\Loyc.Essentials.26.8.1\lib\net45\Loyc.Essentials.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Collections">
-      <HintPath>..\packages\Loyc.Collections.26.8.1\lib\net45\Loyc.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Math">
-      <HintPath>..\packages\Loyc.Math.26.8.1\lib\net45\Loyc.Math.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Syntax">
-      <HintPath>..\packages\Loyc.Syntax.26.8.1\lib\net45\Loyc.Syntax.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Utilities">
-      <HintPath>..\packages\Loyc.Utilities.26.8.1\lib\net45\Loyc.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\packages\Mono.Cecil.0.10.4\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\packages\Mono.Cecil.0.10.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\packages\Mono.Cecil.0.10.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\packages\Mono.Cecil.0.10.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Flame\Flame.csproj" />
+    <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj" />
+    <ProjectReference Include="..\Flame.Clr\Flame.Clr.csproj" />
+    <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj" />
+    <ProjectReference Include="..\FlameMacros\FlameMacros.csproj" />
+    <ProjectReference Include="..\ILOpt\ILOpt.csproj" />
+    <ProjectReference Include="..\Examples\Brainfuck\Brainfuck.csproj" />
+    <PackageReference Include="Loyc.Collections" Version="26.8.1" />
+    <PackageReference Include="Loyc.Essentials" Version="26.8.1" />
+    <PackageReference Include="Loyc.Math" Version="26.8.1" />
+    <PackageReference Include="Loyc.Syntax" Version="26.8.1" />
+    <PackageReference Include="Loyc.Utilities" Version="26.8.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.4" />
+    <PackageReference Include="Pixie" Version="0.1.7" />
+    <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="FuzzHelpers.cs" />
-    <Compile Include="Options.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Flame\AssemblyIdentityTests.cs" />
-    <Compile Include="Flame\CacheTests.cs" />
-    <Compile Include="Flame\DeferredInitializerTests.cs" />
-    <Compile Include="Flame\IndexTests.cs" />
-    <Compile Include="Flame\IntegerConstantTests.cs" />
-    <Compile Include="Flame\QualifiedNameTests.cs" />
-    <Compile Include="Flame\SmallMultiDictionaryTests.cs" />
-    <Compile Include="Flame\SymmetricRelationTests.cs" />
-    <Compile Include="Flame\TestAssemblyContainer.cs" />
-    <Compile Include="Flame\TypeConstructionTests.cs" />
-    <Compile Include="Flame\TypeResolverTests.cs" />
-    <Compile Include="Flame\ValueListTests.cs" />
-    <Compile Include="Flame.Clr\CilAnalysisTests.cs" />
-    <Compile Include="Flame.Clr\CilEmitTests.cs" />
-    <Compile Include="Flame.Clr\LocalTypeResolutionTests.cs" />
-    <Compile Include="Flame.Clr\MemberResolutionTests.cs" />
-    <Compile Include="Flame.Clr\NameConversionTests.cs" />
-    <Compile Include="Flame.Clr\TypeAttributeTests.cs" />
-    <Compile Include="Flame.Compiler\ArithmeticIntrinsicsTests.cs" />
-    <Compile Include="Flame.Compiler\DominatorTreeAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\FlowGraphAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\FlowGraphTests.cs" />
-    <Compile Include="Flame.Compiler\InterferenceGraphAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\LivenessAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\OptimizerTests.cs" />
-    <Compile Include="Flame.Compiler\PredecessorAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\RelatedValueAnalysisTests.cs" />
-    <Compile Include="Flame.Compiler\ValueUseAnalysisTests.cs" />
-    <Compile Include="Flame.Ir\AssemblyCodecTest.cs" />
-    <Compile Include="Flame.Ir\ConstantCodecTest.cs" />
-    <Compile Include="Flame.Ir\PiecewiseCodecTest.cs" />
-    <Compile Include="Flame.Ir\TypeCodecTest.cs" />
-    <Compile Include="Tools\BrainfuckTests.cs" />
-    <Compile Include="Tools\ILOptTests.cs" />
-    <Compile Include="Tools\ToolCommand.cs" />
-    <Compile Include="Macros\InstructionPatternTests.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Flame\Flame.csproj">
-      <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
-      <Name>Flame</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj">
-      <Project>{7042BE93-0037-4506-B3D6-7C28774F8AD5}</Project>
-      <Name>Flame.Compiler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj">
-      <Project>{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}</Project>
-      <Name>Flame.Ir</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Flame.Clr\Flame.Clr.csproj">
-      <Project>{A3C06AF7-D50A-4DA2-BD47-B0BA80CF2B74}</Project>
-      <Name>Flame.Clr</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FlameMacros\FlameMacros.csproj">
-      <Project>{42FA2924-B6DE-48AE-957C-514C37D0D1ED}</Project>
-      <Name>FlameMacros</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ILOpt\ILOpt.csproj">
-      <Project>{F0CB8335-5A0A-4197-9840-B7AA93331CC6}</Project>
-      <Name>ILOpt</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Examples\Brainfuck\Brainfuck.csproj">
-      <Project>{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB}</Project>
-      <Name>Brainfuck</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
 </Project>

@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Flame</RootNamespace>
     <AssemblyName>Flame</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Version>1.0</Version>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,107 +16,15 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Flame.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Debug\Flame.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Flame.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Release\Flame.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AccessorKind.cs" />
-    <Compile Include="AssemblyIdentity.cs" />
-    <Compile Include="AttributeMap.cs" />
-    <Compile Include="Constant.cs" />
-    <Compile Include="ContractHelpers.cs" />
-    <Compile Include="ExceptionSpecification.cs" />
-    <Compile Include="IAssembly.cs" />
-    <Compile Include="IAttribute.cs" />
-    <Compile Include="IField.cs" />
-    <Compile Include="IGenericMember.cs" />
-    <Compile Include="IGenericParameter.cs" />
-    <Compile Include="IMember.cs" />
-    <Compile Include="IMethod.cs" />
-    <Compile Include="IProperty.cs" />
-    <Compile Include="IType.cs" />
-    <Compile Include="ITypeMember.cs" />
-    <Compile Include="Parameter.cs" />
-    <Compile Include="TypeExtensions.cs" />
-    <Compile Include="Collections\Betterness.cs" />
-    <Compile Include="Collections\Cache.cs" />
-    <Compile Include="Collections\DeferredInitializer.cs" />
-    <Compile Include="Collections\EmptyArray.cs" />
-    <Compile Include="Collections\EnumerableComparer.cs" />
-    <Compile Include="Collections\Index.cs" />
-    <Compile Include="Collections\InterningCache.cs" />
-    <Compile Include="Collections\MappedComparer.cs" />
-    <Compile Include="Collections\ReadOnlyListExtensions.cs" />
-    <Compile Include="Collections\ReadOnlySlice.cs" />
-    <Compile Include="Collections\SmallMultiDictionary.cs" />
-    <Compile Include="Collections\StronglyConnectedComponents.cs" />
-    <Compile Include="Collections\SymmetricRelation.cs" />
-    <Compile Include="Collections\TreeSearchAlgorithm.cs" />
-    <Compile Include="Collections\UniqueNameMap.cs" />
-    <Compile Include="Collections\UniqueNameSet.cs" />
-    <Compile Include="Collections\ValueList.cs" />
-    <Compile Include="Collections\WeakCache.cs" />
-    <Compile Include="Constants\BooleanConstant.cs" />
-    <Compile Include="Constants\DefaultConstant.cs" />
-    <Compile Include="Constants\FieldTokenConstant.cs" />
-    <Compile Include="Constants\Float32Constant.cs" />
-    <Compile Include="Constants\Float64Constant.cs" />
-    <Compile Include="Constants\IntegerConstant.cs" />
-    <Compile Include="Constants\IntegerSpec.cs" />
-    <Compile Include="Constants\MethodTokenConstant.cs" />
-    <Compile Include="Constants\NullConstant.cs" />
-    <Compile Include="Constants\StringConstant.cs" />
-    <Compile Include="Constants\TypeTokenConstant.cs" />
-    <Compile Include="Names\GenericName.cs" />
-    <Compile Include="Names\PointerName.cs" />
-    <Compile Include="Names\QualifiedName.cs" />
-    <Compile Include="Names\SimpleName.cs" />
-    <Compile Include="Names\UnqualifiedName.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeSystem\AccessModifier.cs" />
-    <Compile Include="TypeSystem\AssemblyResolver.cs" />
-    <Compile Include="TypeSystem\ContainerType.cs" />
-    <Compile Include="TypeSystem\DescribedAccessor.cs" />
-    <Compile Include="TypeSystem\DescribedAssembly.cs" />
-    <Compile Include="TypeSystem\DescribedField.cs" />
-    <Compile Include="TypeSystem\DescribedGenericMember.cs" />
-    <Compile Include="TypeSystem\DescribedGenericParameter.cs" />
-    <Compile Include="TypeSystem\DescribedMember.cs" />
-    <Compile Include="TypeSystem\DescribedMethod.cs" />
-    <Compile Include="TypeSystem\DescribedType.cs" />
-    <Compile Include="TypeSystem\ErrorType.cs" />
-    <Compile Include="TypeSystem\ExceptionSpecificationAttribute.cs" />
-    <Compile Include="TypeSystem\FlagAttribute.cs" />
-    <Compile Include="TypeSystem\IndirectAccessorSpecialization.cs" />
-    <Compile Include="TypeSystem\IndirectFieldSpecialization.cs" />
-    <Compile Include="TypeSystem\IndirectGenericParameterSpecialization.cs" />
-    <Compile Include="TypeSystem\IndirectPropertySpecialization.cs" />
-    <Compile Include="TypeSystem\IntegerSpecAttribute.cs" />
-    <Compile Include="TypeSystem\IntrinsicAttribute.cs" />
-    <Compile Include="TypeSystem\MemberMapping.cs" />
-    <Compile Include="TypeSystem\MethodSpecialization.cs" />
-    <Compile Include="TypeSystem\NullAssemblyResolver.cs" />
-    <Compile Include="TypeSystem\PointerType.cs" />
-    <Compile Include="TypeSystem\SubtypingRules.cs" />
-    <Compile Include="TypeSystem\TypeEnvironment.cs" />
-    <Compile Include="TypeSystem\TypeMappingVisitor.cs" />
-    <Compile Include="TypeSystem\TypeResolver.cs" />
-    <Compile Include="TypeSystem\TypeSpecialization.cs" />
-    <Compile Include="TypeSystem\TypeVisitor.cs" />
-    <Compile Include="TypeSystem\VirtualMethodSetExtensions.cs" />
-    <Compile Include="TypeSystem\VTable.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

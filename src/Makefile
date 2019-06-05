@@ -9,12 +9,13 @@ debug: dsl
 
 all: debug release
 
-MACROS_DLL = FlameMacros/bin/Release/FlameMacros.dll
+LEMP_EXE = FlameMacros/bin/Release/net45/LeMP.exe
+MACROS_DLL = FlameMacros/bin/Release/net45/FlameMacros.dll
 MACROS_CS_FILES = $(shell find FlameMacros -name '*.cs')
 RUN_EXE ?= mono
 
 %.out.cs: %.ecs $(MACROS_DLL)
-	$(RUN_EXE) FlameMacros/bin/Release/LeMP.exe --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
+	$(RUN_EXE) $(LEMP_EXE) --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
 
 $(MACROS_DLL): $(MACROS_CS_FILES)
 	msbuild /p:Configuration=Release /verbosity:quiet /nologo FlameMacros/FlameMacros.csproj
@@ -31,4 +32,4 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	$(RUN_EXE) ./UnitTests/bin/Debug/UnitTests.exe all
+	$(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe all

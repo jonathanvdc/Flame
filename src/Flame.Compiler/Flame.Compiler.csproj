@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7042BE93-0037-4506-B3D6-7C28774F8AD5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Flame.Compiler</RootNamespace>
     <AssemblyName>Flame.Compiler</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Version>1.0</Version>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,165 +16,19 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Flame.Compiler.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Debug\Flame.Compiler.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Flame.Compiler.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Release\Flame.Compiler.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BasicBlock.cs" />
-    <Compile Include="BasicBlockBuilder.cs" />
-    <Compile Include="BasicBlockData.cs" />
-    <Compile Include="BlockFlow.cs" />
-    <Compile Include="BlockParameter.cs" />
-    <Compile Include="Branch.cs" />
-    <Compile Include="FlowGraph.cs" />
-    <Compile Include="FlowGraphBuilder.cs" />
-    <Compile Include="IBodyMethod.cs" />
-    <Compile Include="Instruction.Create.cs" />
-    <Compile Include="Instruction.cs" />
-    <Compile Include="InstructionBuilder.cs" />
-    <Compile Include="InstructionPrototype.cs" />
-    <Compile Include="MethodBody.cs" />
-    <Compile Include="NamedInstruction.cs" />
-    <Compile Include="NamedInstructionBuilder.cs" />
-    <Compile Include="UniqueTag.cs" />
-    <Compile Include="Analysis\AliasAnalysis.cs" />
-    <Compile Include="Analysis\BlockFixpointAnalysis.cs" />
-    <Compile Include="Analysis\BlockReachability.cs" />
-    <Compile Include="Analysis\ConstantAnalysis.cs" />
-    <Compile Include="Analysis\DefaultAnalyses.cs" />
-    <Compile Include="Analysis\DominatorTree.cs" />
-    <Compile Include="Analysis\EffectfulInstructions.cs" />
-    <Compile Include="Analysis\ExceptionDelayability.cs" />
-    <Compile Include="Analysis\FlowGraphAnalysisCache.cs" />
-    <Compile Include="Analysis\FlowGraphUpdate.cs" />
-    <Compile Include="Analysis\IFlowGraphAnalysis.cs" />
-    <Compile Include="Analysis\InstructionExceptionSpecs.cs" />
-    <Compile Include="Analysis\InstructionOrderingAnalysis.cs" />
-    <Compile Include="Analysis\InterferenceGraphAnalysis.cs" />
-    <Compile Include="Analysis\LatticeAnalysis.cs" />
-    <Compile Include="Analysis\LivenessAnalysis.cs" />
-    <Compile Include="Analysis\MacroAnalysisCache.cs" />
-    <Compile Include="Analysis\MemorySpecification.cs" />
-    <Compile Include="Analysis\MemorySSA.cs" />
-    <Compile Include="Analysis\NullabilityAnalysis.cs" />
-    <Compile Include="Analysis\PredecessorAnalysis.cs" />
-    <Compile Include="Analysis\PrototypeExceptionSpecs.cs" />
-    <Compile Include="Analysis\RegisterAllocation.cs" />
-    <Compile Include="Analysis\RelatedValueAnalysis.cs" />
-    <Compile Include="Analysis\ValueNumbering.cs" />
-    <Compile Include="Analysis\ValueUseAnalysis.cs" />
-    <Compile Include="Flow\FlowInstructionBuilder.cs" />
-    <Compile Include="Flow\JumpFlow.cs" />
-    <Compile Include="Flow\ReturnFlow.cs" />
-    <Compile Include="Flow\SwitchFlow.cs" />
-    <Compile Include="Flow\TryFlow.cs" />
-    <Compile Include="Flow\UnreachableFlow.cs" />
-    <Compile Include="Instructions\AllocaArrayPrototype.cs" />
-    <Compile Include="Instructions\AllocaPrototype.cs" />
-    <Compile Include="Instructions\ArithmeticIntrinsics.cs" />
-    <Compile Include="Instructions\ArrayIntrinsics.cs" />
-    <Compile Include="Instructions\BoxPrototype.cs" />
-    <Compile Include="Instructions\CallPrototype.cs" />
-    <Compile Include="Instructions\ConstantPrototype.cs" />
-    <Compile Include="Instructions\ConstrainedCallPrototype.cs" />
-    <Compile Include="Instructions\CopyPrototype.cs" />
-    <Compile Include="Instructions\DynamicCastPrototype.cs" />
-    <Compile Include="Instructions\ExceptionIntrinsics.cs" />
-    <Compile Include="Instructions\GetFieldPointerPrototype.cs" />
-    <Compile Include="Instructions\GetStaticFieldPointerPrototype.cs" />
-    <Compile Include="Instructions\IndirectCallPrototype.cs" />
-    <Compile Include="Instructions\IntrinsicNamespace.cs" />
-    <Compile Include="Instructions\IntrinsicPrototype.cs" />
-    <Compile Include="Instructions\LoadPrototype.cs" />
-    <Compile Include="Instructions\MemoryIntrinsics.cs" />
-    <Compile Include="Instructions\MethodLookup.cs" />
-    <Compile Include="Instructions\NewDelegatePrototype.cs" />
-    <Compile Include="Instructions\NewObjectPrototype.cs" />
-    <Compile Include="Instructions\ObjectIntrinsics.cs" />
-    <Compile Include="Instructions\ReinterpretCastPrototype.cs" />
-    <Compile Include="Instructions\StorePrototype.cs" />
-    <Compile Include="Instructions\UnboxPrototype.cs" />
-    <Compile Include="Instructions\Fused\FusedInstructionPrototype.cs" />
-    <Compile Include="Instructions\Fused\LoadFieldPrototype.cs" />
-    <Compile Include="Instructions\Fused\StoreFieldPrototype.cs" />
-    <Compile Include="Pipeline\AssemblyContentDescription.cs" />
-    <Compile Include="Pipeline\ITarget.cs" />
-    <Compile Include="Pipeline\ITargetAssembly.cs" />
-    <Compile Include="Pipeline\MethodBodyHolder.cs" />
-    <Compile Include="Pipeline\OnDemandOptimizer.cs" />
-    <Compile Include="Pipeline\Optimization.cs" />
-    <Compile Include="Pipeline\Optimizer.cs" />
-    <Compile Include="Target\IInstructionSelector.cs" />
-    <Compile Include="Target\InstructionStreamBuilder.cs" />
-    <Compile Include="Target\PeepholeOptimizer.cs" />
-    <Compile Include="Target\SelectedInstructions.cs" />
-    <Compile Include="Target\StackInstructionStreamBuilder.cs" />
-    <Compile Include="Transforms\AllocaToRegister.cs" />
-    <Compile Include="Transforms\BlockFusion.cs" />
-    <Compile Include="Transforms\BoxToAlloca.cs" />
-    <Compile Include="Transforms\CallDevirtualization.cs" />
-    <Compile Include="Transforms\ConstantPropagation.cs" />
-    <Compile Include="Transforms\CopyPropagation.cs" />
-    <Compile Include="Transforms\DeadBlockElimination.cs" />
-    <Compile Include="Transforms\DeadValueElimination.cs" />
-    <Compile Include="Transforms\DuplicateReturns.cs" />
-    <Compile Include="Transforms\ForwardRegisters.cs" />
-    <Compile Include="Transforms\FuseMemoryAccesses.out.cs" />
-    <Compile Include="Transforms\GlobalValueNumbering.cs" />
-    <Compile Include="Transforms\Inlining.cs" />
-    <Compile Include="Transforms\InstructionReordering.cs" />
-    <Compile Include="Transforms\InstructionSimplification.out.cs" />
-    <Compile Include="Transforms\IntraproceduralOptimization.cs" />
-    <Compile Include="Transforms\JumpThreading.cs" />
-    <Compile Include="Transforms\JumpToEntryRemoval.cs" />
-    <Compile Include="Transforms\MemoryAccessElimination.cs" />
-    <Compile Include="Transforms\PartialScalarReplacement.cs" />
-    <Compile Include="Transforms\ReassociateOperators.cs" />
-    <Compile Include="Transforms\ScalarReplacement.cs" />
-    <Compile Include="Transforms\SwitchLowering.cs" />
-    <Compile Include="Transforms\SwitchSimplification.cs" />
-    <Compile Include="Transforms\TailRecursionElimination.cs" />
-    <Compile Include="Transforms\Transform.cs" />
-    <Compile Include="TypeSystem\DescribedBodyAccessor.cs" />
-    <Compile Include="TypeSystem\DescribedBodyMethod.cs" />
-    <Compile Include="TypeSystem\MemorySpecificationAttribute.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Collections\ImmutableOrderedDictionary.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\Flame\Flame.csproj">
-      <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
-      <Name>Flame</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Analysis\" />
-    <Folder Include="Constants\" />
-    <Folder Include="Emit\" />
-    <Folder Include="Flow\" />
-    <Folder Include="Instructions\" />
-    <Folder Include="Pipeline\" />
-    <Folder Include="Transforms\" />
-    <Folder Include="TypeSystem\" />
-    <Folder Include="Collections\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Flame\Flame.csproj" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
 </Project>

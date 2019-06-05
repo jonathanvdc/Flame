@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8BB3D298-0227-4E08-BCBF-CE5A1ECEDE2D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Flame.Ir</RootNamespace>
     <AssemblyName>Flame.Ir</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Version>1.0</Version>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,75 +16,25 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Flame.Ir.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Debug\Flame.Ir.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Flame.Ir.xml</DocumentationFile>
     <ConsolePause>false</ConsolePause>
+    <DocumentationFile>bin\Release\Flame.Ir.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pixie">
-      <HintPath>..\packages\Pixie.0.1.7\lib\net45\Pixie.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie.Loyc">
-      <HintPath>..\packages\Pixie.Loyc.0.1.7\lib\net45\Pixie.Loyc.dll</HintPath>
-    </Reference>
-    <Reference Include="Pixie.Terminal">
-      <HintPath>..\packages\Pixie.0.1.7\lib\net45\Pixie.Terminal.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Essentials">
-      <HintPath>..\packages\Loyc.Essentials.26.8.1\lib\net45\Loyc.Essentials.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Collections">
-      <HintPath>..\packages\Loyc.Collections.26.8.1\lib\net45\Loyc.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Loyc.Syntax">
-      <HintPath>..\packages\Loyc.Syntax.26.8.1\lib\net45\Loyc.Syntax.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Codec.cs" />
-    <Compile Include="CodecElement.cs" />
-    <Compile Include="ConstantCodec.cs" />
-    <Compile Include="DecoderState.cs" />
-    <Compile Include="EncoderState.cs" />
-    <Compile Include="FeedbackHelpers.cs" />
-    <Compile Include="InstructionCodecElements.cs" />
-    <Compile Include="IrAssembly.cs" />
-    <Compile Include="IrCodec.cs" />
-    <Compile Include="IrField.cs" />
-    <Compile Include="IrMember.cs" />
-    <Compile Include="IrMethod.cs" />
-    <Compile Include="IrType.cs" />
-    <Compile Include="PiecewiseCodec.cs" />
-    <Compile Include="TypeCodec.cs" />
-    <Compile Include="TypeDefinitionCodec.cs" />
-    <Compile Include="TypeMemberCodec.cs" />
-    <Compile Include="TypeMemberDefinitionCodec.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\Flame\Flame.csproj">
-      <Project>{59B6DEC4-F58F-4DDF-835D-5F01B54F517E}</Project>
-      <Name>Flame</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj">
-      <Project>{7042BE93-0037-4506-B3D6-7C28774F8AD5}</Project>
-      <Name>Flame.Compiler</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Flame\Flame.csproj" />
+    <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj" />
+    <PackageReference Include="Loyc.Collections" Version="26.8.1" />
+    <PackageReference Include="Loyc.Essentials" Version="26.8.1" />
+    <PackageReference Include="Loyc.Syntax" Version="26.8.1" />
+    <PackageReference Include="Pixie" Version="0.1.7" />
+    <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
 </Project>
