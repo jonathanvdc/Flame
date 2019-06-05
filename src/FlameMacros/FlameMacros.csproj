@@ -32,31 +32,31 @@
       <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Essentials">
-      <HintPath>..\packages\Loyc.Essentials.26.5.0\lib\net45\Loyc.Essentials.dll</HintPath>
+      <HintPath>..\packages\Loyc.Essentials.26.8.1\lib\net45\Loyc.Essentials.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Collections">
-      <HintPath>..\packages\Loyc.Collections.26.5.0\lib\net45\Loyc.Collections.dll</HintPath>
+      <HintPath>..\packages\Loyc.Collections.26.8.1\lib\net45\Loyc.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Math">
-      <HintPath>..\packages\Loyc.Math.26.5.0\lib\net45\Loyc.Math.dll</HintPath>
+      <HintPath>..\packages\Loyc.Math.26.8.1\lib\net45\Loyc.Math.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Syntax">
-      <HintPath>..\packages\Loyc.Syntax.26.5.0\lib\net45\Loyc.Syntax.dll</HintPath>
+      <HintPath>..\packages\Loyc.Syntax.26.8.1\lib\net45\Loyc.Syntax.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Ecs">
-      <HintPath>..\packages\Loyc.Ecs.26.5.0\lib\net45\Loyc.Ecs.dll</HintPath>
+      <HintPath>..\packages\Loyc.Ecs.26.8.1\lib\net45\Loyc.Ecs.dll</HintPath>
     </Reference>
     <Reference Include="Loyc.Utilities">
-      <HintPath>..\packages\Loyc.Utilities.26.5.0\lib\net45\Loyc.Utilities.dll</HintPath>
+      <HintPath>..\packages\Loyc.Utilities.26.8.1\lib\net45\Loyc.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.TextEditor">
-      <HintPath>..\packages\LeMP.26.5.0\lib\net45\ICSharpCode.TextEditor.dll</HintPath>
+      <HintPath>..\packages\LeMP.26.8.1\lib\net45\ICSharpCode.TextEditor.dll</HintPath>
     </Reference>
     <Reference Include="LeMP">
-      <HintPath>..\packages\LeMP.26.5.0\lib\net45\LeMP.exe</HintPath>
+      <HintPath>..\packages\LeMP.26.8.1\lib\net45\LeMP.exe</HintPath>
     </Reference>
     <Reference Include="LeMP.StdMacros">
-      <HintPath>..\packages\LeMP.26.5.0\lib\net45\LeMP.StdMacros.dll</HintPath>
+      <HintPath>..\packages\LeMP.26.8.1\lib\net45\LeMP.StdMacros.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
