@@ -86,6 +86,24 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Gets a sequence that contains all members that appear in the method body.
+        /// </summary>
+        /// <value>A sequence of types, methods and fields.</value>
+        public IEnumerable<IMember> Members
+        {
+            get
+            {
+                var results = new HashSet<IMember>();
+                Map(
+                    new MemberMapping(
+                        t => { results.Add(t); return t; },
+                        m => { results.Add(m); return m; },
+                        f => { results.Add(f); return f; }));
+                return results;
+            }
+        }
+
+        /// <summary>
         /// Creates a method body based on this method body, but
         /// with a different implementation.
         /// </summary>
