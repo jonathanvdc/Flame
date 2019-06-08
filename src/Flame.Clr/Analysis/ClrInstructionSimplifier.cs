@@ -62,6 +62,7 @@ namespace Flame.Clr.Analysis
             { OpCodes.Brfalse_S, CreateShortBranchInstructionRewriter(OpCodes.Brfalse) },
             { OpCodes.Beq_S, CreateShortBranchInstructionRewriter(OpCodes.Beq) },
             { OpCodes.Blt_S, CreateShortBranchInstructionRewriter(OpCodes.Blt) },
+            { OpCodes.Blt_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Blt_Un) },
             { OpCodes.Bgt_S, CreateShortBranchInstructionRewriter(OpCodes.Bgt) },
             { OpCodes.Bgt_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Bgt_Un) },
             { OpCodes.Bne_Un_S, CreateShortBranchInstructionRewriter(OpCodes.Bne_Un) },
