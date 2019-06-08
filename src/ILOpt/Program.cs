@@ -121,7 +121,6 @@ namespace ILOpt
 
                 // Wrap the CIL assembly in a Flame assembly.
                 var flameAsm = ClrAssembly.Wrap(cecilAsm);
-                var typeSystem = flameAsm.Resolver.TypeEnvironment;
 
                 // Optimize the assembly.
                 OptimizeAssemblyAsync(
