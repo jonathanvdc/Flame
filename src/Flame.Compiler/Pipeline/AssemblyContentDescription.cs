@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
+using Flame.TypeSystem;
 
 namespace Flame.Compiler.Pipeline
 {
@@ -85,5 +89,127 @@ namespace Flame.Compiler.Pipeline
         /// </summary>
         /// <returns>The assembly's entry point.</returns>
         public IMethod EntryPoint { get; private set; }
+
+        /// <summary>
+        /// Creates an assembly content description that transitively includes all
+        /// dependencies for an entry point method.
+        /// </summary>
+        /// <param name="fullName">The name of the assembly.</param>
+        /// <param name="attributes">The assembly's attributes.</param>
+        /// <param name="entryPoint">An entry point method.</param>
+        /// <param name="optimizer">An optimizer for method bodies.</param>
+        /// <returns>An assembly content description.</returns>
+        public static async Task<AssemblyContentDescription> CreateTransitiveAsync(
+            QualifiedName fullName,
+            AttributeMap attributes,
+            IMethod entryPoint,
+            Optimizer optimizer)
+        {
+            var types = ImmutableHashSet.CreateBuilder<IType>();
+            var members = ImmutableHashSet.CreateBuilder<ITypeMember>();
+            var bodies = new Dictionary<IMethod, MethodBody>();
+
+            await AddToTransitiveAsync(entryPoint, types, members, bodies, optimizer);
+
+            return new AssemblyContentDescription(
+                fullName,
+                attributes,
+                types.ToImmutable(),
+                members.ToImmutable(),
+                bodies,
+                entryPoint);
+        }
+
+        private static async Task AddToTransitiveAsync(
+            IMethod method,
+            ImmutableHashSet<IType>.Builder types,
+            ImmutableHashSet<ITypeMember>.Builder members,
+            Dictionary<IMethod, MethodBody> bodies,
+            Optimizer optimizer)
+        {
+            if (!Define(method, types, members))
+            {
+                return;
+            }
+
+            // Add the method body itself.
+            var body = await optimizer.GetBodyAsync(method);
+            if (body == null)
+            {
+                return;
+            }
+            bodies[method] = body;
+            Define(method, types, members);
+            members.Add(method);
+
+            var bodyMembers = body.Members;
+            // Add field dependencies.
+            foreach (var dependency in bodyMembers.OfType<IField>())
+            {
+                Define(dependency, types, members);
+            }
+
+            // Add type dependencies.
+            var typeVisitor = new TypeFuncVisitor(t =>
+            {
+                if (!(t is ContainerType) && !(t is TypeSpecialization) && !(t is IGenericParameter))
+                {
+                    Define(t, types, members);
+                }
+                return t;
+            });
+            foreach (var dependency in bodyMembers.OfType<IType>())
+            {
+                typeVisitor.Visit(dependency);
+            }
+
+            // Add method dependencies.
+            await optimizer.RunAllAsync(
+                bodyMembers.OfType<IMethod>()
+                    .Select(m => AddToTransitiveAsync(m, types, members, bodies, optimizer)));
+        }
+
+        private static bool Define(
+            ITypeMember member,
+            ImmutableHashSet<IType>.Builder types,
+            ImmutableHashSet<ITypeMember>.Builder members)
+        {
+            if (members.Add(member))
+            {
+                if (member is IAccessor)
+                {
+                    members.Add(((IAccessor)member).ParentProperty);
+                }
+                var parent = member.ParentType;
+                if (parent != null)
+                {
+                    Define(parent, types, members);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static void Define(
+            IType type,
+            ImmutableHashSet<IType>.Builder types,
+            ImmutableHashSet<ITypeMember>.Builder members)
+        {
+            if (types.Add(type))
+            {
+                var parent = type.Parent;
+                if (parent.IsMethod)
+                {
+                    Define(parent.Method, types, members);
+                }
+                else if (parent.IsType)
+                {
+                    Define(parent.Type, types, members);
+                }
+            }
+        }
     }
 }
