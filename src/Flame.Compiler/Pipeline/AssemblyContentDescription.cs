@@ -139,8 +139,6 @@ namespace Flame.Compiler.Pipeline
                 return;
             }
             bodies[method] = body;
-            Define(method, types, members);
-            members.Add(method);
 
             var bodyMembers = body.Members;
             // Add field dependencies.
