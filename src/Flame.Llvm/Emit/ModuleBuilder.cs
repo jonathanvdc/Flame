@@ -49,6 +49,40 @@ namespace Flame.Llvm.Emit
             emitter.Emit(body);
         }
 
+        public void SynthesizeMain(IMethod entryPoint)
+        {
+            var retType = entryPoint.ReturnParameter.Type;
+            bool syntheticRet = retType == TypeSystem.Void;
+            if (retType == TypeSystem.Void)
+            {
+                retType = TypeSystem.Int32;
+            }
+
+            var mainSignature = LLVM.FunctionType(
+                ImportType(retType),
+                new[]
+                {
+                    LLVM.Int32TypeInContext(Context),
+                    LLVM.PointerType(LLVM.PointerType(LLVM.Int8TypeInContext(Context), 0), 0)
+                },
+                false);
+
+            var mainFunc = LLVM.AddFunction(Module, "main", mainSignature);
+            using (var builder = new IRBuilder(Context))
+            {
+                builder.PositionBuilderAtEnd(mainFunc.AppendBasicBlock("entry"));
+                var call = builder.CreateCall(DeclareMethod(entryPoint), new LLVMValueRef[] { }, "");
+                if (syntheticRet)
+                {
+                    builder.CreateRet(LLVM.ConstInt(ImportType(retType), 0, false));
+                }
+                else
+                {
+                    builder.CreateRet(call);
+                }
+            }
+        }
+
         public LLVMTypeRef ImportType(IType type)
         {
             var intSpec = type.GetIntegerSpecOrNull();

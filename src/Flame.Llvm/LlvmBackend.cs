@@ -22,6 +22,12 @@ namespace Flame.Llvm
             {
                 builder.DefineMethod(pair.Key, pair.Value);
             }
+            if (contents.EntryPoint != null)
+            {
+                // If there is an entry point, then we will synthesize a 'main' function that calls
+                // said entry point.
+                builder.SynthesizeMain(contents.EntryPoint);
+            }
             return module;
         }
     }
