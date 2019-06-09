@@ -32,10 +32,24 @@ namespace UnitTests
         /// <returns>Standard output, freshly captured from the executable.</returns>
         public static string RunCommand(ToolCommand command, string exePath)
         {
+            return RunCommand(command, exePath, true);
+        }
+
+        /// <summary>
+        /// Runs a command.
+        /// </summary>
+        /// <param name="command">The command to run.</param>
+        /// <param name="exePath">The path of the executable to run.</param>
+        /// <param name="isClrExecutable">Tells if the exe to run should be executed by a CLR implementation.</param>
+        /// <returns>Standard output, freshly captured from the executable.</returns>
+        public static string RunCommand(ToolCommand command, string exePath, bool isClrExecutable)
+        {
             if (command.Command == "run")
             {
                 string stdout, stderr;
-                int exitCode = RunExe(exePath, command.Argument, out stdout, out stderr);
+                int exitCode = isClrExecutable
+                    ? RunExe(exePath, command.Argument, out stdout, out stderr)
+                    : RunProcess(exePath, command.Argument, out stdout, out stderr);
                 if (exitCode != 0)
                 {
                     throw new Exception($"Executable at '{exePath}' exited with a nonzero exit code: {stdout}{stderr}");

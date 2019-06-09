@@ -30,7 +30,8 @@ namespace UnitTests
             new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", FlameCompiler),
             new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr),
             new Pair<string,Func<int>>("Run unit tests of FlameMacros.dll", FlameMacros),
-            new Pair<string,Func<int>>("Run Flame tool tests", FlameTools)
+            new Pair<string,Func<int>>("Run Flame tool tests", FlameTools),
+            new Pair<string,Func<int>>("Run IL2LLVM tests", IL2LLVM)
         };
 
         public static int Main(string[] args)
@@ -58,7 +59,7 @@ namespace UnitTests
                         Pixie.Severity.Info,
                         new HelpMessage(
                             "unit-tests is a command-line tool that runs Flame's unit tests.",
-                            "unit-tests [all|0|1|2|3|4|5|6...] [options...]",
+                            "unit-tests [all|portable|0|1|2|3|4|5|6|7...] [options...]",
                             Options.All)));
                 return 0;
             }
@@ -86,6 +87,10 @@ namespace UnitTests
                     if (arg.Equals("all", StringComparison.InvariantCultureIgnoreCase))
                     {
                         errorCount += RunAllTests(Menu);
+                    }
+                    else if (arg.Equals("portable", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        errorCount += RunAllTests(Menu.Where(pair => !pair.Key.Contains("IL2LLVM")).ToList());
                     }
                     else
                     {
@@ -241,6 +246,12 @@ namespace UnitTests
             return RunTests.RunMany(
                 new BrainfuckTests(),
                 new ILOptTests());
+        }
+
+        public static int IL2LLVM()
+        {
+            return RunTests.RunMany(
+                new IL2LLVMTests());
         }
     }
 }

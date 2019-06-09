@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+LLVM_PATH ?= /usr/lib/llvm-7/lib
 
 .PHONY: release debug all dsl nuget clean test
 release: dsl
@@ -32,4 +33,7 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	$(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe all
+	$(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe portable
+
+test-llvm: debug
+	LD_LIBRARY_PATH="$(LLVM_PATH):${LD_LIBRARY_PATH}" $(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe 7

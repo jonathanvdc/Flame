@@ -12,6 +12,7 @@
     <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj" />
     <ProjectReference Include="..\FlameMacros\FlameMacros.csproj" />
     <ProjectReference Include="..\ILOpt\ILOpt.csproj" />
+    <ProjectReference Include="..\IL2LLVM\IL2LLVM.csproj" />
     <ProjectReference Include="..\Examples\Brainfuck\Brainfuck.csproj" />
     <PackageReference Include="Loyc.Collections" Version="26.8.1" />
     <PackageReference Include="Loyc.Essentials" Version="26.8.1" />

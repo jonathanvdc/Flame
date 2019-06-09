@@ -49,6 +49,22 @@ namespace UnitTests
                         " by default."))
                 .WithParameter(new SymbolicOptionParameter("path"));
 
+        private static string DefaultClangPath = "clang";
+
+        /// <summary>
+        /// The 'clang-path' option, which specifies the path to Clang.
+        /// </summary>
+        public static readonly ValueOption<string> ClangPath =
+            ValueOption.CreateStringOption(
+                    OptionForm.Long("clang-path"),
+                    DefaultClangPath)
+                .WithDescription(
+                    Quotation.QuoteEvenInBold(
+                        "The path to Clang. This is ",
+                        DefaultClangPath,
+                        " by default."))
+                .WithParameter(new SymbolicOptionParameter("path"));
+
         /// <summary>
         /// A list of all named options understood by ilopt.
         /// </summary>
@@ -56,7 +72,8 @@ namespace UnitTests
             new Option[]
         {
             Help,
-            CscPath
+            CscPath,
+            ClangPath
         };
     }
 }

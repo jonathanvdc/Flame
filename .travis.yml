@@ -12,3 +12,6 @@ script:
 
   # Run the tests
   - make test
+
+  # Run LLVM-specific tests.
+  - make test-llvm

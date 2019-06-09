@@ -21,3 +21,6 @@ clean:
 
 test:
 	$(MAKE) -C src test
+
+test-llvm:
+	$(MAKE) -C src test-llvm
