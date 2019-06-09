@@ -18,6 +18,8 @@ namespace Flame.Llvm.Emit
 
         public TypeEnvironment TypeSystem { get; private set; }
 
+        public LLVMContextRef Context => LLVM.GetModuleContext(Module);
+
         public void DefineMethod(IMethod method, MethodBody body)
         {
             var funType = LLVM.FunctionType(
@@ -26,7 +28,8 @@ namespace Flame.Llvm.Emit
                 false);
 
             var fun = LLVM.AddFunction(Module, method.Name.ToString(), funType);
-            // TODO: emit method body
+            var emitter = new MethodBodyEmitter(this, fun);
+            emitter.Emit(body);
         }
 
         public LLVMTypeRef ImportType(IType type)
@@ -34,14 +37,14 @@ namespace Flame.Llvm.Emit
             var intSpec = type.GetIntegerSpecOrNull();
             if (intSpec != null)
             {
-                return LLVM.IntType((uint)intSpec.Size);
+                return LLVM.IntTypeInContext(Context, (uint)intSpec.Size);
             }
             else if (type is PointerType)
             {
                 var elemType = ((PointerType)type).ElementType;
                 if (elemType == TypeSystem.Void)
                 {
-                    return LLVM.PointerType(LLVM.Int8Type(), 0);
+                    return LLVM.PointerType(LLVM.Int8TypeInContext(Context), 0);
                 }
                 else
                 {
@@ -50,7 +53,7 @@ namespace Flame.Llvm.Emit
             }
             else if (type == TypeSystem.Void)
             {
-                return LLVM.VoidType();
+                return LLVM.VoidTypeInContext(Context);
             }
             else
             {
