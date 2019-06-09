@@ -45,7 +45,7 @@ build_script:
   - msbuild /p:Configuration=Release /verbosity:quiet /nologo src/Flame.sln
   # Run the tests.
   - src\UnitTests\bin\Release\net45\UnitTests.exe -h
-  - src\UnitTests\bin\Release\net45\UnitTests.exe all
+  - src\UnitTests\bin\Release\net45\UnitTests.exe portable
 
 after_build:
   # Create NuGet packages

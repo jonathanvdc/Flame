@@ -2,6 +2,8 @@ language: csharp
 
 addons:
   apt:
+    sources:
+      - llvm-toolchain-trusty-5.0
     packages:
       # Install LLVM.
       - libllvm5.0
