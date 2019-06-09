@@ -172,6 +172,18 @@ namespace Flame.Clr
                 attrBuilder.Add(FlagAttribute.Virtual);
             }
 
+            if (Definition.IsPInvokeImpl)
+            {
+                if (Definition.HasPInvokeInfo)
+                {
+                    attrBuilder.Add(new ExternAttribute(Definition.PInvokeInfo.EntryPoint));
+                }
+                else
+                {
+                    attrBuilder.Add(new ExternAttribute());
+                }
+            }
+
             // The default 'object' constructor is a nop. Taking that
             // into account can significantly improve constructor inlining
             // results.
