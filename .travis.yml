@@ -9,6 +9,9 @@ addons:
       - libllvm5.0
 
 install:
+  # Set the LLVM_PATH variable.
+  - export LLVM_PATH=/usr/lib/llvm-5.0/lib
+  - ls ${LLVM_PATH}/libLLVM.so
   # Restore nuget packages
   - make nuget
 
@@ -23,4 +26,4 @@ script:
   - make test
 
   # Run LLVM-specific tests.
-  - LLVM_PATH=/usr/lib/llvm-5.0/lib make test-llvm
+  - make test-llvm
