@@ -4,7 +4,7 @@ addons:
   apt:
     packages:
       # Install LLVM.
-      - libllvm-5.0
+      - libllvm5.0
 
 install:
   # Restore nuget packages
