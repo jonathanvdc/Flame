@@ -1,3 +1,4 @@
+using System.Linq;
 using Flame.Compiler.Pipeline;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
@@ -13,6 +14,10 @@ namespace Flame.Llvm
         {
             var module = LLVM.ModuleCreateWithName(contents.FullName.FullyUnqualifiedName.ToString());
             var builder = new ModuleBuilder(module, typeSystem);
+            foreach (var method in contents.TypeMembers.OfType<IMethod>())
+            {
+                builder.DeclareMethod(method);
+            }
             foreach (var pair in contents.MethodBodies)
             {
                 builder.DefineMethod(pair.Key, pair.Value);

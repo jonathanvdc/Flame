@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
 using Flame.TypeSystem;
@@ -12,6 +13,7 @@ namespace Flame.Llvm.Emit
         {
             this.Module = module;
             this.TypeSystem = typeSystem;
+            this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
         }
 
         public LLVMModuleRef Module { get; private set; }
@@ -20,14 +22,29 @@ namespace Flame.Llvm.Emit
 
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
-        public void DefineMethod(IMethod method, MethodBody body)
+        private Dictionary<IMethod, LLVMValueRef> methodDecls;
+
+        public LLVMValueRef DeclareMethod(IMethod method)
         {
+            LLVMValueRef result;
+            if (methodDecls.TryGetValue(method, out result))
+            {
+                return result;
+            }
+
             var funType = LLVM.FunctionType(
                 ImportType(method.ReturnParameter.Type),
                 method.Parameters.Select(p => ImportType(p.Type)).ToArray(),
                 false);
 
             var fun = LLVM.AddFunction(Module, method.Name.ToString(), funType);
+            methodDecls[method] = fun;
+            return result;
+        }
+
+        public void DefineMethod(IMethod method, MethodBody body)
+        {
+            var fun = DeclareMethod(method);
             var emitter = new MethodBodyEmitter(this, fun);
             emitter.Emit(body);
         }
