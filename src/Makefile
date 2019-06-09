@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-LLVM_PATH ?= /usr/lib/llvm-7/lib
+LLVM_PATH ?= $(shell llvm-config --libdir)
 
 .PHONY: release debug all dsl nuget clean test
 release: dsl

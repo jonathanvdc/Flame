@@ -7,11 +7,14 @@ addons:
     packages:
       # Install LLVM.
       - libllvm5.0
+      - llvm-5.0
+      - llvm-5.0-tools
+      - clang-5.0
 
 install:
   # Set the LLVM_PATH variable.
-  - export LLVM_PATH=/usr/lib/llvm-5.0/lib
-  - ls ${LLVM_PATH}/libLLVM.so
+  - export LLVM_PATH=$(llvm-config-5.0 --libdir)
+  - echo ${LLVM_PATH}
   # Restore nuget packages
   - make nuget
 
