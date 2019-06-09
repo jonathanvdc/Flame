@@ -9,16 +9,22 @@ namespace Flame.Llvm.Emit
 {
     internal sealed class ModuleBuilder
     {
-        public ModuleBuilder(LLVMModuleRef module, TypeEnvironment typeSystem)
+        public ModuleBuilder(
+            LLVMModuleRef module,
+            TypeEnvironment typeSystem,
+            NameMangler mangler)
         {
             this.Module = module;
             this.TypeSystem = typeSystem;
+            this.Mangler = mangler;
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
         }
 
         public LLVMModuleRef Module { get; private set; }
 
         public TypeEnvironment TypeSystem { get; private set; }
+
+        public NameMangler Mangler { get; private set; }
 
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
@@ -32,14 +38,39 @@ namespace Flame.Llvm.Emit
                 return result;
             }
 
+            var externAttr = method.Attributes.GetOrNull(ExternAttribute.AttributeType);
+            if (externAttr == null)
+            {
+                result = DeclareLocal(method);
+            }
+            else
+            {
+                result = DeclareExtern(method, (ExternAttribute)externAttr);
+            }
+
+            methodDecls[method] = result;
+            return result;
+        }
+
+        private LLVMValueRef DeclareLocal(IMethod method)
+        {
             var funType = LLVM.FunctionType(
                 ImportType(method.ReturnParameter.Type),
                 method.Parameters.Select(p => ImportType(p.Type)).ToArray(),
                 false);
+            return LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
+        }
 
-            var fun = LLVM.AddFunction(Module, method.Name.ToString(), funType);
-            methodDecls[method] = fun;
-            return result;
+        private LLVMValueRef DeclareExtern(IMethod method, ExternAttribute externAttribute)
+        {
+            var funType = LLVM.FunctionType(
+                ImportType(method.ReturnParameter.Type),
+                method.Parameters.Select(p => ImportType(p.Type)).ToArray(),
+                false);
+            return LLVM.AddFunction(
+                Module,
+                externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false),
+                funType);
         }
 
         public void DefineMethod(IMethod method, MethodBody body)

@@ -13,7 +13,7 @@ namespace Flame.Llvm
             TypeEnvironment typeSystem)
         {
             var module = LLVM.ModuleCreateWithName(contents.FullName.FullyUnqualifiedName.ToString());
-            var builder = new ModuleBuilder(module, typeSystem);
+            var builder = new ModuleBuilder(module, typeSystem, new ItaniumMangler(typeSystem));
             foreach (var method in contents.TypeMembers.OfType<IMethod>())
             {
                 builder.DeclareMethod(method);
