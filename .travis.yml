@@ -1,4 +1,11 @@
 language: csharp
+
+addons:
+  apt:
+    packages:
+      # Install LLVM.
+      - libllvm-5.0
+
 install:
   # Restore nuget packages
   - make nuget
@@ -14,4 +21,4 @@ script:
   - make test
 
   # Run LLVM-specific tests.
-  - make test-llvm
+  - LLVM_PATH=/usr/lib/llvm-5.0/lib make test-llvm
