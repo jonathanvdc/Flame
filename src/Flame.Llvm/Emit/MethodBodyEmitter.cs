@@ -5,6 +5,7 @@ using Flame.Compiler;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
+using Flame.TypeSystem;
 using LLVMSharp;
 
 namespace Flame.Llvm.Emit
@@ -65,7 +66,12 @@ namespace Flame.Llvm.Emit
             var builder = blockBuilders[block];
             foreach (var instruction in block.NamedInstructions)
             {
-                emittedValues[instruction] = Emit(instruction.Instruction, builder, instruction.Tag.Name);
+                var val = emittedValues[instruction] = Emit(
+                    instruction.Instruction,
+                    builder,
+                    instruction.ResultType == Module.TypeSystem.Void
+                        ? ""
+                        : instruction.Tag.Name);
             }
             Emit(block.Flow, block.Graph, builder);
             return llvmBlock;
@@ -90,10 +96,74 @@ namespace Flame.Llvm.Emit
                     Module.ImportType(instruction.ResultType),
                     name);
             }
+            else if (proto is LoadPrototype)
+            {
+                return builder.CreateLoad(Get(instruction.Arguments[0]), name);
+            }
+            else if (proto is StorePrototype)
+            {
+                var storeProto = (StorePrototype)proto;
+                return builder.CreateStore(
+                    Get(storeProto.GetValue(instruction)),
+                    Get(storeProto.GetPointer(instruction)));
+            }
+            else if (proto is CallPrototype)
+            {
+                var callProto = (CallPrototype)proto;
+                var callee = callProto.Callee;
+                return builder.CreateCall(
+                    Module.DeclareMethod(callee),
+                    instruction.Arguments.Select(Get).ToArray(),
+                    name);
+            }
+            else if (proto is IntrinsicPrototype)
+            {
+                return EmitIntrinsic((IntrinsicPrototype)proto, instruction.Arguments, builder, name);
+            }
             else
             {
                 throw new NotSupportedException($"Unsupported instruction prototype '{proto}'.");
             }
+        }
+
+        private LLVMValueRef EmitIntrinsic(
+            IntrinsicPrototype prototype,
+            IReadOnlyList<ValueTag> arguments,
+            IRBuilder builder,
+            string name)
+        {
+            string opName;
+            if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (prototype.ParameterCount == 2)
+                {
+                    if (opName == ArithmeticIntrinsics.Operators.Add)
+                    {
+                        if (prototype.ResultType.IsIntegerType())
+                        {
+                            return builder.CreateAdd(Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                        else if (prototype.ResultType == Module.TypeSystem.Float32
+                            || prototype.ResultType == Module.TypeSystem.Float64)
+                        {
+                            return builder.CreateFAdd(Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                        else if (prototype.ResultType.IsPointerType()
+                            && prototype.ParameterTypes[0].IsPointerType())
+                        {
+                            var i8Base = builder.CreateBitCast(
+                                Get(arguments[0]),
+                                LLVM.PointerType(LLVM.Int8TypeInContext(Module.Context), 0),
+                                name + ".base");
+                            var i8Result = builder.CreateGEP(i8Base, new[] { Get(arguments[1]) }, name + ".raw");
+                            return builder.CreateBitCast(i8Result, Module.ImportType(prototype.ResultType), name);
+                        }
+                    }
+                }
+            }
+            throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
         }
 
         private LLVMValueRef EmitConstant(ConstantPrototype prototype, IRBuilder builder)
