@@ -89,6 +89,10 @@ namespace Flame.Llvm.Emit
             {
                 return EmitConstant((ConstantPrototype)proto, builder);
             }
+            else if (proto is CopyPrototype)
+            {
+                return Get(instruction.Arguments[0]);
+            }
             else if (proto is ReinterpretCastPrototype)
             {
                 return builder.CreateBitCast(
