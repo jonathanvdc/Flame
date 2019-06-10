@@ -165,6 +165,10 @@ namespace Flame.Llvm.Emit
                             return builder.CreateBitCast(i8Result, Module.ImportType(prototype.ResultType), name);
                         }
                     }
+                    else if (opName == ArithmeticIntrinsics.Operators.IsEqualTo)
+                    {
+                        return EmitAreEqual(Get(arguments[0]), Get(arguments[1]), builder, name);
+                    }
                     else if (prototype.ParameterTypes[0].IsSignedIntegerType()
                         && prototype.ParameterTypes[1].IsSignedIntegerType())
                     {
@@ -172,6 +176,11 @@ namespace Flame.Llvm.Emit
                         if (signedIntPredicates.TryGetValue(opName, out predicate))
                         {
                             return builder.CreateICmp(predicate, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                        LLVMOpcode opcode;
+                        if (signedIntOps.TryGetValue(opName, out opcode))
+                        {
+                            return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
                         }
                     }
                     else if (prototype.ParameterTypes[0].IsUnsignedIntegerType()
@@ -181,6 +190,11 @@ namespace Flame.Llvm.Emit
                         if (unsignedIntPredicates.TryGetValue(opName, out predicate))
                         {
                             return builder.CreateICmp(predicate, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                        LLVMOpcode opcode;
+                        if (unsignedIntOps.TryGetValue(opName, out opcode))
+                        {
+                            return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
                         }
                     }
                 }
@@ -227,14 +241,59 @@ namespace Flame.Llvm.Emit
             else if (flow is JumpFlow)
             {
                 var branch = ((JumpFlow)flow).Branch;
-                builder.CreateBr(
-                    CreateJumpThunk(
-                        graph.GetBasicBlock(branch.Target),
-                        branch.Arguments.Select(arg => Get(arg.ValueOrNull)).ToArray()));
+                builder.CreateBr(CreateJumpThunk(branch, graph));
+            }
+            else if (flow is SwitchFlow)
+            {
+                var switchFlow = (SwitchFlow)flow;
+                var switchVal = Emit(switchFlow.SwitchValue, builder, "switchval");
+                if (switchFlow.IsIfElseFlow)
+                {
+                    var cmp = EmitAreEqual(
+                        switchVal,
+                        Emit(
+                            Instruction.CreateConstant(switchFlow.Cases[0].Values.Single(), switchFlow.SwitchValue.ResultType),
+                            builder,
+                            "const"),
+                        builder,
+                        "condition");
+
+                    builder.CreateCondBr(
+                        cmp,
+                        CreateJumpThunk(switchFlow.Cases[0].Branch, graph),
+                        CreateJumpThunk(switchFlow.DefaultBranch, graph));
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported block flow '{flow}'.");
+                }
             }
             else
             {
                 throw new NotSupportedException($"Unsupported block flow '{flow}'.");
+            }
+        }
+
+        private LLVMValueRef EmitAreEqual(
+            LLVMValueRef lhs,
+            LLVMValueRef rhs,
+            IRBuilder builder,
+            string name)
+        {
+            var lhsType = lhs.TypeOf();
+            var rhsType = rhs.TypeOf();
+            if (lhsType.TypeKind != rhsType.TypeKind)
+            {
+                throw new NotSupportedException($"Cannot compare '{lhs}' and '{rhs}' instances.");
+            }
+            switch (lhsType.TypeKind)
+            {
+                case LLVMTypeKind.LLVMIntegerTypeKind:
+                    return builder.CreateICmp(LLVMIntPredicate.LLVMIntEQ, lhs, rhs, name);
+                case LLVMTypeKind.LLVMFloatTypeKind:
+                    return builder.CreateFCmp(LLVMRealPredicate.LLVMRealOEQ, lhs, rhs, name);
+                default:
+                    throw new NotSupportedException($"Cannot compare '{lhs}' instances.");
             }
         }
 
@@ -245,6 +304,13 @@ namespace Flame.Llvm.Emit
             var block = Function.AppendBasicBlock(target.Tag.Name + ".thunk");
             FillJumpThunk(block, target, arguments);
             return block;
+        }
+
+        private LLVMBasicBlockRef CreateJumpThunk(Branch branch, FlowGraph graph)
+        {
+            return CreateJumpThunk(
+                graph.GetBasicBlock(branch.Target),
+                branch.Arguments.Select(arg => Get(arg.ValueOrNull)).ToArray());
         }
 
         private void FillJumpThunk(
@@ -286,6 +352,38 @@ namespace Flame.Llvm.Emit
             { ArithmeticIntrinsics.Operators.IsGreaterThan, LLVMIntPredicate.LLVMIntUGT },
             { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, LLVMIntPredicate.LLVMIntULE },
             { ArithmeticIntrinsics.Operators.IsLessThan, LLVMIntPredicate.LLVMIntULT }
+        };
+
+        // A mapping of signed arithmetic intrinsic ops to LLVM opcodes.
+        private static Dictionary<string, LLVMOpcode> signedIntOps =
+            new Dictionary<string, LLVMOpcode>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, LLVMOpcode.LLVMAdd },
+            { ArithmeticIntrinsics.Operators.Subtract, LLVMOpcode.LLVMSub },
+            { ArithmeticIntrinsics.Operators.Multiply, LLVMOpcode.LLVMMul },
+            { ArithmeticIntrinsics.Operators.Divide, LLVMOpcode.LLVMSDiv },
+            { ArithmeticIntrinsics.Operators.Remainder, LLVMOpcode.LLVMSRem },
+            { ArithmeticIntrinsics.Operators.And, LLVMOpcode.LLVMAnd },
+            { ArithmeticIntrinsics.Operators.Or, LLVMOpcode.LLVMOr },
+            { ArithmeticIntrinsics.Operators.Xor, LLVMOpcode.LLVMXor },
+            { ArithmeticIntrinsics.Operators.LeftShift, LLVMOpcode.LLVMShl },
+            { ArithmeticIntrinsics.Operators.RightShift, LLVMOpcode.LLVMAShr }
+        };
+
+        // A mapping of unsigned arithmetic intrinsic ops to LLVM opcodes.
+        private static Dictionary<string, LLVMOpcode> unsignedIntOps =
+            new Dictionary<string, LLVMOpcode>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, LLVMOpcode.LLVMAdd },
+            { ArithmeticIntrinsics.Operators.Subtract, LLVMOpcode.LLVMSub },
+            { ArithmeticIntrinsics.Operators.Multiply, LLVMOpcode.LLVMMul },
+            { ArithmeticIntrinsics.Operators.Divide, LLVMOpcode.LLVMUDiv },
+            { ArithmeticIntrinsics.Operators.Remainder, LLVMOpcode.LLVMURem },
+            { ArithmeticIntrinsics.Operators.And, LLVMOpcode.LLVMAnd },
+            { ArithmeticIntrinsics.Operators.Or, LLVMOpcode.LLVMOr },
+            { ArithmeticIntrinsics.Operators.Xor, LLVMOpcode.LLVMXor },
+            { ArithmeticIntrinsics.Operators.LeftShift, LLVMOpcode.LLVMShl },
+            { ArithmeticIntrinsics.Operators.RightShift, LLVMOpcode.LLVMLShr }
         };
     }
 }
