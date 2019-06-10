@@ -124,6 +124,14 @@ namespace Flame.Llvm.Emit
                     Get(allocaProto.GetElementCount(instruction)),
                     name);
             }
+            else if (proto is GetFieldPointerPrototype)
+            {
+                var gfp = (GetFieldPointerPrototype)proto;
+                return builder.CreateStructGEP(
+                    Get(gfp.GetBasePointer(instruction)),
+                    (uint)Module.GetFieldIndex(gfp.Field),
+                    name);
+            }
             else if (proto is CallPrototype)
             {
                 var callProto = (CallPrototype)proto;

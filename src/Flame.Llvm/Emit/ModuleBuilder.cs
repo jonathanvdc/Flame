@@ -20,6 +20,7 @@ namespace Flame.Llvm.Emit
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
             this.importCache = new Dictionary<IType, LLVMTypeRef>();
             this.fieldIndices = new Dictionary<IType, Dictionary<IField, int>>();
+            this.baseIndices = new Dictionary<IType, Dictionary<IType, int>>();
         }
 
         public LLVMModuleRef Module { get; private set; }
@@ -33,6 +34,7 @@ namespace Flame.Llvm.Emit
         private Dictionary<IMethod, LLVMValueRef> methodDecls;
         private Dictionary<IType, LLVMTypeRef> importCache;
         private Dictionary<IType, Dictionary<IField, int>> fieldIndices;
+        private Dictionary<IType, Dictionary<IType, int>> baseIndices;
 
         public LLVMValueRef DeclareMethod(IMethod method)
         {
@@ -58,9 +60,15 @@ namespace Flame.Llvm.Emit
 
         private LLVMValueRef DeclareLocal(IMethod method)
         {
+            var paramTypes = new List<LLVMTypeRef>();
+            if (!method.IsStatic)
+            {
+                paramTypes.Add(ImportType(method.ParentType.MakePointerType(PointerKind.Reference)));
+            }
+            paramTypes.AddRange(method.Parameters.Select(p => ImportType(p.Type)));
             var funType = LLVM.FunctionType(
                 ImportType(method.ReturnParameter.Type),
-                method.Parameters.Select(p => ImportType(p.Type)).ToArray(),
+                paramTypes.ToArray(),
                 false);
             return LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
         }
@@ -131,6 +139,12 @@ namespace Flame.Llvm.Emit
             }
         }
 
+        public int GetFieldIndex(IField field)
+        {
+            ImportType(field.ParentType);
+            return fieldIndices[field.ParentType][field];
+        }
+
         private LLVMTypeRef ImportTypeImpl(IType type)
         {
             var intSpec = type.GetIntegerSpecOrNull();
@@ -159,24 +173,25 @@ namespace Flame.Llvm.Emit
                 var result = LLVM.StructCreateNamed(Context, Mangler.Mangle(type, true));
                 importCache[type] = result;
                 var fieldTypes = new List<LLVMTypeRef>();
-                var indices = new Dictionary<IField, int>();
-                foreach (var field in GetAllFields(type))
+                var fieldNumbering = new Dictionary<IField, int>();
+                var baseNumbering = new Dictionary<IType, int>();
+                foreach (var baseType in type.BaseTypes)
                 {
-                    indices[field] = fieldTypes.Count;
+                    var importedBase = ImportType(baseType);
+                    // TODO: eliminate interface types from field list.
+                    baseNumbering[baseType] = fieldTypes.Count;
+                    fieldTypes.Add(importedBase);
+                }
+                foreach (var field in type.Fields.Where(f => !f.IsStatic))
+                {
+                    fieldNumbering[field] = fieldTypes.Count;
                     fieldTypes.Add(ImportType(field.FieldType));
                 }
-                fieldIndices[type] = indices;
+                fieldIndices[type] = fieldNumbering;
+                baseIndices[type] = baseNumbering;
                 LLVM.StructSetBody(result, fieldTypes.ToArray(), false);
                 return result;
             }
-        }
-
-        // TODO: deduplicate this logic.
-        internal static IEnumerable<IField> GetAllFields(IType elementType)
-        {
-            return elementType.BaseTypes
-                .SelectMany(GetAllFields)
-                .Concat(elementType.Fields.Where(field => !field.IsStatic));
         }
     }
 }
