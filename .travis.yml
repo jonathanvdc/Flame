@@ -3,17 +3,17 @@ language: csharp
 addons:
   apt:
     sources:
-      - llvm-toolchain-trusty-5.0
+      - llvm-toolchain-trusty-7
     packages:
       # Install LLVM.
-      - libllvm5.0
-      - llvm-5.0
-      - llvm-5.0-tools
-      - clang-5.0
+      - libllvm7
+      - llvm-7
+      - llvm-7-tools
+      - clang-7
 
 install:
   # Set the LLVM_PATH variable.
-  - export LLVM_PATH=$(llvm-config-5.0 --libdir)
+  - export LLVM_PATH=$(llvm-config-7 --libdir)
   - echo ${LLVM_PATH}
   # Restore nuget packages
   - make nuget
