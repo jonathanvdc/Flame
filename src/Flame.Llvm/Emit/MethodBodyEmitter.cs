@@ -111,6 +111,19 @@ namespace Flame.Llvm.Emit
                     Get(storeProto.GetValue(instruction)),
                     Get(storeProto.GetPointer(instruction)));
             }
+            else if (proto is AllocaPrototype)
+            {
+                var allocaProto = (AllocaPrototype)proto;
+                return builder.CreateAlloca(Module.ImportType(allocaProto.ElementType), name);
+            }
+            else if (proto is AllocaArrayPrototype)
+            {
+                var allocaProto = (AllocaArrayPrototype)proto;
+                return builder.CreateArrayAlloca(
+                    Module.ImportType(allocaProto.ElementType),
+                    Get(allocaProto.GetElementCount(instruction)),
+                    name);
+            }
             else if (proto is CallPrototype)
             {
                 var callProto = (CallPrototype)proto;
