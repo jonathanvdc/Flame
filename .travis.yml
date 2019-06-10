@@ -4,6 +4,7 @@ addons:
   apt:
     sources:
       - llvm-toolchain-trusty-7
+      - ubuntu-toolchain-r-test
     packages:
       # Install LLVM.
       - libllvm7
