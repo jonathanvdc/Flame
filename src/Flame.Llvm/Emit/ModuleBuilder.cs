@@ -18,6 +18,8 @@ namespace Flame.Llvm.Emit
             this.TypeSystem = typeSystem;
             this.Mangler = mangler;
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
+            this.importCache = new Dictionary<IType, LLVMTypeRef>();
+            this.fieldIndices = new Dictionary<IType, Dictionary<IField, int>>();
         }
 
         public LLVMModuleRef Module { get; private set; }
@@ -29,6 +31,8 @@ namespace Flame.Llvm.Emit
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
         private Dictionary<IMethod, LLVMValueRef> methodDecls;
+        private Dictionary<IType, LLVMTypeRef> importCache;
+        private Dictionary<IType, Dictionary<IField, int>> fieldIndices;
 
         public LLVMValueRef DeclareMethod(IMethod method)
         {
@@ -116,6 +120,19 @@ namespace Flame.Llvm.Emit
 
         public LLVMTypeRef ImportType(IType type)
         {
+            LLVMTypeRef result;
+            if (importCache.TryGetValue(type, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return importCache[type] = ImportTypeImpl(type);
+            }
+        }
+
+        private LLVMTypeRef ImportTypeImpl(IType type)
+        {
             var intSpec = type.GetIntegerSpecOrNull();
             if (intSpec != null)
             {
@@ -139,8 +156,27 @@ namespace Flame.Llvm.Emit
             }
             else
             {
-                throw new NotSupportedException($"Cannot import type '{type.FullName}'.");
+                var result = LLVM.StructCreateNamed(Context, Mangler.Mangle(type, true));
+                importCache[type] = result;
+                var fieldTypes = new List<LLVMTypeRef>();
+                var indices = new Dictionary<IField, int>();
+                foreach (var field in GetAllFields(type))
+                {
+                    indices[field] = fieldTypes.Count;
+                    fieldTypes.Add(ImportType(field.FieldType));
+                }
+                fieldIndices[type] = indices;
+                LLVM.StructSetBody(result, fieldTypes.ToArray(), false);
+                return result;
             }
+        }
+
+        // TODO: deduplicate this logic.
+        internal static IEnumerable<IField> GetAllFields(IType elementType)
+        {
+            return elementType.BaseTypes
+                .SelectMany(GetAllFields)
+                .Concat(elementType.Fields.Where(field => !field.IsStatic));
         }
     }
 }
