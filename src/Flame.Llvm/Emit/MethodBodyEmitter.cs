@@ -165,6 +165,24 @@ namespace Flame.Llvm.Emit
                             return builder.CreateBitCast(i8Result, Module.ImportType(prototype.ResultType), name);
                         }
                     }
+                    else if (prototype.ParameterTypes[0].IsSignedIntegerType()
+                        && prototype.ParameterTypes[1].IsSignedIntegerType())
+                    {
+                        LLVMIntPredicate predicate;
+                        if (signedIntPredicates.TryGetValue(opName, out predicate))
+                        {
+                            return builder.CreateICmp(predicate, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                    }
+                    else if (prototype.ParameterTypes[0].IsUnsignedIntegerType()
+                        && prototype.ParameterTypes[1].IsUnsignedIntegerType())
+                    {
+                        LLVMIntPredicate predicate;
+                        if (unsignedIntPredicates.TryGetValue(opName, out predicate))
+                        {
+                            return builder.CreateICmp(predicate, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                    }
                 }
             }
             throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
@@ -245,5 +263,29 @@ namespace Flame.Llvm.Emit
                 phi.AddIncoming(new[] { arguments[i] }, new[] { thunk }, 1);
             }
         }
+
+        // A mapping of signed arithmetic intrinsic ops to integer predicates.
+        private static Dictionary<string, LLVMIntPredicate> signedIntPredicates =
+            new Dictionary<string, LLVMIntPredicate>()
+        {
+            { ArithmeticIntrinsics.Operators.IsEqualTo, LLVMIntPredicate.LLVMIntEQ },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, LLVMIntPredicate.LLVMIntNE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, LLVMIntPredicate.LLVMIntSGE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThan, LLVMIntPredicate.LLVMIntSGT },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, LLVMIntPredicate.LLVMIntSLE },
+            { ArithmeticIntrinsics.Operators.IsLessThan, LLVMIntPredicate.LLVMIntSLT }
+        };
+
+        // A mapping of unsigned arithmetic intrinsic ops to integer predicates.
+        private static Dictionary<string, LLVMIntPredicate> unsignedIntPredicates =
+            new Dictionary<string, LLVMIntPredicate>()
+        {
+            { ArithmeticIntrinsics.Operators.IsEqualTo, LLVMIntPredicate.LLVMIntEQ },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, LLVMIntPredicate.LLVMIntNE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, LLVMIntPredicate.LLVMIntUGE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThan, LLVMIntPredicate.LLVMIntUGT },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, LLVMIntPredicate.LLVMIntULE },
+            { ArithmeticIntrinsics.Operators.IsLessThan, LLVMIntPredicate.LLVMIntULT }
+        };
     }
 }
