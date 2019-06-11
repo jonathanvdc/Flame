@@ -178,9 +178,13 @@ namespace Flame.Llvm.Emit
                 foreach (var baseType in type.BaseTypes)
                 {
                     var importedBase = ImportType(baseType);
-                    // TODO: eliminate interface types from field list.
-                    baseNumbering[baseType] = fieldTypes.Count;
-                    fieldTypes.Add(importedBase);
+                    if (importedBase.TypeKind != LLVMTypeKind.LLVMStructTypeKind
+                        || importedBase.CountStructElementTypes() > 0)
+                    {
+                        // Do not include empty base types.
+                        baseNumbering[baseType] = fieldTypes.Count;
+                        fieldTypes.Add(importedBase);
+                    }
                 }
                 foreach (var field in type.Fields.Where(f => !f.IsStatic))
                 {
