@@ -412,9 +412,17 @@ namespace Flame.Llvm.Emit
 
         private LLVMBasicBlockRef CreateJumpThunk(Branch branch, FlowGraph graph)
         {
-            return CreateJumpThunk(
-                graph.GetBasicBlock(branch.Target),
-                branch.Arguments.Select(arg => Get(arg.ValueOrNull)).ToArray());
+            var target = graph.GetBasicBlock(branch.Target);
+            if (branch.Arguments.Count == 0)
+            {
+                return Emit(target);
+            }
+            else
+            {
+                return CreateJumpThunk(
+                    target,
+                    branch.Arguments.Select(arg => Get(arg.ValueOrNull)).ToArray());
+            }
         }
 
         private void FillJumpThunk(
