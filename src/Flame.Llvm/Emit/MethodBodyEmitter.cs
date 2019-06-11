@@ -162,7 +162,19 @@ namespace Flame.Llvm.Emit
                 prototype.Name,
                 out opName))
             {
-                if (prototype.ParameterCount == 2)
+                if (prototype.ParameterCount == 1)
+                {
+                    if (opName == ArithmeticIntrinsics.Operators.Convert)
+                    {
+                        return EmitConvert(
+                            Get(arguments[0]),
+                            prototype.ParameterTypes[0],
+                            prototype.ResultType,
+                            builder,
+                            name);
+                    }
+                }
+                else if (prototype.ParameterCount == 2)
                 {
                     if (opName == ArithmeticIntrinsics.Operators.Add)
                     {
@@ -218,9 +230,68 @@ namespace Flame.Llvm.Emit
                             return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
                         }
                     }
+                    else if (IsFloatingPointType(prototype.ParameterTypes[0])
+                        && IsFloatingPointType(prototype.ParameterTypes[1]))
+                    {
+                        LLVMRealPredicate predicate;
+                        if (floatPredicates.TryGetValue(opName, out predicate))
+                        {
+                            return builder.CreateFCmp(predicate, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                        LLVMOpcode opcode;
+                        if (floatOps.TryGetValue(opName, out opcode))
+                        {
+                            return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
+                        }
+                    }
                 }
             }
             throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
+        }
+
+        private LLVMValueRef EmitConvert(
+            LLVMValueRef value,
+            IType from,
+            IType to,
+            IRBuilder builder,
+            string name)
+        {
+            if (IsFloatingPointType(from))
+            {
+                if (IsFloatingPointType(to))
+                {
+                    return builder.CreateFPCast(value, Module.ImportType(to), name);
+                }
+                else if (to.IsSignedIntegerType())
+                {
+                    return builder.CreateFPToSI(value, Module.ImportType(to), name);
+                }
+                else if (to.IsUnsignedIntegerType())
+                {
+                    return builder.CreateFPToUI(value, Module.ImportType(to), name);
+                }
+            }
+            else if (from.IsSignedIntegerType())
+            {
+                if (IsFloatingPointType(to))
+                {
+                    return builder.CreateSIToFP(value, Module.ImportType(to), name);
+                }
+            }
+            else if (from.IsUnsignedIntegerType())
+            {
+                if (IsFloatingPointType(to))
+                {
+                    return builder.CreateUIToFP(value, Module.ImportType(to), name);
+                }
+            }
+            throw new NotSupportedException($"Unsupported conversion of a '{from.FullName}' to a '{to.FullName}'.");
+        }
+
+        private bool IsFloatingPointType(IType type)
+        {
+            return type == Module.TypeSystem.Float32
+                || type == Module.TypeSystem.Float64;
         }
 
         private LLVMValueRef EmitConstant(ConstantPrototype prototype, IRBuilder builder)
@@ -237,6 +308,18 @@ namespace Flame.Llvm.Emit
                 || prototype.Value == DefaultConstant.Instance)
             {
                 return LLVM.ConstNull(Module.ImportType(prototype.ResultType));
+            }
+            else if (prototype.Value is Float32Constant)
+            {
+                return LLVM.ConstReal(
+                    LLVM.FloatTypeInContext(Module.Context),
+                    ((Float32Constant)prototype.Value).Value);
+            }
+            else if (prototype.Value is Float64Constant)
+            {
+                return LLVM.ConstReal(
+                    LLVM.DoubleTypeInContext(Module.Context),
+                    ((Float64Constant)prototype.Value).Value);
             }
             else
             {
@@ -375,6 +458,18 @@ namespace Flame.Llvm.Emit
             { ArithmeticIntrinsics.Operators.IsLessThan, LLVMIntPredicate.LLVMIntULT }
         };
 
+        // A mapping of floating-point arithmetic intrinsic ops to floating-point predicates.
+        private static Dictionary<string, LLVMRealPredicate> floatPredicates =
+            new Dictionary<string, LLVMRealPredicate>()
+        {
+            { ArithmeticIntrinsics.Operators.IsEqualTo, LLVMRealPredicate.LLVMRealOEQ },
+            { ArithmeticIntrinsics.Operators.IsNotEqualTo, LLVMRealPredicate.LLVMRealONE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThanOrEqualTo, LLVMRealPredicate.LLVMRealOGE },
+            { ArithmeticIntrinsics.Operators.IsGreaterThan, LLVMRealPredicate.LLVMRealOGT },
+            { ArithmeticIntrinsics.Operators.IsLessThanOrEqualTo, LLVMRealPredicate.LLVMRealOLE },
+            { ArithmeticIntrinsics.Operators.IsLessThan, LLVMRealPredicate.LLVMRealOLT }
+        };
+
         // A mapping of signed arithmetic intrinsic ops to LLVM opcodes.
         private static Dictionary<string, LLVMOpcode> signedIntOps =
             new Dictionary<string, LLVMOpcode>()
@@ -405,6 +500,17 @@ namespace Flame.Llvm.Emit
             { ArithmeticIntrinsics.Operators.Xor, LLVMOpcode.LLVMXor },
             { ArithmeticIntrinsics.Operators.LeftShift, LLVMOpcode.LLVMShl },
             { ArithmeticIntrinsics.Operators.RightShift, LLVMOpcode.LLVMLShr }
+        };
+
+        // A mapping of floating-point intrinsic ops to LLVM opcodes.
+        private static Dictionary<string, LLVMOpcode> floatOps =
+            new Dictionary<string, LLVMOpcode>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, LLVMOpcode.LLVMFAdd },
+            { ArithmeticIntrinsics.Operators.Subtract, LLVMOpcode.LLVMFSub },
+            { ArithmeticIntrinsics.Operators.Multiply, LLVMOpcode.LLVMFMul },
+            { ArithmeticIntrinsics.Operators.Divide, LLVMOpcode.LLVMFDiv },
+            { ArithmeticIntrinsics.Operators.Remainder, LLVMOpcode.LLVMFRem }
         };
     }
 }

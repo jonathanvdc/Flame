@@ -152,6 +152,14 @@ namespace Flame.Llvm.Emit
             {
                 return LLVM.IntTypeInContext(Context, (uint)intSpec.Size);
             }
+            else if (type == TypeSystem.Float32)
+            {
+                return LLVM.FloatTypeInContext(Context);
+            }
+            else if (type == TypeSystem.Float64)
+            {
+                return LLVM.DoubleTypeInContext(Context);
+            }
             else if (type is PointerType)
             {
                 var elemType = ((PointerType)type).ElementType;
