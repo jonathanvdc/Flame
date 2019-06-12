@@ -18,6 +18,7 @@ namespace Flame.Llvm.Emit
             this.TypeSystem = typeSystem;
             this.Mangler = mangler;
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
+            this.fieldDecls = new Dictionary<IField, LLVMValueRef>();
             this.importCache = new Dictionary<IType, LLVMTypeRef>();
             this.fieldIndices = new Dictionary<IType, Dictionary<IField, int>>();
             this.baseIndices = new Dictionary<IType, Dictionary<IType, int>>();
@@ -32,6 +33,7 @@ namespace Flame.Llvm.Emit
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
         private Dictionary<IMethod, LLVMValueRef> methodDecls;
+        private Dictionary<IField, LLVMValueRef> fieldDecls;
         private Dictionary<IType, LLVMTypeRef> importCache;
         private Dictionary<IType, Dictionary<IField, int>> fieldIndices;
         private Dictionary<IType, Dictionary<IType, int>> baseIndices;
@@ -204,6 +206,27 @@ namespace Flame.Llvm.Emit
                 LLVM.StructSetBody(result, fieldTypes.ToArray(), false);
                 return result;
             }
+        }
+
+        public LLVMValueRef DefineStaticField(IField field)
+        {
+            LLVMValueRef result;
+            if (fieldDecls.TryGetValue(field, out result))
+            {
+                return result;
+            }
+
+            if (!field.IsStatic)
+            {
+                throw new InvalidOperationException($"Cannot define non-static field '{field.FullName}' as a global.");
+            }
+
+            var type = ImportType(field.FieldType);
+            var name = Mangler.Mangle(field, true);
+            result = LLVM.AddGlobal(Module, type, name);
+            result.SetInitializer(LLVM.ConstNull(type));
+            fieldDecls[field] = result;
+            return result;
         }
     }
 }

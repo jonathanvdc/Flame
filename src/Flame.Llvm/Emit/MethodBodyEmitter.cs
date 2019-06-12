@@ -132,6 +132,11 @@ namespace Flame.Llvm.Emit
                     (uint)Module.GetFieldIndex(gfp.Field),
                     name);
             }
+            else if (proto is GetStaticFieldPointerPrototype)
+            {
+                var gfp = (GetStaticFieldPointerPrototype)proto;
+                return Module.DefineStaticField(gfp.Field);
+            }
             else if (proto is CallPrototype)
             {
                 var callProto = (CallPrototype)proto;
