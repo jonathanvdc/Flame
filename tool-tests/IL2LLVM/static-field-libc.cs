@@ -31,7 +31,7 @@ public static unsafe class Program
     private static void Deinitialize()
     {
         free((void*)format);
-        // format = null;
+        format = null;
     }
 
     public static int Main()
