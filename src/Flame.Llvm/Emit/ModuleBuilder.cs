@@ -72,7 +72,9 @@ namespace Flame.Llvm.Emit
                 ImportType(method.ReturnParameter.Type),
                 paramTypes.ToArray(),
                 false);
-            return LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
+            var result = LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
+            result.SetLinkage(GetLinkageForLocal(method));
+            return result;
         }
 
         private LLVMValueRef DeclareExtern(IMethod method, ExternAttribute externAttribute)
@@ -229,8 +231,41 @@ namespace Flame.Llvm.Emit
             var name = Mangler.Mangle(field, true);
             result = LLVM.AddGlobal(Module, type, name);
             result.SetInitializer(LLVM.ConstNull(type));
+            result.SetLinkage(GetLinkageForLocal(field));
             fieldDecls[field] = result;
             return result;
+        }
+
+        private LLVMLinkage GetLinkageForLocal(IMember member)
+        {
+            var access = member.GetAccessModifier();
+            if (access == AccessModifier.Internal
+                || access == AccessModifier.ProtectedAndInternal
+                || access == AccessModifier.Private)
+            {
+                return LLVMLinkage.LLVMInternalLinkage;
+            }
+            else if (member is ITypeMember)
+            {
+                var parent = ((ITypeMember)member).ParentType;
+                if (parent != null)
+                {
+                    return GetLinkageForLocal(parent);
+                }
+            }
+            else if (member is IType)
+            {
+                var parent = ((IType)member).Parent;
+                if (parent.IsType)
+                {
+                    return GetLinkageForLocal(parent.Type);
+                }
+                else if (parent.IsMethod)
+                {
+                    return GetLinkageForLocal(parent.Method);
+                }
+            }
+            return LLVMLinkage.LLVMExternalLinkage;
         }
     }
 }
