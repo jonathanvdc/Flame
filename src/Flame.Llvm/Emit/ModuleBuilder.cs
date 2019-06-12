@@ -162,6 +162,10 @@ namespace Flame.Llvm.Emit
             {
                 return LLVM.DoubleTypeInContext(Context);
             }
+            else if (type == TypeSystem.NaturalInt || type == TypeSystem.NaturalUInt)
+            {
+                return LLVM.PointerType(LLVM.Int8TypeInContext(Context), 0);
+            }
             else if (type is PointerType)
             {
                 var elemType = ((PointerType)type).ElementType;

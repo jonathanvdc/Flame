@@ -261,33 +261,53 @@ namespace Flame.Llvm.Emit
             IRBuilder builder,
             string name)
         {
+            var llvmTo = Module.ImportType(to);
             if (IsFloatingPointType(from))
             {
                 if (IsFloatingPointType(to))
                 {
-                    return builder.CreateFPCast(value, Module.ImportType(to), name);
+                    return builder.CreateFPCast(value, llvmTo, name);
                 }
                 else if (to.IsSignedIntegerType())
                 {
-                    return builder.CreateFPToSI(value, Module.ImportType(to), name);
+                    return builder.CreateFPToSI(value, llvmTo, name);
                 }
                 else if (to.IsUnsignedIntegerType())
                 {
-                    return builder.CreateFPToUI(value, Module.ImportType(to), name);
+                    return builder.CreateFPToUI(value, llvmTo, name);
                 }
             }
             else if (from.IsSignedIntegerType())
             {
                 if (IsFloatingPointType(to))
                 {
-                    return builder.CreateSIToFP(value, Module.ImportType(to), name);
+                    return builder.CreateSIToFP(value, llvmTo, name);
+                }
+                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                {
+                    return builder.CreateIntToPtr(value, llvmTo, name);
                 }
             }
             else if (from.IsUnsignedIntegerType())
             {
                 if (IsFloatingPointType(to))
                 {
-                    return builder.CreateUIToFP(value, Module.ImportType(to), name);
+                    return builder.CreateUIToFP(value, llvmTo, name);
+                }
+                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                {
+                    return builder.CreateIntToPtr(value, llvmTo, name);
+                }
+            }
+            else if (value.TypeOf().TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+            {
+                if (to.IsIntegerType())
+                {
+                    return builder.CreateIntToPtr(value, llvmTo, name);
+                }
+                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                {
+                    return builder.CreateBitCast(value, llvmTo, name);
                 }
             }
             throw new NotSupportedException($"Unsupported conversion of a '{from.FullName}' to a '{to.FullName}'.");
