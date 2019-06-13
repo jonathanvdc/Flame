@@ -248,24 +248,45 @@ namespace Flame.Llvm.Emit
             else if (member is ITypeMember)
             {
                 var parent = ((ITypeMember)member).ParentType;
-                if (parent != null)
+                var parentLinkage = parent == null
+                    ? LLVMLinkage.LLVMExternalLinkage
+                    : GetLinkageForLocal(parent);
+                if (parentLinkage != LLVMLinkage.LLVMInternalLinkage
+                    && (member is MethodSpecialization || member is IndirectFieldSpecialization))
                 {
-                    return GetLinkageForLocal(parent);
+                    return LLVMLinkage.LLVMLinkOnceODRLinkage;
+                }
+                else
+                {
+                    return parentLinkage;
                 }
             }
             else if (member is IType)
             {
                 var parent = ((IType)member).Parent;
+                var parentLinkage = LLVMLinkage.LLVMExternalLinkage;
                 if (parent.IsType)
                 {
-                    return GetLinkageForLocal(parent.Type);
+                    parentLinkage = GetLinkageForLocal(parent.Type);
                 }
                 else if (parent.IsMethod)
                 {
-                    return GetLinkageForLocal(parent.Method);
+                    parentLinkage = GetLinkageForLocal(parent.Method);
+                }
+                if (parentLinkage != LLVMLinkage.LLVMInternalLinkage
+                    && member is TypeSpecialization)
+                {
+                    return LLVMLinkage.LLVMLinkOnceODRLinkage;
+                }
+                else
+                {
+                    return parentLinkage;
                 }
             }
-            return LLVMLinkage.LLVMExternalLinkage;
+            else
+            {
+                return LLVMLinkage.LLVMExternalLinkage;
+            }
         }
     }
 }
