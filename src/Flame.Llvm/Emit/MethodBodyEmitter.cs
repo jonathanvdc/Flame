@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
+using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
@@ -33,11 +34,50 @@ namespace Flame.Llvm.Emit
 
         public void Emit(MethodBody body)
         {
-            var entryThunk = Function.AppendBasicBlock(body.Implementation.EntryPoint.Tag.Name + ".thunk");
+            var preds = body.Implementation.GetAnalysisResult<BasicBlockPredecessors>();
+            var entry = body.Implementation.EntryPoint;
 
-            // Create blocks.
+            if (preds.GetPredecessorsOf(entry).Any())
+            {
+                // Create a thunk block.
+                var entryThunk = Function.AppendBasicBlock(entry.Tag.Name + ".thunk");
+
+                // Emit the body's blocks.
+                PlaceBlocks(body);
+
+                // Jump to the entry point.
+                FillJumpThunk(entryThunk, entry, Function.GetParams());
+            }
+            else
+            {
+                // Emit the entry point first.
+                var llvmBlock = emittedBlocks[entry] = Function.AppendBasicBlock(entry.Tag.Name);
+                var blockBuilder = blockBuilders[entry] = new IRBuilder(Module.Context);
+                blockBuilder.PositionBuilderAtEnd(llvmBlock);
+
+                // Set the entry point's parameters to the function's parameters.
+                for (int i = 0; i < entry.Parameters.Count; i++)
+                {
+                    emittedValues[entry.Parameters[i]] = Function.GetParam((uint)i);
+                }
+
+                // Place the other blocks.
+                PlaceBlocks(body);
+
+                // Emit the blocks' contents.
+                Emit(entry);
+            }
+        }
+
+        private void PlaceBlocks(MethodBody body)
+        {
             foreach (var block in body.Implementation.BasicBlocks)
             {
+                if (emittedBlocks.ContainsKey(block))
+                {
+                    continue;
+                }
+
                 var llvmBlock = emittedBlocks[block] = Function.AppendBasicBlock(block.Tag.Name);
                 var blockBuilder = blockBuilders[block] = new IRBuilder(Module.Context);
                 blockBuilder.PositionBuilderAtEnd(llvmBlock);
@@ -50,9 +90,6 @@ namespace Flame.Llvm.Emit
                         param.Tag.Name);
                 }
             }
-
-            // Jump to the entry point.
-            FillJumpThunk(entryThunk, body.Implementation.EntryPoint, Function.GetParams());
         }
 
         public LLVMBasicBlockRef Emit(BasicBlock block)
