@@ -7,16 +7,22 @@ using LLVMSharp;
 
 namespace Flame.Llvm.Emit
 {
-    internal sealed class ModuleBuilder
+    /// <summary>
+    /// A wrapper around an LLVM module that extends the wrapped module
+    /// with information relevant to managed languages.
+    /// </summary>
+    public sealed class ModuleBuilder
     {
         public ModuleBuilder(
             LLVMModuleRef module,
             TypeEnvironment typeSystem,
-            NameMangler mangler)
+            NameMangler mangler,
+            GCInterface gc)
         {
             this.Module = module;
             this.TypeSystem = typeSystem;
             this.Mangler = mangler;
+            this.GC = gc;
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
             this.fieldDecls = new Dictionary<IField, LLVMValueRef>();
             this.importCache = new Dictionary<IType, LLVMTypeRef>();
@@ -24,11 +30,29 @@ namespace Flame.Llvm.Emit
             this.baseIndices = new Dictionary<IType, Dictionary<IType, int>>();
         }
 
+        /// <summary>
+        /// Gets the LLVM module managed by this module builder.
+        /// </summary>
+        /// <value>An LLVM module.</value>
         public LLVMModuleRef Module { get; private set; }
 
+        /// <summary>
+        /// Gets the type system for this module.
+        /// </summary>
+        /// <value>A type system.</value>
         public TypeEnvironment TypeSystem { get; private set; }
 
+        /// <summary>
+        /// Gets the primary name mangler for this module.
+        /// </summary>
+        /// <value>A name mangler.</value>
         public NameMangler Mangler { get; private set; }
+
+        /// <summary>
+        /// Gets the primary GC interface for the module.
+        /// </summary>
+        /// <value>A GC interface.</value>
+        public GCInterface GC { get; private set; }
 
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
