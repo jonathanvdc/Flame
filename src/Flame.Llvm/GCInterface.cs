@@ -21,5 +21,19 @@ namespace Flame.Llvm
             ModuleBuilder module,
             IRBuilder builder,
             string name);
+
+        /// <summary>
+        /// Emits instructions that load an object's VTable pointer.
+        /// </summary>
+        /// <param name="objectPointer">An object to inspect for its VTable pointer.</param>
+        /// <param name="module">The module that defines the VTable-loading instructions.</param>
+        /// <param name="builder">An instruction builder to use for emitting instructions.</param>
+        /// <param name="name">A suggested name for the value that refers to the VTable.</param>
+        /// <returns>A pointer to the VTable.</returns>
+        public abstract LLVMValueRef EmitLoadVTablePointer(
+            LLVMValueRef objectPointer,
+            ModuleBuilder module,
+            IRBuilder builder,
+            string name);
     }
 }
