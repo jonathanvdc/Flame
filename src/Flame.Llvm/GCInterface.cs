@@ -4,7 +4,8 @@ using LLVMSharp;
 namespace Flame.Llvm
 {
     /// <summary>
-    /// An abstract class for application-GC interfaces.
+    /// An application-GC interface, which defines how the application
+    /// interacts with the GC.
     /// </summary>
     public abstract class GCInterface
     {
@@ -23,14 +24,14 @@ namespace Flame.Llvm
             string name);
 
         /// <summary>
-        /// Emits instructions that load an object's VTable pointer.
+        /// Emits instructions that load an object's metadata pointer.
         /// </summary>
-        /// <param name="objectPointer">An object to inspect for its VTable pointer.</param>
-        /// <param name="module">The module that defines the VTable-loading instructions.</param>
+        /// <param name="objectPointer">An object to inspect for its metadata pointer.</param>
+        /// <param name="module">The module that defines the metadata-loading instructions.</param>
         /// <param name="builder">An instruction builder to use for emitting instructions.</param>
-        /// <param name="name">A suggested name for the value that refers to the VTable.</param>
-        /// <returns>A pointer to the VTable.</returns>
-        public abstract LLVMValueRef EmitLoadVTablePointer(
+        /// <param name="name">A suggested name for the value that refers to the metadata.</param>
+        /// <returns>A pointer to the metadata.</returns>
+        public abstract LLVMValueRef EmitLoadMetadataPointer(
             LLVMValueRef objectPointer,
             ModuleBuilder module,
             IRBuilder builder,

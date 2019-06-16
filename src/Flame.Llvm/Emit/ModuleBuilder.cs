@@ -17,12 +17,14 @@ namespace Flame.Llvm.Emit
             LLVMModuleRef module,
             TypeEnvironment typeSystem,
             NameMangler mangler,
-            GCInterface gc)
+            GCInterface gc,
+            MetadataFormat metadata)
         {
             this.Module = module;
             this.TypeSystem = typeSystem;
             this.Mangler = mangler;
             this.GC = gc;
+            this.Metadata = metadata;
             this.methodDecls = new Dictionary<IMethod, LLVMValueRef>();
             this.fieldDecls = new Dictionary<IField, LLVMValueRef>();
             this.importCache = new Dictionary<IType, LLVMTypeRef>();
@@ -49,10 +51,16 @@ namespace Flame.Llvm.Emit
         public NameMangler Mangler { get; private set; }
 
         /// <summary>
-        /// Gets the primary GC interface for the module.
+        /// Gets the application-GC interface for the module.
         /// </summary>
-        /// <value>A GC interface.</value>
+        /// <value>An application-GC interface.</value>
         public GCInterface GC { get; private set; }
+
+        /// <summary>
+        /// Gets the metadata format to use for the module.
+        /// </summary>
+        /// <value>A metadata format.</value>
+        public MetadataFormat Metadata { get; private set; }
 
         public LLVMContextRef Context => LLVM.GetModuleContext(Module);
 
@@ -86,27 +94,29 @@ namespace Flame.Llvm.Emit
 
         private LLVMValueRef DeclareLocal(IMethod method)
         {
+            var funType = GetFunctionPrototype(method);
+            var result = LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
+            result.SetLinkage(GetLinkageForLocal(method));
+            return result;
+        }
+
+        public LLVMTypeRef GetFunctionPrototype(IMethod method)
+        {
             var paramTypes = new List<LLVMTypeRef>();
             if (!method.IsStatic)
             {
                 paramTypes.Add(ImportType(method.ParentType.MakePointerType(PointerKind.Reference)));
             }
             paramTypes.AddRange(method.Parameters.Select(p => ImportType(p.Type)));
-            var funType = LLVM.FunctionType(
+            return LLVM.FunctionType(
                 ImportType(method.ReturnParameter.Type),
                 paramTypes.ToArray(),
                 false);
-            var result = LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
-            result.SetLinkage(GetLinkageForLocal(method));
-            return result;
         }
 
         private LLVMValueRef DeclareExtern(IMethod method, ExternAttribute externAttribute)
         {
-            var funType = LLVM.FunctionType(
-                ImportType(method.ReturnParameter.Type),
-                method.Parameters.Select(p => ImportType(p.Type)).ToArray(),
-                false);
+            var funType = GetFunctionPrototype(method);
             return LLVM.AddFunction(
                 Module,
                 externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false),

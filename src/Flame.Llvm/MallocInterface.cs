@@ -27,11 +27,17 @@ namespace Flame.Llvm
         {
             var metaType = GetMetadataExtendedType(module.ImportType(type), module);
             var metaVal = builder.CreateMalloc(metaType, name + ".alloc");
+            builder.CreateStore(
+                builder.CreateBitCast(
+                    module.Metadata.GetMetadataPointer(type, module),
+                    GetMetadataPointerType(module),
+                    "vtable.ptr"),
+                builder.CreateStructGEP(metaVal, 0, "vtable.ptr.ref"));
             return builder.CreateStructGEP(metaVal, 1, name);
         }
 
         /// <inheritdoc/>
-        public override LLVMValueRef EmitLoadVTablePointer(
+        public override LLVMValueRef EmitLoadMetadataPointer(
             LLVMValueRef objectPointer,
             ModuleBuilder module,
             IRBuilder builder,
@@ -39,15 +45,15 @@ namespace Flame.Llvm
         {
             var castPointer = builder.CreateBitCast(
                 objectPointer,
-                LLVM.PointerType(GetVTablePointerType(module), 0),
-                "as.vtable.ptr.ref");
+                LLVM.PointerType(GetMetadataPointerType(module), 0),
+                "as.metadata.ptr.ref");
             var vtablePtrRef = builder.CreateGEP(
                 castPointer,
                 new[]
                 {
                     LLVM.ConstInt(LLVM.Int32TypeInContext(module.Context), unchecked((ulong)-1), true)
                 },
-                "vtable.ptr.ref");
+                "metadata.ptr.ref");
             return builder.CreateLoad(vtablePtrRef, name);
         }
 
@@ -58,13 +64,13 @@ namespace Flame.Llvm
             return LLVM.StructType(
                 new[]
                 {
-                    GetVTablePointerType(module),
+                    GetMetadataPointerType(module),
                     type
                 },
                 false);
         }
 
-        private static LLVMTypeRef GetVTablePointerType(ModuleBuilder module)
+        private static LLVMTypeRef GetMetadataPointerType(ModuleBuilder module)
         {
             return LLVM.PointerType(LLVM.Int8TypeInContext(module.Context), 0);
         }
