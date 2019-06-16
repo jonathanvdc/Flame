@@ -14,6 +14,13 @@ namespace Flame.TypeSystem
             new IntrinsicAttribute("ReferenceType");
 
         /// <summary>
+        /// An attribute that identifies a type as an interface.
+        /// </summary>
+        /// <returns>An intrinsic attribute.</returns>
+        public static readonly IntrinsicAttribute InterfaceType =
+            new IntrinsicAttribute("InterfaceType");
+
+        /// <summary>
         /// An attribute that identifies a type or method as abstract.
         /// </summary>
         /// <returns>An intrinsic attribute.</returns>
@@ -59,6 +66,18 @@ namespace Flame.TypeSystem
         public static bool IsSpecialType(this IType type)
         {
             return type.Attributes.Contains(SpecialType.AttributeType);
+        }
+
+        /// <summary>
+        /// Tests if a particular type is definitely an interface type.
+        /// </summary>
+        /// <param name="type">The type to test.</param>
+        /// <returns>
+        /// <c>true</c> if the type is definitely an interface type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsInterfaceType(this IType type)
+        {
+            return type.Attributes.Contains(InterfaceType.AttributeType);
         }
 
         /// <summary>
