@@ -230,6 +230,11 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.Abstract);
             }
+            if (Definition.IsInterface)
+            {
+                attrBuilder.Add(FlagAttribute.Abstract);
+                attrBuilder.Add(FlagAttribute.InterfaceType);
+            }
             if (!Definition.IsSealed)
             {
                 attrBuilder.Add(FlagAttribute.Virtual);
