@@ -178,16 +178,17 @@ namespace Flame.Llvm.Emit
             {
                 var callProto = (CallPrototype)proto;
                 var callee = callProto.Callee;
+                var args = instruction.Arguments.Select(Get).ToArray();
                 if (callProto.Lookup == MethodLookup.Static)
                 {
-                    return builder.CreateCall(
-                        Module.DeclareMethod(callee),
-                        instruction.Arguments.Select(Get).ToArray(),
-                        name);
+                    return builder.CreateCall(Module.DeclareMethod(callee), args, name);
                 }
                 else
                 {
-                    throw new NotSupportedException($"Virtual method lookup is not supported yet.");
+                    var thisPtr = Get(callProto.GetThisArgument(instruction));
+                    var metadataPtr = Module.GC.EmitLoadMetadataPointer(thisPtr, Module, builder, "vtable.ptr");
+                    var functionPtr = Module.Metadata.LookupVirtualMethod(callee, metadataPtr, Module, builder, "vfptr");
+                    return builder.CreateCall(functionPtr, args, name);
                 }
             }
             else if (proto is NewObjectPrototype)

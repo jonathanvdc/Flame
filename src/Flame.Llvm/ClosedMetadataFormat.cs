@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Collections;
@@ -139,6 +140,38 @@ namespace Flame.Llvm
             metadataTable.SetGlobalConstant(true);
             metadata[type] = metadataTable;
             return metadataTable;
+        }
+
+        /// <inheritdoc/>
+        public override LLVMValueRef LookupVirtualMethod(
+            IMethod callee,
+            LLVMValueRef metadataPointer,
+            ModuleBuilder module,
+            IRBuilder builder,
+            string name)
+        {
+            if (callee.ParentType.IsInterfaceType())
+            {
+                throw new NotImplementedException($"Interface method lookup is not supported yet.");
+            }
+            else
+            {
+                var functionProto = module.GetFunctionPrototype(callee);
+                var functionArrayPointer = builder.CreateBitCast(
+                    metadataPointer,
+                    LLVM.PointerType(LLVM.PointerType(functionProto, 0), 0),
+                    "farray.ptr");
+                var index = slotIndices[callee];
+                return builder.CreateLoad(
+                    builder.CreateGEP(
+                        functionArrayPointer,
+                        new[]
+                        {
+                            LLVM.ConstInt(LLVM.Int32TypeInContext(module.Context), (ulong)index, true)
+                        },
+                        "vfptr.address"),
+                    name);
+            }
         }
     }
 }

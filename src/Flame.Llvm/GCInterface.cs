@@ -5,7 +5,8 @@ namespace Flame.Llvm
 {
     /// <summary>
     /// An application-GC interface, which defines how the application
-    /// interacts with the GC.
+    /// interacts with the GC. The application-GC interface's responsibilities
+    /// include root set management, object allocation and the object header format.
     /// </summary>
     public abstract class GCInterface
     {
