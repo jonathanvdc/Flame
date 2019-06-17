@@ -131,6 +131,7 @@ namespace Flame.Compiler.Pipeline
                 this.Members = ImmutableHashSet.CreateBuilder<ITypeMember>();
                 this.Bodies = new Dictionary<IMethod, MethodBody>();
                 this.overrides = new Dictionary<IMethod, HashSet<IMethod>>();
+                this.syncRoot = new object();
             }
 
             public ImmutableHashSet<IType>.Builder Types { get; private set; }
@@ -138,12 +139,14 @@ namespace Flame.Compiler.Pipeline
             public Dictionary<IMethod, MethodBody> Bodies { get; private set; }
             public Optimizer Optimizer { get; private set; }
 
+            private object syncRoot;
+
             private Dictionary<IMethod, HashSet<IMethod>> overrides;
 
             public async Task<bool> DefineAsync(ITypeMember member)
             {
                 bool added;
-                lock (Members)
+                lock (syncRoot)
                 {
                     added = Members.Add(member);
                 }
@@ -151,7 +154,7 @@ namespace Flame.Compiler.Pipeline
                 {
                     if (member is IAccessor)
                     {
-                        lock (Members)
+                        lock (syncRoot)
                         {
                             Members.Add(((IAccessor)member).ParentProperty);
                         }
@@ -163,7 +166,20 @@ namespace Flame.Compiler.Pipeline
                     }
                     if (member is IMethod)
                     {
-                        await DefineBodyAsync((IMethod)member);
+                        var method = (IMethod)member;
+                        HashSet<IMethod> extraDefs;
+                        lock (syncRoot)
+                        {
+                            if (!overrides.TryGetValue(method, out extraDefs))
+                            {
+                                extraDefs = null;
+                            }
+                        }
+                        if (extraDefs != null)
+                        {
+                            await Optimizer.RunAllAsync(extraDefs.Select(DefineAsync));
+                        }
+                        await DefineBodyAsync(method);
                     }
                     return true;
                 }
@@ -173,10 +189,50 @@ namespace Flame.Compiler.Pipeline
                 }
             }
 
+            private Task RegisterOverridesAsync(IType type)
+            {
+                return Optimizer.RunAllAsync(
+                    type.Methods
+                        .Concat(type.Properties.SelectMany(p => p.Accessors))
+                        .Select(RegisterOverridesAsync));
+            }
+
+            private async Task RegisterOverridesAsync(IMethod method)
+            {
+                bool anyDef = false;
+                lock (syncRoot)
+                {
+                    foreach (var baseMethod in method.BaseMethods)
+                    {
+                        if (Members.Contains(baseMethod))
+                        {
+                            // One of this method's base methods defines this method.
+                            // Break now and just define the method.
+                            anyDef = true;
+                            break;
+                        }
+
+                        // Add this method to the override set of every base method. If
+                        // and when the base method is defined, it will also define all
+                        // methods in the override set.
+                        HashSet<IMethod> overrideSet;
+                        if (!overrides.TryGetValue(baseMethod, out overrideSet))
+                        {
+                            overrides[baseMethod] = overrideSet = new HashSet<IMethod>();
+                        }
+                        overrideSet.Add(baseMethod);
+                    }
+                }
+                if (anyDef)
+                {
+                    await DefineAsync(method);
+                }
+            }
+
             public async Task<bool> DefineAsync(IType type)
             {
                 bool added;
-                lock (Types)
+                lock (syncRoot)
                 {
                     added = Types.Add(type);
                 }
@@ -191,6 +247,7 @@ namespace Flame.Compiler.Pipeline
                     {
                         await DefineAsync(parent.Type);
                     }
+                    await RegisterOverridesAsync(type);
                     return true;
                 }
                 else
@@ -207,7 +264,7 @@ namespace Flame.Compiler.Pipeline
                 {
                     return;
                 }
-                lock (Bodies)
+                lock (syncRoot)
                 {
                     Bodies[method] = body;
                 }

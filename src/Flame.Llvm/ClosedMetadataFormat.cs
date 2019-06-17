@@ -87,7 +87,7 @@ namespace Flame.Llvm
                             int index;
                             if (slotIndices.TryGetValue(baseMethod, out index))
                             {
-                                layout[index] = baseMethod;
+                                layout[index] = method;
                                 slotIndices[method] = index;
                                 isOverride = true;
                             }
