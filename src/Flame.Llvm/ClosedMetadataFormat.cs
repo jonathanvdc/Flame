@@ -26,6 +26,9 @@ namespace Flame.Llvm
             this.slotIndices = new Dictionary<IMethod, int>();
             this.vtableLayouts = new Dictionary<IType, IReadOnlyList<IMethod>>();
             this.metadata = new Dictionary<IType, LLVMValueRef>();
+            this.primeGenerator = new PrimeNumberGenerator();
+            this.typePrimes = new Dictionary<IType, ulong>();
+            this.typeTags = new Dictionary<IType, ulong>();
             foreach (var member in typeMembers)
             {
                 Register(member);
@@ -60,6 +63,12 @@ namespace Flame.Llvm
         private Dictionary<IMethod, int> slotIndices;
         private Dictionary<IType, IReadOnlyList<IMethod>> vtableLayouts;
         private Dictionary<IType, LLVMValueRef> metadata;
+
+        private PrimeNumberGenerator primeGenerator;
+        private Dictionary<IType, ulong> typePrimes;
+        private Dictionary<IType, ulong> typeTags;
+
+        private const uint virtualFunctionOffset = 1;
 
         private IReadOnlyList<IMethod> GetVTableLayout(IType type)
         {
@@ -105,6 +114,28 @@ namespace Flame.Llvm
             return result;
         }
 
+        private ulong GetTypeTag(IType type, out ulong prime)
+        {
+            if (typePrimes.TryGetValue(type, out prime))
+            {
+                return typeTags[type];
+            }
+            else
+            {
+                // TODO: reuse primes.
+                typePrimes[type] = prime = primeGenerator.Next();
+                var tag = type.BaseTypes.Select(GetTypeTag).Aggregate(prime, (x, y) => x * y);
+                typeTags[type] = tag;
+                return tag;
+            }
+        }
+
+        private ulong GetTypeTag(IType type)
+        {
+            ulong prime;
+            return GetTypeTag(type, out prime);
+        }
+
         /// <inheritdoc/>
         public override LLVMValueRef GetMetadataPointer(IType type, ModuleBuilder module)
         {
@@ -114,7 +145,11 @@ namespace Flame.Llvm
                 return result;
             }
 
+            // Compose the vtable's contents.
             var entries = new List<LLVMValueRef>();
+            // A unique type tag.
+            entries.Add(LLVM.ConstInt(LLVM.Int64TypeInContext(module.Context), GetTypeTag(type), false));
+            // Virtual function addresses.
             foreach (var method in GetVTableLayout(type))
             {
                 if (method.IsAbstract())
@@ -157,18 +192,15 @@ namespace Flame.Llvm
             else
             {
                 var functionProto = module.GetFunctionPrototype(callee);
-                var functionArrayPointer = builder.CreateBitCast(
+                var typedMetadataPointer = builder.CreateBitCast(
                     metadataPointer,
-                    LLVM.PointerType(LLVM.PointerType(functionProto, 0), 0),
-                    "farray.ptr");
+                    GetMetadataPointer(callee.ParentType, module).TypeOf(),
+                    "vtable.ptr");
                 var index = slotIndices[callee];
                 return builder.CreateLoad(
-                    builder.CreateGEP(
-                        functionArrayPointer,
-                        new[]
-                        {
-                            LLVM.ConstInt(LLVM.Int32TypeInContext(module.Context), (ulong)index, true)
-                        },
+                    builder.CreateStructGEP(
+                        typedMetadataPointer,
+                        virtualFunctionOffset + (uint)index,
                         "vfptr.address"),
                     name);
             }
