@@ -105,108 +105,141 @@ namespace Flame.Compiler.Pipeline
             IMethod entryPoint,
             Optimizer optimizer)
         {
-            var types = ImmutableHashSet.CreateBuilder<IType>();
-            var members = ImmutableHashSet.CreateBuilder<ITypeMember>();
-            var bodies = new Dictionary<IMethod, MethodBody>();
-
-            await AddToTransitiveAsync(entryPoint, types, members, bodies, optimizer);
+            var builder = new TransitiveDescriptionBuilder(optimizer);
+            await builder.DefineAsync(entryPoint);
 
             return new AssemblyContentDescription(
                 fullName,
                 attributes,
-                types.ToImmutable(),
-                members.ToImmutable(),
-                bodies,
+                builder.Types.ToImmutable(),
+                builder.Members.ToImmutable(),
+                builder.Bodies,
                 entryPoint);
         }
 
-        private static async Task AddToTransitiveAsync(
-            IMethod method,
-            ImmutableHashSet<IType>.Builder types,
-            ImmutableHashSet<ITypeMember>.Builder members,
-            Dictionary<IMethod, MethodBody> bodies,
-            Optimizer optimizer)
+        /// <summary>
+        /// A data structure that helps construct assembly content descriptions
+        /// for transitive dependencies.
+        /// </summary>
+        private struct TransitiveDescriptionBuilder
         {
-            if (!Define(method, types, members))
+            public TransitiveDescriptionBuilder(Optimizer optimizer)
             {
-                return;
+                this.Optimizer = optimizer;
+
+                this.Types = ImmutableHashSet.CreateBuilder<IType>();
+                this.Members = ImmutableHashSet.CreateBuilder<ITypeMember>();
+                this.Bodies = new Dictionary<IMethod, MethodBody>();
+                this.overrides = new Dictionary<IMethod, HashSet<IMethod>>();
             }
 
-            // Add the method body itself.
-            var body = await optimizer.GetBodyAsync(method);
-            if (body == null)
-            {
-                return;
-            }
-            bodies[method] = body;
+            public ImmutableHashSet<IType>.Builder Types { get; private set; }
+            public ImmutableHashSet<ITypeMember>.Builder Members { get; private set; }
+            public Dictionary<IMethod, MethodBody> Bodies { get; private set; }
+            public Optimizer Optimizer { get; private set; }
 
-            var bodyMembers = body.Members;
-            // Add field dependencies.
-            foreach (var dependency in bodyMembers.OfType<IField>())
-            {
-                Define(dependency, types, members);
-            }
+            private Dictionary<IMethod, HashSet<IMethod>> overrides;
 
-            // Add type dependencies.
-            var typeVisitor = new TypeFuncVisitor(t =>
+            public async Task<bool> DefineAsync(ITypeMember member)
             {
-                if (!(t is ContainerType) && !(t is TypeSpecialization) && !(t is IGenericParameter))
+                bool added;
+                lock (Members)
                 {
-                    Define(t, types, members);
+                    added = Members.Add(member);
                 }
-                return t;
-            });
-            foreach (var dependency in bodyMembers.OfType<IType>())
-            {
-                typeVisitor.Visit(dependency);
+                if (added)
+                {
+                    if (member is IAccessor)
+                    {
+                        lock (Members)
+                        {
+                            Members.Add(((IAccessor)member).ParentProperty);
+                        }
+                    }
+                    var parent = member.ParentType;
+                    if (parent != null)
+                    {
+                        await DefineAsync(parent);
+                    }
+                    if (member is IMethod)
+                    {
+                        await DefineBodyAsync((IMethod)member);
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            // Add method dependencies.
-            await optimizer.RunAllAsync(
-                bodyMembers.OfType<IMethod>()
-                    .Select(m => AddToTransitiveAsync(m, types, members, bodies, optimizer)));
-        }
-
-        private static bool Define(
-            ITypeMember member,
-            ImmutableHashSet<IType>.Builder types,
-            ImmutableHashSet<ITypeMember>.Builder members)
-        {
-            if (members.Add(member))
+            public async Task<bool> DefineAsync(IType type)
             {
-                if (member is IAccessor)
+                bool added;
+                lock (Types)
                 {
-                    members.Add(((IAccessor)member).ParentProperty);
+                    added = Types.Add(type);
                 }
-                var parent = member.ParentType;
-                if (parent != null)
+                if (added)
                 {
-                    Define(parent, types, members);
+                    var parent = type.Parent;
+                    if (parent.IsMethod)
+                    {
+                        await DefineAsync(parent.Method);
+                    }
+                    else if (parent.IsType)
+                    {
+                        await DefineAsync(parent.Type);
+                    }
+                    return true;
                 }
-                return true;
+                else
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return false;
-            }
-        }
 
-        private static void Define(
-            IType type,
-            ImmutableHashSet<IType>.Builder types,
-            ImmutableHashSet<ITypeMember>.Builder members)
-        {
-            if (types.Add(type))
+            private async Task DefineBodyAsync(IMethod method)
             {
-                var parent = type.Parent;
-                if (parent.IsMethod)
+                // Add the method body itself.
+                var body = await Optimizer.GetBodyAsync(method);
+                if (body == null)
                 {
-                    Define(parent.Method, types, members);
+                    return;
                 }
-                else if (parent.IsType)
+                lock (Bodies)
                 {
-                    Define(parent.Type, types, members);
+                    Bodies[method] = body;
                 }
+
+                var bodyMembers = body.Members;
+                // Add field dependencies.
+                foreach (var dependency in bodyMembers.OfType<IField>())
+                {
+                    await DefineAsync(dependency);
+                }
+
+                // Add type dependencies.
+                var typeDeps = new List<IType>();
+                var typeVisitor = new TypeFuncVisitor(t =>
+                {
+                    if (!(t is ContainerType) && !(t is TypeSpecialization) && !(t is IGenericParameter))
+                    {
+                        typeDeps.Add(t);
+                    }
+                    return t;
+                });
+                foreach (var dependency in bodyMembers.OfType<IType>())
+                {
+                    typeVisitor.Visit(dependency);
+                }
+                await Optimizer.RunAllAsync(typeDeps.Select(DefineAsync));
+
+                // Add method dependencies.
+                await Optimizer.RunAllAsync(
+                    bodyMembers
+                        .OfType<IMethod>()
+                        .Select(DefineAsync));
             }
         }
     }
