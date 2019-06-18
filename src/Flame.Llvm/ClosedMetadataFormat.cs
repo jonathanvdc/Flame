@@ -17,11 +17,15 @@ namespace Flame.Llvm
         /// <summary>
         /// Creates a metadata format description.
         /// </summary>
+        /// <param name="types">
+        /// All types that are to be included in the metadata.
+        /// </param>
         /// <param name="typeMembers">
         /// All type members that are to be included in the metadata.
         /// </param>
-        public ClosedMetadataFormat(IEnumerable<ITypeMember> typeMembers)
+        public ClosedMetadataFormat(IEnumerable<IType> types, IEnumerable<ITypeMember> typeMembers)
         {
+            this.types = types.ToArray();
             this.methods = new Dictionary<IType, List<IMethod>>();
             this.slotIndices = new Dictionary<IMethod, int>();
             this.vtableLayouts = new Dictionary<IType, IReadOnlyList<IMethod>>();
@@ -50,6 +54,7 @@ namespace Flame.Llvm
                 return;
             }
 
+            // Add the method to its parent type's list of methods.
             List<IMethod> implList;
             if (!methods.TryGetValue(parent, out implList))
             {
@@ -58,6 +63,7 @@ namespace Flame.Llvm
             implList.Add(method);
         }
 
+        private IType[] types;
         private Dictionary<IType, List<IMethod>> methods;
         private Dictionary<IMethod, int> slotIndices;
         private Dictionary<IType, IReadOnlyList<IMethod>> vtableLayouts;
@@ -210,7 +216,11 @@ namespace Flame.Llvm
         {
             if (callee.ParentType.IsInterfaceType())
             {
-                throw new NotImplementedException($"Interface method lookup is not supported yet.");
+                var thunk = GetInterfaceAddressThunk(callee, module);
+                return builder.CreateCall(
+                    thunk,
+                    new[] { EmitLoadTagFromMetadata(metadataPointer, module, builder) },
+                    name);
             }
             else if (callee.IsVirtual())
             {
@@ -233,6 +243,73 @@ namespace Flame.Llvm
             }
         }
 
+        private LLVMValueRef GetInterfaceAddressThunk(
+            IMethod callee,
+            ModuleBuilder module)
+        {
+            var name = module.Mangler.Mangle(callee, true) + ".iface";
+            var result = LLVM.GetNamedFunction(module.Module, name);
+            if (result.Pointer != IntPtr.Zero)
+            {
+                return result;
+            }
+
+            var retType = LLVM.PointerType(module.GetFunctionPrototype(callee), 0);
+            result = LLVM.AddFunction(
+                module.Module,
+                name,
+                LLVM.FunctionType(
+                    retType,
+                    new[] { GetTypeTagType(module) },
+                    false));
+            result.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
+
+            var implMap = new Dictionary<IMethod, List<IType>>();
+            foreach (var type in types)
+            {
+                var impl = type.GetImplementationOf(callee);
+                if (impl != callee)
+                {
+                    List<IType> typeList;
+                    if (!implMap.TryGetValue(impl, out typeList))
+                    {
+                        implMap[impl] = typeList = new List<IType>();
+                    }
+                    typeList.Add(type);
+                }
+            }
+
+            using (var builder = new IRBuilder(module.Context))
+            {
+                var entry = result.AppendBasicBlock("entry");
+                var cases = new Dictionary<LLVMValueRef, LLVMBasicBlockRef>();
+                foreach (var pair in implMap)
+                {
+                    var target = result.AppendBasicBlock("");
+                    builder.PositionBuilderAtEnd(target);
+                    builder.CreateRet(builder.CreateBitCast(module.DeclareMethod(pair.Key), retType, ""));
+                    foreach (var type in implMap[pair.Key])
+                    {
+                        cases[GetTypeTagValue(type, module)] = target;
+                    }
+                }
+                var elseBlock = result.AppendBasicBlock("else");
+                builder.PositionBuilderAtEnd(elseBlock);
+                builder.CreateUnreachable();
+
+                builder.PositionBuilderAtEnd(entry);
+                var switchInsn = builder.CreateSwitch(
+                    result.GetParam(0),
+                    elseBlock,
+                    (uint)cases.Count);
+                foreach (var pair in cases)
+                {
+                    switchInsn.AddCase(pair.Key, pair.Value);
+                }
+            }
+            return result;
+        }
+
         /// <inheritdoc/>
         public override LLVMValueRef EmitIsSubtype(
             LLVMValueRef subtypeMetadata,
@@ -245,18 +322,25 @@ namespace Flame.Llvm
             // That tag is designed such that `subtype.tag % supertype.tag == 0` iff
             // `subtype isa supertype`. We compute the former to determine the latter.
 
-            var tagType = GetTypeTagType(module);
-            var tag = builder.CreateLoad(
-                builder.CreateBitCast(subtypeMetadata, LLVM.PointerType(tagType, 0), "tag.ptr"),
-                "tag");
+            var tag = EmitLoadTagFromMetadata(subtypeMetadata, module, builder);
             return builder.CreateICmp(
                 LLVMIntPredicate.LLVMIntEQ,
                 builder.CreateURem(
                     tag,
                     GetTypeTagValue(supertype, module),
                     "tag.rem"),
-                LLVM.ConstNull(tagType),
+                LLVM.ConstNull(GetTypeTagType(module)),
                 name);
+        }
+
+        private LLVMValueRef EmitLoadTagFromMetadata(LLVMValueRef metadata, ModuleBuilder module, IRBuilder builder)
+        {
+            return builder.CreateLoad(
+                builder.CreateBitCast(
+                    metadata,
+                    LLVM.PointerType(GetTypeTagType(module), 0),
+                    "tag.ptr"),
+                "tag");
         }
     }
 }

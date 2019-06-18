@@ -18,7 +18,7 @@ namespace Flame.Llvm
                 typeSystem,
                 new ItaniumMangler(typeSystem),
                 MallocInterface.Instance,
-                new ClosedMetadataFormat(contents.TypeMembers));
+                new ClosedMetadataFormat(contents.Types, contents.TypeMembers));
             foreach (var method in contents.TypeMembers.OfType<IMethod>())
             {
                 builder.DeclareMethod(method);
