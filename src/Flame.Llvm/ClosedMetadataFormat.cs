@@ -25,7 +25,6 @@ namespace Flame.Llvm
             this.methods = new Dictionary<IType, List<IMethod>>();
             this.slotIndices = new Dictionary<IMethod, int>();
             this.vtableLayouts = new Dictionary<IType, IReadOnlyList<IMethod>>();
-            this.metadata = new Dictionary<IType, LLVMValueRef>();
             this.primeGenerator = new PrimeNumberGenerator();
             this.typePrimes = new Dictionary<IType, ulong>();
             this.typeTags = new Dictionary<IType, ulong>();
@@ -62,7 +61,6 @@ namespace Flame.Llvm
         private Dictionary<IType, List<IMethod>> methods;
         private Dictionary<IMethod, int> slotIndices;
         private Dictionary<IType, IReadOnlyList<IMethod>> vtableLayouts;
-        private Dictionary<IType, LLVMValueRef> metadata;
 
         private PrimeNumberGenerator primeGenerator;
         private Dictionary<IType, ulong> typePrimes;
@@ -136,11 +134,21 @@ namespace Flame.Llvm
             return GetTypeTag(type, out prime);
         }
 
-        /// <inheritdoc/>
-        public override LLVMValueRef GetMetadata(IType type, ModuleBuilder module)
+        private LLVMTypeRef GetTypeTagType(ModuleBuilder module)
         {
-            LLVMValueRef result;
-            if (metadata.TryGetValue(type, out result))
+            return LLVM.Int64TypeInContext(module.Context);
+        }
+
+        private LLVMValueRef GetTypeTagValue(IType type, ModuleBuilder module)
+        {
+            return LLVM.ConstInt(GetTypeTagType(module), GetTypeTag(type), false);
+        }
+
+        private LLVMValueRef GetTypeMetadataTable(IType type, ModuleBuilder module)
+        {
+            var name = module.Mangler.Mangle(type, true) + ".vtable";
+            var result = LLVM.GetNamedGlobal(module.Module, name);
+            if (result.Pointer != IntPtr.Zero)
             {
                 return result;
             }
@@ -148,7 +156,7 @@ namespace Flame.Llvm
             // Compose the vtable's contents.
             var entries = new List<LLVMValueRef>();
             // A unique type tag.
-            entries.Add(LLVM.ConstInt(LLVM.Int64TypeInContext(module.Context), GetTypeTag(type), false));
+            entries.Add(GetTypeTagValue(type, module));
             // Virtual function addresses.
             foreach (var method in GetVTableLayout(type))
             {
@@ -166,19 +174,34 @@ namespace Flame.Llvm
                 module.Context,
                 entries.ToArray(),
                 false);
-            var metadataTable = LLVM.AddGlobal(
-                module.Module,
-                metadataTableContents.TypeOf(),
-                module.Mangler.Mangle(type, true) + ".vtable");
+            var metadataTable = LLVM.AddGlobal(module.Module, metadataTableContents.TypeOf(), name);
             metadataTable.SetInitializer(metadataTableContents);
             metadataTable.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
             metadataTable.SetGlobalConstant(true);
-            metadata[type] = metadataTable;
             return metadataTable;
         }
 
         /// <inheritdoc/>
-        public override LLVMValueRef LookupVirtualMethod(
+        public override LLVMTypeRef GetMetadataType(ModuleBuilder module)
+        {
+            return LLVM.PointerType(LLVM.Int8TypeInContext(module.Context), 0);
+        }
+
+        /// <inheritdoc/>
+        public override LLVMValueRef GetMetadata(
+            IType type,
+            ModuleBuilder module,
+            IRBuilder builder,
+            string name)
+        {
+            return builder.CreateBitCast(
+                GetTypeMetadataTable(type, module),
+                GetMetadataType(module),
+                name);
+        }
+
+        /// <inheritdoc/>
+        public override LLVMValueRef EmitMethodAddress(
             IMethod callee,
             LLVMValueRef metadataPointer,
             ModuleBuilder module,
@@ -189,12 +212,12 @@ namespace Flame.Llvm
             {
                 throw new NotImplementedException($"Interface method lookup is not supported yet.");
             }
-            else
+            else if (callee.IsVirtual())
             {
                 var functionProto = module.GetFunctionPrototype(callee);
                 var typedMetadataPointer = builder.CreateBitCast(
                     metadataPointer,
-                    GetMetadata(callee.ParentType, module).TypeOf(),
+                    GetTypeMetadataTable(callee.ParentType, module).TypeOf(),
                     "vtable.ptr");
                 var index = slotIndices[callee];
                 return builder.CreateLoad(
@@ -204,6 +227,36 @@ namespace Flame.Llvm
                         "vfptr.address"),
                     name);
             }
+            else
+            {
+                return module.DeclareMethod(callee);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override LLVMValueRef EmitIsSubtype(
+            LLVMValueRef subtypeMetadata,
+            IType supertype,
+            ModuleBuilder module,
+            IRBuilder builder,
+            string name)
+        {
+            // Here's how we do isinstance tests: every type has a unique integer tag.
+            // That tag is designed such that `subtype.tag % supertype.tag == 0` iff
+            // `subtype isa supertype`. We compute the former to determine the latter.
+
+            var tagType = GetTypeTagType(module);
+            var tag = builder.CreateLoad(
+                builder.CreateBitCast(subtypeMetadata, LLVM.PointerType(tagType, 0), "tag.ptr"),
+                "tag");
+            return builder.CreateICmp(
+                LLVMIntPredicate.LLVMIntEQ,
+                builder.CreateURem(
+                    tag,
+                    GetTypeTagValue(supertype, module),
+                    "tag.rem"),
+                LLVM.ConstNull(tagType),
+                name);
         }
     }
 }

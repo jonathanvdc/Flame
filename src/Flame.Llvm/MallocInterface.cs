@@ -28,11 +28,8 @@ namespace Flame.Llvm
             var metaType = GetMetadataExtendedType(module.ImportType(type), module);
             var metaVal = builder.CreateMalloc(metaType, name + ".alloc");
             builder.CreateStore(
-                builder.CreateBitCast(
-                    module.Metadata.GetMetadata(type, module),
-                    GetMetadataPointerType(module),
-                    "vtable.ptr"),
-                builder.CreateStructGEP(metaVal, 0, "vtable.ptr.ref"));
+                module.Metadata.GetMetadata(type, module, builder, "metadata"),
+                builder.CreateStructGEP(metaVal, 0, "metadata.ref"));
             return builder.CreateStructGEP(metaVal, 1, name);
         }
 
@@ -45,15 +42,15 @@ namespace Flame.Llvm
         {
             var castPointer = builder.CreateBitCast(
                 objectPointer,
-                LLVM.PointerType(GetMetadataPointerType(module), 0),
-                "as.metadata.ptr.ref");
+                LLVM.PointerType(module.Metadata.GetMetadataType(module), 0),
+                "as.metadata.ref");
             var vtablePtrRef = builder.CreateGEP(
                 castPointer,
                 new[]
                 {
                     LLVM.ConstInt(LLVM.Int32TypeInContext(module.Context), unchecked((ulong)-1), true)
                 },
-                "metadata.ptr.ref");
+                "metadata.ref");
             return builder.CreateLoad(vtablePtrRef, name);
         }
 
@@ -64,15 +61,10 @@ namespace Flame.Llvm
             return LLVM.StructType(
                 new[]
                 {
-                    GetMetadataPointerType(module),
+                    module.Metadata.GetMetadataType(module),
                     type
                 },
                 false);
-        }
-
-        private static LLVMTypeRef GetMetadataPointerType(ModuleBuilder module)
-        {
-            return LLVM.PointerType(LLVM.Int8TypeInContext(module.Context), 0);
         }
     }
 }

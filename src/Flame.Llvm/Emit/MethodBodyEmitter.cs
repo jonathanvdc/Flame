@@ -137,6 +137,55 @@ namespace Flame.Llvm.Emit
                     Module.ImportType(instruction.ResultType),
                     name);
             }
+            else if (proto is DynamicCastPrototype)
+            {
+                // There are three possible outcomes here:
+                //   1. We receive a pointer of the expected type. We return a reineterpreted pointer.
+                //   2. We receive a pointer of another type. We return null.
+                //   3. We receive a null pointer. We return null.
+                //
+                // Case #3 is kind of ugly, because it means that we need to null-test the input
+                // pointer and only load its metadata if it is nonnull.
+
+                // Create two extra basic blocks.
+                var forkBlock = builder.GetInsertBlock();
+                var nonnullBlock = Function.AppendBasicBlock(name + ".nonnull");
+                var mergeBlock = Function.AppendBasicBlock(name + ".merge");
+
+                // Emit a null check and branch based on that.
+                var originalPtr = Get(instruction.Arguments[0]);
+                builder.CreateCondBr(
+                    builder.CreateIsNull(originalPtr, name + ".isnull"),
+                    mergeBlock,
+                    nonnullBlock);
+
+                // Fill the nonnull block.
+                builder.PositionBuilderAtEnd(nonnullBlock);
+                var resultType = Module.ImportType(instruction.ResultType);
+                var reinterpretedPtr = builder.CreateBitCast(
+                    originalPtr,
+                    resultType,
+                    name + ".reinterpreted");
+                var isinst = Module.Metadata.EmitIsSubtype(
+                    Module.GC.EmitLoadMetadata(reinterpretedPtr, Module, builder, name + ".metadata"),
+                    ((DynamicCastPrototype)proto).TargetType.ElementType,
+                    Module,
+                    builder,
+                    name + ".isinst");
+                var nullConst = LLVM.ConstNull(resultType);
+                var nonnullResult = builder.CreateSelect(
+                    isinst, reinterpretedPtr, nullConst, name + ".nonnull.result");
+                builder.CreateBr(mergeBlock);
+
+                // Fill the merge block.
+                builder.PositionBuilderAtEnd(mergeBlock);
+                var result = builder.CreatePhi(resultType, name);
+                result.AddIncoming(
+                    new[] { nonnullResult, nullConst },
+                    new[] { nonnullBlock, forkBlock },
+                    2);
+                return result;
+            }
             else if (proto is LoadPrototype)
             {
                 return builder.CreateLoad(Get(instruction.Arguments[0]), name);
@@ -187,7 +236,7 @@ namespace Flame.Llvm.Emit
                 {
                     var thisPtr = Get(callProto.GetThisArgument(instruction));
                     var metadataPtr = Module.GC.EmitLoadMetadata(thisPtr, Module, builder, "vtable.ptr");
-                    var functionPtr = Module.Metadata.LookupVirtualMethod(callee, metadataPtr, Module, builder, "vfptr");
+                    var functionPtr = Module.Metadata.EmitMethodAddress(callee, metadataPtr, Module, builder, "vfptr");
                     return builder.CreateCall(functionPtr, args, name);
                 }
             }
@@ -469,16 +518,17 @@ namespace Flame.Llvm.Emit
             var rhsType = rhs.TypeOf();
             if (lhsType.TypeKind != rhsType.TypeKind)
             {
-                throw new NotSupportedException($"Cannot compare '{lhs}' and '{rhs}' instances.");
+                throw new NotSupportedException($"Cannot compare '{lhsType}' and '{rhsType}' instances.");
             }
             switch (lhsType.TypeKind)
             {
                 case LLVMTypeKind.LLVMIntegerTypeKind:
+                case LLVMTypeKind.LLVMPointerTypeKind:
                     return builder.CreateICmp(LLVMIntPredicate.LLVMIntEQ, lhs, rhs, name);
                 case LLVMTypeKind.LLVMFloatTypeKind:
                     return builder.CreateFCmp(LLVMRealPredicate.LLVMRealOEQ, lhs, rhs, name);
                 default:
-                    throw new NotSupportedException($"Cannot compare '{lhs}' instances.");
+                    throw new NotSupportedException($"Cannot compare '{lhsType}' instances.");
             }
         }
 
