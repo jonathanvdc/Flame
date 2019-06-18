@@ -97,6 +97,10 @@ namespace Flame.Llvm.Emit
             var funType = GetFunctionPrototype(method);
             var result = LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
             result.SetLinkage(GetLinkageForLocal(method));
+            if (!method.IsStatic)
+            {
+                LLVM.AddAttributeAtIndex(result, (LLVMAttributeIndex)1, CreateEnumAttribute("nonnull"));
+            }
             return result;
         }
 
@@ -321,6 +325,12 @@ namespace Flame.Llvm.Emit
             {
                 return LLVMLinkage.LLVMExternalLinkage;
             }
+        }
+
+        private LLVMAttributeRef CreateEnumAttribute(string name)
+        {
+            uint kind = LLVM.GetEnumAttributeKindForName(name, new size_t((IntPtr)name.Length));
+            return LLVM.CreateEnumAttribute(Context, kind, 0);
         }
     }
 }
