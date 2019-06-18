@@ -985,6 +985,18 @@ namespace Flame.Clr.Emit
                     throw new NotImplementedException($"Cannot emit a function pointer of type '{newDelegateProto.ResultType}'.");
                 }
             }
+            else if (proto is SizeOfPrototype)
+            {
+                var sizeofProto = (SizeOfPrototype)proto;
+                var ops = new List<CilCodegenInstruction>();
+                ops.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(
+                            OpCodes.Sizeof,
+                            Method.Module.ImportReference(sizeofProto.MeasuredType))));
+                ops.AddRange(EmitConvert(sizeofProto.ResultType, TypeEnvironment.UInt32));
+                return SelectedInstructions.Create<CilCodegenInstruction>(ops);
+            }
             else
             {
                 throw new NotImplementedException("Unknown instruction type: " + proto);
@@ -1164,150 +1176,9 @@ namespace Flame.Clr.Emit
                     }
                     else if (opName == ArithmeticIntrinsics.Operators.Convert)
                     {
-                        // Conversions are interesting because Flame IR has a much
-                        // richer type system than the CIL *stack* type system. Hence,
-                        // integer zext/sext is typically unnecessary. The code
-                        // below takes advantage of that fact to reduce the number
-                        // of instructions emitted.
-
-                        var resultType = prototype.ResultType;
-
-                        // Before we get started, we want to remove modopt/modreq from types.
-                        resultType = StripModifiers(resultType);
-                        paramType = StripModifiers(paramType);
-
-                        if (paramType == resultType)
-                        {
-                            // Do nothing.
-                            return CreateNopSelection(arguments);
-                        }
-                        else if (resultType == TypeEnvironment.Float32 || resultType == TypeEnvironment.Float64)
-                        {
-                            var instructions = new List<CilCodegenInstruction>();
-                            if (paramType.IsUnsignedIntegerType())
-                            {
-                                instructions.Add(new CilOpInstruction(OpCodes.Conv_R_Un));
-                            }
-                            instructions.Add(
-                                new CilOpInstruction(
-                                    resultType == TypeEnvironment.Float32
-                                    ? OpCodes.Conv_R4
-                                    : OpCodes.Conv_R8));
-                            return SelectedInstructions.Create<CilCodegenInstruction>(
-                                instructions,
-                                arguments);
-                        }
-                        else if (resultType == TypeEnvironment.NaturalInt)
-                        {
-                            if (IsNativePointerlike(paramType))
-                            {
-                                return CreateNopSelection(arguments);
-                            }
-                            else
-                            {
-                                return CreateSelection(OpCodes.Conv_I, arguments);
-                            }
-                        }
-                        else if (resultType == TypeEnvironment.NaturalUInt
-                            || resultType.IsPointerType(PointerKind.Transient)
-                            || resultType.IsPointerType(PointerKind.Reference))
-                        {
-                            if (IsNativePointerlike(paramType))
-                            {
-                                return CreateNopSelection(arguments);
-                            }
-                            else
-                            {
-                                return CreateSelection(OpCodes.Conv_U, arguments);
-                            }
-                        }
-
-                        var targetSpec = resultType.GetIntegerSpecOrNull();
-
-                        if (targetSpec != null)
-                        {
-                            var sourceSpec = paramType.GetIntegerSpecOrNull();
-                            if (sourceSpec != null)
-                            {
-                                if (sourceSpec.Size == targetSpec.Size)
-                                {
-                                    // Sign conversions are really just no-ops.
-                                    return CreateNopSelection(arguments);
-                                }
-                                else if (sourceSpec.Size <= targetSpec.Size
-                                    && targetSpec.Size <= 32)
-                                {
-                                    // Integers smaller than 32 bits are represented as
-                                    // 32-bit integers on the stack, so we can just do
-                                    // nothing here.
-                                    return CreateNopSelection(arguments);
-                                }
-                            }
-
-                            // Use dedicated opcodes for conversion to common
-                            // integer types.
-                            if (targetSpec.IsSigned)
-                            {
-                                if (targetSpec.Size == 8)
-                                {
-                                    return CreateSelection(OpCodes.Conv_I1, arguments);
-                                }
-                                else if (targetSpec.Size == 16)
-                                {
-                                    return CreateSelection(OpCodes.Conv_I2, arguments);
-                                }
-                                else if (targetSpec.Size == 32)
-                                {
-                                    return CreateSelection(OpCodes.Conv_I4, arguments);
-                                }
-                                else if (targetSpec.Size == 64)
-                                {
-                                    return CreateSelection(OpCodes.Conv_I8, arguments);
-                                }
-                            }
-                            else
-                            {
-                                if (targetSpec.Size == 8)
-                                {
-                                    return CreateSelection(OpCodes.Conv_U1, arguments);
-                                }
-                                else if (targetSpec.Size == 16)
-                                {
-                                    return CreateSelection(OpCodes.Conv_U2, arguments);
-                                }
-                                else if (targetSpec.Size == 32)
-                                {
-                                    return CreateSelection(OpCodes.Conv_U4, arguments);
-                                }
-                                else if (targetSpec.Size == 64)
-                                {
-                                    return CreateSelection(OpCodes.Conv_U8, arguments);
-                                }
-                            }
-
-                            if (targetSpec.Size == 1)
-                            {
-                                // There's no dedicated opcode for converting values
-                                // to 1-bit integers (Booleans), so we'll just extract
-                                // the least significant bit.
-                                var instructions = new List<CilCodegenInstruction>();
-                                if (sourceSpec == null)
-                                {
-                                    instructions.Add(new CilOpInstruction(OpCodes.Conv_I4));
-                                }
-                                instructions.AddRange(new[]
-                                {
-                                    new CilOpInstruction(OpCodes.Ldc_I4_1),
-                                    new CilOpInstruction(OpCodes.And)
-                                });
-                                return SelectedInstructions.Create<CilCodegenInstruction>(
-                                    instructions,
-                                    arguments);
-                            }
-                        }
-
-                        throw new NotSupportedException(
-                            $"Unsupported primitive conversion of '{paramType}' to '{prototype.ResultType}'.");
+                        return SelectedInstructions.Create(
+                            EmitConvert(prototype.ParameterTypes[0], prototype.ResultType),
+                            arguments);
                     }
                 }
                 else if (prototype.ParameterCount == 2)
@@ -1608,6 +1479,158 @@ namespace Flame.Clr.Emit
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown intrinsic '{prototype.Name}'.");
             }
+        }
+
+        private IReadOnlyList<CilCodegenInstruction> EmitConvert(
+            IType from,
+            IType to)
+        {
+            // Conversions are interesting because Flame IR has a much
+            // richer type system than the CIL *stack* type system. Hence,
+            // integer zext/sext is typically unnecessary. The code
+            // below takes advantage of that fact to reduce the number
+            // of instructions emitted.
+
+            // Before we get started, we want to remove modopt/modreq from types.
+            to = StripModifiers(to);
+            from = StripModifiers(from);
+
+            if (from == to)
+            {
+                // Do nothing.
+                return EmptyArray<CilCodegenInstruction>.Value;
+            }
+            else if (to == TypeEnvironment.Float32 || to == TypeEnvironment.Float64)
+            {
+                var instructions = new List<CilCodegenInstruction>();
+                if (from.IsUnsignedIntegerType())
+                {
+                    instructions.Add(new CilOpInstruction(OpCodes.Conv_R_Un));
+                }
+                instructions.Add(
+                    new CilOpInstruction(
+                        to == TypeEnvironment.Float32
+                        ? OpCodes.Conv_R4
+                        : OpCodes.Conv_R8));
+                return instructions;
+            }
+            else if (to == TypeEnvironment.NaturalInt)
+            {
+                if (IsNativePointerlike(from))
+                {
+                    return EmptyArray<CilCodegenInstruction>.Value;
+                }
+                else
+                {
+                    return CreateSelectionList(OpCodes.Conv_I);
+                }
+            }
+            else if (to == TypeEnvironment.NaturalUInt
+                || to.IsPointerType(PointerKind.Transient)
+                || to.IsPointerType(PointerKind.Reference))
+            {
+                if (IsNativePointerlike(from))
+                {
+                    return EmptyArray<CilCodegenInstruction>.Value;
+                }
+                else
+                {
+                    return CreateSelectionList(OpCodes.Conv_U);
+                }
+            }
+
+            var targetSpec = to.GetIntegerSpecOrNull();
+
+            if (targetSpec != null)
+            {
+                var sourceSpec = from.GetIntegerSpecOrNull();
+                if (sourceSpec != null)
+                {
+                    if (sourceSpec.Size == targetSpec.Size)
+                    {
+                        // Sign conversions are really just no-ops.
+                        return EmptyArray<CilCodegenInstruction>.Value;
+                    }
+                    else if (sourceSpec.Size <= targetSpec.Size
+                        && targetSpec.Size <= 32)
+                    {
+                        // Integers smaller than 32 bits are represented as
+                        // 32-bit integers on the stack, so we can just do
+                        // nothing here.
+                        return EmptyArray<CilCodegenInstruction>.Value;
+                    }
+                }
+
+                // Use dedicated opcodes for conversion to common
+                // integer types.
+                if (targetSpec.IsSigned)
+                {
+                    if (targetSpec.Size == 8)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_I1);
+                    }
+                    else if (targetSpec.Size == 16)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_I2);
+                    }
+                    else if (targetSpec.Size == 32)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_I4);
+                    }
+                    else if (targetSpec.Size == 64)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_I8);
+                    }
+                }
+                else
+                {
+                    if (targetSpec.Size == 8)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_U1);
+                    }
+                    else if (targetSpec.Size == 16)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_U2);
+                    }
+                    else if (targetSpec.Size == 32)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_U4);
+                    }
+                    else if (targetSpec.Size == 64)
+                    {
+                        return CreateSelectionList(OpCodes.Conv_U8);
+                    }
+                }
+
+                if (targetSpec.Size == 1)
+                {
+                    // There's no dedicated opcode for converting values
+                    // to 1-bit integers (Booleans), so we'll just extract
+                    // the least significant bit.
+                    var instructions = new List<CilCodegenInstruction>();
+                    if (sourceSpec == null)
+                    {
+                        instructions.Add(new CilOpInstruction(OpCodes.Conv_I4));
+                    }
+                    instructions.AddRange(new[]
+                    {
+                        new CilOpInstruction(OpCodes.Ldc_I4_1),
+                        new CilOpInstruction(OpCodes.And)
+                    });
+                    return instructions;
+                }
+            }
+
+            throw new NotSupportedException(
+                $"Unsupported primitive conversion of '{from.FullName}' to '{to.FullName}'.");
+        }
+
+        private static IReadOnlyList<CilCodegenInstruction> CreateSelectionList(OpCode op)
+        {
+            return new CilCodegenInstruction[]
+            {
+                new CilOpInstruction(op)
+            };
         }
 
         private static IType StripModifiers(IType type)
