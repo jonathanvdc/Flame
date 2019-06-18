@@ -31,6 +31,7 @@ namespace Flame.Llvm
             this.vtableLayouts = new Dictionary<IType, IReadOnlyList<IMethod>>();
             this.primeGenerator = new PrimeNumberGenerator();
             this.typePrimes = new Dictionary<IType, ulong>();
+            this.typeFactors = new Dictionary<IType, HashSet<ulong>>();
             this.typeTags = new Dictionary<IType, ulong>();
             foreach (var member in typeMembers)
             {
@@ -70,6 +71,7 @@ namespace Flame.Llvm
 
         private PrimeNumberGenerator primeGenerator;
         private Dictionary<IType, ulong> typePrimes;
+        private Dictionary<IType, HashSet<ulong>> typeFactors;
         private Dictionary<IType, ulong> typeTags;
 
         private const uint virtualFunctionOffset = 1;
@@ -118,26 +120,41 @@ namespace Flame.Llvm
             return result;
         }
 
-        private ulong GetTypeTag(IType type, out ulong prime)
+        private HashSet<ulong> GetTypeFactors(IType type)
+        {
+            ulong prime;
+            HashSet<ulong> factors;
+            GetTypeTag(type, out prime, out factors);
+            return factors;
+        }
+
+        private ulong GetTypeTag(IType type, out ulong prime, out HashSet<ulong> factors)
         {
             if (typePrimes.TryGetValue(type, out prime))
             {
+                factors = typeFactors[type];
                 return typeTags[type];
             }
             else
             {
                 // TODO: reuse primes.
+                factors = new HashSet<ulong>();
                 typePrimes[type] = prime = primeGenerator.Next();
-                var tag = type.BaseTypes.Select(GetTypeTag).Aggregate(prime, (x, y) => x * y);
-                typeTags[type] = tag;
-                return tag;
+                factors.Add(prime);
+                foreach (var baseType in type.BaseTypes)
+                {
+                    factors.UnionWith(GetTypeFactors(baseType));
+                }
+                typeFactors[type] = factors;
+                return typeTags[type] = factors.Aggregate((x, y) => x * y);
             }
         }
 
         private ulong GetTypeTag(IType type)
         {
             ulong prime;
-            return GetTypeTag(type, out prime);
+            HashSet<ulong> factors;
+            return GetTypeTag(type, out prime, out factors);
         }
 
         private LLVMTypeRef GetTypeTagType(ModuleBuilder module)
