@@ -454,6 +454,24 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// A codec element for sizeof instruction prototypes.
+        /// </summary>
+        /// <returns>A codec element.</returns>
+        public static readonly CodecElement<SizeOfPrototype, IReadOnlyList<LNode>> SizeOf =
+            new CodecElement<SizeOfPrototype, IReadOnlyList<LNode>>(
+                "sizeof", EncodeSizeOf, DecodeSizeOf);
+
+        private static SizeOfPrototype DecodeSizeOf(IReadOnlyList<LNode> data, DecoderState state)
+        {
+            return SizeOfPrototype.Create(state.DecodeType(data[0]), state.DecodeType(data[1]));
+        }
+
+        private static IReadOnlyList<LNode> EncodeSizeOf(SizeOfPrototype value, EncoderState state)
+        {
+            return new LNode[] { state.Encode(value.MeasuredType), state.Encode(value.ResultType) };
+        }
+
+        /// <summary>
         /// Gets a codec that contains all sub-codecs defined in this class.
         /// </summary>
         /// <returns>A codec.</returns>
@@ -481,7 +499,8 @@ namespace Flame.Ir
                     .Add(ReinterpretCast)
                     .Add(Store)
                     .Add(StoreField)
-                    .Add(Unbox);
+                    .Add(Unbox)
+                    .Add(SizeOf);
             }
         }
     }
