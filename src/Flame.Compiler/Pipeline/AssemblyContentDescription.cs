@@ -220,7 +220,7 @@ namespace Flame.Compiler.Pipeline
                         {
                             overrides[baseMethod] = overrideSet = new HashSet<IMethod>();
                         }
-                        overrideSet.Add(baseMethod);
+                        overrideSet.Add(method);
                     }
                 }
                 if (anyDef)
