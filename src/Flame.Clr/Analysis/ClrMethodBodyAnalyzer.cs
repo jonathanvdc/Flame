@@ -1193,6 +1193,14 @@ namespace Flame.Clr.Analysis
                         context.GetValueType(lengthVal),
                         lengthVal));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Sizeof)
+            {
+                var measureType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                context.Push(
+                    Instruction.CreateSizeOf(
+                        measureType,
+                        TypeEnvironment.UInt32));
+            }
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
