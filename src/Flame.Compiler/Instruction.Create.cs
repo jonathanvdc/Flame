@@ -394,6 +394,23 @@ namespace Flame.Compiler
         }
 
         /// <summary>
+        /// Creates an instruction that measures the size of a type.
+        /// </summary>
+        /// <param name="measuredType">
+        /// The type to measure.
+        /// </param>
+        /// <param name="resultType">
+        /// The type of value to produce.
+        /// </param>
+        /// <returns>
+        /// A sizeof instruction.
+        /// </returns>
+        public static Instruction CreateSizeOf(IType measuredType, IType resultType)
+        {
+            return SizeOfPrototype.Create(measuredType, resultType).Instantiate();
+        }
+
+        /// <summary>
         /// Creates an arithmetic intrinsic.
         /// </summary>
         /// <param name="operatorName">
