@@ -371,6 +371,84 @@ namespace Flame.Llvm.Emit
                     }
                 }
             }
+            else if (ArrayIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == ArrayIntrinsics.Operators.NewArray)
+                {
+                    var arrayType = ((PointerType)prototype.ResultType).ElementType;
+                    // TODO: handle non-generic array types?
+                    var elementType = arrayType.GetGenericArguments()[0];
+                    return Module.GC.EmitAllocArray(
+                        arrayType,
+                        elementType,
+                        arguments.Select(Get).ToArray(),
+                        Module,
+                        builder,
+                        name);
+                }
+                else if (opName == ArrayIntrinsics.Operators.GetElementPointer)
+                {
+                    var elementType = ((PointerType)prototype.ResultType).ElementType;
+                    return Module.GC.EmitArrayElementAddress(
+                        Get(arguments[0]),
+                        elementType,
+                        arguments.Skip(1).Select(Get).ToArray(),
+                        Module,
+                        builder,
+                        name);
+                }
+                else if (opName == ArrayIntrinsics.Operators.LoadElement)
+                {
+                    var ptr = Module.GC.EmitArrayElementAddress(
+                        Get(arguments[0]),
+                        prototype.ResultType,
+                        arguments.Skip(1).Select(Get).ToArray(),
+                        Module,
+                        builder,
+                        name + ".ref");
+                    return builder.CreateLoad(ptr, name);
+                }
+                else if (opName == ArrayIntrinsics.Operators.StoreElement)
+                {
+                    var ptr = Module.GC.EmitArrayElementAddress(
+                        Get(arguments[1]),
+                        prototype.ResultType,
+                        arguments.Skip(2).Select(Get).ToArray(),
+                        Module,
+                        builder,
+                        name + ".ref");
+                    var val = Get(arguments[0]);
+                    builder.CreateStore(val, ptr);
+                    return val;
+                }
+                else if (opName == ArrayIntrinsics.Operators.GetLength
+                    && arguments.Count == 1)
+                {
+                    var arrayType = ((PointerType)prototype.ParameterTypes[0]).ElementType;
+                    // TODO: handle non-generic array types?
+                    var elementType = arrayType.GetGenericArguments()[0];
+                    // TODO: detect dimensionality of the array.
+                    int dims = 1;
+                    var result = Module.GC.EmitArrayLength(
+                        Get(arguments[0]),
+                        elementType,
+                        dims,
+                        Module,
+                        builder,
+                        name);
+                    var resultType = Module.ImportType(prototype.ResultType);
+                    if (resultType.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                    {
+                        return builder.CreateIntToPtr(result, resultType, "");
+                    }
+                    else
+                    {
+                        return builder.CreateIntCast(result, resultType, "");
+                    }
+                }
+            }
             throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
         }
 
@@ -423,14 +501,15 @@ namespace Flame.Llvm.Emit
             {
                 if (to.IsIntegerType())
                 {
-                    return builder.CreateIntToPtr(value, llvmTo, name);
+                    return builder.CreatePtrToInt(value, llvmTo, name);
                 }
                 else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
                     return builder.CreateBitCast(value, llvmTo, name);
                 }
             }
-            throw new NotSupportedException($"Unsupported conversion of a '{from.FullName}' to a '{to.FullName}'.");
+            throw new NotSupportedException(
+                $"Unsupported conversion of a '{from.FullName}' ('{value.TypeOf()}') to a '{to.FullName}' ('{llvmTo}').");
         }
 
         private bool IsFloatingPointType(IType type)
