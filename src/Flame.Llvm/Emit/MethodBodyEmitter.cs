@@ -356,6 +356,21 @@ namespace Flame.Llvm.Emit
                     }
                 }
             }
+            else if (MemoryIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (prototype.ParameterCount == 0)
+                {
+                    if (opName == MemoryIntrinsics.Operators.AllocaPinned)
+                    {
+                        // If pinned allocas haven't been lowered by now, then we will
+                        // simply treat them as regular allocas.
+                        var elementType = ((PointerType)prototype.ResultType).ElementType;
+                        return builder.CreateAlloca(Module.ImportType(elementType), name);
+                    }
+                }
+            }
             throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
         }
 
