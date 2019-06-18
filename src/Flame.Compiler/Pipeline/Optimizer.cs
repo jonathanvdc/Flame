@@ -82,7 +82,7 @@ namespace Flame.Compiler.Pipeline
         /// <returns>A single task that waits for all tasks to complete.</returns>
         public Task RunAllAsync(IEnumerable<Func<Task>> tasks)
         {
-            return RunAllAsync(tasks.Select<Func<Task>, Func<Task<bool>>>(t => () => t().ContinueWith(x => true)));
+            return RunAllAsync(tasks.Select<Func<Task>, Func<Task<bool>>>(t => () => TrueAsync(t())));
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace Flame.Compiler.Pipeline
         /// <returns>A single task that waits for all tasks to complete.</returns>
         public Task RunAllAsync(IEnumerable<Task> tasks)
         {
-            return RunAllAsync(tasks.Select(t => t.ContinueWith(x => true)));
+            return RunAllAsync(tasks.Select(TrueAsync));
         }
 
         /// <summary>
@@ -106,6 +106,12 @@ namespace Flame.Compiler.Pipeline
         public Task<IReadOnlyList<T>> RunAllAsync<T>(IEnumerable<Task<T>> tasks)
         {
             return RunAllAsync(tasks.Select<Task<T>, Func<Task<T>>>(t => () => t));
+        }
+
+        private static async Task<bool> TrueAsync(Task task)
+        {
+            await task;
+            return true;
         }
     }
 }
