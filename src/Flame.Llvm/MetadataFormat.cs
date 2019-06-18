@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Flame.Llvm.Emit;
 using LLVMSharp;
 
@@ -11,7 +10,7 @@ namespace Flame.Llvm
     public abstract class MetadataFormat
     {
         /// <summary>
-        /// Gets a pointer to the metadata for a particular type.
+        /// Gets a handle to the metadata for a particular type.
         /// </summary>
         /// <param name="type">The type whose metadata is to be inspected.</param>
         /// <param name="module">
@@ -19,7 +18,7 @@ namespace Flame.Llvm
         /// same for all calls to the metadata format description.
         /// </param>
         /// <returns>A metadata pointer.</returns>
-        public abstract LLVMValueRef GetMetadataPointer(IType type, ModuleBuilder module);
+        public abstract LLVMValueRef GetMetadata(IType type, ModuleBuilder module);
 
         /// <summary>
         /// Builds LLVM IR instructions that perform a virtual method lookup:
@@ -29,8 +28,8 @@ namespace Flame.Llvm
         /// <param name="callee">
         /// A virtual method to find an implementation for.
         /// </param>
-        /// <param name="metadataPointer">
-        /// A pointer to the type metadata of the 'this' type.
+        /// <param name="metadata">
+        /// A handle to the type metadata of the 'this' type.
         /// </param>
         /// <param name="module">
         /// The LLVM module to generate the instructions in. This module must be the
@@ -46,7 +45,7 @@ namespace Flame.Llvm
         /// <returns>A pointer to a method implementation.</returns>
         public abstract LLVMValueRef LookupVirtualMethod(
             IMethod callee,
-            LLVMValueRef metadataPointer,
+            LLVMValueRef metadata,
             ModuleBuilder module,
             IRBuilder builder,
             string name);

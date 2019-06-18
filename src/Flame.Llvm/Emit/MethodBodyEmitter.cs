@@ -186,7 +186,7 @@ namespace Flame.Llvm.Emit
                 else
                 {
                     var thisPtr = Get(callProto.GetThisArgument(instruction));
-                    var metadataPtr = Module.GC.EmitLoadMetadataPointer(thisPtr, Module, builder, "vtable.ptr");
+                    var metadataPtr = Module.GC.EmitLoadMetadata(thisPtr, Module, builder, "vtable.ptr");
                     var functionPtr = Module.Metadata.LookupVirtualMethod(callee, metadataPtr, Module, builder, "vfptr");
                     return builder.CreateCall(functionPtr, args, name);
                 }

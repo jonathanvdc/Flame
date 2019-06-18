@@ -137,7 +137,7 @@ namespace Flame.Llvm
         }
 
         /// <inheritdoc/>
-        public override LLVMValueRef GetMetadataPointer(IType type, ModuleBuilder module)
+        public override LLVMValueRef GetMetadata(IType type, ModuleBuilder module)
         {
             LLVMValueRef result;
             if (metadata.TryGetValue(type, out result))
@@ -194,7 +194,7 @@ namespace Flame.Llvm
                 var functionProto = module.GetFunctionPrototype(callee);
                 var typedMetadataPointer = builder.CreateBitCast(
                     metadataPointer,
-                    GetMetadataPointer(callee.ParentType, module).TypeOf(),
+                    GetMetadata(callee.ParentType, module).TypeOf(),
                     "vtable.ptr");
                 var index = slotIndices[callee];
                 return builder.CreateLoad(

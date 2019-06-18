@@ -29,7 +29,7 @@ namespace Flame.Llvm
             var metaVal = builder.CreateMalloc(metaType, name + ".alloc");
             builder.CreateStore(
                 builder.CreateBitCast(
-                    module.Metadata.GetMetadataPointer(type, module),
+                    module.Metadata.GetMetadata(type, module),
                     GetMetadataPointerType(module),
                     "vtable.ptr"),
                 builder.CreateStructGEP(metaVal, 0, "vtable.ptr.ref"));
@@ -37,7 +37,7 @@ namespace Flame.Llvm
         }
 
         /// <inheritdoc/>
-        public override LLVMValueRef EmitLoadMetadataPointer(
+        public override LLVMValueRef EmitLoadMetadata(
             LLVMValueRef objectPointer,
             ModuleBuilder module,
             IRBuilder builder,

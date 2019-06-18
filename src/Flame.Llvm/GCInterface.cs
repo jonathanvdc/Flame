@@ -25,14 +25,14 @@ namespace Flame.Llvm
             string name);
 
         /// <summary>
-        /// Emits instructions that load an object's metadata pointer.
+        /// Emits instructions that load an object's metadata handle.
         /// </summary>
-        /// <param name="objectPointer">An object to inspect for its metadata pointer.</param>
+        /// <param name="objectPointer">An object to inspect for its metadata handle.</param>
         /// <param name="module">The module that defines the metadata-loading instructions.</param>
         /// <param name="builder">An instruction builder to use for emitting instructions.</param>
         /// <param name="name">A suggested name for the value that refers to the metadata.</param>
-        /// <returns>A pointer to the metadata.</returns>
-        public abstract LLVMValueRef EmitLoadMetadataPointer(
+        /// <returns>A handle to the metadata.</returns>
+        public abstract LLVMValueRef EmitLoadMetadata(
             LLVMValueRef objectPointer,
             ModuleBuilder module,
             IRBuilder builder,
