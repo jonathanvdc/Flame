@@ -149,6 +149,18 @@ namespace Flame.Compiler.Transforms
                     processedBlocks.Remove(block);
                     ThreadJumps(block, processedBlocks);
                 }
+                else if (IsRethrowIntrinsic(tryFlow.Instruction))
+                {
+                    // If the "risky" instruction is really just a 'rethrow' intrinsic,
+                    // then we can branch directly to the exception branch.
+
+                    var capturedException = tryFlow.Instruction.Arguments[0];
+                    JumpToExceptionBranch(block, failureBranch, capturedException);
+
+                    // Jump-thread this block again.
+                    processedBlocks.Remove(block);
+                    ThreadJumps(block, processedBlocks);
+                }
                 else if (IsThrowIntrinsic(tryFlow.Instruction))
                 {
                     // If the "risky" instruction is really just a 'throw' intrinsic,
@@ -175,12 +187,8 @@ namespace Flame.Compiler.Transforms
                                 block.Graph.GetValueType(capturedExceptionParam),
                                 block.Graph.GetValueType(exception),
                                 exception));
-                        var branch = failureBranch.WithArguments(
-                            failureBranch.Arguments
-                                .Select(arg => arg.IsTryException ? BranchArgument.FromValue(capturedException) : arg)
-                                .ToArray());
 
-                        block.Flow = new JumpFlow(branch);
+                        JumpToExceptionBranch(block, failureBranch, capturedException);
                     }
 
                     // Jump-thread this block again.
@@ -291,6 +299,29 @@ namespace Flame.Compiler.Transforms
                     ThreadJumps(block, processedBlocks);
                 }
             }
+        }
+
+        /// <summary>
+        /// Replaces a block's flow with an unconditional jump to an exception
+        /// branch. Replaces 'try' flow exception arguments in that exception
+        /// branch with a captured exception value.
+        /// </summary>
+        /// <param name="block">The block to rewrite.</param>
+        /// <param name="exceptionBranch">The exception branch to jump to unconditionally.</param>
+        /// <param name="capturedException">
+        /// The captured exception to pass instead of a 'try' flow exception argument.
+        /// </param>
+        private static void JumpToExceptionBranch(
+            BasicBlockBuilder block,
+            Branch exceptionBranch,
+            ValueTag capturedException)
+        {
+            var branch = exceptionBranch.WithArguments(
+                exceptionBranch.Arguments
+                    .Select(arg => arg.IsTryException ? BranchArgument.FromValue(capturedException) : arg)
+                    .ToArray());
+
+            block.Flow = new JumpFlow(branch);
         }
 
         private bool IsRethrowBranch(Branch exceptionBranch, FlowGraphBuilder graph, HashSet<BasicBlockTag> processedBlocks)
