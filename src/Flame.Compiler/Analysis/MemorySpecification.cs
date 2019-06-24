@@ -383,6 +383,11 @@ namespace Flame.Compiler.Analysis
                 ArrayIntrinsics.Namespace.GetIntrinsicName(ArrayIntrinsics.Operators.NewArray),
                 MemorySpecification.Nothing);
 
+            // Exception intrinsics.
+            Default.Register(
+                ExceptionIntrinsics.Namespace.GetIntrinsicName(ExceptionIntrinsics.Operators.GetCapturedException),
+                MemorySpecification.UnknownRead);
+
             // Object intrinsics.
             Default.Register(
                 ObjectIntrinsics.Namespace.GetIntrinsicName(ObjectIntrinsics.Operators.UnboxAny),

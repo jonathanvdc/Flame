@@ -133,7 +133,8 @@ namespace Flame.Compiler.Analysis
         {
             return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic)
                 || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetLength)
-                || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetElementPointer);
+                || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetElementPointer)
+                || ExceptionIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ExceptionIntrinsics.Operators.GetCapturedException);
         }
     }
 
