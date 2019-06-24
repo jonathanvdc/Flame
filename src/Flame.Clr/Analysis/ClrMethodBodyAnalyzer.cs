@@ -1296,6 +1296,16 @@ namespace Flame.Clr.Analysis
                     Instruction.CreateThrowIntrinsic(graph.GetValueType(value), value));
                 context.Terminate(UnreachableFlow.Instance);
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Rethrow)
+            {
+                var handler = context.ExceptionHandlers.OfType<CilCatchHandler>().First();
+                var rethrownValue = handler.GetCapturedException(graph.ToImmutable());
+                context.Emit(
+                    Instruction.CreateRethrowIntrinsic(
+                        graph.GetValueType(rethrownValue),
+                        rethrownValue));
+                context.Terminate(UnreachableFlow.Instance);
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
             {
                 context.Pop();

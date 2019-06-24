@@ -78,6 +78,16 @@ namespace Flame.Clr.Analysis
 
         /// <inheritdoc/>
         public override IReadOnlyList<IType> HandledExceptionTypes => handledTypes;
+
+        /// <summary>
+        /// Gets the exception captured by this catch handler.
+        /// </summary>
+        /// <param name="graph">The control-flow graph that defines the landing pad.</param>
+        /// <returns>A value that identifies the exception captured by this catch handler.</returns>
+        public ValueTag GetCapturedException(FlowGraph graph)
+        {
+            return graph.GetBasicBlock(landingPadTag).Parameters[0];
+        }
     }
 
     /// <summary>
