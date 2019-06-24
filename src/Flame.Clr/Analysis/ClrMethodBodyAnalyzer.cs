@@ -120,6 +120,7 @@ namespace Flame.Clr.Analysis
 
         private Dictionary<Mono.Cecil.Cil.Instruction, BasicBlockBuilder> branchTargets;
         private Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>> exceptionHandlers;
+        private Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>> exceptionHandlerClauses;
         private HashSet<BasicBlockBuilder> analyzedBlocks;
         private List<NamedInstructionBuilder> parameterStackSlots;
         private List<NamedInstructionBuilder> localStackSlots;
@@ -440,7 +441,11 @@ namespace Flame.Clr.Analysis
                 .ToImmutableList();
 
             var currentInstruction = firstInstruction;
-            var context = new CilAnalysisContext(block, this, exceptionHandlers[firstInstruction]);
+            var context = new CilAnalysisContext(
+                block,
+                this,
+                exceptionHandlers[firstInstruction],
+                exceptionHandlerClauses[firstInstruction]);
 
             while (true)
             {
@@ -1298,7 +1303,7 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Rethrow)
             {
-                var handler = context.ExceptionHandlers.OfType<CilCatchHandler>().First();
+                var handler = context.ExceptionHandlerClauses.OfType<CilCatchHandler>().First();
                 var rethrownValue = handler.GetCapturedException(graph.ToImmutable());
                 context.Emit(
                     Instruction.CreateRethrowIntrinsic(
@@ -1822,6 +1827,7 @@ namespace Flame.Clr.Analysis
         {
             // Initialize exception handler data structures.
             exceptionHandlers = new Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>>();
+            exceptionHandlerClauses = new Dictionary<Mono.Cecil.Cil.Instruction, IReadOnlyList<CilExceptionHandler>>();
             var ehMapping = new Dictionary<Mono.Cecil.Cil.ExceptionHandler, CilExceptionHandler>();
 
             // If there are no exception handlers then we can save ourselves quite
@@ -1831,6 +1837,7 @@ namespace Flame.Clr.Analysis
                 foreach (var target in branchTargets.Keys)
                 {
                     exceptionHandlers[target] = EmptyArray<CilExceptionHandler>.Value;
+                    exceptionHandlerClauses[target] = EmptyArray<CilExceptionHandler>.Value;
                 }
                 return ehMapping;
             }
@@ -1895,6 +1902,7 @@ namespace Flame.Clr.Analysis
 
             // Finally iterate over all branch targets and construct exception handler lists.
             var activeHandlers = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
+            var activeClauses = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
             foreach (var instruction in cilMethodBody.Instructions)
             {
                 if (!branchTargets.ContainsKey(instruction))
@@ -1908,6 +1916,12 @@ namespace Flame.Clr.Analysis
                     activeHandlers.Pop();
                 }
 
+                // Pop clauses that are no longer active.
+                while (activeClauses.Count > 0 && activeClauses.Peek().HandlerEnd == instruction)
+                {
+                    activeClauses.Pop();
+                }
+
                 // Push handlers that become active.
                 foreach (var handler in cilMethodBody.ExceptionHandlers)
                 {
@@ -1915,11 +1929,19 @@ namespace Flame.Clr.Analysis
                     {
                         activeHandlers.Push(handler);
                     }
+                    if (handler.HandlerStart == instruction)
+                    {
+                        activeClauses.Push(handler);
+                    }
                 }
 
                 exceptionHandlers[instruction] = activeHandlers
                     .Select(h => ehMapping[h])
                     .Concat(new[] { toplevelHandler })
+                    .ToArray();
+
+                exceptionHandlerClauses[instruction] = activeClauses
+                    .Select(h => ehMapping[h])
                     .ToArray();
             }
 

@@ -29,14 +29,20 @@ namespace Flame.Clr.Analysis
         /// <param name="exceptionHandlers">
         /// The exception handlers for the CIL analysis context.
         /// </param>
+        /// <param name="exceptionHandlerClauses">
+        /// The exception handlers with clauses that include the CIL
+        /// instructions being analyzed.
+        /// </param>
         public CilAnalysisContext(
             BasicBlockBuilder block,
             ClrMethodBodyAnalyzer analyzer,
-            IReadOnlyList<CilExceptionHandler> exceptionHandlers)
+            IReadOnlyList<CilExceptionHandler> exceptionHandlers,
+            IReadOnlyList<CilExceptionHandler> exceptionHandlerClauses)
         {
             this.Block = block;
             this.Analyzer = analyzer;
             this.ExceptionHandlers = exceptionHandlers;
+            this.ExceptionHandlerClauses = exceptionHandlerClauses;
             this.stack = new Stack<ValueTag>(
                 block.Parameters.Select(param => param.Tag));
             this.IsTerminated = false;
@@ -67,6 +73,14 @@ namespace Flame.Clr.Analysis
         /// </summary>
         /// <value>A list of exception handlers.</value>
         public IReadOnlyList<CilExceptionHandler> ExceptionHandlers { get; private set; }
+
+        /// <summary>
+        /// Gets the list of exception handlers that have clauses including
+        /// the instruction currently being analyzed. The innermost handler
+        /// appears first in the list.
+        /// </summary>
+        /// <value>A list of exception handlers.</value>
+        public IReadOnlyList<CilExceptionHandler> ExceptionHandlerClauses { get; private set; }
 
         /// <summary>
         /// Gets the current contents of the evaluation stack.
