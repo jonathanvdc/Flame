@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net47</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />

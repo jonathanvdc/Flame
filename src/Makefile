@@ -10,8 +10,8 @@ debug: dsl
 
 all: debug release
 
-LEMP_EXE = FlameMacros/bin/Release/net45/LeMP.exe
-MACROS_DLL = FlameMacros/bin/Release/net45/FlameMacros.dll
+LEMP_EXE = FlameMacros/bin/Release/net47/LeMP.exe
+MACROS_DLL = FlameMacros/bin/Release/net47/FlameMacros.dll
 MACROS_CS_FILES = $(shell find FlameMacros -name '*.cs')
 RUN_EXE ?= mono
 
@@ -33,7 +33,7 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	$(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe portable
+	$(RUN_EXE) ./UnitTests/bin/Debug/net47/UnitTests.exe portable
 
 test-llvm: debug
-	LD_LIBRARY_PATH="$(LLVM_PATH):${LD_LIBRARY_PATH}" $(RUN_EXE) ./UnitTests/bin/Debug/net45/UnitTests.exe 7
+	LD_LIBRARY_PATH="$(LLVM_PATH):${LD_LIBRARY_PATH}" $(RUN_EXE) ./UnitTests/bin/Debug/net47/UnitTests.exe 7
