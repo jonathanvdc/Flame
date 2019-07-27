@@ -18,7 +18,7 @@ using Loyc.Syntax.Les;
 using Mono.Cecil;
 using Pixie;
 using Pixie.Markup;
-using Swigged.Cuda;
+using ManagedCuda;
 
 namespace Turbo
 {
@@ -33,7 +33,7 @@ namespace Turbo
             LLVM.InitializeNVPTXTargetInfo();
             LLVM.InitializeNVPTXTargetMC();
             LLVM.InitializeNVPTXAsmPrinter();
-            defaultContext = new CudaContext(CudaDevice.GetDevices().First());
+            defaultContext = new CudaContext(CudaContext.GetMaxGflopsDeviceId());
         }
 
         private static CudaContext defaultContext;
@@ -64,7 +64,7 @@ namespace Turbo
         {
             var desc = await CreateContentDescriptionAsync(method, assembly);
             var module = LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
-            var ptx = CompileToPtx(module, defaultContext.Device.ComputeCapability);
+            var ptx = CompileToPtx(module, defaultContext.GetDeviceComputeCapability());
             LLVM.DisposeModule(module);
             Console.WriteLine(ptx);
             throw new NotImplementedException();

@@ -20,6 +20,6 @@
     <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
     <PackageReference Include="LLVMSharp" Version="5.0.0" />
-    <PackageReference Include="swigged.cuda" Version="9.2148.3" />
+    <PackageReference Include="ManagedCuda-80" Version="8.0.22" />
   </ItemGroup>
 </Project>
