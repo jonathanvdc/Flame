@@ -38,39 +38,69 @@ namespace Turbo
 
         private static CudaContext defaultContext;
 
-        private Kernel(CudaContext context)
+        private Kernel(CudaKernel compiledKernel, CudaContext context)
         {
+            this.CompiledKernel = compiledKernel;
             this.Context = context;
         }
 
+        public CudaKernel CompiledKernel { get; private set; }
         public CudaContext Context { get; private set; }
 
-        internal static async Task<Kernel> CompileAsync(MethodInfo method)
+        internal static Task<Kernel> CompileAsync(MethodInfo method)
+        {
+            return CompileAsync(method, defaultContext);
+        }
+
+        internal static async Task<Kernel> CompileAsync(MethodInfo method, CudaContext context)
         {
             using (var module = Mono.Cecil.ModuleDefinition.ReadModule(method.DeclaringType.Assembly.Location))
             {
-                return await CompileAsync(module.ImportReference(method));
+                return await CompileAsync(module.ImportReference(method), context);
             }
         }
 
-        private static Task<Kernel> CompileAsync(MethodReference method)
+        private static Task<Kernel> CompileAsync(MethodReference method, CudaContext context)
         {
             var module = method.Module;
             var flameModule = ClrAssembly.Wrap(module.Assembly);
-            return CompileAsync(flameModule.Resolve(method), flameModule);
+            return CompileAsync(flameModule.Resolve(method), flameModule, context);
         }
 
-        private static async Task<Kernel> CompileAsync(IMethod method, ClrAssembly assembly)
+        private static async Task<Kernel> CompileAsync(IMethod method, ClrAssembly assembly, CudaContext context)
         {
+            // Figure out which members we need to compile.
             var desc = await CreateContentDescriptionAsync(method, assembly);
+
+            // Compile those members to LLVM IR. Use an Itanium name mangling scheme.
+            var mangler = new ItaniumMangler(assembly.Resolver.TypeEnvironment);
             var module = LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
-            var ptx = CompileToPtx(module, defaultContext.GetDeviceComputeCapability());
+
+            // Get the compiled kernel function.
+            var kernelFuncName = mangler.Mangle(method, true);
+            var kernelFunc = LLVM.GetNamedFunction(module, kernelFuncName);
+
+            // Mark the compiled kernel as a kernel symbol.
+            LLVM.AddNamedMetadataOperand(
+                module,
+                "nvvm.annotations",
+                LLVM.MDNode(new LLVMValueRef[]
+                {
+                    kernelFunc,
+                    MDString("kernel"),
+                    LLVM.ConstInt(LLVM.Int32TypeInContext(LLVM.GetModuleContext(module)), 1, false)
+                }));
+
+            // Compile that LLVM IR down to PTX.
+            var ptx = CompileToPtx(module, context.GetDeviceComputeCapability());
             LLVM.DisposeModule(module);
-            Console.WriteLine(ptx);
-            throw new NotImplementedException();
+            Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
+
+            // Load the PTX kernel.
+            return new Kernel(context.LoadKernelPTX(ptx, kernelFuncName), context);
         }
 
-        private static string CompileToPtx(LLVMModuleRef module, Version computeCapability)
+        private static byte[] CompileToPtx(LLVMModuleRef module, Version computeCapability)
         {
             string triple = "nvptx64-nvidia-cuda";
             LLVMTargetRef target;
@@ -85,7 +115,7 @@ namespace Turbo
             var machine = LLVM.CreateTargetMachine(
                 target,
                 triple,
-                $"sm_{computeCapability.Major}.{computeCapability.Minor}",
+                $"sm_{computeCapability.Major}{computeCapability.Minor}",
                 "",
                 LLVMCodeGenOptLevel.LLVMCodeGenLevelDefault,
                 LLVMRelocMode.LLVMRelocDefault,
@@ -97,12 +127,19 @@ namespace Turbo
                 throw new Exception(error);
             }
 
-            var asm = Marshal.PtrToStringAnsi(LLVM.GetBufferStart(asmBuf));
+            var asmLength = (int)LLVM.GetBufferSize(asmBuf);
+            var asmBytes = new byte[asmLength];
+            Marshal.Copy(LLVM.GetBufferStart(asmBuf), asmBytes, 0, asmLength);
 
             LLVM.DisposeMemoryBuffer(asmBuf);
             LLVM.DisposeTargetMachine(machine);
 
-            return asm;
+            return asmBytes;
+        }
+
+        private static LLVMValueRef MDString(string Name)
+        {
+            return LLVM.MDString(Name, (uint)Name.Length);
         }
 
         private static Task<AssemblyContentDescription> CreateContentDescriptionAsync(IMethod method, ClrAssembly assembly)
@@ -129,7 +166,8 @@ namespace Turbo
             return AssemblyContentDescription.CreateTransitiveAsync(
                 new SimpleName("kernel").Qualify(),
                 assembly.Attributes,
-                method,
+                null,
+                new ITypeMember[] { method },
                 optimizer);
         }
 

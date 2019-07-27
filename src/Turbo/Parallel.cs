@@ -21,6 +21,8 @@ namespace Turbo
         public static async Task ForAsync(Action kernel, int threadCount)
         {
             var compiled = await Kernel.CompileAsync(kernel.Method);
+            compiled.CompiledKernel.Run();
+            throw new NotImplementedException();
         }
     }
 }
