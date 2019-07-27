@@ -97,7 +97,7 @@ namespace Turbo
                 throw new Exception(error);
             }
 
-            var asm = Marshal.PtrToStringUni(LLVM.GetBufferStart(asmBuf));
+            var asm = Marshal.PtrToStringAnsi(LLVM.GetBufferStart(asmBuf));
 
             LLVM.DisposeMemoryBuffer(asmBuf);
             LLVM.DisposeTargetMachine(machine);
