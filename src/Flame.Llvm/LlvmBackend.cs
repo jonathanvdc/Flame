@@ -12,11 +12,19 @@ namespace Flame.Llvm
             AssemblyContentDescription contents,
             TypeEnvironment typeSystem)
         {
+            return Compile(contents, typeSystem, new ItaniumMangler(typeSystem));
+        }
+
+        public static LLVMModuleRef Compile(
+            AssemblyContentDescription contents,
+            TypeEnvironment typeSystem,
+            NameMangler mangler)
+        {
             var module = LLVM.ModuleCreateWithName(contents.FullName.FullyUnqualifiedName.ToString());
             var builder = new ModuleBuilder(
                 module,
                 typeSystem,
-                new ItaniumMangler(typeSystem),
+                mangler,
                 MallocInterface.Instance,
                 new ClosedMetadataFormat(contents.Types, contents.TypeMembers));
             foreach (var method in contents.TypeMembers.OfType<IMethod>())
