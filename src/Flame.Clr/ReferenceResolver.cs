@@ -93,6 +93,17 @@ namespace Flame.Clr
         private ReaderWriterLockSlim cacheLock;
 
         /// <summary>
+        /// Notifies this reference resolver that a particular assembly exists.
+        /// This function is not thread-safe.
+        /// </summary>
+        /// <param name="name">The assembly's name.</param>
+        /// <param name="assembly">The assembly.</param>
+        internal void Register(AssemblyNameReference name, IAssembly assembly)
+        {
+            assemblyCache[name.FullName] = assembly;
+        }
+
+        /// <summary>
         /// Resolves an assembly name reference as an assembly.
         /// </summary>
         /// <param name="assemblyRef">An assembly name reference to resolve.</param>
