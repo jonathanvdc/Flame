@@ -21,7 +21,7 @@ namespace Turbo
         /// </param>
         public static async Task ForAsync(Action kernel, int threadCount)
         {
-            var compiled = await Kernel.CompileAsync(kernel.Method);
+            var compiled = await CudaModule.CompileAsync(kernel.Method);
             // TODO: make kernel execution itself async.
             var kernelInstance = new CudaKernel(
                 compiled.EntryPointName,

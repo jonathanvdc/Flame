@@ -24,11 +24,11 @@ using ManagedCuda.BasicTypes;
 namespace Turbo
 {
     /// <summary>
-    /// A wrapper around a compiled kernel.
+    /// A wrapper around a compiled module.
     /// </summary>
-    internal sealed class Kernel
+    internal sealed class CudaModule
     {
-        static Kernel()
+        static CudaModule()
         {
             LLVM.InitializeNVPTXTarget();
             LLVM.InitializeNVPTXTargetInfo();
@@ -39,23 +39,37 @@ namespace Turbo
 
         private static CudaContext defaultContext;
 
-        private Kernel(CUmodule compiledModule, string entryPointName, CudaContext context)
+        private CudaModule(CUmodule compiledModule, string entryPointName, CudaContext context)
         {
             this.CompiledModule = compiledModule;
             this.EntryPointName = entryPointName;
             this.Context = context;
         }
 
+        /// <summary>
+        /// Gets the compiled module wrapped by this class.
+        /// </summary>
+        /// <value>The compiled module.</value>
         public CUmodule CompiledModule { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the entry point function in <see cref="CompiledModule"/>.
+        /// </summary>
+        /// <value>The name of the entry point function.</value>
         public string EntryPointName { get; private set; }
+
+        /// <summary>
+        /// Gets the CUDA context for which the kernel was compiled.
+        /// </summary>
+        /// <value>A CUDA context.</value>
         public CudaContext Context { get; private set; }
 
-        internal static Task<Kernel> CompileAsync(MethodInfo method)
+        internal static Task<CudaModule> CompileAsync(MethodInfo method)
         {
             return CompileAsync(method, defaultContext);
         }
 
-        internal static async Task<Kernel> CompileAsync(MethodInfo method, CudaContext context)
+        internal static async Task<CudaModule> CompileAsync(MethodInfo method, CudaContext context)
         {
             using (var module = Mono.Cecil.ModuleDefinition.ReadModule(method.DeclaringType.Assembly.Location))
             {
@@ -63,14 +77,14 @@ namespace Turbo
             }
         }
 
-        private static Task<Kernel> CompileAsync(MethodReference method, CudaContext context)
+        private static Task<CudaModule> CompileAsync(MethodReference method, CudaContext context)
         {
             var module = method.Module;
             var flameModule = ClrAssembly.Wrap(module.Assembly);
             return CompileAsync(flameModule.Resolve(method), flameModule, context);
         }
 
-        private static async Task<Kernel> CompileAsync(IMethod method, ClrAssembly assembly, CudaContext context)
+        private static async Task<CudaModule> CompileAsync(IMethod method, ClrAssembly assembly, CudaContext context)
         {
             // Figure out which members we need to compile.
             var desc = await CreateContentDescriptionAsync(method, assembly);
@@ -100,7 +114,7 @@ namespace Turbo
             Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
 
             // Load the PTX kernel.
-            return new Kernel(context.LoadModulePTX(ptx), kernelFuncName, context);
+            return new CudaModule(context.LoadModulePTX(ptx), kernelFuncName, context);
         }
 
         private static byte[] CompileToPtx(LLVMModuleRef module, Version computeCapability)
