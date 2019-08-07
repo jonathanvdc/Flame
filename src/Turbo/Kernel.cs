@@ -19,6 +19,7 @@ using Mono.Cecil;
 using Pixie;
 using Pixie.Markup;
 using ManagedCuda;
+using ManagedCuda.BasicTypes;
 
 namespace Turbo
 {
@@ -38,13 +39,15 @@ namespace Turbo
 
         private static CudaContext defaultContext;
 
-        private Kernel(CudaKernel compiledKernel, CudaContext context)
+        private Kernel(CUmodule compiledModule, string entryPointName, CudaContext context)
         {
-            this.CompiledKernel = compiledKernel;
+            this.CompiledModule = compiledModule;
+            this.EntryPointName = entryPointName;
             this.Context = context;
         }
 
-        public CudaKernel CompiledKernel { get; private set; }
+        public CUmodule CompiledModule { get; private set; }
+        public string EntryPointName { get; private set; }
         public CudaContext Context { get; private set; }
 
         internal static Task<Kernel> CompileAsync(MethodInfo method)
@@ -97,7 +100,7 @@ namespace Turbo
             Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
 
             // Load the PTX kernel.
-            return new Kernel(context.LoadKernelPTX(ptx, kernelFuncName), context);
+            return new Kernel(context.LoadModulePTX(ptx), kernelFuncName, context);
         }
 
         private static byte[] CompileToPtx(LLVMModuleRef module, Version computeCapability)

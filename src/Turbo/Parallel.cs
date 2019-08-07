@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using ManagedCuda;
 
 namespace Turbo
 {
@@ -21,8 +22,13 @@ namespace Turbo
         public static async Task ForAsync(Action kernel, int threadCount)
         {
             var compiled = await Kernel.CompileAsync(kernel.Method);
-            compiled.CompiledKernel.Run();
-            throw new NotImplementedException();
+            // TODO: make kernel execution itself async.
+            var kernelInstance = new CudaKernel(
+                compiled.EntryPointName,
+                compiled.CompiledModule,
+                compiled.Context,
+                threadCount);
+            kernelInstance.Run();
         }
     }
 }
