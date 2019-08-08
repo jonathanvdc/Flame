@@ -100,6 +100,7 @@ namespace Turbo
                 if (gpuThread == null)
                 {
                     gpuThread = new Thread(Run);
+                    gpuThread.Start();
                 }
             }
             return task.TaskCompletion.Task;

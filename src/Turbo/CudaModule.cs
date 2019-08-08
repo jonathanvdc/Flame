@@ -34,10 +34,7 @@ namespace Turbo
             LLVM.InitializeNVPTXTargetInfo();
             LLVM.InitializeNVPTXTargetMC();
             LLVM.InitializeNVPTXAsmPrinter();
-            defaultContext = new CudaContext(CudaContext.GetMaxGflopsDeviceId());
         }
-
-        private static CudaContext defaultContext;
 
         private CudaModule(CUmodule compiledModule, string entryPointName, CudaContext context)
         {
@@ -63,11 +60,6 @@ namespace Turbo
         /// </summary>
         /// <value>A CUDA context.</value>
         public CudaContext Context { get; private set; }
-
-        internal static Task<CudaModule> CompileAsync(MethodInfo method)
-        {
-            return CompileAsync(method, defaultContext);
-        }
 
         internal static async Task<CudaModule> CompileAsync(MethodInfo method, CudaContext context)
         {

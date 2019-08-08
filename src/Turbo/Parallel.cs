@@ -10,6 +10,8 @@ namespace Turbo
     /// </summary>
     public static class Parallel
     {
+        private static KernelManager manager = new KernelManager(CudaContext.GetMaxGflopsDeviceId());
+
         /// <summary>
         /// Runs a kernel, specified as a nullary function.
         /// </summary>
@@ -19,16 +21,20 @@ namespace Turbo
         /// <param name="threadCount">
         /// The number of threads to run the kernel with.
         /// </param>
-        public static async Task ForAsync(Action kernel, int threadCount)
+        public static Task ForAsync(Action kernel, int threadCount)
         {
-            var compiled = await CudaModule.CompileAsync(kernel.Method);
-            // TODO: make kernel execution itself async.
-            var kernelInstance = new CudaKernel(
-                compiled.EntryPointName,
-                compiled.CompiledModule,
-                compiled.Context,
-                threadCount);
-            kernelInstance.Run();
+            return manager.RunAsync(
+                new KernelDescription(
+                    kernel.Method,
+                    (module, stream) =>
+                    {
+                        var kernelInstance = new CudaKernel(
+                            module.EntryPointName,
+                            module.CompiledModule,
+                            module.Context,
+                            threadCount);
+                        kernelInstance.RunAsync(stream.Stream);
+                    }));
         }
     }
 }
