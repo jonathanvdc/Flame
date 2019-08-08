@@ -7,12 +7,16 @@ using ManagedCuda;
 namespace Turbo
 {
     /// <summary>
-    /// The GPU manager: a class that allows for GPU kernels to be run asynchronously
-    /// from any thread.
+    /// A GPU kernel manager: a class that allows for GPU kernels to be
+    /// scheduled and run asynchronously from any thread.
     /// </summary>
-    internal class GpuManager
+    internal class KernelManager
     {
-        public GpuManager(int device)
+        /// <summary>
+        /// Creates a kernel manager for a particular CUDA device.
+        /// </summary>
+        /// <param name="device">The device ID of the CUDA device to use for running kernels.</param>
+        public KernelManager(int device)
         {
             this.Device = device;
             this.taskQueue = new Queue<ScheduledKernel>();
