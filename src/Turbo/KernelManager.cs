@@ -10,7 +10,7 @@ namespace Turbo
     /// A GPU kernel manager: a class that allows for GPU kernels to be
     /// scheduled and run asynchronously from any thread.
     /// </summary>
-    internal class KernelManager
+    internal sealed class KernelManager
     {
         /// <summary>
         /// Creates a kernel manager for a particular CUDA device.

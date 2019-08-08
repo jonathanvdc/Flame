@@ -9,9 +9,15 @@ namespace TurboKernels
 
         }
 
+        public static void Kernel2(int arg)
+        {
+
+        }
+
         public static void Main()
         {
-            Parallel.ForAsync(Kernel, 20).Wait();
+            Parallel.ForAsync(20, Kernel).Wait();
+            Parallel.ForAsync(20, Kernel2, 42).Wait();
         }
     }
 }
