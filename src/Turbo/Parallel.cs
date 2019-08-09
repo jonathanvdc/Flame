@@ -23,16 +23,18 @@ namespace Turbo
         private static Task ForAsync(int threadCount, MethodInfo method, params object[] args)
         {
             return manager.RunAsync(
-                new KernelDescription(
+                new KernelDescription<bool>(
                     method,
                     (module, stream) =>
                     {
+                        // TODO: create blocks, grids to better spread workload.
                         var kernelInstance = new CudaKernel(
                             module.EntryPointName,
                             module.CompiledModule,
                             module.Context,
                             threadCount);
                         kernelInstance.RunAsync(stream.Stream, args);
+                        return () => true;
                     }));
         }
 

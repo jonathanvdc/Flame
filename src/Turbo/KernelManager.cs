@@ -91,9 +91,10 @@ namespace Turbo
         /// </summary>
         /// <returns>A task that finishes when the kernel does.</returns>
         /// <param name="kernel">A description of the kernel to launch.</param>
-        public Task RunAsync(KernelDescription kernel)
+        /// <typeparam name="T">The type of value returned by the kernel.</typeparam>
+        public Task<T> RunAsync<T>(KernelDescription<T> kernel)
         {
-            var task = new ScheduledKernel(kernel);
+            var task = new ScheduledKernel<T>(kernel);
             lock (taskLock)
             {
                 taskQueue.Enqueue(task);
@@ -109,49 +110,81 @@ namespace Turbo
         /// <summary>
         /// A single kernel scheduled for execution on a GPU.
         /// </summary>
-        private sealed class ScheduledKernel
+        private abstract class ScheduledKernel
         {
-            public ScheduledKernel(KernelDescription kernel)
+            /// <summary>
+            /// Asynchronously start the GPU kernel using the specified context.
+            /// </summary>
+            /// <returns>A handle to the started kernel.</returns>
+            /// <param name="context">The CUDA context to use for running the kernel.</param>
+            public abstract Task<ActiveKernel> StartAsync(CudaContext context);
+        }
+
+        /// <summary>
+        /// A single kernel scheduled for execution on a GPU.
+        /// </summary>
+        private sealed class ScheduledKernel<T> : ScheduledKernel
+        {
+            public ScheduledKernel(KernelDescription<T> kernel)
             {
                 this.Kernel = kernel;
-                this.TaskCompletion = new TaskCompletionSource<float>();
+                this.TaskCompletion = new TaskCompletionSource<T>();
             }
 
             /// <summary>
             /// Gets the kernel to run.
             /// </summary>
             /// <value>The kernel to run.</value>
-            public KernelDescription Kernel { get; private set; }
+            public KernelDescription<T> Kernel { get; private set; }
 
             /// <summary>
             /// Gets the task completion source to use for finishing the GPU task.
             /// </summary>
             /// <value>A task completion source.</value>
-            public TaskCompletionSource<float> TaskCompletion { get; private set; }
+            public TaskCompletionSource<T> TaskCompletion { get; private set; }
 
             /// <summary>
             /// Asynchronously start the GPU kernel using the specified context.
             /// </summary>
             /// <returns>A handle to the started kernel.</returns>
             /// <param name="context">The CUDA context to use for running the kernel.</param>
-            internal async Task<ActiveKernel> StartAsync(CudaContext context)
+            public override async Task<ActiveKernel> StartAsync(CudaContext context)
             {
                 var module = await CudaModule.CompileAsync(Kernel.Method, context);
                 var stream = new CudaStream();
-                var active = new ActiveKernel(stream, TaskCompletion);
-                Kernel.Start(module, stream);
-                return active;
+                var complete = Kernel.Start(module, stream);
+                return new ActiveKernel<T>(stream, complete, TaskCompletion);
             }
         }
 
         /// <summary>
         /// A GPU kernel that is currently running on the GPU.
         /// </summary>
-        private sealed class ActiveKernel
+        private abstract class ActiveKernel
         {
-            public ActiveKernel(CudaStream stream, TaskCompletionSource<float> completion)
+            /// <summary>
+            /// Polls a kernel.
+            /// </summary>
+            /// <returns>
+            /// <c>true</c> if the kernel has finished executing; otherwise <c>false</c>.
+            /// No further action is required for finished kernels: this method handles
+            /// all tear-down and task completion notification logic.
+            /// </returns>
+            public abstract bool Poll();
+        }
+
+        /// <summary>
+        /// A GPU kernel that is currently running on the GPU.
+        /// </summary>
+        private sealed class ActiveKernel<T> : ActiveKernel
+        {
+            public ActiveKernel(
+                CudaStream stream,
+                Func<T> complete,
+                TaskCompletionSource<T> completion)
             {
                 this.Stream = stream;
+                this.Complete = complete;
                 this.TaskCompletion = completion;
             }
 
@@ -162,10 +195,17 @@ namespace Turbo
             public CudaStream Stream { get; private set; }
 
             /// <summary>
+            /// Completes the kernel, downloading a result from the GPU and
+            /// deallocating resources.
+            /// </summary>
+            /// <value>A function that completes the kernel.</value>
+            public Func<T> Complete { get; private set; }
+
+            /// <summary>
             /// Gets the task completion source to use for finishing the GPU task.
             /// </summary>
             /// <value>A task completion source.</value>
-            public TaskCompletionSource<float> TaskCompletion { get; private set; }
+            public TaskCompletionSource<T> TaskCompletion { get; private set; }
 
             /// <summary>
             /// Polls a kernel.
@@ -175,20 +215,21 @@ namespace Turbo
             /// No further action is required for finished kernels: this method handles
             /// all tear-down and task completion notification logic.
             /// </returns>
-            public bool Poll()
+            public override bool Poll()
             {
                 try
                 {
                     bool completed = Stream.Query();
                     if (completed)
                     {
-                        // Mark the task as completed.
-                        TaskCompletion.SetResult(0);
+                        // Complete the kernel and update the task accordingly.
+                        TaskCompletion.SetResult(Complete());
                     }
                     return completed;
                 }
                 catch (Exception ex)
                 {
+                    Complete();
                     TaskCompletion.SetException(ex);
                     return true;
                 }
