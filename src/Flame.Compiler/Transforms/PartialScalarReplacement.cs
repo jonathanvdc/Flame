@@ -55,7 +55,7 @@ namespace Flame.Compiler.Transforms
                         !type.IsPointerType()
                         && !type.IsSpecialType()
                         && !(type is IGenericParameter)
-                        && ScalarReplacement.GetAllFields(type)
+                        && type.GetAllInstanceFields()
                             .All(field => rules.CanAccess(method, field)));
 
                 return Task.FromResult(body.WithImplementation(pass.Apply(body.Implementation)));
@@ -145,7 +145,7 @@ namespace Flame.Compiler.Transforms
                         }
 
                         // Materialize the value by performing a fieldwise copy.
-                        foreach (var field in ScalarReplacement.GetAllFields(elementType).Reverse())
+                        foreach (var field in elementType.GetAllInstanceFields().Reverse())
                         {
                             var dematerializedGFP = materializationBlock.InsertInstruction(
                                 0,

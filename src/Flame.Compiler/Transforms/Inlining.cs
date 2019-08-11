@@ -328,7 +328,7 @@ namespace Flame.Compiler.Transforms
             }
             else
             {
-                return ScalarReplacement.GetAllFields(type)
+                return type.GetAllInstanceFields()
                     .Select(field => field.FieldType)
                     .Select(EstimateTypeSize)
                     .Sum();

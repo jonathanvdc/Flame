@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Flame.Collections;
 using Flame.TypeSystem;
@@ -12,6 +13,19 @@ namespace Flame
     /// </summary>
     public static class TypeExtensions
     {
+        /// <summary>
+        /// Gets all fields present in an instance of a particular type. Such
+        /// fields can either be defined directly or inherited from base types.
+        /// </summary>
+        /// <param name="type">A type to inspect.</param>
+        /// <returns>A sequence of instance fields.</returns>
+        public static IEnumerable<IField> GetAllInstanceFields(this IType type)
+        {
+            return type.BaseTypes
+                .SelectMany(GetAllInstanceFields)
+                .Concat(type.Fields.Where(field => !field.IsStatic));
+        }
+
         /// <summary>
         /// Gets most derived implementation of a particular method in a type.
         /// </summary>
