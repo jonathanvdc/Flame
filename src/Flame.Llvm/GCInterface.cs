@@ -130,5 +130,19 @@ namespace Flame.Llvm
             ModuleBuilder module,
             IRBuilder builder,
             string name);
+
+        internal static LLVMTypeRef GetMetadataExtendedType(
+            LLVMTypeRef type,
+            ModuleBuilder module)
+        {
+            return LLVM.StructTypeInContext(
+                module.Context,
+                new[]
+                {
+                    module.Metadata.GetMetadataType(module),
+                    type
+                },
+                false);
+        }
     }
 }

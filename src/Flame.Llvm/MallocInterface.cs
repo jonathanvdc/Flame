@@ -30,7 +30,7 @@ namespace Flame.Llvm
             var metaType = GetMetadataExtendedType(module.ImportType(type), module);
             var metaVal = builder.CreateMalloc(metaType, name + ".alloc");
             builder.CreateStore(
-                module.Metadata.GetMetadata(type, module, builder, "metadata"),
+                module.Metadata.GetMetadata(type, module),
                 builder.CreateStructGEP(metaVal, 0, "metadata.ref"));
             return builder.CreateStructGEP(metaVal, 1, name);
         }
@@ -59,7 +59,7 @@ namespace Flame.Llvm
             // Set the array's metadata.
             var metaVal = builder.CreateBitCast(bytes, LLVM.PointerType(metaType, 0), "");
             builder.CreateStore(
-                module.Metadata.GetMetadata(arrayType, module, builder, "metadata"),
+                module.Metadata.GetMetadata(arrayType, module),
                 builder.CreateStructGEP(metaVal, 0, "metadata.ref"));
 
             var headerPtr = builder.CreateStructGEP(metaVal, 1, "");
@@ -167,20 +167,6 @@ namespace Flame.Llvm
                 },
                 "metadata.ref");
             return builder.CreateLoad(vtablePtrRef, name);
-        }
-
-        private static LLVMTypeRef GetMetadataExtendedType(
-            LLVMTypeRef type,
-            ModuleBuilder module)
-        {
-            return LLVM.StructTypeInContext(
-                module.Context,
-                new[]
-                {
-                    module.Metadata.GetMetadataType(module),
-                    type
-                },
-                false);
         }
     }
 }

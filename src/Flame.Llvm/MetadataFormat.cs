@@ -24,18 +24,10 @@ namespace Flame.Llvm
         /// <param name="module">
         /// The LLVM module to generate the metadata in.
         /// </param>
-        /// <param name="builder">
-        /// An instruction builder to use for emitting instructions.
-        /// </param>
-        /// <param name="name">
-        /// A suggested name for the value that refers to the metadata.
-        /// </param>
         /// <returns>A metadata pointer.</returns>
         public abstract LLVMValueRef GetMetadata(
             IType type,
-            ModuleBuilder module,
-            IRBuilder builder,
-            string name);
+            ModuleBuilder module);
 
         /// <summary>
         /// Builds LLVM IR instructions that perform a virtual method lookup:

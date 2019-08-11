@@ -213,14 +213,11 @@ namespace Flame.Llvm
         /// <inheritdoc/>
         public override LLVMValueRef GetMetadata(
             IType type,
-            ModuleBuilder module,
-            IRBuilder builder,
-            string name)
+            ModuleBuilder module)
         {
-            return builder.CreateBitCast(
+            return LLVM.ConstBitCast(
                 GetTypeMetadataTable(type, module),
-                GetMetadataType(module),
-                name);
+                GetMetadataType(module));
         }
 
         /// <inheritdoc/>
