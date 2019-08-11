@@ -20,6 +20,7 @@ using Pixie;
 using Pixie.Markup;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
+using System.Collections.Generic;
 
 namespace Turbo
 {
@@ -61,25 +62,46 @@ namespace Turbo
         /// <value>A CUDA context.</value>
         public CudaContext Context { get; private set; }
 
-        internal static async Task<CudaModule> CompileAsync(MethodInfo method, CudaContext context)
+        internal static async Task<CudaModule> CompileAsync(
+            MethodInfo method,
+            IEnumerable<MemberInfo> roots,
+            CudaContext context)
         {
             using (var module = Mono.Cecil.ModuleDefinition.ReadModule(method.DeclaringType.Assembly.Location))
             {
-                return await CompileAsync(module.ImportReference(method), context);
+                return await CompileAsync(
+                    module.ImportReference(method),
+                    roots.OfType<MethodInfo>().Select(module.ImportReference),
+                    roots.OfType<Type>().Select(module.ImportReference),
+                    context);
             }
         }
 
-        private static Task<CudaModule> CompileAsync(MethodReference method, CudaContext context)
+        private static Task<CudaModule> CompileAsync(
+            MethodReference method,
+            IEnumerable<MethodReference> methodRoots,
+            IEnumerable<TypeReference> typeRoots,
+            CudaContext context)
         {
             var module = method.Module;
             var flameModule = ClrAssembly.Wrap(module.Assembly);
-            return CompileAsync(flameModule.Resolve(method), flameModule, context);
+            return CompileAsync(
+                flameModule.Resolve(method),
+                methodRoots.Select(flameModule.Resolve).ToArray(),
+                typeRoots.Select(flameModule.Resolve).ToArray(),
+                flameModule,
+                context);
         }
 
-        private static async Task<CudaModule> CompileAsync(IMethod method, ClrAssembly assembly, CudaContext context)
+        private static async Task<CudaModule> CompileAsync(
+            IMethod method,
+            IEnumerable<ITypeMember> memberRoots,
+            IEnumerable<IType> typeRoots,
+            ClrAssembly assembly,
+            CudaContext context)
         {
             // Figure out which members we need to compile.
-            var desc = await CreateContentDescriptionAsync(method, assembly);
+            var desc = await CreateContentDescriptionAsync(method, memberRoots, typeRoots, assembly);
 
             // Compile those members to LLVM IR. Use an Itanium name mangling scheme.
             var mangler = new ItaniumMangler(assembly.Resolver.TypeEnvironment);
@@ -152,7 +174,11 @@ namespace Turbo
             return LLVM.MDString(Name, (uint)Name.Length);
         }
 
-        private static Task<AssemblyContentDescription> CreateContentDescriptionAsync(IMethod method, ClrAssembly assembly)
+        private static Task<AssemblyContentDescription> CreateContentDescriptionAsync(
+            IMethod method,
+            IEnumerable<ITypeMember> memberRoots,
+            IEnumerable<IType> typeRoots,
+            ClrAssembly assembly)
         {
             // TODO: deduplicate this logic (it also appears in IL2LLVM and ILOpt)
 
@@ -177,7 +203,8 @@ namespace Turbo
                 new SimpleName("kernel").Qualify(),
                 assembly.Attributes,
                 null,
-                new ITypeMember[] { method },
+                new ITypeMember[] { method }.Concat(memberRoots),
+                typeRoots,
                 optimizer);
         }
 

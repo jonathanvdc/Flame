@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Flame.Collections;
 using ManagedCuda;
 
 namespace Turbo
@@ -150,7 +152,7 @@ namespace Turbo
             /// <param name="context">The CUDA context to use for running the kernel.</param>
             public override async Task<ActiveKernel> StartAsync(CudaContext context)
             {
-                var module = await CudaModule.CompileAsync(Kernel.Method, context);
+                var module = await CudaModule.CompileAsync(Kernel.Method, EmptyArray<MemberInfo>.Value, context);
                 var stream = new CudaStream();
                 var complete = Kernel.Start(module, stream);
                 return new ActiveKernel<T>(stream, complete, TaskCompletion);
