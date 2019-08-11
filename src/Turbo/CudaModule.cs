@@ -83,7 +83,8 @@ namespace Turbo
 
             // Compile those members to LLVM IR. Use an Itanium name mangling scheme.
             var mangler = new ItaniumMangler(assembly.Resolver.TypeEnvironment);
-            var module = LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
+            var moduleBuilder = LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
+            var module = moduleBuilder.Module;
 
             // Get the compiled kernel function.
             var kernelFuncName = mangler.Mangle(method, true);

@@ -148,7 +148,7 @@ namespace IL2LLVM
         private static async Task<LLVMModuleRef> CompileAsync(ClrAssembly assembly)
         {
             var desc = await CreateContentDescriptionAsync(assembly);
-            return LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
+            return LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment).Module;
         }
 
         private static Task<AssemblyContentDescription> CreateContentDescriptionAsync(ClrAssembly assembly)
