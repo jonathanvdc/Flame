@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TurboKernels</RootNamespace>
+    <AssemblyName>TurboKernels</AssemblyName>
+    <TargetFrameworks>net47</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="linux-mono-config/*.dll.config" Link="%(LinkBase)\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Flame\Flame.csproj" />
+    <ProjectReference Include="..\..\Flame.Compiler\Flame.Compiler.csproj" />
+    <ProjectReference Include="..\..\Flame.Clr\Flame.Clr.csproj" />
+    <ProjectReference Include="..\..\Flame.Ir\Flame.Ir.csproj" />
+    <ProjectReference Include="..\..\Flame.Llvm\Flame.Llvm.csproj" />
+    <ProjectReference Include="..\..\Turbo\Turbo.csproj" />
+    <PackageReference Include="Loyc.Collections" Version="26.8.1" />
+    <PackageReference Include="Loyc.Essentials" Version="26.8.1" />
+    <PackageReference Include="Loyc.Syntax" Version="26.8.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.4" />
+    <PackageReference Include="Pixie" Version="0.1.7" />
+    <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="LLVMSharp" Version="5.0.0" />
+    <PackageReference Include="ManagedCuda-80" Version="8.0.22" />
+  </ItemGroup>
+</Project>

@@ -169,7 +169,7 @@ namespace Flame.Llvm
 
         private LLVMValueRef GetTypeMetadataTable(IType type, ModuleBuilder module)
         {
-            var name = module.Mangler.Mangle(type, true) + ".vtable";
+            var name = "vtable_" + module.Mangler.Mangle(type, true);
             var result = LLVM.GetNamedGlobal(module.Module, name);
             if (result.Pointer != IntPtr.Zero)
             {
@@ -213,14 +213,11 @@ namespace Flame.Llvm
         /// <inheritdoc/>
         public override LLVMValueRef GetMetadata(
             IType type,
-            ModuleBuilder module,
-            IRBuilder builder,
-            string name)
+            ModuleBuilder module)
         {
-            return builder.CreateBitCast(
+            return LLVM.ConstBitCast(
                 GetTypeMetadataTable(type, module),
-                GetMetadataType(module),
-                name);
+                GetMetadataType(module));
         }
 
         /// <inheritdoc/>

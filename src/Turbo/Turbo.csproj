@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>IL2LLVM</RootNamespace>
-    <AssemblyName>il2llvm</AssemblyName>
-    <TargetFrameworks>net47;netcoreapp2.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Turbo</RootNamespace>
+    <AssemblyName>Turbo</AssemblyName>
+    <Version>1.0</Version>
+    <TargetFrameworks>net47</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
@@ -19,5 +20,6 @@
     <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
     <PackageReference Include="LLVMSharp" Version="5.0.0" />
+    <PackageReference Include="ManagedCuda-80" Version="8.0.22" />
   </ItemGroup>
 </Project>

@@ -4,7 +4,8 @@
     <RootNamespace>Flame.Llvm</RootNamespace>
     <AssemblyName>Flame.Llvm</AssemblyName>
     <Version>1.0</Version>
-    <TargetFrameworks>net45;netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net47;netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LLVMSharp" Version="5.0.0" />

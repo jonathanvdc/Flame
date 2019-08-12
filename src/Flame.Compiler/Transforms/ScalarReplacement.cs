@@ -50,17 +50,10 @@ namespace Flame.Compiler.Transforms
                 var rules = body.Implementation.GetAnalysisResult<AccessRules>();
                 var method = state.Method;
                 var pass = new ScalarReplacement(
-                    type => GetAllFields(type).All(field => rules.CanAccess(method, field)));
+                    type => type.GetAllInstanceFields().All(field => rules.CanAccess(method, field)));
 
                 return Task.FromResult(body.WithImplementation(pass.Apply(body.Implementation)));
             }
-        }
-
-        internal static IEnumerable<IField> GetAllFields(IType elementType)
-        {
-            return elementType.BaseTypes
-                .SelectMany(GetAllFields)
-                .Concat(elementType.Fields.Where(field => !field.IsStatic));
         }
 
         /// <inheritdoc/>
@@ -78,7 +71,7 @@ namespace Flame.Compiler.Transforms
                 var allocaInstruction = builder.GetInstruction(allocaTag);
                 var elementType = ((PointerType)allocaInstruction.ResultType).ElementType;
                 var fieldSlots = new Dictionary<IField, ValueTag>();
-                foreach (var field in GetAllFields(elementType))
+                foreach (var field in elementType.GetAllInstanceFields())
                 {
                     fieldSlots[field] = allocaInstruction.InsertAfter(
                         Instruction.CreateAlloca(field.FieldType),

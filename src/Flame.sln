@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flame.Llvm", "Flame.Llvm\Fl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IL2LLVM", "IL2LLVM\IL2LLVM.csproj", "{D8BBBF02-8916-4A1B-9D4A-A8028E32E85A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Turbo", "Turbo\Turbo.csproj", "{458C5996-AE77-4A3F-AA68-C9CAA138E76E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurboKernels", "Examples\TurboKernels\TurboKernels.csproj", "{E61DF4F3-30DC-4E59-837E-F0F03298827B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,8 +73,17 @@ Global
 		{D8BBBF02-8916-4A1B-9D4A-A8028E32E85A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8BBBF02-8916-4A1B-9D4A-A8028E32E85A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8BBBF02-8916-4A1B-9D4A-A8028E32E85A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{458C5996-AE77-4A3F-AA68-C9CAA138E76E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{458C5996-AE77-4A3F-AA68-C9CAA138E76E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{458C5996-AE77-4A3F-AA68-C9CAA138E76E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{458C5996-AE77-4A3F-AA68-C9CAA138E76E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E61DF4F3-30DC-4E59-837E-F0F03298827B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E61DF4F3-30DC-4E59-837E-F0F03298827B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E61DF4F3-30DC-4E59-837E-F0F03298827B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E61DF4F3-30DC-4E59-837E-F0F03298827B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{63C3D8D7-530C-4C8E-A80A-9F70BB785EEB} = {54E347D7-BBAC-4CCE-BA56-4BF4F9215E80}
+		{E61DF4F3-30DC-4E59-837E-F0F03298827B} = {54E347D7-BBAC-4CCE-BA56-4BF4F9215E80}
 	EndGlobalSection
 EndGlobal

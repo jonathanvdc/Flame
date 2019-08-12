@@ -191,11 +191,45 @@ namespace Flame.Llvm
 
         private static string EncodeUnqualifiedName(string name)
         {
+            name = Sanitize(name);
             var utf8Length = UTF8Encoding.UTF8.GetByteCount(name);
             if (utf8Length == 0)
+            {
                 return name;
+            }
             else
+            {
                 return utf8Length.ToString(CultureInfo.InvariantCulture) + name;
+            }
+        }
+
+        private static HashSet<char> illegalChars = new HashSet<char>()
+        {
+            '!', '<', '>'
+        };
+
+        private static string Sanitize(string name)
+        {
+            // TODO: find a more sophisticated encoding that rules out
+            // sanitized name clashes.
+
+            var builder = new StringBuilder(name);
+            // Replace illegal characters by underscores.
+            for (int i = 0; i < builder.Length; i++)
+            {
+                if (illegalChars.Contains(builder[i]))
+                {
+                    builder[i] = '_';
+                }
+            }
+            // Prepend an underscore if the name's first character is a digit
+            // because leading digits are special under the Itanium mangling
+            // scheme.
+            if (builder.Length > 0 && char.IsDigit(builder[0]))
+            {
+                builder.Insert(0, '_');
+            }
+            return builder.ToString();
         }
 
         private static string EncodeUnqualifiedName(UnqualifiedName name)

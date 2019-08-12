@@ -253,6 +253,10 @@ namespace Flame.Clr
                 typeSystem);
             var flameAsm = new ClrAssembly(definition, resolver.ReferenceResolver);
 
+            // Register the assembly with its own resolver, so we don't get weirdness
+            // where the assembly tries to resolve itself.
+            resolver.ReferenceResolver.Register(definition.Name, flameAsm);
+
             var objectType = flameAsm.Resolve(definition.MainModule.TypeSystem.Object);
             var corlib = objectType.Parent.Assembly;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Flame.Collections;
 using Flame.TypeSystem;
 
 namespace Flame.Compiler.Pipeline
@@ -99,14 +100,69 @@ namespace Flame.Compiler.Pipeline
         /// <param name="entryPoint">An entry point method.</param>
         /// <param name="optimizer">An optimizer for method bodies.</param>
         /// <returns>An assembly content description.</returns>
-        public static async Task<AssemblyContentDescription> CreateTransitiveAsync(
+        public static Task<AssemblyContentDescription> CreateTransitiveAsync(
             QualifiedName fullName,
             AttributeMap attributes,
             IMethod entryPoint,
             Optimizer optimizer)
         {
+            return CreateTransitiveAsync(fullName, attributes, entryPoint, Enumerable.Empty<ITypeMember>(), optimizer);
+        }
+
+        /// <summary>
+        /// Creates an assembly content description that contains a number of
+        /// root members plus an optional entry point method. Dependencies
+        /// are transitively included.
+        /// </summary>
+        /// <param name="fullName">The name of the assembly.</param>
+        /// <param name="attributes">The assembly's attributes.</param>
+        /// <param name="entryPoint">An entry point method. Specify <c>null</c> to have no entry point.</param>
+        /// <param name="roots">A sequence of additional roots that must be included in the assembly.</param>
+        /// <param name="optimizer">An optimizer for method bodies.</param>
+        /// <returns>An assembly content description.</returns>
+        public static Task<AssemblyContentDescription> CreateTransitiveAsync(
+            QualifiedName fullName,
+            AttributeMap attributes,
+            IMethod entryPoint,
+            IEnumerable<ITypeMember> roots,
+            Optimizer optimizer)
+        {
+            return CreateTransitiveAsync(fullName, attributes, entryPoint, roots, EmptyArray<IType>.Value, optimizer);
+        }
+
+        /// <summary>
+        /// Creates an assembly content description that contains a number of
+        /// root members plus an optional entry point method. Dependencies
+        /// are transitively included.
+        /// </summary>
+        /// <param name="fullName">The name of the assembly.</param>
+        /// <param name="attributes">The assembly's attributes.</param>
+        /// <param name="entryPoint">An entry point method. Specify <c>null</c> to have no entry point.</param>
+        /// <param name="memberRoots">A sequence of additional root members that must be included in the assembly.</param>
+        /// <param name="typeRoots">A sequence of additional root types that must be included in the assembly.</param>
+        /// <param name="optimizer">An optimizer for method bodies.</param>
+        /// <returns>An assembly content description.</returns>
+        public static async Task<AssemblyContentDescription> CreateTransitiveAsync(
+            QualifiedName fullName,
+            AttributeMap attributes,
+            IMethod entryPoint,
+            IEnumerable<ITypeMember> memberRoots,
+            IEnumerable<IType> typeRoots,
+            Optimizer optimizer)
+        {
             var builder = new TransitiveDescriptionBuilder(optimizer);
-            await builder.DefineAsync(entryPoint);
+            foreach (var item in memberRoots)
+            {
+                await builder.DefineAsync(item);
+            }
+            foreach (var item in typeRoots)
+            {
+                await builder.DefineAsync(item);
+            }
+            if (entryPoint != null)
+            {
+                await builder.DefineAsync(entryPoint);
+            }
 
             return new AssemblyContentDescription(
                 fullName,
