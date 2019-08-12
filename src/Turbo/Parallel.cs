@@ -18,13 +18,15 @@ namespace Turbo
         /// </summary>
         /// <param name="threadCount">The number of instances of the kernel to run.</param>
         /// <param name="method">The method to compiled and run as a kernel.</param>
+        /// <param name="target">An optional first argument to pass to the kernel.</param>
         /// <param name="args">The list of arguments to feed to the kernel.</param>
         /// <returns>A task that completes when the kernel does.</returns>
-        private static Task ForAsync(int threadCount, MethodInfo method, params object[] args)
+        private static Task ForAsync(int threadCount, MethodInfo method, object target, params object[] args)
         {
             return manager.RunAsync(
                 new KernelDescription<bool>(
                     method,
+                    target,
                     (module, stream) =>
                     {
                         // TODO: create blocks, grids to better spread workload.
@@ -49,7 +51,7 @@ namespace Turbo
         /// </param>
         public static Task ForAsync(int threadCount, Action kernel)
         {
-            return ForAsync(threadCount, kernel.Method);
+            return ForAsync(threadCount, kernel.Method, kernel.Target);
         }
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace Turbo
         /// </param>
         public static Task ForAsync<T>(int threadCount, Action<T> kernel, T arg)
         {
-            return ForAsync(threadCount, kernel.Method, arg);
+            return ForAsync(threadCount, kernel.Method, kernel.Target, arg);
         }
     }
 }
