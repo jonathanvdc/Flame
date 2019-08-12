@@ -71,65 +71,70 @@ namespace Flame.Llvm
     /// <summary>
     /// Encodes in-memory objects.
     /// </summary>
-    /// <typeparam name="T">The type of a decoded object.</typeparam>
-    public abstract class ObjectEncoder<T> : ObjectMarshal<T>
+    /// <typeparam name="TObj">The type of a decoded object.</typeparam>
+    /// <typeparam name="TPtr">The type of a pointer to an encoded object.</typeparam>
+    public abstract class ObjectEncoder<TObj, TPtr> : ObjectMarshal<TObj>
     {
         public ObjectEncoder(ModuleBuilder compiledModule, LLVMTargetDataRef target)
             : base(compiledModule, target)
         {
-            this.encoded = new Dictionary<T, IntPtr>();
+            this.encoded = new Dictionary<TObj, TPtr>();
         }
 
         /// <summary>
         /// A mapping of box pointers to their encoded versions.
         /// </summary>
-        private Dictionary<T, IntPtr> encoded;
+        private Dictionary<TObj, TPtr> encoded;
 
         /// <summary>
         /// Gets the type of a particular value.
         /// </summary>
         /// <param name="value">The type of a value.</param>
         /// <returns>A type.</returns>
-        public abstract IType TypeOf(T value);
+        public abstract IType TypeOf(TObj value);
 
         /// <summary>
         /// Allocates a GC-managed buffer of a particular size.
         /// </summary>
         /// <param name="size">The size of the buffer to allocate.</param>
         /// <returns>A pointer to the buffer.</returns>
-        public abstract IntPtr AllocateBuffer(int size);
+        public abstract TPtr AllocateBuffer(int size);
 
         /// <summary>
-        /// Loads the value stored at a particular pointer.
+        /// Loads the value stored at a particular box pointer.
         /// </summary>
         /// <param name="pointer">The pointer whose value is to be loaded.</param>
         /// <returns>The value stored at the pointer.</returns>
-        public abstract T LoadPointer(T pointer);
+        public abstract TObj LoadBoxPointer(TObj pointer);
+
+        /// <summary>
+        /// Adds an offset to a pointer.
+        /// </summary>
+        /// <param name="pointer">A base pointer.</param>
+        /// <param name="offset">An offset to add to <paramref name="pointer"/>.</param>
+        /// <returns>A modified pointer.</returns>
+        public abstract TPtr IndexPointer(TPtr pointer, int offset);
 
         /// <summary>
         /// Gets the address of a global variable in memory.
         /// </summary>
         /// <param name="value">The global variable to query.</param>
         /// <returns>An address to <paramref name="value"/>.</returns>
-        public abstract IntPtr GetGlobalAddress(LLVMValueRef value);
+        public abstract TPtr GetGlobalAddress(LLVMValueRef value);
 
         /// <summary>
-        /// Gets a field's value.
+        /// Gets a mapping of an object's fields to their values..
         /// </summary>
-        /// <param name="field">A non-static field.</param>
-        /// <param name="value">An object that includes <paramref name="field"/> in its layout.</param>
-        /// <returns><paramref name="value"/>'s value for <paramref name="field"/>.</returns>
-        public abstract T GetFieldValue(IField field, T value);
+        /// <param name="value">An object.</param>
+        /// <returns>A mapping of <paramref name="value"/>'s fields to those fields' values.</returns>
+        public abstract IReadOnlyDictionary<IField, TObj> GetFieldValues(TObj value);
 
         /// <summary>
         /// Stores a pointer at a particular address.
         /// </summary>
         /// <param name="address">An address to write <paramref name="value"/> to.</param>
         /// <param name="value">A value to write to <paramref name="address"/>.</param>
-        public virtual void EncodeIntPtr(IntPtr address, IntPtr value)
-        {
-            Marshal.WriteIntPtr(address, value);
-        }
+        public abstract void EncodePointer(TPtr address, TPtr value);
 
         /// <summary>
         /// Tries to encode a primitive value.
@@ -139,19 +144,19 @@ namespace Flame.Llvm
         /// <returns>
         /// <c>true</c> if <paramref name="value"/> is a primitive and has been encoded; otherwise, <c>false</c>.
         /// </returns>
-        public abstract bool TryEncodePrimitive(T value, IntPtr buffer);
+        public abstract bool TryEncodePrimitive(TObj value, TPtr buffer);
 
         /// <summary>
         /// Initializes an object at a particular address.
         /// </summary>
         /// <param name="address">The object to initialize.</param>
         /// <param name="type">The type of the object to initialize.</param>
-        public void InitializeObject(IntPtr address, IType type)
+        public void InitializeObject(TPtr address, IType type)
         {
-            EncodeIntPtr(address, ConstToIntPtr(CompiledModule.Metadata.GetMetadata(type, CompiledModule)));
+            EncodePointer(address, ConstToIntPtr(CompiledModule.Metadata.GetMetadata(type, CompiledModule)));
         }
 
-        private IntPtr ConstToIntPtr(LLVMValueRef value)
+        private TPtr ConstToIntPtr(LLVMValueRef value)
         {
             if (value.IsABitCastInst().Pointer == value.Pointer)
             {
@@ -173,12 +178,12 @@ namespace Flame.Llvm
         /// </summary>
         /// <param name="type">The object to create.</param>
         /// <returns>An address to the object.</returns>
-        public IntPtr CreateObject(IType type)
+        public TPtr CreateObject(IType type)
         {
             int metaSize;
             var address = AllocateBuffer(SizeOfWithMetadata(type, out metaSize));
             InitializeObject(address, type);
-            return address + metaSize;
+            return IndexPointer(address, metaSize);
         }
 
         /// <summary>
@@ -189,7 +194,7 @@ namespace Flame.Llvm
         /// <param name="buffer">
         /// A buffer to write <paramref name="value"/>'s encoded representation to.
         /// </param>
-        public void Encode(T value, IntPtr buffer)
+        public void Encode(TObj value, TPtr buffer)
         {
             if (TryEncodePrimitive(value, buffer))
             {
@@ -202,29 +207,29 @@ namespace Flame.Llvm
             {
                 var boxPtrType = (PointerType)type;
                 var address = EncodeBoxPointer(value, boxPtrType.ElementType);
-                EncodeIntPtr(buffer, address);
+                EncodePointer(buffer, address);
             }
             else
             {
-                EncodeStruct(value, type, buffer);
+                EncodeStruct(value, buffer);
             }
         }
 
-        private void EncodeStruct(T value, IType type, IntPtr buffer)
+        private void EncodeStruct(TObj value, TPtr buffer)
         {
-            foreach (var field in type.Fields)
+            foreach (var pair in GetFieldValues(value))
             {
-                Encode(GetFieldValue(field, value), buffer + GetFieldOffset(field));
+                Encode(pair.Value, IndexPointer(buffer, GetFieldOffset(pair.Key)));
             }
         }
 
-        protected IntPtr EncodeBoxPointer(T box, IType elementType)
+        protected TPtr EncodeBoxPointer(TObj box, IType elementType)
         {
-            IntPtr address;
+            TPtr address;
             if (!encoded.TryGetValue(box, out address))
             {
-                address = CreateObject(elementType);
-                Encode(LoadPointer(box), address);
+                encoded[box] = address = CreateObject(elementType);
+                Encode(LoadBoxPointer(box), address);
             }
             return address;
         }
