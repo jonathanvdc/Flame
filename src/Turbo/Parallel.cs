@@ -62,22 +62,5 @@ namespace Turbo
         {
             return ForAsync(threadCount, kernel.Method, kernel.Target);
         }
-
-        /// <summary>
-        /// Runs a kernel, specified as a unary function and an argument.
-        /// </summary>
-        /// <param name="kernel">
-        /// The kernel to run.
-        /// </param>
-        /// <param name="arg">
-        /// The argument to feed to the kernel.
-        /// </param>
-        /// <param name="threadCount">
-        /// The number of threads to run the kernel with.
-        /// </param>
-        public static Task ForAsync<T>(int threadCount, Action<T> kernel, T arg)
-        {
-            return ForAsync(threadCount, kernel.Method, kernel.Target, arg);
-        }
     }
 }
