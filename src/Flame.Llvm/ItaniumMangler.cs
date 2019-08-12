@@ -205,7 +205,7 @@ namespace Flame.Llvm
 
         private static HashSet<char> illegalChars = new HashSet<char>()
         {
-            '!'
+            '!', '<', '>'
         };
 
         private static string Sanitize(string name)
