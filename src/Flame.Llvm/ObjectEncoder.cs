@@ -158,11 +158,11 @@ namespace Flame.Llvm
 
         private TPtr ConstToIntPtr(LLVMValueRef value)
         {
-            if (value.IsABitCastInst().Pointer == value.Pointer)
+            if (value.IsAConstantExpr().Pointer != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
             {
                 return ConstToIntPtr(value.GetOperand(0));
             }
-            else if (value.IsAGlobalVariable().Pointer == value.Pointer)
+            else if (value.IsAGlobalVariable().Pointer != IntPtr.Zero)
             {
                 return GetGlobalAddress(value);
             }

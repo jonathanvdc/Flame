@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ManagedCuda;
@@ -27,7 +28,7 @@ namespace Turbo
                 new KernelDescription<bool>(
                     method,
                     target,
-                    (module, stream) =>
+                    (module, stream, encodedTarget) =>
                     {
                         // TODO: create blocks, grids to better spread workload.
                         var kernelInstance = new CudaKernel(
@@ -35,7 +36,15 @@ namespace Turbo
                             module.CompiledModule,
                             module.Context,
                             threadCount);
-                        kernelInstance.RunAsync(stream.Stream, args);
+
+                        if (method.IsStatic && args.Length == method.GetParameters().Length)
+                        {
+                            kernelInstance.RunAsync(stream.Stream, args);
+                        }
+                        else
+                        {
+                            kernelInstance.RunAsync(stream.Stream, new object[] { encodedTarget }.Concat(args).ToArray());
+                        }
                         return () => true;
                     }));
         }

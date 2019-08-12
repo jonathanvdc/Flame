@@ -152,10 +152,20 @@ namespace Turbo
             /// <param name="context">The CUDA context to use for running the kernel.</param>
             public override async Task<ActiveKernel> StartAsync(CudaContext context)
             {
-                var module = await CudaModule.CompileAsync(Kernel.Method, EmptyArray<MemberInfo>.Value, context);
+                // Compile the module.
+                var members = MemberHelpers.GetMembers(Kernel.Target);
+                var module = await CudaModule.CompileAsync(Kernel.Method, members, context);
+
+                // Encode the call target.
+                var encoder = new CudaEncoder(module);
+                var encodedTarget = encoder.Encode(Kernel.Target);
+
+                // Create a CUDA stream and launch the kernel.
                 var stream = new CudaStream();
-                var complete = Kernel.Start(module, stream);
-                return new ActiveKernel<T>(stream, complete, TaskCompletion);
+                var complete = Kernel.Start(module, stream, encodedTarget);
+
+                // Create an object to keep track of the kernel.
+                return new ActiveKernel<T>(stream, encoder, complete, TaskCompletion);
             }
         }
 
@@ -182,10 +192,12 @@ namespace Turbo
         {
             public ActiveKernel(
                 CudaStream stream,
+                CudaEncoder encoder,
                 Func<T> complete,
                 TaskCompletionSource<T> completion)
             {
                 this.Stream = stream;
+                this.Encoder = encoder;
                 this.Complete = complete;
                 this.TaskCompletion = completion;
             }
@@ -195,6 +207,15 @@ namespace Turbo
             /// </summary>
             /// <value>A dedicated CUDA stream.</value>
             public CudaStream Stream { get; private set; }
+
+            /// <summary>
+            /// Gets the object encoder used to encode this kernel's
+            /// target. This encoder must be kept alive for the duration
+            /// of the kernel because it manages memory used by the
+            /// kernel.
+            /// </summary>
+            /// <value>An object encoder.</value>
+            public CudaEncoder Encoder { get; private set; }
 
             /// <summary>
             /// Completes the kernel, downloading a result from the GPU and
@@ -226,13 +247,22 @@ namespace Turbo
                     {
                         // Complete the kernel and update the task accordingly.
                         TaskCompletion.SetResult(Complete());
+
+                        // Dispose any resources used to encode the call target.
+                        Encoder.Dispose();
                     }
                     return completed;
                 }
                 catch (Exception ex)
                 {
+                    // Complete the kernel anyway; we may have resources that need disposing.
                     Complete();
+
+                    // Update the task with the exception.
                     TaskCompletion.SetException(ex);
+
+                    // Dispose any resources used to encode the call target.
+                    Encoder.Dispose();
                     return true;
                 }
             }

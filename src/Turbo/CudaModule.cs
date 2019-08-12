@@ -21,13 +21,14 @@ using Pixie.Markup;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using System.Collections.Generic;
+using Flame.Llvm.Emit;
 
 namespace Turbo
 {
     /// <summary>
     /// A wrapper around a compiled module.
     /// </summary>
-    internal sealed class CudaModule
+    internal sealed class CudaModule : IDisposable
     {
         static CudaModule()
         {
@@ -37,12 +38,46 @@ namespace Turbo
             LLVM.InitializeNVPTXAsmPrinter();
         }
 
-        private CudaModule(CUmodule compiledModule, string entryPointName, CudaContext context)
+        private CudaModule(
+            ClrAssembly sourceAssembly,
+            ModuleBuilder intermediateModule,
+            LLVMTargetMachineRef targetMachine,
+            CUmodule compiledModule,
+            string entryPointName,
+            CudaContext context)
         {
+            this.SourceAssembly = sourceAssembly;
+            this.IntermediateModule = intermediateModule;
+            this.TargetMachine = targetMachine;
+            this.TargetData = LLVM.CreateTargetDataLayout(TargetMachine);
             this.CompiledModule = compiledModule;
             this.EntryPointName = entryPointName;
             this.Context = context;
         }
+
+        /// <summary>
+        /// Gets the assembly from which this compiled module is generated.
+        /// </summary>
+        /// <value>A CLR assembly.</value>
+        public ClrAssembly SourceAssembly { get; private set; }
+
+        /// <summary>
+        /// Gets the LLVM module generated for this kernel.
+        /// </summary>
+        /// <value>An LLVM module.</value>
+        public ModuleBuilder IntermediateModule { get; private set; }
+
+        /// <summary>
+        /// Gets the LLVM target machine description used for this kernel.
+        /// </summary>
+        /// <value>An LLVM target machine description.</value>
+        public LLVMTargetMachineRef TargetMachine { get; private set; }
+
+        /// <summary>
+        /// Gets the LLVM target data layout used for this kernel.
+        /// </summary>
+        /// <value>An LLVM target data layout.</value>
+        public LLVMTargetDataRef TargetData { get; private set; }
 
         /// <summary>
         /// Gets the compiled module wrapped by this class.
@@ -67,7 +102,8 @@ namespace Turbo
             IEnumerable<MemberInfo> roots,
             CudaContext context)
         {
-            using (var module = Mono.Cecil.ModuleDefinition.ReadModule(method.DeclaringType.Assembly.Location))
+            using (var module = Mono.Cecil.ModuleDefinition.ReadModule(
+                method.DeclaringType.Assembly.Location))
             {
                 return await CompileAsync(
                     module.ImportReference(method),
@@ -108,6 +144,12 @@ namespace Turbo
             var moduleBuilder = LlvmBackend.Compile(desc, assembly.Resolver.TypeEnvironment);
             var module = moduleBuilder.Module;
 
+            // Generate type metadata for all type roots.
+            foreach (var type in typeRoots)
+            {
+                moduleBuilder.Metadata.GetMetadata(type, moduleBuilder);
+            }
+
             // Get the compiled kernel function.
             var kernelFuncName = mangler.Mangle(method, true);
             var kernelFunc = LLVM.GetNamedFunction(module, kernelFuncName);
@@ -124,15 +166,19 @@ namespace Turbo
                 }));
 
             // Compile that LLVM IR down to PTX.
-            var ptx = CompileToPtx(module, context.GetDeviceComputeCapability());
-            LLVM.DisposeModule(module);
+            LLVMTargetMachineRef machine;
+            var ptx = CompileToPtx(module, context.GetDeviceComputeCapability(), out machine);
+            
             Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
 
             // Load the PTX kernel.
-            return new CudaModule(context.LoadModulePTX(ptx), kernelFuncName, context);
+            return new CudaModule(assembly, moduleBuilder, machine, context.LoadModulePTX(ptx), kernelFuncName, context);
         }
 
-        private static byte[] CompileToPtx(LLVMModuleRef module, Version computeCapability)
+        private static byte[] CompileToPtx(
+            LLVMModuleRef module,
+            Version computeCapability,
+            out LLVMTargetMachineRef machine)
         {
             string triple = "nvptx64-nvidia-cuda";
             LLVMTargetRef target;
@@ -144,7 +190,7 @@ namespace Turbo
             {
                 throw new Exception(error);
             }
-            var machine = LLVM.CreateTargetMachine(
+            machine = LLVM.CreateTargetMachine(
                 target,
                 triple,
                 $"sm_{computeCapability.Major}{computeCapability.Minor}",
@@ -164,7 +210,6 @@ namespace Turbo
             Marshal.Copy(LLVM.GetBufferStart(asmBuf), asmBytes, 0, asmLength);
 
             LLVM.DisposeMemoryBuffer(asmBuf);
-            LLVM.DisposeTargetMachine(machine);
 
             return asmBytes;
         }
@@ -283,5 +328,41 @@ namespace Turbo
                     IndentString = new string(' ', 4)
                 });
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                // if (disposing)
+                // {
+                //     // TODO: dispose managed state (managed objects).
+                // }
+
+                LLVM.DisposeTargetData(TargetData);
+                LLVM.DisposeTargetMachine(TargetMachine);
+                LLVM.DisposeModule(IntermediateModule.Module);
+                Context.UnloadModule(CompiledModule);
+
+                disposedValue = true;
+            }
+        }
+
+        ~CudaModule()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

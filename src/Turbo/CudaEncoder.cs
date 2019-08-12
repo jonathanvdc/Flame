@@ -17,17 +17,12 @@ namespace Turbo
     /// </summary>
     internal class CudaEncoder : ObjectEncoder<CudaEncoder.ValueOrRefObject, CudaEncoder.MirrorBufferPtr>, IDisposable
     {
-        public CudaEncoder(
-            ModuleBuilder compiledModule,
-            LLVMTargetDataRef target,
-            ClrAssembly assembly,
-            CUmodule ptxModule,
-            CudaContext context)
-            : base(compiledModule, target)
+        public CudaEncoder(CudaModule module)
+            : base(module.IntermediateModule, module.TargetData)
         {
-            this.Assembly = assembly;
-            this.PtxModule = ptxModule;
-            this.Context = context;
+            this.Assembly = module.SourceAssembly;
+            this.PtxModule = module.CompiledModule;
+            this.Context = module.Context;
             this.pendingBuffers = new List<MirrorBufferPtr>();
             this.allocatedBuffers = new List<CUdeviceptr>();
         }
@@ -71,6 +66,11 @@ namespace Turbo
         /// <returns>A pointer to the object's encoded value.</returns>
         public CUdeviceptr Encode(object value)
         {
+            if (value == null)
+            {
+                return new CUdeviceptr();
+            }
+
             var obj = ValueOrRefObject.Reference(value);
             var ptr = EncodeBoxPointer(obj, TypeOf(obj));
             foreach (var buf in pendingBuffers)
@@ -107,12 +107,31 @@ namespace Turbo
             CUdeviceptr ptr = new CUdeviceptr();
             SizeT size = new SizeT();
             var result = ManagedCuda.DriverAPINativeMethods.ModuleManagement.cuModuleGetGlobal_v2(
-                ref ptr, ref size, PtxModule, value.GetValueName());
+                ref ptr, ref size, PtxModule, GetGlobalName(value));
             if (result != ManagedCuda.BasicTypes.CUResult.Success)
             {
                 throw new CudaException(result);
             }
             return new MirrorBufferPtr(ptr, IntPtr.Zero, size);
+        }
+
+        private static string GetGlobalName(LLVMValueRef value)
+        {
+            // TODO: this is a super convoluted way to get a global's name.
+            // Surely there ought to be some direct API?
+            var nameAndAssignment = value.GetValueName();
+            var assignmentIndex = nameAndAssignment.LastIndexOf('=');
+            var name = nameAndAssignment;
+            if (assignmentIndex > 0)
+            {
+                name = nameAndAssignment.Substring(0, assignmentIndex).TrimEnd();
+            }
+            if (name[0] == '@')
+            {
+                name = name.Substring(1);
+            }
+
+            return name;
         }
 
         public override ValueOrRefObject LoadBoxPointer(ValueOrRefObject pointer)

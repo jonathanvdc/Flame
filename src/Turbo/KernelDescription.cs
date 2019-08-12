@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using ManagedCuda;
+using ManagedCuda.BasicTypes;
 
 namespace Turbo
 {
@@ -24,7 +25,7 @@ namespace Turbo
         public KernelDescription(
             MethodInfo method,
             object target,
-            Func<CudaModule, CudaStream, Func<T>> start)
+            Func<CudaModule, CudaStream, CUdeviceptr, Func<T>> start)
         {
             this.Method = method;
             this.Target = target;
@@ -49,6 +50,6 @@ namespace Turbo
         /// resources reserved for the kernel and returns a result.
         /// </summary>
         /// <value>A delegate that starts a GPU kernel.</value>
-        public Func<CudaModule, CudaStream, Func<T>> Start { get; private set; }
+        public Func<CudaModule, CudaStream, CUdeviceptr, Func<T>> Start { get; private set; }
     }
 }
