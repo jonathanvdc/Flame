@@ -169,7 +169,7 @@ namespace Flame.Llvm
 
         private LLVMValueRef GetTypeMetadataTable(IType type, ModuleBuilder module)
         {
-            var name = module.Mangler.Mangle(type, true) + ".vtable";
+            var name = "vtable_" + module.Mangler.Mangle(type, true);
             var result = LLVM.GetNamedGlobal(module.Module, name);
             if (result.Pointer != IntPtr.Zero)
             {
