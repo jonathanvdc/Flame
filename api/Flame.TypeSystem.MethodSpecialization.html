@@ -1,0 +1,691 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class MethodSpecialization
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class MethodSpecialization
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.TypeSystem.MethodSpecialization">
+  
+  
+  <h1 id="Flame_TypeSystem_MethodSpecialization" data-uid="Flame.TypeSystem.MethodSpecialization" class="text-break">Class MethodSpecialization
+  </h1>
+  <div class="markdown level0 summary"><p>A base type for method specializations.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">MethodSpecialization</span></div>
+      <div class="level2"><a class="xref" href="Flame.TypeSystem.DirectMethodSpecialization.html">DirectMethodSpecialization</a></div>
+      <div class="level2"><a class="xref" href="Flame.TypeSystem.IndirectMethodSpecialization.html">IndirectMethodSpecialization</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="Flame.IMethod.html">IMethod</a></div>
+    <div><a class="xref" href="Flame.ITypeMember.html">ITypeMember</a></div>
+    <div><a class="xref" href="Flame.IGenericMember.html">IGenericMember</a></div>
+    <div><a class="xref" href="Flame.IMember.html">IMember</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
+  <h6><strong>Assembly</strong>: Flame.dll</h6>
+  <h5 id="Flame_TypeSystem_MethodSpecialization_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class MethodSpecialization : IMethod, ITypeMember, IGenericMember, IMember</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization__ctor_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.%23ctor(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L20">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization__ctor_" data-uid="Flame.TypeSystem.MethodSpecialization.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization__ctor_Flame_IMethod_" data-uid="Flame.TypeSystem.MethodSpecialization.#ctor(Flame.IMethod)">MethodSpecialization(IMethod)</h4>
+  <div class="markdown level1 summary"><p>Creates an uninitialized generic method specialization
+from a generic declaration.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MethodSpecialization(IMethod declaration)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">declaration</span></td>
+        <td><p>A generic method declaration.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_Attributes.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.Attributes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L99">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_Attributes_" data-uid="Flame.TypeSystem.MethodSpecialization.Attributes*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_Attributes" data-uid="Flame.TypeSystem.MethodSpecialization.Attributes">Attributes</h4>
+  <div class="markdown level1 summary"><p>Gets the member's attributes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AttributeMap Attributes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.AttributeMap.html">AttributeMap</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_BaseMethods.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.BaseMethods%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L96">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_BaseMethods_" data-uid="Flame.TypeSystem.MethodSpecialization.BaseMethods*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_BaseMethods" data-uid="Flame.TypeSystem.MethodSpecialization.BaseMethods">BaseMethods</h4>
+  <div class="markdown level1 summary"><p>Gets the method's base methods.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IMethod&gt; BaseMethods { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_Declaration.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.Declaration%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L60">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_Declaration_" data-uid="Flame.TypeSystem.MethodSpecialization.Declaration*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_Declaration" data-uid="Flame.TypeSystem.MethodSpecialization.Declaration">Declaration</h4>
+  <div class="markdown level1 summary"><p>Gets the method declaration of which this method is
+a specialization.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IMethod Declaration { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><p>The method declaration.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_FullName.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.FullName%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L73">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_FullName_" data-uid="Flame.TypeSystem.MethodSpecialization.FullName*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_FullName" data-uid="Flame.TypeSystem.MethodSpecialization.FullName">FullName</h4>
+  <div class="markdown level1 summary"><p>Gets the member's full name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract QualifiedName FullName { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.QualifiedName.html">QualifiedName</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_GenericParameters.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.GenericParameters%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L76">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_GenericParameters_" data-uid="Flame.TypeSystem.MethodSpecialization.GenericParameters*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_GenericParameters" data-uid="Flame.TypeSystem.MethodSpecialization.GenericParameters">GenericParameters</h4>
+  <div class="markdown level1 summary"><p>Gets the list of generic parameters for this generic member.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IReadOnlyList&lt;IGenericParameter&gt; GenericParameters { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IGenericParameter.html">IGenericParameter</a>&gt;</td>
+        <td><p>The generic parameters.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_IsConstructor.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.IsConstructor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L79">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_IsConstructor_" data-uid="Flame.TypeSystem.MethodSpecialization.IsConstructor*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_IsConstructor" data-uid="Flame.TypeSystem.MethodSpecialization.IsConstructor">IsConstructor</h4>
+  <div class="markdown level1 summary"><p>Indicates if this method is a constructor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsConstructor { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this method is a constructor; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_IsStatic.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.IsStatic%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L82">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_IsStatic_" data-uid="Flame.TypeSystem.MethodSpecialization.IsStatic*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_IsStatic" data-uid="Flame.TypeSystem.MethodSpecialization.IsStatic">IsStatic</h4>
+  <div class="markdown level1 summary"><p>Tells if this is a static method. Non-static methods take
+a non-null pointer to their parent type as an implicit
+first arguments. Static methods do not.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsStatic { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this method is a static method; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_Name.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.Name%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L70">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_Name_" data-uid="Flame.TypeSystem.MethodSpecialization.Name*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_Name" data-uid="Flame.TypeSystem.MethodSpecialization.Name">Name</h4>
+  <div class="markdown level1 summary"><p>Gets the member's unqualified name.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract UnqualifiedName Name { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.UnqualifiedName.html">UnqualifiedName</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_Parameters.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.Parameters%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L88">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_Parameters_" data-uid="Flame.TypeSystem.MethodSpecialization.Parameters*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_Parameters" data-uid="Flame.TypeSystem.MethodSpecialization.Parameters">Parameters</h4>
+  <div class="markdown level1 summary"><p>Gets the method's parameters.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;Parameter&gt; Parameters { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Parameter.html">Parameter</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_ParentType.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.ParentType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L67">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_ParentType_" data-uid="Flame.TypeSystem.MethodSpecialization.ParentType*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_ParentType" data-uid="Flame.TypeSystem.MethodSpecialization.ParentType">ParentType</h4>
+  <div class="markdown level1 summary"><p>Gets the parent type specialization that defines this method
+specialization.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IType ParentType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The parent type specialization.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_ReturnParameter.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.ReturnParameter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L85">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_ReturnParameter_" data-uid="Flame.TypeSystem.MethodSpecialization.ReturnParameter*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_ReturnParameter" data-uid="Flame.TypeSystem.MethodSpecialization.ReturnParameter">ReturnParameter</h4>
+  <div class="markdown level1 summary"><p>Gets the method's return parameter.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Parameter ReturnParameter { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Parameter.html">Parameter</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_InitializeInstance_Flame_TypeSystem_MethodSpecialization_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.InitializeInstance(Flame.TypeSystem.MethodSpecialization)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L30">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_InitializeInstance_" data-uid="Flame.TypeSystem.MethodSpecialization.InitializeInstance*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_InitializeInstance_Flame_TypeSystem_MethodSpecialization_" data-uid="Flame.TypeSystem.MethodSpecialization.InitializeInstance(Flame.TypeSystem.MethodSpecialization)">InitializeInstance(MethodSpecialization)</h4>
+  <div class="markdown level1 summary"><p>Initializes a method specialization instance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected static MethodSpecialization InitializeInstance(MethodSpecialization instance)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.MethodSpecialization.html">MethodSpecialization</a></td>
+        <td><span class="parametername">instance</span></td>
+        <td><p>The instance to initialize.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.MethodSpecialization.html">MethodSpecialization</a></td>
+        <td><p><code data-dev-comment-type="paramref" class="paramref">instance</code> itself.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization_ToString.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L107">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MethodSpecialization_ToString_" data-uid="Flame.TypeSystem.MethodSpecialization.ToString*"></a>
+  <h4 id="Flame_TypeSystem_MethodSpecialization_ToString" data-uid="Flame.TypeSystem.MethodSpecialization.ToString">ToString()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="Flame.IMethod.html">IMethod</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.ITypeMember.html">ITypeMember</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IGenericMember.html">IGenericMember</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.IMember.html">IMember</a>
+  </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="Flame.Compiler.Analysis.MemorySpecificationExtensions.html#Flame_Compiler_Analysis_MemorySpecificationExtensions_GetMemorySpecification_Flame_IMethod_">MemorySpecificationExtensions.GetMemorySpecification(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.ExceptionSpecificationExtensions.html#Flame_ExceptionSpecificationExtensions_GetExceptionSpecification_Flame_IMethod_">ExceptionSpecificationExtensions.GetExceptionSpecification(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetDefiningAssemblyOrNull_Flame_ITypeMember_">TypeExtensions.GetDefiningAssemblyOrNull(ITypeMember)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_System_Collections_Generic_IReadOnlyList_Flame_IType__">TypeExtensions.MakeGenericMethod(IMethod, IReadOnlyList&lt;IType&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_MakeGenericMethod_Flame_IMethod_Flame_IType___">TypeExtensions.MakeGenericMethod(IMethod, IType[])</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericDeclaration_Flame_IMethod_">TypeExtensions.GetRecursiveGenericDeclaration(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetGenericArguments_Flame_IMethod_">TypeExtensions.GetGenericArguments(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeExtensions.html#Flame_TypeExtensions_GetRecursiveGenericArgumentMapping_Flame_IMethod_">TypeExtensions.GetRecursiveGenericArgumentMapping(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.AccessModifierAttribute.html#Flame_TypeSystem_AccessModifierAttribute_GetAccessModifier_Flame_IMember_">AccessModifierAttribute.GetAccessModifier(IMember)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsAbstract_Flame_IMethod_">FlagAttribute.IsAbstract(IMethod)</a>
+  </div>
+  <div>
+      <a class="xref" href="Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsVirtual_Flame_IMethod_">FlagAttribute.IsVirtual(IMethod)</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MethodSpecialization.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MethodSpecialization%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/MethodSpecialization.cs/#L11" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

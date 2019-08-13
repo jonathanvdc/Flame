@@ -1,0 +1,828 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ObjectEncoder&lt;TObj, TPtr&gt;
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ObjectEncoder&lt;TObj, TPtr&gt;
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Llvm.ObjectEncoder`2">
+  
+  
+  <h1 id="Flame_Llvm_ObjectEncoder_2" data-uid="Flame.Llvm.ObjectEncoder`2" class="text-break">Class ObjectEncoder&lt;TObj, TPtr&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>Encodes in-memory objects.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.Llvm.ObjectMarshal-1.html">ObjectMarshal</a>&lt;TObj&gt;</div>
+    <div class="level2"><span class="xref">ObjectEncoder&lt;TObj, TPtr&gt;</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_CompiledModule">ObjectMarshal&lt;TObj&gt;.CompiledModule</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_Target">ObjectMarshal&lt;TObj&gt;.Target</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_SizeOf_Flame_IType_">ObjectMarshal&lt;TObj&gt;.SizeOf(IType)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_SizeOfWithMetadata_Flame_IType_System_Int32__">ObjectMarshal&lt;TObj&gt;.SizeOfWithMetadata(IType, Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_GetFieldOffset_Flame_IField_">ObjectMarshal&lt;TObj&gt;.GetFieldOffset(IField)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Llvm.html">Flame.Llvm</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Llvm.dll</h6>
+  <h5 id="Flame_Llvm_ObjectEncoder_2_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class ObjectEncoder&lt;TObj, TPtr&gt; : ObjectMarshal&lt;TObj&gt;</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TObj</span></td>
+        <td><p>The type of a decoded object.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TPtr</span></td>
+        <td><p>The type of a pointer to an encoded object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2__ctor_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_LLVMTargetDataRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.%23ctor(Flame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.LLVMTargetDataRef)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L78">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2__ctor_" data-uid="Flame.Llvm.ObjectEncoder`2.#ctor*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2__ctor_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_LLVMTargetDataRef_" data-uid="Flame.Llvm.ObjectEncoder`2.#ctor(Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.LLVMTargetDataRef)">ObjectEncoder(ModuleBuilder, LLVMTargetDataRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ObjectEncoder(ModuleBuilder compiledModule, LLVMTargetDataRef target)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">compiledModule</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMTargetDataRef</span></td>
+        <td><span class="parametername">target</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_AllocateBuffer_System_Int32_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.AllocateBuffer(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L101">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_AllocateBuffer_" data-uid="Flame.Llvm.ObjectEncoder`2.AllocateBuffer*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_AllocateBuffer_System_Int32_" data-uid="Flame.Llvm.ObjectEncoder`2.AllocateBuffer(System.Int32)">AllocateBuffer(Int32)</h4>
+  <div class="markdown level1 summary"><p>Allocates a GC-managed buffer of a particular size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TPtr AllocateBuffer(int size)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">size</span></td>
+        <td><p>The size of the buffer to allocate.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><p>A pointer to the buffer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_CreateObject_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.CreateObject(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L181">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_CreateObject_" data-uid="Flame.Llvm.ObjectEncoder`2.CreateObject*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_CreateObject_Flame_IType_" data-uid="Flame.Llvm.ObjectEncoder`2.CreateObject(Flame.IType)">CreateObject(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an object of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TPtr CreateObject(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The object to create.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><p>An address to the object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_Encode__0__1_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.Encode(%600%2C%601)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L197">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_Encode_" data-uid="Flame.Llvm.ObjectEncoder`2.Encode*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_Encode__0__1_" data-uid="Flame.Llvm.ObjectEncoder`2.Encode(`0,`1)">Encode(TObj, TPtr)</h4>
+  <div class="markdown level1 summary"><p>Encodes a particular value and writes its encoded
+representation to a buffer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Encode(TObj value, TPtr buffer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>A value to encode.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">buffer</span></td>
+        <td><p>A buffer to write <code data-dev-comment-type="paramref" class="paramref">value</code>'s encoded representation to.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_EncodeBoxPointer__0_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.EncodeBoxPointer(%600%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L226">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_EncodeBoxPointer_" data-uid="Flame.Llvm.ObjectEncoder`2.EncodeBoxPointer*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_EncodeBoxPointer__0_Flame_IType_" data-uid="Flame.Llvm.ObjectEncoder`2.EncodeBoxPointer(`0,Flame.IType)">EncodeBoxPointer(TObj, IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected TPtr EncodeBoxPointer(TObj box, IType elementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">box</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_EncodePointer__1__1_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.EncodePointer(%601%2C%601)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L137">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_EncodePointer_" data-uid="Flame.Llvm.ObjectEncoder`2.EncodePointer*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_EncodePointer__1__1_" data-uid="Flame.Llvm.ObjectEncoder`2.EncodePointer(`1,`1)">EncodePointer(TPtr, TPtr)</h4>
+  <div class="markdown level1 summary"><p>Stores a pointer at a particular address.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract void EncodePointer(TPtr address, TPtr value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">address</span></td>
+        <td><p>An address to write <code data-dev-comment-type="paramref" class="paramref">value</code> to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>A value to write to <code data-dev-comment-type="paramref" class="paramref">address</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_GetFieldValues__0_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.GetFieldValues(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L130">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_GetFieldValues_" data-uid="Flame.Llvm.ObjectEncoder`2.GetFieldValues*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_GetFieldValues__0_" data-uid="Flame.Llvm.ObjectEncoder`2.GetFieldValues(`0)">GetFieldValues(TObj)</h4>
+  <div class="markdown level1 summary"><p>Gets a mapping of an object's fields to their values..</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IReadOnlyDictionary&lt;IField, TObj&gt; GetFieldValues(TObj value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>An object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.IField.html">IField</a>, TObj&gt;</td>
+        <td><p>A mapping of <code data-dev-comment-type="paramref" class="paramref">value</code>'s fields to those fields' values.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_GetGlobalAddress_LLVMSharp_LLVMValueRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.GetGlobalAddress(LLVMSharp.LLVMValueRef)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L123">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_GetGlobalAddress_" data-uid="Flame.Llvm.ObjectEncoder`2.GetGlobalAddress*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_GetGlobalAddress_LLVMSharp_LLVMValueRef_" data-uid="Flame.Llvm.ObjectEncoder`2.GetGlobalAddress(LLVMSharp.LLVMValueRef)">GetGlobalAddress(LLVMValueRef)</h4>
+  <div class="markdown level1 summary"><p>Gets the address of a global variable in memory.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TPtr GetGlobalAddress(LLVMValueRef value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The global variable to query.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><p>An address to <code data-dev-comment-type="paramref" class="paramref">value</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_IndexPointer__1_System_Int32_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.IndexPointer(%601%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L116">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_IndexPointer_" data-uid="Flame.Llvm.ObjectEncoder`2.IndexPointer*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_IndexPointer__1_System_Int32_" data-uid="Flame.Llvm.ObjectEncoder`2.IndexPointer(`1,System.Int32)">IndexPointer(TPtr, Int32)</h4>
+  <div class="markdown level1 summary"><p>Adds an offset to a pointer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TPtr IndexPointer(TPtr pointer, int offset)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>A base pointer.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">offset</span></td>
+        <td><p>An offset to add to <code data-dev-comment-type="paramref" class="paramref">pointer</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><p>A modified pointer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_InitializeObject__1_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.InitializeObject(%601%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L154">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_InitializeObject_" data-uid="Flame.Llvm.ObjectEncoder`2.InitializeObject*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_InitializeObject__1_Flame_IType_" data-uid="Flame.Llvm.ObjectEncoder`2.InitializeObject(`1,Flame.IType)">InitializeObject(TPtr, IType)</h4>
+  <div class="markdown level1 summary"><p>Initializes an object at a particular address.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void InitializeObject(TPtr address, IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">address</span></td>
+        <td><p>The object to initialize.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of the object to initialize.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_LoadBoxPointer__0_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.LoadBoxPointer(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L108">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_LoadBoxPointer_" data-uid="Flame.Llvm.ObjectEncoder`2.LoadBoxPointer*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_LoadBoxPointer__0_" data-uid="Flame.Llvm.ObjectEncoder`2.LoadBoxPointer(`0)">LoadBoxPointer(TObj)</h4>
+  <div class="markdown level1 summary"><p>Loads the value stored at a particular box pointer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract TObj LoadBoxPointer(TObj pointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>The pointer whose value is to be loaded.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><p>The value stored at the pointer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_TryEncodePrimitive__0__1_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.TryEncodePrimitive(%600%2C%601)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L147">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_TryEncodePrimitive_" data-uid="Flame.Llvm.ObjectEncoder`2.TryEncodePrimitive*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_TryEncodePrimitive__0__1_" data-uid="Flame.Llvm.ObjectEncoder`2.TryEncodePrimitive(`0,`1)">TryEncodePrimitive(TObj, TPtr)</h4>
+  <div class="markdown level1 summary"><p>Tries to encode a primitive value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract bool TryEncodePrimitive(TObj value, TPtr buffer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The primitive value to encode.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TPtr</span></td>
+        <td><span class="parametername">buffer</span></td>
+        <td><p>A buffer to write <code data-dev-comment-type="paramref" class="paramref">value</code>'s encoded version to.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if <code data-dev-comment-type="paramref" class="paramref">value</code> is a primitive and has been encoded; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2_TypeOf__0_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602.TypeOf(%600)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L94">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectEncoder_2_TypeOf_" data-uid="Flame.Llvm.ObjectEncoder`2.TypeOf*"></a>
+  <h4 id="Flame_Llvm_ObjectEncoder_2_TypeOf__0_" data-uid="Flame.Llvm.ObjectEncoder`2.TypeOf(`0)">TypeOf(TObj)</h4>
+  <div class="markdown level1 summary"><p>Gets the type of a particular value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IType TypeOf(TObj value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TObj</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The type of a value.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectEncoder_2.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectEncoder%602%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L76" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

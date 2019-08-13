@@ -1,0 +1,3060 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Struct Instruction
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Struct Instruction
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Instruction">
+  
+  
+  <h1 id="Flame_Compiler_Instruction" data-uid="Flame.Compiler.Instruction" class="text-break">Struct Instruction
+  </h1>
+  <div class="markdown level0 summary"><p>An instruction: a statement that produces a single value.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a>&gt;</div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.ValueType.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.html">Flame.Compiler</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Instruction_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public struct Instruction : IEquatable&lt;Instruction&gt;</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Arguments.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Arguments%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L32">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Arguments_" data-uid="Flame.Compiler.Instruction.Arguments*"></a>
+  <h4 id="Flame_Compiler_Instruction_Arguments" data-uid="Flame.Compiler.Instruction.Arguments">Arguments</h4>
+  <div class="markdown level1 summary"><p>Gets a list of values this instruction takes as arguments.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;ValueTag&gt; Arguments { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><p>The values taken as arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Prototype.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Prototype%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L26">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Prototype_" data-uid="Flame.Compiler.Instruction.Prototype*"></a>
+  <h4 id="Flame_Compiler_Instruction_Prototype" data-uid="Flame.Compiler.Instruction.Prototype">Prototype</h4>
+  <div class="markdown level1 summary"><p>Gets this instruction's prototype.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public InstructionPrototype Prototype { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.InstructionPrototype.html">InstructionPrototype</a></td>
+        <td><p>The prototype.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_ResultType.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.ResultType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L38">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_ResultType_" data-uid="Flame.Compiler.Instruction.ResultType*"></a>
+  <h4 id="Flame_Compiler_Instruction_ResultType" data-uid="Flame.Compiler.Instruction.ResultType">ResultType</h4>
+  <div class="markdown level1 summary"><p>Gets the type of value produced by this instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType ResultType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A type of value.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateAlloca_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateAlloca(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L41">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateAlloca_" data-uid="Flame.Compiler.Instruction.CreateAlloca*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateAlloca_Flame_IType_" data-uid="Flame.Compiler.Instruction.CreateAlloca(Flame.IType)">CreateAlloca(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that allocates storage on the stack
+for a single value element of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateAlloca(IType elementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to allocate storage for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An alloca instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateAllocaArray_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateAllocaArray(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L25">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateAllocaArray_" data-uid="Flame.Compiler.Instruction.CreateAllocaArray*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateAllocaArray_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateAllocaArray(Flame.IType,Flame.Compiler.ValueTag)">CreateAllocaArray(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that allocates storage on the stack
+for a variable number of elements of a particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateAllocaArray(IType elementType, ValueTag elementCount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to allocate storage for.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">elementCount</span></td>
+        <td><p>The number of elements to allocate storage for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An alloca-array instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateAllocaPinnedIntrinsic_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L804">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateAllocaPinnedIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateAllocaPinnedIntrinsic_Flame_IType_" data-uid="Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic(Flame.IType)">CreateAllocaPinnedIntrinsic(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that allocates a function-local variable
+that is pinned; the GC is not allowed to move the contents
+of the local.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateAllocaPinnedIntrinsic(IType elementType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to store in the pinned variable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An alloca-pinned instruction prototype.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateArithmeticIntrinsic_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.IType%7D%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L431">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateArithmeticIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateArithmeticIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateArithmeticIntrinsic_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateArithmeticIntrinsic(String, IType, IReadOnlyList&lt;IType&gt;, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates an arithmetic intrinsic.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateArithmeticIntrinsic(string operatorName, IType resultType, IReadOnlyList&lt;IType&gt; parameterTypes, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">operatorName</span></td>
+        <td><p>The name of the arithmetic operator to apply.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">resultType</span></td>
+        <td><p>The type of value produced by the intrinsic.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">parameterTypes</span></td>
+        <td><p>The parameter types taken by the intrinsic.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The argument list to pass to the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An arithmetic intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_System_String_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String%2CFlame.IType%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L463">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_System_String_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)">CreateBinaryArithmeticIntrinsic(String, IType, ValueTag, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a binary arithmetic intrinsic that is closed
+under the type of its arguments.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateBinaryArithmeticIntrinsic(string operatorName, IType elementType, ValueTag left, ValueTag right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">operatorName</span></td>
+        <td><p>The name of the binary arithmetic operator to apply.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of both parameter types and the result type
+of the intrinsic.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The first argument to the intrinsic.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The second argument to the intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An arithmetic intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateBox_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateBox(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateBox_" data-uid="Flame.Compiler.Instruction.CreateBox*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateBox_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateBox(Flame.IType,Flame.Compiler.ValueTag)">CreateBox(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that boxes a value type,
+turning it into a reference type (aka box pointer).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateBox(IType elementType, ValueTag element)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to box.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">element</span></td>
+        <td><p>The value to box.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A box instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateCall_Flame_IMethod_Flame_Compiler_Instructions_MethodLookup_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateCall(Flame.IMethod%2CFlame.Compiler.Instructions.MethodLookup%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L116">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateCall_" data-uid="Flame.Compiler.Instruction.CreateCall*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateCall_Flame_IMethod_Flame_Compiler_Instructions_MethodLookup_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateCall(Flame.IMethod,Flame.Compiler.Instructions.MethodLookup,Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateCall(IMethod, MethodLookup, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that calls a particular method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateCall(IMethod callee, MethodLookup lookup, ValueTag thisArgument, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>The method to call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instructions.MethodLookup.html">MethodLookup</a></td>
+        <td><span class="parametername">lookup</span></td>
+        <td><p>The method implementation lookup technique to use for calling the method.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">thisArgument</span></td>
+        <td><p>The 'this' argument for the method call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The argument list for the method call.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A call instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateCall_Flame_IMethod_Flame_Compiler_Instructions_MethodLookup_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateCall(Flame.IMethod%2CFlame.Compiler.Instructions.MethodLookup%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L92">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateCall_" data-uid="Flame.Compiler.Instruction.CreateCall*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateCall_Flame_IMethod_Flame_Compiler_Instructions_MethodLookup_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateCall(Flame.IMethod,Flame.Compiler.Instructions.MethodLookup,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateCall(IMethod, MethodLookup, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that calls a particular method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateCall(IMethod callee, MethodLookup lookup, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>The method to call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instructions.MethodLookup.html">MethodLookup</a></td>
+        <td><span class="parametername">lookup</span></td>
+        <td><p>The method implementation lookup technique to use for calling the method.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The extended argument list: a list of arguments prefixed with a 'this'
+argument, if applicable.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A call instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateCaptureIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateCaptureIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L723">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateCaptureIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateCaptureIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateCaptureIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateCaptureIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateCaptureIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'capture' intrinsic, which captures a (thrown)
+exception.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateCaptureIntrinsic(IType resultType, IType argumentType, ValueTag argument)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">resultType</span></td>
+        <td><p>The type of a captured exception.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">argumentType</span></td>
+        <td><p>The type of the exception to capture.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">argument</span></td>
+        <td><p>An exception to capture.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'capture' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateConstant_Flame_Constant_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateConstant(Flame.Constant%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L139">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateConstant_" data-uid="Flame.Compiler.Instruction.CreateConstant*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateConstant_Flame_Constant_Flame_IType_" data-uid="Flame.Compiler.Instruction.CreateConstant(Flame.Constant,Flame.IType)">CreateConstant(Constant, IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that creates a constant value of a
+particular type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateConstant(Constant value, IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Constant.html">Constant</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The constant value to produce.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of value created by the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A constant instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateConstrainedCall_Flame_IMethod_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateConstrainedCall(Flame.IMethod%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L187">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateConstrainedCall_" data-uid="Flame.Compiler.Instruction.CreateConstrainedCall*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateConstrainedCall_Flame_IMethod_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateConstrainedCall(Flame.IMethod,Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateConstrainedCall(IMethod, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that performs a constrained virtual call to
+a particular method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateConstrainedCall(IMethod callee, ValueTag thisArgument, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>The method to call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">thisArgument</span></td>
+        <td><p>The 'this' argument for the constrained method call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The argument list for the constrained method call.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A constrained call instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateConvertIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateConvertIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L526">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateConvertIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateConvertIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateConvertIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateConvertIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateConvertIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates an intrinsic that converts one primitive
+type to another.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateConvertIntrinsic(IType targetType, IType sourceType, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">targetType</span></td>
+        <td><p>The target primitive type: the type to convert
+the value to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">sourceType</span></td>
+        <td><p>The source primitive type: the type of the value
+to convert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to convert.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A conversion instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateCopy_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateCopy(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L209">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateCopy_" data-uid="Flame.Compiler.Instruction.CreateCopy*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateCopy_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateCopy(Flame.IType,Flame.Compiler.ValueTag)">CreateCopy(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a copy instruction, which creates an alias for
+an existing value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateCopy(IType type, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of value to copy.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to copy.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A copy instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateDefaultConstant_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateDefaultConstant(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L156">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateDefaultConstant_" data-uid="Flame.Compiler.Instruction.CreateDefaultConstant*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateDefaultConstant_Flame_IType_" data-uid="Flame.Compiler.Instruction.CreateDefaultConstant(Flame.IType)">CreateDefaultConstant(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that creates a default-value constant
+of a particular type. The resulting constant need not be
+an instance of DefaultConstant: it may be tailored to the type
+of value to produce.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateDefaultConstant(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>The type of value created by the instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A default-value constant instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateDynamicCast_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateDynamicCast(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L337">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateDynamicCast_" data-uid="Flame.Compiler.Instruction.CreateDynamicCast*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateDynamicCast_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateDynamicCast(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)">CreateDynamicCast(PointerType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a dynamic cast instruction that converts
+from one pointer type to another.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateDynamicCast(PointerType targetType, ValueTag operand)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">targetType</span></td>
+        <td><p>A type to convert operands to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">operand</span></td>
+        <td><p>An operand to convert to the target type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A dynamic cast instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateGetCapturedExceptionIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateGetCapturedExceptionIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L746">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateGetCapturedExceptionIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateGetCapturedExceptionIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateGetCapturedExceptionIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateGetCapturedExceptionIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateGetCapturedExceptionIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'get_captured_exception' intrinsic, which throws an exception.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateGetCapturedExceptionIntrinsic(IType resultType, IType argumentType, ValueTag argument)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">resultType</span></td>
+        <td><p>The type of the exception value returned
+by this operation.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">argumentType</span></td>
+        <td><p>The type of the captured exception to examine.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">argument</span></td>
+        <td><p>A captured exception to examine.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'get_captured_exception' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateGetElementPointerIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateGetElementPointerIntrinsic(Flame.IType%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.IType%7D%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L585">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateGetElementPointerIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateGetElementPointerIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateGetElementPointerIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateGetElementPointerIntrinsic(Flame.IType,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateGetElementPointerIntrinsic(IType, IType, IReadOnlyList&lt;IType&gt;, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'get_element_pointer' intrinsic, which indexes
+an array and computes a pointer to the indexed array element.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateGetElementPointerIntrinsic(IType elementType, IType arrayType, IReadOnlyList&lt;IType&gt; indexTypes, ValueTag arrayValue, IReadOnlyList&lt;ValueTag&gt; indexValues)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of element to compute a pointer to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">indexTypes</span></td>
+        <td><p>The types of indices to index the array with.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">arrayValue</span></td>
+        <td><p>The array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">indexValues</span></td>
+        <td><p>The indices to index the array with.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'get_element_pointer' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateGetFieldPointer_Flame_IField_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateGetFieldPointer(Flame.IField%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L377">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateGetFieldPointer_" data-uid="Flame.Compiler.Instruction.CreateGetFieldPointer*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateGetFieldPointer_Flame_IField_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateGetFieldPointer(Flame.IField,Flame.Compiler.ValueTag)">CreateGetFieldPointer(IField, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a get-field-pointer instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateGetFieldPointer(IField field, ValueTag basePointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td><p>The field to create a pointer to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">basePointer</span></td>
+        <td><p>A value that includes <code data-dev-comment-type="paramref" class="paramref">field</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A get-field-pointer instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateGetLengthIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateGetLengthIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L676">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateGetLengthIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateGetLengthIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateGetLengthIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateGetLengthIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateGetLengthIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'get_length' intrinsic, which computes the
+number of elements in an array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateGetLengthIntrinsic(IType sizeType, IType arrayType, ValueTag arrayValue)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">sizeType</span></td>
+        <td><p>The type of integer to store the length of the array in.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of array to inspect.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">arrayValue</span></td>
+        <td><p>The array to inspect.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'get_length' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateGetStaticFieldPointer_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateGetStaticFieldPointer(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L391">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateGetStaticFieldPointer_" data-uid="Flame.Compiler.Instruction.CreateGetStaticFieldPointer*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateGetStaticFieldPointer_Flame_IField_" data-uid="Flame.Compiler.Instruction.CreateGetStaticFieldPointer(Flame.IField)">CreateGetStaticFieldPointer(IField)</h4>
+  <div class="markdown level1 summary"><p>Creates a get-static-field-pointer instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateGetStaticFieldPointer(IField field)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td><p>The field to create a pointer to.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A get-static-field-pointer instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateIndirectCall_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateIndirectCall(Flame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.IType%7D%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L232">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateIndirectCall_" data-uid="Flame.Compiler.Instruction.CreateIndirectCall*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateIndirectCall_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateIndirectCall(Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateIndirectCall(IType, IReadOnlyList&lt;IType&gt;, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates an indirect call instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateIndirectCall(IType returnType, IReadOnlyList&lt;IType&gt; parameterTypes, ValueTag callee, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">returnType</span></td>
+        <td><p>The type of value returned by the callee.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">parameterTypes</span></td>
+        <td><p>A list of parameter types.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>The delegate or function pointer to call.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The argument list for the call.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An indirect call instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateLoad_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateLoad(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L248">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateLoad_" data-uid="Flame.Compiler.Instruction.CreateLoad*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateLoad_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateLoad(Flame.IType,Flame.Compiler.ValueTag)">CreateLoad(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a load instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateLoad(IType pointeeType, ValueTag pointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">pointeeType</span></td>
+        <td><p>The type of value to load.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>A pointer to the value to load.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A load instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateLoadElementIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateLoadElementIntrinsic(Flame.IType%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.IType%7D%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L616">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateLoadElementIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateLoadElementIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateLoadElementIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateLoadElementIntrinsic(Flame.IType,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateLoadElementIntrinsic(IType, IType, IReadOnlyList&lt;IType&gt;, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'load_element' intrinsic, which indexes
+an array and loads the indexed array element.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateLoadElementIntrinsic(IType elementType, IType arrayType, IReadOnlyList&lt;IType&gt; indexTypes, ValueTag arrayValue, IReadOnlyList&lt;ValueTag&gt; indexValues)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of element to load.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">indexTypes</span></td>
+        <td><p>The types of indices to index the array with.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">arrayValue</span></td>
+        <td><p>The array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">indexValues</span></td>
+        <td><p>The indices to index the array with.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'load_element' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateNewArrayIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateNewArrayIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L700">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateNewArrayIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateNewArrayIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateNewArrayIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateNewArrayIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateNewArrayIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'new_array' intrinsic, which allocates a
+new array of a particular size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateNewArrayIntrinsic(IType arrayType, IType sizeType, ValueTag sizeValue)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of array to allocate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">sizeType</span></td>
+        <td><p>The type of integer that describes the desired length
+of the array to allocate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">sizeValue</span></td>
+        <td><p>The desired length of the array to allocate.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'new_array' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateNewDelegate_Flame_IType_Flame_IMethod_Flame_Compiler_ValueTag_Flame_Compiler_Instructions_MethodLookup_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateNewDelegate(Flame.IType%2CFlame.IMethod%2CFlame.Compiler.ValueTag%2CFlame.Compiler.Instructions.MethodLookup)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L274">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateNewDelegate_" data-uid="Flame.Compiler.Instruction.CreateNewDelegate*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateNewDelegate_Flame_IType_Flame_IMethod_Flame_Compiler_ValueTag_Flame_Compiler_Instructions_MethodLookup_" data-uid="Flame.Compiler.Instruction.CreateNewDelegate(Flame.IType,Flame.IMethod,Flame.Compiler.ValueTag,Flame.Compiler.Instructions.MethodLookup)">CreateNewDelegate(IType, IMethod, ValueTag, MethodLookup)</h4>
+  <div class="markdown level1 summary"><p>Creates a new-delegate instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateNewDelegate(IType delegateType, IMethod callee, ValueTag thisArgument, MethodLookup lookup)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">delegateType</span></td>
+        <td><p>The type of the resulting delegate or function pointer.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>The method called by the resulting delegate or function
+pointer.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">thisArgument</span></td>
+        <td><p>The 'this' argument, if any. A <code>null</code> value means that
+there is no 'this' argument.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instructions.MethodLookup.html">MethodLookup</a></td>
+        <td><span class="parametername">lookup</span></td>
+        <td><p>The method implementation lookup technique to use.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A new-delegate instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateNewObject_Flame_IMethod_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateNewObject(Flame.IMethod%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L298">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateNewObject_" data-uid="Flame.Compiler.Instruction.CreateNewObject*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateNewObject_Flame_IMethod_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateNewObject(Flame.IMethod,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateNewObject(IMethod, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new-object instruction that allocates storage on the
+heap for an object and initializes it using a constructor.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateNewObject(IMethod constructor, IReadOnlyList&lt;ValueTag&gt; arguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">constructor</span></td>
+        <td><p>The constructor to initialize objects with.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>A list of arguments to call the constructor with.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A new-object instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateReinterpretCast_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateReinterpretCast(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L318">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateReinterpretCast_" data-uid="Flame.Compiler.Instruction.CreateReinterpretCast*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateReinterpretCast_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateReinterpretCast(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)">CreateReinterpretCast(PointerType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a reinterpret cast instruction that converts
+from one pointer type to another.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateReinterpretCast(PointerType targetType, ValueTag operand)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">targetType</span></td>
+        <td><p>A type to convert operands to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">operand</span></td>
+        <td><p>An operand to convert to the target type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A reinterpret cast instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateRelationalIntrinsic_System_String_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateRelationalIntrinsic(System.String%2CFlame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L498">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateRelationalIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateRelationalIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateRelationalIntrinsic_System_String_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateRelationalIntrinsic(System.String,Flame.IType,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)">CreateRelationalIntrinsic(String, IType, IType, ValueTag, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a binary arithmetic intrinsic that produces
+a Boolean value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateRelationalIntrinsic(string operatorName, IType booleanType, IType elementType, ValueTag left, ValueTag right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">operatorName</span></td>
+        <td><p>The name of the binary arithmetic operator to apply.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">booleanType</span></td>
+        <td><p>The type of value returned by the relational operator.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of both parameter types.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The first argument to the intrinsic.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The second argument to the intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A relational arithmetic intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateRethrowIntrinsic_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateRethrowIntrinsic(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L787">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateRethrowIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateRethrowIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateRethrowIntrinsic_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateRethrowIntrinsic(Flame.IType,Flame.Compiler.ValueTag)">CreateRethrowIntrinsic(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'rethrow' intrinsic, which rethrows a captured exception.
+The difference between 'rethrow' and 'throw' is that the former
+takes a captured exception and retains stack trace information
+whereas the latter takes a (raw) exception value and constructs
+a new stack trace.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateRethrowIntrinsic(IType capturedExceptionType, ValueTag capturedException)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">capturedExceptionType</span></td>
+        <td><p>The type of the captured exception to rethrow.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">capturedException</span></td>
+        <td><p>The captured exception to rethrow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'rethrow' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateSizeOf_Flame_IType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateSizeOf(Flame.IType%2CFlame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L408">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateSizeOf_" data-uid="Flame.Compiler.Instruction.CreateSizeOf*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateSizeOf_Flame_IType_Flame_IType_" data-uid="Flame.Compiler.Instruction.CreateSizeOf(Flame.IType,Flame.IType)">CreateSizeOf(IType, IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that measures the size of a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateSizeOf(IType measuredType, IType resultType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">measuredType</span></td>
+        <td><p>The type to measure.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">resultType</span></td>
+        <td><p>The type of value to produce.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A sizeof instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateStore_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateStore(Flame.IType%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L359">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateStore_" data-uid="Flame.Compiler.Instruction.CreateStore*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateStore_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateStore(Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)">CreateStore(IType, ValueTag, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a store instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateStore(IType pointeeType, ValueTag pointer, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">pointeeType</span></td>
+        <td><p>The type of <code data-dev-comment-type="paramref" class="paramref">value</code>. Also the type of
+value pointed to by <code data-dev-comment-type="paramref" class="paramref">pointer</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>A pointer the target of the store.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>A value to store at <code data-dev-comment-type="paramref" class="paramref">pointer</code>'s pointee.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A store instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateStoreElementIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateStoreElementIntrinsic(Flame.IType%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.IType%7D%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L650">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateStoreElementIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateStoreElementIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateStoreElementIntrinsic_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.CreateStoreElementIntrinsic(Flame.IType,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},Flame.Compiler.ValueTag,Flame.Compiler.ValueTag,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">CreateStoreElementIntrinsic(IType, IType, IReadOnlyList&lt;IType&gt;, ValueTag, ValueTag, IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'store_element' intrinsic, which indexes
+an array and sets the indexed array element.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateStoreElementIntrinsic(IType elementType, IType arrayType, IReadOnlyList&lt;IType&gt; indexTypes, ValueTag elementValue, ValueTag arrayValue, IReadOnlyList&lt;ValueTag&gt; indexValues)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of element to store in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><span class="parametername">indexTypes</span></td>
+        <td><p>The types of indices to index the array with.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">elementValue</span></td>
+        <td><p>The value to store in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">arrayValue</span></td>
+        <td><p>The array to index.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">indexValues</span></td>
+        <td><p>The indices to index the array with.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'store_element' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateThrowIntrinsic_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateThrowIntrinsic(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L765">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateThrowIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateThrowIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateThrowIntrinsic_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateThrowIntrinsic(Flame.IType,Flame.Compiler.ValueTag)">CreateThrowIntrinsic(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a 'throw' intrinsic, which throws an exception.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateThrowIntrinsic(IType exceptionType, ValueTag exception)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">exceptionType</span></td>
+        <td><p>The type of exception to throw.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">exception</span></td>
+        <td><p>The exception to throw.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A 'throw' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateUnbox_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateUnbox(Flame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L73">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateUnbox_" data-uid="Flame.Compiler.Instruction.CreateUnbox*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateUnbox_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateUnbox(Flame.IType,Flame.Compiler.ValueTag)">CreateUnbox(IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates an instruction that unboxes a box pointer,
+turning it into a ref pointer to the box's contents.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateUnbox(IType elementType, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to unbox.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to unbox.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An unbox instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateUnboxAnyIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateUnboxAnyIntrinsic(Flame.IType%2CFlame.IType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L556">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateUnboxAnyIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateUnboxAnyIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateUnboxAnyIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateUnboxAnyIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)">CreateUnboxAnyIntrinsic(IType, IType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates an 'unbox_any' intrinsic.
+Its return type can either be a value type or a
+reference type (aka box pointer).
+If its return type is set to a value type, 'unbox_any'
+unboxes its argument and loads it.
+If 'unbox_any's return value is set to a reference type,
+'unbox_any' checks that its argument is a subtype of the
+return type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateUnboxAnyIntrinsic(IType targetType, IType sourceType, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">targetType</span></td>
+        <td><p>The target type: the type to unbox or cast a box pointer to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">sourceType</span></td>
+        <td><p>The source type: the type of the value to convert.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to convert.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An 'unbox_any' intrinsic.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L818">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)">CreateVolatileLoadIntrinsic(PointerType, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a volatile load instruction. A volatile load is exactly like a
+regular load, except for the fact that volatile loads must not be reorder
+with regard to other memory operations.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateVolatileLoadIntrinsic(PointerType pointerType, ValueTag pointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">pointerType</span></td>
+        <td><p>The type of the pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>The pointer to dereference.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A volatile load.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType%2CFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.Create.cs/#L835">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_" data-uid="Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic*"></a>
+  <h4 id="Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_" data-uid="Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)">CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)</h4>
+  <div class="markdown level1 summary"><p>Creates a volatile store instruction. A volatile store is exactly like a
+regular store, except for the fact that volatile stores must not be reorder
+with regard to other memory operations.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Instruction CreateVolatileStoreIntrinsic(PointerType pointerType, ValueTag pointer, ValueTag value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.PointerType.html">PointerType</a></td>
+        <td><span class="parametername">pointerType</span></td>
+        <td><p>The type of the pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">pointer</span></td>
+        <td><p>The pointer to dereference.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to store at <code data-dev-comment-type="paramref" class="paramref">pointer</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A volatile store.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Equals_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Equals(Flame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L128">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Equals_" data-uid="Flame.Compiler.Instruction.Equals*"></a>
+  <h4 id="Flame_Compiler_Instruction_Equals_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.Instruction.Equals(Flame.Compiler.Instruction)">Equals(Instruction)</h4>
+  <div class="markdown level1 summary"><p>Tests if this instruction is (superficially) identical to
+another instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(Instruction other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">other</span></td>
+        <td><p>The other instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if this instruction has the same prototype and
+arguments as <code data-dev-comment-type="paramref" class="paramref">other</code>; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Equals_System_Object_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L135">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Equals_" data-uid="Flame.Compiler.Instruction.Equals*"></a>
+  <h4 id="Flame_Compiler_Instruction_Equals_System_Object_" data-uid="Flame.Compiler.Instruction.Equals(System.Object)">Equals(Object)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">obj</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.Equals(System.Object)</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_GetHashCode.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L141">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_GetHashCode_" data-uid="Flame.Compiler.Instruction.GetHashCode*"></a>
+  <h4 id="Flame_Compiler_Instruction_GetHashCode" data-uid="Flame.Compiler.Instruction.GetHashCode">GetHashCode()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.ValueType.GetHashCode()</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Map_Flame_TypeSystem_MemberMapping_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Map(Flame.TypeSystem.MemberMapping)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L114">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Map_" data-uid="Flame.Compiler.Instruction.Map*"></a>
+  <h4 id="Flame_Compiler_Instruction_Map_Flame_TypeSystem_MemberMapping_" data-uid="Flame.Compiler.Instruction.Map(Flame.TypeSystem.MemberMapping)">Map(MemberMapping)</h4>
+  <div class="markdown level1 summary"><p>Applies a member mapping to this instruction.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction Map(MemberMapping mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.MemberMapping.html">MemberMapping</a></td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A member mapping.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A transformed prototype.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_MapArguments_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.MapArguments(System.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L93">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_MapArguments_" data-uid="Flame.Compiler.Instruction.MapArguments*"></a>
+  <h4 id="Flame_Compiler_Instruction_MapArguments_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.MapArguments(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.ValueTag})">MapArguments(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new instruction by applying a mapping to this
+instruction's argument list.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction MapArguments(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>The mapping to apply to every element of this instruction's
+argument list, encoded as a dictionary. Arguments that do
+not show up as keys in the dictionary are left unmodified.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A new instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_MapArguments_System_Func_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.MapArguments(System.Func%7BFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L78">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_MapArguments_" data-uid="Flame.Compiler.Instruction.MapArguments*"></a>
+  <h4 id="Flame_Compiler_Instruction_MapArguments_System_Func_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.MapArguments(System.Func{Flame.Compiler.ValueTag,Flame.Compiler.ValueTag})">MapArguments(Func&lt;ValueTag, ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new instruction by applying a mapping to this
+instruction's argument list.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction MapArguments(Func&lt;ValueTag, ValueTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>The mapping to apply to every element of this instruction's
+argument list.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A new instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_Validate_Flame_Compiler_MethodBody_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.Validate(Flame.Compiler.MethodBody)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L50">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_Validate_" data-uid="Flame.Compiler.Instruction.Validate*"></a>
+  <h4 id="Flame_Compiler_Instruction_Validate_Flame_Compiler_MethodBody_" data-uid="Flame.Compiler.Instruction.Validate(Flame.Compiler.MethodBody)">Validate(MethodBody)</h4>
+  <div class="markdown level1 summary"><p>Checks if this instruction conforms to the rules for its
+instruction prototype.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;string&gt; Validate(MethodBody body)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>The method body that defines this instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td><p>A list of validation errors.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_WithArguments_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.WithArguments(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L64">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_WithArguments_" data-uid="Flame.Compiler.Instruction.WithArguments*"></a>
+  <h4 id="Flame_Compiler_Instruction_WithArguments_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.Instruction.WithArguments(System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})">WithArguments(IReadOnlyList&lt;ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a new instruction that copies everything
+from this instruction but uses a different argument
+list.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction WithArguments(IReadOnlyList&lt;ValueTag&gt; newArguments)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">newArguments</span></td>
+        <td><p>The new argument list.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>A new instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="operators">Operators
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_op_Equality_Flame_Compiler_Instruction_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.op_Equality(Flame.Compiler.Instruction%2CFlame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L162">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_op_Equality_" data-uid="Flame.Compiler.Instruction.op_Equality*"></a>
+  <h4 id="Flame_Compiler_Instruction_op_Equality_Flame_Compiler_Instruction_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.Instruction.op_Equality(Flame.Compiler.Instruction,Flame.Compiler.Instruction)">Equality(Instruction, Instruction)</h4>
+  <div class="markdown level1 summary"><p>Tests if the first instruction equals the second.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator ==(Instruction left, Instruction right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The first instruction.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The second instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the instructions have identical prototypes
+and arguments; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction_op_Inequality_Flame_Compiler_Instruction_Flame_Compiler_Instruction_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction.op_Inequality(Flame.Compiler.Instruction%2CFlame.Compiler.Instruction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L176">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Instruction_op_Inequality_" data-uid="Flame.Compiler.Instruction.op_Inequality*"></a>
+  <h4 id="Flame_Compiler_Instruction_op_Inequality_Flame_Compiler_Instruction_Flame_Compiler_Instruction_" data-uid="Flame.Compiler.Instruction.op_Inequality(Flame.Compiler.Instruction,Flame.Compiler.Instruction)">Inequality(Instruction, Instruction)</h4>
+  <div class="markdown level1 summary"><p>Tests if the first instruction does not equal the second.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool operator !=(Instruction left, Instruction right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">left</span></td>
+        <td><p>The first instruction.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">right</span></td>
+        <td><p>The second instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>false</code> if the instructions have identical prototypes
+and arguments; otherwise, <code>true</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Instruction.md&amp;value=---%0Auid%3A%20Flame.Compiler.Instruction%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Instruction.cs/#L12" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

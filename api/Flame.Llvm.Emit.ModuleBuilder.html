@@ -1,0 +1,718 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ModuleBuilder
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ModuleBuilder
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Llvm.Emit.ModuleBuilder">
+  
+  
+  <h1 id="Flame_Llvm_Emit_ModuleBuilder" data-uid="Flame.Llvm.Emit.ModuleBuilder" class="text-break">Class ModuleBuilder
+  </h1>
+  <div class="markdown level0 summary"><p>A wrapper around an LLVM module that extends the wrapped module
+with information relevant to managed languages.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">ModuleBuilder</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Llvm.Emit.html">Flame.Llvm.Emit</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Llvm.dll</h6>
+  <h5 id="Flame_Llvm_Emit_ModuleBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class ModuleBuilder</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder__ctor_LLVMSharp_LLVMModuleRef_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_Flame_Llvm_GCInterface_Flame_Llvm_MetadataFormat_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.%23ctor(LLVMSharp.LLVMModuleRef%2CFlame.TypeSystem.TypeEnvironment%2CFlame.Llvm.NameMangler%2CFlame.Llvm.GCInterface%2CFlame.Llvm.MetadataFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L16">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder__ctor_" data-uid="Flame.Llvm.Emit.ModuleBuilder.#ctor*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder__ctor_LLVMSharp_LLVMModuleRef_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_Flame_Llvm_GCInterface_Flame_Llvm_MetadataFormat_" data-uid="Flame.Llvm.Emit.ModuleBuilder.#ctor(LLVMSharp.LLVMModuleRef,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler,Flame.Llvm.GCInterface,Flame.Llvm.MetadataFormat)">ModuleBuilder(LLVMModuleRef, TypeEnvironment, NameMangler, GCInterface, MetadataFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ModuleBuilder(LLVMModuleRef module, TypeEnvironment typeSystem, NameMangler mangler, GCInterface gc, MetadataFormat metadata)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMModuleRef</span></td>
+        <td><span class="parametername">module</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></td>
+        <td><span class="parametername">typeSystem</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.NameMangler.html">NameMangler</a></td>
+        <td><span class="parametername">mangler</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.GCInterface.html">GCInterface</a></td>
+        <td><span class="parametername">gc</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.MetadataFormat.html">MetadataFormat</a></td>
+        <td><span class="parametername">metadata</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_Context.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.Context%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L65">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_Context_" data-uid="Flame.Llvm.Emit.ModuleBuilder.Context*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_Context" data-uid="Flame.Llvm.Emit.ModuleBuilder.Context">Context</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMContextRef Context { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMContextRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_GC.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.GC%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L57">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_GC_" data-uid="Flame.Llvm.Emit.ModuleBuilder.GC*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_GC" data-uid="Flame.Llvm.Emit.ModuleBuilder.GC">GC</h4>
+  <div class="markdown level1 summary"><p>Gets the application-GC interface for the module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public GCInterface GC { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.GCInterface.html">GCInterface</a></td>
+        <td><p>An application-GC interface.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_Mangler.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.Mangler%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L51">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_Mangler_" data-uid="Flame.Llvm.Emit.ModuleBuilder.Mangler*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_Mangler" data-uid="Flame.Llvm.Emit.ModuleBuilder.Mangler">Mangler</h4>
+  <div class="markdown level1 summary"><p>Gets the primary name mangler for this module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NameMangler Mangler { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.NameMangler.html">NameMangler</a></td>
+        <td><p>A name mangler.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_Metadata.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.Metadata%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L63">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_Metadata_" data-uid="Flame.Llvm.Emit.ModuleBuilder.Metadata*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_Metadata" data-uid="Flame.Llvm.Emit.ModuleBuilder.Metadata">Metadata</h4>
+  <div class="markdown level1 summary"><p>Gets the metadata format to use for the module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MetadataFormat Metadata { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.MetadataFormat.html">MetadataFormat</a></td>
+        <td><p>A metadata format.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_Module.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.Module%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L39">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_Module_" data-uid="Flame.Llvm.Emit.ModuleBuilder.Module*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_Module" data-uid="Flame.Llvm.Emit.ModuleBuilder.Module">Module</h4>
+  <div class="markdown level1 summary"><p>Gets the LLVM module managed by this module builder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMModuleRef Module { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMModuleRef</span></td>
+        <td><p>An LLVM module.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_TypeSystem.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.TypeSystem%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L45">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_TypeSystem_" data-uid="Flame.Llvm.Emit.ModuleBuilder.TypeSystem*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_TypeSystem" data-uid="Flame.Llvm.Emit.ModuleBuilder.TypeSystem">TypeSystem</h4>
+  <div class="markdown level1 summary"><p>Gets the type system for this module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TypeEnvironment TypeSystem { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></td>
+        <td><p>A type system.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_DeclareMethod_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.DeclareMethod(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L73">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_DeclareMethod_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DeclareMethod*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_DeclareMethod_Flame_IMethod_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DeclareMethod(Flame.IMethod)">DeclareMethod(IMethod)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef DeclareMethod(IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_DefineMethod_Flame_IMethod_Flame_Compiler_MethodBody_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.DefineMethod(Flame.IMethod%2CFlame.Compiler.MethodBody)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L130">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_DefineMethod_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DefineMethod*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_DefineMethod_Flame_IMethod_Flame_Compiler_MethodBody_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DefineMethod(Flame.IMethod,Flame.Compiler.MethodBody)">DefineMethod(IMethod, MethodBody)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DefineMethod(IMethod method, MethodBody body)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_DefineStaticField_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.DefineStaticField(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L255">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_DefineStaticField_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DefineStaticField*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_DefineStaticField_Flame_IField_" data-uid="Flame.Llvm.Emit.ModuleBuilder.DefineStaticField(Flame.IField)">DefineStaticField(IField)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef DefineStaticField(IField field)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_GetFieldIndex_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.GetFieldIndex(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L184">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_GetFieldIndex_" data-uid="Flame.Llvm.Emit.ModuleBuilder.GetFieldIndex*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_GetFieldIndex_Flame_IField_" data-uid="Flame.Llvm.Emit.ModuleBuilder.GetFieldIndex(Flame.IField)">GetFieldIndex(IField)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int GetFieldIndex(IField field)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IField.html">IField</a></td>
+        <td><span class="parametername">field</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_GetFunctionPrototype_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.GetFunctionPrototype(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L107">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_GetFunctionPrototype_" data-uid="Flame.Llvm.Emit.ModuleBuilder.GetFunctionPrototype*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_GetFunctionPrototype_Flame_IMethod_" data-uid="Flame.Llvm.Emit.ModuleBuilder.GetFunctionPrototype(Flame.IMethod)">GetFunctionPrototype(IMethod)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMTypeRef GetFunctionPrototype(IMethod method)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">method</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMTypeRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_ImportType_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.ImportType(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L171">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_ImportType_" data-uid="Flame.Llvm.Emit.ModuleBuilder.ImportType*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_ImportType_Flame_IType_" data-uid="Flame.Llvm.Emit.ModuleBuilder.ImportType(Flame.IType)">ImportType(IType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMTypeRef ImportType(IType type)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMTypeRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder_SynthesizeMain_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder.SynthesizeMain(Flame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L137">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_ModuleBuilder_SynthesizeMain_" data-uid="Flame.Llvm.Emit.ModuleBuilder.SynthesizeMain*"></a>
+  <h4 id="Flame_Llvm_Emit_ModuleBuilder_SynthesizeMain_Flame_IMethod_" data-uid="Flame.Llvm.Emit.ModuleBuilder.SynthesizeMain(Flame.IMethod)">SynthesizeMain(IMethod)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SynthesizeMain(IMethod entryPoint)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">entryPoint</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_ModuleBuilder.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.ModuleBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/ModuleBuilder.cs/#L14" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

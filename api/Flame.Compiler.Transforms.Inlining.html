@@ -1,0 +1,612 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Inlining
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Inlining
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Transforms.Inlining">
+  
+  
+  <h1 id="Flame_Compiler_Transforms_Inlining" data-uid="Flame.Compiler.Transforms.Inlining" class="text-break">Class Inlining
+  </h1>
+  <div class="markdown level0 summary"><p>The inlining optimization: a transform that copies the function bodies
+of callees into the caller, replacing the call with its implementation.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a></div>
+    <div class="level2"><span class="xref">Inlining</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Transforms.html">Flame.Compiler.Transforms</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Transforms_Inlining_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Inlining : Optimization</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining__ctor.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L22">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining__ctor_" data-uid="Flame.Compiler.Transforms.Inlining.#ctor*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining__ctor" data-uid="Flame.Compiler.Transforms.Inlining.#ctor">Inlining()</h4>
+  <div class="markdown level1 summary"><p>Creates an instance of the inlining optimization.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Inlining()</code></pre>
+  </div>
+  <h3 id="fields">Fields
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_Instance.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.Instance%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L29">View Source</a>
+  </span>
+  <h4 id="Flame_Compiler_Transforms_Inlining_Instance" data-uid="Flame.Compiler.Transforms.Inlining.Instance">Instance</h4>
+  <div class="markdown level1 summary"><p>An instance of the inlining transformation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly Inlining Instance</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Transforms.Inlining.html">Inlining</a></td>
+        <td><p>A call-inlining transform.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_IsCheckpoint.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.IsCheckpoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L33">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_IsCheckpoint_" data-uid="Flame.Compiler.Transforms.Inlining.IsCheckpoint*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_IsCheckpoint" data-uid="Flame.Compiler.Transforms.Inlining.IsCheckpoint">IsCheckpoint</h4>
+  <div class="markdown level1 summary"><p>Tells if this optimization checkpoints its result.
+The optimizer takes care to always return the latest
+checkpointed method body is returned when a method's
+optimized method body is requested.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool IsCheckpoint { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>Tells if this optimization performs a checkpoint.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html#Flame_Compiler_Pipeline_Optimization_IsCheckpoint">Optimization.IsCheckpoint</a></div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.ApplyAsync(Flame.Compiler.MethodBody%2CFlame.Compiler.Pipeline.OptimizationState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L36">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_ApplyAsync_" data-uid="Flame.Compiler.Transforms.Inlining.ApplyAsync*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_" data-uid="Flame.Compiler.Transforms.Inlining.ApplyAsync(Flame.Compiler.MethodBody,Flame.Compiler.Pipeline.OptimizationState)">ApplyAsync(MethodBody, OptimizationState)</h4>
+  <div class="markdown level1 summary"><p>Applies the optimization to a method body.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Task&lt;MethodBody&gt; ApplyAsync(MethodBody body, OptimizationState state)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>A method body holder to optimize.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Pipeline.OptimizationState.html">OptimizationState</a></td>
+        <td><span class="parametername">state</span></td>
+        <td><p>State associated with optimizations.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span>&lt;<a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
+        <td><p>A task that produces an optimized method body.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html#Flame_Compiler_Pipeline_Optimization_ApplyAsync_Flame_Compiler_MethodBody_Flame_Compiler_Pipeline_OptimizationState_">Optimization.ApplyAsync(MethodBody, OptimizationState)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_CanInline_Flame_Compiler_MethodBody_Flame_IMethod_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.CanInline(Flame.Compiler.MethodBody%2CFlame.IMethod%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L209">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_CanInline_" data-uid="Flame.Compiler.Transforms.Inlining.CanInline*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_CanInline_Flame_Compiler_MethodBody_Flame_IMethod_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Transforms.Inlining.CanInline(Flame.Compiler.MethodBody,Flame.IMethod,Flame.Compiler.FlowGraph)">CanInline(MethodBody, IMethod, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Determines if a method body can be inlined, that is, if invalid
+code will be generated by inlining it.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool CanInline(MethodBody calleeBody, IMethod caller, FlowGraph callerBody)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">calleeBody</span></td>
+        <td><p>A method body that is an inlining candidate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">caller</span></td>
+        <td><p>The caller that wants to inline <code data-dev-comment-type="paramref" class="paramref">calleeBody</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">callerBody</span></td>
+        <td><p>The method body for <code data-dev-comment-type="paramref" class="paramref">caller</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if inlining <code data-dev-comment-type="paramref" class="paramref">calleeBody</code> into <code data-dev-comment-type="paramref" class="paramref">caller</code> is
+safe; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_GetInlineCost_Flame_Compiler_MethodBody_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.GetInlineCost(Flame.Compiler.MethodBody)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L263">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_GetInlineCost_" data-uid="Flame.Compiler.Transforms.Inlining.GetInlineCost*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_GetInlineCost_Flame_Compiler_MethodBody_" data-uid="Flame.Compiler.Transforms.Inlining.GetInlineCost(Flame.Compiler.MethodBody)">GetInlineCost(MethodBody)</h4>
+  <div class="markdown level1 summary"><p>Gauges a particular method body's inline cost.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual int GetInlineCost(MethodBody body)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>A method body that might be inlined.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>A number that represents the method body's inline cost.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_GetInlineGain_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L283">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_GetInlineGain_" data-uid="Flame.Compiler.Transforms.Inlining.GetInlineGain*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_GetInlineGain_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Transforms.Inlining.GetInlineGain(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)">GetInlineGain(MethodBody, IReadOnlyList&lt;ValueTag&gt;, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Gauges a particular method body's inline gain.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual int GetInlineGain(MethodBody body, IReadOnlyList&lt;ValueTag&gt; arguments, FlowGraph caller)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>A method body that might be inlined.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The list of arguments to feed to <code data-dev-comment-type="paramref" class="paramref">body</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">caller</span></td>
+        <td><p>The control-flow graph of the caller, which defines the arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>A number that represents how much new information we expect to gain from inlining.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_ShouldConsider_Flame_IMethod_Flame_IMethod_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.ShouldConsider(Flame.IMethod%2CFlame.IMethod)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L163">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_ShouldConsider_" data-uid="Flame.Compiler.Transforms.Inlining.ShouldConsider*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_ShouldConsider_Flame_IMethod_Flame_IMethod_" data-uid="Flame.Compiler.Transforms.Inlining.ShouldConsider(Flame.IMethod,Flame.IMethod)">ShouldConsider(IMethod, IMethod)</h4>
+  <div class="markdown level1 summary"><p>Tells if a method should be considered for inlining.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool ShouldConsider(IMethod callee, IMethod caller)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>A method that might be inlined.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IMethod.html">IMethod</a></td>
+        <td><span class="parametername">caller</span></td>
+        <td><p>A method that calls <code data-dev-comment-type="paramref" class="paramref">callee</code>; it's not sure if it
+should consider inlining <code data-dev-comment-type="paramref" class="paramref">callee</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if inlining may proceed; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining_ShouldInline_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.ValueTag%7D%2CFlame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L250">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Transforms_Inlining_ShouldInline_" data-uid="Flame.Compiler.Transforms.Inlining.ShouldInline*"></a>
+  <h4 id="Flame_Compiler_Transforms_Inlining_ShouldInline_Flame_Compiler_MethodBody_System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Transforms.Inlining.ShouldInline(Flame.Compiler.MethodBody,System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag},Flame.Compiler.FlowGraph)">ShouldInline(MethodBody, IReadOnlyList&lt;ValueTag&gt;, FlowGraph)</h4>
+  <div class="markdown level1 summary"><p>Determines if a method body is worth inlining.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected bool ShouldInline(MethodBody body, IReadOnlyList&lt;ValueTag&gt; arguments, FlowGraph caller)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a></td>
+        <td><span class="parametername">body</span></td>
+        <td><p>The method body to inline.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">arguments</span></td>
+        <td><p>The list of arguments to feed to <code data-dev-comment-type="paramref" class="paramref">body</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.FlowGraph.html">FlowGraph</a></td>
+        <td><span class="parametername">caller</span></td>
+        <td><p>The control-flow graph of the caller, which defines the arguments.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the method body should be inlined; otherwise, <code>false,</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_Inlining.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.Inlining%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/Inlining.cs/#L17" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

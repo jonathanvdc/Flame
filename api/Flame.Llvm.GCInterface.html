@@ -1,0 +1,548 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class GCInterface
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class GCInterface
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Llvm.GCInterface">
+  
+  
+  <h1 id="Flame_Llvm_GCInterface" data-uid="Flame.Llvm.GCInterface" class="text-break">Class GCInterface
+  </h1>
+  <div class="markdown level0 summary"><p>An application-GC interface, which defines how the application
+interacts with the GC. The application-GC interface's responsibilities
+include root set management, object allocation and the object header format.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">GCInterface</span></div>
+      <div class="level2"><a class="xref" href="Flame.Llvm.MallocInterface.html">MallocInterface</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Llvm.html">Flame.Llvm</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Llvm.dll</h6>
+  <h5 id="Flame_Llvm_GCInterface_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class GCInterface</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitAllocArray_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitAllocArray(Flame.IType%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BLLVMSharp.LLVMValueRef%7D%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L50">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitAllocArray_" data-uid="Flame.Llvm.GCInterface.EmitAllocArray*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitAllocArray_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitAllocArray(Flame.IType,Flame.IType,System.Collections.Generic.IReadOnlyList{LLVMSharp.LLVMValueRef},Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitAllocArray(IType, IType, IReadOnlyList&lt;LLVMValueRef&gt;, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits LLVM IR instructions that allocate a new array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitAllocArray(IType arrayType, IType elementType, IReadOnlyList&lt;LLVMValueRef&gt; dimensions, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>The type of the array to allocate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of the values stored in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<span class="xref">LLVMSharp.LLVMValueRef</span>&gt;</td>
+        <td><span class="parametername">dimensions</span></td>
+        <td><p>The array's dimensions, as sequence of integer values.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The LLVM module to generate the instructions in.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the resulting array pointer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>A value that points to an array.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L22">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitAllocObject_" data-uid="Flame.Llvm.GCInterface.EmitAllocObject*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits instructions that allocate a GC-managed instance of a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitAllocObject(IType type, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to instantiate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The module that defines the object-allocating instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the value that refers to the allocated object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>A pointer to the allocated object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitArrayElementAddress_LLVMSharp_LLVMValueRef_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitArrayElementAddress(LLVMSharp.LLVMValueRef%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BLLVMSharp.LLVMValueRef%7D%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L95">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitArrayElementAddress_" data-uid="Flame.Llvm.GCInterface.EmitArrayElementAddress*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitArrayElementAddress_LLVMSharp_LLVMValueRef_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitArrayElementAddress(LLVMSharp.LLVMValueRef,Flame.IType,System.Collections.Generic.IReadOnlyList{LLVMSharp.LLVMValueRef},Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitArrayElementAddress(LLVMValueRef, IType, IReadOnlyList&lt;LLVMValueRef&gt;, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits LLVM IR instructions that load the address of an element
+in an array.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitArrayElementAddress(LLVMValueRef array, IType elementType, IReadOnlyList&lt;LLVMValueRef&gt; indices, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">array</span></td>
+        <td><p>The array value to inspect.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of the values stored in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<span class="xref">LLVMSharp.LLVMValueRef</span>&gt;</td>
+        <td><span class="parametername">indices</span></td>
+        <td><p>The indices into <code data-dev-comment-type="paramref" class="paramref">array</code>, as sequence of integer values.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The LLVM module to generate the instructions in.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the resulting array pointer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>A value that points to an array.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitArrayLength_LLVMSharp_LLVMValueRef_Flame_IType_System_Int32_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitArrayLength(LLVMSharp.LLVMValueRef%2CFlame.IType%2CSystem.Int32%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L126">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitArrayLength_" data-uid="Flame.Llvm.GCInterface.EmitArrayLength*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitArrayLength_LLVMSharp_LLVMValueRef_Flame_IType_System_Int32_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitArrayLength(LLVMSharp.LLVMValueRef,Flame.IType,System.Int32,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitArrayLength(LLVMValueRef, IType, Int32, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits LLVM IR instructions that compute an array's total length,
+that is, the product of its dimensions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitArrayLength(LLVMValueRef array, IType elementType, int dimensions, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">array</span></td>
+        <td><p>The array value to inspect.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of the values stored in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">dimensions</span></td>
+        <td><p>The dimensionality of <code data-dev-comment-type="paramref" class="paramref">array</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The LLVM module to generate the instructions in.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the resulting array pointer.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>The product of <code data-dev-comment-type="paramref" class="paramref">array</code>'s dimensions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitLoadMetadata_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitLoadMetadata(LLVMSharp.LLVMValueRef%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L66">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitLoadMetadata_" data-uid="Flame.Llvm.GCInterface.EmitLoadMetadata*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitLoadMetadata_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitLoadMetadata(LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitLoadMetadata(LLVMValueRef, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits instructions that load an object's metadata handle.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitLoadMetadata(LLVMValueRef objectPointer, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">objectPointer</span></td>
+        <td><p>An object to inspect for its metadata handle.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The module that defines the metadata-loading instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the value that refers to the metadata.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>A handle to the metadata.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L12" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

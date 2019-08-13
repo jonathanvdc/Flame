@@ -1,0 +1,866 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class BlockFlow
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class BlockFlow
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.BlockFlow">
+  
+  
+  <h1 id="Flame_Compiler_BlockFlow" data-uid="Flame.Compiler.BlockFlow" class="text-break">Class BlockFlow
+  </h1>
+  <div class="markdown level0 summary"><p>Describes control flow at the end of a basic block.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">BlockFlow</span></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Flow.JumpFlow.html">JumpFlow</a></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Flow.ReturnFlow.html">ReturnFlow</a></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Flow.SwitchFlow.html">SwitchFlow</a></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Flow.TryFlow.html">TryFlow</a></div>
+      <div class="level2"><a class="xref" href="Flame.Compiler.Flow.UnreachableFlow.html">UnreachableFlow</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.html">Flame.Compiler</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_BlockFlow_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class BlockFlow</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_Branches.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.Branches%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L30">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_Branches_" data-uid="Flame.Compiler.BlockFlow.Branches*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_Branches" data-uid="Flame.Compiler.BlockFlow.Branches">Branches</h4>
+  <div class="markdown level1 summary"><p>Gets a list of branches this flow may take.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IReadOnlyList&lt;Branch&gt; Branches { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><p>A list of potential branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_BranchTargets.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.BranchTargets%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_BranchTargets_" data-uid="Flame.Compiler.BlockFlow.BranchTargets*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_BranchTargets" data-uid="Flame.Compiler.BlockFlow.BranchTargets">BranchTargets</h4>
+  <div class="markdown level1 summary"><p>Gets a list of each branch's target.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;BasicBlockTag&gt; BranchTargets { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>&gt;</td>
+        <td><p>A list of branch targets.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_Instructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.Instructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L17">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_Instructions_" data-uid="Flame.Compiler.BlockFlow.Instructions*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_Instructions" data-uid="Flame.Compiler.BlockFlow.Instructions">Instructions</h4>
+  <div class="markdown level1 summary"><p>Gets a list of inner instructions for this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IReadOnlyList&lt;Instruction&gt; Instructions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a>&gt;</td>
+        <td><p>The inner instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_Values.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.Values%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L72">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_Values_" data-uid="Flame.Compiler.BlockFlow.Values*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_Values" data-uid="Flame.Compiler.BlockFlow.Values">Values</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence of all values that are used in this block flow.
+Multiply used values are appropriately duplicated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ValueTag&gt; Values { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><p>A sequence of values.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_GetInstructionBuilder_Flame_Compiler_BasicBlockBuilder_System_Int32_.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.GetInstructionBuilder(Flame.Compiler.BasicBlockBuilder%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L51">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_GetInstructionBuilder_" data-uid="Flame.Compiler.BlockFlow.GetInstructionBuilder*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_GetInstructionBuilder_Flame_Compiler_BasicBlockBuilder_System_Int32_" data-uid="Flame.Compiler.BlockFlow.GetInstructionBuilder(Flame.Compiler.BasicBlockBuilder,System.Int32)">GetInstructionBuilder(BasicBlockBuilder, Int32)</h4>
+  <div class="markdown level1 summary"><p>Gets an instruction builder for the nth anonymous
+instruction in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract InstructionBuilder GetInstructionBuilder(BasicBlockBuilder block, int instructionIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><span class="parametername">block</span></td>
+        <td><p>The block that defines this flow.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">instructionIndex</span></td>
+        <td><p>The index of the anonymous instruction to create a builder for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.InstructionBuilder.html">InstructionBuilder</a></td>
+        <td><p>An instruction builder for an anonymous instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_GetInstructionBuilders_Flame_Compiler_BasicBlockBuilder_.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.GetInstructionBuilders(Flame.Compiler.BasicBlockBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L93">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_GetInstructionBuilders_" data-uid="Flame.Compiler.BlockFlow.GetInstructionBuilders*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_GetInstructionBuilders_Flame_Compiler_BasicBlockBuilder_" data-uid="Flame.Compiler.BlockFlow.GetInstructionBuilders(Flame.Compiler.BasicBlockBuilder)">GetInstructionBuilders(BasicBlockBuilder)</h4>
+  <div class="markdown level1 summary"><p>Gets instruction builders for all anonymous instructions
+in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;InstructionBuilder&gt; GetInstructionBuilders(BasicBlockBuilder block)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><span class="parametername">block</span></td>
+        <td><p>The block that defines this flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.Compiler.InstructionBuilder.html">InstructionBuilder</a>&gt;</td>
+        <td><p>A sequence of instruction builders for anonymous instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapArguments_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapArguments(System.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.BranchArgument%2CFlame.Compiler.BranchArgument%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L210">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapArguments_" data-uid="Flame.Compiler.BlockFlow.MapArguments*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapArguments_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__" data-uid="Flame.Compiler.BlockFlow.MapArguments(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.BranchArgument,Flame.Compiler.BranchArgument})">MapArguments(IReadOnlyDictionary&lt;BranchArgument, BranchArgument&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all branch arguments in this flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapArguments(IReadOnlyDictionary&lt;BranchArgument, BranchArgument&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BranchArgument.html">BranchArgument</a>, <a class="xref" href="Flame.Compiler.BranchArgument.html">BranchArgument</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A argument-to-argument mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapArguments_System_Func_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapArguments(System.Func%7BFlame.Compiler.BranchArgument%2CFlame.Compiler.BranchArgument%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L195">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapArguments_" data-uid="Flame.Compiler.BlockFlow.MapArguments*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapArguments_System_Func_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__" data-uid="Flame.Compiler.BlockFlow.MapArguments(System.Func{Flame.Compiler.BranchArgument,Flame.Compiler.BranchArgument})">MapArguments(Func&lt;BranchArgument, BranchArgument&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all branch arguments in this flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapArguments(Func&lt;BranchArgument, BranchArgument&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.Compiler.BranchArgument.html">BranchArgument</a>, <a class="xref" href="Flame.Compiler.BranchArgument.html">BranchArgument</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A argument-to-argument mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapBlocks_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapBlocks(System.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.BasicBlockTag%2CFlame.Compiler.BasicBlockTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L161">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapBlocks_" data-uid="Flame.Compiler.BlockFlow.MapBlocks*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapBlocks_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__" data-uid="Flame.Compiler.BlockFlow.MapBlocks(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.BasicBlockTag,Flame.Compiler.BasicBlockTag})">MapBlocks(IReadOnlyDictionary&lt;BasicBlockTag, BasicBlockTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all basic blocks referenced by
+branches in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapBlocks(IReadOnlyDictionary&lt;BasicBlockTag, BasicBlockTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A block-to-block mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapBlocks_System_Func_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapBlocks(System.Func%7BFlame.Compiler.BasicBlockTag%2CFlame.Compiler.BasicBlockTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L145">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapBlocks_" data-uid="Flame.Compiler.BlockFlow.MapBlocks*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapBlocks_System_Func_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__" data-uid="Flame.Compiler.BlockFlow.MapBlocks(System.Func{Flame.Compiler.BasicBlockTag,Flame.Compiler.BasicBlockTag})">MapBlocks(Func&lt;BasicBlockTag, BasicBlockTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all basic blocks referenced by
+branches in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapBlocks(Func&lt;BasicBlockTag, BasicBlockTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>, <a class="xref" href="Flame.Compiler.BasicBlockTag.html">BasicBlockTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A block-to-block mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapBranches_System_Func_Flame_Compiler_Branch_Flame_Compiler_Branch__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapBranches(System.Func%7BFlame.Compiler.Branch%2CFlame.Compiler.Branch%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L183">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapBranches_" data-uid="Flame.Compiler.BlockFlow.MapBranches*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapBranches_System_Func_Flame_Compiler_Branch_Flame_Compiler_Branch__" data-uid="Flame.Compiler.BlockFlow.MapBranches(System.Func{Flame.Compiler.Branch,Flame.Compiler.Branch})">MapBranches(Func&lt;Branch, Branch&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all branches in this basic block.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapBranches(Func&lt;Branch, Branch&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>, <a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>The mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapValues_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapValues(System.Collections.Generic.IReadOnlyDictionary%7BFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L122">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapValues_" data-uid="Flame.Compiler.BlockFlow.MapValues*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapValues_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.BlockFlow.MapValues(System.Collections.Generic.IReadOnlyDictionary{Flame.Compiler.ValueTag,Flame.Compiler.ValueTag})">MapValues(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all values referenced by instructions
+and branches in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapValues(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A value-to-value mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_MapValues_System_Func_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.MapValues(System.Func%7BFlame.Compiler.ValueTag%2CFlame.Compiler.ValueTag%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L104">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_MapValues_" data-uid="Flame.Compiler.BlockFlow.MapValues*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_MapValues_System_Func_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__" data-uid="Flame.Compiler.BlockFlow.MapValues(System.Func{Flame.Compiler.ValueTag,Flame.Compiler.ValueTag})">MapValues(Func&lt;ValueTag, ValueTag&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies a mapping to all values referenced by instructions
+and branches in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BlockFlow MapValues(Func&lt;ValueTag, ValueTag&gt; mapping)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>, <a class="xref" href="Flame.Compiler.ValueTag.html">ValueTag</a>&gt;</td>
+        <td><span class="parametername">mapping</span></td>
+        <td><p>A value-to-value mapping to apply.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>Block flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.WithBranches(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Branch%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L38">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_WithBranches_" data-uid="Flame.Compiler.BlockFlow.WithBranches*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__" data-uid="Flame.Compiler.BlockFlow.WithBranches(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Branch})">WithBranches(IReadOnlyList&lt;Branch&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces this flow's branches with a particular
+list of branches.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract BlockFlow WithBranches(IReadOnlyList&lt;Branch&gt; branches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><span class="parametername">branches</span></td>
+        <td><p>The new branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>A new flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow_WithInstructions_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Instruction__.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow.WithInstructions(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Instruction%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L24">View Source</a>
+  </span>
+  <a id="Flame_Compiler_BlockFlow_WithInstructions_" data-uid="Flame.Compiler.BlockFlow.WithInstructions*"></a>
+  <h4 id="Flame_Compiler_BlockFlow_WithInstructions_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Instruction__" data-uid="Flame.Compiler.BlockFlow.WithInstructions(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Instruction})">WithInstructions(IReadOnlyList&lt;Instruction&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces this flow's inner instructions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract BlockFlow WithInstructions(IReadOnlyList&lt;Instruction&gt; instructions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a>&gt;</td>
+        <td><span class="parametername">instructions</span></td>
+        <td><p>The new instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>A new flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_BlockFlow.md&amp;value=---%0Auid%3A%20Flame.Compiler.BlockFlow%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/BlockFlow.cs/#L11" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,916 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class SwitchFlow
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class SwitchFlow
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Flow.SwitchFlow">
+  
+  
+  <h1 id="Flame_Compiler_Flow_SwitchFlow" data-uid="Flame.Compiler.Flow.SwitchFlow" class="text-break">Class SwitchFlow
+  </h1>
+  <div class="markdown level0 summary"><p>Switch flow, which tries to match a value against a list of
+constants in cases and takes an appropriate branch based on
+which case is selected, if any.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></div>
+    <div class="level2"><span class="xref">SwitchFlow</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_BranchTargets">BlockFlow.BranchTargets</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_Values">BlockFlow.Values</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_GetInstructionBuilders_Flame_Compiler_BasicBlockBuilder_">BlockFlow.GetInstructionBuilders(BasicBlockBuilder)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapValues_System_Func_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__">BlockFlow.MapValues(Func&lt;ValueTag, ValueTag&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapValues_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag__">BlockFlow.MapValues(IReadOnlyDictionary&lt;ValueTag, ValueTag&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapBlocks_System_Func_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__">BlockFlow.MapBlocks(Func&lt;BasicBlockTag, BasicBlockTag&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapBlocks_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BasicBlockTag_Flame_Compiler_BasicBlockTag__">BlockFlow.MapBlocks(IReadOnlyDictionary&lt;BasicBlockTag, BasicBlockTag&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapBranches_System_Func_Flame_Compiler_Branch_Flame_Compiler_Branch__">BlockFlow.MapBranches(Func&lt;Branch, Branch&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapArguments_System_Func_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__">BlockFlow.MapArguments(Func&lt;BranchArgument, BranchArgument&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_MapArguments_System_Collections_Generic_IReadOnlyDictionary_Flame_Compiler_BranchArgument_Flame_Compiler_BranchArgument__">BlockFlow.MapArguments(IReadOnlyDictionary&lt;BranchArgument, BranchArgument&gt;)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Flow.html">Flame.Compiler.Flow</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Flow_SwitchFlow_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class SwitchFlow : BlockFlow</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow__ctor_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Flow_SwitchCase__Flame_Compiler_Branch_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.%23ctor(Flame.Compiler.Instruction%2CSystem.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Flow.SwitchCase%7D%2CFlame.Compiler.Branch)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L37">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow__ctor_" data-uid="Flame.Compiler.Flow.SwitchFlow.#ctor*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow__ctor_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Flow_SwitchCase__Flame_Compiler_Branch_" data-uid="Flame.Compiler.Flow.SwitchFlow.#ctor(Flame.Compiler.Instruction,System.Collections.Generic.IReadOnlyList{Flame.Compiler.Flow.SwitchCase},Flame.Compiler.Branch)">SwitchFlow(Instruction, IReadOnlyList&lt;SwitchCase&gt;, Branch)</h4>
+  <div class="markdown level1 summary"><p>Creates switch flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SwitchFlow(Instruction switchValue, IReadOnlyList&lt;SwitchCase&gt; cases, Branch defaultBranch)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">switchValue</span></td>
+        <td><p>An instruction that produces the value to switch on.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Flow.SwitchCase.html">SwitchCase</a>&gt;</td>
+        <td><span class="parametername">cases</span></td>
+        <td><p>A list of switch cases.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">defaultBranch</span></td>
+        <td><p>A branch to take if none of the switch cases match
+the value being switched on.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="Flame_Compiler_Flow_SwitchFlow__ctor_Flame_Compiler_Instruction_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Flow_SwitchCase__Flame_Compiler_Branch__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This constructor will simplify <code data-dev-comment-type="paramref" class="paramref">cases</code>
+by unifying cases that point to the same branch and
+eliminate cases that are associated with no constants
+or point to the default branch.</p>
+</div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_Branches.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.Branches%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L110">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_Branches_" data-uid="Flame.Compiler.Flow.SwitchFlow.Branches*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_Branches" data-uid="Flame.Compiler.Flow.SwitchFlow.Branches">Branches</h4>
+  <div class="markdown level1 summary"><p>Gets a list of branches this flow may take.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IReadOnlyList&lt;Branch&gt; Branches { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><p>A list of potential branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_Branches">BlockFlow.Branches</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_Cases.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.Cases%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L97">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_Cases_" data-uid="Flame.Compiler.Flow.SwitchFlow.Cases*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_Cases" data-uid="Flame.Compiler.Flow.SwitchFlow.Cases">Cases</h4>
+  <div class="markdown level1 summary"><p>Gets the list of switch cases in this switch flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;SwitchCase&gt; Cases { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Flow.SwitchCase.html">SwitchCase</a>&gt;</td>
+        <td><p>A list of switch cases.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_DefaultBranch.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.DefaultBranch%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L103">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_DefaultBranch_" data-uid="Flame.Compiler.Flow.SwitchFlow.DefaultBranch*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_DefaultBranch" data-uid="Flame.Compiler.Flow.SwitchFlow.DefaultBranch">DefaultBranch</h4>
+  <div class="markdown level1 summary"><p>Gets the default branch, which is only taken when no case matches.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Branch DefaultBranch { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><p>The default branch.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_Instructions.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.Instructions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L106">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_Instructions_" data-uid="Flame.Compiler.Flow.SwitchFlow.Instructions*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_Instructions" data-uid="Flame.Compiler.Flow.SwitchFlow.Instructions">Instructions</h4>
+  <div class="markdown level1 summary"><p>Gets a list of inner instructions for this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IReadOnlyList&lt;Instruction&gt; Instructions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a>&gt;</td>
+        <td><p>The inner instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_Instructions">BlockFlow.Instructions</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_IsIfElseFlow.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.IsIfElseFlow%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L116">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_IsIfElseFlow_" data-uid="Flame.Compiler.Flow.SwitchFlow.IsIfElseFlow*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_IsIfElseFlow" data-uid="Flame.Compiler.Flow.SwitchFlow.IsIfElseFlow">IsIfElseFlow</h4>
+  <div class="markdown level1 summary"><p>Tells if this switch flow represents if-else flow,
+that is, if it has a single case matching on a single value.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsIfElseFlow { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_IsIntegerSwitch.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.IsIntegerSwitch%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L131">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_IsIntegerSwitch_" data-uid="Flame.Compiler.Flow.SwitchFlow.IsIntegerSwitch*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_IsIntegerSwitch" data-uid="Flame.Compiler.Flow.SwitchFlow.IsIntegerSwitch">IsIntegerSwitch</h4>
+  <div class="markdown level1 summary"><p>Tells if this switch flow contains only integer constants.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsIntegerSwitch { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_IsJumpTable.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.IsJumpTable%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L123">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_IsJumpTable_" data-uid="Flame.Compiler.Flow.SwitchFlow.IsJumpTable*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_IsJumpTable" data-uid="Flame.Compiler.Flow.SwitchFlow.IsJumpTable">IsJumpTable</h4>
+  <div class="markdown level1 summary"><p>Tells if the switch flow can be implemented as a jump table,
+that is, its cases do not have any branches with arguments and all
+of its case values are integer constants.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsJumpTable { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_SwitchValue.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.SwitchValue%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L91">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_SwitchValue_" data-uid="Flame.Compiler.Flow.SwitchFlow.SwitchValue*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_SwitchValue" data-uid="Flame.Compiler.Flow.SwitchFlow.SwitchValue">SwitchValue</h4>
+  <div class="markdown level1 summary"><p>Gets an instruction that produces the value to switch on.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Instruction SwitchValue { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><p>An instruction that produces the value to switch on.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_ValueToBranchMap.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.ValueToBranchMap%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L140">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_ValueToBranchMap_" data-uid="Flame.Compiler.Flow.SwitchFlow.ValueToBranchMap*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_ValueToBranchMap" data-uid="Flame.Compiler.Flow.SwitchFlow.ValueToBranchMap">ValueToBranchMap</h4>
+  <div class="markdown level1 summary"><p>Gets a mapping of values to branches for this switch.
+This mapping does not include the default branch.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;Constant, Branch&gt; ValueToBranchMap { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyDictionary</span>&lt;<a class="xref" href="Flame.Constant.html">Constant</a>, <a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><p>A mapping of values to branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_CreateConstantCheck_Flame_Compiler_Instruction_Flame_Constant_Flame_Compiler_Branch_Flame_Compiler_Branch_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.CreateConstantCheck(Flame.Compiler.Instruction%2CFlame.Constant%2CFlame.Compiler.Branch%2CFlame.Compiler.Branch)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L298">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_CreateConstantCheck_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateConstantCheck*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_CreateConstantCheck_Flame_Compiler_Instruction_Flame_Constant_Flame_Compiler_Branch_Flame_Compiler_Branch_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateConstantCheck(Flame.Compiler.Instruction,Flame.Constant,Flame.Compiler.Branch,Flame.Compiler.Branch)">CreateConstantCheck(Instruction, Constant, Branch, Branch)</h4>
+  <div class="markdown level1 summary"><p>Creates switch flow that redirects control to one branch
+if a value equals a particular constant and to another
+branch otherwise.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static SwitchFlow CreateConstantCheck(Instruction value, Constant constant, Branch equalBranch, Branch notEqualBranch)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>The value to compare to a constant.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Constant.html">Constant</a></td>
+        <td><span class="parametername">constant</span></td>
+        <td><p>The constant to compare the value to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">equalBranch</span></td>
+        <td><p>The branch to which flow is redirected if <code data-dev-comment-type="paramref" class="paramref">value</code>
+equals <code data-dev-comment-type="paramref" class="paramref">constant</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">notEqualBranch</span></td>
+        <td><p>The branch to which flow is redirected if <code data-dev-comment-type="paramref" class="paramref">value</code>
+does not equal <code data-dev-comment-type="paramref" class="paramref">constant</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Flow.SwitchFlow.html">SwitchFlow</a></td>
+        <td><p>Switch flow that corresponds to a constant equality check.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_CreateIfElse_Flame_Compiler_Instruction_Flame_Compiler_Branch_Flame_Compiler_Branch_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.CreateIfElse(Flame.Compiler.Instruction%2CFlame.Compiler.Branch%2CFlame.Compiler.Branch)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L231">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_CreateIfElse_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateIfElse*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_CreateIfElse_Flame_Compiler_Instruction_Flame_Compiler_Branch_Flame_Compiler_Branch_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateIfElse(Flame.Compiler.Instruction,Flame.Compiler.Branch,Flame.Compiler.Branch)">CreateIfElse(Instruction, Branch, Branch)</h4>
+  <div class="markdown level1 summary"><p>Creates switch flow that corresponds to if-else flow on
+a Boolean condition.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static SwitchFlow CreateIfElse(Instruction condition, Branch ifBranch, Branch elseBranch)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">condition</span></td>
+        <td><p>An instruction that produces Boolean condition.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">ifBranch</span></td>
+        <td><p>The 'if' branch, which is taken when the value produced by the
+Boolean condition is not false.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">elseBranch</span></td>
+        <td><p>The 'else' branch, which is taken when the value produced by the
+Boolean condition is false.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Flow.SwitchFlow.html">SwitchFlow</a></td>
+        <td><p>Switch flow that corresponds to if-else flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_CreateNullCheck_Flame_Compiler_Instruction_Flame_Compiler_Branch_Flame_Compiler_Branch_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.CreateNullCheck(Flame.Compiler.Instruction%2CFlame.Compiler.Branch%2CFlame.Compiler.Branch)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L264">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_CreateNullCheck_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateNullCheck*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_CreateNullCheck_Flame_Compiler_Instruction_Flame_Compiler_Branch_Flame_Compiler_Branch_" data-uid="Flame.Compiler.Flow.SwitchFlow.CreateNullCheck(Flame.Compiler.Instruction,Flame.Compiler.Branch,Flame.Compiler.Branch)">CreateNullCheck(Instruction, Branch, Branch)</h4>
+  <div class="markdown level1 summary"><p>Creates switch flow that redirects control to one branch
+if a value equals <code>null</code> and to another branch otherwise.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static SwitchFlow CreateNullCheck(Instruction value, Branch nullBranch, Branch nonNullBranch)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>A value to compare to <code>null</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">nullBranch</span></td>
+        <td><p>The branch to which flow is redirected if <code data-dev-comment-type="paramref" class="paramref">value</code>
+equals <code>null</code>.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Branch.html">Branch</a></td>
+        <td><span class="parametername">nonNullBranch</span></td>
+        <td><p>The branch to which flow is redirected if <code data-dev-comment-type="paramref" class="paramref">value</code>
+does not equal <code>null</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Flow.SwitchFlow.html">SwitchFlow</a></td>
+        <td><p>Switch flow that corresponds to a null check.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_GetInstructionBuilder_Flame_Compiler_BasicBlockBuilder_System_Int32_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.GetInstructionBuilder(Flame.Compiler.BasicBlockBuilder%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L199">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_GetInstructionBuilder_" data-uid="Flame.Compiler.Flow.SwitchFlow.GetInstructionBuilder*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_GetInstructionBuilder_Flame_Compiler_BasicBlockBuilder_System_Int32_" data-uid="Flame.Compiler.Flow.SwitchFlow.GetInstructionBuilder(Flame.Compiler.BasicBlockBuilder,System.Int32)">GetInstructionBuilder(BasicBlockBuilder, Int32)</h4>
+  <div class="markdown level1 summary"><p>Gets an instruction builder for the nth anonymous
+instruction in this block flow.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override InstructionBuilder GetInstructionBuilder(BasicBlockBuilder block, int instructionIndex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BasicBlockBuilder.html">BasicBlockBuilder</a></td>
+        <td><span class="parametername">block</span></td>
+        <td><p>The block that defines this flow.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">instructionIndex</span></td>
+        <td><p>The index of the anonymous instruction to create a builder for.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.InstructionBuilder.html">InstructionBuilder</a></td>
+        <td><p>An instruction builder for an anonymous instruction.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_GetInstructionBuilder_Flame_Compiler_BasicBlockBuilder_System_Int32_">BlockFlow.GetInstructionBuilder(BasicBlockBuilder, Int32)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.WithBranches(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Branch%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L159">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_WithBranches_" data-uid="Flame.Compiler.Flow.SwitchFlow.WithBranches*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__" data-uid="Flame.Compiler.Flow.SwitchFlow.WithBranches(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Branch})">WithBranches(IReadOnlyList&lt;Branch&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces this flow's branches with a particular
+list of branches.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BlockFlow WithBranches(IReadOnlyList&lt;Branch&gt; branches)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Branch.html">Branch</a>&gt;</td>
+        <td><span class="parametername">branches</span></td>
+        <td><p>The new branches.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>A new flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_WithBranches_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Branch__">BlockFlow.WithBranches(IReadOnlyList&lt;Branch&gt;)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow_WithInstructions_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Instruction__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow.WithInstructions(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Instruction%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L184">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Flow_SwitchFlow_WithInstructions_" data-uid="Flame.Compiler.Flow.SwitchFlow.WithInstructions*"></a>
+  <h4 id="Flame_Compiler_Flow_SwitchFlow_WithInstructions_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Instruction__" data-uid="Flame.Compiler.Flow.SwitchFlow.WithInstructions(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Instruction})">WithInstructions(IReadOnlyList&lt;Instruction&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces this flow's inner instructions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override BlockFlow WithInstructions(IReadOnlyList&lt;Instruction&gt; instructions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Instruction.html">Instruction</a>&gt;</td>
+        <td><span class="parametername">instructions</span></td>
+        <td><p>The new instructions.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.BlockFlow.html">BlockFlow</a></td>
+        <td><p>A new flow.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.Compiler.BlockFlow.html#Flame_Compiler_BlockFlow_WithInstructions_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Instruction__">BlockFlow.WithInstructions(IReadOnlyList&lt;Instruction&gt;)</a></div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Flow_SwitchFlow.md&amp;value=---%0Auid%3A%20Flame.Compiler.Flow.SwitchFlow%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Flow/SwitchFlow.cs/#L16" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

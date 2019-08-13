@@ -1,0 +1,909 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class MutableTypeEnvironment
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class MutableTypeEnvironment
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.TypeSystem.MutableTypeEnvironment">
+  
+  
+  <h1 id="Flame_TypeSystem_MutableTypeEnvironment" data-uid="Flame.TypeSystem.MutableTypeEnvironment" class="text-break">Class MutableTypeEnvironment
+  </h1>
+  <div class="markdown level0 summary"><p>A type environment that wraps an inner type environment that
+can be changed at will.</p>
+<p>The main use-case for this kind of environment is a situation
+where the type environment for an assembly is defined by that
+assembly itself but the assembly does not allow for the type
+environment to change.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></div>
+    <div class="level2"><span class="xref">MutableTypeEnvironment</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Boolean">TypeEnvironment.Boolean</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int8">TypeEnvironment.Int8</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt8">TypeEnvironment.UInt8</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int16">TypeEnvironment.Int16</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt16">TypeEnvironment.UInt16</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int32">TypeEnvironment.Int32</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt32">TypeEnvironment.UInt32</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Int64">TypeEnvironment.Int64</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_UInt64">TypeEnvironment.UInt64</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeSignedIntegerType_System_Int32_">TypeEnvironment.MakeSignedIntegerType(Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeUnsignedIntegerType_System_Int32_">TypeEnvironment.MakeUnsignedIntegerType(Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MakeArrayType_Flame_IType_System_Int32_">TypeEnvironment.MakeArrayType(IType, Int32)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.TypeSystem.html">Flame.TypeSystem</a></h6>
+  <h6><strong>Assembly</strong>: Flame.dll</h6>
+  <h5 id="Flame_TypeSystem_MutableTypeEnvironment_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class MutableTypeEnvironment : TypeEnvironment</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment__ctor_Flame_TypeSystem_TypeEnvironment_.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.%23ctor(Flame.TypeSystem.TypeEnvironment)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L316">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment__ctor_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.#ctor*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment__ctor_Flame_TypeSystem_TypeEnvironment_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.#ctor(Flame.TypeSystem.TypeEnvironment)">MutableTypeEnvironment(TypeEnvironment)</h4>
+  <div class="markdown level1 summary"><p>Creates a mutable type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MutableTypeEnvironment(TypeEnvironment innerEnvironment)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></td>
+        <td><span class="parametername">innerEnvironment</span></td>
+        <td><p>An inner environment to forward requests to.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_CapturedException.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.CapturedException%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L363">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_CapturedException_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.CapturedException*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_CapturedException" data-uid="Flame.TypeSystem.MutableTypeEnvironment.CapturedException">CapturedException</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a captured exception in this environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType CapturedException { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The captured exception type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_CapturedException">TypeEnvironment.CapturedException</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Char.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Char%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L339">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Char_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Char*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Char" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Char">Char</h4>
+  <div class="markdown level1 summary"><p>Gets the character type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Char { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The character type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Char">TypeEnvironment.Char</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_FieldToken.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.FieldToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L357">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_FieldToken_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.FieldToken*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_FieldToken" data-uid="Flame.TypeSystem.MutableTypeEnvironment.FieldToken">FieldToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a field token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType FieldToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The field token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_FieldToken">TypeEnvironment.FieldToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Float32.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Float32%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L333">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Float32_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Float32*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Float32" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Float32">Float32</h4>
+  <div class="markdown level1 summary"><p>Gets the 32-bit floating point type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Float32 { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A 32-bit floating point type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Float32">TypeEnvironment.Float32</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Float64.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Float64%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L336">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Float64_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Float64*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Float64" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Float64">Float64</h4>
+  <div class="markdown level1 summary"><p>Gets the 64-bit floating point type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Float64 { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>A 64-bit floating point type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Float64">TypeEnvironment.Float64</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_InnerEnvironment.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.InnerEnvironment%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L327">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_InnerEnvironment_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.InnerEnvironment*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_InnerEnvironment" data-uid="Flame.TypeSystem.MutableTypeEnvironment.InnerEnvironment">InnerEnvironment</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the inner environment, to which all requests
+are forwarded by this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TypeEnvironment InnerEnvironment { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></td>
+        <td><p>The inner type environment.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_MethodToken.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.MethodToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L360">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_MethodToken_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.MethodToken*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_MethodToken" data-uid="Flame.TypeSystem.MutableTypeEnvironment.MethodToken">MethodToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a method token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType MethodToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The method token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_MethodToken">TypeEnvironment.MethodToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_NaturalInt.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.NaturalInt%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L345">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_NaturalInt_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.NaturalInt*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_NaturalInt" data-uid="Flame.TypeSystem.MutableTypeEnvironment.NaturalInt">NaturalInt</h4>
+  <div class="markdown level1 summary"><p>Gets the natural signed integer type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType NaturalInt { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The natural signed integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_NaturalInt">TypeEnvironment.NaturalInt</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_NaturalUInt.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.NaturalUInt%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L348">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_NaturalUInt_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.NaturalUInt*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_NaturalUInt" data-uid="Flame.TypeSystem.MutableTypeEnvironment.NaturalUInt">NaturalUInt</h4>
+  <div class="markdown level1 summary"><p>Gets the natural unsigned integer type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType NaturalUInt { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The natural unsigned integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_NaturalUInt">TypeEnvironment.NaturalUInt</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Object.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Object%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L351">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Object_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Object*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Object" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Object">Object</h4>
+  <div class="markdown level1 summary"><p>Gets the root type for this environment, if there is a root type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Object { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The root type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Object">TypeEnvironment.Object</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_String.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.String%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L342">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_String_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.String*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_String" data-uid="Flame.TypeSystem.MutableTypeEnvironment.String">String</h4>
+  <div class="markdown level1 summary"><p>Gets the character string type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType String { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The character string type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_String">TypeEnvironment.String</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Subtyping.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Subtyping%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L366">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Subtyping_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Subtyping*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Subtyping" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Subtyping">Subtyping</h4>
+  <div class="markdown level1 summary"><p>Gets the subtyping rules for this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override SubtypingRules Subtyping { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.SubtypingRules.html">SubtypingRules</a></td>
+        <td><p>The subtyping rules.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Subtyping">TypeEnvironment.Subtyping</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_TypeToken.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.TypeToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L354">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_TypeToken_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TypeToken*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_TypeToken" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TypeToken">TypeToken</h4>
+  <div class="markdown level1 summary"><p>Gets the canonical type of a type token in this environment, if there is such a type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType TypeToken { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The type token type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TypeToken">TypeEnvironment.TypeToken</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_Void.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.Void%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L330">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_Void_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Void*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_Void" data-uid="Flame.TypeSystem.MutableTypeEnvironment.Void">Void</h4>
+  <div class="markdown level1 summary"><p>Gets the Void type in this type environment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IType Void { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>The Void type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_Void">TypeEnvironment.Void</a></div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.TryMakeArrayType(Flame.IType%2CSystem.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L369">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeArrayType_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeArrayType*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeArrayType(Flame.IType,System.Int32,Flame.IType@)">TryMakeArrayType(IType, Int32, out IType)</h4>
+  <div class="markdown level1 summary"><p>Tries to create an array type with a particular
+element type and rank.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeArrayType(IType elementType, int rank, out IType arrayType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">elementType</span></td>
+        <td><p>The type of value to store in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">rank</span></td>
+        <td><p>The rank of the array, that is, the number of
+dimensions in the array.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">arrayType</span></td>
+        <td><p>An array with the specified element type and rank.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the environment can create such an
+array type; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeArrayType_Flame_IType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeArrayType(IType, Int32, out IType)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.TryMakeSignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L381">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeSignedIntegerType_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeSignedIntegerType*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeSignedIntegerType(System.Int32,Flame.IType@)">TryMakeSignedIntegerType(Int32, out IType)</h4>
+  <div class="markdown level1 summary"><p>Tries to create a signed integer type with
+a particular number of bits of storage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeSignedIntegerType(int sizeInBits, out IType integerType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">sizeInBits</span></td>
+        <td><p>The size in bits of the integer type to create.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">integerType</span></td>
+        <td><p>The integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the environment can create such an
+integer type; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeSignedIntegerType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeSignedIntegerType(Int32, out IType)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32%2CFlame.IType%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L391">View Source</a>
+  </span>
+  <a id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeUnsignedIntegerType_" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeUnsignedIntegerType*"></a>
+  <h4 id="Flame_TypeSystem_MutableTypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__" data-uid="Flame.TypeSystem.MutableTypeEnvironment.TryMakeUnsignedIntegerType(System.Int32,Flame.IType@)">TryMakeUnsignedIntegerType(Int32, out IType)</h4>
+  <div class="markdown level1 summary"><p>Tries to create an unsigned integer type with
+a particular number of bits of storage.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool TryMakeUnsignedIntegerType(int sizeInBits, out IType integerType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">sizeInBits</span></td>
+        <td><p>The size in bits of the integer type to create.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">integerType</span></td>
+        <td><p>The integer type.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p><code>true</code> if the environment can create such an
+integer type; otherwise, <code>false</code>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html#Flame_TypeSystem_TypeEnvironment_TryMakeUnsignedIntegerType_System_Int32_Flame_IType__">TypeEnvironment.TryMakeUnsignedIntegerType(Int32, out IType)</a></div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_TypeSystem_MutableTypeEnvironment.md&amp;value=---%0Auid%3A%20Flame.TypeSystem.MutableTypeEnvironment%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame/TypeSystem/TypeEnvironment.cs/#L308" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

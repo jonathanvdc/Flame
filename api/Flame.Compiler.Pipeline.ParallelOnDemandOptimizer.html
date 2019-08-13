@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ParallelOnDemandOptimizer
+   | Flame </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ParallelOnDemandOptimizer
+   | Flame ">
+    <meta name="generator" content="docfx 2.44.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer">
+  
+  
+  <h1 id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer" class="text-break">Class ParallelOnDemandOptimizer
+  </h1>
+  <div class="markdown level0 summary"><p>A variant of the on-demand method optimizer that runs batches of tasks
+in parallel rather than in sequence.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="Flame.Compiler.Pipeline.Optimizer.html">Optimizer</a></div>
+    <div class="level2"><a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html">OnDemandOptimizer</a></div>
+    <div class="level3"><span class="xref">ParallelOnDemandOptimizer</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetBodyAsync_Flame_IMethod_">OnDemandOptimizer.GetBodyAsync(IMethod)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetBodyAsync_Flame_IMethod_Flame_IMethod_">OnDemandOptimizer.GetBodyAsync(IMethod, IMethod)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.OnDemandOptimizer.html#Flame_Compiler_Pipeline_OnDemandOptimizer_GetInitialMethodBodyDefault_Flame_IMethod_">OnDemandOptimizer.GetInitialMethodBodyDefault(IMethod)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___">Optimizer.RunAllAsync(IEnumerable&lt;Func&lt;Task&gt;&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync_System_Collections_Generic_IEnumerable_System_Threading_Tasks_Task__">Optimizer.RunAllAsync(IEnumerable&lt;Task&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="Flame.Compiler.Pipeline.Optimizer.html#Flame_Compiler_Pipeline_Optimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Threading_Tasks_Task___0___">Optimizer.RunAllAsync&lt;T&gt;(IEnumerable&lt;Task&lt;T&gt;&gt;)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Pipeline.html">Flame.Compiler.Pipeline</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
+  <h5 id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class ParallelOnDemandOptimizer : OnDemandOptimizer</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.%23ctor(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Pipeline.Optimization%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Pipeline/OnDemandOptimizer.cs/#L367">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor*"></a>
+  <h4 id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization})">ParallelOnDemandOptimizer(IReadOnlyList&lt;Optimization&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a method body optimizer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ParallelOnDemandOptimizer(IReadOnlyList&lt;Optimization&gt; pipeline)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a>&gt;</td>
+        <td><span class="parametername">pipeline</span></td>
+        <td><p>A pass pipeline: a sequence of optimizations to apply to every
+method body.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__System_Func_Flame_IMethod_Flame_Compiler_MethodBody__.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.%23ctor(System.Collections.Generic.IReadOnlyList%7BFlame.Compiler.Pipeline.Optimization%7D%2CSystem.Func%7BFlame.IMethod%2CFlame.Compiler.MethodBody%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Pipeline/OnDemandOptimizer.cs/#L384">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor*"></a>
+  <h4 id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer__ctor_System_Collections_Generic_IReadOnlyList_Flame_Compiler_Pipeline_Optimization__System_Func_Flame_IMethod_Flame_Compiler_MethodBody__" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.#ctor(System.Collections.Generic.IReadOnlyList{Flame.Compiler.Pipeline.Optimization},System.Func{Flame.IMethod,Flame.Compiler.MethodBody})">ParallelOnDemandOptimizer(IReadOnlyList&lt;Optimization&gt;, Func&lt;IMethod, MethodBody&gt;)</h4>
+  <div class="markdown level1 summary"><p>Creates a method body optimizer.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ParallelOnDemandOptimizer(IReadOnlyList&lt;Optimization&gt; pipeline, Func&lt;IMethod, MethodBody&gt; getInitialMethodBody)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a>&gt;</td>
+        <td><span class="parametername">pipeline</span></td>
+        <td><p>A pass pipeline: a sequence of optimizations to apply to every
+method body.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="Flame.IMethod.html">IMethod</a>, <a class="xref" href="Flame.Compiler.MethodBody.html">MethodBody</a>&gt;</td>
+        <td><span class="parametername">getInitialMethodBody</span></td>
+        <td><p>A delegate that tries to find an initial method body for a
+method. This initial method body is is the starting point for
+further optimizations, both interprocedural and intraprocedural.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___0____.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync%60%601(System.Collections.Generic.IEnumerable%7BSystem.Func%7BSystem.Threading.Tasks.Task%7B%60%600%7D%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Pipeline/OnDemandOptimizer.cs/#L392">View Source</a>
+  </span>
+  <a id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_RunAllAsync_" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync*"></a>
+  <h4 id="Flame_Compiler_Pipeline_ParallelOnDemandOptimizer_RunAllAsync__1_System_Collections_Generic_IEnumerable_System_Func_System_Threading_Tasks_Task___0____" data-uid="Flame.Compiler.Pipeline.ParallelOnDemandOptimizer.RunAllAsync``1(System.Collections.Generic.IEnumerable{System.Func{System.Threading.Tasks.Task{``0}}})">RunAllAsync&lt;T&gt;(IEnumerable&lt;Func&lt;Task&lt;T&gt;&gt;&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Task&lt;IReadOnlyList&lt;T&gt;&gt; RunAllAsync&lt;T&gt;(IEnumerable&lt;Func&lt;Task&lt;T&gt;&gt;&gt; tasks)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<span class="xref">System.Func</span>&lt;<span class="xref">System.Threading.Tasks.Task</span>&lt;T&gt;&gt;&gt;</td>
+        <td><span class="parametername">tasks</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span>&lt;<span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;T&gt;&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">Flame.Compiler.Pipeline.Optimizer.RunAllAsync&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;System.Func&lt;System.Threading.Tasks.Task&lt;T&gt;&gt;&gt;)</span></div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Pipeline_ParallelOnDemandOptimizer.md&amp;value=---%0Auid%3A%20Flame.Compiler.Pipeline.ParallelOnDemandOptimizer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Pipeline/OnDemandOptimizer.cs/#L358" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
