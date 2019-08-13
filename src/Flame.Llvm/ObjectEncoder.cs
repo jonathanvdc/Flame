@@ -13,6 +13,15 @@ namespace Flame.Llvm
     /// <typeparam name="T">The type of a decoded object.</typeparam>
     public abstract class ObjectMarshal<T>
     {
+        /// <summary>
+        /// Creates an object marshal.
+        /// </summary>
+        /// <param name="compiledModule">
+        /// A compiled LLVM module to inspect for type data layouts.
+        /// </param>
+        /// <param name="target">
+        /// A target data layout to use for determining the precise layout of data types.
+        /// </param>
         public ObjectMarshal(ModuleBuilder compiledModule, LLVMTargetDataRef target)
         {
             this.CompiledModule = compiledModule;
@@ -75,6 +84,15 @@ namespace Flame.Llvm
     /// <typeparam name="TPtr">The type of a pointer to an encoded object.</typeparam>
     public abstract class ObjectEncoder<TObj, TPtr> : ObjectMarshal<TObj>
     {
+        /// <summary>
+        /// Creates an object encoder.
+        /// </summary>
+        /// <param name="compiledModule">
+        /// A compiled LLVM module to inspect for type data layouts.
+        /// </param>
+        /// <param name="target">
+        /// A target data layout to use for determining the precise layout of data types.
+        /// </param>
         public ObjectEncoder(ModuleBuilder compiledModule, LLVMTargetDataRef target)
             : base(compiledModule, target)
         {
