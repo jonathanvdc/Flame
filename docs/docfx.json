@@ -4,9 +4,11 @@
       "src": [
         {
           "files": [
-            "**.csproj"
+            "**/*.csproj"
           ],
           "exclude": [
+            "**/bin/**",
+            "**/obj/**",
             "UnitTests/**",
             "FlameMacros/**",
             "Examples/**",
@@ -16,6 +18,7 @@
         }
       ],
       "dest": "api",
+      "properties": { "TargetFramework": "net47" },
       "disableGitFeatures": false,
       "disableDefaultFilter": false
     }
