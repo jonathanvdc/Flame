@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Flame.Llvm.Emit;
 using LLVMSharp;
 
@@ -15,6 +16,13 @@ namespace Flame.Llvm
         /// <param name="module">A module.</param>
         /// <returns>The type of a type metadata handle.</returns>
         public abstract LLVMTypeRef GetMetadataType(ModuleBuilder module);
+
+        /// <summary>
+        /// Gets a sequence containing all types that have metadata
+        /// emitted into the module.
+        /// </summary>
+        /// <value>A sequence of types.</value>
+        public abstract IEnumerable<IType> TypesWithMetadata { get; }
 
         /// <summary>
         /// Builds LLVM IR instructions that get a handle to the metadata

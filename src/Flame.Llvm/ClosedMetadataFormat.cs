@@ -76,6 +76,9 @@ namespace Flame.Llvm
 
         private const uint virtualFunctionOffset = 1;
 
+        /// <inheritdoc/>
+        public override IEnumerable<IType> TypesWithMetadata => typeTags.Keys;
+
         private IReadOnlyList<IMethod> GetVTableLayout(IType type)
         {
             IReadOnlyList<IMethod> result;
