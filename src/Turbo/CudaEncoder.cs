@@ -104,15 +104,26 @@ namespace Turbo
 
         public override MirrorBufferPtr GetGlobalAddress(LLVMValueRef value)
         {
-            CUdeviceptr ptr = new CUdeviceptr();
-            SizeT size = new SizeT();
+            SizeT size;
+            var ptr = GetGlobalAddress(value, PtxModule, out size);
+            return new MirrorBufferPtr(ptr, IntPtr.Zero, size);
+        }
+
+        public static CUdeviceptr GetGlobalAddress(LLVMValueRef value, CUmodule module, out SizeT size)
+        {
+            var ptr = new CUdeviceptr();
+            size = new SizeT();
             var result = ManagedCuda.DriverAPINativeMethods.ModuleManagement.cuModuleGetGlobal_v2(
-                ref ptr, ref size, PtxModule, GetGlobalName(value));
-            if (result != ManagedCuda.BasicTypes.CUResult.Success)
+                ref ptr, ref size, module, GetGlobalName(value));
+
+            if (result == ManagedCuda.BasicTypes.CUResult.Success)
+            {
+                return ptr;
+            }
+            else
             {
                 throw new CudaException(result);
             }
-            return new MirrorBufferPtr(ptr, IntPtr.Zero, size);
         }
 
         private static string GetGlobalName(LLVMValueRef value)

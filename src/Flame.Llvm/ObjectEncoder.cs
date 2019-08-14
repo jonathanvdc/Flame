@@ -26,6 +26,11 @@ namespace Flame.Llvm
         {
             this.CompiledModule = compiledModule;
             this.Target = target;
+
+            var ext = GCInterface.GetMetadataExtendedType(
+                LLVM.StructTypeInContext(CompiledModule.Context, new LLVMTypeRef[] { }, false),
+                CompiledModule);
+            MetadataSize = (int)LLVM.OffsetOfElement(Target, ext, 1);
         }
 
         /// <summary>
@@ -40,6 +45,12 @@ namespace Flame.Llvm
         /// </summary>
         /// <value>LLVM target data.</value>
         public LLVMTargetDataRef Target { get; private set; }
+
+        /// <summary>
+        /// Gets the size of an object's metadata prefix, in bytes.
+        /// </summary>
+        /// <value>The size in bytes of an object's metadata.</value>
+        public int MetadataSize { get; private set; }
 
         /// <summary>
         /// Gets a type's encoded size in bytes.
@@ -171,14 +182,14 @@ namespace Flame.Llvm
         /// <param name="type">The type of the object to initialize.</param>
         public void InitializeObject(TPtr address, IType type)
         {
-            EncodePointer(address, ConstToIntPtr(CompiledModule.Metadata.GetMetadata(type, CompiledModule)));
+            EncodePointer(address, ConstToPtr(CompiledModule.Metadata.GetMetadata(type, CompiledModule)));
         }
 
-        private TPtr ConstToIntPtr(LLVMValueRef value)
+        private TPtr ConstToPtr(LLVMValueRef value)
         {
             if (value.IsAConstantExpr().Pointer != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
             {
-                return ConstToIntPtr(value.GetOperand(0));
+                return ConstToPtr(value.GetOperand(0));
             }
             else if (value.IsAGlobalVariable().Pointer != IntPtr.Zero)
             {
