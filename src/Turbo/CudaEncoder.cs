@@ -210,6 +210,11 @@ namespace Turbo
             var results = new Dictionary<IField, ValueOrRefObject>();
             foreach (var field in t.GetFields())
             {
+                if (field.IsStatic)
+                {
+                    continue;
+                }
+
                 var flameField = Assembly.Resolve(Assembly.Definition.MainModule.ImportReference(field));
                 var val = field.GetValue(value.Object);
                 results[flameField] = flameField.FieldType.IsPointerType(PointerKind.Box)
