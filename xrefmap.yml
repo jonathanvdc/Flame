@@ -24003,6 +24003,44 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
   nameWithType: ClosedMetadataFormat.TypesWithMetadata
+- uid: Flame.Llvm.ClrInternalCallImplementor
+  name: ClrInternalCallImplementor
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html
+  commentId: T:Flame.Llvm.ClrInternalCallImplementor
+  fullName: Flame.Llvm.ClrInternalCallImplementor
+  nameWithType: ClrInternalCallImplementor
+- uid: Flame.Llvm.ClrInternalCallImplementor.#ctor
+  name: ClrInternalCallImplementor()
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html#Flame_Llvm_ClrInternalCallImplementor__ctor
+  commentId: M:Flame.Llvm.ClrInternalCallImplementor.#ctor
+  fullName: Flame.Llvm.ClrInternalCallImplementor.ClrInternalCallImplementor()
+  nameWithType: ClrInternalCallImplementor.ClrInternalCallImplementor()
+- uid: Flame.Llvm.ClrInternalCallImplementor.#ctor*
+  name: ClrInternalCallImplementor
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html#Flame_Llvm_ClrInternalCallImplementor__ctor_
+  commentId: Overload:Flame.Llvm.ClrInternalCallImplementor.#ctor
+  isSpec: "True"
+  fullName: Flame.Llvm.ClrInternalCallImplementor.ClrInternalCallImplementor
+  nameWithType: ClrInternalCallImplementor.ClrInternalCallImplementor
+- uid: Flame.Llvm.ClrInternalCallImplementor.Implement(Flame.IMethod,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder)
+  name: Implement(IMethod, LLVMValueRef, ModuleBuilder)
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html#Flame_Llvm_ClrInternalCallImplementor_Implement_Flame_IMethod_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_
+  commentId: M:Flame.Llvm.ClrInternalCallImplementor.Implement(Flame.IMethod,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder)
+  fullName: Flame.Llvm.ClrInternalCallImplementor.Implement(Flame.IMethod, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder)
+  nameWithType: ClrInternalCallImplementor.Implement(IMethod, LLVMValueRef, ModuleBuilder)
+- uid: Flame.Llvm.ClrInternalCallImplementor.Implement*
+  name: Implement
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html#Flame_Llvm_ClrInternalCallImplementor_Implement_
+  commentId: Overload:Flame.Llvm.ClrInternalCallImplementor.Implement
+  isSpec: "True"
+  fullName: Flame.Llvm.ClrInternalCallImplementor.Implement
+  nameWithType: ClrInternalCallImplementor.Implement
+- uid: Flame.Llvm.ClrInternalCallImplementor.Instance
+  name: Instance
+  href: api/Flame.Llvm.ClrInternalCallImplementor.html#Flame_Llvm_ClrInternalCallImplementor_Instance
+  commentId: F:Flame.Llvm.ClrInternalCallImplementor.Instance
+  fullName: Flame.Llvm.ClrInternalCallImplementor.Instance
+  nameWithType: ClrInternalCallImplementor.Instance
 - uid: Flame.Llvm.CMangler
   name: CMangler
   href: api/Flame.Llvm.CMangler.html
@@ -24311,6 +24349,25 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.GCInterface.EmitLoadMetadata
   nameWithType: GCInterface.EmitLoadMetadata
+- uid: Flame.Llvm.InternalCallImplementor
+  name: InternalCallImplementor
+  href: api/Flame.Llvm.InternalCallImplementor.html
+  commentId: T:Flame.Llvm.InternalCallImplementor
+  fullName: Flame.Llvm.InternalCallImplementor
+  nameWithType: InternalCallImplementor
+- uid: Flame.Llvm.InternalCallImplementor.Implement(Flame.IMethod,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder)
+  name: Implement(IMethod, LLVMValueRef, ModuleBuilder)
+  href: api/Flame.Llvm.InternalCallImplementor.html#Flame_Llvm_InternalCallImplementor_Implement_Flame_IMethod_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_
+  commentId: M:Flame.Llvm.InternalCallImplementor.Implement(Flame.IMethod,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder)
+  fullName: Flame.Llvm.InternalCallImplementor.Implement(Flame.IMethod, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder)
+  nameWithType: InternalCallImplementor.Implement(IMethod, LLVMValueRef, ModuleBuilder)
+- uid: Flame.Llvm.InternalCallImplementor.Implement*
+  name: Implement
+  href: api/Flame.Llvm.InternalCallImplementor.html#Flame_Llvm_InternalCallImplementor_Implement_
+  commentId: Overload:Flame.Llvm.InternalCallImplementor.Implement
+  isSpec: "True"
+  fullName: Flame.Llvm.InternalCallImplementor.Implement
+  nameWithType: InternalCallImplementor.Implement
 - uid: Flame.Llvm.ItaniumMangler
   name: ItaniumMangler
   href: api/Flame.Llvm.ItaniumMangler.html
@@ -24373,6 +24430,12 @@ references:
   commentId: M:Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler)
   fullName: Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription, Flame.TypeSystem.TypeEnvironment, Flame.Llvm.NameMangler)
   nameWithType: LlvmBackend.Compile(AssemblyContentDescription, TypeEnvironment, NameMangler)
+- uid: Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler,Flame.Llvm.InternalCallImplementor)
+  name: Compile(AssemblyContentDescription, TypeEnvironment, NameMangler, InternalCallImplementor)
+  href: api/Flame.Llvm.LlvmBackend.html#Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_Flame_Llvm_InternalCallImplementor_
+  commentId: M:Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler,Flame.Llvm.InternalCallImplementor)
+  fullName: Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription, Flame.TypeSystem.TypeEnvironment, Flame.Llvm.NameMangler, Flame.Llvm.InternalCallImplementor)
+  nameWithType: LlvmBackend.Compile(AssemblyContentDescription, TypeEnvironment, NameMangler, InternalCallImplementor)
 - uid: Flame.Llvm.LlvmBackend.Compile*
   name: Compile
   href: api/Flame.Llvm.LlvmBackend.html#Flame_Llvm_LlvmBackend_Compile_
@@ -27772,6 +27835,12 @@ references:
   commentId: F:Flame.TypeSystem.FlagAttribute.InterfaceType
   fullName: Flame.TypeSystem.FlagAttribute.InterfaceType
   nameWithType: FlagAttribute.InterfaceType
+- uid: Flame.TypeSystem.FlagAttribute.InternalCall
+  name: InternalCall
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_InternalCall
+  commentId: F:Flame.TypeSystem.FlagAttribute.InternalCall
+  fullName: Flame.TypeSystem.FlagAttribute.InternalCall
+  nameWithType: FlagAttribute.InternalCall
 - uid: Flame.TypeSystem.FlagAttribute.IsAbstract(Flame.IMethod)
   name: IsAbstract(IMethod)
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsAbstract_Flame_IMethod_
@@ -27804,6 +27873,19 @@ references:
   isSpec: "True"
   fullName: Flame.TypeSystem.FlagAttribute.IsInterfaceType
   nameWithType: FlagAttribute.IsInterfaceType
+- uid: Flame.TypeSystem.FlagAttribute.IsInternalCall(Flame.IMethod)
+  name: IsInternalCall(IMethod)
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsInternalCall_Flame_IMethod_
+  commentId: M:Flame.TypeSystem.FlagAttribute.IsInternalCall(Flame.IMethod)
+  fullName: Flame.TypeSystem.FlagAttribute.IsInternalCall(Flame.IMethod)
+  nameWithType: FlagAttribute.IsInternalCall(IMethod)
+- uid: Flame.TypeSystem.FlagAttribute.IsInternalCall*
+  name: IsInternalCall
+  href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsInternalCall_
+  commentId: Overload:Flame.TypeSystem.FlagAttribute.IsInternalCall
+  isSpec: "True"
+  fullName: Flame.TypeSystem.FlagAttribute.IsInternalCall
+  nameWithType: FlagAttribute.IsInternalCall
 - uid: Flame.TypeSystem.FlagAttribute.IsReferenceType(Flame.IType)
   name: IsReferenceType(IType)
   href: api/Flame.TypeSystem.FlagAttribute.html#Flame_TypeSystem_FlagAttribute_IsReferenceType_Flame_IType_

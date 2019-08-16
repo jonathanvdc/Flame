@@ -128,7 +128,7 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_.md&amp;value=---%0Auid%3A%20Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription%2CFlame.TypeSystem.TypeEnvironment)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L20">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L21">View Source</a>
   </span>
   <a id="Flame_Llvm_LlvmBackend_Compile_" data-uid="Flame.Llvm.LlvmBackend.Compile*"></a>
   <h4 id="Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_" data-uid="Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment)">Compile(AssemblyContentDescription, TypeEnvironment)</h4>
@@ -184,7 +184,7 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_.md&amp;value=---%0Auid%3A%20Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription%2CFlame.TypeSystem.TypeEnvironment%2CFlame.Llvm.NameMangler)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L34">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L35">View Source</a>
   </span>
   <a id="Flame_Llvm_LlvmBackend_Compile_" data-uid="Flame.Llvm.LlvmBackend.Compile*"></a>
   <h4 id="Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_" data-uid="Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler)">Compile(AssemblyContentDescription, TypeEnvironment, NameMangler)</h4>
@@ -241,6 +241,74 @@
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_Flame_Llvm_InternalCallImplementor_.md&amp;value=---%0Auid%3A%20Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription%2CFlame.TypeSystem.TypeEnvironment%2CFlame.Llvm.NameMangler%2CFlame.Llvm.InternalCallImplementor)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L51">View Source</a>
+  </span>
+  <a id="Flame_Llvm_LlvmBackend_Compile_" data-uid="Flame.Llvm.LlvmBackend.Compile*"></a>
+  <h4 id="Flame_Llvm_LlvmBackend_Compile_Flame_Compiler_Pipeline_AssemblyContentDescription_Flame_TypeSystem_TypeEnvironment_Flame_Llvm_NameMangler_Flame_Llvm_InternalCallImplementor_" data-uid="Flame.Llvm.LlvmBackend.Compile(Flame.Compiler.Pipeline.AssemblyContentDescription,Flame.TypeSystem.TypeEnvironment,Flame.Llvm.NameMangler,Flame.Llvm.InternalCallImplementor)">Compile(AssemblyContentDescription, TypeEnvironment, NameMangler, InternalCallImplementor)</h4>
+  <div class="markdown level1 summary"><p>Compiles an assembly content description to an LLVM module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ModuleBuilder Compile(AssemblyContentDescription contents, TypeEnvironment typeSystem, NameMangler mangler, InternalCallImplementor internalCallImplementor)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Pipeline.AssemblyContentDescription.html">AssemblyContentDescription</a></td>
+        <td><span class="parametername">contents</span></td>
+        <td><p>An assembly content description to compile.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.TypeSystem.TypeEnvironment.html">TypeEnvironment</a></td>
+        <td><span class="parametername">typeSystem</span></td>
+        <td><p>A type system to use.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.NameMangler.html">NameMangler</a></td>
+        <td><span class="parametername">mangler</span></td>
+        <td><p>A name mangler to use.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.InternalCallImplementor.html">InternalCallImplementor</a></td>
+        <td><span class="parametername">internalCallImplementor</span></td>
+        <td><p>An internal call implementor to use.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><p>An LLVM module builder.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           
@@ -252,7 +320,7 @@
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_LlvmBackend.md&amp;value=---%0Auid%3A%20Flame.Llvm.LlvmBackend%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L12" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/LlvmBackend.cs/#L13" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
