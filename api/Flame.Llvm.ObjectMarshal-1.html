@@ -90,6 +90,7 @@
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">ObjectMarshal&lt;T&gt;</span></div>
+      <div class="level2"><a class="xref" href="Flame.Llvm.ObjectDecoder-2.html">ObjectDecoder&lt;TObj, TPtr&gt;</a></div>
       <div class="level2"><a class="xref" href="Flame.Llvm.ObjectEncoder-2.html">ObjectEncoder&lt;TObj, TPtr&gt;</a></div>
   </div>
   <div class="inheritedMembers">
@@ -145,11 +146,12 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1__ctor_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_LLVMTargetDataRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.%23ctor(Flame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.LLVMTargetDataRef)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L16">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L25">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1__ctor_" data-uid="Flame.Llvm.ObjectMarshal`1.#ctor*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1__ctor_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_LLVMTargetDataRef_" data-uid="Flame.Llvm.ObjectMarshal`1.#ctor(Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.LLVMTargetDataRef)">ObjectMarshal(ModuleBuilder, LLVMTargetDataRef)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>Creates an object marshal.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -168,12 +170,14 @@
       <tr>
         <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
         <td><span class="parametername">compiledModule</span></td>
-        <td></td>
+        <td><p>A compiled LLVM module to inspect for type data layouts.</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">LLVMSharp.LLVMTargetDataRef</span></td>
         <td><span class="parametername">target</span></td>
-        <td></td>
+        <td><p>A target data layout to use for determining the precise layout of data types.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -184,7 +188,7 @@
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_CompiledModule.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.CompiledModule%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L27">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L41">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1_CompiledModule_" data-uid="Flame.Llvm.ObjectMarshal`1.CompiledModule*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1_CompiledModule" data-uid="Flame.Llvm.ObjectMarshal`1.CompiledModule">CompiledModule</h4>
@@ -214,10 +218,42 @@ for encoding objects.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_MetadataSize.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.MetadataSize%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L53">View Source</a>
+  </span>
+  <a id="Flame_Llvm_ObjectMarshal_1_MetadataSize_" data-uid="Flame.Llvm.ObjectMarshal`1.MetadataSize*"></a>
+  <h4 id="Flame_Llvm_ObjectMarshal_1_MetadataSize" data-uid="Flame.Llvm.ObjectMarshal`1.MetadataSize">MetadataSize</h4>
+  <div class="markdown level1 summary"><p>Gets the size of an object's metadata prefix, in bytes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int MetadataSize { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><p>The size in bytes of an object's metadata.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_Target.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.Target%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L33">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L47">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1_Target_" data-uid="Flame.Llvm.ObjectMarshal`1.Target*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1_Target" data-uid="Flame.Llvm.ObjectMarshal`1.Target">Target</h4>
@@ -251,7 +287,7 @@ for encoding objects.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_GetFieldOffset_Flame_IField_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.GetFieldOffset(Flame.IField)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L63">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L83">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1_GetFieldOffset_" data-uid="Flame.Llvm.ObjectMarshal`1.GetFieldOffset*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1_GetFieldOffset_Flame_IField_" data-uid="Flame.Llvm.ObjectMarshal`1.GetFieldOffset(Flame.IField)">GetFieldOffset(IField)</h4>
@@ -301,7 +337,7 @@ for encoding objects.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_SizeOf_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.SizeOf(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L40">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L60">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1_SizeOf_" data-uid="Flame.Llvm.ObjectMarshal`1.SizeOf*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1_SizeOf_Flame_IType_" data-uid="Flame.Llvm.ObjectMarshal`1.SizeOf(Flame.IType)">SizeOf(IType)</h4>
@@ -351,7 +387,7 @@ for encoding objects.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_ObjectMarshal_1_SizeOfWithMetadata_Flame_IType_System_Int32__.md&amp;value=---%0Auid%3A%20Flame.Llvm.ObjectMarshal%601.SizeOfWithMetadata(Flame.IType%2CSystem.Int32%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L51">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/ObjectEncoder.cs/#L71">View Source</a>
   </span>
   <a id="Flame_Llvm_ObjectMarshal_1_SizeOfWithMetadata_" data-uid="Flame.Llvm.ObjectMarshal`1.SizeOfWithMetadata*"></a>
   <h4 id="Flame_Llvm_ObjectMarshal_1_SizeOfWithMetadata_Flame_IType_System_Int32__" data-uid="Flame.Llvm.ObjectMarshal`1.SizeOfWithMetadata(Flame.IType,System.Int32@)">SizeOfWithMetadata(IType, out Int32)</h4>

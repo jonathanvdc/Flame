@@ -123,6 +123,41 @@ used for type instance tests, virtual method lookup and reflection.</p>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class MetadataFormat</code></pre>
   </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat_TypesWithMetadata.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat.TypesWithMetadata%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L25">View Source</a>
+  </span>
+  <a id="Flame_Llvm_MetadataFormat_TypesWithMetadata_" data-uid="Flame.Llvm.MetadataFormat.TypesWithMetadata*"></a>
+  <h4 id="Flame_Llvm_MetadataFormat_TypesWithMetadata" data-uid="Flame.Llvm.MetadataFormat.TypesWithMetadata">TypesWithMetadata</h4>
+  <div class="markdown level1 summary"><p>Gets a sequence containing all types that have metadata
+emitted into the module.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract IEnumerable&lt;IType&gt; TypesWithMetadata { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Flame.IType.html">IType</a>&gt;</td>
+        <td><p>A sequence of types.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
@@ -130,7 +165,7 @@ used for type instance tests, virtual method lookup and reflection.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat_EmitIsSubtype_LLVMSharp_LLVMValueRef_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat.EmitIsSubtype(LLVMSharp.LLVMValueRef%2CFlame.IType%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L85">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L93">View Source</a>
   </span>
   <a id="Flame_Llvm_MetadataFormat_EmitIsSubtype_" data-uid="Flame.Llvm.MetadataFormat.EmitIsSubtype*"></a>
   <h4 id="Flame_Llvm_MetadataFormat_EmitIsSubtype_LLVMSharp_LLVMValueRef_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.MetadataFormat.EmitIsSubtype(LLVMSharp.LLVMValueRef,Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitIsSubtype(LLVMValueRef, IType, ModuleBuilder, IRBuilder, String)</h4>
@@ -207,7 +242,7 @@ otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat_EmitMethodAddress_Flame_IMethod_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat.EmitMethodAddress(Flame.IMethod%2CLLVMSharp.LLVMValueRef%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L54">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L62">View Source</a>
   </span>
   <a id="Flame_Llvm_MetadataFormat_EmitMethodAddress_" data-uid="Flame.Llvm.MetadataFormat.EmitMethodAddress*"></a>
   <h4 id="Flame_Llvm_MetadataFormat_EmitMethodAddress_Flame_IMethod_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.MetadataFormat.EmitMethodAddress(Flame.IMethod,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitMethodAddress(IMethod, LLVMValueRef, ModuleBuilder, IRBuilder, String)</h4>
@@ -284,7 +319,7 @@ implementation address.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat_GetMetadata_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat.GetMetadata(Flame.IType%2CFlame.Llvm.Emit.ModuleBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L28">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L36">View Source</a>
   </span>
   <a id="Flame_Llvm_MetadataFormat_GetMetadata_" data-uid="Flame.Llvm.MetadataFormat.GetMetadata*"></a>
   <h4 id="Flame_Llvm_MetadataFormat_GetMetadata_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_" data-uid="Flame.Llvm.MetadataFormat.GetMetadata(Flame.IType,Flame.Llvm.Emit.ModuleBuilder)">GetMetadata(IType, ModuleBuilder)</h4>
@@ -341,7 +376,7 @@ for a particular type.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat_GetMetadataType_Flame_Llvm_Emit_ModuleBuilder_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat.GetMetadataType(Flame.Llvm.Emit.ModuleBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L17">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L18">View Source</a>
   </span>
   <a id="Flame_Llvm_MetadataFormat_GetMetadataType_" data-uid="Flame.Llvm.MetadataFormat.GetMetadataType*"></a>
   <h4 id="Flame_Llvm_MetadataFormat_GetMetadataType_Flame_Llvm_Emit_ModuleBuilder_" data-uid="Flame.Llvm.MetadataFormat.GetMetadataType(Flame.Llvm.Emit.ModuleBuilder)">GetMetadataType(ModuleBuilder)</h4>
@@ -397,7 +432,7 @@ for a particular type.</p>
                     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MetadataFormat.md&amp;value=---%0Auid%3A%20Flame.Llvm.MetadataFormat%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L10" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MetadataFormat.cs/#L11" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

@@ -23990,6 +23990,19 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.ClosedMetadataFormat.GetMetadataType
   nameWithType: ClosedMetadataFormat.GetMetadataType
+- uid: Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
+  name: TypesWithMetadata
+  href: api/Flame.Llvm.ClosedMetadataFormat.html#Flame_Llvm_ClosedMetadataFormat_TypesWithMetadata
+  commentId: P:Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
+  fullName: Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
+  nameWithType: ClosedMetadataFormat.TypesWithMetadata
+- uid: Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata*
+  name: TypesWithMetadata
+  href: api/Flame.Llvm.ClosedMetadataFormat.html#Flame_Llvm_ClosedMetadataFormat_TypesWithMetadata_
+  commentId: Overload:Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
+  isSpec: "True"
+  fullName: Flame.Llvm.ClosedMetadataFormat.TypesWithMetadata
+  nameWithType: ClosedMetadataFormat.TypesWithMetadata
 - uid: Flame.Llvm.CMangler
   name: CMangler
   href: api/Flame.Llvm.CMangler.html
@@ -24508,6 +24521,19 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.MetadataFormat.GetMetadataType
   nameWithType: MetadataFormat.GetMetadataType
+- uid: Flame.Llvm.MetadataFormat.TypesWithMetadata
+  name: TypesWithMetadata
+  href: api/Flame.Llvm.MetadataFormat.html#Flame_Llvm_MetadataFormat_TypesWithMetadata
+  commentId: P:Flame.Llvm.MetadataFormat.TypesWithMetadata
+  fullName: Flame.Llvm.MetadataFormat.TypesWithMetadata
+  nameWithType: MetadataFormat.TypesWithMetadata
+- uid: Flame.Llvm.MetadataFormat.TypesWithMetadata*
+  name: TypesWithMetadata
+  href: api/Flame.Llvm.MetadataFormat.html#Flame_Llvm_MetadataFormat_TypesWithMetadata_
+  commentId: Overload:Flame.Llvm.MetadataFormat.TypesWithMetadata
+  isSpec: "True"
+  fullName: Flame.Llvm.MetadataFormat.TypesWithMetadata
+  nameWithType: MetadataFormat.TypesWithMetadata
 - uid: Flame.Llvm.NameMangler
   name: NameMangler
   href: api/Flame.Llvm.NameMangler.html
@@ -24539,6 +24565,204 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.NameMangler.Mangle
   nameWithType: NameMangler.Mangle
+- uid: Flame.Llvm.ObjectDecoder`2
+  name: ObjectDecoder<TObj, TPtr>
+  href: api/Flame.Llvm.ObjectDecoder-2.html
+  commentId: T:Flame.Llvm.ObjectDecoder`2
+  name.vb: ObjectDecoder(Of TObj, TPtr)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr)
+  nameWithType: ObjectDecoder<TObj, TPtr>
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr)
+- uid: Flame.Llvm.ObjectDecoder`2.#ctor(Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.LLVMTargetDataRef,System.Collections.Generic.IReadOnlyDictionary{`1,`0})
+  name: ObjectDecoder(ModuleBuilder, LLVMTargetDataRef, IReadOnlyDictionary<TPtr, TObj>)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2__ctor_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_LLVMTargetDataRef_System_Collections_Generic_IReadOnlyDictionary__1__0__
+  commentId: M:Flame.Llvm.ObjectDecoder`2.#ctor(Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.LLVMTargetDataRef,System.Collections.Generic.IReadOnlyDictionary{`1,`0})
+  name.vb: ObjectDecoder(ModuleBuilder, LLVMTargetDataRef, IReadOnlyDictionary(Of TPtr, TObj))
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.ObjectDecoder(Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.LLVMTargetDataRef, System.Collections.Generic.IReadOnlyDictionary<TPtr, TObj>)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).ObjectDecoder(Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.LLVMTargetDataRef, System.Collections.Generic.IReadOnlyDictionary(Of TPtr, TObj))
+  nameWithType: ObjectDecoder<TObj, TPtr>.ObjectDecoder(ModuleBuilder, LLVMTargetDataRef, IReadOnlyDictionary<TPtr, TObj>)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).ObjectDecoder(ModuleBuilder, LLVMTargetDataRef, IReadOnlyDictionary(Of TPtr, TObj))
+- uid: Flame.Llvm.ObjectDecoder`2.#ctor*
+  name: ObjectDecoder
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2__ctor_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.#ctor
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.ObjectDecoder
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).ObjectDecoder
+  nameWithType: ObjectDecoder<TObj, TPtr>.ObjectDecoder
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).ObjectDecoder
+- uid: Flame.Llvm.ObjectDecoder`2.CreateObject(Flame.IType)
+  name: CreateObject(IType)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_CreateObject_Flame_IType_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.CreateObject(Flame.IType)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.CreateObject(Flame.IType)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).CreateObject(Flame.IType)
+  nameWithType: ObjectDecoder<TObj, TPtr>.CreateObject(IType)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).CreateObject(IType)
+- uid: Flame.Llvm.ObjectDecoder`2.CreateObject*
+  name: CreateObject
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_CreateObject_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.CreateObject
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.CreateObject
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).CreateObject
+  nameWithType: ObjectDecoder<TObj, TPtr>.CreateObject
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).CreateObject
+- uid: Flame.Llvm.ObjectDecoder`2.Decode(`1)
+  name: Decode(TPtr)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_Decode__1_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.Decode(`1)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.Decode(TPtr)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).Decode(TPtr)
+  nameWithType: ObjectDecoder<TObj, TPtr>.Decode(TPtr)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).Decode(TPtr)
+- uid: Flame.Llvm.ObjectDecoder`2.Decode*
+  name: Decode
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_Decode_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.Decode
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.Decode
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).Decode
+  nameWithType: ObjectDecoder<TObj, TPtr>.Decode
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).Decode
+- uid: Flame.Llvm.ObjectDecoder`2.ExistingObjects
+  name: ExistingObjects
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_ExistingObjects
+  commentId: P:Flame.Llvm.ObjectDecoder`2.ExistingObjects
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.ExistingObjects
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).ExistingObjects
+  nameWithType: ObjectDecoder<TObj, TPtr>.ExistingObjects
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).ExistingObjects
+- uid: Flame.Llvm.ObjectDecoder`2.ExistingObjects*
+  name: ExistingObjects
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_ExistingObjects_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.ExistingObjects
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.ExistingObjects
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).ExistingObjects
+  nameWithType: ObjectDecoder<TObj, TPtr>.ExistingObjects
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).ExistingObjects
+- uid: Flame.Llvm.ObjectDecoder`2.IndexPointer(`1,System.Int32)
+  name: IndexPointer(TPtr, Int32)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_IndexPointer__1_System_Int32_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.IndexPointer(`1,System.Int32)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.IndexPointer(TPtr, System.Int32)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).IndexPointer(TPtr, System.Int32)
+  nameWithType: ObjectDecoder<TObj, TPtr>.IndexPointer(TPtr, Int32)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).IndexPointer(TPtr, Int32)
+- uid: Flame.Llvm.ObjectDecoder`2.IndexPointer*
+  name: IndexPointer
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_IndexPointer_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.IndexPointer
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.IndexPointer
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).IndexPointer
+  nameWithType: ObjectDecoder<TObj, TPtr>.IndexPointer
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).IndexPointer
+- uid: Flame.Llvm.ObjectDecoder`2.LoadBoxPointer(`1)
+  name: LoadBoxPointer(TPtr)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_LoadBoxPointer__1_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.LoadBoxPointer(`1)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.LoadBoxPointer(TPtr)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).LoadBoxPointer(TPtr)
+  nameWithType: ObjectDecoder<TObj, TPtr>.LoadBoxPointer(TPtr)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).LoadBoxPointer(TPtr)
+- uid: Flame.Llvm.ObjectDecoder`2.LoadBoxPointer*
+  name: LoadBoxPointer
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_LoadBoxPointer_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.LoadBoxPointer
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.LoadBoxPointer
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).LoadBoxPointer
+  nameWithType: ObjectDecoder<TObj, TPtr>.LoadBoxPointer
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).LoadBoxPointer
+- uid: Flame.Llvm.ObjectDecoder`2.RegisterDecoded(`1,`0)
+  name: RegisterDecoded(TPtr, TObj)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_RegisterDecoded__1__0_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.RegisterDecoded(`1,`0)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.RegisterDecoded(TPtr, TObj)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).RegisterDecoded(TPtr, TObj)
+  nameWithType: ObjectDecoder<TObj, TPtr>.RegisterDecoded(TPtr, TObj)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).RegisterDecoded(TPtr, TObj)
+- uid: Flame.Llvm.ObjectDecoder`2.RegisterDecoded*
+  name: RegisterDecoded
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_RegisterDecoded_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.RegisterDecoded
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.RegisterDecoded
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).RegisterDecoded
+  nameWithType: ObjectDecoder<TObj, TPtr>.RegisterDecoded
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).RegisterDecoded
+- uid: Flame.Llvm.ObjectDecoder`2.SetField(`0,Flame.IField,`0)
+  name: SetField(TObj, IField, TObj)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_SetField__0_Flame_IField__0_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.SetField(`0,Flame.IField,`0)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.SetField(TObj, Flame.IField, TObj)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).SetField(TObj, Flame.IField, TObj)
+  nameWithType: ObjectDecoder<TObj, TPtr>.SetField(TObj, IField, TObj)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).SetField(TObj, IField, TObj)
+- uid: Flame.Llvm.ObjectDecoder`2.SetField*
+  name: SetField
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_SetField_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.SetField
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.SetField
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).SetField
+  nameWithType: ObjectDecoder<TObj, TPtr>.SetField
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).SetField
+- uid: Flame.Llvm.ObjectDecoder`2.TryDecodePrimitive(`1,Flame.IType,`0@)
+  name: TryDecodePrimitive(TPtr, IType, out TObj)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TryDecodePrimitive__1_Flame_IType__0__
+  commentId: M:Flame.Llvm.ObjectDecoder`2.TryDecodePrimitive(`1,Flame.IType,`0@)
+  name.vb: TryDecodePrimitive(TPtr, IType, ByRef TObj)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TryDecodePrimitive(TPtr, Flame.IType, out TObj)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TryDecodePrimitive(TPtr, Flame.IType, ByRef TObj)
+  nameWithType: ObjectDecoder<TObj, TPtr>.TryDecodePrimitive(TPtr, IType, out TObj)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TryDecodePrimitive(TPtr, IType, ByRef TObj)
+- uid: Flame.Llvm.ObjectDecoder`2.TryDecodePrimitive*
+  name: TryDecodePrimitive
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TryDecodePrimitive_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.TryDecodePrimitive
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TryDecodePrimitive
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TryDecodePrimitive
+  nameWithType: ObjectDecoder<TObj, TPtr>.TryDecodePrimitive
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TryDecodePrimitive
+- uid: Flame.Llvm.ObjectDecoder`2.TryUpdatePrimitive(`1,`0,Flame.IType)
+  name: TryUpdatePrimitive(TPtr, TObj, IType)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TryUpdatePrimitive__1__0_Flame_IType_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.TryUpdatePrimitive(`1,`0,Flame.IType)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TryUpdatePrimitive(TPtr, TObj, Flame.IType)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TryUpdatePrimitive(TPtr, TObj, Flame.IType)
+  nameWithType: ObjectDecoder<TObj, TPtr>.TryUpdatePrimitive(TPtr, TObj, IType)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TryUpdatePrimitive(TPtr, TObj, IType)
+- uid: Flame.Llvm.ObjectDecoder`2.TryUpdatePrimitive*
+  name: TryUpdatePrimitive
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TryUpdatePrimitive_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.TryUpdatePrimitive
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TryUpdatePrimitive
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TryUpdatePrimitive
+  nameWithType: ObjectDecoder<TObj, TPtr>.TryUpdatePrimitive
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TryUpdatePrimitive
+- uid: Flame.Llvm.ObjectDecoder`2.TypeOf(`1)
+  name: TypeOf(TPtr)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TypeOf__1_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.TypeOf(`1)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TypeOf(TPtr)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TypeOf(TPtr)
+  nameWithType: ObjectDecoder<TObj, TPtr>.TypeOf(TPtr)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TypeOf(TPtr)
+- uid: Flame.Llvm.ObjectDecoder`2.TypeOf*
+  name: TypeOf
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_TypeOf_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.TypeOf
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.TypeOf
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).TypeOf
+  nameWithType: ObjectDecoder<TObj, TPtr>.TypeOf
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).TypeOf
 - uid: Flame.Llvm.ObjectEncoder`2
   name: ObjectEncoder<TObj, TPtr>
   href: api/Flame.Llvm.ObjectEncoder-2.html
@@ -24633,6 +24857,23 @@ references:
   fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).EncodeBoxPointer
   nameWithType: ObjectEncoder<TObj, TPtr>.EncodeBoxPointer
   nameWithType.vb: ObjectEncoder(Of TObj, TPtr).EncodeBoxPointer
+- uid: Flame.Llvm.ObjectEncoder`2.EncodedObjects
+  name: EncodedObjects
+  href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_EncodedObjects
+  commentId: P:Flame.Llvm.ObjectEncoder`2.EncodedObjects
+  fullName: Flame.Llvm.ObjectEncoder<TObj, TPtr>.EncodedObjects
+  fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).EncodedObjects
+  nameWithType: ObjectEncoder<TObj, TPtr>.EncodedObjects
+  nameWithType.vb: ObjectEncoder(Of TObj, TPtr).EncodedObjects
+- uid: Flame.Llvm.ObjectEncoder`2.EncodedObjects*
+  name: EncodedObjects
+  href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_EncodedObjects_
+  commentId: Overload:Flame.Llvm.ObjectEncoder`2.EncodedObjects
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectEncoder<TObj, TPtr>.EncodedObjects
+  fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).EncodedObjects
+  nameWithType: ObjectEncoder<TObj, TPtr>.EncodedObjects
+  nameWithType.vb: ObjectEncoder(Of TObj, TPtr).EncodedObjects
 - uid: Flame.Llvm.ObjectEncoder`2.EncodePointer(`1,`1)
   name: EncodePointer(TPtr, TPtr)
   href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_EncodePointer__1__1_
@@ -24829,6 +25070,23 @@ references:
   fullName.vb: Flame.Llvm.ObjectMarshal(Of T).GetFieldOffset
   nameWithType: ObjectMarshal<T>.GetFieldOffset
   nameWithType.vb: ObjectMarshal(Of T).GetFieldOffset
+- uid: Flame.Llvm.ObjectMarshal`1.MetadataSize
+  name: MetadataSize
+  href: api/Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_MetadataSize
+  commentId: P:Flame.Llvm.ObjectMarshal`1.MetadataSize
+  fullName: Flame.Llvm.ObjectMarshal<T>.MetadataSize
+  fullName.vb: Flame.Llvm.ObjectMarshal(Of T).MetadataSize
+  nameWithType: ObjectMarshal<T>.MetadataSize
+  nameWithType.vb: ObjectMarshal(Of T).MetadataSize
+- uid: Flame.Llvm.ObjectMarshal`1.MetadataSize*
+  name: MetadataSize
+  href: api/Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_MetadataSize_
+  commentId: Overload:Flame.Llvm.ObjectMarshal`1.MetadataSize
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectMarshal<T>.MetadataSize
+  fullName.vb: Flame.Llvm.ObjectMarshal(Of T).MetadataSize
+  nameWithType: ObjectMarshal<T>.MetadataSize
+  nameWithType.vb: ObjectMarshal(Of T).MetadataSize
 - uid: Flame.Llvm.ObjectMarshal`1.SizeOf(Flame.IType)
   name: SizeOf(IType)
   href: api/Flame.Llvm.ObjectMarshal-1.html#Flame_Llvm_ObjectMarshal_1_SizeOf_Flame_IType_
