@@ -141,6 +141,23 @@ namespace Flame.Llvm
                 ImplementWithAtomic(function, LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpXchg, function.GetParam(1), module);
                 return true;
             }
+            else if (name == nameof(System.Threading.Interlocked.CompareExchange) && paramCount == 3)
+            {
+                var ep = function.AppendBasicBlock("entry");
+                var builder = LLVM.CreateBuilderInContext(module.Context);
+                LLVM.PositionBuilderAtEnd(builder, ep);
+                var cmp = LLVM.BuildAtomicCmpXchg(
+                    builder,
+                    function.GetParam(0),
+                    function.GetParam(2),
+                    function.GetParam(1),
+                    LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                    LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                    false);
+                LLVM.BuildRet(builder, LLVM.BuildExtractValue(builder, cmp, 0, ""));
+                LLVM.DisposeBuilder(builder);
+                return true;
+            }
             else if (name == "Increment" && paramCount == 1)
             {
                 ImplementWithAtomicAdd(method, function, 1, module);
