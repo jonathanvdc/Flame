@@ -72,7 +72,7 @@ namespace Turbo
             }
 
             var obj = ValueOrRefObject.Reference(value);
-            var ptr = EncodeBoxPointer(obj, TypeOf(obj));
+            var ptr = EncodeBoxPointer(obj, ((PointerType)TypeOf(obj)).ElementType);
             foreach (var buf in pendingBuffers)
             {
                 Context.CopyToDevice(buf.DeviceBuffer, buf.HostBuffer, buf.Size);
@@ -111,6 +111,11 @@ namespace Turbo
 
         public static CUdeviceptr GetGlobalAddress(LLVMValueRef value, CUmodule module, out SizeT size)
         {
+            if (value.IsAConstantExpr().Pointer != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
+            {
+                return GetGlobalAddress(value.GetOperand(0), module, out size);
+            }
+
             var ptr = new CUdeviceptr();
             size = new SizeT();
             var result = ManagedCuda.DriverAPINativeMethods.ModuleManagement.cuModuleGetGlobal_v2(
@@ -212,7 +217,18 @@ namespace Turbo
 
         public override IType TypeOf(ValueOrRefObject value)
         {
-            return Assembly.Resolve(Assembly.Definition.MainModule.ImportReference(value.Object.GetType()));
+            var type = Assembly.Resolve(
+                Assembly.Definition.MainModule.ImportReference(
+                    value.Object.GetType()));
+
+            if (value.IsReference)
+            {
+                return type.MakePointerType(PointerKind.Box);
+            }
+            else
+            {
+                return type;
+            }
         }
 
         public override IReadOnlyDictionary<IField, ValueOrRefObject> GetFieldValues(ValueOrRefObject value)
@@ -334,7 +350,7 @@ namespace Turbo
 
             public static ValueOrRefObject Reference(object obj)
             {
-                return new ValueOrRefObject(obj, true);
+                return new ValueOrRefObject(obj, false);
             }
         }
     }

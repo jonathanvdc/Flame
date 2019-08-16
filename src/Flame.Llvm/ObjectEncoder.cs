@@ -59,7 +59,7 @@ namespace Flame.Llvm
         /// <returns>The type's size in bytes.</returns>
         public int SizeOf(IType type)
         {
-            return (int)LLVM.StoreSizeOfType(Target, CompiledModule.ImportType(type)) / 8;
+            return (int)LLVM.StoreSizeOfType(Target, CompiledModule.ImportType(type));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Flame.Llvm
         {
             var ext = GCInterface.GetMetadataExtendedType(CompiledModule.ImportType(type), CompiledModule);
             metadataSize = (int)LLVM.OffsetOfElement(Target, ext, 1);
-            return (int)LLVM.StoreSizeOfType(Target, ext) / 8;
+            return (int)LLVM.StoreSizeOfType(Target, ext);
         }
 
         /// <summary>
@@ -114,6 +114,12 @@ namespace Flame.Llvm
         /// A mapping of box pointers to their encoded versions.
         /// </summary>
         private Dictionary<TObj, TPtr> encoded;
+
+        /// <summary>
+        /// Gets a mapping of objects to their encoded versions.
+        /// </summary>
+        /// <value>A mapping of objects to their encoded versions.</value>
+        public IReadOnlyDictionary<TObj, TPtr> EncodedObjects => encoded;
 
         /// <summary>
         /// Gets the type of a particular value.

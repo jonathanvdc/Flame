@@ -142,20 +142,21 @@ namespace Flame.Llvm
         private TObj DecodeField(TPtr pointer, IField field)
         {
             var fieldType = field.FieldType;
+            var fieldPtr = IndexPointer(pointer, GetFieldOffset(field));
             if (fieldType.IsPointerType(PointerKind.Box))
             {
-                return Decode(LoadBoxPointer(IndexPointer(pointer, GetFieldOffset(field))));
+                return Decode(LoadBoxPointer(fieldPtr));
             }
             else
             {
-                return DecodeData(pointer, fieldType);
+                return DecodeData(fieldPtr, fieldType, true);
             }
         }
 
-        private TObj DecodeData(TPtr pointer, IType type)
+        private TObj DecodeData(TPtr pointer, IType type, bool isValue)
         {
             TObj obj;
-            if (!ExistingObjects.TryGetValue(pointer, out obj))
+            if (isValue || !ExistingObjects.TryGetValue(pointer, out obj))
             {
                 if (TryDecodePrimitive(pointer, type, out obj))
                 {
@@ -185,7 +186,7 @@ namespace Flame.Llvm
             TObj obj;
             if (!decoded.TryGetValue(pointer, out obj))
             {
-                obj = DecodeData(pointer, TypeOf(pointer));
+                obj = DecodeData(pointer, TypeOf(pointer), false);
             }
             return obj;
         }

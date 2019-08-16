@@ -73,7 +73,7 @@ namespace Turbo
             return DownloadBox(basePtr);
         }
 
-        private BoxPointer DownloadBox(CUdeviceptr basePtr)
+        private unsafe BoxPointer DownloadBox(CUdeviceptr basePtr)
         {
             if (downloadedObjects.ContainsKey(basePtr))
             {
@@ -81,11 +81,8 @@ namespace Turbo
             }
 
             // Copy metadata from device memory.
-            // TODO: put this on the stack instead? Using an array as a temporary
-            // costs us one allocation per pointer load.
-            var metaBuf = new IntPtr[1];
-            Context.CopyToHost(metaBuf, basePtr - MetadataSize);
-            var metaPtr = (CUdeviceptr)(SizeT)metaBuf[0];
+            CUdeviceptr metaPtr;
+            Context.CopyToHost((IntPtr)(&metaPtr), basePtr - MetadataSize, (uint)MetadataSize);
 
             // Determine the object's type.
             var type = metadataToType[metaPtr];
@@ -129,9 +126,17 @@ namespace Turbo
             }
             else
             {
-                // TODO: handle special types: arrays and delegates.
                 var clrType = (ClrTypeDefinition)type;
-                return Type.GetType(clrType.Definition.FullName);
+                if (type.Parent.IsType)
+                {
+                    var parent = ToClr(type.Parent.Type);
+                    return parent.GetNestedType(clrType.Definition.Name, BindingFlags.Public | BindingFlags.NonPublic);
+                }
+                else
+                {
+                    // TODO: handle special types: arrays and delegates.
+                    return Type.GetType($"{clrType.Definition.FullName},{clrType.Definition.Module.Assembly.FullName}", true);
+                }
             }
         }
 

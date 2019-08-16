@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Flame.Collections;
 using ManagedCuda;
+using ManagedCuda.BasicTypes;
 
 namespace Turbo
 {
@@ -165,7 +164,7 @@ namespace Turbo
                 var complete = Kernel.Start(module, stream, encodedTarget);
 
                 // Create an object to keep track of the kernel.
-                return new ActiveKernel<T>(stream, encoder, complete, TaskCompletion);
+                return new ActiveKernel<T>(module, stream, encoder, complete, TaskCompletion);
             }
         }
 
@@ -191,16 +190,24 @@ namespace Turbo
         private sealed class ActiveKernel<T> : ActiveKernel
         {
             public ActiveKernel(
+                CudaModule module,
                 CudaStream stream,
                 CudaEncoder encoder,
                 Func<T> complete,
                 TaskCompletionSource<T> completion)
             {
+                this.Module = module;
                 this.Stream = stream;
                 this.Encoder = encoder;
                 this.Complete = complete;
                 this.TaskCompletion = completion;
             }
+
+            /// <summary>
+            /// Gets the CUDA module that is being run by this kernel.
+            /// </summary>
+            /// <value>A CUDA module.</value>
+            public CudaModule Module { get; private set; }
 
             /// <summary>
             /// Gets this kernel's dedicated CUDA stream.
@@ -245,11 +252,16 @@ namespace Turbo
                     bool completed = Stream.Query();
                     if (completed)
                     {
+                        // Propagate object updates.
+                        DecodeObjects();
+
                         // Complete the kernel and update the task accordingly.
-                        TaskCompletion.SetResult(Complete());
+                        var result = Complete();
 
                         // Dispose any resources used to encode the call target.
                         Encoder.Dispose();
+
+                        TaskCompletion.SetResult(result);
                     }
                     return completed;
                 }
@@ -258,12 +270,35 @@ namespace Turbo
                     // Complete the kernel anyway; we may have resources that need disposing.
                     Complete();
 
+                    // Dispose any resources used to encode the call target.
+                    Encoder.Dispose();
+
                     // Update the task with the exception.
                     TaskCompletion.SetException(ex);
 
-                    // Dispose any resources used to encode the call target.
-                    Encoder.Dispose();
                     return true;
+                }
+            }
+
+            private void DecodeObjects()
+            {
+                // Construct a mapping of encoded object addresses to encoded objects.
+                var enc = new Dictionary<CUdeviceptr, object>();
+                foreach (var pair in Encoder.EncodedObjects)
+                {
+                    if (pair.Key.IsReference)
+                    {
+                        enc[pair.Value.DeviceBuffer] = pair.Key.Object;
+                    }
+                }
+
+                // Decode any updated objects.
+                using (var decoder = new CudaDecoder(Module, enc))
+                {
+                    foreach (var pair in enc)
+                    {
+                        decoder.Decode(pair.Key);
+                    }
                 }
             }
         }

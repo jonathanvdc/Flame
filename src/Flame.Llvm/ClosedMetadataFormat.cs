@@ -33,6 +33,7 @@ namespace Flame.Llvm
             this.typePrimes = new Dictionary<IType, ulong>();
             this.typeFactors = new Dictionary<IType, HashSet<ulong>>();
             this.typeTags = new Dictionary<IType, ulong>();
+            this.typesWithMeta = new HashSet<IType>();
             foreach (var member in typeMembers)
             {
                 Register(member);
@@ -73,11 +74,12 @@ namespace Flame.Llvm
         private Dictionary<IType, ulong> typePrimes;
         private Dictionary<IType, HashSet<ulong>> typeFactors;
         private Dictionary<IType, ulong> typeTags;
+        private HashSet<IType> typesWithMeta;
 
         private const uint virtualFunctionOffset = 1;
 
         /// <inheritdoc/>
-        public override IEnumerable<IType> TypesWithMetadata => typeTags.Keys;
+        public override IEnumerable<IType> TypesWithMetadata => typesWithMeta;
 
         private IReadOnlyList<IMethod> GetVTableLayout(IType type)
         {
@@ -173,10 +175,9 @@ namespace Flame.Llvm
         private LLVMValueRef GetTypeMetadataTable(IType type, ModuleBuilder module)
         {
             var name = "vtable_" + module.Mangler.Mangle(type, true);
-            var result = LLVM.GetNamedGlobal(module.Module, name);
-            if (result.Pointer != IntPtr.Zero)
+            if (!typesWithMeta.Add(type))
             {
-                return result;
+                return LLVM.GetNamedGlobal(module.Module, name);
             }
 
             // Compose the vtable's contents.

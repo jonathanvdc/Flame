@@ -5,6 +5,7 @@
     <AssemblyName>Turbo</AssemblyName>
     <Version>1.0</Version>
     <TargetFrameworks>net47</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
