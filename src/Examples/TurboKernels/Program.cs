@@ -17,7 +17,7 @@ namespace TurboKernels
 
             // Atomically increment a value twenty times on the device.
             int x = 10;
-            Parallel.ForAsync(20, () => { Interlocked.Add(ref x, 1); }).Wait();
+            Parallel.ForAsync(20, () => { Interlocked.Increment(ref x); }).Wait();
             Console.WriteLine(x);
         }
     }

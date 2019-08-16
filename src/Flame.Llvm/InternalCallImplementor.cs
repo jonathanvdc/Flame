@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Flame.Llvm.Emit;
+using Flame.TypeSystem;
 using LLVMSharp;
 
 namespace Flame.Llvm
@@ -67,20 +67,50 @@ namespace Flame.Llvm
             }
 
             var name = method.Name.ToString();
-            if (name == "Add" && method.Parameters.Count == 2)
+            var paramCount = method.Parameters.Count;
+            if (name == "Add" && paramCount == 2)
             {
-                ImplementWithInstruction(
-                    function,
-                    module,
-                    builder => builder.CreateAtomicRMW(
-                        LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpAdd,
-                        function.GetParam(0),
-                        function.GetParam(1),
-                        LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
-                        false));
+                ImplementWithAtomicAdd(function, function.GetParam(1), module);
                 return true;
             }
-            return false;
+            else if (name == "Increment" && paramCount == 1)
+            {
+                ImplementWithAtomicAdd(method, function, 1, module);
+                return true;
+            }
+            else if (name == "Decrement" && paramCount == 1)
+            {
+                ImplementWithAtomicAdd(method, function, -1, module);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void ImplementWithAtomicAdd(IMethod method, LLVMValueRef function, int rhs, ModuleBuilder module)
+        {
+            ImplementWithAtomicAdd(
+                function,
+                LLVM.ConstInt(
+                    module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                    (ulong)rhs,
+                    true),
+                module);
+        }
+
+        private void ImplementWithAtomicAdd(LLVMValueRef function, LLVMValueRef rhs, ModuleBuilder module)
+        {
+            ImplementWithInstruction(
+                function,
+                module,
+                builder => builder.CreateAtomicRMW(
+                    LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpAdd,
+                    function.GetParam(0),
+                    rhs,
+                    LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                    false));
         }
 
         private void ImplementWithInstruction(
