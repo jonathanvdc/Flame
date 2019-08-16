@@ -45,6 +45,15 @@ namespace Flame.TypeSystem
             new IntrinsicAttribute("SpecialType");
 
         /// <summary>
+        /// An attribute that identifies a method as being implemented by
+        /// an "internal call" to the runtime. That is, if the runtime is
+        /// responsible for implementing the method.
+        /// </summary>
+        /// <returns>An intrinsic attribute.</returns>
+        public static readonly IntrinsicAttribute InternalCall =
+            new IntrinsicAttribute("InternalCall");
+
+        /// <summary>
         /// Tests if a particular type is definitely a reference type.
         /// </summary>
         /// <param name="type">The type to test.</param>
@@ -126,6 +135,21 @@ namespace Flame.TypeSystem
         public static bool IsVirtual(this IMethod method)
         {
             return method.Attributes.Contains(Virtual.AttributeType);
+        }
+
+        /// <summary>
+        /// Tests if a particular method is implemented by an "internal
+        /// call" to the runtime. That is, if the runtime is responsible
+        /// for implementing the method.
+        /// </summary>
+        /// <param name="method">The method to test.</param>
+        /// <returns>
+        /// <c>true</c> if the method is implemented by an internal call;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsInternalCall(this IMethod method)
+        {
+            return method.Attributes.Contains(InternalCall.AttributeType);
         }
     }
 }
