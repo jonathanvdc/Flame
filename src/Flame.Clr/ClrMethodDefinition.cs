@@ -183,6 +183,10 @@ namespace Flame.Clr
                     attrBuilder.Add(new ExternAttribute());
                 }
             }
+            else if (Definition.IsInternalCall)
+            {
+                attrBuilder.Add(FlagAttribute.InternalCall);
+            }
 
             // The default 'object' constructor is a nop. Taking that
             // into account can significantly improve constructor inlining
