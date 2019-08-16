@@ -42,13 +42,76 @@ namespace Flame.Llvm
         /// <inheritdoc/>
         public override void Implement(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
-            if (TryImplementInterlocked(method, function, module))
+            if (TryImplementInterlocked(method, function, module)
+                || TryImplementThread(method, function, module))
             {
                 return;
             }
             throw new NotSupportedException(
                 $"Method '{method.FullName}' is marked as \"internal call\" but " +
                 "is not a known CLR internal call method.");
+        }
+
+        /// <summary>
+        /// Tries to implement a method defined in the <see cref="System.Threading.Thread"/> class.
+        /// </summary>
+        /// <param name="method">An internal call method to implement.</param>
+        /// <param name="function"><paramref name="method"/>'s corresponding LLVM function.</param>
+        /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
+        private bool TryImplementThread(IMethod method, LLVMValueRef function, ModuleBuilder module)
+        {
+            var type = method.ParentType;
+            if (type.FullName.ToString() != "System.Threading.Thread"
+                || !method.IsStatic)
+            {
+                return false;
+            }
+
+            var name = method.Name.ToString();
+            var paramCount = method.Parameters.Count;
+
+            if (name == nameof(System.Threading.Thread.VolatileRead) && paramCount == 1)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        load.SetVolatile(true);
+                        return load;
+                    });
+                return true;
+            }
+            else if (name == nameof(System.Threading.Thread.VolatileWrite) && paramCount == 1)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var store = builder.CreateStore(function.GetParam(1), function.GetParam(0));
+                        store.SetVolatile(true);
+                        return store;
+                    });
+                return true;
+            }
+            else if (name == nameof(System.Threading.Thread.MemoryBarrier) && paramCount == 0)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                        builder.CreateFence(
+                            LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                            false,
+                            ""));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -73,6 +136,11 @@ namespace Flame.Llvm
                 ImplementWithAtomicAdd(function, function.GetParam(1), module);
                 return true;
             }
+            if (name == "Exchange" && paramCount == 2)
+            {
+                ImplementWithAtomic(function, LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpXchg, function.GetParam(1), module);
+                return true;
+            }
             else if (name == "Increment" && paramCount == 1)
             {
                 ImplementWithAtomicAdd(method, function, 1, module);
@@ -81,6 +149,19 @@ namespace Flame.Llvm
             else if (name == "Decrement" && paramCount == 1)
             {
                 ImplementWithAtomicAdd(method, function, -1, module);
+                return true;
+            }
+            else if (name == "Read" && paramCount == 1)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        load.SetVolatile(true);
+                        return load;
+                    });
                 return true;
             }
             else
@@ -102,11 +183,16 @@ namespace Flame.Llvm
 
         private void ImplementWithAtomicAdd(LLVMValueRef function, LLVMValueRef rhs, ModuleBuilder module)
         {
+            ImplementWithAtomic(function, LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpAdd, rhs, module);
+        }
+
+        private void ImplementWithAtomic(LLVMValueRef function, LLVMAtomicRMWBinOp op, LLVMValueRef rhs, ModuleBuilder module)
+        {
             ImplementWithInstruction(
                 function,
                 module,
                 builder => builder.CreateAtomicRMW(
-                    LLVMAtomicRMWBinOp.LLVMAtomicRMWBinOpAdd,
+                    op,
                     function.GetParam(0),
                     rhs,
                     LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
@@ -123,7 +209,14 @@ namespace Flame.Llvm
             {
                 builder.PositionBuilderAtEnd(ep);
                 var insn = createInstruction(builder);
-                builder.CreateRet(insn);
+                if (insn.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                {
+                    builder.CreateRetVoid();
+                }
+                else
+                {
+                    builder.CreateRet(insn);
+                }
             }
         }
     }
