@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Flame;
 using Flame.Clr;
 using Flame.Llvm;
-using Flame.Llvm.Emit;
 using Flame.TypeSystem;
 using LLVMSharp;
 using ManagedCuda;
@@ -233,15 +233,10 @@ namespace Turbo
 
         public override IReadOnlyDictionary<IField, ValueOrRefObject> GetFieldValues(ValueOrRefObject value)
         {
-            var t = value.GetType();
+            var t = value.Object.GetType();
             var results = new Dictionary<IField, ValueOrRefObject>();
-            foreach (var field in t.GetFields())
+            foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (field.IsStatic)
-                {
-                    continue;
-                }
-
                 var flameField = Assembly.Resolve(Assembly.Definition.MainModule.ImportReference(field));
                 var val = field.GetValue(value.Object);
                 results[flameField] = flameField.FieldType.IsPointerType(PointerKind.Box)
@@ -342,6 +337,11 @@ namespace Turbo
             /// </summary>
             /// <value>A Boolean flag.</value>
             public bool IsReference => !IsValue;
+
+            public override string ToString()
+            {
+                return $"{Object} [{(IsValue ? "value" : "ref")}]";
+            }
 
             public static ValueOrRefObject Value(object obj)
             {
