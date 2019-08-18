@@ -30754,6 +30754,15 @@ references:
   commentId: M:Turbo.Parallel.ForAsync(System.Int32,System.Action)
   fullName: Turbo.Parallel.ForAsync(System.Int32, System.Action)
   nameWithType: Parallel.ForAsync(Int32, Action)
+- uid: Turbo.Parallel.ForAsync(System.Int32,System.Action{System.Int32})
+  name: ForAsync(Int32, Action<Int32>)
+  href: api/Turbo.Parallel.html#Turbo_Parallel_ForAsync_System_Int32_System_Action_System_Int32__
+  commentId: M:Turbo.Parallel.ForAsync(System.Int32,System.Action{System.Int32})
+  name.vb: ForAsync(Int32, Action(Of Int32))
+  fullName: Turbo.Parallel.ForAsync(System.Int32, System.Action<System.Int32>)
+  fullName.vb: Turbo.Parallel.ForAsync(System.Int32, System.Action(Of System.Int32))
+  nameWithType: Parallel.ForAsync(Int32, Action<Int32>)
+  nameWithType.vb: Parallel.ForAsync(Int32, Action(Of Int32))
 - uid: Turbo.Parallel.ForAsync*
   name: ForAsync
   href: api/Turbo.Parallel.html#Turbo_Parallel_ForAsync_
