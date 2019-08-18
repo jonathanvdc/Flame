@@ -22,6 +22,7 @@ using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using System.Collections.Generic;
 using Flame.Llvm.Emit;
+using Flame.Collections;
 
 namespace Turbo
 {
@@ -99,6 +100,7 @@ namespace Turbo
 
         internal static async Task<CudaModule> CompileAsync(
             MethodInfo method,
+            int threadIdParamIndex,
             IEnumerable<MemberInfo> roots,
             CudaContext context)
         {
@@ -109,6 +111,7 @@ namespace Turbo
                     module.ImportReference(method),
                     roots.OfType<MethodInfo>().Select(module.ImportReference),
                     roots.OfType<Type>().Select(module.ImportReference),
+                    threadIdParamIndex,
                     context);
             }
         }
@@ -117,6 +120,7 @@ namespace Turbo
             MethodReference method,
             IEnumerable<MethodReference> methodRoots,
             IEnumerable<TypeReference> typeRoots,
+            int threadIdParamIndex,
             CudaContext context)
         {
             var module = method.Module;
@@ -125,6 +129,7 @@ namespace Turbo
                 flameModule.Resolve(method),
                 methodRoots.Select(flameModule.Resolve).ToArray(),
                 typeRoots.Select(flameModule.Resolve).ToArray(),
+                threadIdParamIndex,
                 flameModule,
                 context);
         }
@@ -133,6 +138,7 @@ namespace Turbo
             IMethod method,
             IEnumerable<ITypeMember> memberRoots,
             IEnumerable<IType> typeRoots,
+            int threadIdParamIndex,
             ClrAssembly assembly,
             CudaContext context)
         {
@@ -154,6 +160,46 @@ namespace Turbo
             var kernelFuncName = mangler.Mangle(method, true);
             var kernelFunc = LLVM.GetNamedFunction(module, kernelFuncName);
 
+            if (threadIdParamIndex >= 0)
+            {
+                // If we have a thread ID parameter, then we need to generate a thunk
+                // kernel function that calls our actual kernel function. This thunk's
+                // responsibility is to determine the thread ID of the kernel.
+                var thunkKernelName = "kernel";
+                var thunkTargetType = kernelFunc.TypeOf().GetElementType();
+                var thunkParamTypes = new List<LLVMTypeRef>(thunkTargetType.GetParamTypes());
+                if (threadIdParamIndex < thunkParamTypes.Count)
+                {
+                    thunkParamTypes.RemoveAt(threadIdParamIndex);
+                }
+                var thunkKernel = LLVM.AddFunction(
+                    module,
+                    thunkKernelName,
+                    LLVM.FunctionType(
+                        thunkTargetType.GetReturnType(),
+                        thunkParamTypes.ToArray(),
+                        thunkTargetType.IsFunctionVarArg));
+
+                using (var builder = new IRBuilder(moduleBuilder.Context))
+                {
+                    builder.PositionBuilderAtEnd(thunkKernel.AppendBasicBlock("entry"));
+                    var args = new List<LLVMValueRef>(thunkKernel.GetParams());
+                    args.Insert(threadIdParamIndex, ComputeUniqueThreadId(builder, module));
+                    var call = builder.CreateCall(kernelFunc, args.ToArray(), "");
+                    if (call.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                    {
+                        builder.CreateRetVoid();
+                    }
+                    else
+                    {
+                        builder.CreateRet(call);
+                    }
+                }
+
+                kernelFuncName = thunkKernelName;
+                kernelFunc = thunkKernel;
+            }
+
             // Mark the compiled kernel as a kernel symbol.
             LLVM.AddNamedMetadataOperand(
                 module,
@@ -165,14 +211,63 @@ namespace Turbo
                     LLVM.ConstInt(LLVM.Int32TypeInContext(LLVM.GetModuleContext(module)), 1, false)
                 }));
 
+            // LLVM.DumpModule(module);
+
             // Compile that LLVM IR down to PTX.
             LLVMTargetMachineRef machine;
             var ptx = CompileToPtx(module, context.GetDeviceComputeCapability(), out machine);
             
-            Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
+            // Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
 
             // Load the PTX kernel.
             return new CudaModule(assembly, moduleBuilder, machine, context.LoadModulePTX(ptx), kernelFuncName, context);
+        }
+
+        /// <summary>
+        /// Synthesizes instructions that compute a CUDA thread's unique ID.
+        /// </summary>
+        /// <param name="builder">An instruction builder.</param>
+        /// <param name="module">An LLVM module to modify.</param>
+        /// <returns>An instruction that generates a unique thread ID.</returns>
+        private static LLVMValueRef ComputeUniqueThreadId(IRBuilder builder, LLVMModuleRef module)
+        {
+            // Aggregate thread, block IDs into a single unique identifier.
+            // The way we do this is by iteratively applying this operation:
+            //
+            //     y * nx + x,
+            //
+            // where 'x' is a "row" index, 'nx' is the number of "rows" and 'y' is
+            // a "column" index.
+            var ids = new[] { "tid.x", "tid.y", "tid.z", "ctaid.x", "ctaid.y", "ctaid.z" };
+            var accumulator = ReadSReg(ids[ids.Length - 1], builder, module);
+            for (int i = ids.Length - 2; i >= 0; i--)
+            {
+                accumulator = builder.CreateAdd(
+                    builder.CreateMul(
+                        accumulator,
+                        ReadSReg("n" + ids[i], builder, module),
+                        ""),
+                    ReadSReg(ids[i], builder, module),
+                    "");
+            }
+            return accumulator;
+        }
+
+        private static LLVMValueRef ReadSReg(string name, IRBuilder builder, LLVMModuleRef module)
+        {
+            var fName = "llvm.nvvm.read.ptx.sreg." + name;
+            var fun = LLVM.GetNamedFunction(module, name);
+            if (fun.Pointer == IntPtr.Zero)
+            {
+                fun = LLVM.AddFunction(
+                    module,
+                    fName,
+                    LLVM.FunctionType(
+                        LLVM.Int32TypeInContext(LLVM.GetModuleContext(module)),
+                        EmptyArray<LLVMTypeRef>.Value,
+                        false));
+            }
+            return builder.CreateCall(fun, EmptyArray<LLVMValueRef>.Value, "");
         }
 
         private static byte[] CompileToPtx(

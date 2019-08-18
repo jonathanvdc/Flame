@@ -25,10 +25,12 @@ namespace Turbo
         public KernelDescription(
             MethodInfo method,
             object target,
+            int threadIdParamIndex,
             Func<CudaModule, CudaStream, CUdeviceptr, Func<T>> start)
         {
             this.Method = method;
             this.Target = target;
+            this.ThreadIdParamIndex = threadIdParamIndex;
             this.Start = start;
         }
 
@@ -43,6 +45,17 @@ namespace Turbo
         /// </summary>
         /// <value>An optional first argument.</value>
         public object Target { get; private set; }
+
+        /// <summary>
+        /// Gets the index of the thread ID parameter in the kernel's
+        /// extended parameter list, i.e., the 'this' parameter plus
+        /// the parameter list.
+        /// </summary>
+        /// <value>
+        /// The index of the thread ID parameter.
+        /// A negative number if there is no such parameter.
+        /// </value>
+        public int ThreadIdParamIndex { get; private set; }
 
         /// <summary>
         /// Starts a compiled version of <see cref="Method"/> on a particular

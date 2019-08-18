@@ -153,7 +153,11 @@ namespace Turbo
             {
                 // Compile the module.
                 var members = MemberHelpers.GetMembers(Kernel.Target);
-                var module = await CudaModule.CompileAsync(Kernel.Method, members, context);
+                var module = await CudaModule.CompileAsync(
+                    Kernel.Method,
+                    Kernel.ThreadIdParamIndex,
+                    members,
+                    context);
 
                 // Encode the call target.
                 var encoder = new CudaEncoder(module);
