@@ -24689,6 +24689,23 @@ references:
   fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).Decode
   nameWithType: ObjectDecoder<TObj, TPtr>.Decode
   nameWithType.vb: ObjectDecoder(Of TObj, TPtr).Decode
+- uid: Flame.Llvm.ObjectDecoder`2.DecodeFieldlike(Flame.IType,`1)
+  name: DecodeFieldlike(IType, TPtr)
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_DecodeFieldlike_Flame_IType__1_
+  commentId: M:Flame.Llvm.ObjectDecoder`2.DecodeFieldlike(Flame.IType,`1)
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.DecodeFieldlike(Flame.IType, TPtr)
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).DecodeFieldlike(Flame.IType, TPtr)
+  nameWithType: ObjectDecoder<TObj, TPtr>.DecodeFieldlike(IType, TPtr)
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).DecodeFieldlike(IType, TPtr)
+- uid: Flame.Llvm.ObjectDecoder`2.DecodeFieldlike*
+  name: DecodeFieldlike
+  href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_DecodeFieldlike_
+  commentId: Overload:Flame.Llvm.ObjectDecoder`2.DecodeFieldlike
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectDecoder<TObj, TPtr>.DecodeFieldlike
+  fullName.vb: Flame.Llvm.ObjectDecoder(Of TObj, TPtr).DecodeFieldlike
+  nameWithType: ObjectDecoder<TObj, TPtr>.DecodeFieldlike
+  nameWithType.vb: ObjectDecoder(Of TObj, TPtr).DecodeFieldlike
 - uid: Flame.Llvm.ObjectDecoder`2.ExistingObjects
   name: ExistingObjects
   href: api/Flame.Llvm.ObjectDecoder-2.html#Flame_Llvm_ObjectDecoder_2_ExistingObjects
@@ -25039,6 +25056,23 @@ references:
   fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).LoadBoxPointer
   nameWithType: ObjectEncoder<TObj, TPtr>.LoadBoxPointer
   nameWithType.vb: ObjectEncoder(Of TObj, TPtr).LoadBoxPointer
+- uid: Flame.Llvm.ObjectEncoder`2.RegisterEncoded(`0,`1)
+  name: RegisterEncoded(TObj, TPtr)
+  href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_RegisterEncoded__0__1_
+  commentId: M:Flame.Llvm.ObjectEncoder`2.RegisterEncoded(`0,`1)
+  fullName: Flame.Llvm.ObjectEncoder<TObj, TPtr>.RegisterEncoded(TObj, TPtr)
+  fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).RegisterEncoded(TObj, TPtr)
+  nameWithType: ObjectEncoder<TObj, TPtr>.RegisterEncoded(TObj, TPtr)
+  nameWithType.vb: ObjectEncoder(Of TObj, TPtr).RegisterEncoded(TObj, TPtr)
+- uid: Flame.Llvm.ObjectEncoder`2.RegisterEncoded*
+  name: RegisterEncoded
+  href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_RegisterEncoded_
+  commentId: Overload:Flame.Llvm.ObjectEncoder`2.RegisterEncoded
+  isSpec: "True"
+  fullName: Flame.Llvm.ObjectEncoder<TObj, TPtr>.RegisterEncoded
+  fullName.vb: Flame.Llvm.ObjectEncoder(Of TObj, TPtr).RegisterEncoded
+  nameWithType: ObjectEncoder<TObj, TPtr>.RegisterEncoded
+  nameWithType.vb: ObjectEncoder(Of TObj, TPtr).RegisterEncoded
 - uid: Flame.Llvm.ObjectEncoder`2.TryEncodePrimitive(`0,`1)
   name: TryEncodePrimitive(TObj, TPtr)
   href: api/Flame.Llvm.ObjectEncoder-2.html#Flame_Llvm_ObjectEncoder_2_TryEncodePrimitive__0__1_
