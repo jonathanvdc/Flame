@@ -232,6 +232,7 @@ namespace Turbo
 
                 // Map the array to its encoded version.
                 RegisterEncoded(value, buf);
+                EncodePointer(buffer, buf);
 
                 // Encode array dimensions.
                 // FIXME: this logic is directly dependent on the GC interface. Can we abstract

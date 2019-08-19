@@ -75,7 +75,7 @@ namespace Turbo
 
         private unsafe BoxPointer DownloadBox(CUdeviceptr basePtr)
         {
-            if (downloadedObjects.ContainsKey(basePtr))
+            if (basePtr == 0 || downloadedObjects.ContainsKey(basePtr))
             {
                 return new BoxPointer(basePtr, 0);
             }
@@ -88,8 +88,9 @@ namespace Turbo
             var type = metadataToType[metaPtr];
 
             // Download the object from GPU memory.
-            var size = SizeOf(type);
+            var size = SizeOfObject(basePtr, type);
             var data = Marshal.AllocHGlobal(size);
+            // TODO: download whole array if we're dealing with an array type.
             Context.CopyToHost(data, basePtr, (uint)size);
 
             // Keep track of the object's type and data.
@@ -97,6 +98,24 @@ namespace Turbo
 
             // Return a fat pointer.
             return new BoxPointer(basePtr, 0);
+        }
+
+        private int SizeOfObject(CUdeviceptr basePtr, IType type)
+        {
+            int rank;
+            if (ClrArrayType.TryGetArrayRank(type, out rank))
+            {
+                var dims = new long[rank];
+                Context.CopyToHost(dims, basePtr);
+
+                IType elementType;
+                ClrArrayType.TryGetArrayElementType(type, out elementType);
+                return sizeof(long) * rank + dims.Aggregate(SizeOf(elementType), (x, y) => x * (int)y);
+            }
+            else
+            {
+                return SizeOf(type);
+            }
         }
 
         public override IType TypeOf(BoxPointer pointer)
@@ -124,6 +143,15 @@ namespace Turbo
                 var genDecl = type.GetRecursiveGenericDeclaration();
                 return ToClr(genDecl).MakeGenericType(genArgs.Select(ToClr).ToArray());
             }
+            else if (ClrArrayType.IsArrayType(type))
+            {
+                IType elementType;
+                ClrArrayType.TryGetArrayElementType(type, out elementType);
+                int rank;
+                ClrArrayType.TryGetArrayRank(type, out rank);
+                var clrElementType = ToClr(elementType);
+                return rank == 1 ? clrElementType.MakeArrayType() : clrElementType.MakeArrayType(rank);
+            }
             else
             {
                 var clrType = (ClrTypeDefinition)type;
@@ -134,7 +162,7 @@ namespace Turbo
                 }
                 else
                 {
-                    // TODO: handle special types: arrays and delegates.
+                    // TODO: handle special types: delegates.
                     return Type.GetType($"{clrType.Definition.FullName},{clrType.Definition.Module.Assembly.FullName}", true);
                 }
             }
@@ -159,7 +187,12 @@ namespace Turbo
 
         public override bool TryDecodePrimitive(BoxPointer pointer, IType type, out object obj)
         {
-            if (type == TypeSystem.Int8)
+            if (pointer.BasePointer == 0)
+            {
+                obj = null;
+                return true;
+            }
+            else if (type == TypeSystem.Int8)
             {
                 obj = (sbyte)Marshal.ReadByte(pointer.ToIntPtr(this));
                 return true;
@@ -215,11 +248,77 @@ namespace Turbo
             {
                 throw new System.NotImplementedException();
             }
+            else if (ClrArrayType.IsArrayType(type))
+            {
+                int rank;
+                ClrArrayType.TryGetArrayRank(type, out rank);
+                IType elementType;
+                ClrArrayType.TryGetArrayElementType(type, out elementType);
+
+                // Decode array dimensions.
+                var ptr = pointer.ToIntPtr(this);
+                var dims = new long[rank];
+                for (int i = 0; i < rank; i++)
+                {
+                    dims[i] = Marshal.ReadInt64(ptr);
+                    ptr += sizeof(long);
+                }
+
+                // Create a host array.
+                var arr = Array.CreateInstance(ToClr(type), dims);
+                obj = arr;
+                RegisterDecoded(pointer, arr);
+
+                // Decode array contents.
+                DecodeArrayContents(pointer, elementType, dims, arr);
+                return true;
+            }
             else
             {
-                // TODO: handle delegates, arrays, etc.
+                // TODO: handle delegates.
                 obj = null;
                 return false;
+            }
+        }
+
+        private void DecodeArrayContents(
+            BoxPointer basePointer,
+            IType elementType,
+            long[] dims,
+            Array array)
+        {
+            var elementSize = SizeOf(elementType);
+            var rank = dims.Length;
+
+            basePointer = IndexPointer(basePointer, rank * 8);
+
+            var index = new long[rank];
+            bool done = false;
+            while (true)
+            {
+                for (int i = rank - 1; i >= 0; i--)
+                {
+                    if (index[i] >= dims[i])
+                    {
+                        if (i == 0)
+                        {
+                            done = true;
+                        }
+                        else
+                        {
+                            index[i] = 0;
+                            index[i - 1]++;
+                        }
+                    }
+                }
+                if (done)
+                {
+                    break;
+                }
+
+                array.SetValue(DecodeFieldlike(elementType, basePointer), index);
+                index[rank - 1]++;
+                basePointer = IndexPointer(basePointer, elementSize);
             }
         }
 
@@ -235,9 +334,21 @@ namespace Turbo
                 // These objects are immutable. They never need to be updated.
                 return true;
             }
+            else if (obj is Array)
+            {
+                IType elementType;
+                ClrArrayType.TryGetArrayElementType(type, out elementType);
+                var array = (Array)obj;
+                DecodeArrayContents(
+                    pointer,
+                    elementType,
+                    Enumerable.Range(0, array.Rank).Select(array.GetLongLength).ToArray(),
+                    array);
+                return true;
+            }
             else
             {
-                // TODO: handle delegates, arrays, etc.
+                // TODO: handle delegates, etc.
                 return false;
             }
         }
@@ -255,6 +366,11 @@ namespace Turbo
 
             public IType TypeOf(CudaDecoder decoder)
             {
+                if (BasePointer == 0)
+                {
+                    return null;
+                }
+
                 return decoder.downloadedObjects[BasePointer].Type;
             }
 

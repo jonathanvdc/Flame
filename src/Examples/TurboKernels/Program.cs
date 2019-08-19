@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Turbo;
 
@@ -27,6 +28,11 @@ namespace TurboKernels
             int y = 0;
             Parallel.ForAsync(100, threadId => { Interlocked.Add(ref y, threadId + 1); }).Wait();
             Console.WriteLine(y);
+
+            // Compute the square of every element of an array.
+            var numbers = Enumerable.Range(1, 10).ToArray();
+            Parallel.ForAsync(10, threadId => { numbers[threadId] = numbers[threadId] * numbers[threadId]; }).Wait();
+            Console.WriteLine(numbers.Sum());
         }
     }
 }

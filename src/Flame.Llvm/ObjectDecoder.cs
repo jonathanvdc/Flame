@@ -143,6 +143,11 @@ namespace Flame.Llvm
         {
             var fieldType = field.FieldType;
             var fieldPtr = IndexPointer(pointer, GetFieldOffset(field));
+            return DecodeFieldlike(fieldType, fieldPtr);
+        }
+
+        protected TObj DecodeFieldlike(IType fieldType, TPtr fieldPtr)
+        {
             if (fieldType.IsPointerType(PointerKind.Box))
             {
                 return Decode(LoadBoxPointer(fieldPtr));
