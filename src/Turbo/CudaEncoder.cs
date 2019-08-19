@@ -208,18 +208,65 @@ namespace Turbo
                 Marshal.WriteInt64(buffer.HostBuffer, (long)(ulong)val);
                 return true;
             }
-            // TODO: handle other primitive types, e.g., floating-point numbers, arrays and delegates.
+            // TODO: handle other primitive types, e.g., floating-point numbers and delegates.
+            else if (val is Array)
+            {
+                var arr = (Array)val;
+                var arrType = val.GetType();
+                var elemType = ToClr(arrType.GetElementType());
+                bool refElements = false;
+                if (elemType.IsReferenceType())
+                {
+                    elemType = elemType.MakePointerType(PointerKind.Box);
+                    refElements = true;
+                }
+                var elemSize = SizeOf(elemType);
+                var totalElements = arr.Length;
+
+                // Allocate a buffer for the array.
+                var buf = AllocateBuffer(MetadataSize + arr.Rank * 8 + totalElements * elemSize);
+
+                // Initialize the array's vtable.
+                InitializeObject(buf, ToClr(arrType));
+                buf = IndexPointer(buf, MetadataSize);
+
+                // Map the array to its encoded version.
+                RegisterEncoded(value, buf);
+
+                // Encode array dimensions.
+                // FIXME: this logic is directly dependent on the GC interface. Can we abstract
+                // over this in a reasonable way at the Flame.Llvm level?
+                for (int i = 0; i < arr.Rank; i++)
+                {
+                    Marshal.WriteInt64(buf.HostBuffer, arr.GetLongLength(i));
+                    buf = IndexPointer(buf, 8);
+                }
+
+                // Encode array contents.
+                foreach (var item in arr)
+                {
+                    var elem = refElements ? ValueOrRefObject.Reference(item) : ValueOrRefObject.Value(item);
+                    Encode(elem, buf);
+                    buf = IndexPointer(buf, elemSize);
+                }
+                return true;
+            }
             else
             {
                 return false;
             }
         }
 
+        private IType ToClr(Type type)
+        {
+            return Assembly.Resolve(
+                Assembly.Definition.MainModule.ImportReference(
+                    type));
+        }
+
         public override IType TypeOf(ValueOrRefObject value)
         {
-            var type = Assembly.Resolve(
-                Assembly.Definition.MainModule.ImportReference(
-                    value.Object.GetType()));
+            var type = ToClr(value.Object.GetType());
 
             if (value.IsReference)
             {

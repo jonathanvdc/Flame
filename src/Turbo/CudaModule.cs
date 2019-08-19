@@ -216,7 +216,7 @@ namespace Turbo
             // Compile that LLVM IR down to PTX.
             LLVMTargetMachineRef machine;
             var ptx = CompileToPtx(module, context.GetDeviceComputeCapability(), out machine);
-            
+
             // Console.WriteLine(System.Text.Encoding.UTF8.GetString(ptx));
 
             // Load the PTX kernel.

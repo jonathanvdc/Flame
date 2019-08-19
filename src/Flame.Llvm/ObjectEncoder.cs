@@ -263,10 +263,16 @@ namespace Flame.Llvm
             TPtr address;
             if (!encoded.TryGetValue(box, out address))
             {
-                encoded[box] = address = CreateObject(elementType);
+                address = CreateObject(elementType);
+                RegisterEncoded(box, address);
                 Encode(LoadBoxPointer(box), address);
             }
             return address;
+        }
+
+        protected void RegisterEncoded(TObj box, TPtr address)
+        {
+            encoded[box] = address;
         }
     }
 }
