@@ -131,7 +131,7 @@ include root set management, object allocation and the object header format.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitAllocArray_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitAllocArray(Flame.IType%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BLLVMSharp.LLVMValueRef%7D%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L50">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L71">View Source</a>
   </span>
   <a id="Flame_Llvm_GCInterface_EmitAllocArray_" data-uid="Flame.Llvm.GCInterface.EmitAllocArray*"></a>
   <h4 id="Flame_Llvm_GCInterface_EmitAllocArray_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitAllocArray(Flame.IType,Flame.IType,System.Collections.Generic.IReadOnlyList{LLVMSharp.LLVMValueRef},Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitAllocArray(IType, IType, IReadOnlyList&lt;LLVMValueRef&gt;, ModuleBuilder, IRBuilder, String)</h4>
@@ -202,6 +202,87 @@ include root set management, object allocation and the object header format.</p>
       <tr>
         <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
         <td><p>A value that points to an array.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitAllocDelegate(Flame.IType%2CLLVMSharp.LLVMValueRef%2CLLVMSharp.LLVMValueRef%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L41">View Source</a>
+  </span>
+  <a id="Flame_Llvm_GCInterface_EmitAllocDelegate_" data-uid="Flame.Llvm.GCInterface.EmitAllocDelegate*"></a>
+  <h4 id="Flame_Llvm_GCInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)</h4>
+  <div class="markdown level1 summary"><p>Emits instructions that allocate a GC-managed delegate object.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract LLVMValueRef EmitAllocDelegate(IType type, LLVMValueRef callee, LLVMValueRef thisArgument, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">type</span></td>
+        <td><p>A type to instantiate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">callee</span></td>
+        <td><p>A callee to wrap in a delegate.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><span class="parametername">thisArgument</span></td>
+        <td><p>A 'this' argument for the delegate.
+<code>null</code> if there is no 'this' argument.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
+        <td><span class="parametername">module</span></td>
+        <td><p>The module that defines the object-allocating instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>An instruction builder to use for emitting instructions.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">name</span></td>
+        <td><p>A suggested name for the value that refers to the allocated object.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
+        <td><p>A pointer to the allocated object.</p>
 </td>
       </tr>
     </tbody>
@@ -279,7 +360,7 @@ include root set management, object allocation and the object header format.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitArrayElementAddress_LLVMSharp_LLVMValueRef_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitArrayElementAddress(LLVMSharp.LLVMValueRef%2CFlame.IType%2CSystem.Collections.Generic.IReadOnlyList%7BLLVMSharp.LLVMValueRef%7D%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L95">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L116">View Source</a>
   </span>
   <a id="Flame_Llvm_GCInterface_EmitArrayElementAddress_" data-uid="Flame.Llvm.GCInterface.EmitArrayElementAddress*"></a>
   <h4 id="Flame_Llvm_GCInterface_EmitArrayElementAddress_LLVMSharp_LLVMValueRef_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitArrayElementAddress(LLVMSharp.LLVMValueRef,Flame.IType,System.Collections.Generic.IReadOnlyList{LLVMSharp.LLVMValueRef},Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitArrayElementAddress(LLVMValueRef, IType, IReadOnlyList&lt;LLVMValueRef&gt;, ModuleBuilder, IRBuilder, String)</h4>
@@ -360,7 +441,7 @@ in an array.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitArrayLength_LLVMSharp_LLVMValueRef_Flame_IType_System_Int32_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitArrayLength(LLVMSharp.LLVMValueRef%2CFlame.IType%2CSystem.Int32%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L126">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L147">View Source</a>
   </span>
   <a id="Flame_Llvm_GCInterface_EmitArrayLength_" data-uid="Flame.Llvm.GCInterface.EmitArrayLength*"></a>
   <h4 id="Flame_Llvm_GCInterface_EmitArrayLength_LLVMSharp_LLVMValueRef_Flame_IType_System_Int32_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitArrayLength(LLVMSharp.LLVMValueRef,Flame.IType,System.Int32,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitArrayLength(LLVMValueRef, IType, Int32, ModuleBuilder, IRBuilder, String)</h4>
@@ -441,7 +522,7 @@ that is, the product of its dimensions.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_GCInterface_EmitLoadMetadata_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.GCInterface.EmitLoadMetadata(LLVMSharp.LLVMValueRef%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L66">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/GCInterface.cs/#L87">View Source</a>
   </span>
   <a id="Flame_Llvm_GCInterface_EmitLoadMetadata_" data-uid="Flame.Llvm.GCInterface.EmitLoadMetadata*"></a>
   <h4 id="Flame_Llvm_GCInterface_EmitLoadMetadata_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.GCInterface.EmitLoadMetadata(LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitLoadMetadata(LLVMValueRef, ModuleBuilder, IRBuilder, String)</h4>

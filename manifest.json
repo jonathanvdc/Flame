@@ -2238,7 +2238,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Compiler.Instructions.NewDelegatePrototype.html",
-          "hash": "OYrBpv+tVkX9E6J62R/yqQ=="
+          "hash": "Ec1nvu5CNFDmwnlyKtO8Zw=="
         }
       },
       "is_incremental": false,
@@ -3690,7 +3690,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Llvm.GCInterface.html",
-          "hash": "UpcjPmECRrjfgiBOgqfOAA=="
+          "hash": "XXbWzP3Q9BnvlILoSBFnuQ=="
         }
       },
       "is_incremental": false,
@@ -3738,7 +3738,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Llvm.MallocInterface.html",
-          "hash": "s/DeDIW/azMPwEbg+hL28g=="
+          "hash": "JCDPBgtWIZe6dWiTS5X9+A=="
         }
       },
       "is_incremental": false,
