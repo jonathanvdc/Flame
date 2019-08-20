@@ -26,6 +26,27 @@ namespace Flame.Llvm
             string name);
 
         /// <summary>
+        /// Emits instructions that allocate a GC-managed delegate object.
+        /// </summary>
+        /// <param name="type">A type to instantiate.</param>
+        /// <param name="callee">A callee to wrap in a delegate.</param>
+        /// <param name="thisArgument">
+        /// A 'this' argument for the delegate.
+        /// <c>null</c> if there is no 'this' argument.
+        /// </param>
+        /// <param name="module">The module that defines the object-allocating instructions.</param>
+        /// <param name="builder">An instruction builder to use for emitting instructions.</param>
+        /// <param name="name">A suggested name for the value that refers to the allocated object.</param>
+        /// <returns>A pointer to the allocated object.</returns>
+        public abstract LLVMValueRef EmitAllocDelegate(
+            IType type,
+            LLVMValueRef callee,
+            LLVMValueRef thisArgument,
+            ModuleBuilder module,
+            IRBuilder builder,
+            string name);
+
+        /// <summary>
         /// Emits LLVM IR instructions that allocate a new array.
         /// </summary>
         /// <param name="arrayType">

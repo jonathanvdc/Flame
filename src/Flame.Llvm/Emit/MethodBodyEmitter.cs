@@ -226,19 +226,29 @@ namespace Flame.Llvm.Emit
             else if (proto is CallPrototype)
             {
                 var callProto = (CallPrototype)proto;
-                var callee = callProto.Callee;
                 var args = instruction.Arguments.Select(Get).ToArray();
-                if (callProto.Lookup == MethodLookup.Static)
-                {
-                    return builder.CreateCall(Module.DeclareMethod(callee), args, name);
-                }
-                else
-                {
-                    var thisPtr = Get(callProto.GetThisArgument(instruction));
-                    var metadataPtr = Module.GC.EmitLoadMetadata(thisPtr, Module, builder, "vtable.ptr");
-                    var functionPtr = Module.Metadata.EmitMethodAddress(callee, metadataPtr, Module, builder, "vfptr");
-                    return builder.CreateCall(functionPtr, args, name);
-                }
+                var thisPtr = callProto.Lookup == MethodLookup.Virtual
+                    ? Get(callProto.GetThisArgument(instruction))
+                    : new LLVMValueRef(IntPtr.Zero);
+                var functionPtr = LookupMethod(
+                    callProto.Callee,
+                    callProto.Lookup,
+                    thisPtr,
+                    builder);
+                return builder.CreateCall(functionPtr, args, name);
+            }
+            else if (proto is NewDelegatePrototype)
+            {
+                var newDelegProto = (NewDelegatePrototype)proto;
+                var thisPtr = newDelegProto.HasThisArgument
+                    ? Get(newDelegProto.GetThisArgument(instruction))
+                    : new LLVMValueRef(IntPtr.Zero);
+                var functionPtr = LookupMethod(
+                    newDelegProto.Callee,
+                    newDelegProto.Lookup,
+                    thisPtr,
+                    builder);
+                return Module.GC.EmitAllocDelegate(newDelegProto.ResultType, functionPtr, thisPtr, Module, builder, name);
             }
             else if (proto is NewObjectPrototype)
             {
@@ -258,6 +268,23 @@ namespace Flame.Llvm.Emit
             else
             {
                 throw new NotSupportedException($"Unsupported instruction prototype '{proto}'.");
+            }
+        }
+
+        private LLVMValueRef LookupMethod(
+            IMethod callee,
+            MethodLookup lookup,
+            LLVMValueRef thisPtr,
+            IRBuilder builder)
+        {
+            if (lookup == MethodLookup.Static)
+            {
+                return Module.DeclareMethod(callee);
+            }
+            else
+            {
+                var metadataPtr = Module.GC.EmitLoadMetadata(thisPtr, Module, builder, "vtable.ptr");
+                return Module.Metadata.EmitMethodAddress(callee, metadataPtr, Module, builder, "vfptr");
             }
         }
 

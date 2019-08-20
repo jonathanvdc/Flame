@@ -33,9 +33,9 @@ namespace Flame.Compiler.Instructions
 
         /// <summary>
         /// Tells if this new-delegate instruction prototype takes a 'this'
-        /// argument. For instance methods, the 'this' argument is obviously
+        /// argument. For instance methods, the 'this' argument is simply
         /// interpreted as the 'this' pointer. For static methods, the 'this'
-        /// argument is sent to the first argument in the parameter list.
+        /// argument is sent to the first parameter in the parameter list.
         /// </summary>
         /// <returns>
         /// <c>true</c> if this instruction prototype takes a 'this'
