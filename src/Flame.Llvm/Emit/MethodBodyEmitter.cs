@@ -106,6 +106,7 @@ namespace Flame.Llvm.Emit
                 var val = emittedValues[instruction] = Emit(
                     instruction.Instruction,
                     builder,
+                    block.Graph,
                     instruction.ResultType == Module.TypeSystem.Void
                         ? ""
                         : instruction.Tag.Name);
@@ -119,7 +120,7 @@ namespace Flame.Llvm.Emit
             return emittedValues[value];
         }
 
-        private LLVMValueRef Emit(Instruction instruction, IRBuilder builder, string name)
+        private LLVMValueRef Emit(Instruction instruction, IRBuilder builder, FlowGraph graph, string name)
         {
             var proto = instruction.Prototype;
             if (proto is ConstantPrototype)
@@ -237,6 +238,41 @@ namespace Flame.Llvm.Emit
                     builder);
                 return builder.CreateCall(functionPtr, args, name);
             }
+            else if (proto is IndirectCallPrototype)
+            {
+                var callProto = (IndirectCallPrototype)proto;
+                var callee = Get(callProto.GetCallee(instruction));
+                var calleeType = graph.GetValueType(callProto.GetCallee(instruction));
+                var args = callProto.GetArgumentList(instruction).ToArray().Select(Get).ToArray();
+
+                if (calleeType.IsPointerType(PointerKind.Box))
+                {
+                    var fieldPtrs = DecomposeDelegateObject(callee, ((PointerType)calleeType).ElementType, builder);
+                    var impl = builder.CreateBitCast(
+                        builder.CreateLoad(fieldPtrs.InvokeImplPtr, ""),
+                        LLVM.PointerType(
+                            fieldPtrs.GetFunctionType(
+                                Module.ImportType(callProto.ResultType),
+                                args.Select(x => x.TypeOf())),
+                            0),
+                        "");
+                    var thisArg = builder.CreateLoad(fieldPtrs.TargetPtr, "");
+                    return builder.CreateCall(impl, new[] { thisArg }.Concat(args).ToArray(), name);
+                }
+                else
+                {
+                    return builder.CreateCall(
+                        builder.CreateBitCast(
+                            callee,
+                            LLVM.PointerType(
+                                LLVM.FunctionType(Module.ImportType(callProto.ResultType),
+                                args.Select(x => x.TypeOf()).ToArray(), false),
+                                0),
+                            ""),
+                        args,
+                        name);
+                }
+            }
             else if (proto is NewDelegatePrototype)
             {
                 var newDelegProto = (NewDelegatePrototype)proto;
@@ -248,7 +284,20 @@ namespace Flame.Llvm.Emit
                     newDelegProto.Lookup,
                     thisPtr,
                     builder);
-                return Module.GC.EmitAllocDelegate(newDelegProto.ResultType, functionPtr, thisPtr, Module, builder, name);
+
+                if (newDelegProto.ResultType.IsPointerType(PointerKind.Box))
+                {
+                    return EmitAllocDelegate(
+                        ((PointerType)newDelegProto.ResultType).ElementType,
+                        functionPtr,
+                        thisPtr,
+                        builder,
+                        name);
+                }
+                else
+                {
+                    return builder.CreateBitCast(functionPtr, Module.ImportType(newDelegProto.ResultType), name);
+                }
             }
             else if (proto is NewObjectPrototype)
             {
@@ -583,7 +632,7 @@ namespace Flame.Llvm.Emit
             if (flow is ReturnFlow)
             {
                 var insn = ((ReturnFlow)flow).ReturnValue;
-                var val = Emit(insn, builder, "retval");
+                var val = Emit(insn, builder, graph, "retval");
                 if (insn.ResultType == Module.TypeSystem.Void)
                 {
                     builder.CreateRetVoid();
@@ -601,7 +650,7 @@ namespace Flame.Llvm.Emit
             else if (flow is SwitchFlow)
             {
                 var switchFlow = (SwitchFlow)flow;
-                var switchVal = Emit(switchFlow.SwitchValue, builder, "switchval");
+                var switchVal = Emit(switchFlow.SwitchValue, builder, graph, "switchval");
                 if (switchFlow.IsIfElseFlow)
                 {
                     var cmp = EmitAreEqual(
@@ -609,6 +658,7 @@ namespace Flame.Llvm.Emit
                         Emit(
                             Instruction.CreateConstant(switchFlow.Cases[0].Values.Single(), switchFlow.SwitchValue.ResultType),
                             builder,
+                            graph,
                             "const"),
                         builder,
                         "condition");
@@ -691,6 +741,160 @@ namespace Flame.Llvm.Emit
             {
                 var phi = emittedValues[target.Parameters[i]];
                 phi.AddIncoming(new[] { arguments[i] }, new[] { thunk }, 1);
+            }
+        }
+
+        /// <summary>
+        /// Emits instructions that allocate a GC-managed delegate object.
+        /// </summary>
+        /// <param name="type">A type to instantiate.</param>
+        /// <param name="callee">A callee to wrap in a delegate.</param>
+        /// <param name="thisArgument">
+        /// A 'this' argument for the delegate.
+        /// <c>null</c> if there is no 'this' argument.
+        /// </param>
+        /// <param name="module">The module that defines the object-allocating instructions.</param>
+        /// <param name="builder">An instruction builder to use for emitting instructions.</param>
+        /// <param name="name">A suggested name for the value that refers to the allocated object.</param>
+        /// <returns>A pointer to the allocated object.</returns>
+        private LLVMValueRef EmitAllocDelegate(
+            IType type,
+            LLVMValueRef callee,
+            LLVMValueRef thisArgument,
+            IRBuilder builder,
+            string name)
+        {
+            // Allocate the delegate object.
+            var ptr = Module.GC.EmitAllocObject(type, Module, builder, name);
+
+            // Decompose the delegate into its three main fields.
+            var fieldPtrs = DecomposeDelegateObject(ptr, type, builder);
+
+            // Set the 'method_ptr' field to the callee pointer.
+            CreateStoreAnyPtr(callee, fieldPtrs.MethodPtrPtr, builder);
+            if (thisArgument.Pointer == IntPtr.Zero)
+            {
+                // If there is no 'this' argument, then we need to create a small thunk that discards
+                // the 'this' argument. We store this thunk in the 'invoke_impl' field.
+                var thunk = GetDelegateThunk(
+                    callee,
+                    fieldPtrs.TargetPtr.TypeOf().GetElementType());
+                CreateStoreAnyPtr(thunk, fieldPtrs.InvokeImplPtr, builder);
+            }
+            else
+            {
+                // If there is a 'this' argument, then we simply set the 'target' and 'invoke_impl' fields.
+                CreateStoreAnyPtr(thisArgument, fieldPtrs.TargetPtr, builder);
+                CreateStoreAnyPtr(callee, fieldPtrs.InvokeImplPtr, builder);
+            }
+
+            return ptr;
+        }
+
+        private LLVMValueRef GetDelegateThunk(
+            LLVMValueRef callee,
+            LLVMTypeRef targetParamType)
+        {
+            var thunkName = callee.GetValueName();
+            int startIndex = thunkName.IndexOf('@');
+            int endIndex = thunkName.IndexOf('(');
+            if (startIndex >= 0)
+            {
+                thunkName = thunkName.Substring(startIndex + 1, endIndex - startIndex - 1);
+            }
+            thunkName += ".thunk";
+            var thunk = LLVM.GetNamedFunction(Module.Module, thunkName);
+            if (thunk.Pointer == IntPtr.Zero)
+            {
+                var signature = callee.TypeOf().GetElementType();
+                var thunkParams = new List<LLVMTypeRef>();
+                thunkParams.Add(targetParamType);
+                thunkParams.AddRange(signature.GetParamTypes());
+                thunk = LLVM.AddFunction(
+                    Module.Module,
+                    thunkName,
+                    LLVM.FunctionType(
+                        signature.GetReturnType(),
+                        thunkParams.ToArray(),
+                        signature.IsFunctionVarArg));
+
+                using (var builder = new IRBuilder(Module.Context))
+                {
+                    builder.PositionBuilderAtEnd(thunk.AppendBasicBlock("entry"));
+                    var result = builder.CreateCall(callee, thunk.GetParams().Skip(1).ToArray(), "");
+                    if (result.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                    {
+                        builder.CreateRetVoid();
+                    }
+                    else
+                    {
+                        builder.CreateRet(result);
+                    }
+                }
+            }
+            return thunk;
+        }
+
+        private static void CreateStoreAnyPtr(LLVMValueRef value, LLVMValueRef ptr, IRBuilder builder)
+        {
+            builder.CreateStore(builder.CreateBitCast(value, ptr.TypeOf().GetElementType(), ""), ptr);
+        }
+
+        private DelegateTriple DecomposeDelegateObject(
+            LLVMValueRef obj,
+            IType type,
+            IRBuilder builder)
+        {
+            // Peel away at the inheritance hierarchy until we reach a base type
+            // that defines critical fields.
+            IField invokeImplField = null;
+            IField targetField = null;
+            IField methodPtrField = null;
+            var baseType = type;
+            while (baseType != null)
+            {
+                invokeImplField = baseType.Fields.FirstOrDefault(f => f.Name.ToString() == "invoke_impl");
+                if (invokeImplField != null)
+                {
+                    targetField = baseType.Fields.First(f => f.Name.ToString() == "m_target");
+                    methodPtrField = baseType.Fields.First(f => f.Name.ToString() == "method_ptr");
+                    break;
+                }
+                else
+                {
+                    baseType = baseType.BaseTypes.FirstOrDefault(t => !t.IsInterfaceType());
+                }
+            }
+            if (baseType == null)
+            {
+                throw new InvalidOperationException(
+                    $"Type {type.FullName.ToString()} was not recognized as a delegate " +
+                    "because it does not define a field named 'invoke_impl'.");
+            }
+
+            // Cast the delegate instance pointer to that base type.
+            var basePtr = builder.CreateBitCast(obj, LLVM.PointerType(Module.ImportType(baseType), 0), "");
+
+            // Create field pointers.
+            var result = new DelegateTriple();
+            result.MethodPtrPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(methodPtrField), "");
+            result.InvokeImplPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(invokeImplField), "");
+            result.TargetPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(targetField), "");
+            return result;
+        }
+
+        private struct DelegateTriple
+        {
+            public LLVMValueRef MethodPtrPtr;
+            public LLVMValueRef InvokeImplPtr;
+            public LLVMValueRef TargetPtr;
+
+            public LLVMTypeRef GetFunctionType(LLVMTypeRef returnType, IEnumerable<LLVMTypeRef> argumentTypes)
+            {
+                return LLVM.FunctionType(
+                    returnType,
+                    new[] { TargetPtr.TypeOf().GetElementType() }.Concat(argumentTypes).ToArray(),
+                    false);
             }
         }
 
