@@ -56,7 +56,7 @@ namespace Flame.Clr.Transforms
                     // constructing the actual delegate using a `newobj` opcode.
 
                     var newDelegateProto = (NewDelegatePrototype)proto;
-                    var delegateType = newDelegateProto.ResultType;
+                    var delegateType = TypeHelpers.UnboxIfPossible(newDelegateProto.ResultType);
 
                     IMethod invokeMethod;
                     if (!TypeHelpers.TryGetDelegateInvokeMethod(delegateType, out invokeMethod))

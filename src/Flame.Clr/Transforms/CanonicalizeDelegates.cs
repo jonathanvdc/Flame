@@ -83,7 +83,7 @@ namespace Flame.Clr.Transforms
                                 || invokeMethod.Parameters.Count == callee.Parameters.Count - 1;
 
                             instruction.Instruction = Instruction.CreateNewDelegate(
-                                delegateType,
+                                newobjProto.ResultType,
                                 callee,
                                 hasThisParameter
                                     ? ConvertThisArgument(
@@ -103,7 +103,7 @@ namespace Flame.Clr.Transforms
                             if (boundObject == thisArg)
                             {
                                 instruction.Instruction = Instruction.CreateNewDelegate(
-                                    delegateType,
+                                    newobjProto.ResultType,
                                     callee,
                                     ConvertThisArgument(
                                         thisArg,
