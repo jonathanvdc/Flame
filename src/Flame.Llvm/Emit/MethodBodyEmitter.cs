@@ -430,6 +430,12 @@ namespace Flame.Llvm.Emit
                             return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
                         }
                     }
+                    else
+                    {
+                        throw new NotSupportedException(
+                            $"Unsupported binary arithmetic intrinsic '{prototype.Name}' " +
+                            $"with arguments of type '{prototype.ParameterTypes[0].FullName}' and '{prototype.ParameterTypes[1].FullName}'.");
+                    }
                 }
             }
             else if (MemoryIntrinsics.Namespace.TryParseIntrinsicName(
@@ -557,6 +563,23 @@ namespace Flame.Llvm.Emit
                 {
                     return builder.CreateSIToFP(value, llvmTo, name);
                 }
+                else if (to.IsIntegerType())
+                {
+                    var toSpec = to.GetIntegerSpecOrNull();
+                    var fromSpec = from.GetIntegerSpecOrNull();
+                    if (toSpec.Size < fromSpec.Size)
+                    {
+                        return builder.CreateTrunc(value, llvmTo, name);
+                    }
+                    else
+                    {
+                        return builder.CreateSExt(value, llvmTo, name);
+                    }
+                }
+                else if (to.IsUnsignedIntegerType())
+                {
+                    return builder.CreateSExt(value, llvmTo, name);
+                }
                 else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
                     return builder.CreateIntToPtr(value, llvmTo, name);
@@ -567,6 +590,19 @@ namespace Flame.Llvm.Emit
                 if (IsFloatingPointType(to))
                 {
                     return builder.CreateUIToFP(value, llvmTo, name);
+                }
+                else if (to.IsIntegerType())
+                {
+                    var toSpec = to.GetIntegerSpecOrNull();
+                    var fromSpec = from.GetIntegerSpecOrNull();
+                    if (toSpec.Size < fromSpec.Size)
+                    {
+                        return builder.CreateTrunc(value, llvmTo, name);
+                    }
+                    else
+                    {
+                        return builder.CreateZExt(value, llvmTo, name);
+                    }
                 }
                 else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
@@ -620,6 +656,40 @@ namespace Flame.Llvm.Emit
                 return LLVM.ConstReal(
                     LLVM.DoubleTypeInContext(Module.Context),
                     ((Float64Constant)prototype.Value).Value);
+            }
+            else if (prototype.Value is StringConstant
+                && prototype.ResultType.IsPointerType(PointerKind.Box))
+            {
+                var stringConst = (StringConstant)prototype.Value;
+                var dataType = ((PointerType)prototype.ResultType).ElementType;
+                var fields = DecomposeStringFields(dataType);
+                var llvmType = Module.ImportType(dataType);
+                var data = new List<LLVMValueRef>();
+                var fieldTypes = llvmType.GetStructElementTypes();
+                for (int i = 0; i < fieldTypes.Length; i++)
+                {
+                    if (i == fields.LengthFieldIndex)
+                    {
+                        data.Add(LLVM.ConstInt(fieldTypes[i], (ulong)stringConst.Value.Length, false));
+                    }
+                    else if (i == fields.DataFieldIndex)
+                    {
+                        data.Add(
+                            LLVM.ConstArray(
+                                fieldTypes[i],
+                                stringConst.Value.Select(c => LLVM.ConstInt(fieldTypes[i], (ulong)c, false)).ToArray()));
+                    }
+                    else
+                    {
+                        data.Add(LLVM.ConstNull(fieldTypes[i]));
+                    }
+                }
+                var globalData = LLVM.ConstStructInContext(Module.Context, data.ToArray(), false);
+                var global = LLVM.AddGlobal(Module.Module, globalData.TypeOf(), "string_literal");
+                global.SetInitializer(globalData);
+                global.SetGlobalConstant(true);
+                global.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
+                return builder.CreateBitCast(global, llvmType, "");
             }
             else
             {
@@ -883,6 +953,25 @@ namespace Flame.Llvm.Emit
             return result;
         }
 
+        private StringFields DecomposeStringFields(IType type)
+        {
+            var lengthField = type.Fields.FirstOrDefault(
+                f => f.Name.ToString() == "_stringLength"
+                    || f.Name.ToString() == "m_stringLength");
+            var dataField = type.Fields.FirstOrDefault(
+                f => f.Name.ToString() == "_firstChar"
+                    || f.Name.ToString() == "m_firstChar");
+
+            if (lengthField == null || dataField == null)
+            {
+                throw new InvalidOperationException(
+                    $"Type {type.FullName.ToString()} was not recognized as a delegate " +
+                    "because it does not fields named '_stringLength' and '_firstChar'.");
+            }
+
+            return new StringFields(Module.GetFieldIndex(lengthField), Module.GetFieldIndex(dataField));
+        }
+
         private struct DelegateTriple
         {
             public LLVMValueRef MethodPtrPtr;
@@ -895,6 +984,29 @@ namespace Flame.Llvm.Emit
                     returnType,
                     new[] { TargetPtr.TypeOf().GetElementType() }.Concat(argumentTypes).ToArray(),
                     false);
+            }
+        }
+
+        private struct StringFields
+        {
+            public StringFields(int lengthFieldIndex, int dataFieldIndex)
+            {
+                this.LengthFieldIndex = lengthFieldIndex;
+                this.DataFieldIndex = dataFieldIndex;
+            }
+
+            public int LengthFieldIndex { get; private set; }
+
+            public int DataFieldIndex { get; private set; }
+
+            public LLVMValueRef GetLengthPtr(LLVMValueRef stringPtr, IRBuilder builder)
+            {
+                return builder.CreateStructGEP(stringPtr, (uint)LengthFieldIndex, "");
+            }
+
+            public LLVMValueRef GetDataPtr(LLVMValueRef stringPtr, IRBuilder builder)
+            {
+                return builder.CreateStructGEP(stringPtr, (uint)DataFieldIndex, "");
             }
         }
 
