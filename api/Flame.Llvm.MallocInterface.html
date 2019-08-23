@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class MallocInterface
    | Flame ">
-    <meta name="generator" content="docfx 2.44.0.0">
+    <meta name="generator" content="docfx 2.45.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -239,89 +239,6 @@ No memory is ever freed.</p>
   </table>
   <h5 class="overrides">Overrides</h5>
   <div><a class="xref" href="Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocArray_Flame_IType_Flame_IType_System_Collections_Generic_IReadOnlyList_LLVMSharp_LLVMValueRef__Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_">GCInterface.EmitAllocArray(IType, IType, IReadOnlyList&lt;LLVMValueRef&gt;, ModuleBuilder, IRBuilder, String)</a></div>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MallocInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MallocInterface.EmitAllocDelegate(Flame.IType%2CLLVMSharp.LLVMValueRef%2CLLVMSharp.LLVMValueRef%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/MallocInterface.cs/#L186">View Source</a>
-  </span>
-  <a id="Flame_Llvm_MallocInterface_EmitAllocDelegate_" data-uid="Flame.Llvm.MallocInterface.EmitAllocDelegate*"></a>
-  <h4 id="Flame_Llvm_MallocInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_" data-uid="Flame.Llvm.MallocInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)">EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)</h4>
-  <div class="markdown level1 summary"><p>Emits instructions that allocate a GC-managed delegate object.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override LLVMValueRef EmitAllocDelegate(IType type, LLVMValueRef callee, LLVMValueRef thisArgument, ModuleBuilder module, IRBuilder builder, string name)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Flame.IType.html">IType</a></td>
-        <td><span class="parametername">type</span></td>
-        <td><p>A type to instantiate.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
-        <td><span class="parametername">callee</span></td>
-        <td><p>A callee to wrap in a delegate.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
-        <td><span class="parametername">thisArgument</span></td>
-        <td><p>A 'this' argument for the delegate.
-<code>null</code> if there is no 'this' argument.</p>
-</td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="Flame.Llvm.Emit.ModuleBuilder.html">ModuleBuilder</a></td>
-        <td><span class="parametername">module</span></td>
-        <td><p>The module that defines the object-allocating instructions.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">LLVMSharp.IRBuilder</span></td>
-        <td><span class="parametername">builder</span></td>
-        <td><p>An instruction builder to use for emitting instructions.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td><span class="parametername">name</span></td>
-        <td><p>A suggested name for the value that refers to the allocated object.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">LLVMSharp.LLVMValueRef</span></td>
-        <td><p>A pointer to the allocated object.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="overrides">Overrides</h5>
-  <div><a class="xref" href="Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_">GCInterface.EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)</a></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_MallocInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType%2CFlame.Llvm.Emit.ModuleBuilder%2CLLVMSharp.IRBuilder%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>

@@ -24294,19 +24294,6 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.GCInterface.EmitAllocArray
   nameWithType: GCInterface.EmitAllocArray
-- uid: Flame.Llvm.GCInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  name: EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)
-  href: api/Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
-  commentId: M:Flame.Llvm.GCInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  fullName: Flame.Llvm.GCInterface.EmitAllocDelegate(Flame.IType, LLVMSharp.LLVMValueRef, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
-  nameWithType: GCInterface.EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)
-- uid: Flame.Llvm.GCInterface.EmitAllocDelegate*
-  name: EmitAllocDelegate
-  href: api/Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocDelegate_
-  commentId: Overload:Flame.Llvm.GCInterface.EmitAllocDelegate
-  isSpec: "True"
-  fullName: Flame.Llvm.GCInterface.EmitAllocDelegate
-  nameWithType: GCInterface.EmitAllocDelegate
 - uid: Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
   name: EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)
   href: api/Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
@@ -24478,19 +24465,6 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.MallocInterface.EmitAllocArray
   nameWithType: MallocInterface.EmitAllocArray
-- uid: Flame.Llvm.MallocInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  name: EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)
-  href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocDelegate_Flame_IType_LLVMSharp_LLVMValueRef_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
-  commentId: M:Flame.Llvm.MallocInterface.EmitAllocDelegate(Flame.IType,LLVMSharp.LLVMValueRef,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  fullName: Flame.Llvm.MallocInterface.EmitAllocDelegate(Flame.IType, LLVMSharp.LLVMValueRef, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
-  nameWithType: MallocInterface.EmitAllocDelegate(IType, LLVMValueRef, LLVMValueRef, ModuleBuilder, IRBuilder, String)
-- uid: Flame.Llvm.MallocInterface.EmitAllocDelegate*
-  name: EmitAllocDelegate
-  href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocDelegate_
-  commentId: Overload:Flame.Llvm.MallocInterface.EmitAllocDelegate
-  isSpec: "True"
-  fullName: Flame.Llvm.MallocInterface.EmitAllocDelegate
-  nameWithType: MallocInterface.EmitAllocDelegate
 - uid: Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
   name: EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)
   href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
