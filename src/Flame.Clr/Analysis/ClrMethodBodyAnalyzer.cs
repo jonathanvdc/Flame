@@ -552,6 +552,7 @@ namespace Flame.Clr.Analysis
             var second = context.Pop();
             EmitConvertToSigned(context);
             var first = context.Pop();
+            EmitImplicitBinaryConversions(ref first, ref second, context);
             EmitArithmeticBinary(operatorName, first, second, context);
         }
 
@@ -569,6 +570,7 @@ namespace Flame.Clr.Analysis
             var second = context.Pop();
             EmitConvertToUnsigned(context);
             var first = context.Pop();
+            EmitImplicitBinaryConversions(ref first, ref second, context);
             EmitArithmeticBinary(operatorName, first, second, context);
         }
 
@@ -600,6 +602,70 @@ namespace Flame.Clr.Analysis
                     EmitConvertTo(
                         createType(spec.Size),
                         context);
+                }
+            }
+        }
+
+        private void EmitImplicitBinaryConversions(
+            ref ValueTag first,
+            ref ValueTag second,
+            CilAnalysisContext context)
+        {
+            var firstType = graph.GetValueType(first);
+            var secondType = graph.GetValueType(second);
+
+            if (firstType == secondType)
+            {
+                return;
+            }
+
+            var firstISpec = firstType.GetIntegerSpecOrNull();
+            var secondISpec = secondType.GetIntegerSpecOrNull();
+            if (firstISpec != null && secondISpec != null && firstISpec.Size != secondISpec.Size)
+            {
+                // Extend integers if necessary.
+                var newSize = Math.Max(firstISpec.Size, secondISpec.Size);
+                var newType = firstISpec.IsSigned
+                    ? TypeEnvironment.MakeSignedIntegerType(newSize)
+                    : TypeEnvironment.MakeUnsignedIntegerType(newSize);
+
+                if (newType != null)
+                {
+                    first = EmitConvertTo(first, newType, context);
+                    second = EmitConvertTo(second, newType, context);
+                }
+                return;
+            }
+            else if (firstISpec != null &&
+                (secondType == TypeEnvironment.NaturalInt || secondType == TypeEnvironment.NaturalUInt))
+            {
+                if (firstISpec.Size <= 32)
+                {
+                    // Integers of 32 bits or smaller can be extended to natural integers.
+                    first = EmitConvertTo(first, secondType, context);
+                    return;
+                }
+                else if (firstISpec.Size >= 64)
+                {
+                    // Natural integers can be extended to integers of 64 bits or greater.
+                    second = EmitConvertTo(second, firstType, context);
+                    return;
+                }
+            }
+            else if (secondISpec != null &&
+                (firstType == TypeEnvironment.NaturalInt || firstType == TypeEnvironment.NaturalUInt))
+            {
+                if (secondISpec.Size <= 32)
+                {
+                    // Integers of 32 bits or smaller can be extended to natural integers.
+                    second = EmitConvertTo(second, firstType, context);
+                    return;
+                }
+                else if (secondISpec.Size >= 64)
+                {
+                    // Natural integers can be extended to integers of 64 bits or greater.
+                    first = EmitConvertTo(first, secondType, context);
+                    return;
                 }
             }
         }
