@@ -548,7 +548,9 @@ namespace Flame.Clr.Analysis
             string operatorName,
             CilAnalysisContext context)
         {
+            EmitConvertToSigned(context);
             var second = context.Pop();
+            EmitConvertToSigned(context);
             var first = context.Pop();
             EmitArithmeticBinary(operatorName, first, second, context);
         }
@@ -570,20 +572,35 @@ namespace Flame.Clr.Analysis
             EmitArithmeticBinary(operatorName, first, second, context);
         }
 
+        private void EmitConvertToSigned(
+            CilAnalysisContext context)
+        {
+            EmitConvertSign(context, true, Assembly.Resolver.TypeEnvironment.MakeSignedIntegerType);
+        }
+
         private void EmitConvertToUnsigned(
             CilAnalysisContext context)
+        {
+            EmitConvertSign(context, false, Assembly.Resolver.TypeEnvironment.MakeUnsignedIntegerType);
+        }
+
+        private void EmitConvertSign(
+            CilAnalysisContext context,
+            bool makeSigned,
+            Func<int, IType> createType)
         {
             var value = context.Peek();
             var type = context.GetValueType(value);
             var spec = type.GetIntegerSpecOrNull();
-            if (spec != null && spec.IsSigned)
+            if (spec != null && spec.IsSigned != makeSigned)
             {
-                EmitConvertTo(
-                    Assembly
-                        .Resolver
-                        .TypeEnvironment
-                        .MakeUnsignedIntegerType(spec.Size),
-                    context);
+                var resultType = createType(spec.Size);
+                if (resultType != null)
+                {
+                    EmitConvertTo(
+                        createType(spec.Size),
+                        context);
+                }
             }
         }
 
