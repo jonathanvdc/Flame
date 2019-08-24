@@ -127,6 +127,13 @@ namespace Flame.Llvm.Emit
             {
                 return EmitConstant((ConstantPrototype)proto, builder);
             }
+            else if (proto is SizeOfPrototype)
+            {
+                return builder.CreateZExt(
+                    LLVM.SizeOf(Module.ImportType(((SizeOfPrototype)proto).MeasuredType)),
+                    Module.ImportType(proto.ResultType),
+                    name);
+            }
             else if (proto is CopyPrototype)
             {
                 return Get(instruction.Arguments[0]);
@@ -416,6 +423,35 @@ namespace Flame.Llvm.Emit
                             return builder.CreateBinOp(opcode, Get(arguments[0]), Get(arguments[1]), name);
                         }
                     }
+                    else if (IsPointerType(prototype.ParameterTypes[0])
+                        && IsPointerType(prototype.ParameterTypes[0]))
+                    {
+                        var i64Type = Module.ImportType(Module.TypeSystem.Int64);
+                        LLVMIntPredicate predicate;
+                        if (unsignedIntPredicates.TryGetValue(opName, out predicate))
+                        {
+                            return builder.CreateIntToPtr(
+                                builder.CreateICmp(
+                                    predicate,
+                                    builder.CreatePtrToInt(Get(arguments[0]), i64Type, ""),
+                                    builder.CreatePtrToInt(Get(arguments[1]), i64Type, ""),
+                                    name),
+                                Module.ImportType(prototype.ResultType),
+                                "");
+                        }
+                        LLVMOpcode opcode;
+                        if (unsignedIntOps.TryGetValue(opName, out opcode))
+                        {
+                            return builder.CreateIntToPtr(
+                                builder.CreateBinOp(
+                                    opcode,
+                                    builder.CreatePtrToInt(Get(arguments[0]), i64Type, ""),
+                                    builder.CreatePtrToInt(Get(arguments[1]), i64Type, ""),
+                                    name),
+                                Module.ImportType(prototype.ResultType),
+                                "");
+                        }
+                    }
                     else if (IsFloatingPointType(prototype.ParameterTypes[0])
                         && IsFloatingPointType(prototype.ParameterTypes[1]))
                     {
@@ -628,6 +664,13 @@ namespace Flame.Llvm.Emit
         {
             return type == Module.TypeSystem.Float32
                 || type == Module.TypeSystem.Float64;
+        }
+
+        private bool IsPointerType(IType type)
+        {
+            return type == Module.TypeSystem.NaturalInt
+                || type == Module.TypeSystem.NaturalUInt
+                || type.IsPointerType();
         }
 
         private LLVMValueRef EmitConstant(ConstantPrototype prototype, IRBuilder builder)
