@@ -371,17 +371,9 @@ namespace Flame.Llvm.Emit
                 {
                     if (opName == ArithmeticIntrinsics.Operators.Add)
                     {
-                        if (prototype.ResultType.IsIntegerType())
-                        {
-                            return builder.CreateAdd(Get(arguments[0]), Get(arguments[1]), name);
-                        }
-                        else if (prototype.ResultType == Module.TypeSystem.Float32
-                            || prototype.ResultType == Module.TypeSystem.Float64)
-                        {
-                            return builder.CreateFAdd(Get(arguments[0]), Get(arguments[1]), name);
-                        }
-                        else if (prototype.ResultType.IsPointerType()
-                            && prototype.ParameterTypes[0].IsPointerType())
+                        if (IsPointerType(prototype.ResultType)
+                            && IsPointerType(prototype.ParameterTypes[0])
+                            && prototype.ParameterTypes[1].IsIntegerType())
                         {
                             var i8Base = builder.CreateBitCast(
                                 Get(arguments[0]),
@@ -395,7 +387,7 @@ namespace Flame.Llvm.Emit
                     {
                         return EmitAreEqual(Get(arguments[0]), Get(arguments[1]), builder, name);
                     }
-                    else if (prototype.ParameterTypes[0].IsSignedIntegerType()
+                    if (prototype.ParameterTypes[0].IsSignedIntegerType()
                         && prototype.ParameterTypes[1].IsSignedIntegerType())
                     {
                         LLVMIntPredicate predicate;
@@ -567,6 +559,17 @@ namespace Flame.Llvm.Emit
                     }
                 }
             }
+            else if (ExceptionIntrinsics.Namespace.TryParseIntrinsicName(
+                prototype.Name,
+                out opName))
+            {
+                if (opName == ExceptionIntrinsics.Operators.Throw)
+                {
+                    // FIXME: this is a stub.
+                    // TODO: actually implement this!
+                    return Get(arguments[0]);
+                }
+            }
             throw new NotSupportedException($"Unsupported intrinsic '{prototype.Name}'.");
         }
 
@@ -732,7 +735,7 @@ namespace Flame.Llvm.Emit
                 global.SetInitializer(globalData);
                 global.SetGlobalConstant(true);
                 global.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
-                return builder.CreateBitCast(global, llvmType, "");
+                return builder.CreateBitCast(global, Module.ImportType(prototype.ResultType), "");
             }
             else
             {
@@ -742,7 +745,11 @@ namespace Flame.Llvm.Emit
 
         private void Emit(BlockFlow flow, FlowGraph graph, IRBuilder builder)
         {
-            if (flow is ReturnFlow)
+            if (flow is UnreachableFlow)
+            {
+                builder.CreateUnreachable();
+            }
+            else if (flow is ReturnFlow)
             {
                 var insn = ((ReturnFlow)flow).ReturnValue;
                 var val = Emit(insn, builder, graph, "retval");
