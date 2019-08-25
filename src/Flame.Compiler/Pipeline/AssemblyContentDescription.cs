@@ -294,6 +294,7 @@ namespace Flame.Compiler.Pipeline
                 }
                 if (added)
                 {
+                    // Define the type's parent method or type.
                     var parent = type.Parent;
                     if (parent.IsMethod)
                     {
@@ -303,7 +304,20 @@ namespace Flame.Compiler.Pipeline
                     {
                         await DefineAsync(parent.Type);
                     }
+
+                    // Register the type's overrides.
                     await RegisterOverridesAsync(type);
+
+                    // Define the type's static constructors, if it defines any.
+                    // This ensures that any initialization logic is performed
+                    // correctly.
+                    foreach (var method in type.Methods)
+                    {
+                        if (method.IsStatic && method.IsConstructor)
+                        {
+                            await DefineAsync(method);
+                        }
+                    }
                     return true;
                 }
                 else
