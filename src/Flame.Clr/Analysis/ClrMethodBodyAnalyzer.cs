@@ -735,7 +735,8 @@ namespace Flame.Clr.Analysis
                 }
                 else
                 {
-                    throw new InvalidProgramException("Cannot branch on a non-pointer, non-integer type.");
+                    throw new InvalidProgramException(
+                        $"Cannot branch on non-pointer, non-integer type '{conditionType.FullName}' (in '{cilMethodBody.Method.FullName}').");
                 }
             }
             else
