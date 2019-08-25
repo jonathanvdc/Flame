@@ -43,13 +43,95 @@ namespace Flame.Llvm
         public override void Implement(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
             if (TryImplementInterlocked(method, function, module)
-                || TryImplementThread(method, function, module))
+                || TryImplementThread(method, function, module)
+                || TryImplementRuntimeImports(method, function, module)
+                || TryImplementBuffer(method, function, module))
             {
                 return;
             }
             throw new NotSupportedException(
                 $"Method '{method.FullName}' is marked as \"internal call\" but " +
                 "is not a known CLR internal call method.");
+        }
+
+        /// <summary>
+        /// Tries to implement a method defined in the <see cref="System.Runtime.RuntimeImports"/> class.
+        /// </summary>
+        /// <param name="method">An internal call method to implement.</param>
+        /// <param name="function"><paramref name="method"/>'s corresponding LLVM function.</param>
+        /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
+        private bool TryImplementRuntimeImports(IMethod method, LLVMValueRef function, ModuleBuilder module)
+        {
+            if (!IsStaticMethodOf(method, "System.Runtime.RuntimeImports"))
+            {
+                return false;
+            }
+
+            var name = method.Name.ToString();
+            var paramCount = method.Parameters.Count;
+
+            if (name == "Memmove" && paramCount == 3)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                        builder.CreateCall(
+                            LlvmIntrinsic.MemmoveInt32.GetOrDefine(module),
+                            new[]
+                            {
+                                function.GetParam(0),
+                                function.GetParam(1),
+                                function.GetParam(2),
+                                LLVM.ConstInt(LLVM.Int1TypeInContext(module.Context), 0, false)
+                            },
+                            ""));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to implement a method defined in the <see cref="System.Buffer"/> class.
+        /// </summary>
+        /// <param name="method">An internal call method to implement.</param>
+        /// <param name="function"><paramref name="method"/>'s corresponding LLVM function.</param>
+        /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
+        private bool TryImplementBuffer(IMethod method, LLVMValueRef function, ModuleBuilder module)
+        {
+            if (!IsStaticMethodOf(method, "System.Buffer"))
+            {
+                return false;
+            }
+
+            var name = method.Name.ToString();
+            var paramCount = method.Parameters.Count;
+
+            if (name == "InternalMemcpy" && paramCount == 3)
+            {
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                        builder.CreateCall(
+                            LlvmIntrinsic.MemcpyInt32.GetOrDefine(module),
+                            new[]
+                            {
+                                function.GetParam(0),
+                                function.GetParam(1),
+                                function.GetParam(2),
+                                LLVM.ConstInt(LLVM.Int1TypeInContext(module.Context), 0, false)
+                            },
+                            ""));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -60,9 +142,7 @@ namespace Flame.Llvm
         /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
         private bool TryImplementThread(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
-            var type = method.ParentType;
-            if (type.FullName.ToString() != "System.Threading.Thread"
-                || !method.IsStatic)
+            if (!IsStaticMethodOf(method, "System.Threading.Thread"))
             {
                 return false;
             }
@@ -114,6 +194,12 @@ namespace Flame.Llvm
             }
         }
 
+        private static bool IsStaticMethodOf(IMethod method, string fullName)
+        {
+            var type = method.ParentType;
+            return type.FullName.ToString() == fullName && method.IsStatic;
+        }
+
         /// <summary>
         /// Tries to implement a method defined in the <see cref="System.Threading.Interlocked"/> class.
         /// </summary>
@@ -122,9 +208,7 @@ namespace Flame.Llvm
         /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
         private bool TryImplementInterlocked(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
-            var type = method.ParentType;
-            if (type.FullName.ToString() != "System.Threading.Interlocked"
-                || !method.IsStatic)
+            if (!IsStaticMethodOf(method, "System.Threading.Interlocked"))
             {
                 return false;
             }
