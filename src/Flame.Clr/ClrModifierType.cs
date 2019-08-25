@@ -98,7 +98,7 @@ namespace Flame.Clr
             instance.Initialize(
                 new SimpleName(instance.ElementType.Name.ToString() + "!" + instance.ModifierType.Name.ToString()),
                 new SimpleName(instance.ElementType.FullName.ToString() + "!" + instance.ModifierType.FullName.ToString()).Qualify(),
-                AttributeMap.Empty);
+                instance.ElementType.Attributes);
             return instance;
         }
     }

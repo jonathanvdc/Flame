@@ -29,15 +29,7 @@ namespace Flame.Clr
         /// </returns>
         public static IType BoxIfReferenceType(IType type)
         {
-            if (type is ClrModifierType)
-            {
-                var modType = (ClrModifierType)type;
-                return ClrModifierType.Create(
-                    BoxIfReferenceType(modType.ElementType),
-                    modType.ModifierType,
-                    modType.IsRequired);
-            }
-            else if (type.IsReferenceType())
+            if (type.IsReferenceType())
             {
                 return type.MakePointerType(PointerKind.Box);
             }
