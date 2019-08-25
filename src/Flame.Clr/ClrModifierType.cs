@@ -44,7 +44,21 @@ namespace Flame.Clr
                 new StructuralModifierTypeComparer(),
                 InitializeInstance);
 
-        private static ClrModifierType Create(IType elementType, IType modifierType, bool isRequired)
+        /// <summary>
+        /// Creates a modreq or modopt type.
+        /// </summary>
+        /// <param name="elementType">
+        /// An element type to associate with a modifier type.
+        /// </param>
+        /// <param name="modifierType">
+        /// A modifier type to slap onto <paramref name="elementType"/>.
+        /// </param>
+        /// <param name="isRequired">
+        /// A Boolean flag that is <c>true</c> if a modreq type is to be
+        /// created and <c>false</c> otherwise.
+        /// </param>
+        /// <returns>A modreq or modopt type.</returns>
+        public static ClrModifierType Create(IType elementType, IType modifierType, bool isRequired)
         {
             return instanceCache.Intern(new ClrModifierType(elementType, modifierType, isRequired));
         }
