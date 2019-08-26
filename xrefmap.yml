@@ -1905,6 +1905,19 @@ references:
   commentId: T:Flame.Clr.ClrModifierType
   fullName: Flame.Clr.ClrModifierType
   nameWithType: ClrModifierType
+- uid: Flame.Clr.ClrModifierType.Create(Flame.IType,Flame.IType,System.Boolean)
+  name: Create(IType, IType, Boolean)
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_Create_Flame_IType_Flame_IType_System_Boolean_
+  commentId: M:Flame.Clr.ClrModifierType.Create(Flame.IType,Flame.IType,System.Boolean)
+  fullName: Flame.Clr.ClrModifierType.Create(Flame.IType, Flame.IType, System.Boolean)
+  nameWithType: ClrModifierType.Create(IType, IType, Boolean)
+- uid: Flame.Clr.ClrModifierType.Create*
+  name: Create
+  href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_Create_
+  commentId: Overload:Flame.Clr.ClrModifierType.Create
+  isSpec: "True"
+  fullName: Flame.Clr.ClrModifierType.Create
+  nameWithType: ClrModifierType.Create
 - uid: Flame.Clr.ClrModifierType.CreateOptional(Flame.IType,Flame.IType)
   name: CreateOptional(IType, IType)
   href: api/Flame.Clr.ClrModifierType.html#Flame_Clr_ClrModifierType_CreateOptional_Flame_IType_Flame_IType_
@@ -24259,6 +24272,22 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.Emit.ModuleBuilder.SynthesizeMain
   nameWithType: ModuleBuilder.SynthesizeMain
+- uid: Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex(Flame.IField,System.Int32@)
+  name: TryGetFieldIndex(IField, out Int32)
+  href: api/Flame.Llvm.Emit.ModuleBuilder.html#Flame_Llvm_Emit_ModuleBuilder_TryGetFieldIndex_Flame_IField_System_Int32__
+  commentId: M:Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex(Flame.IField,System.Int32@)
+  name.vb: TryGetFieldIndex(IField, ByRef Int32)
+  fullName: Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex(Flame.IField, out System.Int32)
+  fullName.vb: Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex(Flame.IField, ByRef System.Int32)
+  nameWithType: ModuleBuilder.TryGetFieldIndex(IField, out Int32)
+  nameWithType.vb: ModuleBuilder.TryGetFieldIndex(IField, ByRef Int32)
+- uid: Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex*
+  name: TryGetFieldIndex
+  href: api/Flame.Llvm.Emit.ModuleBuilder.html#Flame_Llvm_Emit_ModuleBuilder_TryGetFieldIndex_
+  commentId: Overload:Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex
+  isSpec: "True"
+  fullName: Flame.Llvm.Emit.ModuleBuilder.TryGetFieldIndex
+  nameWithType: ModuleBuilder.TryGetFieldIndex
 - uid: Flame.Llvm.Emit.ModuleBuilder.TypeSystem
   name: TypeSystem
   href: api/Flame.Llvm.Emit.ModuleBuilder.html#Flame_Llvm_Emit_ModuleBuilder_TypeSystem
