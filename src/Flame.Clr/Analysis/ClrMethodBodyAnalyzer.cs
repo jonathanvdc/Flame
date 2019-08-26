@@ -1282,6 +1282,11 @@ namespace Flame.Clr.Analysis
                         context.GetValueType(lengthVal),
                         lengthVal));
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Localloc)
+            {
+                var size = context.Pop();
+                context.Push(Instruction.CreateAllocaArray(TypeEnvironment.UInt8, size));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Sizeof)
             {
                 var measureType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
