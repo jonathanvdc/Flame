@@ -221,10 +221,27 @@ namespace Flame.Llvm.Emit
             else if (proto is GetFieldPointerPrototype)
             {
                 var gfp = (GetFieldPointerPrototype)proto;
-                return builder.CreateStructGEP(
-                    Get(gfp.GetBasePointer(instruction)),
-                    (uint)Module.GetFieldIndex(gfp.Field),
-                    name);
+                var basePtr = Get(gfp.GetBasePointer(instruction));
+                int fieldIndex;
+                if (Module.TryGetFieldIndex(gfp.Field, out fieldIndex))
+                {
+                    return builder.CreateStructGEP(
+                        basePtr,
+                        (uint)fieldIndex,
+                        name);
+                }
+                else
+                {
+                    // If the field does not have an index in the type, then
+                    // we're dealing with a primitive type like Int32 or IntPtr
+                    // that has a single field containing its value. To produce
+                    // a pointer to said field, we simply cast the base pointer
+                    // to the field's type.
+                    return builder.CreateBitCast(
+                        basePtr,
+                        LLVM.PointerType(Module.ImportType(gfp.Field.FieldType), 0),
+                        name);
+                }
             }
             else if (proto is GetStaticFieldPointerPrototype)
             {

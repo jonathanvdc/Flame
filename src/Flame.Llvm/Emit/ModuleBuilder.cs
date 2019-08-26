@@ -181,6 +181,21 @@ namespace Flame.Llvm.Emit
             }
         }
 
+        public bool TryGetFieldIndex(IField field, out int index)
+        {
+            ImportType(field.ParentType);
+            Dictionary<IField, int> fieldDict;
+            if (fieldIndices.TryGetValue(field.ParentType, out fieldDict))
+            {
+                return fieldDict.TryGetValue(field, out index);
+            }
+            else
+            {
+                index = 0;
+                return false;
+            }
+        }
+
         public int GetFieldIndex(IField field)
         {
             ImportType(field.ParentType);
