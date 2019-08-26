@@ -778,9 +778,29 @@ namespace Flame.Clr.Emit
                             CilInstruction.Create(
                                 OpCodes.Sizeof,
                                 Method.Module.ImportReference(allocaProto.ElementType))),
-                        new CilOpInstruction(CilInstruction.Create(OpCodes.Localloc))
+                        new CilOpInstruction(OpCodes.Localloc)
                     },
-                    new ValueTag[0]);
+                    EmptyArray<ValueTag>.Value);
+            }
+            else if (proto is AllocaArrayPrototype)
+            {
+                // TODO: constant-fold `sizeof` and `mul` whenever possible.
+                var allocaProto = (AllocaArrayPrototype)proto;
+                var insns = new List<CilCodegenInstruction>();
+                var countType = graph.GetValueType(allocaProto.GetElementCount(instruction));
+                if (countType != TypeEnvironment.NaturalInt && countType != TypeEnvironment.NaturalUInt)
+                {
+                    insns.Add(new CilOpInstruction(OpCodes.Conv_U));
+                }
+                insns.Add(
+                    new CilOpInstruction(
+                        CilInstruction.Create(
+                            OpCodes.Sizeof,
+                            Method.Module.ImportReference(allocaProto.ElementType))));
+                insns.Add(new CilOpInstruction(OpCodes.Mul));
+                insns.Add(new CilOpInstruction(OpCodes.Localloc));
+                return SelectedInstructions.Create<CilCodegenInstruction>(
+                    insns, instruction.Arguments);
             }
             else if (proto is LoadPrototype)
             {
