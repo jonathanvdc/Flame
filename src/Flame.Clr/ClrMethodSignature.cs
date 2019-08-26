@@ -319,11 +319,18 @@ namespace Flame.Clr
 
         protected override bool IsOfInterest(IType type)
         {
-            return type is IGenericParameter;
+            return type is IGenericParameter
+                || (type.IsPointerType(PointerKind.Box)
+                    && ((TypeSystem.PointerType)type).ElementType is IGenericParameter);
         }
 
         protected override IType VisitInteresting(IType type)
         {
+            if (type.IsPointerType(PointerKind.Box))
+            {
+                type = ((TypeSystem.PointerType)type).ElementType;
+            }
+
             var genericParameter = (IGenericParameter)type;
             var parent = genericParameter.ParentMember;
             if (parent is IMethod)
@@ -345,10 +352,8 @@ namespace Flame.Clr
                 int genParamsCount = genParams.Count;
                 for (int i = 0; i < genParamsCount; i++)
                 {
-                    memoizedStandins[genParams[i]] =
-                        ClrGenericParameterStandin.Create(
-                            GenericParameterType.Type,
-                            i);
+                    var standin = ClrGenericParameterStandin.Create(GenericParameterType.Type, i);
+                    memoizedStandins[genParams[i]] = standin;
                 }
             }
         }

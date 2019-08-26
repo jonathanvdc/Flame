@@ -295,9 +295,7 @@ namespace Flame.Clr
                         enclosingMember,
                         useStandins);
 
-                    return typeSpec.IsRequiredModifier
-                        ? ClrModifierType.CreateRequired(elemType, modType)
-                        : ClrModifierType.CreateOptional(elemType, modType);
+                    return ClrModifierType.Create(elemType, modType, typeSpec.IsRequiredModifier);
                 }
                 else
                 {
@@ -464,9 +462,9 @@ namespace Flame.Clr
 
             var standinReplacer = CreateStandinReplacingVisitor(declaringType);
 
+            var standinRetType = Resolve(methodRef.ReturnType, assembly, declaringType, true);
             var returnType = TypeHelpers.BoxIfReferenceType(
-                standinReplacer.Visit(
-                    Resolve(methodRef.ReturnType, assembly, declaringType, true)));
+                standinReplacer.Visit(standinRetType));
 
             var parameterTypes = methodRef.Parameters
                 .Select(param =>
