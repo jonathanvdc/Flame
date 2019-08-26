@@ -797,6 +797,7 @@ namespace Flame.Clr.Emit
                         CilInstruction.Create(
                             OpCodes.Sizeof,
                             Method.Module.ImportReference(allocaProto.ElementType))));
+                insns.Add(new CilOpInstruction(OpCodes.Conv_U));
                 insns.Add(new CilOpInstruction(OpCodes.Mul));
                 insns.Add(new CilOpInstruction(OpCodes.Localloc));
                 return SelectedInstructions.Create<CilCodegenInstruction>(
