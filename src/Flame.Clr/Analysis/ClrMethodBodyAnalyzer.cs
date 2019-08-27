@@ -112,7 +112,10 @@ namespace Flame.Clr.Analysis
         /// <returns>An assembly reference.</returns>
         public ClrAssembly Assembly { get; private set; }
 
-        private TypeEnvironment TypeEnvironment => Assembly.Resolver.TypeEnvironment;
+        /// <summary>
+        /// Gets the type environment used by this analyzer.
+        /// </summary>
+        public TypeEnvironment TypeEnvironment => Assembly.Resolver.TypeEnvironment;
 
         // The flow graph being constructed by this method body
         // analyzer.
@@ -404,6 +407,87 @@ namespace Flame.Clr.Analysis
             graph.GetBasicBlock(analyzedHandler.LeavePad).Flow = new JumpFlow(handlerImpl);
         }
 
+        private IReadOnlyList<ValueTag> MakeArgumentsUniform(
+            IReadOnlyList<ValueTag> arguments,
+            BasicBlockBuilder builder)
+        {
+            return arguments.Select(arg => {
+                var argType = graph.GetValueType(arg);
+                if (argType.IsPointerType(PointerKind.Box)
+                    && ((PointerType)argType).ElementType != TypeEnvironment.Object)
+                {
+                    // CIL doesn't distinguish between different types of objects on the stack
+                    // (there is just one object type, 'O'). Keeping types more precise within a
+                    // basic block is harmless, but failing to adhere to the uniform 'O' type
+                    // can be harmful when creating branches to basic blocks that have more than
+                    // one predecessor.
+                    //
+                    // For instance, suppose that we have the following situation:
+                    //
+                    //     Block 1                 Block 2
+                    //              \            /
+                    //   String box* \          / Int32 box*        <-- Stack contents
+                    //                \        /
+                    //                 v      v
+                    //                  Block 3
+                    //
+                    // Where Block 3 is written to take a Object box* parameter. However, that
+                    // information (the types of parameters taken by basic blocks) is lost during
+                    // the compilation process to CIL. For example, CIL for the situation above
+                    // might look like this:
+                    //
+                    //     block_1: ldsfld x
+                    //              br block_3
+                    //
+                    //     block_2: ldsfld y
+                    //              br block_3
+                    //
+                    //     block_3: call Console.WriteLine(object)
+                    //
+                    // If we were to leave box arguments unmodified, then the CIL analysis algorithm
+                    // in this file will encounter a branch to Block 3 and either conclude that
+                    // Block 3 takes a 'String box*' or conclude that it takes an 'Int32 box*' instead.
+                    // When the algorithm encounters the next branch, it will balk because 'String box*'
+                    // and 'Int32 box*' are not the same type.
+                    //
+                    // We avoid this messy situation by reinterpeting all box arguments as 'Object box*'.
+                    //
+                    return builder.AppendInstruction(
+                        Instruction.CreateReinterpretCast(
+                            TypeEnvironment.Object.MakePointerType(PointerKind.Box),
+                            arg));
+                }
+                else
+                {
+                    return arg;
+                }
+            }).ToArray();
+        }
+
+        private Branch CreateBranchTo(
+            Mono.Cecil.Cil.Instruction firstInstruction,
+            IReadOnlyList<ValueTag> arguments,
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            BasicBlockBuilder builder)
+        {
+            var uniformArgs = MakeArgumentsUniform(arguments, builder);
+            return new Branch(
+                AnalyzeBlock(
+                    firstInstruction,
+                    uniformArgs.Select(graph.GetValueType).ToArray(),
+                    cilMethodBody),
+                uniformArgs);
+        }
+
+        private Branch CreateBranchTo(
+            Mono.Cecil.Cil.Instruction firstInstruction,
+            IReadOnlyList<ValueTag> arguments,
+            Mono.Cecil.Cil.MethodBody cilMethodBody,
+            CilAnalysisContext context)
+        {
+            return CreateBranchTo(firstInstruction, arguments, cilMethodBody, context.Block);
+        }
+
         private BasicBlockTag AnalyzeBlock(
             Mono.Cecil.Cil.Instruction firstInstruction,
             IReadOnlyList<IType> argumentTypes,
@@ -466,11 +550,11 @@ namespace Flame.Clr.Analysis
                         var args = context.EvaluationStack.Reverse().ToArray();
                         context.Terminate(
                             new JumpFlow(
-                                AnalyzeBlock(
+                                CreateBranchTo(
                                     nextInsn,
-                                    args.EagerSelect(arg => block.Graph.GetValueType(arg)),
-                                    cilMethodBody),
-                                args));
+                                    args,
+                                    cilMethodBody,
+                                    context)));
                     }
                     return block.Tag;
                 }
@@ -529,13 +613,6 @@ namespace Flame.Clr.Analysis
             context.Push(
                 ArithmeticIntrinsics.CreatePrototype(operatorName, resultType, firstType, secondType)
                     .Instantiate(first, second));
-
-            if (isRelational)
-            {
-                EmitConvertTo(
-                    Assembly.Resolver.TypeEnvironment.Int32,
-                    context);
-            }
         }
 
         /// <summary>
@@ -716,7 +793,6 @@ namespace Flame.Clr.Analysis
             CilAnalysisContext context)
         {
             var args = context.EvaluationStack.Reverse().ToArray();
-            var branchTypes = args.EagerSelect(arg => context.GetValueType(arg));
 
             var conditionType = context.GetValueType(condition);
             var conditionISpec = conditionType.GetIntegerSpecOrNull();
@@ -750,12 +826,8 @@ namespace Flame.Clr.Analysis
                     ImmutableList.Create(
                         new SwitchCase(
                             ImmutableHashSet.Create<Constant>(falseConstant),
-                            new Branch(
-                                AnalyzeBlock(falseInstruction, branchTypes, cilMethodBody),
-                                args))),
-                    new Branch(
-                        AnalyzeBlock(ifInstruction, branchTypes, cilMethodBody),
-                        args)));
+                            CreateBranchTo(falseInstruction, args, cilMethodBody, context))),
+                    CreateBranchTo(ifInstruction, args, cilMethodBody, context)));
         }
 
         private void EmitJumpTable(
@@ -766,7 +838,6 @@ namespace Flame.Clr.Analysis
             CilAnalysisContext context)
         {
             var args = context.EvaluationStack.Reverse().ToArray();
-            var branchTypes = args.EagerSelect(arg => context.GetValueType(arg));
             var conditionType = context.GetValueType(condition);
             var conditionSpec = conditionType.GetIntegerSpecOrNull();
 
@@ -778,17 +849,13 @@ namespace Flame.Clr.Analysis
                     new SwitchCase(
                         ImmutableHashSet.Create<Constant>(
                             new IntegerConstant(i, conditionSpec)),
-                        new Branch(
-                            AnalyzeBlock(labels[i], branchTypes, cilMethodBody),
-                            args)));
+                        CreateBranchTo(labels[i], args, cilMethodBody, context)));
             }
             context.Terminate(
                 new SwitchFlow(
                     Instruction.CreateCopy(conditionType, condition),
                     cases.ToImmutable(),
-                    new Branch(
-                        AnalyzeBlock(defaultLabel, branchTypes, cilMethodBody),
-                        args)));
+                    CreateBranchTo(defaultLabel, args, cilMethodBody, context)));
         }
 
         /// <summary>
@@ -1417,11 +1484,11 @@ namespace Flame.Clr.Analysis
                 var args = context.EvaluationStack.Reverse().ToArray();
                 context.Terminate(
                     new JumpFlow(
-                        AnalyzeBlock(
+                        CreateBranchTo(
                             (Mono.Cecil.Cil.Instruction)instruction.Operand,
-                            args.EagerSelect(arg => context.GetValueType(arg)),
-                            cilMethodBody),
-                        args));
+                            args,
+                            cilMethodBody,
+                            context)));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Leave)
             {
@@ -1481,7 +1548,7 @@ namespace Flame.Clr.Analysis
                     // Update the last surrounding finally handler to direct control
                     // to the 'leave' target when the token is encountered.
                     surroundingHandlers[surroundingHandlers.Length - 1].Flow.Destinations[token] =
-                        new Branch(AnalyzeBlock(target, EmptyArray<IType>.Value, cilMethodBody));
+                        CreateBranchTo(target, EmptyArray<ValueTag>.Value, cilMethodBody, context);
 
                     // Set the token variable.
                     context.Emit(
@@ -1502,10 +1569,11 @@ namespace Flame.Clr.Analysis
                     // the leave target.
                     context.Terminate(
                         new JumpFlow(
-                            AnalyzeBlock(
+                            CreateBranchTo(
                                 target,
-                                EmptyArray<IType>.Value,
-                                cilMethodBody)));
+                                EmptyArray<ValueTag>.Value,
+                                cilMethodBody,
+                                context)));
                 }
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Endfinally)
@@ -1567,21 +1635,13 @@ namespace Flame.Clr.Analysis
                     }
                 }
 
-                var call = Instruction.CreateCall(
-                    method,
-                    instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
-                        ? MethodLookup.Virtual
-                        : MethodLookup.Static,
-                    args);
-
-                if (call.ResultType == TypeEnvironment.Void)
-                {
-                    context.Emit(call);
-                }
-                else
-                {
-                    context.Push(call);
-                }
+                context.Push(
+                    Instruction.CreateCall(
+                        method,
+                        instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
+                            ? MethodLookup.Virtual
+                            : MethodLookup.Static,
+                        args));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Constrained)
             {
@@ -1606,19 +1666,11 @@ namespace Flame.Clr.Analysis
                     TypeHelpers.BoxIfReferenceType(thisType)
                     .MakePointerType(PointerKind.Reference));
 
-                var call = Instruction.CreateConstrainedCall(
-                    method,
-                    thisPtrArg,
-                    args);
-
-                if (call.ResultType == TypeEnvironment.Void)
-                {
-                    context.Emit(call);
-                }
-                else
-                {
-                    context.Push(call);
-                }
+                context.Push(
+                    Instruction.CreateConstrainedCall(
+                        method,
+                        thisPtrArg,
+                        args));
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newobj)
             {

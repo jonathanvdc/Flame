@@ -183,11 +183,31 @@ namespace Flame.Clr.Analysis
 
         /// <summary>
         /// Pushes a reference to a value onto the evaluation stack.
+        /// Values of type <c>void</c> are discarded and other values
+        /// are converted to conform to the type system of the CIL stack.
         /// </summary>
         /// <param name="value">The value to push.</param>
-        /// <returns>The <paramref name="value"/> parameter.</returns>
+        /// <returns>
+        /// The value pushed onto the stack or the <paramref name="value"/> parameter
+        /// if no value is pushed onto the stack.
+        /// </returns>
         public ValueTag Push(ValueTag value)
         {
+            var type = GetValueType(value);
+            var typeEnv = Analyzer.TypeEnvironment;
+            if (type == typeEnv.Void)
+            {
+                return value;
+            }
+
+            var iSpec = type.GetIntegerSpecOrNull();
+            if (iSpec != null && iSpec.Size < 32)
+            {
+                // Convert integers smaller than 32 bits to Int32.
+                value = Emit(
+                    Instruction.CreateConvertIntrinsic(
+                        typeEnv.Int32, type, value));
+            }
             stack.Push(value);
             return value;
         }
