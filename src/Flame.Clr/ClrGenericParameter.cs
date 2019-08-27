@@ -157,10 +157,6 @@ namespace Flame.Clr
 
         private void AnalyzeContents()
         {
-            baseTypeList = Definition.Constraints
-                .Select(Assembly.Resolve)
-                .ToArray();
-
             genericParameterList = Definition.GenericParameters
                 .Skip(ParentMember.GenericParameters.Count)
                 .Select(param => new ClrGenericParameter(param, this))
@@ -173,6 +169,10 @@ namespace Flame.Clr
                 attrBuilder.Add(FlagAttribute.ReferenceType);
             }
             attributeMap = new AttributeMap(attrBuilder);
+
+            baseTypeList = Definition.Constraints
+                .Select(ty => Assembly.Resolve(ty, ParentMember))
+                .ToArray();
         }
     }
 }
