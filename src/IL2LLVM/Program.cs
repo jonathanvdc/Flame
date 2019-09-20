@@ -223,6 +223,7 @@ namespace IL2LLVM
                         CopyPropagation.Instance,
                         new ConstantPropagation(),
                         CanonicalizeDelegates.Instance,
+                        new CanonicalizeArrayInit(typeSystem.Int32),
                         InstructionSimplification.Instance));
         }
 
