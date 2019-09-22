@@ -222,29 +222,17 @@ namespace Flame.Compiler.Instructions
         /// Volatile operations may not be reordered with regard to each other.
         /// </param>
         /// <param name="alignment">
-        /// TelThe pointer alignment of pointers loaded by the prototype.
+        /// The pointer alignment of pointers loaded by the prototype.
         /// </param>
         /// <returns>
         /// A load instruction prototype.
         /// </returns>
-        public static LoadPrototype Create(IType elementType, bool isVolatile, Alignment alignment)
+        public static LoadPrototype Create(
+            IType elementType,
+            bool isVolatile = false,
+            Alignment alignment = default(Alignment))
         {
             return instanceCache.Intern(new LoadPrototype(elementType, isVolatile, alignment));
-        }
-
-        /// <summary>
-        /// Gets or creates a load instruction prototype for a particular
-        /// element type.
-        /// </summary>
-        /// <param name="elementType">
-        /// The type of element to load from a pointer.
-        /// </param>
-        /// <returns>
-        /// A load instruction prototype.
-        /// </returns>
-        public static LoadPrototype Create(IType elementType)
-        {
-            return Create(elementType, false, Alignment.NaturallyAligned);
         }
     }
 
