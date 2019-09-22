@@ -244,11 +244,21 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="pointeeType">The type of value to load.</param>
         /// <param name="pointer">A pointer to the value to load.</param>
+        /// <param name="isVolatile">
+        /// Tells if the load is a volatile operation.
+        /// Volatile operations may not be reordered with regard to each other.
+        /// </param>
+        /// <param name="alignment">
+        /// The pointer alignment of <paramref name="pointer"/>.
+        /// </param>
         /// <returns>A load instruction.</returns>
         public static Instruction CreateLoad(
-            IType pointeeType, ValueTag pointer)
+            IType pointeeType,
+            ValueTag pointer,
+            bool isVolatile = false,
+            Alignment alignment = default(Alignment))
         {
-            return LoadPrototype.Create(pointeeType).Instantiate(pointer);
+            return LoadPrototype.Create(pointeeType, isVolatile, alignment).Instantiate(pointer);
         }
 
         /// <summary>
@@ -353,15 +363,24 @@ namespace Flame.Compiler
         /// <param name="value">
         /// A value to store at <paramref name="pointer"/>'s pointee.
         /// </param>
+        /// <param name="isVolatile">
+        /// Tells if the store is a volatile operation.
+        /// Volatile operations may not be reordered with regard to each other.
+        /// </param>
+        /// <param name="alignment">
+        /// The pointer alignment of <paramref name="pointer"/>.
+        /// </param>
         /// <returns>
         /// A store instruction.
         /// </returns>
         public static Instruction CreateStore(
             IType pointeeType,
             ValueTag pointer,
-            ValueTag value)
+            ValueTag value,
+            bool isVolatile = false,
+            Alignment alignment = default(Alignment))
         {
-            return StorePrototype.Create(pointeeType).Instantiate(pointer, value);
+            return StorePrototype.Create(pointeeType, isVolatile, alignment).Instantiate(pointer, value);
         }
 
         /// <summary>
