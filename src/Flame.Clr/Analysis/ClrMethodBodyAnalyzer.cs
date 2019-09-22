@@ -1253,6 +1253,10 @@ namespace Flame.Clr.Analysis
                 // Register the 'volatile' prefix with the context.
                 context.RequestVolatile();
             }
+            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unaligned)
+            {
+                context.RequestAlignment(new Alignment((byte)instruction.Operand));
+            }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(

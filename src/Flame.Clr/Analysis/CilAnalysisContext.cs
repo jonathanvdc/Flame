@@ -102,6 +102,11 @@ namespace Flame.Clr.Analysis
         /// </summary>
         private bool isVolatileRequested;
 
+        /// <summary>
+        /// The alignment for the next load or store instruction.
+        /// </summary>
+        private Alignment requestedAlignment;
+
         private Stack<ValueTag> stack;
 
         private string GenerateInstructionName()
@@ -118,6 +123,15 @@ namespace Flame.Clr.Analysis
         }
 
         /// <summary>
+        /// Requests that the next load or store be given a particular alignment.
+        /// </summary>
+        /// <param name="alignment">The alignment to assign to the next load or store.</param>
+        public void RequestAlignment(Alignment alignment)
+        {
+            requestedAlignment = alignment;
+        }
+
+        /// <summary>
         /// Appends an instruction to the basic block.
         /// </summary>
         /// <param name="instruction">An instruction.</param>
@@ -130,15 +144,19 @@ namespace Flame.Clr.Analysis
             {
                 instruction = ((LoadPrototype)instruction.Prototype)
                     .WithVolatility(isVolatileRequested)
+                    .WithAlignment(requestedAlignment)
                     .Instantiate(instruction.Arguments);
                 isVolatileRequested = false;
+                requestedAlignment = Alignment.NaturallyAligned;
             }
             else if (instruction.Prototype is StorePrototype)
             {
                 instruction = ((StorePrototype)instruction.Prototype)
                     .WithVolatility(isVolatileRequested)
+                    .WithAlignment(requestedAlignment)
                     .Instantiate(instruction.Arguments);
                 isVolatileRequested = false;
+                requestedAlignment = Alignment.NaturallyAligned;
             }
 
             var name = GenerateInstructionName();

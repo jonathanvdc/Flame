@@ -1043,15 +1043,15 @@ namespace Flame.Clr.Emit
             {
                 if (alignment.Value % 4 == 0)
                 {
-                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 4)));
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, (byte)4)));
                 }
-                else if (alignment.Value % 4 == 0)
+                else if (alignment.Value % 2 == 0)
                 {
-                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 2)));
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, (byte)2)));
                 }
                 else
                 {
-                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 4)));
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, (byte)1)));
                 }
             }
 
