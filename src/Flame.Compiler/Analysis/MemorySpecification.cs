@@ -342,12 +342,18 @@ namespace Flame.Compiler.Analysis
             Default.Register<CopyPrototype>(MemorySpecification.Nothing);
             Default.Register<DynamicCastPrototype>(MemorySpecification.Nothing);
             Default.Register<GetStaticFieldPointerPrototype>(MemorySpecification.Nothing);
-            Default.Register<LoadPrototype>(MemorySpecification.ArgumentRead.Create(0));
             Default.Register<ReinterpretCastPrototype>(MemorySpecification.Nothing);
-            Default.Register<StorePrototype>(MemorySpecification.ArgumentWrite.Create(0));
             Default.Register<GetFieldPointerPrototype>(MemorySpecification.Nothing);
             Default.Register<NewDelegatePrototype>(MemorySpecification.Nothing);
             Default.Register<UnboxPrototype>(MemorySpecification.Nothing);
+
+            // Mark volatile loads and stores as unknown to ensure that they are never reordered
+            // with regard to other memory operations.
+            // TODO: is this really how we should represent volatility?
+            Default.Register<LoadPrototype>(proto =>
+                proto.IsVolatile ? MemorySpecification.Unknown : MemorySpecification.ArgumentRead.Create(0));
+            Default.Register<StorePrototype>(proto =>
+                proto.IsVolatile ? MemorySpecification.Unknown : MemorySpecification.ArgumentWrite.Create(0));
 
             // Call-like instruction prototypes.
             Default.Register<CallPrototype>(
@@ -397,14 +403,6 @@ namespace Flame.Compiler.Analysis
             Default.Register(
                 MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.AllocaPinned),
                 MemorySpecification.Nothing);
-            // Mark volatile loads and stores as unknown to ensure that they are never reordered
-            // with regard to other memory operations.
-            Default.Register(
-                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileLoad),
-                MemorySpecification.Unknown);
-            Default.Register(
-                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileStore),
-                MemorySpecification.Unknown);
         }
     }
 }
