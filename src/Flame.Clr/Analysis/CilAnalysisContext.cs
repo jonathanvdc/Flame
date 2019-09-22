@@ -124,25 +124,21 @@ namespace Flame.Clr.Analysis
         /// <returns>The value computed by <paramref name="instruction"/>.</returns>
         public ValueTag Emit(Instruction instruction)
         {
-            if (isVolatileRequested)
+            // Make the instruction volatile if that's what the CIL stream
+            // requested.
+            if (instruction.Prototype is LoadPrototype)
             {
-                // Make the instruction volatile if that's what the CIL stream
-                // requested.
-                if (instruction.Prototype is LoadPrototype)
-                {
-                    instruction = Instruction.CreateVolatileLoadIntrinsic(
-                        (PointerType)Block.Graph.GetValueType(instruction.Arguments[0]),
-                        instruction.Arguments[0]);
-                    isVolatileRequested = false;
-                }
-                else if (instruction.Prototype is StorePrototype)
-                {
-                    instruction = Instruction.CreateVolatileStoreIntrinsic(
-                        (PointerType)Block.Graph.GetValueType(instruction.Arguments[0]),
-                        instruction.Arguments[0],
-                        instruction.Arguments[1]);
-                    isVolatileRequested = false;
-                }
+                instruction = ((LoadPrototype)instruction.Prototype)
+                    .WithVolatility(isVolatileRequested)
+                    .Instantiate(instruction.Arguments);
+                isVolatileRequested = false;
+            }
+            else if (instruction.Prototype is StorePrototype)
+            {
+                instruction = ((StorePrototype)instruction.Prototype)
+                    .WithVolatility(isVolatileRequested)
+                    .Instantiate(instruction.Arguments);
+                isVolatileRequested = false;
             }
 
             var name = GenerateInstructionName();

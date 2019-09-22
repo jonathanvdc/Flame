@@ -61,42 +61,6 @@ namespace Flame.Compiler.Instructions
         }
 
         /// <summary>
-        /// Creates an instruction prototype for volatile loads.
-        /// </summary>
-        /// <param name="pointerType">
-        /// The type of the pointer to dereference.
-        /// </param>
-        /// <returns>
-        /// A volatile load instruction prototype.
-        /// </returns>
-        public static IntrinsicPrototype CreateVolatileLoadPrototype(
-            PointerType pointerType)
-        {
-            return CreatePrototype(
-                Operators.VolatileLoad,
-                pointerType.ElementType,
-                new[] { pointerType });
-        }
-
-        /// <summary>
-        /// Creates an instruction prototype for volatile stores.
-        /// </summary>
-        /// <param name="pointerType">
-        /// The type of the pointer to dereference.
-        /// </param>
-        /// <returns>
-        /// A volatile store instruction prototype.
-        /// </returns>
-        public static IntrinsicPrototype CreateVolatileStorePrototype(
-            PointerType pointerType)
-        {
-            return CreatePrototype(
-                Operators.VolatileStore,
-                pointerType.ElementType,
-                new[] { pointerType, pointerType.ElementType });
-        }
-
-        /// <summary>
         /// A collection of names for memory operations.
         /// </summary>
         public static class Operators
@@ -108,29 +72,13 @@ namespace Flame.Compiler.Instructions
             public const string AllocaPinned = "alloca_pinned";
 
             /// <summary>
-            /// The volatile load operator, which loads a value from an address.
-            /// Volatile loads must not be reordered with regard to other memory
-            /// operations.
-            /// </summary>
-            public const string VolatileLoad = "volatile_load";
-
-            /// <summary>
-            /// The volatile store operator, which stores a value at an address.
-            /// Volatile stores must not be reordered with regard to other memory
-            /// operations.
-            /// </summary>
-            public const string VolatileStore = "volatile_store";
-
-            /// <summary>
             /// An immutable array containing all standard memory intrinsics.
             /// </summary>
             public static readonly ImmutableArray<string> All =
                 ImmutableArray.Create(
                     new[]
                     {
-                        AllocaPinned,
-                        VolatileLoad,
-                        VolatileStore
+                        AllocaPinned
                     });
         }
     }

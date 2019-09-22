@@ -164,6 +164,46 @@ namespace Flame.Compiler.Instructions
             }
         }
 
+        /// <summary>
+        /// Gets a variant of this load prototype with a particular volatility.
+        /// </summary>
+        /// <param name="isVolatile">The volatility to assign to the load.</param>
+        /// <returns>
+        /// A load prototype that copies all properties from this one, except for
+        /// its volatility, which is set to <paramref name="isVolatile"/>.
+        /// </returns>
+        public LoadPrototype WithVolatility(bool isVolatile)
+        {
+            if (IsVolatile == isVolatile)
+            {
+                return this;
+            }
+            else
+            {
+                return Create(elemType, isVolatile, Alignment);
+            }
+        }
+
+        /// <summary>
+        /// Gets a variant of this load prototype with a particular alignment.
+        /// </summary>
+        /// <param name="alignment">The alignment to assign to the load.</param>
+        /// <returns>
+        /// A load prototype that copies all properties from this one, except for
+        /// its alignment, which is set to <paramref name="alignment"/>.
+        /// </returns>
+        public LoadPrototype WithAlignment(Alignment alignment)
+        {
+            if (Alignment == alignment)
+            {
+                return this;
+            }
+            else
+            {
+                return Create(elemType, IsVolatile, alignment);
+            }
+        }
+
         /// <inheritdoc/>
         public override InstructionPrototype Map(MemberMapping mapping)
         {

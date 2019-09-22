@@ -59,7 +59,7 @@ namespace Flame.Compiler.Transforms
             // Fuse 'get_field_pointer' followed by 'load'.
             #rule({
                 gfp = get_field_pointer(field)(base_ptr);
-                result = load(T)(gfp);
+                result = load(T, false, align)(gfp);
             }, {
                 result = load_field(field)(base_ptr);
             });
@@ -67,7 +67,7 @@ namespace Flame.Compiler.Transforms
             // Fuse 'get_field_pointer' followed by 'store'.
             #rule({
                 gfp = get_field_pointer(field)(base_ptr);
-                result = store(T)(gfp, value);
+                result = store(T, false, align)(gfp, value);
             }, {
                 result = store_field(field)(base_ptr, value);
             });
@@ -75,7 +75,7 @@ namespace Flame.Compiler.Transforms
             // Fuse 'array.get_element_pointer' followed by 'load'.
             #rule({
                 gep = intrinsic("array.get_element_pointer", TPtr, TArgs)(array, ...indices);
-                result = load(T)(gep);
+                result = load(T, false, align)(gep);
             }, {
                 result = intrinsic("array.load_element", T, TArgs)(array, ...indices);
             });
@@ -84,7 +84,7 @@ namespace Flame.Compiler.Transforms
             // TODO: generalize this rule to deal with arbitrary array ranks.
             #rule({
                 gep = intrinsic("array.get_element_pointer", TPtr, #(TArray, TIndex))(array, index);
-                result = store(T)(gep, value);
+                result = store(T, false, align)(gep, value);
             }, {
                 result = intrinsic("array.store_element", T, #(T, TArray, TIndex))(value, array, index);
             });

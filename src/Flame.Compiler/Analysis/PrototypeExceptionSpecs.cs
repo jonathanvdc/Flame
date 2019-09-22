@@ -325,12 +325,6 @@ namespace Flame.Compiler.Analysis
             Default.Register(
                 MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.AllocaPinned),
                 ExceptionSpecification.NoThrow);
-            Default.Register(
-                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileLoad),
-                ExceptionSpecification.NoThrow);
-            Default.Register(
-                MemoryIntrinsics.Namespace.GetIntrinsicName(MemoryIntrinsics.Operators.VolatileStore),
-                ExceptionSpecification.NoThrow);
         }
     }
 

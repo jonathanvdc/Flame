@@ -1166,6 +1166,7 @@ namespace FlameMacros
         private static readonly Symbol PatternMatchesParameterName = GSymbol.Get("patternMatches");
 
         private static readonly LNode ITypeNode = F.Id("IType");
+        private static readonly LNode AlignmentNode = F.Id("Alignment");
         private static readonly LNode IMethodNode = F.Id("IMethod");
         private static readonly LNode IFieldNode = F.Id("IField");
         private static readonly LNode MethodLookupNode = F.Id("MethodLookup");
@@ -1177,13 +1178,29 @@ namespace FlameMacros
             { "copy", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
             { "box", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
             { "unbox", new[] { new KeyValuePair<string, LNode>("ElementType", ITypeNode) } },
-            { "load", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
-            { "store", new[] { new KeyValuePair<string, LNode>("ResultType", ITypeNode) } },
             { "dynamic_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
             { "reinterpret_cast", new[] { new KeyValuePair<string, LNode>("TargetType", PointerTypeNode) } },
             { "get_field_pointer", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
             { "load_field", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
             { "store_field", new[] { new KeyValuePair<string, LNode>("Field", IFieldNode) } },
+            {
+                "load",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode),
+                    new KeyValuePair<string, LNode>("IsVolatile", F.Bool),
+                    new KeyValuePair<string, LNode>("Alignment", AlignmentNode)
+                }
+            },
+            {
+                "store",
+                new[]
+                {
+                    new KeyValuePair<string, LNode>("ResultType", ITypeNode),
+                    new KeyValuePair<string, LNode>("IsVolatile", F.Bool),
+                    new KeyValuePair<string, LNode>("Alignment", AlignmentNode)
+                }
+            },
             {
                 "constant",
                 new[]

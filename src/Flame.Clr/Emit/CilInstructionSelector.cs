@@ -808,6 +808,7 @@ namespace Flame.Clr.Emit
                 var loadProto = (LoadPrototype)proto;
                 var pointer = loadProto.GetPointer(instruction);
 
+                var prefix = CreateVolatilityAlignmentPrefix(loadProto.IsVolatile, loadProto.Alignment);
                 if (graph.ContainsInstruction(pointer))
                 {
                     var pointerInstruction = graph.GetInstruction(pointer).Instruction;
@@ -820,7 +821,8 @@ namespace Flame.Clr.Emit
                                 OpCodes.Ldfld,
                                 Method.Module.ImportReference(
                                     ((GetFieldPointerPrototype)pointerProto).Field)),
-                            pointerInstruction.Arguments[0]);
+                            pointerInstruction.Arguments[0])
+                            .Prepend(prefix);
                     }
                     else if (pointerProto is GetStaticFieldPointerPrototype)
                     {
@@ -829,7 +831,8 @@ namespace Flame.Clr.Emit
                             CilInstruction.Create(
                                 OpCodes.Ldsfld,
                                 Method.Module.ImportReference(
-                                    ((GetStaticFieldPointerPrototype)pointerProto).Field)));
+                                    ((GetStaticFieldPointerPrototype)pointerProto).Field)))
+                            .Prepend(prefix);
                     }
                 }
 
@@ -843,7 +846,8 @@ namespace Flame.Clr.Emit
                 {
                     return CreateSelection(
                         EmitLoadAddress(loadProto.ResultType),
-                        pointer);
+                        pointer)
+                        .Prepend(prefix);
                 }
             }
             else if (proto is LoadFieldPrototype)
@@ -873,6 +877,7 @@ namespace Flame.Clr.Emit
                         pointer);
                 }
 
+                var prefix = CreateVolatilityAlignmentPrefix(storeProto.IsVolatile, storeProto.Alignment);
                 if (graph.ContainsInstruction(pointer))
                 {
                     var pointerInstruction = graph.GetInstruction(pointer).Instruction;
@@ -884,7 +889,8 @@ namespace Flame.Clr.Emit
                                 OpCodes.Stsfld,
                                 Method.Module.ImportReference(
                                     ((GetStaticFieldPointerPrototype)pointerProto).Field)),
-                            value);
+                            value)
+                            .Prepend(prefix);
                     }
                 }
 
@@ -899,7 +905,8 @@ namespace Flame.Clr.Emit
                 {
                     return CreateSelection(
                         EmitStoreAddress(storeProto.ResultType),
-                        pointer, value);
+                        pointer, value)
+                        .Prepend(prefix);
                 }
             }
             else if (proto is StoreFieldPrototype)
@@ -1022,6 +1029,33 @@ namespace Flame.Clr.Emit
             {
                 throw new NotImplementedException("Unknown instruction type: " + proto);
             }
+        }
+
+        private static IReadOnlyList<CilOpInstruction> CreateVolatilityAlignmentPrefix(
+            bool isVolatile, Alignment alignment)
+        {
+            var prefix = new List<CilOpInstruction>();
+            if (isVolatile)
+            {
+                prefix.Add(new CilOpInstruction(OpCodes.Volatile));
+            }
+            if (!alignment.IsNaturallyAligned && alignment.Value % 8 != 0)
+            {
+                if (alignment.Value % 4 == 0)
+                {
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 4)));
+                }
+                else if (alignment.Value % 4 == 0)
+                {
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 2)));
+                }
+                else
+                {
+                    prefix.Add(new CilOpInstruction(CilInstruction.Create(OpCodes.Unaligned, 4)));
+                }
+            }
+
+            return prefix;
         }
 
         private CilInstruction DefaultInitialize(IType type)
@@ -1321,32 +1355,6 @@ namespace Flame.Clr.Emit
                 prototype.Name,
                 out opName))
             {
-                if (opName == MemoryIntrinsics.Operators.VolatileLoad
-                    && prototype.ParameterCount == 1)
-                {
-                    var elementType = prototype.ResultType;
-
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new[]
-                        {
-                            new CilOpInstruction(OpCodes.Volatile),
-                            new CilOpInstruction(EmitLoadAddress(elementType))
-                        },
-                        arguments);
-                }
-                else if (opName == MemoryIntrinsics.Operators.VolatileStore
-                    && prototype.ParameterCount == 2)
-                {
-                    var elementType = prototype.ResultType;
-
-                    return SelectedInstructions.Create<CilCodegenInstruction>(
-                        new[]
-                        {
-                            new CilOpInstruction(OpCodes.Volatile),
-                            new CilOpInstruction(EmitStoreAddress(elementType))
-                        },
-                        arguments);
-                }
                 throw new NotSupportedException(
                     $"Cannot select instructions for call to unknown memory intrinsic '{prototype.Name}'.");
             }
@@ -1671,9 +1679,6 @@ namespace Flame.Clr.Emit
                 && !IsDefaultConstant(prototype)
                 && !(prototype is StorePrototype)
                 && !(prototype is StoreFieldPrototype)
-                && !MemoryIntrinsics.Namespace.IsIntrinsicPrototype(
-                    prototype,
-                    MemoryIntrinsics.Operators.VolatileStore)
                 && !ArrayIntrinsics.Namespace.IsIntrinsicPrototype(
                     prototype,
                     ArrayIntrinsics.Operators.StoreElement);

@@ -72,6 +72,46 @@ namespace Flame.Compiler.Instructions
             return errors;
         }
 
+        /// <summary>
+        /// Gets a variant of this store prototype with a particular volatility.
+        /// </summary>
+        /// <param name="isVolatile">The volatility to assign to the store.</param>
+        /// <returns>
+        /// A store prototype that copies all properties from this one, except for
+        /// its volatility, which is set to <paramref name="isVolatile"/>.
+        /// </returns>
+        public StorePrototype WithVolatility(bool isVolatile)
+        {
+            if (IsVolatile == isVolatile)
+            {
+                return this;
+            }
+            else
+            {
+                return Create(elemType, isVolatile, Alignment);
+            }
+        }
+
+        /// <summary>
+        /// Gets a variant of this store prototype with a particular alignment.
+        /// </summary>
+        /// <param name="alignment">The alignment to assign to the store.</param>
+        /// <returns>
+        /// A store prototype that copies all properties from this one, except for
+        /// its alignment, which is set to <paramref name="alignment"/>.
+        /// </returns>
+        public StorePrototype WithAlignment(Alignment alignment)
+        {
+            if (Alignment == alignment)
+            {
+                return this;
+            }
+            else
+            {
+                return Create(elemType, IsVolatile, alignment);
+            }
+        }
+
         /// <inheritdoc/>
         public override InstructionPrototype Map(MemberMapping mapping)
         {

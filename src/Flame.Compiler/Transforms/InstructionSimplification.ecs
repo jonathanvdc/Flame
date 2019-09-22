@@ -26,7 +26,7 @@ namespace Flame.Compiler.Transforms
             result = intrinsic("object.unbox_any", To, #(From))(value);
         }, {
             box_contents_ptr = unbox(To)(value);
-            result = load(To)(box_contents_ptr);
+            result = load(To, false, Alignment.NaturallyAligned)(box_contents_ptr);
         }, !(To is IGenericParameter) && !(To is PointerType));
 
         // A sign or zero extension followed by a truncation can be

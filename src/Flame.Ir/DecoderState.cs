@@ -493,6 +493,16 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Decodes an LNode as an alignment.
+        /// </summary>
+        /// <param name="node">A node to decode as an alignment.</param>
+        /// <returns>The decoded alignment.</returns>
+        public Compiler.Instructions.Alignment DecodeAlignment(LNode node)
+        {
+            return new Compiler.Instructions.Alignment((uint)DecodeInt32(node));
+        }
+
+        /// <summary>
         /// Decodes an LNode as a qualified name. Logs an error if the decoding
         /// process fails.
         /// </summary>

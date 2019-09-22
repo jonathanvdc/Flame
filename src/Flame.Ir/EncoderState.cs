@@ -198,6 +198,28 @@ namespace Flame.Ir
         }
 
         /// <summary>
+        /// Encodes a 32-bit signed integer constant.
+        /// </summary>
+        /// <param name="value">A 32-bit signed integer constant to encode.</param>
+        /// <returns>
+        /// The encoded 32-bit signed integer constant.
+        /// </returns>
+        public LNode Encode(int value)
+        {
+            return Encode(new IntegerConstant(value));
+        }
+
+        /// <summary>
+        /// Encodes an alignment.
+        /// </summary>
+        /// <param name="alignment">Am alignment to encode.</param>
+        /// <returns>The encoded alignment.</returns>
+        public LNode Encode(Alignment alignment)
+        {
+            return Encode((int)alignment.Value);
+        }
+
+        /// <summary>
         /// Encodes an unqualified name as a simple name.
         /// </summary>
         /// <param name="name">

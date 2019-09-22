@@ -293,12 +293,48 @@ namespace Flame.Ir
 
         private static LoadPrototype DecodeLoad(IReadOnlyList<LNode> data, DecoderState state)
         {
-            return LoadPrototype.Create(state.DecodeType(data[0]));
+            if (data.Count >= 3)
+            {
+                return LoadPrototype.Create(
+                    state.DecodeType(data[0]),
+                    state.DecodeBoolean(data[1]),
+                    state.DecodeAlignment(data[2]));
+            }
+            else if (data.Count >= 2)
+            {
+                return LoadPrototype.Create(
+                    state.DecodeType(data[0]),
+                    state.DecodeBoolean(data[1]));
+            }
+            else
+            {
+                return LoadPrototype.Create(state.DecodeType(data[0]));
+            }
         }
 
         private static IReadOnlyList<LNode> EncodeLoad(LoadPrototype value, EncoderState state)
         {
-            return new LNode[] { state.Encode(value.ResultType) };
+            if (!value.Alignment.IsNaturallyAligned)
+            {
+                return new LNode[]
+                {
+                    state.Encode(value.ResultType),
+                    state.Encode(value.IsVolatile),
+                    state.Encode(value.Alignment)
+                };
+            }
+            else if (value.IsVolatile)
+            {
+                return new LNode[]
+                {
+                    state.Encode(value.ResultType),
+                    state.Encode(value.IsVolatile)
+                };
+            }
+            else
+            {
+                return new LNode[] { state.Encode(value.ResultType) };
+            }
         }
 
         /// <summary>
@@ -409,12 +445,48 @@ namespace Flame.Ir
 
         private static StorePrototype DecodeStore(IReadOnlyList<LNode> data, DecoderState state)
         {
-            return StorePrototype.Create(state.DecodeType(data[0]));
+            if (data.Count >= 3)
+            {
+                return StorePrototype.Create(
+                    state.DecodeType(data[0]),
+                    state.DecodeBoolean(data[1]),
+                    state.DecodeAlignment(data[2]));
+            }
+            else if (data.Count >= 2)
+            {
+                return StorePrototype.Create(
+                    state.DecodeType(data[0]),
+                    state.DecodeBoolean(data[1]));
+            }
+            else
+            {
+                return StorePrototype.Create(state.DecodeType(data[0]));
+            }
         }
 
         private static IReadOnlyList<LNode> EncodeStore(StorePrototype value, EncoderState state)
         {
-            return new LNode[] { state.Encode(value.ResultType) };
+            if (!value.Alignment.IsNaturallyAligned)
+            {
+                return new LNode[]
+                {
+                    state.Encode(value.ResultType),
+                    state.Encode(value.IsVolatile),
+                    state.Encode(value.Alignment)
+                };
+            }
+            else if (value.IsVolatile)
+            {
+                return new LNode[]
+                {
+                    state.Encode(value.ResultType),
+                    state.Encode(value.IsVolatile)
+                };
+            }
+            else
+            {
+                return new LNode[] { state.Encode(value.ResultType) };
+            }
         }
 
         /// <summary>

@@ -59,6 +59,22 @@ namespace Flame.Compiler.Target
         /// </summary>
         /// <value>A list of values.</value>
         public IReadOnlyList<ValueTag> Dependencies { get; private set; }
+
+        /// <summary>
+        /// Prepends a sequence of instructions to these selected instructions,
+        /// returning the new selected instructions as a new object.
+        /// </summary>
+        /// <param name="prefix">The selected instructions to prepend.</param>
+        /// <returns>
+        /// A collection of selected instructions that is identical to these, but
+        /// with <paramref name="prefix"/> prepended to the instructions.
+        /// </returns>
+        public SelectedInstructions<TInstruction> Prepend(IReadOnlyList<TInstruction> prefix)
+        {
+            return new SelectedInstructions<TInstruction>(
+                prefix.Concat(Instructions).ToArray(),
+                Dependencies);
+        }
     }
 
     /// <summary>
