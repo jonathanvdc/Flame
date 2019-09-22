@@ -17,7 +17,6 @@ using Flame.Compiler.Analysis;
 using System.Text;
 using Mono.Cecil.Rocks;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
-using VariableDefinition = Mono.Cecil.Cil.VariableDefinition;
 using Flame.Compiler.Transforms;
 
 namespace UnitTests.Flame.Clr
