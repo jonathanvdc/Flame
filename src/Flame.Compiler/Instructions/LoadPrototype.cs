@@ -174,7 +174,7 @@ namespace Flame.Compiler.Instructions
             }
             else
             {
-                return Create(newType);
+                return Create(newType, IsVolatile, Alignment);
             }
         }
 
