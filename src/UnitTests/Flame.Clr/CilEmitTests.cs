@@ -144,6 +144,62 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void RoundtripUnalignedLdind()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            foreach (var alignment in new byte[] { 1, 2, 4 })
+            {
+                RoundtripStaticMethodBody(
+                    int32Type,
+                    new[] { int32Type.MakePointerType() },
+                    EmptyArray<TypeReference>.Value,
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Unaligned, alignment);
+                        ilProc.Emit(OpCodes.Ldobj, int32Type);
+                        ilProc.Emit(OpCodes.Ret);
+                    },
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Unaligned, alignment);
+                        ilProc.Emit(OpCodes.Ldind_I4);
+                        ilProc.Emit(OpCodes.Ret);
+                    });
+            }
+        }
+
+        [Test]
+        public void RoundtripVolatileUnalignedLdind()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            foreach (var alignment in new byte[] { 1, 2, 4 })
+            {
+                RoundtripStaticMethodBody(
+                    int32Type,
+                    new[] { int32Type.MakePointerType() },
+                    EmptyArray<TypeReference>.Value,
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Volatile);
+                        ilProc.Emit(OpCodes.Unaligned, alignment);
+                        ilProc.Emit(OpCodes.Ldobj, int32Type);
+                        ilProc.Emit(OpCodes.Ret);
+                    },
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Volatile);
+                        ilProc.Emit(OpCodes.Unaligned, alignment);
+                        ilProc.Emit(OpCodes.Ldind_I4);
+                        ilProc.Emit(OpCodes.Ret);
+                    });
+            }
+        }
+
+        [Test]
         public void RoundtripAdd()
         {
             var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
