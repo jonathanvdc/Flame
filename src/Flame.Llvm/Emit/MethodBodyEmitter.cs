@@ -196,14 +196,27 @@ namespace Flame.Llvm.Emit
             }
             else if (proto is LoadPrototype)
             {
-                return builder.CreateLoad(Get(instruction.Arguments[0]), name);
+                var loadProto = (LoadPrototype)proto;
+                var load = builder.CreateLoad(Get(instruction.Arguments[0]), name);
+                load.SetVolatile(loadProto.IsVolatile);
+                if (!loadProto.Alignment.IsNaturallyAligned)
+                {
+                    load.SetAlignment(loadProto.Alignment.Value);
+                }
+                return load;
             }
             else if (proto is StorePrototype)
             {
                 var storeProto = (StorePrototype)proto;
-                return builder.CreateStore(
+                var store = builder.CreateStore(
                     Get(storeProto.GetValue(instruction)),
                     Get(storeProto.GetPointer(instruction)));
+                store.SetVolatile(storeProto.IsVolatile);
+                if (!storeProto.Alignment.IsNaturallyAligned)
+                {
+                    store.SetAlignment(storeProto.Alignment.Value);
+                }
+                return store;
             }
             else if (proto is AllocaPrototype)
             {
