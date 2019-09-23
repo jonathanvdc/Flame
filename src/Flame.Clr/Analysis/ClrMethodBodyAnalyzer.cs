@@ -457,6 +457,14 @@ namespace Flame.Clr.Analysis
                             TypeEnvironment.Object.MakePointerType(PointerKind.Box),
                             arg));
                 }
+                else if (argType.IsUnsignedIntegerType())
+                {
+                    // We will also convert all unsigned integer types to their signed
+                    // counterparts, as values on the stack are implicitly signed.
+                    var signedType = TypeEnvironment.MakeSignedIntegerType(argType.GetIntegerSpecOrNull().Size);
+                    return builder.AppendInstruction(
+                        Instruction.CreateConvertIntrinsic(signedType, argType, arg));
+                }
                 else
                 {
                     return arg;
