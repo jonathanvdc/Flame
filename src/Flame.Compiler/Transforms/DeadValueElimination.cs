@@ -56,7 +56,15 @@ namespace Flame.Compiler.Transforms
             liveValues.UnionWith(graph.GetAnalysisResult<EffectfulInstructions>().Instructions);
 
             // Remove stores to local variables from the set of
-            // effectful instructions.
+            // effectful instructions. Our reason for doing this is
+            // that stores to dead local variables are effectively
+            // dead themselves. However, if we assert a priori that all
+            // stores are live, then we will end up keeping both the
+            // stores and the local variables, as the former take the
+            // latter as arguments.
+            //
+            // When local variables become live, we will mark stores to
+            // those variables as live as well. We will not do so before then.
             var localStores = GetLocalStores(graph);
             foreach (var set in localStores.Values)
             {
@@ -122,6 +130,8 @@ namespace Flame.Compiler.Transforms
                         HashSet<ValueTag> storeDependencies;
                         if (localStores.TryGetValue(value, out storeDependencies))
                         {
+                            // A local variable has become live. We must mark any store instructions
+                            // that depend on said local as live as well.
                             foreach (var dep in storeDependencies)
                             {
                                 worklist.Enqueue(dep);
