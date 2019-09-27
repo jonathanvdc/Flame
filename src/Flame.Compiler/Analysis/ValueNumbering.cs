@@ -120,7 +120,7 @@ namespace Flame.Compiler.Analysis
         }
 
         /// <summary>
-        /// Tells if syntactically equivalent instances of a particular intrinsic 
+        /// Tells if syntactically equivalent instances of a particular intrinsic
         /// are semantically equivalent.
         /// </summary>
         /// <param name="intrinsic">An intrinsic to consider.</param>
@@ -131,7 +131,7 @@ namespace Flame.Compiler.Analysis
         /// </returns>
         private static bool IsCopyableIntrinsic(IntrinsicPrototype intrinsic)
         {
-            return ArithmeticIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic)
+            return ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(intrinsic)
                 || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetLength)
                 || ArrayIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ArrayIntrinsics.Operators.GetElementPointer)
                 || ExceptionIntrinsics.Namespace.IsIntrinsicPrototype(intrinsic, ExceptionIntrinsics.Operators.GetCapturedException);

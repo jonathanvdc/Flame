@@ -396,6 +396,7 @@ namespace Flame.Compiler.Transforms
                     value = entryBlock.AppendInstruction(
                         Instruction.CreateBinaryArithmeticIntrinsic(
                             ArithmeticIntrinsics.Operators.Subtract,
+                            false,
                             valueType,
                             value,
                             entryBlock.AppendInstruction(
@@ -410,6 +411,7 @@ namespace Flame.Compiler.Transforms
                     var uintType = TypeEnvironment.MakeUnsignedIntegerType(valueSpec.Size);
                     value = entryBlock.AppendInstruction(
                         Instruction.CreateConvertIntrinsic(
+                            false,
                             uintType,
                             valueType,
                             value),
@@ -465,6 +467,7 @@ namespace Flame.Compiler.Transforms
                 value = headerBlock.AppendInstruction(
                     Instruction.CreateArithmeticIntrinsic(
                         ArithmeticIntrinsics.Operators.LeftShift,
+                        false,
                         bitmaskType,
                         new[] { bitmaskType, valueType },
                         new[] { one, value }),
@@ -491,6 +494,7 @@ namespace Flame.Compiler.Transforms
                     caseBlock.Flow = SwitchFlow.CreateIfElse(
                         Instruction.CreateBinaryArithmeticIntrinsic(
                             ArithmeticIntrinsics.Operators.And,
+                            false,
                             valueType,
                             value,
                             caseBlock.AppendInstruction(

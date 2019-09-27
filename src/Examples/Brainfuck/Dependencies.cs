@@ -185,7 +185,7 @@ namespace Flame.Brainfuck
 
                 // Convert the return value to the result type.
                 var convReturnValue = block.AppendInstruction(
-                    Instruction.CreateConvertIntrinsic(resultType, returnType, returnValue));
+                    Instruction.CreateConvertIntrinsic(false, resultType, returnType, returnValue));
 
                 // Set the conversion block's outgoing flow to jump to the successor block.
                 convBlock.Flow = new JumpFlow(successorBlock, new ValueTag[] { convReturnValue });
@@ -212,7 +212,7 @@ namespace Flame.Brainfuck
             {
                 // Otherwise, just convert the result using a straightforward intrinsic.
                 return block.AppendInstruction(
-                    Instruction.CreateConvertIntrinsic(resultType, returnType, returnValue));
+                    Instruction.CreateConvertIntrinsic(false, resultType, returnType, returnValue));
             }
         }
 
@@ -232,6 +232,7 @@ namespace Flame.Brainfuck
             // Convert the character to a type that the 'write' method is okay with.
             var convChar = block.AppendInstruction(
                 Instruction.CreateConvertIntrinsic(
+                    false,
                     WriteMethod.Parameters[0].Type,
                     block.Graph.GetValueType(character),
                     character));

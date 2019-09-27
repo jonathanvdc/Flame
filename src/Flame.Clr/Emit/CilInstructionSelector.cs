@@ -1172,9 +1172,12 @@ namespace Flame.Clr.Emit
             FlowGraph graph)
         {
             string opName;
+            bool isChecked;
             if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
                 prototype.Name,
-                out opName))
+                out opName,
+                out isChecked)
+                && !isChecked)
             {
                 if (prototype.ParameterCount == 1)
                 {

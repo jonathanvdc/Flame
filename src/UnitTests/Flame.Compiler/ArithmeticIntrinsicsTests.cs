@@ -11,11 +11,13 @@ namespace UnitTests.Flame.Compiler
         {
             Assert.AreEqual(
                 GetArithmeticIntrinsicName(
-                    Operators.Add),
+                    Operators.Add,
+                    false),
                 "arith.add");
             Assert.AreEqual(
                 GetArithmeticIntrinsicName(
-                    Operators.IsGreaterThan),
+                    Operators.IsGreaterThan,
+                    false),
                 "arith.gt");
         }
 
@@ -37,9 +39,19 @@ namespace UnitTests.Flame.Compiler
         {
             foreach (var op in Operators.All)
             {
-                var intrinsicName = GetArithmeticIntrinsicName(op);
-                Assert.IsTrue(IsArithmeticIntrinsicName(intrinsicName));
-                Assert.AreEqual(ParseArithmeticIntrinsicName(intrinsicName), op);
+                string tmp;
+                bool isChecked;
+                var uncheckedName = GetArithmeticIntrinsicName(op, false);
+                Assert.IsTrue(IsArithmeticIntrinsicName(uncheckedName));
+                Assert.AreEqual(ParseArithmeticIntrinsicName(uncheckedName), op);
+                Assert.IsTrue(TryParseArithmeticIntrinsicName(uncheckedName, out tmp, out isChecked));
+                Assert.IsFalse(isChecked);
+
+                var checkedName = GetArithmeticIntrinsicName(op, true);
+                Assert.IsTrue(IsArithmeticIntrinsicName(checkedName));
+                Assert.AreEqual(ParseArithmeticIntrinsicName(checkedName), op);
+                Assert.IsTrue(TryParseArithmeticIntrinsicName(checkedName, out tmp, out isChecked));
+                Assert.IsTrue(isChecked);
 
                 Assert.IsFalse(IsArithmeticIntrinsicName(op));
             }

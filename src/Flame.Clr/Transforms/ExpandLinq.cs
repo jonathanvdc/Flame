@@ -722,6 +722,7 @@ namespace Flame.Clr.Transforms
                 var newInductionVal = successBlock.AppendInstruction(
                     Instruction.CreateBinaryArithmeticIntrinsic(
                         ArithmeticIntrinsics.Operators.Add,
+                        false,
                         InductionVariableType,
                         oldInductionVal,
                         successBlock.AppendInstruction(
@@ -876,6 +877,7 @@ namespace Flame.Clr.Transforms
                 var newInductionVal = moveNextGraph.EntryPoint.AppendInstruction(
                     Instruction.CreateBinaryArithmeticIntrinsic(
                         ArithmeticIntrinsics.Operators.Add,
+                        false,
                         InductionVariableType,
                         oldInductionVal,
                         moveNextGraph.EntryPoint.AppendInstruction(
@@ -1013,6 +1015,7 @@ namespace Flame.Clr.Transforms
             var nextInductionVar = loopBlock.AppendInstruction(
                 Instruction.CreateBinaryArithmeticIntrinsic(
                     ArithmeticIntrinsics.Operators.Add,
+                    false,
                     inductionVar.Type,
                     inductionVar,
                     oneConstant));

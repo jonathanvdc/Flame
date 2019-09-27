@@ -338,6 +338,7 @@ namespace Flame.Brainfuck
                     block.AppendInstruction(
                         Instruction.CreateBinaryArithmeticIntrinsic(
                             op,
+                            false,
                             integerType,
                             block.AppendInstruction(
                                 Instruction.CreateLoad(

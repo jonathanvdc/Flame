@@ -13,10 +13,16 @@ namespace Flame.Compiler.Instructions
     public static class ArithmeticIntrinsics
     {
         /// <summary>
-        /// The namespace for arithmetic intrinsics.
+        /// The namespace for unchecked arithmetic intrinsics.
         /// </summary>
-        public static readonly IntrinsicNamespace Namespace =
+        public static readonly IntrinsicNamespace UncheckedNamespace =
             new IntrinsicNamespace("arith");
+
+        /// <summary>
+        /// The namespace for checked arithmetic intrinsics.
+        /// </summary>
+        public static readonly IntrinsicNamespace CheckedNamespace =
+            new IntrinsicNamespace("arith.checked");
 
         /// <summary>
         /// Tries to parse an intrinsic name as an arithmetic
@@ -29,15 +35,34 @@ namespace Flame.Compiler.Instructions
         /// The name of the operator specified by the intrinsic,
         /// if the intrinsic name is an arithmetic intrinsic name.
         /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
+        /// </param>
         /// <returns>
         /// <c>true</c> if the intrinsic name is an arithmetic
         /// intrinsic name; otherwise, <c>false</c>.
         /// </returns>
         public static bool TryParseArithmeticIntrinsicName(
             string intrinsicName,
-            out string operatorName)
+            out string operatorName,
+            out bool isChecked)
         {
-            return Namespace.TryParseIntrinsicName(intrinsicName, out operatorName);
+            if (UncheckedNamespace.TryParseIntrinsicName(intrinsicName, out operatorName))
+            {
+                isChecked = false;
+                return true;
+            }
+            else if (CheckedNamespace.TryParseIntrinsicName(intrinsicName, out operatorName))
+            {
+                isChecked = true;
+                return true;
+            }
+            else
+            {
+                isChecked = false;
+                return false;
+            }
         }
 
         /// <summary>
@@ -55,7 +80,17 @@ namespace Flame.Compiler.Instructions
         public static string ParseArithmeticIntrinsicName(
             string intrinsicName)
         {
-            return Namespace.ParseIntrinsicName(intrinsicName);
+            string result;
+            bool isChecked;
+            if (TryParseArithmeticIntrinsicName(intrinsicName, out result, out isChecked))
+            {
+                return result;
+            }
+            else
+            {
+                throw new ArgumentException(
+                    $"Name '{intrinsicName}' is not an arithmetic intrinsic name.");
+            }
         }
 
         /// <summary>
@@ -70,7 +105,9 @@ namespace Flame.Compiler.Instructions
         /// </returns>
         public static bool IsArithmeticIntrinsicName(string intrinsicName)
         {
-            return Namespace.IsIntrinsicName(intrinsicName);
+            string opName;
+            bool isChecked;
+            return TryParseArithmeticIntrinsicName(intrinsicName, out opName, out isChecked);
         }
 
         /// <summary>
@@ -80,12 +117,40 @@ namespace Flame.Compiler.Instructions
         /// <param name="operatorName">
         /// The operator name to wrap in an arithmetic intrinsic name.
         /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
+        /// </param>
         /// <returns>
         /// An arithmetic intrinsic name.
         /// </returns>
-        public static string GetArithmeticIntrinsicName(string operatorName)
+        public static string GetArithmeticIntrinsicName(string operatorName, bool isChecked)
         {
-            return Namespace.GetIntrinsicName(operatorName);
+            if (isChecked)
+            {
+                return CheckedNamespace.GetIntrinsicName(operatorName);
+            }
+            else
+            {
+                return UncheckedNamespace.GetIntrinsicName(operatorName);
+            }
+        }
+
+        /// <summary>
+        /// Tests if an instruction prototype is a intrinsic prototype
+        /// that corresponds to an arithmetic operation.
+        /// </summary>
+        /// <param name="prototype">
+        /// The prototype to examine.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if the prototype is an arithmetic intrinsic prototype;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsArithmeticIntrinsicPrototype(InstructionPrototype prototype)
+        {
+            return prototype is IntrinsicPrototype
+                && IsArithmeticIntrinsicName(((IntrinsicPrototype)prototype).Name);
         }
 
         /// <summary>
@@ -93,6 +158,10 @@ namespace Flame.Compiler.Instructions
         /// </summary>
         /// <param name="operatorName">
         /// The name of the operator represented by the arithmetic intrinsic.
+        /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
         /// </param>
         /// <param name="resultType">
         /// The type of value produced by the intrinsic to create.
@@ -105,12 +174,13 @@ namespace Flame.Compiler.Instructions
         /// </returns>
         public static IntrinsicPrototype CreatePrototype(
             string operatorName,
+            bool isChecked,
             IType resultType,
             params IType[] parameterTypes)
         {
-            // TODO: exception specification?
             return CreatePrototype(
                 operatorName,
+                isChecked,
                 resultType,
                 (IReadOnlyList<IType>)parameterTypes);
         }
@@ -121,6 +191,10 @@ namespace Flame.Compiler.Instructions
         /// <param name="operatorName">
         /// The name of the operator represented by the arithmetic intrinsic.
         /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
+        /// </param>
         /// <param name="resultType">
         /// The type of value produced by the intrinsic to create.
         /// </param>
@@ -132,12 +206,12 @@ namespace Flame.Compiler.Instructions
         /// </returns>
         public static IntrinsicPrototype CreatePrototype(
             string operatorName,
+            bool isChecked,
             IType resultType,
             IReadOnlyList<IType> parameterTypes)
         {
-            // TODO: exception specification?
             return IntrinsicPrototype.Create(
-                GetArithmeticIntrinsicName(operatorName),
+                GetArithmeticIntrinsicName(operatorName, isChecked),
                 resultType,
                 parameterTypes);
         }
@@ -145,9 +219,6 @@ namespace Flame.Compiler.Instructions
         /// <summary>
         /// Tries to evaluate an application of a standard arithmetic operator.
         /// </summary>
-        /// <param name="operatorName">
-        /// The name of the operator to evaluate.
-        /// </param>
         /// <param name="prototype">
         /// The full intrinsic prototype for the arithmetic operator.
         /// </param>
@@ -162,6 +233,35 @@ namespace Flame.Compiler.Instructions
         /// <c>false</c>.
         /// </returns>
         public static bool TryEvaluate(
+            IntrinsicPrototype prototype,
+            IReadOnlyList<Constant> arguments,
+            out Constant result)
+        {
+            string operatorName;
+            bool isChecked;
+            if (!TryParseArithmeticIntrinsicName(prototype.Name, out operatorName, out isChecked))
+            {
+                throw new InvalidOperationException($"Cannot evaluate non-arithmetic intrinsic '{prototype.Name}'.");
+            }
+            else if (TryEvaluateUnchecked(operatorName, prototype, arguments, out result))
+            {
+                if (isChecked)
+                {
+                    return result is IntegerConstant && ((IntegerConstant)result).IsValid;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        private static bool TryEvaluateUnchecked(
             string operatorName,
             IntrinsicPrototype prototype,
             IReadOnlyList<Constant> arguments,
@@ -210,6 +310,24 @@ namespace Flame.Compiler.Instructions
                         }
                     }
                 }
+                else if (prototype.ResultType == prototype.ParameterTypes[0]
+                    && lhs is Float32Constant
+                    && rhs is Float32Constant)
+                {
+                    Func<float, float, float?> impl;
+                    if (floatBinaryOps.TryGetValue(operatorName, out impl))
+                    {
+                        var maybeResult = impl(
+                            ((Float32Constant)lhs).Value,
+                            ((Float32Constant)rhs).Value);
+
+                        if (maybeResult.HasValue)
+                        {
+                            result = new Float32Constant(maybeResult.Value);
+                            return true;
+                        }
+                    }
+                }
             }
             else if (arguments.Count == 1)
             {
@@ -226,6 +344,15 @@ namespace Flame.Compiler.Instructions
             result = null;
             return false;
         }
+
+        private static Dictionary<string, Func<float, float, float?>> floatBinaryOps =
+            new Dictionary<string, Func<float, float, float?>>()
+        {
+            { Operators.Add, (x, y) => x + y },
+            { Operators.Subtract, (x, y) => x - y },
+            { Operators.Multiply, (x, y) => x * y },
+            { Operators.Divide, (x, y) => y == 0.0f ? (float?)null : x / y }
+        };
 
         private static Dictionary<string, Func<double, double, double?>> doubleBinaryOps =
             new Dictionary<string, Func<double, double, double?>>()

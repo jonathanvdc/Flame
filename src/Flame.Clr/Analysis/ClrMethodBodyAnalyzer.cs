@@ -463,7 +463,7 @@ namespace Flame.Clr.Analysis
                     // counterparts, as values on the stack are implicitly signed.
                     var signedType = TypeEnvironment.MakeSignedIntegerType(argType.GetIntegerSpecOrNull().Size);
                     return builder.AppendInstruction(
-                        Instruction.CreateConvertIntrinsic(signedType, argType, arg));
+                        Instruction.CreateConvertIntrinsic(false, signedType, argType, arg));
                 }
                 else
                 {
@@ -601,11 +601,13 @@ namespace Flame.Clr.Analysis
         /// Emits a binary arithmetic intrinsic operation.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="isChecked">Tells if the operator checks for overflow.</param>
         /// <param name="first">The first argument to the intrinsic operation.</param>
         /// <param name="second">The second argument to the intrinsic operation.</param>
         /// <param name="context">The CIL analysis context.</param>
         private void EmitArithmeticBinary(
             string operatorName,
+            bool isChecked,
             ValueTag first,
             ValueTag second,
             CilAnalysisContext context)
@@ -619,7 +621,7 @@ namespace Flame.Clr.Analysis
             var resultType = isRelational ? Assembly.Resolver.TypeEnvironment.Boolean : firstType;
 
             context.Push(
-                ArithmeticIntrinsics.CreatePrototype(operatorName, resultType, firstType, secondType)
+                ArithmeticIntrinsics.CreatePrototype(operatorName, isChecked, resultType, firstType, secondType)
                     .Instantiate(first, second));
         }
 
@@ -628,9 +630,11 @@ namespace Flame.Clr.Analysis
         /// for signed integer or floating-point values.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="isChecked">Tells if the operator checks for overflow.</param>
         /// <param name="context">The CIL analysis context.</param>
         private void EmitSignedArithmeticBinary(
             string operatorName,
+            bool isChecked,
             CilAnalysisContext context)
         {
             EmitConvertToSigned(context);
@@ -638,7 +642,7 @@ namespace Flame.Clr.Analysis
             EmitConvertToSigned(context);
             var first = context.Pop();
             EmitImplicitBinaryConversions(ref first, ref second, context);
-            EmitArithmeticBinary(operatorName, first, second, context);
+            EmitArithmeticBinary(operatorName, isChecked, first, second, context);
         }
 
         /// <summary>
@@ -646,9 +650,11 @@ namespace Flame.Clr.Analysis
         /// for unsigned integer values.
         /// </summary>
         /// <param name="operatorName">The name of the operator to create.</param>
+        /// <param name="isChecked">Tells if the operator checks for overflow.</param>
         /// <param name="context">The CIL analysis context.</param>
         private void EmitUnsignedArithmeticBinary(
             string operatorName,
+            bool isChecked,
             CilAnalysisContext context)
         {
             EmitConvertToUnsigned(context);
@@ -656,7 +662,7 @@ namespace Flame.Clr.Analysis
             EmitConvertToUnsigned(context);
             var first = context.Pop();
             EmitImplicitBinaryConversions(ref first, ref second, context);
-            EmitArithmeticBinary(operatorName, first, second, context);
+            EmitArithmeticBinary(operatorName, isChecked, first, second, context);
         }
 
         private void EmitConvertToSigned(
@@ -770,6 +776,7 @@ namespace Flame.Clr.Analysis
         {
             return context.Emit(
                 Instruction.CreateConvertIntrinsic(
+                    false,
                     targetType,
                     context.GetValueType(operand),
                     operand));
@@ -913,6 +920,7 @@ namespace Flame.Clr.Analysis
                 // Convert the value to a transient pointer.
                 return context.Emit(
                     Instruction.CreateConvertIntrinsic(
+                        false,
                         elementType.MakePointerType(PointerKind.Transient),
                         context.GetValueType(pointer),
                         pointer));
@@ -954,11 +962,19 @@ namespace Flame.Clr.Analysis
             IEnumerable<Mono.Cecil.Cil.Instruction> simplifiedSeq;
             if (signedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
-                EmitSignedArithmeticBinary(opName, context);
+                EmitSignedArithmeticBinary(opName, false, context);
             }
             else if (unsignedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
             {
-                EmitUnsignedArithmeticBinary(opName, context);
+                EmitUnsignedArithmeticBinary(opName, false, context);
+            }
+            else if (checkedSignedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
+            {
+                EmitSignedArithmeticBinary(opName, true, context);
+            }
+            else if (checkedUnsignedBinaryOperators.TryGetValue(instruction.OpCode, out opName))
+            {
+                EmitUnsignedArithmeticBinary(opName, true, context);
             }
             else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Not)
             {
@@ -967,6 +983,7 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     ArithmeticIntrinsics.CreatePrototype(
                         ArithmeticIntrinsics.Operators.Not,
+                        false,
                         operandType,
                         operandType)
                     .Instantiate(operand));
@@ -978,6 +995,7 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     ArithmeticIntrinsics.CreatePrototype(
                         ArithmeticIntrinsics.Operators.Subtract,
+                        false,
                         operandType,
                         operandType,
                         operandType)
@@ -2175,6 +2193,22 @@ namespace Flame.Clr.Analysis
             { Mono.Cecil.Cil.OpCodes.Cgt_Un, ArithmeticIntrinsics.Operators.IsGreaterThan },
             { Mono.Cecil.Cil.OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan },
             { Mono.Cecil.Cil.OpCodes.Shr_Un, ArithmeticIntrinsics.Operators.RightShift }
+        };
+
+        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> checkedSignedBinaryOperators =
+            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        {
+            { Mono.Cecil.Cil.OpCodes.Add_Ovf, ArithmeticIntrinsics.Operators.Add },
+            { Mono.Cecil.Cil.OpCodes.Sub_Ovf, ArithmeticIntrinsics.Operators.Subtract },
+            { Mono.Cecil.Cil.OpCodes.Mul_Ovf, ArithmeticIntrinsics.Operators.Multiply }
+        };
+
+        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> checkedUnsignedBinaryOperators =
+            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        {
+            { Mono.Cecil.Cil.OpCodes.Add_Ovf_Un, ArithmeticIntrinsics.Operators.Add },
+            { Mono.Cecil.Cil.OpCodes.Sub_Ovf_Un, ArithmeticIntrinsics.Operators.Subtract },
+            { Mono.Cecil.Cil.OpCodes.Mul_Ovf_Un, ArithmeticIntrinsics.Operators.Multiply }
         };
     }
 }

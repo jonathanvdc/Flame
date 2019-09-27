@@ -265,7 +265,9 @@ namespace Flame.Compiler.Transforms
         private static bool IsAssociative(IntrinsicPrototype prototype)
         {
             string op;
-            if (ArithmeticIntrinsics.Namespace.TryParseIntrinsicName(prototype.Name, out op)
+            bool isChecked;
+            if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(prototype.Name, out op, out isChecked)
+                && !isChecked
                 && assocIntArith.Contains(op))
             {
                 return prototype.ParameterTypes.All(x => x.IsIntegerType());
@@ -282,12 +284,15 @@ namespace Flame.Compiler.Transforms
         {
             string op;
             string rightOp;
-            if (ArithmeticIntrinsics.Namespace.TryParseIntrinsicName(prototype.Name, out op)
+            bool isChecked;
+            if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(prototype.Name, out op, out isChecked)
+                && !isChecked
                 && intArithLeftToRight.TryGetValue(op, out rightOp)
                 && prototype.ParameterTypes.All(x => x.IsIntegerType()))
             {
-                rightPrototype = IntrinsicPrototype.Create(
-                    ArithmeticIntrinsics.Namespace.GetIntrinsicName(rightOp),
+                rightPrototype = ArithmeticIntrinsics.CreatePrototype(
+                    rightOp,
+                    isChecked,
                     prototype.ResultType,
                     prototype.ParameterTypes);
                 return true;

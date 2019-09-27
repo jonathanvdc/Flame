@@ -94,19 +94,11 @@ namespace Flame.Compiler.Transforms
             }
             else if (prototype is IntrinsicPrototype)
             {
-                string arithOp;
-                Constant result;
-
                 var intrinsicProto = (IntrinsicPrototype)prototype;
 
-                if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
-                    intrinsicProto.Name,
-                    out arithOp)
-                    && ArithmeticIntrinsics.TryEvaluate(
-                        arithOp,
-                        intrinsicProto,
-                        arguments,
-                        out result))
+                Constant result;
+                if (ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(intrinsicProto)
+                    && ArithmeticIntrinsics.TryEvaluate(intrinsicProto, arguments, out result))
                 {
                     return result;
                 }

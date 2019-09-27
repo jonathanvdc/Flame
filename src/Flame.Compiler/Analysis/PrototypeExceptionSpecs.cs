@@ -275,11 +275,11 @@ namespace Flame.Compiler.Analysis
                 proto => proto.Constructor.GetExceptionSpecification());
             Default.Register<IndirectCallPrototype>(ExceptionSpecification.ThrowAny);
 
-            // Arithmetic intrinsics never throw.
+            // Unchecked arithmetic intrinsics never throw.
             foreach (var name in ArithmeticIntrinsics.Operators.All)
             {
                 Default.Register(
-                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name),
+                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name, false),
                     ExceptionSpecification.NoThrow);
             }
 

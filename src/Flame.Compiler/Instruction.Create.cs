@@ -435,6 +435,10 @@ namespace Flame.Compiler
         /// <param name="operatorName">
         /// The name of the arithmetic operator to apply.
         /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
+        /// </param>
         /// <param name="resultType">
         /// The type of value produced by the intrinsic.
         /// </param>
@@ -449,12 +453,14 @@ namespace Flame.Compiler
         /// </returns>
         public static Instruction CreateArithmeticIntrinsic(
             string operatorName,
+            bool isChecked,
             IType resultType,
             IReadOnlyList<IType> parameterTypes,
             IReadOnlyList<ValueTag> arguments)
         {
             return ArithmeticIntrinsics.CreatePrototype(
                 operatorName,
+                isChecked,
                 resultType,
                 parameterTypes).Instantiate(arguments);
         }
@@ -465,6 +471,10 @@ namespace Flame.Compiler
         /// </summary>
         /// <param name="operatorName">
         /// The name of the binary arithmetic operator to apply.
+        /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
         /// </param>
         /// <param name="elementType">
         /// The type of both parameter types and the result type
@@ -481,12 +491,14 @@ namespace Flame.Compiler
         /// </returns>
         public static Instruction CreateBinaryArithmeticIntrinsic(
             string operatorName,
+            bool isChecked,
             IType elementType,
             ValueTag left,
             ValueTag right)
         {
             return CreateArithmeticIntrinsic(
                 operatorName,
+                isChecked,
                 elementType,
                 new[] { elementType, elementType },
                 new[] { left, right });
@@ -523,6 +535,7 @@ namespace Flame.Compiler
         {
             return CreateArithmeticIntrinsic(
                 operatorName,
+                false,
                 booleanType,
                 new[] { elementType, elementType },
                 new[] { left, right });
@@ -536,6 +549,10 @@ namespace Flame.Compiler
         /// The target primitive type: the type to convert
         /// the value to.
         /// </param>
+        /// <param name="isChecked">
+        /// Tells if the arithmetic intrinsic is checked, that is,
+        /// if it throws on overflow.
+        /// </param>
         /// <param name="sourceType">
         /// The source primitive type: the type of the value
         /// to convert.
@@ -543,12 +560,14 @@ namespace Flame.Compiler
         /// <param name="value">The value to convert.</param>
         /// <returns>A conversion instruction.</returns>
         public static Instruction CreateConvertIntrinsic(
+            bool isChecked,
             IType targetType,
             IType sourceType,
             ValueTag value)
         {
             return CreateArithmeticIntrinsic(
                 ArithmeticIntrinsics.Operators.Convert,
+                isChecked,
                 targetType,
                 new[] { sourceType },
                 new[] { value });

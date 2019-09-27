@@ -45,15 +45,15 @@ namespace Flame.Compiler.Instructions
             //
             //    <namespace>.<op>
             //
-            var splitName = intrinsicName.Split(new char[] { '.' }, 2);
-            if (splitName.Length != 2 || splitName[0] != Namespace)
+            var lastDot = intrinsicName.LastIndexOf('.');
+            if (lastDot < 0 || intrinsicName.Substring(0, lastDot) != Namespace)
             {
                 operatorName = null;
                 return false;
             }
             else
             {
-                operatorName = splitName[1];
+                operatorName = intrinsicName.Substring(lastDot + 1);
                 return true;
             }
         }

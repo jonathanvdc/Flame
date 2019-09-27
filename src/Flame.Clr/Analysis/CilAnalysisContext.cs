@@ -220,7 +220,7 @@ namespace Flame.Clr.Analysis
                 // Convert integers smaller than 32 bits to Int32.
                 value = Emit(
                     Instruction.CreateConvertIntrinsic(
-                        typeEnv.Int32, type, value));
+                        false, typeEnv.Int32, type, value));
             }
             stack.Push(value);
             return value;
@@ -300,6 +300,7 @@ namespace Flame.Clr.Analysis
                 // primitive types.
                 return Emit(
                     Instruction.CreateConvertIntrinsic(
+                        false,
                         type,
                         GetValueType(value),
                         value));

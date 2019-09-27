@@ -368,7 +368,10 @@ namespace Flame.Compiler.Analysis
             foreach (var name in ArithmeticIntrinsics.Operators.All)
             {
                 Default.Register(
-                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name),
+                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name, false),
+                    MemorySpecification.Nothing);
+                Default.Register(
+                    ArithmeticIntrinsics.GetArithmeticIntrinsicName(name, true),
                     MemorySpecification.Nothing);
             }
 
