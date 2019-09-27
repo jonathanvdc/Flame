@@ -372,6 +372,38 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void RoundtripImplicitBranchCast()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            var int64Type = corlib.Definition.MainModule.TypeSystem.Int64;
+            RoundtripStaticMethodBody(
+                int64Type,
+                new[] { int32Type, int64Type },
+                EmptyArray<TypeReference>.Value,
+                ilProc =>
+                {
+                    var target = ilProc.Create(OpCodes.Nop);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Brtrue, target);
+                    ilProc.Emit(OpCodes.Conv_U8);
+                    ilProc.Append(target);
+                    ilProc.Emit(OpCodes.Ret);
+                },
+                ilProc =>
+                {
+                    var branchTarget = ilProc.Create(OpCodes.Ldarg_1);
+                    var retTarget = ilProc.Create(OpCodes.Ret);
+                    ilProc.Emit(OpCodes.Ldarg_0);
+                    ilProc.Emit(OpCodes.Brfalse_S, branchTarget);
+                    ilProc.Emit(OpCodes.Ldarg_1);
+                    ilProc.Append(retTarget);
+                    ilProc.Append(branchTarget);
+                    ilProc.Emit(OpCodes.Br_S, retTarget);
+                });
+        }
+
+        [Test]
         public void RoundtripCall()
         {
             var stringType = corlib.Definition.MainModule.TypeSystem.String;
