@@ -12,15 +12,24 @@ namespace UnitTests
         [Test]
         public void RunTests()
         {
-            foreach (var file in Directory.GetFiles(
-                Path.Combine(ToolTestPath, "ILOpt"),
-                "*.cs",
-                SearchOption.TopDirectoryOnly))
+            try
             {
-                Console.WriteLine($" - {Path.GetFileName(file)} (optimized)");
-                CompileOptimizeAndRun(file, "/optimize+ /unsafe", RunCommand);
-                Console.WriteLine($" - {Path.GetFileName(file)} (not optimized)");
-                CompileOptimizeAndRun(file, "/optimize- /unsafe", RunCommand);
+                foreach (var file in Directory.GetFiles(
+                    Path.Combine(ToolTestPath, "ILOpt"),
+                    "*.cs",
+                    SearchOption.TopDirectoryOnly))
+                {
+                    Console.WriteLine($" - {Path.GetFileName(file)} (optimized)");
+                    CompileOptimizeAndRun(file, "/optimize+ /unsafe", RunCommand);
+                    Console.WriteLine($" - {Path.GetFileName(file)} (not optimized)");
+                    CompileOptimizeAndRun(file, "/optimize- /unsafe", RunCommand);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Explicitly dump the exception.
+                Console.Error.WriteLine(ex);
+                throw;
             }
         }
 
