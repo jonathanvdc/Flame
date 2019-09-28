@@ -18,6 +18,7 @@ using System.Text;
 using Mono.Cecil.Rocks;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 using Flame.Compiler.Transforms;
+using Flame.TypeSystem;
 
 namespace UnitTests.Flame.Clr
 {
@@ -196,6 +197,66 @@ namespace UnitTests.Flame.Clr
                         ilProc.Emit(OpCodes.Ldind_I4);
                         ilProc.Emit(OpCodes.Ret);
                     });
+            }
+        }
+
+        [Test]
+        public void RoundtripCheckedConversions()
+        {
+            var typeSys = corlib.Definition.MainModule.TypeSystem;
+            Func<TypeReference, bool> isSigned = type => corlib.Resolve(type).GetIntegerSpecOrNull().IsSigned;
+            Func<TypeReference, int> getSize = type => corlib.Resolve(type).GetIntegerSpecOrNull().Size;
+            var checkedOps = new Dictionary<TypeReference, Tuple<Mono.Cecil.Cil.OpCode, Mono.Cecil.Cil.OpCode>>()
+            {
+                { typeSys.Byte, Tuple.Create(OpCodes.Conv_Ovf_U1, OpCodes.Conv_Ovf_U1_Un) },
+                { typeSys.SByte, Tuple.Create(OpCodes.Conv_Ovf_I1, OpCodes.Conv_Ovf_I1_Un) },
+                { typeSys.Int16, Tuple.Create(OpCodes.Conv_Ovf_I2, OpCodes.Conv_Ovf_I2_Un) },
+                { typeSys.UInt16, Tuple.Create(OpCodes.Conv_Ovf_U2, OpCodes.Conv_Ovf_U2_Un) },
+                { typeSys.Int32, Tuple.Create(OpCodes.Conv_Ovf_I4, OpCodes.Conv_Ovf_I4_Un) },
+                { typeSys.UInt32, Tuple.Create(OpCodes.Conv_Ovf_U4, OpCodes.Conv_Ovf_U4_Un) },
+                { typeSys.Int64, Tuple.Create(OpCodes.Conv_Ovf_I8, OpCodes.Conv_Ovf_I8_Un) },
+                { typeSys.UInt64, Tuple.Create(OpCodes.Conv_Ovf_U8, OpCodes.Conv_Ovf_U8_Un) }
+            };
+            foreach (var sourceType in checkedOps.Keys)
+            {
+                foreach (var targetType in checkedOps.Keys)
+                {
+                    var signedAndUnsignedOp = checkedOps[targetType];
+                    var op = isSigned(sourceType) ? signedAndUnsignedOp.Item1 : signedAndUnsignedOp.Item2;
+                    var requiresConv = !InstructionSimplification.CanAlwaysConvert(
+                        corlib.Resolve(sourceType),
+                        corlib.Resolve(targetType));
+                    RoundtripStaticMethodBody(
+                        targetType,
+                        new[] { sourceType },
+                        EmptyArray<TypeReference>.Value,
+                        ilProc =>
+                        {
+                            ilProc.Emit(OpCodes.Ldarg_0);
+                            ilProc.Emit(op);
+                            ilProc.Emit(OpCodes.Ret);
+                        },
+                        ilProc =>
+                        {
+                            ilProc.Emit(OpCodes.Ldarg_0);
+                            if (requiresConv)
+                            {
+                                ilProc.Emit(op);
+                            }
+                            else if (getSize(targetType) > 32 && getSize(sourceType) <= 32)
+                            {
+                                if (isSigned(targetType))
+                                {
+                                    ilProc.Emit(OpCodes.Conv_I8);
+                                }
+                                else
+                                {
+                                    ilProc.Emit(OpCodes.Conv_U8);
+                                }
+                            }
+                            ilProc.Emit(OpCodes.Ret);
+                        });
+                }
             }
         }
 
@@ -392,14 +453,13 @@ namespace UnitTests.Flame.Clr
                 },
                 ilProc =>
                 {
-                    var branchTarget = ilProc.Create(OpCodes.Ldarg_1);
-                    var retTarget = ilProc.Create(OpCodes.Ret);
+                    var retTarget = ilProc.Create(OpCodes.Ldarg_1);
+                    var branchTarget = ilProc.Create(OpCodes.Br_S, retTarget);
                     ilProc.Emit(OpCodes.Ldarg_0);
                     ilProc.Emit(OpCodes.Brfalse_S, branchTarget);
-                    ilProc.Emit(OpCodes.Ldarg_1);
                     ilProc.Append(retTarget);
+                    ilProc.Emit(OpCodes.Ret);
                     ilProc.Append(branchTarget);
-                    ilProc.Emit(OpCodes.Br_S, retTarget);
                 });
         }
 
@@ -829,10 +889,12 @@ IL_0002: ret");
                     new ConstantPropagation(),
                     SwitchSimplification.Instance,
                     DeadValueElimination.Instance,
+                    InstructionSimplification.Instance,
                     new JumpThreading(true),
                     DeadBlockElimination.Instance,
                     new SwitchLowering(corlib.Resolver.TypeEnvironment),
                     CopyPropagation.Instance,
+                    InstructionSimplification.Instance,
                     DeadValueElimination.Instance,
                     new JumpThreading(false)));
 
