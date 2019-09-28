@@ -9,6 +9,8 @@ using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
+using OpCode = Mono.Cecil.Cil.OpCode;
+using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace Flame.Clr.Analysis
 {
@@ -68,20 +70,20 @@ namespace Flame.Clr.Analysis
             this.graph.AddAnalysis(new EffectfulInstructionAnalysis());
             this.graph.AddAnalysis(NullabilityAnalysis.Instance);
 
-            this.convTypes = new Dictionary<Mono.Cecil.Cil.OpCode, IType>()
+            this.convTypes = new Dictionary<OpCode, IType>()
             {
-                { Mono.Cecil.Cil.OpCodes.Conv_I1, TypeEnvironment.Int8 },
-                { Mono.Cecil.Cil.OpCodes.Conv_I2, TypeEnvironment.Int16 },
-                { Mono.Cecil.Cil.OpCodes.Conv_I4, TypeEnvironment.Int32 },
-                { Mono.Cecil.Cil.OpCodes.Conv_I8, TypeEnvironment.Int64 },
-                { Mono.Cecil.Cil.OpCodes.Conv_U1, TypeEnvironment.UInt8 },
-                { Mono.Cecil.Cil.OpCodes.Conv_U2, TypeEnvironment.UInt16 },
-                { Mono.Cecil.Cil.OpCodes.Conv_U4, TypeEnvironment.UInt32 },
-                { Mono.Cecil.Cil.OpCodes.Conv_U8, TypeEnvironment.UInt64 },
-                { Mono.Cecil.Cil.OpCodes.Conv_R4, TypeEnvironment.Float32 },
-                { Mono.Cecil.Cil.OpCodes.Conv_R8, TypeEnvironment.Float64 },
-                { Mono.Cecil.Cil.OpCodes.Conv_I, TypeEnvironment.NaturalInt },
-                { Mono.Cecil.Cil.OpCodes.Conv_U, TypeEnvironment.NaturalUInt },
+                { OpCodes.Conv_I1, TypeEnvironment.Int8 },
+                { OpCodes.Conv_I2, TypeEnvironment.Int16 },
+                { OpCodes.Conv_I4, TypeEnvironment.Int32 },
+                { OpCodes.Conv_I8, TypeEnvironment.Int64 },
+                { OpCodes.Conv_U1, TypeEnvironment.UInt8 },
+                { OpCodes.Conv_U2, TypeEnvironment.UInt16 },
+                { OpCodes.Conv_U4, TypeEnvironment.UInt32 },
+                { OpCodes.Conv_U8, TypeEnvironment.UInt64 },
+                { OpCodes.Conv_R4, TypeEnvironment.Float32 },
+                { OpCodes.Conv_R8, TypeEnvironment.Float64 },
+                { OpCodes.Conv_I, TypeEnvironment.NaturalInt },
+                { OpCodes.Conv_U, TypeEnvironment.NaturalUInt },
             };
 
             this.leaveTokens = new Dictionary<BasicBlockTag, int>();
@@ -133,7 +135,7 @@ namespace Flame.Clr.Analysis
         private ValueTag flowTokenVariable;
 
         // A mapping of conv.* opcodes to target types.
-        private readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, IType> convTypes;
+        private readonly IReadOnlyDictionary<OpCode, IType> convTypes;
 
         /// <summary>
         /// Analyzes a particular method body.
@@ -692,6 +694,7 @@ namespace Flame.Clr.Analysis
                 {
                     EmitConvertTo(
                         createType(spec.Size),
+                        false,
                         context);
                 }
             }
@@ -722,8 +725,8 @@ namespace Flame.Clr.Analysis
 
                 if (newType != null)
                 {
-                    first = EmitConvertTo(first, newType, context);
-                    second = EmitConvertTo(second, newType, context);
+                    first = EmitConvertTo(first, newType, false, context);
+                    second = EmitConvertTo(second, newType, false, context);
                 }
                 return;
             }
@@ -733,13 +736,13 @@ namespace Flame.Clr.Analysis
                 if (firstISpec.Size <= 32)
                 {
                     // Integers of 32 bits or smaller can be extended to natural integers.
-                    first = EmitConvertTo(first, secondType, context);
+                    first = EmitConvertTo(first, secondType, false, context);
                     return;
                 }
                 else if (firstISpec.Size >= 64)
                 {
                     // Natural integers can be extended to integers of 64 bits or greater.
-                    second = EmitConvertTo(second, firstType, context);
+                    second = EmitConvertTo(second, firstType, false, context);
                     return;
                 }
             }
@@ -749,13 +752,13 @@ namespace Flame.Clr.Analysis
                 if (secondISpec.Size <= 32)
                 {
                     // Integers of 32 bits or smaller can be extended to natural integers.
-                    second = EmitConvertTo(second, firstType, context);
+                    second = EmitConvertTo(second, firstType, false, context);
                     return;
                 }
                 else if (secondISpec.Size >= 64)
                 {
                     // Natural integers can be extended to integers of 64 bits or greater.
-                    first = EmitConvertTo(first, secondType, context);
+                    first = EmitConvertTo(first, secondType, false, context);
                     return;
                 }
             }
@@ -763,20 +766,22 @@ namespace Flame.Clr.Analysis
 
         private void EmitConvertTo(
             IType targetType,
+            bool isChecked,
             CilAnalysisContext context)
         {
             context.Push(
-                EmitConvertTo(context.Pop(), targetType, context));
+                EmitConvertTo(context.Pop(), targetType, isChecked, context));
         }
 
         private ValueTag EmitConvertTo(
             ValueTag operand,
             IType targetType,
+            bool isChecked,
             CilAnalysisContext context)
         {
             return context.Emit(
                 Instruction.CreateConvertIntrinsic(
-                    false,
+                    isChecked,
                     targetType,
                     context.GetValueType(operand),
                     operand));
@@ -976,7 +981,7 @@ namespace Flame.Clr.Analysis
             {
                 EmitUnsignedArithmeticBinary(opName, true, context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Not)
+            else if (instruction.OpCode == OpCodes.Not)
             {
                 var operand = context.Pop();
                 var operandType = context.GetValueType(operand);
@@ -988,7 +993,7 @@ namespace Flame.Clr.Analysis
                         operandType)
                     .Instantiate(operand));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Neg)
+            else if (instruction.OpCode == OpCodes.Neg)
             {
                 var operand = context.Pop();
                 var operandType = context.GetValueType(operand);
@@ -1003,49 +1008,49 @@ namespace Flame.Clr.Analysis
                         context.Emit(Instruction.CreateDefaultConstant(operandType)),
                         operand));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
+            else if (instruction.OpCode == OpCodes.Ldc_I4)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         new IntegerConstant((int)instruction.Operand),
                         Assembly.Resolver.TypeEnvironment.Int32));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I8)
+            else if (instruction.OpCode == OpCodes.Ldc_I8)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         new IntegerConstant((long)instruction.Operand),
                         Assembly.Resolver.TypeEnvironment.Int64));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4)
+            else if (instruction.OpCode == OpCodes.Ldc_R4)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         new Float32Constant((float)instruction.Operand),
                         Assembly.Resolver.TypeEnvironment.Float32));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R8)
+            else if (instruction.OpCode == OpCodes.Ldc_R8)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         new Float64Constant((double)instruction.Operand),
                         Assembly.Resolver.TypeEnvironment.Float64));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldnull)
+            else if (instruction.OpCode == OpCodes.Ldnull)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         NullConstant.Instance,
                         TypeEnvironment.Object.MakePointerType(PointerKind.Box)));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldstr)
+            else if (instruction.OpCode == OpCodes.Ldstr)
             {
                 context.Push(
                     Instruction.CreateConstant(
                         new StringConstant((string)instruction.Operand),
                         TypeHelpers.BoxIfReferenceType(Assembly.Resolver.TypeEnvironment.String)));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldtoken)
+            else if (instruction.OpCode == OpCodes.Ldtoken)
             {
                 if (instruction.Operand is Mono.Cecil.TypeReference)
                 {
@@ -1080,15 +1085,15 @@ namespace Flame.Clr.Analysis
                         $"Instruction '{instruction}' should have a type, field or method reference operand, but doesn't.");
                 }
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Box)
+            else if (instruction.OpCode == OpCodes.Box)
             {
                 var valType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
                 var val = context.Pop(valType);
                 context.Push(
                     Instruction.CreateBox(valType, val));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unbox_Any
-                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Castclass)
+            else if (instruction.OpCode == OpCodes.Unbox_Any
+                || instruction.OpCode == OpCodes.Castclass)
             {
                 var val = context.Pop();
                 var targetType = TypeHelpers.BoxIfReferenceType(
@@ -1097,16 +1102,16 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     Instruction.CreateUnboxAnyIntrinsic(targetType, valType, val));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarga)
+            else if (instruction.OpCode == OpCodes.Ldarga)
             {
                 context.Push(GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldarg)
+            else if (instruction.OpCode == OpCodes.Ldarg)
             {
                 var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
                 LoadValue(alloca.Tag, context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Starg)
+            else if (instruction.OpCode == OpCodes.Starg)
             {
                 var alloca = GetParameterSlot((Mono.Cecil.ParameterReference)instruction.Operand, cilMethodBody);
                 StoreValue(
@@ -1114,17 +1119,17 @@ namespace Flame.Clr.Analysis
                     context.Pop(GetAllocaElementType(alloca.Instruction)),
                     context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloca)
+            else if (instruction.OpCode == OpCodes.Ldloca)
             {
                 context.Push(
                     localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index].Tag);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldloc)
+            else if (instruction.OpCode == OpCodes.Ldloc)
             {
                 var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
                 LoadValue(alloca.Tag, context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stloc)
+            else if (instruction.OpCode == OpCodes.Stloc)
             {
                 var alloca = localStackSlots[((Mono.Cecil.Cil.VariableReference)instruction.Operand).Index];
                 StoreValue(
@@ -1132,7 +1137,7 @@ namespace Flame.Clr.Analysis
                     context.Pop(GetAllocaElementType(alloca.Instruction)),
                     context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldfld)
+            else if (instruction.OpCode == OpCodes.Ldfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 var basePointer = context.Pop();
@@ -1160,7 +1165,7 @@ namespace Flame.Clr.Analysis
                         context.Emit(
                             Instruction.CreateGetFieldPointer(field, basePointer))));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldflda)
+            else if (instruction.OpCode == OpCodes.Ldflda)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 var basePointer = context.Pop();
@@ -1184,7 +1189,7 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     Instruction.CreateGetFieldPointer(field, basePointer));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stfld)
+            else if (instruction.OpCode == OpCodes.Stfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 var value = context.Pop(field.FieldType);
@@ -1213,7 +1218,7 @@ namespace Flame.Clr.Analysis
                             Instruction.CreateGetFieldPointer(field, basePointer)),
                         value));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsfld)
+            else if (instruction.OpCode == OpCodes.Ldsfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 context.Push(
@@ -1222,13 +1227,13 @@ namespace Flame.Clr.Analysis
                         context.Emit(
                             Instruction.CreateGetStaticFieldPointer(field))));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldsflda)
+            else if (instruction.OpCode == OpCodes.Ldsflda)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 context.Push(
                     Instruction.CreateGetStaticFieldPointer(field));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
+            else if (instruction.OpCode == OpCodes.Stsfld)
             {
                 var field = Assembly.Resolve((Mono.Cecil.FieldReference)instruction.Operand);
                 var value = context.Pop(field.FieldType);
@@ -1239,7 +1244,7 @@ namespace Flame.Clr.Analysis
                             Instruction.CreateGetStaticFieldPointer(field)),
                         value));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldobj)
+            else if (instruction.OpCode == OpCodes.Ldobj)
             {
                 var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
                 var pointer = PopPointerToType(elementType, context);
@@ -1248,7 +1253,7 @@ namespace Flame.Clr.Analysis
                         elementType,
                         pointer));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldind_Ref)
+            else if (instruction.OpCode == OpCodes.Ldind_Ref)
             {
                 var pointer = context.Pop();
                 var pointerType = graph.GetValueType(pointer) as PointerType;
@@ -1263,7 +1268,7 @@ namespace Flame.Clr.Analysis
                         pointerType.ElementType,
                         pointer));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stobj)
+            else if (instruction.OpCode == OpCodes.Stobj)
             {
                 var elementType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
                 var value = context.Pop(elementType);
@@ -1274,16 +1279,16 @@ namespace Flame.Clr.Analysis
                         pointer,
                         value));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Volatile)
+            else if (instruction.OpCode == OpCodes.Volatile)
             {
                 // Register the 'volatile' prefix with the context.
                 context.RequestVolatile();
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Unaligned)
+            else if (instruction.OpCode == OpCodes.Unaligned)
             {
                 context.RequestAlignment(new Alignment((byte)instruction.Operand));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelema)
+            else if (instruction.OpCode == OpCodes.Ldelema)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1298,7 +1303,7 @@ namespace Flame.Clr.Analysis
                         arrayVal,
                         new[] { indexVal }));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Any)
+            else if (instruction.OpCode == OpCodes.Ldelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1313,7 +1318,7 @@ namespace Flame.Clr.Analysis
                         arrayVal,
                         new[] { indexVal }));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stelem_Any)
+            else if (instruction.OpCode == OpCodes.Stelem_Any)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1330,7 +1335,7 @@ namespace Flame.Clr.Analysis
                         arrayVal,
                         new[] { indexVal }));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldelem_Ref)
+            else if (instruction.OpCode == OpCodes.Ldelem_Ref)
             {
                 var indexVal = context.Pop();
                 var arrayVal = context.Pop();
@@ -1352,7 +1357,7 @@ namespace Flame.Clr.Analysis
                         arrayVal,
                         new[] { indexVal }));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldlen)
+            else if (instruction.OpCode == OpCodes.Ldlen)
             {
                 var arrayVal = context.Pop();
                 context.Push(
@@ -1361,7 +1366,7 @@ namespace Flame.Clr.Analysis
                         context.GetValueType(arrayVal),
                         arrayVal));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newarr)
+            else if (instruction.OpCode == OpCodes.Newarr)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1379,12 +1384,12 @@ namespace Flame.Clr.Analysis
                         context.GetValueType(lengthVal),
                         lengthVal));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Localloc)
+            else if (instruction.OpCode == OpCodes.Localloc)
             {
                 var size = context.Pop();
                 context.Push(Instruction.CreateAllocaArray(TypeEnvironment.UInt8, size));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Sizeof)
+            else if (instruction.OpCode == OpCodes.Sizeof)
             {
                 var measureType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
                 context.Push(
@@ -1395,29 +1400,26 @@ namespace Flame.Clr.Analysis
             else if (convTypes.ContainsKey(instruction.OpCode))
             {
                 // Conversion opcodes are usually fairly straightforward.
-                var targetType = convTypes[instruction.OpCode];
-                EmitConvertTo(targetType, context);
-
-                // We need to take care to convert integers < 32 bits
-                // to 32-bit integers; CIL never keeps < 32 bits integers
-                // on the stack.
-                var intSpec = targetType.GetIntegerSpecOrNull();
-                if (intSpec != null && intSpec.Size < 32)
-                {
-                    if (intSpec.IsSigned)
-                    {
-                        // Sign-extend the integer.
-                        EmitConvertTo(TypeEnvironment.Int32, context);
-                    }
-                    else
-                    {
-                        // Zero-extend, then make sure an int32 ends up on the stack.
-                        EmitConvertTo(TypeEnvironment.UInt32, context);
-                        EmitConvertTo(TypeEnvironment.Int32, context);
-                    }
-                }
+                EmitConvertAndExtend(convTypes[instruction.OpCode], false, context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Isinst)
+            else if (checkedConversions.ContainsKey(instruction.OpCode))
+            {
+                // Analyze checked conversions by analogy with their unchecked
+                // counterparts.
+                var pair = checkedConversions[instruction.OpCode];
+                var uncheckedOp = pair.Item1;
+                var sourceIsSigned = pair.Item2;
+                if (sourceIsSigned)
+                {
+                    EmitConvertToSigned(context);
+                }
+                else
+                {
+                    EmitConvertToUnsigned(context);
+                }
+                EmitConvertAndExtend(convTypes[uncheckedOp], true, context);
+            }
+            else if (instruction.OpCode == OpCodes.Isinst)
             {
                 var operandType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1441,7 +1443,7 @@ namespace Flame.Clr.Analysis
 
                 context.Push(Instruction.CreateDynamicCast(pointerOperandType, arg));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Initobj)
+            else if (instruction.OpCode == OpCodes.Initobj)
             {
                 var elementType = TypeHelpers.BoxIfReferenceType(
                     Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
@@ -1471,7 +1473,7 @@ namespace Flame.Clr.Analysis
                         context.Emit(
                             Instruction.CreateDefaultConstant(elementType))));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret)
+            else if (instruction.OpCode == OpCodes.Ret)
             {
                 var value = context.Pop(ReturnParameter.Type);
                 context.Terminate(
@@ -1480,14 +1482,14 @@ namespace Flame.Clr.Analysis
                             graph.GetValueType(value),
                             value)));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Throw)
+            else if (instruction.OpCode == OpCodes.Throw)
             {
                 var value = context.Pop();
                 context.Emit(
                     Instruction.CreateThrowIntrinsic(graph.GetValueType(value), value));
                 context.Terminate(UnreachableFlow.Instance);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Rethrow)
+            else if (instruction.OpCode == OpCodes.Rethrow)
             {
                 var handler = context.ExceptionHandlerClauses.OfType<CilCatchHandler>().First();
                 var rethrownValue = handler.GetCapturedException(graph.ToImmutable());
@@ -1497,19 +1499,19 @@ namespace Flame.Clr.Analysis
                         rethrownValue));
                 context.Terminate(UnreachableFlow.Instance);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Pop)
+            else if (instruction.OpCode == OpCodes.Pop)
             {
                 context.Pop();
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Dup)
+            else if (instruction.OpCode == OpCodes.Dup)
             {
                 context.Push(context.Peek());
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Nop)
+            else if (instruction.OpCode == OpCodes.Nop)
             {
                 // Do nothing I guess.
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Br)
+            else if (instruction.OpCode == OpCodes.Br)
             {
                 var args = context.EvaluationStack.Reverse().ToArray();
                 context.Terminate(
@@ -1520,7 +1522,7 @@ namespace Flame.Clr.Analysis
                             cilMethodBody,
                             context)));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Leave)
+            else if (instruction.OpCode == OpCodes.Leave)
             {
                 // From MSDN:
                 //
@@ -1606,7 +1608,7 @@ namespace Flame.Clr.Analysis
                                 context)));
                 }
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Endfinally)
+            else if (instruction.OpCode == OpCodes.Endfinally)
             {
                 if (endfinallyFlow == null)
                 {
@@ -1615,7 +1617,7 @@ namespace Flame.Clr.Analysis
                 }
                 context.Terminate(endfinallyFlow);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brtrue)
+            else if (instruction.OpCode == OpCodes.Brtrue)
             {
                 EmitConditionalBranch(
                     context.Pop(),
@@ -1624,7 +1626,7 @@ namespace Flame.Clr.Analysis
                     cilMethodBody,
                     context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Brfalse)
+            else if (instruction.OpCode == OpCodes.Brfalse)
             {
                 EmitConditionalBranch(
                     context.Pop(),
@@ -1633,7 +1635,7 @@ namespace Flame.Clr.Analysis
                     cilMethodBody,
                     context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Switch)
+            else if (instruction.OpCode == OpCodes.Switch)
             {
                 EmitJumpTable(
                     context.Pop(),
@@ -1642,8 +1644,8 @@ namespace Flame.Clr.Analysis
                     cilMethodBody,
                     context);
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Call
-                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt)
+            else if (instruction.OpCode == OpCodes.Call
+                || instruction.OpCode == OpCodes.Callvirt)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
@@ -1668,19 +1670,19 @@ namespace Flame.Clr.Analysis
                 context.Push(
                     Instruction.CreateCall(
                         method,
-                        instruction.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt
+                        instruction.OpCode == OpCodes.Callvirt
                             ? MethodLookup.Virtual
                             : MethodLookup.Static,
                         args));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Constrained)
+            else if (instruction.OpCode == OpCodes.Constrained)
             {
                 // The 'constrained.' prefix opcode is always followed by a 'callvirt'
                 // instruction. Grab that 'callvirt' instruction.
                 var callInsn = nextInstruction;
                 nextInstruction = callInsn.Next;
 
-                if (callInsn.OpCode != Mono.Cecil.Cil.OpCodes.Callvirt)
+                if (callInsn.OpCode != OpCodes.Callvirt)
                 {
                     throw new InvalidProgramException(
                         $"Instruction '{instruction}' must be trailed by a 'callvirt' " +
@@ -1702,7 +1704,7 @@ namespace Flame.Clr.Analysis
                         thisPtrArg,
                         args));
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Newobj)
+            else if (instruction.OpCode == OpCodes.Newobj)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
@@ -1726,12 +1728,12 @@ namespace Flame.Clr.Analysis
                     context.Push(Instruction.CreateLoad(method.ParentType, alloca));
                 }
             }
-            else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldftn
-                || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldvirtftn)
+            else if (instruction.OpCode == OpCodes.Ldftn
+                || instruction.OpCode == OpCodes.Ldvirtftn)
             {
                 var methodRef = (Mono.Cecil.MethodReference)instruction.Operand;
                 var method = Assembly.Resolve(methodRef);
-                bool isVirtual = instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldvirtftn;
+                bool isVirtual = instruction.OpCode == OpCodes.Ldvirtftn;
                 context.Push(
                     Instruction.CreateNewDelegate(
                         TypeEnvironment.NaturalInt,
@@ -1762,6 +1764,61 @@ namespace Flame.Clr.Analysis
                 throw new NotImplementedException($"Unimplemented opcode: {instruction}");
             }
         }
+
+        private void EmitConvertAndExtend(IType targetType, bool isChecked, CilAnalysisContext context)
+        {
+            EmitConvertTo(targetType, isChecked, context);
+
+            // We need to take care to convert integers < 32 bits
+            // to 32-bit integers; CIL never keeps < 32 bits integers
+            // on the stack.
+            var intSpec = targetType.GetIntegerSpecOrNull();
+            if (intSpec != null && intSpec.Size < 32)
+            {
+                if (intSpec.IsSigned)
+                {
+                    // Sign-extend the integer.
+                    EmitConvertTo(TypeEnvironment.Int32, false, context);
+                }
+                else
+                {
+                    // Zero-extend, then make sure an int32 ends up on the stack.
+                    EmitConvertTo(TypeEnvironment.UInt32, false, context);
+                    EmitConvertTo(TypeEnvironment.Int32, false, context);
+                }
+            }
+        }
+
+        /// <summary>
+        /// A mapping of checked conversion opcodes to an (unchecked equivalent
+        /// opcode, source type is signed int) pair.
+        /// </summary>
+        private static Dictionary<OpCode, Tuple<OpCode, bool>> checkedConversions =
+            new Dictionary<OpCode, Tuple<OpCode, bool>>()
+        {
+            { OpCodes.Conv_Ovf_I, Tuple.Create(OpCodes.Conv_I, true) },
+            { OpCodes.Conv_Ovf_I_Un, Tuple.Create(OpCodes.Conv_I, false) },
+            { OpCodes.Conv_Ovf_U, Tuple.Create(OpCodes.Conv_U, true) },
+            { OpCodes.Conv_Ovf_U_Un, Tuple.Create(OpCodes.Conv_U, false) },
+
+            { OpCodes.Conv_Ovf_I1, Tuple.Create(OpCodes.Conv_I1, true) },
+            { OpCodes.Conv_Ovf_I1_Un, Tuple.Create(OpCodes.Conv_I1, false) },
+            { OpCodes.Conv_Ovf_I2, Tuple.Create(OpCodes.Conv_I2, true) },
+            { OpCodes.Conv_Ovf_I2_Un, Tuple.Create(OpCodes.Conv_I2, false) },
+            { OpCodes.Conv_Ovf_I4, Tuple.Create(OpCodes.Conv_I4, true) },
+            { OpCodes.Conv_Ovf_I4_Un, Tuple.Create(OpCodes.Conv_I4, false) },
+            { OpCodes.Conv_Ovf_I8, Tuple.Create(OpCodes.Conv_I8, true) },
+            { OpCodes.Conv_Ovf_I8_Un, Tuple.Create(OpCodes.Conv_I8, false) },
+
+            { OpCodes.Conv_Ovf_U1, Tuple.Create(OpCodes.Conv_U1, true) },
+            { OpCodes.Conv_Ovf_U1_Un, Tuple.Create(OpCodes.Conv_U1, false) },
+            { OpCodes.Conv_Ovf_U2, Tuple.Create(OpCodes.Conv_U2, true) },
+            { OpCodes.Conv_Ovf_U2_Un, Tuple.Create(OpCodes.Conv_U2, false) },
+            { OpCodes.Conv_Ovf_U4, Tuple.Create(OpCodes.Conv_U4, true) },
+            { OpCodes.Conv_Ovf_U4_Un, Tuple.Create(OpCodes.Conv_U4, false) },
+            { OpCodes.Conv_Ovf_U8, Tuple.Create(OpCodes.Conv_U8, true) },
+            { OpCodes.Conv_Ovf_U8_Un, Tuple.Create(OpCodes.Conv_U8, false) },
+        };
 
         /// <summary>
         /// Takes a value, spills it to a temporary and
@@ -1891,9 +1948,9 @@ namespace Flame.Clr.Analysis
                 }
                 FlagBranchTarget(cilInstruction.Next);
             }
-            else if (cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Ret
-                || cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Throw
-                || cilInstruction.OpCode == Mono.Cecil.Cil.OpCodes.Rethrow)
+            else if (cilInstruction.OpCode == OpCodes.Ret
+                || cilInstruction.OpCode == OpCodes.Throw
+                || cilInstruction.OpCode == OpCodes.Rethrow)
             {
                 // Terminate the block defining the 'ret', 'throw' or 'rethrow'
                 // by flagging the next block as a branch target.
@@ -2167,48 +2224,48 @@ namespace Flame.Clr.Analysis
             freeTemporaries.Add(alloca);
         }
 
-        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> signedBinaryOperators =
-            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        private static readonly IReadOnlyDictionary<OpCode, string> signedBinaryOperators =
+            new Dictionary<OpCode, string>()
         {
-            { Mono.Cecil.Cil.OpCodes.Add, ArithmeticIntrinsics.Operators.Add },
-            { Mono.Cecil.Cil.OpCodes.Sub, ArithmeticIntrinsics.Operators.Subtract },
-            { Mono.Cecil.Cil.OpCodes.Mul, ArithmeticIntrinsics.Operators.Multiply },
-            { Mono.Cecil.Cil.OpCodes.Div, ArithmeticIntrinsics.Operators.Divide },
-            { Mono.Cecil.Cil.OpCodes.Rem, ArithmeticIntrinsics.Operators.Remainder },
-            { Mono.Cecil.Cil.OpCodes.Cgt, ArithmeticIntrinsics.Operators.IsGreaterThan },
-            { Mono.Cecil.Cil.OpCodes.Ceq, ArithmeticIntrinsics.Operators.IsEqualTo },
-            { Mono.Cecil.Cil.OpCodes.Clt, ArithmeticIntrinsics.Operators.IsLessThan },
-            { Mono.Cecil.Cil.OpCodes.And, ArithmeticIntrinsics.Operators.And },
-            { Mono.Cecil.Cil.OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
-            { Mono.Cecil.Cil.OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor },
-            { Mono.Cecil.Cil.OpCodes.Shl, ArithmeticIntrinsics.Operators.LeftShift },
-            { Mono.Cecil.Cil.OpCodes.Shr, ArithmeticIntrinsics.Operators.RightShift }
+            { OpCodes.Add, ArithmeticIntrinsics.Operators.Add },
+            { OpCodes.Sub, ArithmeticIntrinsics.Operators.Subtract },
+            { OpCodes.Mul, ArithmeticIntrinsics.Operators.Multiply },
+            { OpCodes.Div, ArithmeticIntrinsics.Operators.Divide },
+            { OpCodes.Rem, ArithmeticIntrinsics.Operators.Remainder },
+            { OpCodes.Cgt, ArithmeticIntrinsics.Operators.IsGreaterThan },
+            { OpCodes.Ceq, ArithmeticIntrinsics.Operators.IsEqualTo },
+            { OpCodes.Clt, ArithmeticIntrinsics.Operators.IsLessThan },
+            { OpCodes.And, ArithmeticIntrinsics.Operators.And },
+            { OpCodes.Or, ArithmeticIntrinsics.Operators.Or },
+            { OpCodes.Xor, ArithmeticIntrinsics.Operators.Xor },
+            { OpCodes.Shl, ArithmeticIntrinsics.Operators.LeftShift },
+            { OpCodes.Shr, ArithmeticIntrinsics.Operators.RightShift }
         };
 
-        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> unsignedBinaryOperators =
-            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        private static readonly IReadOnlyDictionary<OpCode, string> unsignedBinaryOperators =
+            new Dictionary<OpCode, string>()
         {
-            { Mono.Cecil.Cil.OpCodes.Div_Un, ArithmeticIntrinsics.Operators.Divide },
-            { Mono.Cecil.Cil.OpCodes.Rem_Un, ArithmeticIntrinsics.Operators.Remainder },
-            { Mono.Cecil.Cil.OpCodes.Cgt_Un, ArithmeticIntrinsics.Operators.IsGreaterThan },
-            { Mono.Cecil.Cil.OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan },
-            { Mono.Cecil.Cil.OpCodes.Shr_Un, ArithmeticIntrinsics.Operators.RightShift }
+            { OpCodes.Div_Un, ArithmeticIntrinsics.Operators.Divide },
+            { OpCodes.Rem_Un, ArithmeticIntrinsics.Operators.Remainder },
+            { OpCodes.Cgt_Un, ArithmeticIntrinsics.Operators.IsGreaterThan },
+            { OpCodes.Clt_Un, ArithmeticIntrinsics.Operators.IsLessThan },
+            { OpCodes.Shr_Un, ArithmeticIntrinsics.Operators.RightShift }
         };
 
-        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> checkedSignedBinaryOperators =
-            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        private static readonly IReadOnlyDictionary<OpCode, string> checkedSignedBinaryOperators =
+            new Dictionary<OpCode, string>()
         {
-            { Mono.Cecil.Cil.OpCodes.Add_Ovf, ArithmeticIntrinsics.Operators.Add },
-            { Mono.Cecil.Cil.OpCodes.Sub_Ovf, ArithmeticIntrinsics.Operators.Subtract },
-            { Mono.Cecil.Cil.OpCodes.Mul_Ovf, ArithmeticIntrinsics.Operators.Multiply }
+            { OpCodes.Add_Ovf, ArithmeticIntrinsics.Operators.Add },
+            { OpCodes.Sub_Ovf, ArithmeticIntrinsics.Operators.Subtract },
+            { OpCodes.Mul_Ovf, ArithmeticIntrinsics.Operators.Multiply }
         };
 
-        private static readonly IReadOnlyDictionary<Mono.Cecil.Cil.OpCode, string> checkedUnsignedBinaryOperators =
-            new Dictionary<Mono.Cecil.Cil.OpCode, string>()
+        private static readonly IReadOnlyDictionary<OpCode, string> checkedUnsignedBinaryOperators =
+            new Dictionary<OpCode, string>()
         {
-            { Mono.Cecil.Cil.OpCodes.Add_Ovf_Un, ArithmeticIntrinsics.Operators.Add },
-            { Mono.Cecil.Cil.OpCodes.Sub_Ovf_Un, ArithmeticIntrinsics.Operators.Subtract },
-            { Mono.Cecil.Cil.OpCodes.Mul_Ovf_Un, ArithmeticIntrinsics.Operators.Multiply }
+            { OpCodes.Add_Ovf_Un, ArithmeticIntrinsics.Operators.Add },
+            { OpCodes.Sub_Ovf_Un, ArithmeticIntrinsics.Operators.Subtract },
+            { OpCodes.Mul_Ovf_Un, ArithmeticIntrinsics.Operators.Multiply }
         };
     }
 }
