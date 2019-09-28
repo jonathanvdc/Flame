@@ -709,15 +709,20 @@ namespace Flame.Llvm.Emit
                 || type.IsPointerType();
         }
 
+        private LLVMValueRef EmitIntegerConstant(IntegerConstant constant, IType resultType)
+        {
+            return LLVM.ConstInt(
+                Module.ImportType(resultType),
+                constant.ToUInt64(),
+                constant.Spec.IsSigned);
+        }
+
         private LLVMValueRef EmitConstant(ConstantPrototype prototype, IRBuilder builder)
         {
             if (prototype.Value is IntegerConstant)
             {
                 var intConst = (IntegerConstant)prototype.Value;
-                return LLVM.ConstInt(
-                    Module.ImportType(prototype.ResultType),
-                    intConst.ToUInt64(),
-                    intConst.Spec.IsSigned);
+                return EmitIntegerConstant(intConst, prototype.ResultType);
             }
             else if (prototype.Value == NullConstant.Instance
                 || prototype.Value == DefaultConstant.Instance)
@@ -820,6 +825,23 @@ namespace Flame.Llvm.Emit
                         cmp,
                         CreateJumpThunk(switchFlow.Cases[0].Branch, graph),
                         CreateJumpThunk(switchFlow.DefaultBranch, graph));
+                }
+                else if (switchFlow.IsIntegerSwitch)
+                {
+                    var switchInsn = builder.CreateSwitch(
+                        switchVal,
+                        CreateJumpThunk(switchFlow.DefaultBranch, graph),
+                        (uint)switchFlow.Values.Distinct().Count());
+                    var thunks = new Dictionary<Branch, LLVMBasicBlockRef>();
+                    foreach (var branch in switchFlow.Branches)
+                    {
+                        thunks[branch] = CreateJumpThunk(branch, graph);
+                    }
+                    foreach (var value in switchFlow.ValueToBranchMap)
+                    {
+                        var constant = EmitIntegerConstant((IntegerConstant)value.Key, switchFlow.SwitchValue.ResultType);
+                        switchInsn.AddCase(constant, thunks[value.Value]);
+                    }
                 }
                 else
                 {
