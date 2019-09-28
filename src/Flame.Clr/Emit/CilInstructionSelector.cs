@@ -1022,7 +1022,7 @@ namespace Flame.Clr.Emit
                         CilInstruction.Create(
                             OpCodes.Sizeof,
                             Method.Module.ImportReference(sizeofProto.MeasuredType))));
-                ops.AddRange(EmitConvert(sizeofProto.ResultType, TypeEnvironment.UInt32));
+                ops.AddRange(EmitConvert(sizeofProto.ResultType, TypeEnvironment.UInt32, false));
                 return SelectedInstructions.Create<CilCodegenInstruction>(ops);
             }
             else
@@ -1176,8 +1176,7 @@ namespace Flame.Clr.Emit
             if (ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(
                 prototype.Name,
                 out opName,
-                out isChecked)
-                && !isChecked)
+                out isChecked))
             {
                 if (prototype.ParameterCount == 1)
                 {
@@ -1235,11 +1234,11 @@ namespace Flame.Clr.Emit
                     else if (opName == ArithmeticIntrinsics.Operators.Convert)
                     {
                         return SelectedInstructions.Create(
-                            EmitConvert(prototype.ParameterTypes[0], prototype.ResultType),
+                            EmitConvert(prototype.ParameterTypes[0], prototype.ResultType, isChecked),
                             arguments);
                     }
                 }
-                else if (prototype.ParameterCount == 2)
+                else if (prototype.ParameterCount == 2 && !isChecked)
                 {
                     OpCode[] cilOps;
                     if ((prototype.ParameterTypes[0].IsUnsignedIntegerType()
@@ -1515,7 +1514,8 @@ namespace Flame.Clr.Emit
 
         private IReadOnlyList<CilCodegenInstruction> EmitConvert(
             IType from,
-            IType to)
+            IType to,
+            bool isChecked)
         {
             // Conversions are interesting because Flame IR has a much
             // richer type system than the CIL *stack* type system. Hence,
@@ -1548,27 +1548,13 @@ namespace Flame.Clr.Emit
             }
             else if (to == TypeEnvironment.NaturalInt)
             {
-                if (IsNativePointerlike(from))
-                {
-                    return EmptyArray<CilCodegenInstruction>.Value;
-                }
-                else
-                {
-                    return CreateSelectionList(OpCodes.Conv_I);
-                }
+                return ConvertToNativeInt(from, isChecked, OpCodes.Conv_I, OpCodes.Conv_Ovf_I, OpCodes.Conv_Ovf_I_Un);
             }
             else if (to == TypeEnvironment.NaturalUInt
                 || to.IsPointerType(PointerKind.Transient)
                 || to.IsPointerType(PointerKind.Reference))
             {
-                if (IsNativePointerlike(from))
-                {
-                    return EmptyArray<CilCodegenInstruction>.Value;
-                }
-                else
-                {
-                    return CreateSelectionList(OpCodes.Conv_U);
-                }
+                return ConvertToNativeInt(from, isChecked, OpCodes.Conv_U, OpCodes.Conv_Ovf_U, OpCodes.Conv_Ovf_U_Un);
             }
 
             var targetSpec = to.GetIntegerSpecOrNull();
@@ -1576,7 +1562,7 @@ namespace Flame.Clr.Emit
             if (targetSpec != null)
             {
                 var sourceSpec = from.GetIntegerSpecOrNull();
-                if (sourceSpec != null)
+                if (sourceSpec != null && !isChecked)
                 {
                     if (sourceSpec.Size == targetSpec.Size)
                     {
@@ -1595,43 +1581,10 @@ namespace Flame.Clr.Emit
 
                 // Use dedicated opcodes for conversion to common
                 // integer types.
-                if (targetSpec.IsSigned)
+                OpCode intConvOp;
+                if (TryGetIntegerConversionOp(sourceSpec, targetSpec, isChecked, out intConvOp))
                 {
-                    if (targetSpec.Size == 8)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_I1);
-                    }
-                    else if (targetSpec.Size == 16)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_I2);
-                    }
-                    else if (targetSpec.Size == 32)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_I4);
-                    }
-                    else if (targetSpec.Size == 64)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_I8);
-                    }
-                }
-                else
-                {
-                    if (targetSpec.Size == 8)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_U1);
-                    }
-                    else if (targetSpec.Size == 16)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_U2);
-                    }
-                    else if (targetSpec.Size == 32)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_U4);
-                    }
-                    else if (targetSpec.Size == 64)
-                    {
-                        return CreateSelectionList(OpCodes.Conv_U8);
-                    }
+                    return CreateSelectionList(intConvOp);
                 }
 
                 if (targetSpec.Size == 1)
@@ -1640,7 +1593,7 @@ namespace Flame.Clr.Emit
                     // to 1-bit integers (Booleans), so we'll just extract
                     // the least significant bit.
                     var instructions = new List<CilCodegenInstruction>();
-                    if (sourceSpec == null)
+                    if (sourceSpec == null || sourceSpec.Size > 32)
                     {
                         instructions.Add(new CilOpInstruction(OpCodes.Conv_I4));
                     }
@@ -1655,6 +1608,84 @@ namespace Flame.Clr.Emit
 
             throw new NotSupportedException(
                 $"Unsupported primitive conversion of '{from.FullName}' to '{to.FullName}'.");
+        }
+
+        private IReadOnlyList<CilCodegenInstruction> ConvertToNativeInt(
+            IType from,
+            bool isChecked,
+            OpCode uncheckedOp,
+            OpCode checkedSignedOp,
+            OpCode checkedUnsignedOp)
+        {
+            if (IsNativePointerlike(from))
+            {
+                return EmptyArray<CilCodegenInstruction>.Value;
+            }
+            else
+            {
+                if (isChecked)
+                {
+                    var sourceSpec = from.GetIntegerSpecOrNull();
+                    if (sourceSpec != null)
+                    {
+                        if (sourceSpec.IsSigned)
+                        {
+                            return CreateSelectionList(checkedSignedOp);
+                        }
+                        else
+                        {
+                            return CreateSelectionList(checkedUnsignedOp);
+                        }
+                    }
+                }
+                return CreateSelectionList(uncheckedOp);
+            }
+        }
+
+        private static Dictionary<IntegerSpec, Tuple<OpCode, OpCode, OpCode>> intConversionOps =
+            new Dictionary<IntegerSpec, Tuple<OpCode, OpCode, OpCode>>()
+        {
+            { IntegerSpec.Int8, Tuple.Create(OpCodes.Conv_I1, OpCodes.Conv_Ovf_I1, OpCodes.Conv_Ovf_I1_Un) },
+            { IntegerSpec.Int16, Tuple.Create(OpCodes.Conv_I2, OpCodes.Conv_Ovf_I2, OpCodes.Conv_Ovf_I2_Un) },
+            { IntegerSpec.Int32, Tuple.Create(OpCodes.Conv_I4, OpCodes.Conv_Ovf_I4, OpCodes.Conv_Ovf_I4_Un) },
+            { IntegerSpec.Int64, Tuple.Create(OpCodes.Conv_I8, OpCodes.Conv_Ovf_I8, OpCodes.Conv_Ovf_I8_Un) },
+            { IntegerSpec.UInt8, Tuple.Create(OpCodes.Conv_U1, OpCodes.Conv_Ovf_U1, OpCodes.Conv_Ovf_U1_Un) },
+            { IntegerSpec.UInt16, Tuple.Create(OpCodes.Conv_U2, OpCodes.Conv_Ovf_U2, OpCodes.Conv_Ovf_U2_Un) },
+            { IntegerSpec.UInt32, Tuple.Create(OpCodes.Conv_U4, OpCodes.Conv_Ovf_U4, OpCodes.Conv_Ovf_U4_Un) },
+            { IntegerSpec.UInt64, Tuple.Create(OpCodes.Conv_U8, OpCodes.Conv_Ovf_U8, OpCodes.Conv_Ovf_U8_Un) }
+        };
+
+        private static bool TryGetIntegerConversionOp(
+            IntegerSpec sourceSpec,
+            IntegerSpec targetSpec,
+            bool isChecked,
+            out OpCode result)
+        {
+            Tuple<OpCode, OpCode, OpCode> convOps;
+            if (intConversionOps.TryGetValue(targetSpec, out convOps))
+            {
+                if (isChecked)
+                {
+                    if (sourceSpec == null || sourceSpec.IsSigned)
+                    {
+                        result = convOps.Item2;
+                    }
+                    else
+                    {
+                        result = convOps.Item3;
+                    }
+                }
+                else
+                {
+                    result = convOps.Item1;
+                }
+                return true;
+            }
+            else
+            {
+                result = default(OpCode);
+                return false;
+            }
         }
 
         private static IReadOnlyList<CilCodegenInstruction> CreateSelectionList(OpCode op)
