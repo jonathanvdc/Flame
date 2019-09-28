@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class BoxToAlloca
+    <title>Class CanonicalizeArrayInit
    | Flame </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class BoxToAlloca
+    <meta name="title" content="Class CanonicalizeArrayInit
    | Flame ">
     <meta name="generator" content="docfx 2.45.1.0">
     
@@ -78,16 +78,14 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Flame.Compiler.Transforms.BoxToAlloca">
+            <article class="content wrap" id="_content" data-uid="Flame.Clr.CanonicalizeArrayInit">
   
   
-  <h1 id="Flame_Compiler_Transforms_BoxToAlloca" data-uid="Flame.Compiler.Transforms.BoxToAlloca" class="text-break">Class BoxToAlloca
+  <h1 id="Flame_Clr_CanonicalizeArrayInit" data-uid="Flame.Clr.CanonicalizeArrayInit" class="text-break">Class CanonicalizeArrayInit
   </h1>
-  <div class="markdown level0 summary"><p>A transform that looks for box instructions that
-are only ever unboxed and replaces them with alloca
-instructions. The transform is only applied to box
-instructions for which the unboxed pointers do not
-escape.</p>
+  <div class="markdown level0 summary"><p>An intraprocedural transform that recognizes the InitializeArray
+array initialization idiom and canonicalizes it as a sequence of
+direct initialization instructions.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
@@ -95,7 +93,7 @@ escape.</p>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><a class="xref" href="Flame.Compiler.Pipeline.Optimization.html">Optimization</a></div>
     <div class="level2"><a class="xref" href="Flame.Compiler.Transforms.IntraproceduralOptimization.html">IntraproceduralOptimization</a></div>
-    <div class="level3"><span class="xref">BoxToAlloca</span></div>
+    <div class="level3"><span class="xref">CanonicalizeArrayInit</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -127,30 +125,67 @@ escape.</p>
       <span class="xref">System.Object.MemberwiseClone()</span>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Compiler.Transforms.html">Flame.Compiler.Transforms</a></h6>
-  <h6><strong>Assembly</strong>: Flame.Compiler.dll</h6>
-  <h5 id="Flame_Compiler_Transforms_BoxToAlloca_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.Clr.html">Flame.Clr</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Clr.dll</h6>
+  <h5 id="Flame_Clr_CanonicalizeArrayInit_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class BoxToAlloca : IntraproceduralOptimization</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class CanonicalizeArrayInit : IntraproceduralOptimization</code></pre>
   </div>
-  <h3 id="fields">Fields
+  <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_BoxToAlloca_Instance.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.BoxToAlloca.Instance%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CanonicalizeArrayInit__ctor_Flame_IType_.md&amp;value=---%0Auid%3A%20Flame.Clr.CanonicalizeArrayInit.%23ctor(Flame.IType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/BoxToAlloca.cs/#L24">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/Transforms/CanonicalizeArrayInit.cs/#L22">View Source</a>
   </span>
-  <h4 id="Flame_Compiler_Transforms_BoxToAlloca_Instance" data-uid="Flame.Compiler.Transforms.BoxToAlloca.Instance">Instance</h4>
-  <div class="markdown level1 summary"><p>An instance of the box-to-alloca transform.</p>
+  <a id="Flame_Clr_CanonicalizeArrayInit__ctor_" data-uid="Flame.Clr.CanonicalizeArrayInit.#ctor*"></a>
+  <h4 id="Flame_Clr_CanonicalizeArrayInit__ctor_Flame_IType_" data-uid="Flame.Clr.CanonicalizeArrayInit.#ctor(Flame.IType)">CanonicalizeArrayInit(IType)</h4>
+  <div class="markdown level1 summary"><p>Creates an array initialization canonicalization transform.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly BoxToAlloca Instance</code></pre>
+    <pre><code class="lang-csharp hljs">public CanonicalizeArrayInit(IType indexType)</code></pre>
   </div>
-  <h5 class="fieldValue">Field Value</h5>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><span class="parametername">indexType</span></td>
+        <td><p>The type used for indexing arrays.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CanonicalizeArrayInit_IndexType.md&amp;value=---%0Auid%3A%20Flame.Clr.CanonicalizeArrayInit.IndexType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/Transforms/CanonicalizeArrayInit.cs/#L31">View Source</a>
+  </span>
+  <a id="Flame_Clr_CanonicalizeArrayInit_IndexType_" data-uid="Flame.Clr.CanonicalizeArrayInit.IndexType*"></a>
+  <h4 id="Flame_Clr_CanonicalizeArrayInit_IndexType" data-uid="Flame.Clr.CanonicalizeArrayInit.IndexType">IndexType</h4>
+  <div class="markdown level1 summary"><p>Gets the type used for indexing arrays.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IType IndexType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -160,8 +195,9 @@ escape.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Flame.Compiler.Transforms.BoxToAlloca.html">BoxToAlloca</a></td>
-        <td></td>
+        <td><a class="xref" href="Flame.IType.html">IType</a></td>
+        <td><p>An index type.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -169,13 +205,13 @@ escape.</p>
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_BoxToAlloca_Apply_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.BoxToAlloca.Apply(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CanonicalizeArrayInit_Apply_Flame_Compiler_FlowGraph_.md&amp;value=---%0Auid%3A%20Flame.Clr.CanonicalizeArrayInit.Apply(Flame.Compiler.FlowGraph)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/BoxToAlloca.cs/#L27">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/Transforms/CanonicalizeArrayInit.cs/#L34">View Source</a>
   </span>
-  <a id="Flame_Compiler_Transforms_BoxToAlloca_Apply_" data-uid="Flame.Compiler.Transforms.BoxToAlloca.Apply*"></a>
-  <h4 id="Flame_Compiler_Transforms_BoxToAlloca_Apply_Flame_Compiler_FlowGraph_" data-uid="Flame.Compiler.Transforms.BoxToAlloca.Apply(Flame.Compiler.FlowGraph)">Apply(FlowGraph)</h4>
+  <a id="Flame_Clr_CanonicalizeArrayInit_Apply_" data-uid="Flame.Clr.CanonicalizeArrayInit.Apply*"></a>
+  <h4 id="Flame_Clr_CanonicalizeArrayInit_Apply_Flame_Compiler_FlowGraph_" data-uid="Flame.Clr.CanonicalizeArrayInit.Apply(Flame.Compiler.FlowGraph)">Apply(FlowGraph)</h4>
   <div class="markdown level1 summary"><p>Applies this intraprocedural optimization to a flow graph.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -227,10 +263,10 @@ escape.</p>
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Compiler_Transforms_BoxToAlloca.md&amp;value=---%0Auid%3A%20Flame.Compiler.Transforms.BoxToAlloca%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Clr_CanonicalizeArrayInit.md&amp;value=---%0Auid%3A%20Flame.Clr.CanonicalizeArrayInit%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Compiler/Transforms/BoxToAlloca.cs/#L16" class="contribution-link">View Source</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Clr/Transforms/CanonicalizeArrayInit.cs/#L16" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

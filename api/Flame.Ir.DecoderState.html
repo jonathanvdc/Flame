@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class DecoderState
    | Flame ">
-    <meta name="generator" content="docfx 2.45.0.0">
+    <meta name="generator" content="docfx 2.45.1.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -496,7 +496,7 @@ decoded, e.g., &quot;method lookup strategy&quot;.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_AssertDecodeGenericMember_Loyc_Syntax_LNode_Flame_IGenericMember__.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.AssertDecodeGenericMember(Loyc.Syntax.LNode%2CFlame.IGenericMember%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L580">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L590">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_AssertDecodeGenericMember_" data-uid="Flame.Ir.DecoderState.AssertDecodeGenericMember*"></a>
   <h4 id="Flame_Ir_DecoderState_AssertDecodeGenericMember_Loyc_Syntax_LNode_Flame_IGenericMember__" data-uid="Flame.Ir.DecoderState.AssertDecodeGenericMember(Loyc.Syntax.LNode,Flame.IGenericMember@)">AssertDecodeGenericMember(LNode, out IGenericMember)</h4>
@@ -613,7 +613,7 @@ was successful.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_AssertDecodeQualifiedName_Loyc_Syntax_LNode_Flame_QualifiedName__.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.AssertDecodeQualifiedName(Loyc.Syntax.LNode%2CFlame.QualifiedName%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L505">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L515">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_AssertDecodeQualifiedName_" data-uid="Flame.Ir.DecoderState.AssertDecodeQualifiedName*"></a>
   <h4 id="Flame_Ir_DecoderState_AssertDecodeQualifiedName_Loyc_Syntax_LNode_Flame_QualifiedName__" data-uid="Flame.Ir.DecoderState.AssertDecodeQualifiedName(Loyc.Syntax.LNode,Flame.QualifiedName@)">AssertDecodeQualifiedName(LNode, out QualifiedName)</h4>
@@ -726,10 +726,60 @@ name; otherwise, <code>false</code>.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeAlignment_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeAlignment(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L500">View Source</a>
+  </span>
+  <a id="Flame_Ir_DecoderState_DecodeAlignment_" data-uid="Flame.Ir.DecoderState.DecodeAlignment*"></a>
+  <h4 id="Flame_Ir_DecoderState_DecodeAlignment_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeAlignment(Loyc.Syntax.LNode)">DecodeAlignment(LNode)</h4>
+  <div class="markdown level1 summary"><p>Decodes an LNode as an alignment.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Alignment DecodeAlignment(LNode node)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Loyc.Syntax.LNode</span></td>
+        <td><span class="parametername">node</span></td>
+        <td><p>A node to decode as an alignment.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Flame.Compiler.Instructions.Alignment.html">Alignment</a></td>
+        <td><p>The decoded alignment.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeAssembly_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeAssembly(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L1072">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L1082">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeAssembly_" data-uid="Flame.Ir.DecoderState.DecodeAssembly*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeAssembly_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeAssembly(Loyc.Syntax.LNode)">DecodeAssembly(LNode)</h4>
@@ -779,7 +829,7 @@ name; otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeAttribute_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeAttribute(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L634">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L644">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeAttribute_" data-uid="Flame.Ir.DecoderState.DecodeAttribute*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeAttribute_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeAttribute(Loyc.Syntax.LNode)">DecodeAttribute(LNode)</h4>
@@ -829,7 +879,7 @@ name; otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeAttributeMap_System_Collections_Generic_IEnumerable_Loyc_Syntax_LNode__.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeAttributeMap(System.Collections.Generic.IEnumerable%7BLoyc.Syntax.LNode%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L644">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L654">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeAttributeMap_" data-uid="Flame.Ir.DecoderState.DecodeAttributeMap*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeAttributeMap_System_Collections_Generic_IEnumerable_Loyc_Syntax_LNode__" data-uid="Flame.Ir.DecoderState.DecodeAttributeMap(System.Collections.Generic.IEnumerable{Loyc.Syntax.LNode})">DecodeAttributeMap(IEnumerable&lt;LNode&gt;)</h4>
@@ -1029,7 +1079,7 @@ name; otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeFlowGraph_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeFlowGraph(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L1003">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L1013">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeFlowGraph_" data-uid="Flame.Ir.DecoderState.DecodeFlowGraph*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeFlowGraph_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeFlowGraph(Loyc.Syntax.LNode)">DecodeFlowGraph(LNode)</h4>
@@ -1329,7 +1379,7 @@ name; otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeParameter_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeParameter(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L668">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L678">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeParameter_" data-uid="Flame.Ir.DecoderState.DecodeParameter*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeParameter_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeParameter(Loyc.Syntax.LNode)">DecodeParameter(LNode)</h4>
@@ -1429,7 +1479,7 @@ name; otherwise, <code>false</code>.</p>
     <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Ir_DecoderState_DecodeQualifiedName_Loyc_Syntax_LNode_.md&amp;value=---%0Auid%3A%20Flame.Ir.DecoderState.DecodeQualifiedName(Loyc.Syntax.LNode)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L551">View Source</a>
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Ir/DecoderState.cs/#L561">View Source</a>
   </span>
   <a id="Flame_Ir_DecoderState_DecodeQualifiedName_" data-uid="Flame.Ir.DecoderState.DecodeQualifiedName*"></a>
   <h4 id="Flame_Ir_DecoderState_DecodeQualifiedName_Loyc_Syntax_LNode_" data-uid="Flame.Ir.DecoderState.DecodeQualifiedName(Loyc.Syntax.LNode)">DecodeQualifiedName(LNode)</h4>

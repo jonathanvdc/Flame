@@ -824,6 +824,64 @@ references:
   isSpec: "True"
   fullName: Flame.Clr.Analysis.ClrMethodBodyAnalyzer.ThisParameter
   nameWithType: ClrMethodBodyAnalyzer.ThisParameter
+- uid: Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment
+  name: TypeEnvironment
+  href: api/Flame.Clr.Analysis.ClrMethodBodyAnalyzer.html#Flame_Clr_Analysis_ClrMethodBodyAnalyzer_TypeEnvironment
+  commentId: P:Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment
+  fullName: Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment
+  nameWithType: ClrMethodBodyAnalyzer.TypeEnvironment
+- uid: Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment*
+  name: TypeEnvironment
+  href: api/Flame.Clr.Analysis.ClrMethodBodyAnalyzer.html#Flame_Clr_Analysis_ClrMethodBodyAnalyzer_TypeEnvironment_
+  commentId: Overload:Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment
+  isSpec: "True"
+  fullName: Flame.Clr.Analysis.ClrMethodBodyAnalyzer.TypeEnvironment
+  nameWithType: ClrMethodBodyAnalyzer.TypeEnvironment
+- uid: Flame.Clr.CanonicalizeArrayInit
+  name: CanonicalizeArrayInit
+  href: api/Flame.Clr.CanonicalizeArrayInit.html
+  commentId: T:Flame.Clr.CanonicalizeArrayInit
+  fullName: Flame.Clr.CanonicalizeArrayInit
+  nameWithType: CanonicalizeArrayInit
+- uid: Flame.Clr.CanonicalizeArrayInit.#ctor(Flame.IType)
+  name: CanonicalizeArrayInit(IType)
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit__ctor_Flame_IType_
+  commentId: M:Flame.Clr.CanonicalizeArrayInit.#ctor(Flame.IType)
+  fullName: Flame.Clr.CanonicalizeArrayInit.CanonicalizeArrayInit(Flame.IType)
+  nameWithType: CanonicalizeArrayInit.CanonicalizeArrayInit(IType)
+- uid: Flame.Clr.CanonicalizeArrayInit.#ctor*
+  name: CanonicalizeArrayInit
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit__ctor_
+  commentId: Overload:Flame.Clr.CanonicalizeArrayInit.#ctor
+  isSpec: "True"
+  fullName: Flame.Clr.CanonicalizeArrayInit.CanonicalizeArrayInit
+  nameWithType: CanonicalizeArrayInit.CanonicalizeArrayInit
+- uid: Flame.Clr.CanonicalizeArrayInit.Apply(Flame.Compiler.FlowGraph)
+  name: Apply(FlowGraph)
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit_Apply_Flame_Compiler_FlowGraph_
+  commentId: M:Flame.Clr.CanonicalizeArrayInit.Apply(Flame.Compiler.FlowGraph)
+  fullName: Flame.Clr.CanonicalizeArrayInit.Apply(Flame.Compiler.FlowGraph)
+  nameWithType: CanonicalizeArrayInit.Apply(FlowGraph)
+- uid: Flame.Clr.CanonicalizeArrayInit.Apply*
+  name: Apply
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit_Apply_
+  commentId: Overload:Flame.Clr.CanonicalizeArrayInit.Apply
+  isSpec: "True"
+  fullName: Flame.Clr.CanonicalizeArrayInit.Apply
+  nameWithType: CanonicalizeArrayInit.Apply
+- uid: Flame.Clr.CanonicalizeArrayInit.IndexType
+  name: IndexType
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit_IndexType
+  commentId: P:Flame.Clr.CanonicalizeArrayInit.IndexType
+  fullName: Flame.Clr.CanonicalizeArrayInit.IndexType
+  nameWithType: CanonicalizeArrayInit.IndexType
+- uid: Flame.Clr.CanonicalizeArrayInit.IndexType*
+  name: IndexType
+  href: api/Flame.Clr.CanonicalizeArrayInit.html#Flame_Clr_CanonicalizeArrayInit_IndexType_
+  commentId: Overload:Flame.Clr.CanonicalizeArrayInit.IndexType
+  isSpec: "True"
+  fullName: Flame.Clr.CanonicalizeArrayInit.IndexType
+  nameWithType: CanonicalizeArrayInit.IndexType
 - uid: Flame.Clr.CecilAssemblyResolver
   name: CecilAssemblyResolver
   href: api/Flame.Clr.CecilAssemblyResolver.html
@@ -12279,15 +12337,15 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateAllocaPinnedIntrinsic
   nameWithType: Instruction.CreateAllocaPinnedIntrinsic
-- uid: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
-  name: CreateArithmeticIntrinsic(String, IType, IReadOnlyList<IType>, IReadOnlyList<ValueTag>)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateArithmeticIntrinsic_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__
-  commentId: M:Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
-  name.vb: CreateArithmeticIntrinsic(String, IType, IReadOnlyList(Of IType), IReadOnlyList(Of ValueTag))
-  fullName: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.IType>, System.Collections.Generic.IReadOnlyList<Flame.Compiler.ValueTag>)
-  fullName.vb: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.IType), System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.ValueTag))
-  nameWithType: Instruction.CreateArithmeticIntrinsic(String, IType, IReadOnlyList<IType>, IReadOnlyList<ValueTag>)
-  nameWithType.vb: Instruction.CreateArithmeticIntrinsic(String, IType, IReadOnlyList(Of IType), IReadOnlyList(Of ValueTag))
+- uid: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,System.Boolean,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
+  name: CreateArithmeticIntrinsic(String, Boolean, IType, IReadOnlyList<IType>, IReadOnlyList<ValueTag>)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateArithmeticIntrinsic_System_String_System_Boolean_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__System_Collections_Generic_IReadOnlyList_Flame_Compiler_ValueTag__
+  commentId: M:Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String,System.Boolean,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType},System.Collections.Generic.IReadOnlyList{Flame.Compiler.ValueTag})
+  name.vb: CreateArithmeticIntrinsic(String, Boolean, IType, IReadOnlyList(Of IType), IReadOnlyList(Of ValueTag))
+  fullName: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String, System.Boolean, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.IType>, System.Collections.Generic.IReadOnlyList<Flame.Compiler.ValueTag>)
+  fullName.vb: Flame.Compiler.Instruction.CreateArithmeticIntrinsic(System.String, System.Boolean, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.IType), System.Collections.Generic.IReadOnlyList(Of Flame.Compiler.ValueTag))
+  nameWithType: Instruction.CreateArithmeticIntrinsic(String, Boolean, IType, IReadOnlyList<IType>, IReadOnlyList<ValueTag>)
+  nameWithType.vb: Instruction.CreateArithmeticIntrinsic(String, Boolean, IType, IReadOnlyList(Of IType), IReadOnlyList(Of ValueTag))
 - uid: Flame.Compiler.Instruction.CreateArithmeticIntrinsic*
   name: CreateArithmeticIntrinsic
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateArithmeticIntrinsic_
@@ -12295,12 +12353,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateArithmeticIntrinsic
   nameWithType: Instruction.CreateArithmeticIntrinsic
-- uid: Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  name: CreateBinaryArithmeticIntrinsic(String, IType, ValueTag, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_System_String_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String, Flame.IType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateBinaryArithmeticIntrinsic(String, IType, ValueTag, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String,System.Boolean,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
+  name: CreateBinaryArithmeticIntrinsic(String, Boolean, IType, ValueTag, ValueTag)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_System_String_System_Boolean_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String,System.Boolean,Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic(System.String, System.Boolean, Flame.IType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag)
+  nameWithType: Instruction.CreateBinaryArithmeticIntrinsic(String, Boolean, IType, ValueTag, ValueTag)
 - uid: Flame.Compiler.Instruction.CreateBinaryArithmeticIntrinsic*
   name: CreateBinaryArithmeticIntrinsic
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateBinaryArithmeticIntrinsic_
@@ -12388,12 +12446,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateConstrainedCall
   nameWithType: Instruction.CreateConstrainedCall
-- uid: Flame.Compiler.Instruction.CreateConvertIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)
-  name: CreateConvertIntrinsic(IType, IType, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateConvertIntrinsic_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateConvertIntrinsic(Flame.IType,Flame.IType,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateConvertIntrinsic(Flame.IType, Flame.IType, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateConvertIntrinsic(IType, IType, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateConvertIntrinsic(System.Boolean,Flame.IType,Flame.IType,Flame.Compiler.ValueTag)
+  name: CreateConvertIntrinsic(Boolean, IType, IType, ValueTag)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateConvertIntrinsic_System_Boolean_Flame_IType_Flame_IType_Flame_Compiler_ValueTag_
+  commentId: M:Flame.Compiler.Instruction.CreateConvertIntrinsic(System.Boolean,Flame.IType,Flame.IType,Flame.Compiler.ValueTag)
+  fullName: Flame.Compiler.Instruction.CreateConvertIntrinsic(System.Boolean, Flame.IType, Flame.IType, Flame.Compiler.ValueTag)
+  nameWithType: Instruction.CreateConvertIntrinsic(Boolean, IType, IType, ValueTag)
 - uid: Flame.Compiler.Instruction.CreateConvertIntrinsic*
   name: CreateConvertIntrinsic
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateConvertIntrinsic_
@@ -12524,12 +12582,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateIndirectCall
   nameWithType: Instruction.CreateIndirectCall
-- uid: Flame.Compiler.Instruction.CreateLoad(Flame.IType,Flame.Compiler.ValueTag)
-  name: CreateLoad(IType, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateLoad_Flame_IType_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateLoad(Flame.IType,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateLoad(Flame.IType, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateLoad(IType, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateLoad(Flame.IType,Flame.Compiler.ValueTag,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  name: CreateLoad(IType, ValueTag, Boolean, Alignment)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateLoad_Flame_IType_Flame_Compiler_ValueTag_System_Boolean_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instruction.CreateLoad(Flame.IType,Flame.Compiler.ValueTag,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instruction.CreateLoad(Flame.IType, Flame.Compiler.ValueTag, System.Boolean, Flame.Compiler.Instructions.Alignment)
+  nameWithType: Instruction.CreateLoad(IType, ValueTag, Boolean, Alignment)
 - uid: Flame.Compiler.Instruction.CreateLoad*
   name: CreateLoad
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateLoad_
@@ -12647,12 +12705,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateSizeOf
   nameWithType: Instruction.CreateSizeOf
-- uid: Flame.Compiler.Instruction.CreateStore(Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  name: CreateStore(IType, ValueTag, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateStore_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateStore(Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateStore(Flame.IType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateStore(IType, ValueTag, ValueTag)
+- uid: Flame.Compiler.Instruction.CreateStore(Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  name: CreateStore(IType, ValueTag, ValueTag, Boolean, Alignment)
+  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateStore_Flame_IType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_System_Boolean_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instruction.CreateStore(Flame.IType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instruction.CreateStore(Flame.IType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag, System.Boolean, Flame.Compiler.Instructions.Alignment)
+  nameWithType: Instruction.CreateStore(IType, ValueTag, ValueTag, Boolean, Alignment)
 - uid: Flame.Compiler.Instruction.CreateStore*
   name: CreateStore
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateStore_
@@ -12715,32 +12773,6 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instruction.CreateUnboxAnyIntrinsic
   nameWithType: Instruction.CreateUnboxAnyIntrinsic
-- uid: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)
-  name: CreateVolatileLoadIntrinsic(PointerType, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic(Flame.TypeSystem.PointerType, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateVolatileLoadIntrinsic(PointerType, ValueTag)
-- uid: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic*
-  name: CreateVolatileLoadIntrinsic
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileLoadIntrinsic_
-  commentId: Overload:Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic
-  isSpec: "True"
-  fullName: Flame.Compiler.Instruction.CreateVolatileLoadIntrinsic
-  nameWithType: Instruction.CreateVolatileLoadIntrinsic
-- uid: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  name: CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_Flame_TypeSystem_PointerType_Flame_Compiler_ValueTag_Flame_Compiler_ValueTag_
-  commentId: M:Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType,Flame.Compiler.ValueTag,Flame.Compiler.ValueTag)
-  fullName: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic(Flame.TypeSystem.PointerType, Flame.Compiler.ValueTag, Flame.Compiler.ValueTag)
-  nameWithType: Instruction.CreateVolatileStoreIntrinsic(PointerType, ValueTag, ValueTag)
-- uid: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic*
-  name: CreateVolatileStoreIntrinsic
-  href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_CreateVolatileStoreIntrinsic_
-  commentId: Overload:Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic
-  isSpec: "True"
-  fullName: Flame.Compiler.Instruction.CreateVolatileStoreIntrinsic
-  nameWithType: Instruction.CreateVolatileStoreIntrinsic
 - uid: Flame.Compiler.Instruction.Equals(Flame.Compiler.Instruction)
   name: Equals(Instruction)
   href: api/Flame.Compiler.Instruction.html#Flame_Compiler_Instruction_Equals_Flame_Compiler_Instruction_
@@ -13161,6 +13193,147 @@ references:
   commentId: N:Flame.Compiler.Instructions
   fullName: Flame.Compiler.Instructions
   nameWithType: Flame.Compiler.Instructions
+- uid: Flame.Compiler.Instructions.Alignment
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.Alignment.html
+  commentId: T:Flame.Compiler.Instructions.Alignment
+  fullName: Flame.Compiler.Instructions.Alignment
+  nameWithType: Alignment
+- uid: Flame.Compiler.Instructions.Alignment.#ctor(System.UInt32)
+  name: Alignment(UInt32)
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment__ctor_System_UInt32_
+  commentId: M:Flame.Compiler.Instructions.Alignment.#ctor(System.UInt32)
+  fullName: Flame.Compiler.Instructions.Alignment.Alignment(System.UInt32)
+  nameWithType: Alignment.Alignment(UInt32)
+- uid: Flame.Compiler.Instructions.Alignment.#ctor*
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment__ctor_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.#ctor
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.Alignment
+  nameWithType: Alignment.Alignment
+- uid: Flame.Compiler.Instructions.Alignment.Equals(Flame.Compiler.Instructions.Alignment)
+  name: Equals(Alignment)
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Equals_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.Alignment.Equals(Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.Alignment.Equals(Flame.Compiler.Instructions.Alignment)
+  nameWithType: Alignment.Equals(Alignment)
+- uid: Flame.Compiler.Instructions.Alignment.Equals(System.Object)
+  name: Equals(Object)
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Equals_System_Object_
+  commentId: M:Flame.Compiler.Instructions.Alignment.Equals(System.Object)
+  fullName: Flame.Compiler.Instructions.Alignment.Equals(System.Object)
+  nameWithType: Alignment.Equals(Object)
+- uid: Flame.Compiler.Instructions.Alignment.Equals*
+  name: Equals
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Equals_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.Equals
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.Equals
+  nameWithType: Alignment.Equals
+- uid: Flame.Compiler.Instructions.Alignment.GetHashCode
+  name: GetHashCode()
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_GetHashCode
+  commentId: M:Flame.Compiler.Instructions.Alignment.GetHashCode
+  fullName: Flame.Compiler.Instructions.Alignment.GetHashCode()
+  nameWithType: Alignment.GetHashCode()
+- uid: Flame.Compiler.Instructions.Alignment.GetHashCode*
+  name: GetHashCode
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_GetHashCode_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.GetHashCode
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.GetHashCode
+  nameWithType: Alignment.GetHashCode
+- uid: Flame.Compiler.Instructions.Alignment.IsNaturallyAligned
+  name: IsNaturallyAligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_IsNaturallyAligned
+  commentId: P:Flame.Compiler.Instructions.Alignment.IsNaturallyAligned
+  fullName: Flame.Compiler.Instructions.Alignment.IsNaturallyAligned
+  nameWithType: Alignment.IsNaturallyAligned
+- uid: Flame.Compiler.Instructions.Alignment.IsNaturallyAligned*
+  name: IsNaturallyAligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_IsNaturallyAligned_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.IsNaturallyAligned
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.IsNaturallyAligned
+  nameWithType: Alignment.IsNaturallyAligned
+- uid: Flame.Compiler.Instructions.Alignment.IsUnaligned
+  name: IsUnaligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_IsUnaligned
+  commentId: P:Flame.Compiler.Instructions.Alignment.IsUnaligned
+  fullName: Flame.Compiler.Instructions.Alignment.IsUnaligned
+  nameWithType: Alignment.IsUnaligned
+- uid: Flame.Compiler.Instructions.Alignment.IsUnaligned*
+  name: IsUnaligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_IsUnaligned_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.IsUnaligned
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.IsUnaligned
+  nameWithType: Alignment.IsUnaligned
+- uid: Flame.Compiler.Instructions.Alignment.NaturallyAligned
+  name: NaturallyAligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_NaturallyAligned
+  commentId: F:Flame.Compiler.Instructions.Alignment.NaturallyAligned
+  fullName: Flame.Compiler.Instructions.Alignment.NaturallyAligned
+  nameWithType: Alignment.NaturallyAligned
+- uid: Flame.Compiler.Instructions.Alignment.op_Equality(Flame.Compiler.Instructions.Alignment,Flame.Compiler.Instructions.Alignment)
+  name: Equality(Alignment, Alignment)
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_op_Equality_Flame_Compiler_Instructions_Alignment_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.Alignment.op_Equality(Flame.Compiler.Instructions.Alignment,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.Alignment.Equality(Flame.Compiler.Instructions.Alignment, Flame.Compiler.Instructions.Alignment)
+  nameWithType: Alignment.Equality(Alignment, Alignment)
+- uid: Flame.Compiler.Instructions.Alignment.op_Equality*
+  name: Equality
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_op_Equality_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.op_Equality
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.Equality
+  nameWithType: Alignment.Equality
+- uid: Flame.Compiler.Instructions.Alignment.op_Inequality(Flame.Compiler.Instructions.Alignment,Flame.Compiler.Instructions.Alignment)
+  name: Inequality(Alignment, Alignment)
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_op_Inequality_Flame_Compiler_Instructions_Alignment_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.Alignment.op_Inequality(Flame.Compiler.Instructions.Alignment,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.Alignment.Inequality(Flame.Compiler.Instructions.Alignment, Flame.Compiler.Instructions.Alignment)
+  nameWithType: Alignment.Inequality(Alignment, Alignment)
+- uid: Flame.Compiler.Instructions.Alignment.op_Inequality*
+  name: Inequality
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_op_Inequality_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.op_Inequality
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.Inequality
+  nameWithType: Alignment.Inequality
+- uid: Flame.Compiler.Instructions.Alignment.ToString
+  name: ToString()
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_ToString
+  commentId: M:Flame.Compiler.Instructions.Alignment.ToString
+  fullName: Flame.Compiler.Instructions.Alignment.ToString()
+  nameWithType: Alignment.ToString()
+- uid: Flame.Compiler.Instructions.Alignment.ToString*
+  name: ToString
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_ToString_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.ToString
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.ToString
+  nameWithType: Alignment.ToString
+- uid: Flame.Compiler.Instructions.Alignment.Unaligned
+  name: Unaligned
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Unaligned
+  commentId: F:Flame.Compiler.Instructions.Alignment.Unaligned
+  fullName: Flame.Compiler.Instructions.Alignment.Unaligned
+  nameWithType: Alignment.Unaligned
+- uid: Flame.Compiler.Instructions.Alignment.Value
+  name: Value
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Value
+  commentId: P:Flame.Compiler.Instructions.Alignment.Value
+  fullName: Flame.Compiler.Instructions.Alignment.Value
+  nameWithType: Alignment.Value
+- uid: Flame.Compiler.Instructions.Alignment.Value*
+  name: Value
+  href: api/Flame.Compiler.Instructions.Alignment.html#Flame_Compiler_Instructions_Alignment_Value_
+  commentId: Overload:Flame.Compiler.Instructions.Alignment.Value
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.Alignment.Value
+  nameWithType: Alignment.Value
 - uid: Flame.Compiler.Instructions.AllocaArrayPrototype
   name: AllocaArrayPrototype
   href: api/Flame.Compiler.Instructions.AllocaArrayPrototype.html
@@ -13374,24 +13547,30 @@ references:
   commentId: T:Flame.Compiler.Instructions.ArithmeticIntrinsics
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics
   nameWithType: ArithmeticIntrinsics
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,Flame.IType,Flame.IType[])
-  name: CreatePrototype(String, IType, IType[])
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CreatePrototype_System_String_Flame_IType_Flame_IType___
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,Flame.IType,Flame.IType[])
-  name.vb: CreatePrototype(String, IType, IType())
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, Flame.IType, Flame.IType[])
-  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, Flame.IType, Flame.IType())
-  nameWithType: ArithmeticIntrinsics.CreatePrototype(String, IType, IType[])
-  nameWithType.vb: ArithmeticIntrinsics.CreatePrototype(String, IType, IType())
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
-  name: CreatePrototype(String, IType, IReadOnlyList<IType>)
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CreatePrototype_System_String_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
-  name.vb: CreatePrototype(String, IType, IReadOnlyList(Of IType))
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.IType>)
-  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.IType))
-  nameWithType: ArithmeticIntrinsics.CreatePrototype(String, IType, IReadOnlyList<IType>)
-  nameWithType.vb: ArithmeticIntrinsics.CreatePrototype(String, IType, IReadOnlyList(Of IType))
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CheckedNamespace
+  name: CheckedNamespace
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CheckedNamespace
+  commentId: F:Flame.Compiler.Instructions.ArithmeticIntrinsics.CheckedNamespace
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CheckedNamespace
+  nameWithType: ArithmeticIntrinsics.CheckedNamespace
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,System.Boolean,Flame.IType,Flame.IType[])
+  name: CreatePrototype(String, Boolean, IType, IType[])
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CreatePrototype_System_String_System_Boolean_Flame_IType_Flame_IType___
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,System.Boolean,Flame.IType,Flame.IType[])
+  name.vb: CreatePrototype(String, Boolean, IType, IType())
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, System.Boolean, Flame.IType, Flame.IType[])
+  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, System.Boolean, Flame.IType, Flame.IType())
+  nameWithType: ArithmeticIntrinsics.CreatePrototype(String, Boolean, IType, IType[])
+  nameWithType.vb: ArithmeticIntrinsics.CreatePrototype(String, Boolean, IType, IType())
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,System.Boolean,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
+  name: CreatePrototype(String, Boolean, IType, IReadOnlyList<IType>)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CreatePrototype_System_String_System_Boolean_Flame_IType_System_Collections_Generic_IReadOnlyList_Flame_IType__
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String,System.Boolean,Flame.IType,System.Collections.Generic.IReadOnlyList{Flame.IType})
+  name.vb: CreatePrototype(String, Boolean, IType, IReadOnlyList(Of IType))
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, System.Boolean, Flame.IType, System.Collections.Generic.IReadOnlyList<Flame.IType>)
+  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype(System.String, System.Boolean, Flame.IType, System.Collections.Generic.IReadOnlyList(Of Flame.IType))
+  nameWithType: ArithmeticIntrinsics.CreatePrototype(String, Boolean, IType, IReadOnlyList<IType>)
+  nameWithType.vb: ArithmeticIntrinsics.CreatePrototype(String, Boolean, IType, IReadOnlyList(Of IType))
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype*
   name: CreatePrototype
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_CreatePrototype_
@@ -13399,12 +13578,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.CreatePrototype
   nameWithType: ArithmeticIntrinsics.CreatePrototype
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String)
-  name: GetArithmeticIntrinsicName(String)
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_GetArithmeticIntrinsicName_System_String_
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String)
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String)
-  nameWithType: ArithmeticIntrinsics.GetArithmeticIntrinsicName(String)
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String,System.Boolean)
+  name: GetArithmeticIntrinsicName(String, Boolean)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_GetArithmeticIntrinsicName_System_String_System_Boolean_
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String,System.Boolean)
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName(System.String, System.Boolean)
+  nameWithType: ArithmeticIntrinsics.GetArithmeticIntrinsicName(String, Boolean)
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.GetArithmeticIntrinsicName*
   name: GetArithmeticIntrinsicName
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_GetArithmeticIntrinsicName_
@@ -13425,12 +13604,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicName
   nameWithType: ArithmeticIntrinsics.IsArithmeticIntrinsicName
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.Namespace
-  name: Namespace
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_Namespace
-  commentId: F:Flame.Compiler.Instructions.ArithmeticIntrinsics.Namespace
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.Namespace
-  nameWithType: ArithmeticIntrinsics.Namespace
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(Flame.Compiler.InstructionPrototype)
+  name: IsArithmeticIntrinsicPrototype(InstructionPrototype)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_IsArithmeticIntrinsicPrototype_Flame_Compiler_InstructionPrototype_
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(Flame.Compiler.InstructionPrototype)
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(Flame.Compiler.InstructionPrototype)
+  nameWithType: ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype(InstructionPrototype)
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype*
+  name: IsArithmeticIntrinsicPrototype
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_IsArithmeticIntrinsicPrototype_
+  commentId: Overload:Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype
+  nameWithType: ArithmeticIntrinsics.IsArithmeticIntrinsicPrototype
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.Operators
   name: ArithmeticIntrinsics.Operators
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.Operators.html
@@ -13577,15 +13763,15 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.ParseArithmeticIntrinsicName
   nameWithType: ArithmeticIntrinsics.ParseArithmeticIntrinsicName
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
-  name: TryEvaluate(String, IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_System_String_Flame_Compiler_Instructions_IntrinsicPrototype_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String,Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
-  name.vb: TryEvaluate(String, IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList<Flame.Constant>, out Flame.Constant)
-  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(System.String, Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList(Of Flame.Constant), ByRef Flame.Constant)
-  nameWithType: ArithmeticIntrinsics.TryEvaluate(String, IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
-  nameWithType.vb: ArithmeticIntrinsics.TryEvaluate(String, IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
+  name: TryEvaluate(IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_Flame_Compiler_Instructions_IntrinsicPrototype_System_Collections_Generic_IReadOnlyList_Flame_Constant__Flame_Constant__
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(Flame.Compiler.Instructions.IntrinsicPrototype,System.Collections.Generic.IReadOnlyList{Flame.Constant},Flame.Constant@)
+  name.vb: TryEvaluate(IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList<Flame.Constant>, out Flame.Constant)
+  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate(Flame.Compiler.Instructions.IntrinsicPrototype, System.Collections.Generic.IReadOnlyList(Of Flame.Constant), ByRef Flame.Constant)
+  nameWithType: ArithmeticIntrinsics.TryEvaluate(IntrinsicPrototype, IReadOnlyList<Constant>, out Constant)
+  nameWithType.vb: ArithmeticIntrinsics.TryEvaluate(IntrinsicPrototype, IReadOnlyList(Of Constant), ByRef Constant)
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate*
   name: TryEvaluate
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryEvaluate_
@@ -13593,15 +13779,15 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryEvaluate
   nameWithType: ArithmeticIntrinsics.TryEvaluate
-- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String,System.String@)
-  name: TryParseArithmeticIntrinsicName(String, out String)
-  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryParseArithmeticIntrinsicName_System_String_System_String__
-  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String,System.String@)
-  name.vb: TryParseArithmeticIntrinsicName(String, ByRef String)
-  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String, out System.String)
-  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String, ByRef System.String)
-  nameWithType: ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(String, out String)
-  nameWithType.vb: ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(String, ByRef String)
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String,System.String@,System.Boolean@)
+  name: TryParseArithmeticIntrinsicName(String, out String, out Boolean)
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryParseArithmeticIntrinsicName_System_String_System_String__System_Boolean__
+  commentId: M:Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String,System.String@,System.Boolean@)
+  name.vb: TryParseArithmeticIntrinsicName(String, ByRef String, ByRef Boolean)
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String, out System.String, out System.Boolean)
+  fullName.vb: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(System.String, ByRef System.String, ByRef System.Boolean)
+  nameWithType: ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(String, out String, out Boolean)
+  nameWithType.vb: ArithmeticIntrinsics.TryParseArithmeticIntrinsicName(String, ByRef String, ByRef Boolean)
 - uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName*
   name: TryParseArithmeticIntrinsicName
   href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_TryParseArithmeticIntrinsicName_
@@ -13609,6 +13795,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.TryParseArithmeticIntrinsicName
   nameWithType: ArithmeticIntrinsics.TryParseArithmeticIntrinsicName
+- uid: Flame.Compiler.Instructions.ArithmeticIntrinsics.UncheckedNamespace
+  name: UncheckedNamespace
+  href: api/Flame.Compiler.Instructions.ArithmeticIntrinsics.html#Flame_Compiler_Instructions_ArithmeticIntrinsics_UncheckedNamespace
+  commentId: F:Flame.Compiler.Instructions.ArithmeticIntrinsics.UncheckedNamespace
+  fullName: Flame.Compiler.Instructions.ArithmeticIntrinsics.UncheckedNamespace
+  nameWithType: ArithmeticIntrinsics.UncheckedNamespace
 - uid: Flame.Compiler.Instructions.ArrayIntrinsics
   name: ArrayIntrinsics
   href: api/Flame.Compiler.Instructions.ArrayIntrinsics.html
@@ -15357,6 +15549,19 @@ references:
   commentId: T:Flame.Compiler.Instructions.LoadPrototype
   fullName: Flame.Compiler.Instructions.LoadPrototype
   nameWithType: LoadPrototype
+- uid: Flame.Compiler.Instructions.LoadPrototype.Alignment
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Alignment
+  commentId: P:Flame.Compiler.Instructions.LoadPrototype.Alignment
+  fullName: Flame.Compiler.Instructions.LoadPrototype.Alignment
+  nameWithType: LoadPrototype.Alignment
+- uid: Flame.Compiler.Instructions.LoadPrototype.Alignment*
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Alignment_
+  commentId: Overload:Flame.Compiler.Instructions.LoadPrototype.Alignment
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.LoadPrototype.Alignment
+  nameWithType: LoadPrototype.Alignment
 - uid: Flame.Compiler.Instructions.LoadPrototype.CheckConformance(Flame.Compiler.Instruction,Flame.Compiler.MethodBody)
   name: CheckConformance(Instruction, MethodBody)
   href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_CheckConformance_Flame_Compiler_Instruction_Flame_Compiler_MethodBody_
@@ -15370,12 +15575,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.LoadPrototype.CheckConformance
   nameWithType: LoadPrototype.CheckConformance
-- uid: Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType)
-  name: Create(IType)
-  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Create_Flame_IType_
-  commentId: M:Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType)
-  fullName: Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType)
-  nameWithType: LoadPrototype.Create(IType)
+- uid: Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  name: Create(IType, Boolean, Alignment)
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Create_Flame_IType_System_Boolean_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.LoadPrototype.Create(Flame.IType, System.Boolean, Flame.Compiler.Instructions.Alignment)
+  nameWithType: LoadPrototype.Create(IType, Boolean, Alignment)
 - uid: Flame.Compiler.Instructions.LoadPrototype.Create*
   name: Create
   href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Create_
@@ -15409,6 +15614,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.LoadPrototype.Instantiate
   nameWithType: LoadPrototype.Instantiate
+- uid: Flame.Compiler.Instructions.LoadPrototype.IsVolatile
+  name: IsVolatile
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_IsVolatile
+  commentId: P:Flame.Compiler.Instructions.LoadPrototype.IsVolatile
+  fullName: Flame.Compiler.Instructions.LoadPrototype.IsVolatile
+  nameWithType: LoadPrototype.IsVolatile
+- uid: Flame.Compiler.Instructions.LoadPrototype.IsVolatile*
+  name: IsVolatile
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_IsVolatile_
+  commentId: Overload:Flame.Compiler.Instructions.LoadPrototype.IsVolatile
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.LoadPrototype.IsVolatile
+  nameWithType: LoadPrototype.IsVolatile
 - uid: Flame.Compiler.Instructions.LoadPrototype.Map(Flame.TypeSystem.MemberMapping)
   name: Map(MemberMapping)
   href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_Map_Flame_TypeSystem_MemberMapping_
@@ -15448,6 +15666,32 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.LoadPrototype.ResultType
   nameWithType: LoadPrototype.ResultType
+- uid: Flame.Compiler.Instructions.LoadPrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  name: WithAlignment(Alignment)
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_WithAlignment_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.LoadPrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.LoadPrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  nameWithType: LoadPrototype.WithAlignment(Alignment)
+- uid: Flame.Compiler.Instructions.LoadPrototype.WithAlignment*
+  name: WithAlignment
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_WithAlignment_
+  commentId: Overload:Flame.Compiler.Instructions.LoadPrototype.WithAlignment
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.LoadPrototype.WithAlignment
+  nameWithType: LoadPrototype.WithAlignment
+- uid: Flame.Compiler.Instructions.LoadPrototype.WithVolatility(System.Boolean)
+  name: WithVolatility(Boolean)
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_WithVolatility_System_Boolean_
+  commentId: M:Flame.Compiler.Instructions.LoadPrototype.WithVolatility(System.Boolean)
+  fullName: Flame.Compiler.Instructions.LoadPrototype.WithVolatility(System.Boolean)
+  nameWithType: LoadPrototype.WithVolatility(Boolean)
+- uid: Flame.Compiler.Instructions.LoadPrototype.WithVolatility*
+  name: WithVolatility
+  href: api/Flame.Compiler.Instructions.LoadPrototype.html#Flame_Compiler_Instructions_LoadPrototype_WithVolatility_
+  commentId: Overload:Flame.Compiler.Instructions.LoadPrototype.WithVolatility
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.LoadPrototype.WithVolatility
+  nameWithType: LoadPrototype.WithVolatility
 - uid: Flame.Compiler.Instructions.MemoryIntrinsics
   name: MemoryIntrinsics
   href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html
@@ -15483,32 +15727,6 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreatePrototype
   nameWithType: MemoryIntrinsics.CreatePrototype
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
-  name: CreateVolatileLoadPrototype(PointerType)
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileLoadPrototype_Flame_TypeSystem_PointerType_
-  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype(Flame.TypeSystem.PointerType)
-  nameWithType: MemoryIntrinsics.CreateVolatileLoadPrototype(PointerType)
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype*
-  name: CreateVolatileLoadPrototype
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileLoadPrototype_
-  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype
-  isSpec: "True"
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileLoadPrototype
-  nameWithType: MemoryIntrinsics.CreateVolatileLoadPrototype
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
-  name: CreateVolatileStorePrototype(PointerType)
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileStorePrototype_Flame_TypeSystem_PointerType_
-  commentId: M:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype(Flame.TypeSystem.PointerType)
-  nameWithType: MemoryIntrinsics.CreateVolatileStorePrototype(PointerType)
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype*
-  name: CreateVolatileStorePrototype
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_CreateVolatileStorePrototype_
-  commentId: Overload:Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype
-  isSpec: "True"
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.CreateVolatileStorePrototype
-  nameWithType: MemoryIntrinsics.CreateVolatileStorePrototype
 - uid: Flame.Compiler.Instructions.MemoryIntrinsics.Namespace
   name: Namespace
   href: api/Flame.Compiler.Instructions.MemoryIntrinsics.html#Flame_Compiler_Instructions_MemoryIntrinsics_Namespace
@@ -15533,18 +15751,6 @@ references:
   commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned
   fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.AllocaPinned
   nameWithType: MemoryIntrinsics.Operators.AllocaPinned
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
-  name: VolatileLoad
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileLoad
-  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileLoad
-  nameWithType: MemoryIntrinsics.Operators.VolatileLoad
-- uid: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
-  name: VolatileStore
-  href: api/Flame.Compiler.Instructions.MemoryIntrinsics.Operators.html#Flame_Compiler_Instructions_MemoryIntrinsics_Operators_VolatileStore
-  commentId: F:Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
-  fullName: Flame.Compiler.Instructions.MemoryIntrinsics.Operators.VolatileStore
-  nameWithType: MemoryIntrinsics.Operators.VolatileStore
 - uid: Flame.Compiler.Instructions.MethodLookup
   name: MethodLookup
   href: api/Flame.Compiler.Instructions.MethodLookup.html
@@ -16068,6 +16274,19 @@ references:
   commentId: T:Flame.Compiler.Instructions.StorePrototype
   fullName: Flame.Compiler.Instructions.StorePrototype
   nameWithType: StorePrototype
+- uid: Flame.Compiler.Instructions.StorePrototype.Alignment
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Alignment
+  commentId: P:Flame.Compiler.Instructions.StorePrototype.Alignment
+  fullName: Flame.Compiler.Instructions.StorePrototype.Alignment
+  nameWithType: StorePrototype.Alignment
+- uid: Flame.Compiler.Instructions.StorePrototype.Alignment*
+  name: Alignment
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Alignment_
+  commentId: Overload:Flame.Compiler.Instructions.StorePrototype.Alignment
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.StorePrototype.Alignment
+  nameWithType: StorePrototype.Alignment
 - uid: Flame.Compiler.Instructions.StorePrototype.CheckConformance(Flame.Compiler.Instruction,Flame.Compiler.MethodBody)
   name: CheckConformance(Instruction, MethodBody)
   href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_CheckConformance_Flame_Compiler_Instruction_Flame_Compiler_MethodBody_
@@ -16081,12 +16300,12 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.StorePrototype.CheckConformance
   nameWithType: StorePrototype.CheckConformance
-- uid: Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType)
-  name: Create(IType)
-  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Create_Flame_IType_
-  commentId: M:Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType)
-  fullName: Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType)
-  nameWithType: StorePrototype.Create(IType)
+- uid: Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  name: Create(IType, Boolean, Alignment)
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Create_Flame_IType_System_Boolean_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType,System.Boolean,Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.StorePrototype.Create(Flame.IType, System.Boolean, Flame.Compiler.Instructions.Alignment)
+  nameWithType: StorePrototype.Create(IType, Boolean, Alignment)
 - uid: Flame.Compiler.Instructions.StorePrototype.Create*
   name: Create
   href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Create_
@@ -16133,6 +16352,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.StorePrototype.Instantiate
   nameWithType: StorePrototype.Instantiate
+- uid: Flame.Compiler.Instructions.StorePrototype.IsVolatile
+  name: IsVolatile
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_IsVolatile
+  commentId: P:Flame.Compiler.Instructions.StorePrototype.IsVolatile
+  fullName: Flame.Compiler.Instructions.StorePrototype.IsVolatile
+  nameWithType: StorePrototype.IsVolatile
+- uid: Flame.Compiler.Instructions.StorePrototype.IsVolatile*
+  name: IsVolatile
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_IsVolatile_
+  commentId: Overload:Flame.Compiler.Instructions.StorePrototype.IsVolatile
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.StorePrototype.IsVolatile
+  nameWithType: StorePrototype.IsVolatile
 - uid: Flame.Compiler.Instructions.StorePrototype.Map(Flame.TypeSystem.MemberMapping)
   name: Map(MemberMapping)
   href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_Map_Flame_TypeSystem_MemberMapping_
@@ -16172,6 +16404,32 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Instructions.StorePrototype.ResultType
   nameWithType: StorePrototype.ResultType
+- uid: Flame.Compiler.Instructions.StorePrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  name: WithAlignment(Alignment)
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_WithAlignment_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Compiler.Instructions.StorePrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Compiler.Instructions.StorePrototype.WithAlignment(Flame.Compiler.Instructions.Alignment)
+  nameWithType: StorePrototype.WithAlignment(Alignment)
+- uid: Flame.Compiler.Instructions.StorePrototype.WithAlignment*
+  name: WithAlignment
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_WithAlignment_
+  commentId: Overload:Flame.Compiler.Instructions.StorePrototype.WithAlignment
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.StorePrototype.WithAlignment
+  nameWithType: StorePrototype.WithAlignment
+- uid: Flame.Compiler.Instructions.StorePrototype.WithVolatility(System.Boolean)
+  name: WithVolatility(Boolean)
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_WithVolatility_System_Boolean_
+  commentId: M:Flame.Compiler.Instructions.StorePrototype.WithVolatility(System.Boolean)
+  fullName: Flame.Compiler.Instructions.StorePrototype.WithVolatility(System.Boolean)
+  nameWithType: StorePrototype.WithVolatility(Boolean)
+- uid: Flame.Compiler.Instructions.StorePrototype.WithVolatility*
+  name: WithVolatility
+  href: api/Flame.Compiler.Instructions.StorePrototype.html#Flame_Compiler_Instructions_StorePrototype_WithVolatility_
+  commentId: Overload:Flame.Compiler.Instructions.StorePrototype.WithVolatility
+  isSpec: "True"
+  fullName: Flame.Compiler.Instructions.StorePrototype.WithVolatility
+  nameWithType: StorePrototype.WithVolatility
 - uid: Flame.Compiler.Instructions.UnboxPrototype
   name: UnboxPrototype
   href: api/Flame.Compiler.Instructions.UnboxPrototype.html
@@ -18139,6 +18397,24 @@ references:
   fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Instructions
   nameWithType: SelectedInstructions<TInstruction>.Instructions
   nameWithType.vb: SelectedInstructions(Of TInstruction).Instructions
+- uid: Flame.Compiler.Target.SelectedInstructions`1.Prepend(System.Collections.Generic.IReadOnlyList{`0})
+  name: Prepend(IReadOnlyList<TInstruction>)
+  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Prepend_System_Collections_Generic_IReadOnlyList__0__
+  commentId: M:Flame.Compiler.Target.SelectedInstructions`1.Prepend(System.Collections.Generic.IReadOnlyList{`0})
+  name.vb: Prepend(IReadOnlyList(Of TInstruction))
+  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Prepend(System.Collections.Generic.IReadOnlyList<TInstruction>)
+  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Prepend(System.Collections.Generic.IReadOnlyList(Of TInstruction))
+  nameWithType: SelectedInstructions<TInstruction>.Prepend(IReadOnlyList<TInstruction>)
+  nameWithType.vb: SelectedInstructions(Of TInstruction).Prepend(IReadOnlyList(Of TInstruction))
+- uid: Flame.Compiler.Target.SelectedInstructions`1.Prepend*
+  name: Prepend
+  href: api/Flame.Compiler.Target.SelectedInstructions-1.html#Flame_Compiler_Target_SelectedInstructions_1_Prepend_
+  commentId: Overload:Flame.Compiler.Target.SelectedInstructions`1.Prepend
+  isSpec: "True"
+  fullName: Flame.Compiler.Target.SelectedInstructions<TInstruction>.Prepend
+  fullName.vb: Flame.Compiler.Target.SelectedInstructions(Of TInstruction).Prepend
+  nameWithType: SelectedInstructions<TInstruction>.Prepend
+  nameWithType.vb: SelectedInstructions(Of TInstruction).Prepend
 - uid: Flame.Compiler.Target.StackInstructionStreamBuilder`1
   name: StackInstructionStreamBuilder<TInstruction>
   href: api/Flame.Compiler.Target.StackInstructionStreamBuilder-1.html
@@ -18779,6 +19055,19 @@ references:
   isSpec: "True"
   fullName: Flame.Compiler.Transforms.InstructionSimplification.Apply
   nameWithType: InstructionSimplification.Apply
+- uid: Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert(Flame.IType,Flame.IType)
+  name: CanAlwaysConvert(IType, IType)
+  href: api/Flame.Compiler.Transforms.InstructionSimplification.html#Flame_Compiler_Transforms_InstructionSimplification_CanAlwaysConvert_Flame_IType_Flame_IType_
+  commentId: M:Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert(Flame.IType,Flame.IType)
+  fullName: Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert(Flame.IType, Flame.IType)
+  nameWithType: InstructionSimplification.CanAlwaysConvert(IType, IType)
+- uid: Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert*
+  name: CanAlwaysConvert
+  href: api/Flame.Compiler.Transforms.InstructionSimplification.html#Flame_Compiler_Transforms_InstructionSimplification_CanAlwaysConvert_
+  commentId: Overload:Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert
+  isSpec: "True"
+  fullName: Flame.Compiler.Transforms.InstructionSimplification.CanAlwaysConvert
+  nameWithType: InstructionSimplification.CanAlwaysConvert
 - uid: Flame.Compiler.Transforms.InstructionSimplification.Instance
   name: Instance
   href: api/Flame.Compiler.Transforms.InstructionSimplification.html#Flame_Compiler_Transforms_InstructionSimplification_Instance
@@ -22151,6 +22440,19 @@ references:
   isSpec: "True"
   fullName: Flame.Ir.DecoderState.Codec
   nameWithType: DecoderState.Codec
+- uid: Flame.Ir.DecoderState.DecodeAlignment(Loyc.Syntax.LNode)
+  name: DecodeAlignment(LNode)
+  href: api/Flame.Ir.DecoderState.html#Flame_Ir_DecoderState_DecodeAlignment_Loyc_Syntax_LNode_
+  commentId: M:Flame.Ir.DecoderState.DecodeAlignment(Loyc.Syntax.LNode)
+  fullName: Flame.Ir.DecoderState.DecodeAlignment(Loyc.Syntax.LNode)
+  nameWithType: DecoderState.DecodeAlignment(LNode)
+- uid: Flame.Ir.DecoderState.DecodeAlignment*
+  name: DecodeAlignment
+  href: api/Flame.Ir.DecoderState.html#Flame_Ir_DecoderState_DecodeAlignment_
+  commentId: Overload:Flame.Ir.DecoderState.DecodeAlignment
+  isSpec: "True"
+  fullName: Flame.Ir.DecoderState.DecodeAlignment
+  nameWithType: DecoderState.DecodeAlignment
 - uid: Flame.Ir.DecoderState.DecodeAssembly(Loyc.Syntax.LNode)
   name: DecodeAssembly(LNode)
   href: api/Flame.Ir.DecoderState.html#Flame_Ir_DecoderState_DecodeAssembly_Loyc_Syntax_LNode_
@@ -22541,6 +22843,12 @@ references:
   commentId: M:Flame.Ir.EncoderState.Encode(Flame.Compiler.InstructionPrototype)
   fullName: Flame.Ir.EncoderState.Encode(Flame.Compiler.InstructionPrototype)
   nameWithType: EncoderState.Encode(InstructionPrototype)
+- uid: Flame.Ir.EncoderState.Encode(Flame.Compiler.Instructions.Alignment)
+  name: Encode(Alignment)
+  href: api/Flame.Ir.EncoderState.html#Flame_Ir_EncoderState_Encode_Flame_Compiler_Instructions_Alignment_
+  commentId: M:Flame.Ir.EncoderState.Encode(Flame.Compiler.Instructions.Alignment)
+  fullName: Flame.Ir.EncoderState.Encode(Flame.Compiler.Instructions.Alignment)
+  nameWithType: EncoderState.Encode(Alignment)
 - uid: Flame.Ir.EncoderState.Encode(Flame.Compiler.Instructions.MethodLookup)
   name: Encode(MethodLookup)
   href: api/Flame.Ir.EncoderState.html#Flame_Ir_EncoderState_Encode_Flame_Compiler_Instructions_MethodLookup_
@@ -22607,6 +22915,12 @@ references:
   commentId: M:Flame.Ir.EncoderState.Encode(System.Boolean)
   fullName: Flame.Ir.EncoderState.Encode(System.Boolean)
   nameWithType: EncoderState.Encode(Boolean)
+- uid: Flame.Ir.EncoderState.Encode(System.Int32)
+  name: Encode(Int32)
+  href: api/Flame.Ir.EncoderState.html#Flame_Ir_EncoderState_Encode_System_Int32_
+  commentId: M:Flame.Ir.EncoderState.Encode(System.Int32)
+  fullName: Flame.Ir.EncoderState.Encode(System.Int32)
+  nameWithType: EncoderState.Encode(Int32)
 - uid: Flame.Ir.EncoderState.Encode*
   name: Encode
   href: api/Flame.Ir.EncoderState.html#Flame_Ir_EncoderState_Encode_
