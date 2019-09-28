@@ -1238,12 +1238,24 @@ namespace Flame.Clr.Emit
                             arguments);
                     }
                 }
-                else if (prototype.ParameterCount == 2 && !isChecked)
+                else if (prototype.ParameterCount == 2)
                 {
                     OpCode[] cilOps;
+                    Dictionary<string, OpCode[]> signedBins;
+                    Dictionary<string, OpCode[]> unsignedBins;
+                    if (isChecked)
+                    {
+                        signedBins = checkedSignedArithmeticBinaries;
+                        unsignedBins = checkedUnsignedArithmeticBinaries;
+                    }
+                    else
+                    {
+                        signedBins = signedArithmeticBinaries;
+                        unsignedBins = unsignedArithmeticBinaries;
+                    }
                     if ((prototype.ParameterTypes[0].IsUnsignedIntegerType()
-                            && unsignedArithmeticBinaries.TryGetValue(opName, out cilOps))
-                        || signedArithmeticBinaries.TryGetValue(opName, out cilOps))
+                            && unsignedBins.TryGetValue(opName, out cilOps))
+                        || signedBins.TryGetValue(opName, out cilOps))
                     {
                         return SelectedInstructions.Create<CilCodegenInstruction>(
                             cilOps.EagerSelect(op => new CilOpInstruction(op)),
@@ -1809,6 +1821,23 @@ namespace Flame.Clr.Emit
             { ArithmeticIntrinsics.Operators.LeftShift, new[] { OpCodes.Shl } },
             { ArithmeticIntrinsics.Operators.RightShift, new[] { OpCodes.Shr_Un } }
         };
+
+        private static Dictionary<string, OpCode[]> checkedSignedArithmeticBinaries =
+            new Dictionary<string, OpCode[]>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, new[] { OpCodes.Add_Ovf } },
+            { ArithmeticIntrinsics.Operators.Subtract, new[] { OpCodes.Sub_Ovf } },
+            { ArithmeticIntrinsics.Operators.Multiply, new[] { OpCodes.Mul_Ovf } }
+        };
+
+        private static Dictionary<string, OpCode[]> checkedUnsignedArithmeticBinaries =
+            new Dictionary<string, OpCode[]>()
+        {
+            { ArithmeticIntrinsics.Operators.Add, new[] { OpCodes.Add_Ovf_Un } },
+            { ArithmeticIntrinsics.Operators.Subtract, new[] { OpCodes.Sub_Ovf_Un } },
+            { ArithmeticIntrinsics.Operators.Multiply, new[] { OpCodes.Mul_Ovf_Un } }
+        };
+
 
         private static Dictionary<IntegerSpec, OpCode> integerLdIndOps =
             new Dictionary<IntegerSpec, OpCode>()

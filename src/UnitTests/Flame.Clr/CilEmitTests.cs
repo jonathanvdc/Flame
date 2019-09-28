@@ -285,6 +285,40 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void RoundtripCheckedBinOps()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            var ops = new[]
+            {
+                OpCodes.Add_Ovf, OpCodes.Add_Ovf_Un,
+                OpCodes.Sub_Ovf, OpCodes.Sub_Ovf_Un,
+                OpCodes.Mul_Ovf, OpCodes.Mul_Ovf_Un
+            };
+
+            foreach (var op in ops)
+            {
+                RoundtripStaticMethodBody(
+                    int32Type,
+                    new[] { int32Type, int32Type },
+                    EmptyArray<TypeReference>.Value,
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Ldarg_1);
+                        ilProc.Emit(op);
+                        ilProc.Emit(OpCodes.Ret);
+                    },
+                    ilProc =>
+                    {
+                        ilProc.Emit(OpCodes.Ldarg_0);
+                        ilProc.Emit(OpCodes.Ldarg_1);
+                        ilProc.Emit(op);
+                        ilProc.Emit(OpCodes.Ret);
+                    });
+            }
+        }
+
+        [Test]
         public void RoundtripCgt()
         {
             var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
@@ -896,6 +930,7 @@ IL_0002: ret");
                     CopyPropagation.Instance,
                     InstructionSimplification.Instance,
                     DeadValueElimination.Instance,
+                    InstructionReordering.Instance,
                     new JumpThreading(false)));
 
             // Turn Flame IR back into CIL.
