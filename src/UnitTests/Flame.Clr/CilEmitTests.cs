@@ -245,7 +245,7 @@ namespace UnitTests.Flame.Clr
                             }
                             else if (getSize(targetType) > 32 && getSize(sourceType) <= 32)
                             {
-                                if (isSigned(targetType))
+                                if (isSigned(sourceType))
                                 {
                                     ilProc.Emit(OpCodes.Conv_I8);
                                 }

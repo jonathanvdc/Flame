@@ -1661,6 +1661,19 @@ namespace Flame.Clr.Emit
             bool isChecked,
             out OpCode result)
         {
+            if (!isChecked && sourceSpec != null)
+            {
+                // If an integer conversion is not checked, then we need to consider
+                // the source spec to pick the right opcode. For instance,
+                // `conv.u8` zero-extends an integer to a 64-bit integer. So when
+                // we want to convert a uint32 to an int64 (a zero extensions), we
+                // need to select `conv.u8` as opposed to `conv.i8` as the latter
+                // implies a sign extension.
+                targetSpec = sourceSpec.IsSigned
+                    ? targetSpec.SignedVariant
+                    : targetSpec.UnsignedVariant;
+            }
+
             Tuple<OpCode, OpCode, OpCode> convOps;
             if (intConversionOps.TryGetValue(targetSpec, out convOps))
             {
