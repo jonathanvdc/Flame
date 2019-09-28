@@ -1,5 +1,6 @@
 #importMacros(FlameMacros);
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flame.Constants;
@@ -29,18 +30,33 @@ namespace Flame.Compiler.Transforms
             result = load(To, false, Alignment.NaturallyAligned)(box_contents_ptr);
         }, !(To is IGenericParameter) && !(To is PointerType));
 
-        // A sign or zero extension followed by a truncation can be
+        // A sign or zero extension followed by a truncation or extension can be
         // simplified to either an extension or a truncation.
         #rule({
             temp_cast = intrinsic("arith.convert", Intermediate, #(From))(value);
             result = intrinsic("arith.convert", To, #(Intermediate))(temp_cast);
         }, {
             result = intrinsic("arith.convert", To, #(From))(value);
-        }, From.IsIntegerType()
-            && Intermediate.IsIntegerType()
-            && To.IsIntegerType()
-            && Intermediate.GetIntegerSpecOrNull().Size >= From.GetIntegerSpecOrNull().Size
-            && From.GetIntegerSpecOrNull().Size >= To.GetIntegerSpecOrNull().Size);
+        }, InstructionSimplification.IsSignOrZeroExt(From, Intermediate)
+            && (InstructionSimplification.IsTruncation(From, To)
+                || (InstructionSimplification.IsSignExt(From, To) && InstructionSimplification.IsSignExt(From, Intermediate))
+                || (InstructionSimplification.IsZeroExt(From, To) && InstructionSimplification.IsZeroExt(From, Intermediate))));
+
+        // Some checked conversions always succeed.
+        #rule({
+            result = intrinsic("arith.checked.convert", To, #(From))(value);
+        }, {
+            result = intrinsic("arith.convert", To, #(From))(value);
+        }, InstructionSimplification.CanAlwaysConvert(From, To));
+
+        // Some conversions followed by checked conversions also always succeed.
+        #rule({
+            temp_cast = intrinsic("arith.convert", Intermediate, #(From))(value);
+            result = intrinsic("arith.checked.convert", To, #(Intermediate))(temp_cast);
+        }, {
+            result = intrinsic("arith.convert", To, #(From))(value);
+        }, InstructionSimplification.CanAlwaysConvert(From, Intermediate)
+            && InstructionSimplification.CanAlwaysConvert(From, To));
 
         // Multiplication by two is equivalent to adding something
         // to itself.
@@ -160,6 +176,73 @@ namespace Flame.Compiler.Transforms
                 {
                     transforms.ApplicableRules[0].Apply(builder);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tells if a particular type can always be converted to another type,
+        /// that is, if a checked conversion <paramref name="from"/> to <paramref name="to"/>
+        /// will never throw.
+        /// </summary>
+        /// <param name="from">The type of the values to convert.</param>
+        /// <param name="to">A target type to convert values to.</param>
+        /// <returns>
+        /// <c>true</c> if all values of type <paramref name="from"/> can be
+        /// safely converted to values of type <paramref name="to"/>; otherwise <c>false</c>.
+        /// </returns>
+        public static bool CanAlwaysConvert(IType from, IType to)
+        {
+            return CheckIntTypePredicate(
+                from,
+                to,
+                (fromSpec, toSpec) =>
+                    (toSpec.Size >= fromSpec.Size && fromSpec.IsSigned == toSpec.IsSigned)
+                    || (toSpec.Size > fromSpec.Size && toSpec.IsSigned));
+        }
+
+        internal static bool IsTruncation(IType from, IType to)
+        {
+            return CheckIntTypePredicate(
+                from,
+                to,
+                (fromSpec, toSpec) => fromSpec.Size >= toSpec.Size);
+        }
+
+        internal static bool IsSignOrZeroExt(IType from, IType to)
+        {
+            return CheckIntTypePredicate(
+                from,
+                to,
+                (fromSpec, toSpec) => fromSpec.Size <= toSpec.Size);
+        }
+
+        internal static bool IsSignExt(IType from, IType to)
+        {
+            return CheckIntTypePredicate(
+                from,
+                to,
+                (fromSpec, toSpec) => fromSpec.Size <= toSpec.Size && fromSpec.IsSigned);
+        }
+
+        internal static bool IsZeroExt(IType from, IType to)
+        {
+            return CheckIntTypePredicate(
+                from,
+                to,
+                (fromSpec, toSpec) => fromSpec.Size <= toSpec.Size && !fromSpec.IsSigned);
+        }
+
+        private static bool CheckIntTypePredicate(IType from, IType to, Func<IntegerSpec, IntegerSpec, bool> predicate)
+        {
+            var fromSpec = from.GetIntegerSpecOrNull();
+            var toSpec = to.GetIntegerSpecOrNull();
+            if (fromSpec != null && toSpec != null)
+            {
+                return predicate(fromSpec, toSpec);
+            }
+            else
+            {
+                return false;
             }
         }
     }
