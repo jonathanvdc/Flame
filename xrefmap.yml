@@ -24643,6 +24643,12 @@ references:
   commentId: M:Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
   fullName: Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
   nameWithType: GCInterface.EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)
+- uid: Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
+  name: EmitAllocObject(IType, LLVMValueRef, ModuleBuilder, IRBuilder, String)
+  href: api/Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocObject_Flame_IType_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
+  commentId: M:Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
+  fullName: Flame.Llvm.GCInterface.EmitAllocObject(Flame.IType, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
+  nameWithType: GCInterface.EmitAllocObject(IType, LLVMValueRef, ModuleBuilder, IRBuilder, String)
 - uid: Flame.Llvm.GCInterface.EmitAllocObject*
   name: EmitAllocObject
   href: api/Flame.Llvm.GCInterface.html#Flame_Llvm_GCInterface_EmitAllocObject_
@@ -24808,12 +24814,12 @@ references:
   isSpec: "True"
   fullName: Flame.Llvm.MallocInterface.EmitAllocArray
   nameWithType: MallocInterface.EmitAllocArray
-- uid: Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  name: EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)
-  href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocObject_Flame_IType_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
-  commentId: M:Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
-  fullName: Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
-  nameWithType: MallocInterface.EmitAllocObject(IType, ModuleBuilder, IRBuilder, String)
+- uid: Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
+  name: EmitAllocObject(IType, LLVMValueRef, ModuleBuilder, IRBuilder, String)
+  href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocObject_Flame_IType_LLVMSharp_LLVMValueRef_Flame_Llvm_Emit_ModuleBuilder_LLVMSharp_IRBuilder_System_String_
+  commentId: M:Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType,LLVMSharp.LLVMValueRef,Flame.Llvm.Emit.ModuleBuilder,LLVMSharp.IRBuilder,System.String)
+  fullName: Flame.Llvm.MallocInterface.EmitAllocObject(Flame.IType, LLVMSharp.LLVMValueRef, Flame.Llvm.Emit.ModuleBuilder, LLVMSharp.IRBuilder, System.String)
+  nameWithType: MallocInterface.EmitAllocObject(IType, LLVMValueRef, ModuleBuilder, IRBuilder, String)
 - uid: Flame.Llvm.MallocInterface.EmitAllocObject*
   name: EmitAllocObject
   href: api/Flame.Llvm.MallocInterface.html#Flame_Llvm_MallocInterface_EmitAllocObject_

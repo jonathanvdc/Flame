@@ -3714,7 +3714,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Llvm.GCInterface.html",
-          "hash": "lRvr18O0eb9aCxgqHM2Lng=="
+          "hash": "yGkV+hLpDr/zs3C8n71Ecg=="
         }
       },
       "is_incremental": false,
@@ -3762,7 +3762,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Flame.Llvm.MallocInterface.html",
-          "hash": "LIeirUiUNqeo7mToJ7cShQ=="
+          "hash": "Tx0VI1exTS9l6AKS8QpnTQ=="
         }
       },
       "is_incremental": false,
