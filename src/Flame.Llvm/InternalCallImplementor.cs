@@ -45,13 +45,72 @@ namespace Flame.Llvm
             if (TryImplementInterlocked(method, function, module)
                 || TryImplementThread(method, function, module)
                 || TryImplementRuntimeImports(method, function, module)
-                || TryImplementBuffer(method, function, module))
+                || TryImplementBuffer(method, function, module)
+                || TryImplementString(method, function, module))
             {
                 return;
             }
             throw new NotSupportedException(
                 $"Method '{method.FullName}' is marked as \"internal call\" but " +
                 "is not a known CLR internal call method.");
+        }
+
+        /// <summary>
+        /// Tries to implement a method defined in the <see cref="System.String"/> class.
+        /// </summary>
+        /// <param name="method">An internal call method to implement.</param>
+        /// <param name="function"><paramref name="method"/>'s corresponding LLVM function.</param>
+        /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
+        private bool TryImplementString(IMethod method, LLVMValueRef function, ModuleBuilder module)
+        {
+            if (!IsStaticMethodOf(method, "System.String"))
+            {
+                return false;
+            }
+
+            var name = method.Name.ToString();
+            var paramCount = method.Parameters.Count;
+            if (name == "FastAllocateString" && paramCount == 1)
+            {
+                var dataType = method.ParentType;
+                var llvmType = module.ImportType(dataType);
+                var fields = MethodBodyEmitter.DecomposeStringFields(dataType, module);
+
+                var ep = function.AppendBasicBlock("entry");
+                using (var builder = new IRBuilder(module.Context))
+                {
+                    builder.PositionBuilderAtEnd(ep);
+
+                    var size = LLVM.SizeOf(llvmType.GetStructElementTypes()[fields.DataFieldIndex]);
+
+                    var value = module.GC.EmitAllocObject(
+                        dataType,
+                        builder.CreateMul(
+                            builder.CreateZExt(
+                                function.GetParam(0),
+                                size.TypeOf(),
+                                ""),
+                            size,
+                            "bytecount"),
+                        module,
+                        builder,
+                        "str");
+
+                    var lengthPtr = fields.GetLengthPtr(value, builder);
+                    builder.CreateStore(
+                        builder.CreateTrunc(
+                            function.GetParam(0),
+                            lengthPtr.TypeOf().GetElementType(),
+                            ""),
+                        fields.GetLengthPtr(value, builder));
+                    builder.CreateRet(value);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

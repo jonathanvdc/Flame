@@ -1060,6 +1060,11 @@ namespace Flame.Llvm.Emit
 
         private StringFields DecomposeStringFields(IType type)
         {
+            return DecomposeStringFields(type, Module);
+        }
+
+        internal static StringFields DecomposeStringFields(IType type, ModuleBuilder module)
+        {
             var lengthField = type.Fields.FirstOrDefault(
                 f => f.Name.ToString() == "_stringLength"
                     || f.Name.ToString() == "m_stringLength");
@@ -1074,7 +1079,7 @@ namespace Flame.Llvm.Emit
                     "because it does not fields named '_stringLength' and '_firstChar'.");
             }
 
-            return new StringFields(Module.GetFieldIndex(lengthField), Module.GetFieldIndex(dataField));
+            return new StringFields(module.GetFieldIndex(lengthField), module.GetFieldIndex(dataField));
         }
 
         private struct DelegateTriple
@@ -1092,7 +1097,7 @@ namespace Flame.Llvm.Emit
             }
         }
 
-        private struct StringFields
+        internal struct StringFields
         {
             public StringFields(int lengthFieldIndex, int dataFieldIndex)
             {

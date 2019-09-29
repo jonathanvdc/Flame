@@ -26,22 +26,28 @@ namespace Flame.Llvm
         /// <inheritdoc/>
         public override LLVMValueRef EmitAllocObject(
             IType type,
+            LLVMValueRef tailRoom,
             ModuleBuilder module,
             IRBuilder builder,
             string name)
         {
-            return EmitAllocObject(type, module.ImportType(type), module, builder, name);
+            return EmitAllocObject(type, module.ImportType(type), tailRoom, module, builder, name);
         }
 
         private static LLVMValueRef EmitAllocObject(
             IType type,
             LLVMTypeRef importedType,
+            LLVMValueRef tailRoom,
             ModuleBuilder module,
             IRBuilder builder,
             string name)
         {
             var metaType = GetMetadataExtendedType(importedType, module);
-            var metaVal = builder.CreateMalloc(metaType, name + ".alloc");
+            var bytes = builder.CreateArrayMalloc(
+                LLVM.Int8TypeInContext(module.Context),
+                builder.CreateAdd(LLVM.SizeOf(metaType), tailRoom, ""),
+                name + ".alloc");
+            var metaVal = builder.CreateBitCast(bytes, LLVM.PointerType(metaType, 0), "");
             builder.CreateStore(
                 module.Metadata.GetMetadata(type, module),
                 builder.CreateStructGEP(metaVal, 0, "metadata.ref"));
@@ -62,20 +68,9 @@ namespace Flame.Llvm
             var headerType = GetArrayHeaderType(elementType, dimensions.Count, module);
 
             var headerFields = dimensions.Select(x => builder.CreateIntCast(x, lengthType, "")).ToArray();
-            var metaType = GetMetadataExtendedType(headerType, module);
             var totalSize = headerFields.Aggregate(LLVM.SizeOf(llvmElementType), (x, y) => builder.CreateMul(x, y, ""));
-            var bytes = builder.CreateArrayMalloc(
-                LLVM.Int8TypeInContext(module.Context),
-                builder.CreateAdd(LLVM.SizeOf(metaType), totalSize, ""),
-                name + ".alloc");
 
-            // Set the array's metadata.
-            var metaVal = builder.CreateBitCast(bytes, LLVM.PointerType(metaType, 0), "");
-            builder.CreateStore(
-                module.Metadata.GetMetadata(arrayType, module),
-                builder.CreateStructGEP(metaVal, 0, "metadata.ref"));
-
-            var headerPtr = builder.CreateStructGEP(metaVal, 1, "");
+            var headerPtr = EmitAllocObject(arrayType, headerType, totalSize, module, builder, "");
             var result = builder.CreateBitCast(
                 headerPtr,
                 LLVM.PointerType(module.ImportType(arrayType), 0),
