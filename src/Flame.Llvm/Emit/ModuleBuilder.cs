@@ -12,6 +12,18 @@ namespace Flame.Llvm.Emit
     /// </summary>
     public unsafe sealed class ModuleBuilder
     {
+        private static readonly Dictionary<string, int> VariadicExternWhitelist =
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                { "printf", 1 },
+                { "fprintf", 2 },
+                { "sprintf", 2 },
+                { "snprintf", 3 },
+                { "scanf", 1 },
+                { "fscanf", 2 },
+                { "sscanf", 2 }
+            };
+
         public ModuleBuilder(
             LLVMModuleRef module,
             TypeEnvironment typeSystem,
@@ -105,23 +117,39 @@ namespace Flame.Llvm.Emit
 
         public LLVMTypeRef GetFunctionPrototype(IMethod method)
         {
+            return GetFunctionPrototype(method, false);
+        }
+
+        private LLVMTypeRef GetFunctionPrototype(IMethod method, bool isVarArg, int fixedParameterCount = -1)
+        {
             var paramTypes = new List<LLVMTypeRef>();
             if (!method.IsStatic)
             {
                 paramTypes.Add(ImportType(method.ParentType.MakePointerType(PointerKind.Reference)));
             }
-            paramTypes.AddRange(method.Parameters.Select(p => ImportType(p.Type)));
+            var parameters = fixedParameterCount >= 0
+                ? method.Parameters.Take(fixedParameterCount)
+                : method.Parameters;
+            paramTypes.AddRange(parameters.Select(p => ImportType(p.Type)));
             return ImportType(method.ReturnParameter.Type).CreateFunctionType(
                 paramTypes.ToArray(),
-                false);
+                isVarArg);
         }
 
         private LLVMValueRef DeclareExtern(IMethod method, ExternAttribute externAttribute)
         {
-            var funType = GetFunctionPrototype(method);
+            var importName = externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false);
+            int fixedParameterCount;
+            var isVarArg = TryGetVariadicExternPrefixLength(importName, out fixedParameterCount);
+            var funType = GetFunctionPrototype(method, isVarArg, isVarArg ? fixedParameterCount : -1);
             return Module.AddFunction(
-                externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false),
+                importName,
                 funType);
+        }
+
+        private static bool TryGetVariadicExternPrefixLength(string importName, out int fixedParameterCount)
+        {
+            return VariadicExternWhitelist.TryGetValue(importName, out fixedParameterCount);
         }
 
         public void DefineMethod(IMethod method, MethodBody body)

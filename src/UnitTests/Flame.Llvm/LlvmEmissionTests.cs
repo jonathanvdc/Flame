@@ -83,6 +83,58 @@ namespace UnitTests.Flame.Llvm
         }
 
         [Test]
+        public void LlvmBackendDeclaresPrintfAsVariadicExtern()
+        {
+            var typeSystem = LocalTypeResolutionTests.Corlib.Resolver.TypeEnvironment;
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var programType = new DescribedType(new SimpleName("Program").Qualify(), assembly);
+            assembly.AddType(programType);
+
+            var printf = new DescribedBodyMethod(programType, new SimpleName("Printf"), true, typeSystem.Int32);
+            printf.AddParameter(new Parameter(typeSystem.Int8.MakePointerType(PointerKind.Transient), "format"));
+            printf.AddParameter(new Parameter(typeSystem.Float64, "value"));
+            printf.AddAttribute(new ExternAttribute("printf"));
+            programType.AddMethod(printf);
+
+            var moduleBuilder = LlvmBackendSupport.CompileModule(
+                assembly,
+                new[] { programType },
+                new ITypeMember[] { printf },
+                new Dictionary<IMethod, MethodBody>(),
+                null);
+            var printfFunction = moduleBuilder.Module.GetNamedFunction("printf");
+
+            Assert.AreNotEqual(IntPtr.Zero, printfFunction.Pointer());
+            Assert.IsTrue(printfFunction.TypeOf.ElementType.IsFunctionVarArg);
+            Assert.AreEqual(1, printfFunction.TypeOf.ElementType.GetParamTypes().Length);
+        }
+
+        [Test]
+        public void LlvmBackendKeepsRegularExternsNonVariadic()
+        {
+            var typeSystem = LocalTypeResolutionTests.Corlib.Resolver.TypeEnvironment;
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var programType = new DescribedType(new SimpleName("Program").Qualify(), assembly);
+            assembly.AddType(programType);
+
+            var puts = new DescribedBodyMethod(programType, new SimpleName("Puts"), true, typeSystem.Int32);
+            puts.AddParameter(new Parameter(typeSystem.Int8.MakePointerType(PointerKind.Transient), "message"));
+            puts.AddAttribute(new ExternAttribute("puts"));
+            programType.AddMethod(puts);
+
+            var moduleBuilder = LlvmBackendSupport.CompileModule(
+                assembly,
+                new[] { programType },
+                new ITypeMember[] { puts },
+                new Dictionary<IMethod, MethodBody>(),
+                null);
+            var putsFunction = moduleBuilder.Module.GetNamedFunction("puts");
+
+            Assert.AreNotEqual(IntPtr.Zero, putsFunction.Pointer());
+            Assert.IsFalse(putsFunction.TypeOf.ElementType.IsFunctionVarArg);
+        }
+
+        [Test]
         public void LlvmBackendEmitsDelegateThunkForStaticDelegate()
         {
             var typeSystem = LocalTypeResolutionTests.Corlib.Resolver.TypeEnvironment;
