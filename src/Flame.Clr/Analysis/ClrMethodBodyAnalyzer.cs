@@ -131,6 +131,7 @@ namespace Flame.Clr.Analysis
         private List<NamedInstructionBuilder> localStackSlots;
         private HashSet<ValueTag> freeTemporaries;
         private EndFinallyFlow endfinallyFlow;
+        private EndFilterFlow endfilterFlow;
         private Dictionary<BasicBlockTag, int> leaveTokens;
         private ValueTag flowTokenVariable;
 
@@ -264,11 +265,11 @@ namespace Flame.Clr.Analysis
             switch (handler.HandlerType)
             {
                 case Mono.Cecil.Cil.ExceptionHandlerType.Catch:
-                    AnalyzeCatchHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
+                    AnalyzeCatchHandler(handler, (CilCatchHandler)analyzedHandler, cilMethodBody);
                     return;
 
                 case Mono.Cecil.Cil.ExceptionHandlerType.Filter:
-                    AnalyzeFilterHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
+                    AnalyzeFilterHandler(handler, (CilFilterHandler)analyzedHandler, cilMethodBody);
                     return;
 
                 case Mono.Cecil.Cil.ExceptionHandlerType.Finally:
@@ -292,7 +293,7 @@ namespace Flame.Clr.Analysis
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeCatchHandler(
             Mono.Cecil.Cil.ExceptionHandler handler,
-            BasicBlockTag landingPadTag,
+            CilCatchHandler analyzedHandler,
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             // Determine the type of exception the handler is prepared
@@ -309,7 +310,8 @@ namespace Flame.Clr.Analysis
             // a way that it redirects control flow to the handler block
             // if and only if the thrown exception's type matches the catch
             // type. Otherwise, it'll transfer control to the next handler.
-            var landingPad = graph.GetBasicBlock(landingPadTag);
+            var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
+            var nextHandler = GetNextHandler(handler, analyzedHandler);
 
             // Emit an intrinsic to extract the exception
             // from the landing pad's parameter.
@@ -330,7 +332,7 @@ namespace Flame.Clr.Analysis
                 // landing pad if the exception's type does not match
                 // the caught type.
                 new Branch(
-                    exceptionHandlers[handler.HandlerStart][0].LandingPad,
+                    nextHandler.LandingPad,
                     new[] { landingPad.Parameters[0].Tag }),
                 // Otherwise, direct control flow to the catch handler.
                 new Branch(handlerImpl, new[] { typedException.Tag }));
@@ -346,31 +348,57 @@ namespace Flame.Clr.Analysis
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeFilterHandler(
             Mono.Cecil.Cil.ExceptionHandler handler,
-            BasicBlockTag landingPadTag,
+            CilFilterHandler analyzedHandler,
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
-            // CIL filters execute a separate filter block that decides whether the
-            // exception should enter the handler. Flame's analyzer does not model
-            // 'endfilter' yet, so for now we conservatively lower filters as
-            // catch-all handlers. This keeps modern runtime helper methods
-            // analyzable on their normal paths while preserving the handler's
-            // evaluation stack shape.
             var catchType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
+            var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
+            var nextHandler = GetNextHandler(handler, analyzedHandler);
 
             var handlerImpl = AnalyzeBlock(
                 handler.HandlerStart,
                 new[] { catchType },
                 cilMethodBody);
 
-            var landingPad = graph.GetBasicBlock(landingPadTag);
+            var capturedExceptionVar = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(landingPad.Parameters[0].Type),
+                $"filter_{handler.FilterStart.Offset.ToString("X4")}_captured_exception");
+
             var exceptionValue = landingPad.AppendInstruction(
                 Instruction.CreateGetCapturedExceptionIntrinsic(
                     catchType,
                     landingPad.Parameters[0].Type,
                     landingPad.Parameters[0].Tag));
 
+            var exceptionVar = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(catchType),
+                $"filter_{handler.FilterStart.Offset.ToString("X4")}_exception");
+
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    landingPad.Parameters[0].Type,
+                    capturedExceptionVar,
+                    landingPad.Parameters[0].Tag));
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    catchType,
+                    exceptionVar,
+                    exceptionValue));
+
+            var oldEndfilter = endfilterFlow;
+            endfilterFlow = new EndFilterFlow(
+                capturedExceptionVar,
+                exceptionVar,
+                nextHandler.LandingPad,
+                handlerImpl);
+            var filterImpl = AnalyzeBlock(
+                handler.FilterStart,
+                new[] { catchType },
+                cilMethodBody);
+            endfilterFlow = oldEndfilter;
+
             landingPad.Flow = new JumpFlow(
-                new Branch(handlerImpl, new[] { exceptionValue.Tag }));
+                new Branch(filterImpl, new[] { exceptionValue.Tag }));
         }
 
         /// <summary>
@@ -1675,6 +1703,38 @@ namespace Flame.Clr.Analysis
                 }
                 context.Terminate(endfinallyFlow);
             }
+            else if (instruction.OpCode == OpCodes.Endfilter)
+            {
+                if (endfilterFlow == null)
+                {
+                    throw new InvalidProgramException(
+                        $"illegal instruction '{instruction}' appears outside of a 'filter' clause.");
+                }
+
+                var decision = context.Pop(TypeEnvironment.Int32);
+                var falseValue = new IntegerConstant(0);
+                var capturedExceptionType =
+                    ((PointerType)graph.GetValueType(endfilterFlow.CapturedExceptionSlot)).ElementType;
+                var exceptionType =
+                    ((PointerType)graph.GetValueType(endfilterFlow.ExceptionSlot)).ElementType;
+                var capturedException = context.Emit(
+                    Instruction.CreateLoad(
+                        capturedExceptionType,
+                        endfilterFlow.CapturedExceptionSlot));
+                var exception = context.Emit(
+                    Instruction.CreateLoad(
+                        exceptionType,
+                        endfilterFlow.ExceptionSlot));
+
+                context.Terminate(
+                    new SwitchFlow(
+                        Instruction.CreateCopy(TypeEnvironment.Int32, decision),
+                        ImmutableList.Create(
+                            new SwitchCase(
+                                ImmutableHashSet.Create<Constant>(falseValue),
+                                new Branch(endfilterFlow.NextHandler, new[] { capturedException }))),
+                        new Branch(endfilterFlow.Handler, new[] { exception })));
+            }
             else if (instruction.OpCode == OpCodes.Brtrue)
             {
                 EmitConditionalBranch(
@@ -2165,7 +2225,7 @@ namespace Flame.Clr.Analysis
                 }
                 else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Filter)
                 {
-                    ehMapping[handler] = new CilCatchHandler(pad);
+                    ehMapping[handler] = new CilFilterHandler(pad);
                 }
                 else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
                 {
@@ -2231,7 +2291,9 @@ namespace Flame.Clr.Analysis
                     {
                         activeHandlers.Push(handler);
                     }
-                    if (handler.HandlerStart == instruction)
+                    if (handler.FilterStart == instruction
+                        || (handler.HandlerType != Mono.Cecil.Cil.ExceptionHandlerType.Filter
+                            && handler.HandlerStart == instruction))
                     {
                         activeClauses.Push(handler);
                     }
@@ -2248,6 +2310,23 @@ namespace Flame.Clr.Analysis
             }
 
             return ehMapping;
+        }
+
+        private CilExceptionHandler GetNextHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            CilExceptionHandler analyzedHandler)
+        {
+            var handlers = exceptionHandlers[handler.TryStart];
+            for (int i = 0; i < handlers.Count - 1; i++)
+            {
+                if (object.ReferenceEquals(handlers[i], analyzedHandler))
+                {
+                    return handlers[i + 1];
+                }
+            }
+
+            throw new InvalidProgramException(
+                $"Exception handler '{handler}' does not have a successor handler.");
         }
 
         /// <summary>
