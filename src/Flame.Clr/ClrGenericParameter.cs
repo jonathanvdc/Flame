@@ -171,7 +171,7 @@ namespace Flame.Clr
             attributeMap = new AttributeMap(attrBuilder);
 
             baseTypeList = Definition.Constraints
-                .Select(ty => Assembly.Resolve(ty, ParentMember))
+                .Select(ty => Assembly.Resolve(ty.ConstraintType, ParentMember))
                 .ToArray();
         }
     }

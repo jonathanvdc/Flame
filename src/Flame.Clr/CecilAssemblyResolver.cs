@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Flame.TypeSystem;
 
 namespace Flame.Clr
@@ -35,6 +39,7 @@ namespace Flame.Clr
             this.Resolver = resolver;
             this.Parameters = parameters;
             this.ReferenceResolver = new ReferenceResolver(this, typeEnvironment);
+            this.assemblyCache = new Dictionary<string, IAssembly>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -57,16 +62,24 @@ namespace Flame.Clr
         /// </summary>
         public ReferenceResolver ReferenceResolver { get; private set; }
 
+        private Dictionary<string, IAssembly> assemblyCache;
+
         /// <inheritdoc/>
         public override bool TryResolve(
             AssemblyIdentity identity,
             out IAssembly assembly)
         {
+            if (assemblyCache.TryGetValue(identity.Name, out assembly))
+            {
+                return true;
+            }
+
             var nameRef = new Mono.Cecil.AssemblyNameReference(identity.Name, identity.VersionOrNull);
             try
             {
-                var asmDef = Resolver.Resolve(nameRef, Parameters);
-                assembly = new ClrAssembly(asmDef, ReferenceResolver);
+                var asmDef = ResolveAssemblyDefinition(nameRef);
+                assembly = ClrAssembly.Wrap(asmDef, ReferenceResolver);
+                assemblyCache[identity.Name] = assembly;
                 return true;
             }
             catch (Mono.Cecil.AssemblyResolutionException)
@@ -74,6 +87,55 @@ namespace Flame.Clr
                 assembly = null;
                 return false;
             }
+        }
+
+        private Mono.Cecil.AssemblyDefinition ResolveAssemblyDefinition(
+            Mono.Cecil.AssemblyNameReference nameRef)
+        {
+            try
+            {
+                return Resolver.Resolve(nameRef, Parameters);
+            }
+            catch (Mono.Cecil.AssemblyResolutionException)
+            {
+                var fallbackPath = FindTrustedPlatformAssembly(nameRef.Name);
+                if (fallbackPath == null)
+                {
+                    throw;
+                }
+
+                var readerParameters = new Mono.Cecil.ReaderParameters
+                {
+                    AssemblyResolver = Resolver,
+                    InMemory = Parameters.InMemory,
+                    ReadSymbols = Parameters.ReadSymbols,
+                    ReadingMode = Parameters.ReadingMode,
+                    ReadWrite = Parameters.ReadWrite,
+                    ThrowIfSymbolsAreNotMatching = Parameters.ThrowIfSymbolsAreNotMatching
+                };
+                return Mono.Cecil.AssemblyDefinition.ReadAssembly(fallbackPath, readerParameters);
+            }
+        }
+
+        private static string FindTrustedPlatformAssembly(string assemblyName)
+        {
+            var tpa = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+            if (string.IsNullOrEmpty(tpa))
+            {
+                return null;
+            }
+
+            foreach (var path in tpa.Split(Path.PathSeparator))
+            {
+                if (string.Equals(
+                    Path.GetFileNameWithoutExtension(path),
+                    assemblyName,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return path;
+                }
+            }
+            return null;
         }
     }
 }

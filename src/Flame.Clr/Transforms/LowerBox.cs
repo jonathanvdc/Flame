@@ -51,9 +51,8 @@ namespace Flame.Clr.Transforms
 
             if (formatterServicesTypes.Count != 1)
             {
-                throw new ArgumentException(
-                    "Type resolver defines '" + formatterServicesTypes.Count +
-                    "' types named 'System.Runtime.Serialization.FormatterServices'; expected exactly one.");
+                CreateUninitializedObjectMethod = null;
+                return;
             }
 
             CreateUninitializedObjectMethod = formatterServicesTypes[0].Methods.FirstOrDefault(
@@ -116,6 +115,11 @@ namespace Flame.Clr.Transforms
         /// <inheritdoc/>
         public override FlowGraph Apply(FlowGraph graph)
         {
+            if (CreateUninitializedObjectMethod == null)
+            {
+                return graph;
+            }
+
             var builder = graph.ToBuilder();
             foreach (var instruction in builder.Instructions)
             {

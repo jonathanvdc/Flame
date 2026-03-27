@@ -8,6 +8,7 @@ using Pixie.Markup;
 using Pixie.Options;
 using Pixie.Terminal;
 using Pixie.Transforms;
+using System.Reflection;
 
 namespace Flame.Brainfuck
 {
@@ -93,14 +94,25 @@ namespace Flame.Brainfuck
                 asmName,
                 Mono.Cecil.ModuleKind.Console);
 
+            // Mono.Cecil's default assembly skeleton no longer carries a usable
+            // core-library reference on modern .NET runtimes, so seed one up front.
+            cecilAsm.MainModule.ImportReference(typeof(object));
+            cecilAsm.MainModule.ImportReference(typeof(Console));
+
             var flameAsm = ClrAssembly.Wrap(cecilAsm);
+            var consoleAsm = ClrAssembly.Wrap(
+                Mono.Cecil.ModuleDefinition
+                    .ReadModule(typeof(Console).Module.FullyQualifiedName)
+                    .Assembly,
+                flameAsm.Resolver);
 
             var typeEnv = flameAsm.Resolver.TypeEnvironment;
             var compiler = new Compiler(
                 flameAsm,
                 Dependencies.Resolve(
                     typeEnv,
-                    new ReadOnlyTypeResolver(typeEnv.Object.Parent.Assembly),
+                    new ReadOnlyTypeResolver(flameAsm)
+                        .WithAssembly(consoleAsm),
                     log),
                 log,
                 parsedOptions);

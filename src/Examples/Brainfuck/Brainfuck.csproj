@@ -3,19 +3,19 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Flame.Brainfuck</RootNamespace>
     <AssemblyName>fbfc</AssemblyName>
-    <TargetFrameworks>net47;netcoreapp2.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Flame\Flame.csproj" />
     <ProjectReference Include="..\..\Flame.Compiler\Flame.Compiler.csproj" />
     <ProjectReference Include="..\..\Flame.Clr\Flame.Clr.csproj" />
     <ProjectReference Include="..\..\Flame.Ir\Flame.Ir.csproj" />
-    <PackageReference Include="Loyc.Collections" Version="26.8.1" />
-    <PackageReference Include="Loyc.Essentials" Version="26.8.1" />
-    <PackageReference Include="Loyc.Syntax" Version="26.8.1" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.4" />
-    <PackageReference Include="Pixie" Version="0.1.7" />
-    <PackageReference Include="Pixie.Loyc" Version="0.1.7" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="Loyc.Collections" />
+    <PackageReference Include="Loyc.Essentials" />
+    <PackageReference Include="Loyc.Syntax" />
+    <PackageReference Include="Mono.Cecil" />
+    <PackageReference Include="Pixie" />
+    <PackageReference Include="Pixie.Loyc" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>

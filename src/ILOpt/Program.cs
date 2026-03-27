@@ -89,11 +89,18 @@ namespace ILOpt
             Mono.Cecil.AssemblyDefinition cecilAsm;
             try
             {
+                var assemblyResolver = new DefaultAssemblyResolver();
+                AddSearchDirectory(assemblyResolver, Path.GetDirectoryName(inputPath));
+                AddSearchDirectory(assemblyResolver, Path.GetDirectoryName(typeof(object).Assembly.Location));
+                AddSearchDirectory(assemblyResolver, Path.GetDirectoryName(typeof(Console).Assembly.Location));
+                AddSearchDirectory(assemblyResolver, Path.GetDirectoryName(typeof(Enumerable).Assembly.Location));
+
                 cecilAsm = Mono.Cecil.AssemblyDefinition.ReadAssembly(
                     inputPath,
                     new Mono.Cecil.ReaderParameters
                     {
-                        ReadWrite = false
+                        ReadWrite = false,
+                        AssemblyResolver = assemblyResolver
                     });
             }
             catch (Exception)
@@ -138,6 +145,16 @@ namespace ILOpt
             }
 
             return 0;
+        }
+
+        private static void AddSearchDirectory(
+            DefaultAssemblyResolver assemblyResolver,
+            string directory)
+        {
+            if (!string.IsNullOrEmpty(directory) && Directory.Exists(directory))
+            {
+                assemblyResolver.AddSearchDirectory(directory);
+            }
         }
 
         private static void MakeInternal(AssemblyDefinition assembly)

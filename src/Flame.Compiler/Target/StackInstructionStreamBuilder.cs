@@ -251,6 +251,13 @@ namespace Flame.Compiler.Target
             /// <param name="value">The value to store.</param>
             private void Store(ValueTag value)
             {
+                if (Block.Graph.ContainsInstruction(value)
+                    && !parent.StackSelector.Pushes(
+                        Block.Graph.GetInstruction(value).Instruction.Prototype))
+                {
+                    return;
+                }
+
                 var resultType = Block.Graph.GetValueType(value);
                 if (uses.GetUseCount(value) == 0)
                 {

@@ -256,11 +256,21 @@ namespace Flame.Clr
         {
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
-            return new Parameter(
-                TypeHelpers.BoxIfReferenceType(
+            IType parameterType;
+            try
+            {
+                parameterType = TypeHelpers.BoxIfReferenceType(
                     assembly.Resolve(
                         parameter.ParameterType,
-                        enclosingMember)),
+                        enclosingMember));
+            }
+            catch
+            {
+                parameterType = ErrorType.Instance;
+            }
+
+            return new Parameter(
+                parameterType,
                 parameter.Name,
                 new AttributeMap(attrBuilder));
         }
@@ -272,11 +282,21 @@ namespace Flame.Clr
         {
             var attrBuilder = new AttributeMapBuilder();
             // TODO: actually analyze the parameter's attributes.
-            return new Parameter(
-                TypeHelpers.BoxIfReferenceType(
+            IType returnType;
+            try
+            {
+                returnType = TypeHelpers.BoxIfReferenceType(
                     assembly.Resolve(
                         returnParameter.ReturnType,
-                        enclosingMember)),
+                        enclosingMember));
+            }
+            catch
+            {
+                returnType = ErrorType.Instance;
+            }
+
+            return new Parameter(
+                returnType,
                 returnParameter.Name,
                 new AttributeMap(attrBuilder));
         }

@@ -71,10 +71,10 @@ namespace UnitTests
             if (positionalArgs.Length == 0)
             {
                 // Workaround for MS bug: Assert(false) will not fire in debugger
-                Debug.Listeners.Clear();
-                Debug.Listeners.Add(new DefaultTraceListener());
+                Trace.Listeners.Clear();
+                Trace.Listeners.Add(new DefaultTraceListener());
                 if (RunMenu(Menu) > 0)
-                    // Let the outside world know that something went wrong (e.g. Travis CI)
+                    // Let the outside world know that something went wrong in CI.
                     return 1;
                 else
                     return 0;

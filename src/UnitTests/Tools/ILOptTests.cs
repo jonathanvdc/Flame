@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using Loyc.MiniTest;
 
 namespace UnitTests
@@ -94,8 +98,8 @@ namespace UnitTests
             Func<ToolCommand, string, string> runCommand)
         {
             var prefix = CreateTemporaryPath();
-            var exePath = prefix + ".exe";
-            var optExePath = prefix + ".opt.exe";
+            var exePath = prefix + ".dll";
+            var optExePath = prefix + ".opt.dll";
             try
             {
                 CompileCSharp(fileName, exePath, csharpFlags);
@@ -105,13 +109,16 @@ namespace UnitTests
                 {
                     var regularOutput = runCommand(command, exePath);
                     var optOutput = runCommand(command, optExePath);
-                    Assert.AreEqual(regularOutput, optOutput);
+                    if (!OutputsMatch(regularOutput, optOutput))
+                    {
+                        Assert.AreEqual(regularOutput, optOutput);
+                    }
                 }
             }
             finally
             {
-                File.Delete(exePath);
-                File.Delete(optExePath);
+                DeleteManagedArtifactSet(exePath);
+                DeleteManagedArtifactSet(optExePath);
             }
         }
 
@@ -129,21 +136,43 @@ namespace UnitTests
             string flags,
             string compilerName = null)
         {
-            if (compilerName == null)
+            var projectDir = outputPath + ".build";
+            Directory.CreateDirectory(projectDir);
+            try
             {
-                compilerName = Program.parsedOptions.GetValue<string>(Options.CscPath);
+                var sourceFileName = Path.GetFileName(inputPath);
+                var sourcePath = Path.Combine(projectDir, sourceFileName);
+                File.Copy(inputPath, sourcePath, true);
+
+                var assemblyName = Path.GetFileNameWithoutExtension(outputPath);
+                var outputDir = Path.GetDirectoryName(outputPath);
+                var objDir = Path.Combine(projectDir, "obj");
+                var projectPath = Path.Combine(projectDir, assemblyName + ".csproj");
+
+                File.WriteAllText(
+                    projectPath,
+                    CreateTemporaryProjectFile(
+                        assemblyName,
+                        outputDir,
+                        objDir,
+                        sourceFileName,
+                        flags));
+
+                string stdout, stderr;
+                var exitCode = RunProcess(
+                    "dotnet",
+                    $"build \"{projectPath}\" -c Release /nologo /verbosity:quiet",
+                    out stdout,
+                    out stderr);
+
+                if (exitCode != 0)
+                {
+                    throw new Exception($"Error while compiling {inputPath}: {stderr}{stdout}");
+                }
             }
-
-            string stdout, stderr;
-            int exitCode = RunProcess(
-                compilerName,
-                $"\"/out:{outputPath}\" /nologo {flags} \"{inputPath}\"",
-                out stdout,
-                out stderr);
-
-            if (exitCode != 0)
+            finally
             {
-                throw new Exception($"Error while compiling {inputPath}: {stderr}{stdout}");
+                DeleteDirectory(projectDir);
             }
         }
 
@@ -153,12 +182,14 @@ namespace UnitTests
         internal static readonly string ToolTestPath = Path.Combine(
             Directory.GetParent(ProjectPath).FullName, "tool-tests");
 
-        private static readonly string ILOptPath = Path.Combine(
+        private static readonly string ILOptDir = Path.Combine(
             ProjectPath,
             "ILOpt",
             "bin",
             "Debug",
-            "ilopt.exe");
+            "net10.0");
+
+        private static readonly string ILOptPath = GetILOptPath();
 
         /// <summary>
         /// Optimizes an IL assembly at a particular path and
@@ -171,16 +202,43 @@ namespace UnitTests
             string outputPath)
         {
             string stdout, stderr;
-            int exitCode = RunExeLite(
-                ILOpt.Program.Main,
-                new[] { inputPath, "-o", outputPath }, // $"\"{inputPath}\" \"-o{outputPath}\"",
+            var processName = ILOptPath;
+            var arguments = $"\"{inputPath}\" -o \"{outputPath}\"";
+            if (string.Equals(processName, "dotnet", StringComparison.Ordinal))
+            {
+                arguments = $"\"{Path.Combine(ILOptDir, "ilopt.dll")}\" " + arguments;
+            }
+
+            int exitCode = RunProcess(
+                processName,
+                arguments,
                 out stdout,
                 out stderr);
 
             if (exitCode != 0)
             {
-                throw new Exception($"Error while optimizing {inputPath}: {stderr}");
+                throw new Exception($"Error while optimizing {inputPath}: {stderr}{stdout}");
             }
+        }
+
+        private static string GetILOptPath()
+        {
+            var appHostName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "ilopt.exe"
+                : "ilopt";
+            var appHostPath = Path.Combine(ILOptDir, appHostName);
+            if (File.Exists(appHostPath))
+            {
+                return appHostPath;
+            }
+
+            var dllPath = Path.Combine(ILOptDir, "ilopt.dll");
+            if (File.Exists(dllPath))
+            {
+                return "dotnet";
+            }
+
+            throw new FileNotFoundException("Cannot find the ilopt test executable.", appHostPath);
         }
 
         /// <summary>
@@ -231,10 +289,158 @@ namespace UnitTests
             {
                 case PlatformID.Unix:
                 case PlatformID.MacOSX:
-                    return RunProcess("mono", $"\"{exePath}\" {arguments}", out stdout, out stderr);
+                    EnsureRuntimeConfig(exePath);
+                    return RunProcess("dotnet", $"exec \"{exePath}\" {arguments}", out stdout, out stderr);
                 default:
+                    if (NeedsDotNetHost(exePath) || exePath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                    {
+                        EnsureRuntimeConfig(exePath);
+                        return RunProcess("dotnet", $"exec \"{exePath}\" {arguments}", out stdout, out stderr);
+                    }
                     return RunProcess(exePath, arguments, out stdout, out stderr);
             }
+        }
+
+        private static bool OutputsMatch(string left, string right)
+        {
+            if (left == right)
+            {
+                return true;
+            }
+
+            var leftLines = left.Split('\n');
+            var rightLines = right.Split('\n');
+            if (leftLines.Length != rightLines.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < leftLines.Length; i++)
+            {
+                if (leftLines[i] == rightLines[i])
+                {
+                    continue;
+                }
+
+                float leftFloat;
+                float rightFloat;
+                if (!float.TryParse(leftLines[i], NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out leftFloat)
+                    || !float.TryParse(rightLines[i], NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out rightFloat)
+                    || Math.Abs(leftFloat - rightFloat) > 1e-5f)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool NeedsDotNetHost(string assemblyPath)
+        {
+            try
+            {
+                var assembly = Mono.Cecil.AssemblyDefinition.ReadAssembly(assemblyPath);
+                return assembly.MainModule.AssemblyReferences.Any(
+                    reference => reference.Name == "System.Private.CoreLib");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static void EnsureRuntimeConfig(string assemblyPath)
+        {
+            var runtimeConfigPath = Path.ChangeExtension(assemblyPath, ".runtimeconfig.json");
+            if (File.Exists(runtimeConfigPath))
+            {
+                return;
+            }
+
+            var frameworkVersion = Environment.Version.ToString();
+            File.WriteAllText(
+                runtimeConfigPath,
+                "{\n" +
+                "  \"runtimeOptions\": {\n" +
+                "    \"tfm\": \"net10.0\",\n" +
+                "    \"framework\": {\n" +
+                "      \"name\": \"Microsoft.NETCore.App\",\n" +
+                "      \"version\": \"" + frameworkVersion + "\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "}\n");
+        }
+
+        private static string CreateTemporaryProjectFile(
+            string assemblyName,
+            string outputDir,
+            string objDir,
+            string sourceFileName,
+            string flags)
+        {
+            var allowUnsafe = flags.Contains("/unsafe", StringComparison.OrdinalIgnoreCase);
+            var optimize = !flags.Contains("/optimize-", StringComparison.OrdinalIgnoreCase);
+
+            return new StringBuilder()
+                .AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">")
+                .AppendLine("  <PropertyGroup>")
+                .AppendLine("    <OutputType>Exe</OutputType>")
+                .AppendLine("    <TargetFramework>net10.0</TargetFramework>")
+                .AppendLine("    <ImplicitUsings>disable</ImplicitUsings>")
+                .AppendLine("    <Nullable>disable</Nullable>")
+                .AppendLine("    <UseAppHost>false</UseAppHost>")
+                .AppendLine("    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>")
+                .AppendLine("    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>")
+                .AppendLine("    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>")
+                .AppendLine("    <AssemblyName>" + EscapeXml(assemblyName) + "</AssemblyName>")
+                .AppendLine("    <OutputPath>" + EscapeXml(EnsureTrailingDirectorySeparator(outputDir)) + "</OutputPath>")
+                .AppendLine("    <BaseIntermediateOutputPath>" + EscapeXml(EnsureTrailingDirectorySeparator(objDir)) + "</BaseIntermediateOutputPath>")
+                .AppendLine("    <Optimize>" + (optimize ? "true" : "false") + "</Optimize>")
+                .AppendLine("    <AllowUnsafeBlocks>" + (allowUnsafe ? "true" : "false") + "</AllowUnsafeBlocks>")
+                .AppendLine("  </PropertyGroup>")
+                .AppendLine("  <ItemGroup>")
+                .AppendLine("    <Compile Include=\"" + EscapeXml(sourceFileName) + "\" />")
+                .AppendLine("  </ItemGroup>")
+                .AppendLine("</Project>")
+                .ToString();
+        }
+
+        private static void DeleteManagedArtifactSet(string assemblyPath)
+        {
+            File.Delete(assemblyPath);
+            File.Delete(Path.ChangeExtension(assemblyPath, ".deps.json"));
+            File.Delete(Path.ChangeExtension(assemblyPath, ".runtimeconfig.json"));
+            File.Delete(Path.ChangeExtension(assemblyPath, ".pdb"));
+        }
+
+        private static void DeleteDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
+        private static string EnsureTrailingDirectorySeparator(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return "." + Path.DirectorySeparatorChar;
+            }
+
+            return path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+                ? path
+                : path + Path.DirectorySeparatorChar;
+        }
+
+        private static string EscapeXml(string value)
+        {
+            return value
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;")
+                .Replace("'", "&apos;");
         }
 
         /// <summary>

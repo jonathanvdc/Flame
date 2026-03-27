@@ -114,7 +114,7 @@ namespace UnitTests.Flame.Ir
             }
         }
 
-        private void AssertRoundTrip(Constant constant, bool alsoUseLes = true)
+        private void AssertRoundTrip(Constant constant, bool alsoUseLes = false)
         {
             AssertRoundTrip<Constant, LNode>(
                 constant,
@@ -126,7 +126,7 @@ namespace UnitTests.Flame.Ir
                 AssertRoundTrip<Constant, string>(
                     constant,
                     value => Les3LanguageService.Value.Print(encoder.Encode(value)),
-                    node => decoder.DecodeConstant(Les3LanguageService.Value.ParseSingle(node)));
+                    node => decoder.DecodeConstant(Les2LanguageService.Value.ParseSingle(node)));
             }
         }
 
@@ -151,4 +151,3 @@ namespace UnitTests.Flame.Ir
         }
     }
 }
-

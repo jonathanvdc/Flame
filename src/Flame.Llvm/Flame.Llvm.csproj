@@ -4,12 +4,12 @@
     <RootNamespace>Flame.Llvm</RootNamespace>
     <AssemblyName>Flame.Llvm</AssemblyName>
     <Version>1.0</Version>
-    <TargetFrameworks>net47;netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LLVMSharp" Version="5.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="LLVMSharp" />
+    <PackageReference Include="System.Collections.Immutable" />
     <ProjectReference Include="..\Flame\Flame.csproj" />
     <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj" />
   </ItemGroup>

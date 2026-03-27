@@ -88,6 +88,13 @@ namespace Flame.Compiler.Transforms
                     // object of the right type.
                     var builderInsn = builder.GetInstruction(instruction);
                     var elementType = ((NewObjectPrototype)proto).Constructor.ParentType;
+                    if (elementType.IsReferenceType())
+                    {
+                        // Reference-type constructors must preserve real object-allocation
+                        // semantics. Reifying them as a synthetic box relies on later lowering
+                        // steps that are no longer consistently available on modern runtimes.
+                        return false;
+                    }
                     var defaultConst = builderInsn.InsertBefore(
                         Instruction.CreateConstant(DefaultConstant.Instance, elementType));
                     var objInstance = builderInsn.InsertBefore(
