@@ -1,0 +1,46 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Mono and NuGet
+        run: |
+          sudo gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+          sudo gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF | sudo tee /usr/share/keyrings/mono-archive-keyring.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/mono-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+          sudo apt-get update
+          sudo apt-get install -y mono-complete nuget
+
+      - name: Install LLVM
+        run: |
+          sudo apt-get install -y libllvm7 llvm-7 llvm-7-tools clang-7
+
+      - name: Set LLVM_PATH
+        run: echo "LLVM_PATH=$(llvm-config-7 --libdir)" >> $GITHUB_ENV
+
+      - name: Restore NuGet packages
+        run: make nuget
+
+      - name: Build DSL macros
+        run: make dsl
+
+      - name: Build
+        run: make
+
+      - name: Run tests
+        run: make test
+
+      - name: Run LLVM tests
+        run: make test-llvm
