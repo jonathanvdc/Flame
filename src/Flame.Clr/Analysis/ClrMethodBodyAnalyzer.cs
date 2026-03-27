@@ -267,6 +267,10 @@ namespace Flame.Clr.Analysis
                     AnalyzeCatchHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
                     return;
 
+                case Mono.Cecil.Cil.ExceptionHandlerType.Filter:
+                    AnalyzeFilterHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
+                    return;
+
                 case Mono.Cecil.Cil.ExceptionHandlerType.Finally:
                     AnalyzeFinallyHandler(handler, (CilFinallyHandler)analyzedHandler, cilMethodBody);
                     return;
@@ -330,6 +334,43 @@ namespace Flame.Clr.Analysis
                     new[] { landingPad.Parameters[0].Tag }),
                 // Otherwise, direct control flow to the catch handler.
                 new Branch(handlerImpl, new[] { typedException.Tag }));
+        }
+
+        /// <summary>
+        /// Analyzes a 'filter' exception handler's implementation.
+        /// </summary>
+        /// <param name="handler">The exception handler to analyze.</param>
+        /// <param name="landingPadTag">
+        /// The basic block tag of the landing pad to populate for the handler.
+        /// </param>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        private void AnalyzeFilterHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            BasicBlockTag landingPadTag,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            // CIL filters execute a separate filter block that decides whether the
+            // exception should enter the handler. Flame's analyzer does not model
+            // 'endfilter' yet, so for now we conservatively lower filters as
+            // catch-all handlers. This keeps modern runtime helper methods
+            // analyzable on their normal paths while preserving the handler's
+            // evaluation stack shape.
+            var catchType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
+
+            var handlerImpl = AnalyzeBlock(
+                handler.HandlerStart,
+                new[] { catchType },
+                cilMethodBody);
+
+            var landingPad = graph.GetBasicBlock(landingPadTag);
+            var exceptionValue = landingPad.AppendInstruction(
+                Instruction.CreateGetCapturedExceptionIntrinsic(
+                    catchType,
+                    landingPad.Parameters[0].Type,
+                    landingPad.Parameters[0].Tag));
+
+            landingPad.Flow = new JumpFlow(
+                new Branch(handlerImpl, new[] { exceptionValue.Tag }));
         }
 
         /// <summary>
@@ -1279,6 +1320,19 @@ namespace Flame.Clr.Analysis
                         pointer,
                         value));
             }
+            else if (instruction.OpCode == OpCodes.Readonly)
+            {
+                // The 'readonly.' prefix is only valid in combination with 'ldelema'.
+                var ldelemaInsn = nextInstruction;
+                nextInstruction = ldelemaInsn.Next;
+                if (ldelemaInsn.OpCode != OpCodes.Ldelema)
+                {
+                    throw new InvalidProgramException(
+                        $"Instruction '{instruction}' must be trailed by an 'ldelema' instruction but was actually trailed by '{ldelemaInsn}'.");
+                }
+
+                AnalyzeInstruction(ldelemaInsn, ref nextInstruction, cilMethodBody, context);
+            }
             else if (instruction.OpCode == OpCodes.Volatile)
             {
                 // Register the 'volatile' prefix with the context.
@@ -2109,6 +2163,10 @@ namespace Flame.Clr.Analysis
                                 Assembly.Resolve(handler.CatchType))
                         });
                 }
+                else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    ehMapping[handler] = new CilCatchHandler(pad);
+                }
                 else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
                 {
                     var leavePad = graph.AddBasicBlock($"IL_{handler.HandlerStart.Offset.ToString("X4")}_leave");
@@ -2117,7 +2175,7 @@ namespace Flame.Clr.Analysis
                 else
                 {
                     throw new NotSupportedException(
-                        "Only catch and finally exception handlers are supported; " + 
+                        "Only catch, filter and finally exception handlers are supported; " + 
                         $"{handler.HandlerType} handlers are not.");
                 }
             }
