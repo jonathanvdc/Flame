@@ -127,6 +127,53 @@ namespace UnitTests.Flame.Llvm
         }
 
         [Test]
+        public void LlvmBackendRecognizesModernDelegateFieldLayout()
+        {
+            var typeSystem = LocalTypeResolutionTests.Corlib.Resolver.TypeEnvironment;
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var programType = new DescribedType(new SimpleName("Program").Qualify(), assembly);
+            var delegateBaseType = new DescribedType(new SimpleName("DelegateBase").Qualify(), assembly);
+            var delegateType = new DescribedType(new SimpleName("FakeDelegate").Qualify(), assembly);
+            delegateType.AddBaseType(delegateBaseType);
+            assembly.AddType(programType);
+            assembly.AddType(delegateBaseType);
+            assembly.AddType(delegateType);
+
+            delegateBaseType.AddField(new DescribedField(delegateBaseType, new SimpleName("_target"), false, typeSystem.NaturalInt));
+            delegateBaseType.AddField(new DescribedField(delegateBaseType, new SimpleName("_methodPtr"), false, typeSystem.NaturalInt));
+            delegateBaseType.AddField(new DescribedField(delegateBaseType, new SimpleName("_methodPtrAux"), false, typeSystem.NaturalInt));
+
+            var callee = new DescribedBodyMethod(programType, new SimpleName("Callee"), true, typeSystem.Int32);
+            callee.AddParameter(new Parameter(typeSystem.Int32, "value"));
+            callee.Body = LlvmBackendSupport.CreateIdentityBody(typeSystem.Int32);
+            programType.AddMethod(callee);
+
+            var caller = new DescribedBodyMethod(programType, new SimpleName("InvokeDelegate"), true, typeSystem.Int32);
+            caller.AddParameter(new Parameter(typeSystem.Int32, "value"));
+            caller.Body = LlvmBackendSupport.CreateDelegateCallBody(delegateType, callee, typeSystem.Int32);
+            programType.AddMethod(caller);
+
+            var moduleBuilder = LlvmBackendSupport.CompileModule(
+                assembly,
+                new global::Flame.IType[] { programType, delegateBaseType, delegateType },
+                new ITypeMember[] { callee, caller }
+                    .Concat(delegateBaseType.Fields)
+                    .ToArray(),
+                new Dictionary<IMethod, MethodBody>
+                {
+                    { callee, callee.Body },
+                    { caller, caller.Body }
+                },
+                null);
+
+            var callerFunction = moduleBuilder.Module.GetNamedFunction(new ItaniumMangler(typeSystem).Mangle(caller, true));
+            var thunk = moduleBuilder.Module.GetNamedFunction(new ItaniumMangler(typeSystem).Mangle(callee, true) + ".thunk");
+
+            Assert.AreNotEqual(IntPtr.Zero, thunk.Pointer());
+            Assert.IsTrue(LlvmBackendSupport.ContainsInstruction(callerFunction, instruction => instruction.InstructionOpcode == LLVMOpcode.LLVMCall));
+        }
+
+        [Test]
         public void LlvmBackendEmitsVirtualDispatchViaMetadataLoad()
         {
             var typeSystem = LocalTypeResolutionTests.Corlib.Resolver.TypeEnvironment;

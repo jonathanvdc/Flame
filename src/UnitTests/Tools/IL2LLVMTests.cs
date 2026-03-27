@@ -29,6 +29,29 @@ namespace UnitTests
             }
         }
 
+        [Test]
+        public void RunDynamicCastLibcTest()
+        {
+            CompileAndRunNamedTest("dynamic-cast-libc.cs");
+        }
+
+        [Test]
+        public void RunDelegateLibcTest()
+        {
+            CompileAndRunNamedTest("delegate-libc.cs");
+        }
+
+        private static void CompileAndRunNamedTest(string fileName)
+        {
+            var file = Path.Combine(ILOptTests.ToolTestPath, "IL2LLVM", fileName);
+            if (!CanRunOnCurrentPlatform(file, out var skipReason))
+            {
+                Assert.Fail("Cannot run " + fileName + " on this platform: " + skipReason);
+            }
+
+            CompileAndRun(file, "/optimize+ /unsafe", ILOptTests.RunCommand);
+        }
+
         private static bool CanRunOnCurrentPlatform(string file, out string reason)
         {
             var fileText = File.ReadAllText(file);
