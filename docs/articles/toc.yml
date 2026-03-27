@@ -2,3 +2,5 @@
   href: intro.md
 - name: "Tutorial: Brainfuck"
   href: brainfuck.md
+- name: Linux LLVM debugging
+  href: linux-debugging.md
