@@ -606,13 +606,29 @@ namespace Flame.Clr
             var fieldType = TypeHelpers.BoxIfReferenceType(
                 standinReplacer.Visit(
                     Resolve(fieldRef.FieldType, assembly, declaringType, true)));
-            return PickSingleResolvedMember(
-                fieldRef,
-                fieldIndex.GetAll(
-                    declaringType,
-                    new KeyValuePair<string, IType>(
-                        fieldRef.Name,
-                        fieldType)));
+            var resolvedFields = fieldIndex.GetAll(
+                declaringType,
+                new KeyValuePair<string, IType>(
+                    fieldRef.Name,
+                    fieldType));
+            if (resolvedFields.Count == 1)
+            {
+                return resolvedFields[0];
+            }
+
+            var resolvedDefinition = fieldRef.Resolve();
+            if (resolvedDefinition != null)
+            {
+                var declarationFallbacks = declaringType.Fields
+                    .Where(field => HasFieldDefinition(field, resolvedDefinition))
+                    .ToArray();
+                if (declarationFallbacks.Length == 1)
+                {
+                    return declarationFallbacks[0];
+                }
+            }
+
+            return PickSingleResolvedMember(fieldRef, resolvedFields);
         }
 
         /// <summary>
@@ -684,6 +700,19 @@ namespace Flame.Clr
                 return fallbackMembers[0];
             }
 
+            var resolvedDefinition = methodRef.Resolve();
+            if (resolvedDefinition != null)
+            {
+                var declarationFallbacks = declaringType.Methods
+                    .Concat(declaringType.Properties.SelectMany(prop => prop.Accessors))
+                    .Where(method => HasMethodDefinition(method, resolvedDefinition))
+                    .ToArray();
+                if (declarationFallbacks.Length == 1)
+                {
+                    return declarationFallbacks[0];
+                }
+            }
+
             return PickSingleResolvedMember(methodRef, resolvedMembers);
         }
 
@@ -717,6 +746,37 @@ namespace Flame.Clr
                         propertyRef.Name,
                         propertyType,
                         parameterTypes)));
+        }
+
+        private static bool HasFieldDefinition(IField field, FieldDefinition definition)
+        {
+            while (field is IndirectFieldSpecialization specialization)
+            {
+                field = specialization.Declaration;
+            }
+
+            return field is ClrFieldDefinition clrField
+                && SameMemberDefinition(clrField.Definition, definition);
+        }
+
+        private static bool HasMethodDefinition(IMethod method, MethodDefinition definition)
+        {
+            while (method is MethodSpecialization specialization)
+            {
+                method = specialization.Declaration;
+            }
+
+            return method is ClrMethodDefinition clrMethod
+                && SameMemberDefinition(clrMethod.Definition, definition);
+        }
+
+        private static bool SameMemberDefinition(IMemberDefinition left, IMemberDefinition right)
+        {
+            return object.ReferenceEquals(left, right)
+                || (left != null
+                    && right != null
+                    && left.MetadataToken == right.MetadataToken
+                    && string.Equals(left.FullName, right.FullName, StringComparison.Ordinal));
         }
 
         private static T PickSingleResolvedMember<T>(

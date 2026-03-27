@@ -322,6 +322,37 @@ namespace Flame.Clr
             }
         }
 
+        private IMethod ResolveExplicitOverride(MethodReference overrideRef)
+        {
+            try
+            {
+                return Assembly.Resolve(overrideRef);
+            }
+            catch (ResolutionException)
+            {
+                var declaringType = Assembly.Resolve(overrideRef.DeclaringType);
+                var name = NameConversion.ParseSimpleName(overrideRef.Name);
+                var parameterTypes = overrideRef.Parameters
+                    .Select(param => TypeHelpers.BoxIfReferenceType(Assembly.Resolve(param.ParameterType)))
+                    .ToArray();
+
+                var matches = declaringType.Methods
+                    .Concat(declaringType.Properties.SelectMany(prop => prop.Accessors))
+                    .Where(candidate =>
+                        candidate.Name == name
+                        && candidate.GenericParameters.Count == overrideRef.GenericParameters.Count
+                        && candidate.Parameters.Select(param => param.Type).SequenceEqual(parameterTypes))
+                    .ToArray();
+
+                if (matches.Length == 1)
+                {
+                    return matches[0];
+                }
+
+                throw;
+            }
+        }
+
         private void AnalyzeOverrides()
         {
             // A method's base methods consist of its implicit
@@ -401,7 +432,7 @@ namespace Flame.Clr
                 method.BaseMethodStore = new List<IMethod>();
                 foreach (var overrideRef in method.Definition.Overrides)
                 {
-                    var overrideMethod = Assembly.Resolve(overrideRef);
+                    var overrideMethod = ResolveExplicitOverride(overrideRef);
                     method.BaseMethodStore.Add(overrideMethod);
                     virtualMethodSet.Remove(overrideMethod);
                 }
