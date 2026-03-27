@@ -69,10 +69,10 @@ namespace Flame.Compiler
                             results.Add(method);
                             return method;
                         },
-                        field =>
+                        fieldMember =>
                         {
-                            results.Add(field);
-                            return field;
+                            results.Add(fieldMember);
+                            return fieldMember;
                         }));
                 return results;
             }

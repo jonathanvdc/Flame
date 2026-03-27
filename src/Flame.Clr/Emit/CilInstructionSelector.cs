@@ -268,7 +268,7 @@ namespace Flame.Clr.Emit
             // i.e., the instruction that might throw.
             chunks.Add(SelectInstructionsImpl(flow.Instruction, graph));
 
-            if (flow.Instruction.ResultType != TypeEnvironment.Void)
+            if (!IsVoidType(flow.Instruction.ResultType))
             {
                 if (resultParam != null)
                 {
@@ -638,7 +638,7 @@ namespace Flame.Clr.Emit
                 // 'Default' constants are special. We put their results directly
                 // in the appropriate register.
                 var resultType = instruction.Instruction.ResultType;
-                if (resultType.Equals(TypeEnvironment.Void))
+                if (IsVoidType(resultType))
                 {
                     return new SelectedInstructions<CilCodegenInstruction>(
                         EmptyArray<CilCodegenInstruction>.Value,
@@ -698,7 +698,7 @@ namespace Flame.Clr.Emit
             var proto = instruction.Prototype;
             if (proto is ConstantPrototype)
             {
-                if (proto.ResultType == TypeEnvironment.Void)
+                if (IsVoidType(proto.ResultType))
                 {
                     return CreateNopSelection(EmptyArray<ValueTag>.Value);
                 }
@@ -1734,13 +1734,21 @@ namespace Flame.Clr.Emit
         /// <inheritdoc/>
         public bool Pushes(InstructionPrototype prototype)
         {
-            return prototype.ResultType != TypeEnvironment.Void
+            return !IsVoidType(prototype.ResultType)
                 && !IsDefaultConstant(prototype)
                 && !(prototype is StorePrototype)
                 && !(prototype is StoreFieldPrototype)
                 && !ArrayIntrinsics.Namespace.IsIntrinsicPrototype(
                     prototype,
                     ArrayIntrinsics.Operators.StoreElement);
+        }
+
+        private bool IsVoidType(IType type)
+        {
+            return object.Equals(type, TypeEnvironment.Void)
+                || (type != null
+                    && TypeEnvironment.Void != null
+                    && type.FullName.ToString() == TypeEnvironment.Void.FullName.ToString());
         }
 
         /// <inheritdoc/>

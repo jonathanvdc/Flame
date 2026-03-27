@@ -25,6 +25,7 @@ namespace Flame.TypeSystem
             : base(name.Qualify(parentMember.FullName))
         {
             this.ParentMember = parentMember;
+            this.BaseTypes = EmptyArray<IType>.Value;
         }
 
         /// <summary>

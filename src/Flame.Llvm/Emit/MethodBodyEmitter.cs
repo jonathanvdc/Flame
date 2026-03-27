@@ -8,6 +8,8 @@ using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
 using LLVMSharp;
+using BasicBlock = Flame.Compiler.BasicBlock;
+using Instruction = Flame.Compiler.Instruction;
 
 namespace Flame.Llvm.Emit
 {

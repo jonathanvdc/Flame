@@ -257,12 +257,54 @@ namespace Flame.Clr
             // where the assembly tries to resolve itself.
             resolver.ReferenceResolver.Register(definition.Name, flameAsm);
 
-            var objectType = flameAsm.Resolve(definition.MainModule.TypeSystem.Object);
-            var corlib = objectType.Parent.Assembly;
+            IAssembly corlib;
+            try
+            {
+                var objectType = flameAsm.Resolve(definition.MainModule.TypeSystem.Object);
+                corlib = objectType.Parent.Assembly;
+            }
+            catch (ResolutionException)
+            {
+                corlib = CreateFallbackCorlib();
+                var objectScope = definition.MainModule.TypeSystem.Object.Scope as AssemblyNameReference;
+                if (objectScope != null)
+                {
+                    resolver.ReferenceResolver.Register(objectScope, corlib);
+                }
+            }
 
             typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
-
             return flameAsm;
+        }
+
+        /// <summary>
+        /// Wraps a CIL assembly definition in a Flame assembly using an existing
+        /// reference resolver.
+        /// </summary>
+        /// <param name="definition">The assembly definition to wrap.</param>
+        /// <param name="resolver">The reference resolver to register the assembly with.</param>
+        /// <returns>A Flame assembly.</returns>
+        public static ClrAssembly Wrap(
+            AssemblyDefinition definition,
+            ReferenceResolver resolver)
+        {
+            var flameAsm = new ClrAssembly(definition, resolver);
+
+            // Register the assembly with its own resolver, so we don't get weirdness
+            // where the assembly tries to resolve itself.
+            resolver.Register(definition.Name, flameAsm);
+            return flameAsm;
+        }
+
+        private static IAssembly CreateFallbackCorlib()
+        {
+            var typeSystem = new MutableTypeEnvironment(null);
+            var corlib = new ClrAssembly(
+                ModuleDefinition.ReadModule(typeof(object).Module.FullyQualifiedName).Assembly,
+                NullAssemblyResolver.Instance,
+                typeSystem);
+            typeSystem.InnerEnvironment = new CorlibTypeEnvironment(corlib);
+            return corlib;
         }
     }
 }

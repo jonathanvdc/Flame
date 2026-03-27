@@ -32,7 +32,7 @@ namespace Flame.Clr
             this.TypeEnvironment = typeEnvironment;
             this.assemblyCache = new Dictionary<string, IAssembly>();
             this.typeResolvers = new Dictionary<IAssembly, TypeResolver>();
-            this.cacheLock = new ReaderWriterLockSlim();
+            this.cacheLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
             this.fieldIndex = new Index<IType, KeyValuePair<string, IType>, IField>(
                 type =>
@@ -49,9 +49,19 @@ namespace Flame.Clr
                         .Concat(
                             type.Properties.SelectMany(prop => prop.Accessors))
                         .Select(method =>
-                            new KeyValuePair<ClrMethodSignature, IMethod>(
-                                ClrMethodSignature.Create(method),
-                                method)));
+                        {
+                            try
+                            {
+                                return new KeyValuePair<ClrMethodSignature, IMethod>(
+                                    ClrMethodSignature.Create(method),
+                                    method);
+                            }
+                            catch
+                            {
+                                return default(KeyValuePair<ClrMethodSignature, IMethod>);
+                            }
+                        })
+                        .Where(pair => pair.Value != null));
             this.propertyIndex = new Index<IType, ClrPropertySignature, IProperty>(
                 type =>
                     type.Properties.Select(prop =>
@@ -141,9 +151,11 @@ namespace Flame.Clr
             TValue result;
 
             // Try to retrieve the element from the dictionary first.
+            var enteredReadLock = false;
             try
             {
                 cacheLock.EnterReadLock();
+                enteredReadLock = true;
                 if (dictionary.TryGetValue(key, out result))
                 {
                     return result;
@@ -151,14 +163,19 @@ namespace Flame.Clr
             }
             finally
             {
-                cacheLock.ExitReadLock();
+                if (enteredReadLock)
+                {
+                    cacheLock.ExitReadLock();
+                }
             }
 
             // If the element if not in the dictionary yet, then we'll
             // create it anew.
+            var enteredWriteLock = false;
             try
             {
                 cacheLock.EnterWriteLock();
+                enteredWriteLock = true;
 
                 // Check that the element has not been created yet before
                 // actually creating it.
@@ -175,7 +192,10 @@ namespace Flame.Clr
             }
             finally
             {
-                cacheLock.ExitWriteLock();
+                if (enteredWriteLock)
+                {
+                    cacheLock.ExitWriteLock();
+                }
             }
         }
 
@@ -244,6 +264,11 @@ namespace Flame.Clr
             IGenericMember enclosingMember,
             bool useStandins)
         {
+            if (typeRef == null)
+            {
+                return ErrorType.Instance;
+            }
+
             if (typeRef is TypeSpecification)
             {
                 var typeSpec = (TypeSpecification)typeRef;
@@ -319,20 +344,37 @@ namespace Flame.Clr
                         ? (IType)enclosingMember
                         : enclosingMember is IMethod
                             ? ((IMethod)enclosingMember).ParentType
-                            : Resolve(
+                            : genericParam.DeclaringType == null
+                                ? null
+                                : Resolve(
                                 genericParam.DeclaringType,
                                 assembly,
                                 enclosingMember,
                                 useStandins);
 
-                    return declType.GetRecursiveGenericParameters()[genericParam.Position];
+                    if (declType == null)
+                    {
+                        return ErrorType.Instance;
+                    }
+
+                    var genericParameters = declType.GetRecursiveGenericParameters();
+                    return genericParam.Position < genericParameters.Count
+                        ? genericParameters[genericParam.Position]
+                        : ErrorType.Instance;
                 }
                 else
                 {
                     var declMethod = enclosingMember is IMethod
                         ? (IMethod)enclosingMember
                         : Resolve(genericParam.DeclaringMethod, assembly);
-                    return declMethod.GenericParameters[genericParam.Position];
+                    if (declMethod == null)
+                    {
+                        return ErrorType.Instance;
+                    }
+
+                    return genericParam.Position < declMethod.GenericParameters.Count
+                        ? declMethod.GenericParameters[genericParam.Position]
+                        : ErrorType.Instance;
                 }
             }
             else
@@ -366,7 +408,66 @@ namespace Flame.Clr
                     case MetadataScopeType.ModuleDefinition:
                     case MetadataScopeType.ModuleReference:
                     default:
-                        return FindInAssembly(typeRef, assembly);
+                        try
+                        {
+                            return FindInAssembly(typeRef, assembly);
+                        }
+                        catch (ResolutionException)
+                        {
+                            var corlibAssembly = TypeEnvironment.Object.Parent.AssemblyOrNull;
+                            if (corlibAssembly != null && !object.Equals(corlibAssembly, assembly))
+                            {
+                                try
+                                {
+                                    return FindInAssembly(typeRef, corlibAssembly);
+                                }
+                                catch (ResolutionException)
+                                {
+                                }
+                            }
+
+                            foreach (var assemblyRef in assembly.Definition.MainModule.AssemblyReferences)
+                            {
+                                try
+                                {
+                                    var referencedAssembly = Resolve(assemblyRef);
+                                    if (object.Equals(referencedAssembly, assembly)
+                                        || object.Equals(referencedAssembly, corlibAssembly))
+                                    {
+                                        continue;
+                                    }
+
+                                    return FindInAssembly(typeRef, referencedAssembly);
+                                }
+                                catch (ResolutionException)
+                                {
+                                }
+                                catch (AssemblyResolutionException)
+                                {
+                                }
+                            }
+
+                            var knownAssemblies = assemblyCache.Values
+                                .Concat(typeResolvers.Keys)
+                                .Distinct();
+                            foreach (var candidateAssembly in knownAssemblies)
+                            {
+                                if (object.Equals(candidateAssembly, assembly)
+                                    || object.Equals(candidateAssembly, corlibAssembly))
+                                {
+                                    continue;
+                                }
+
+                                try
+                                {
+                                    return FindInAssembly(typeRef, candidateAssembly);
+                                }
+                                catch (ResolutionException)
+                                {
+                                }
+                            }
+                            throw;
+                        }
                 }
             }
         }
@@ -386,11 +487,92 @@ namespace Flame.Clr
 
         private IType FindInAssembly(TypeReference typeRef, IAssembly assembly)
         {
+            return FindInAssembly(typeRef, assembly, true);
+        }
+
+        private IType FindInAssembly(
+            TypeReference typeRef,
+            IAssembly assembly,
+            bool allowFrameworkFallback)
+        {
             var qualName = NameConversion.ParseSimpleName(typeRef.Name)
                 .Qualify(NameConversion.ParseNamespace(typeRef.Namespace));
-            return PickSingleResolvedType(
-                typeRef,
-                GetTypeResolver(assembly).ResolveTypes(qualName));
+            var resolvedTypes = GetTypeResolver(assembly).ResolveTypes(qualName);
+            if (resolvedTypes.Count == 0 && allowFrameworkFallback)
+            {
+                var frameworkType = TryResolveFrameworkType(typeRef, qualName);
+                if (frameworkType != null)
+                {
+                    return frameworkType;
+                }
+            }
+            return PickSingleResolvedType(typeRef, resolvedTypes);
+        }
+
+        private IType TryResolveFrameworkType(TypeReference typeRef, QualifiedName qualName)
+        {
+            foreach (var candidateIdentity in GetFrameworkAssemblyCandidates(typeRef))
+            {
+                IAssembly candidateAssembly;
+                if (!AssemblyResolver.TryResolve(candidateIdentity, out candidateAssembly))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    return FindInAssembly(typeRef, candidateAssembly, false);
+                }
+                catch (ResolutionException)
+                {
+                }
+            }
+            return null;
+        }
+
+        private IEnumerable<AssemblyIdentity> GetFrameworkAssemblyCandidates(TypeReference typeRef)
+        {
+            if (string.IsNullOrEmpty(typeRef.Namespace))
+            {
+                yield break;
+            }
+
+            var yieldedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var name in GetFrameworkAssemblyCandidateNames(typeRef))
+            {
+                if (yieldedNames.Add(name))
+                {
+                    yield return new AssemblyIdentity(name);
+                }
+            }
+        }
+
+        private IEnumerable<string> GetFrameworkAssemblyCandidateNames(TypeReference typeRef)
+        {
+            yield return typeRef.Namespace + "." + typeRef.Name;
+
+            var namespaceParts = typeRef.Namespace.Split('.');
+            if (namespaceParts.Length > 1)
+            {
+                yield return string.Join(".", namespaceParts.Take(2));
+            }
+
+            if (namespaceParts.Length > 0)
+            {
+                yield return namespaceParts[0];
+            }
+
+            if (typeRef.Namespace == "System.Runtime.CompilerServices")
+            {
+                yield return "System.Linq.Expressions";
+                yield return "System.Core";
+            }
+
+            yield return "System.Runtime";
+            yield return "System.Console";
+            yield return "System.Private.CoreLib";
+            yield return "mscorlib";
+            yield return "netstandard";
         }
 
         private static IType PickSingleResolvedType(

@@ -76,17 +76,17 @@ namespace Flame.Brainfuck
             else
             {
                 var writeMethod = consoleType.Methods.FirstOrDefault(
-                    method => method.Name.ToString() == "Write"
-                        && method.IsStatic
-                        && method.ReturnParameter.Type == environment.Void
-                        && method.Parameters.Count == 1
-                        && method.Parameters[0].Type == environment.Char);
+                    method => HasSignature(
+                        method,
+                        "Write",
+                        environment.Void,
+                        environment.Char));
 
                 var readMethod = consoleType.Methods.FirstOrDefault(
-                    method => method.Name.ToString() == "Read"
-                        && method.IsStatic
-                        && method.ReturnParameter.Type == environment.Int32
-                        && method.Parameters.Count == 0); 
+                    method => HasSignature(
+                        method,
+                        "Read",
+                        environment.Int32)); 
 
                 if (writeMethod != null)
                 {
@@ -123,6 +123,34 @@ namespace Flame.Brainfuck
 
                 return new Dependencies(environment, readMethod, writeMethod);
             }
+        }
+
+        private static bool HasSignature(
+            IMethod method,
+            string name,
+            IType returnType,
+            params IType[] parameterTypes)
+        {
+            return method.Name.ToString() == name
+                && method.IsStatic
+                && HasSameType(method.ReturnParameter.Type, returnType)
+                && method.Parameters.Count == parameterTypes.Length
+                && method.Parameters
+                    .Select(param => param.Type)
+                    .Zip(parameterTypes, HasSameType)
+                    .All(matches => matches);
+        }
+
+        private static bool HasSameType(IType left, IType right)
+        {
+            if (left == null || right == null)
+            {
+                return false;
+            }
+
+            return object.Equals(left, right)
+                || left.FullName.Equals(right.FullName)
+                || left.FullName.ToString() == right.FullName.ToString();
         }
 
         /// <summary>

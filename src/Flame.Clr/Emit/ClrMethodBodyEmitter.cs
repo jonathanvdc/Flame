@@ -102,7 +102,7 @@ namespace Flame.Clr.Emit
             // Synthesize the actual method body.
             var processor = result.GetILProcessor();
 
-            var emitter = new CodegenEmitter(processor, regAllocation);
+            var emitter = new CodegenEmitter(processor, regAllocation, sourceGraph, TypeEnvironment);
             emitter.Emit(codegenInsns);
 
             // Add local variables to method body. Put most popular
@@ -231,10 +231,14 @@ namespace Flame.Clr.Emit
         {
             public CodegenEmitter(
                 Mono.Cecil.Cil.ILProcessor processor,
-                RegisterAllocation<CilCodegenRegister> registerAllocation)
+                RegisterAllocation<CilCodegenRegister> registerAllocation,
+                FlowGraph sourceGraph,
+                TypeEnvironment typeEnvironment)
             {
                 this.Processor = processor;
                 this.RegisterAllocation = registerAllocation;
+                this.SourceGraph = sourceGraph;
+                this.TypeEnvironment = typeEnvironment;
                 this.branchTargets = new Dictionary<BasicBlockTag, CilInstruction>();
                 this.pendingTargets = new List<BasicBlockTag>();
                 this.patches = new List<CilOpInstruction>();
@@ -246,6 +250,8 @@ namespace Flame.Clr.Emit
 
             public Mono.Cecil.Cil.ILProcessor Processor { get; private set; }
             public RegisterAllocation<CilCodegenRegister> RegisterAllocation { get; private set; }
+            public FlowGraph SourceGraph { get; private set; }
+            public TypeEnvironment TypeEnvironment { get; private set; }
             public IReadOnlyDictionary<Mono.Cecil.Cil.VariableDefinition, int> RegisterUseCounts => registerUseCounters;
 
             private Dictionary<BasicBlockTag, CilInstruction> branchTargets;
@@ -369,9 +375,20 @@ namespace Flame.Clr.Emit
                     }
                     else
                     {
-                        Emit(CilInstruction.Create(OpCodes.Pop));
+                        if (!IsVoidType(SourceGraph.GetValueType(storeInsn.Value)))
+                        {
+                            Emit(CilInstruction.Create(OpCodes.Pop));
+                        }
                     }
                 }
+            }
+
+            private bool IsVoidType(IType type)
+            {
+                return object.Equals(type, TypeEnvironment.Void)
+                    || (type != null
+                        && TypeEnvironment.Void != null
+                        && type.FullName.ToString() == TypeEnvironment.Void.FullName.ToString());
             }
 
             private void Emit(CilInstruction instruction)
