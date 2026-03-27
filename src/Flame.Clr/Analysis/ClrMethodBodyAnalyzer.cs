@@ -1426,10 +1426,9 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Isinst)
             {
-                var operandType = TypeHelpers.BoxIfReferenceType(
-                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-
-                var pointerOperandType = operandType as PointerType;
+                var operandType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var pointerOperandType = operandType as PointerType
+                    ?? operandType.MakePointerType(PointerKind.Box);
                 if (pointerOperandType == null)
                 {
                     throw new InvalidProgramException(
