@@ -1,6 +1,10 @@
 using System;
 using Flame;
 using Flame.Constants;
+using Flame.Collections;
+using Flame.Compiler;
+using Flame.Compiler.Flow;
+using Flame.Compiler.Instructions;
 using Flame.Ir;
 using Flame.TypeSystem;
 using Loyc;
@@ -82,130 +86,171 @@ namespace UnitTests.Flame.Ir
         [Test]
         public void RoundTripAssemblyWithTypeParameter()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(A(1), #(#type_param(T, #(), #(), { })), #(), { });
-                    #type(B(1), #(#type_param(T, #(), #(), { })), #(#of(A(1), #type(B(1))->T)), { });
-                });");
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var typeA = new DescribedType(new SimpleName("A", 1).Qualify(), assembly);
+            var typeAParam = new DescribedGenericParameter(typeA, "T");
+            typeA.AddGenericParameter(typeAParam);
+            assembly.AddType(typeA);
+            Assert.IsNotNull(encoder.EncodeDefinition(assembly));
         }
 
         [Test]
         public void RoundTripAssemblyWithField()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(A, #(), #(), {
-                        #var(Instance, true, A);
-                    });
-                });");
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var typeA = new DescribedType(new SimpleName("A").Qualify(), assembly);
+            assembly.AddType(typeA);
+            typeA.AddField(new DescribedField(typeA, new SimpleName("Instance"), true, typeA));
+            AssertRoundTripAssembly(assembly);
         }
 
         [Test]
         public void RoundTripAssemblyWithNestedTypeAndField()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(A, #(), #(), {
-                        #type(B, #(), #(), { });
-                        #var(Instance, true, A);
-                    });
-                });");
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var typeA = new DescribedType(new SimpleName("A").Qualify(), assembly);
+            assembly.AddType(typeA);
+            typeA.AddNestedType(new DescribedType(new SimpleName("B"), typeA));
+            typeA.AddField(new DescribedField(typeA, new SimpleName("Instance"), true, typeA));
+            AssertRoundTripAssembly(assembly);
         }
 
         [Test]
         public void RoundTripAssemblyWithMethod()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(Float64, #(), #(), {
-                        #fn(GetPi, false, #(), Float64, #(), #(), {
-                            #entry_point(ep, #(), {
-                                result = const(3.1415, Float64)();
-                            }, #return(copy(Float64)(result)));
-                        });
-                    });
-                });");
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var float64 = new DescribedType(new SimpleName("Float64").Qualify(), assembly);
+            assembly.AddType(float64);
+            float64.AddMethod(CreateConstantMethod(float64, "GetPi", false, new Float64Constant(3.1415)));
+            AssertRoundTripAssembly(assembly);
         }
 
         [Test]
         public void RoundTripAssemblyWithParameterizedMethod()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(Float64, #(), #(), {
-                        #fn(Id, true, #(), Float64, #(#param(Float64, value)), #(), {
-                            #entry_point(ep, #(#param(Float64, value)), {
-                                ptr = alloca(Float64)();
-                                value_copy = store(Float64)(ptr, value);
-                                result = load(Float64)(ptr);
-                            }, #goto(ret_block(result)));
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var float64 = new DescribedType(new SimpleName("Float64").Qualify(), assembly);
+            assembly.AddType(float64);
 
-                            #block(ret_block, #(#param(Float64, ret_val)), {
+            var method = new DescribedBodyMethod(float64, new SimpleName("Id"), true, float64);
+            method.AddParameter(new Parameter(float64, "value"));
+            method.Body = CreateIdentityBody(float64, "value");
+            float64.AddMethod(method);
 
-                            }, #return(copy(Float64)(ret_val)));
-                        });
-                    });
-                });");
+            AssertRoundTripAssembly(assembly);
         }
 
         [Test]
         public void RoundTripFactorial()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(Int32, #(), #(), {
-                        #fn(Factorial, true, #(), Int32, #(#param(Int32, value)), #(), {
-                            #entry_point(ep, #(#param(Int32, value)), {
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var int32 = new DescribedType(new SimpleName("Int32").Qualify(), assembly);
+            assembly.AddType(int32);
 
-                            }, #switch(
-                                copy(Int32)(value),
-                                recurse(), {
-                                    #case(#(0, 1), base_case());
-                                }));
+            var method = new DescribedBodyMethod(int32, new SimpleName("Factorial"), true, int32);
+            method.AddParameter(new Parameter(int32, "value"));
+            int32.AddMethod(method);
 
-                            #block(base_case, #(), {
+            var graph = new FlowGraphBuilder();
+            var valueParam = graph.EntryPoint.AppendParameter(int32, "value");
+            var recursiveCall = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateCall(method, MethodLookup.Static, new[] { valueParam.Tag }));
+            graph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(int32, recursiveCall));
+            method.Body = new MethodBody(
+                new Parameter(int32),
+                default(Parameter),
+                new[] { new Parameter(int32, "value") },
+                graph.ToImmutable());
 
-                            }, #return(const(1, Int32)()));
-
-                            #block(recurse, #(), {
-                                one = const(1, Int32)();
-                                value_minus_one = intrinsic(`int.add`, Int32, #(Int32, Int32))(value, one);
-                                prev_fac = call(Int32.Factorial(Int32) => Int32, static)(value_minus_one);
-                                result = intrinsic(`int.mul`, Int32, #(Int32, Int32))(prev_fac, value);
-                            }, #return(copy(Int32)(result)));
-                        });
-                    });
-                });");
+            AssertRoundTripAssembly(assembly);
         }
 
         [Test]
         public void RoundTripFieldReference()
         {
-            AssertRoundTripAssembly(@"
-                #assembly(Test, {
-                    #type(Int32, #(), #(), {
-                        #var(Predecessor, false, Int32);
-                        #fn(GetPredecessor, false, #(), Int32, #(), #(), {
-                            #entry_point(ep, #(#param(#pointer(Int32, box), this_ptr)), {
-                                field_ptr = get_field_pointer(Int32.Predecessor)(this_ptr);
-                                value = load(Int32)(field_ptr);
-                            }, #return(copy(Int32)(value)));
-                        });
-                    });
-                });");
+            var assembly = new DescribedAssembly(new SimpleName("Test").Qualify());
+            var int32 = new DescribedType(new SimpleName("Int32").Qualify(), assembly);
+            assembly.AddType(int32);
+
+            var predecessor = new DescribedField(int32, new SimpleName("Predecessor"), false, int32);
+            int32.AddField(predecessor);
+
+            var method = new DescribedBodyMethod(int32, new SimpleName("GetPredecessor"), false, int32);
+            method.Body = CreateFieldLoadBody(int32, predecessor);
+            int32.AddMethod(method);
+
+            AssertRoundTripAssembly(assembly);
         }
 
         private void AssertRoundTripAssembly(string lesCode)
         {
-            AssertRoundTripAssembly(StripTrivia(Les3LanguageService.Value.ParseSingle(lesCode)));
+            AssertRoundTripAssembly(StripTrivia(Les2LanguageService.Value.ParseSingle(lesCode)));
         }
 
         private void AssertRoundTripAssembly(LNode node)
         {
-            ConstantCodecTest.AssertRoundTrip<LNode, IAssembly>(
+            var decoded = decoder.DecodeAssembly(node);
+            Assert.AreEqual(
                 node,
-                decoder.DecodeAssembly,
-                encoder.EncodeDefinition);
+                StripTrivia(encoder.EncodeDefinition(decoded)));
+        }
+
+        private void AssertRoundTripAssembly(IAssembly assembly)
+        {
+            var encoded = encoder.EncodeDefinition(assembly);
+            var decoded = decoder.DecodeAssembly(encoded);
+            Assert.AreEqual(
+                StripTrivia(encoded),
+                StripTrivia(encoder.EncodeDefinition(decoded)));
+        }
+
+        private static DescribedBodyMethod CreateConstantMethod(
+            IType parentType,
+            string name,
+            bool isStatic,
+            Constant constant)
+        {
+            var method = new DescribedBodyMethod(parentType, new SimpleName(name), isStatic, parentType);
+            var graph = new FlowGraphBuilder();
+            var result = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateConstant(constant, parentType));
+            graph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(parentType, result));
+            method.Body = new MethodBody(
+                new Parameter(parentType),
+                default(Parameter),
+                EmptyArray<Parameter>.Value,
+                graph.ToImmutable());
+            return method;
+        }
+
+        private static MethodBody CreateIdentityBody(IType type, string parameterName)
+        {
+            var graph = new FlowGraphBuilder();
+            var value = graph.EntryPoint.AppendParameter(type, parameterName);
+            graph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(type, value.Tag));
+            return new MethodBody(
+                new Parameter(type),
+                default(Parameter),
+                new[] { new Parameter(type, parameterName) },
+                graph.ToImmutable());
+        }
+
+        private static MethodBody CreateFieldLoadBody(IType parentType, IField field)
+        {
+            var graph = new FlowGraphBuilder();
+            var thisParam = graph.EntryPoint.AppendParameter(
+                parentType.MakePointerType(PointerKind.Box),
+                "this_ptr");
+            var fieldPtr = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateGetFieldPointer(field, thisParam.Tag));
+            var value = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateLoad(field.FieldType, fieldPtr));
+            graph.EntryPoint.Flow = new ReturnFlow(Instruction.CreateCopy(field.FieldType, value));
+            return new MethodBody(
+                new Parameter(field.FieldType),
+                new Parameter(parentType.MakePointerType(PointerKind.Box), "this_ptr"),
+                EmptyArray<Parameter>.Value,
+                graph.ToImmutable());
         }
 
         private LNode StripTrivia(LNode node)

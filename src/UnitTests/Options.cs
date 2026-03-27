@@ -32,8 +32,28 @@ namespace UnitTests
             .WithDescription("A path to the assembly to optimize.")
             .WithParameters(new SymbolicOptionParameter("path", true));
 
-        private static string DefaultCscPath =
-            Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "csc.exe");
+        private static string DefaultCscPath = GetDefaultCscPath();
+
+        private static string GetDefaultCscPath()
+        {
+            var runtimeCscPath = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "csc.exe");
+            if (File.Exists(runtimeCscPath))
+            {
+                return runtimeCscPath;
+            }
+
+            if (File.Exists("/opt/homebrew/bin/csc"))
+            {
+                return "/opt/homebrew/bin/csc";
+            }
+
+            if (File.Exists("/opt/homebrew/bin/mcs"))
+            {
+                return "/opt/homebrew/bin/mcs";
+            }
+
+            return "csc";
+        }
 
         /// <summary>
         /// The 'csc-path' option, which specifies the path to the C# compiler.

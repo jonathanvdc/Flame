@@ -53,9 +53,16 @@ namespace UnitTests.Flame.Compiler
             var graph = new FlowGraph();
             graph = graph.WithAnalysis(new ConstantAnalysis<int>(7));
             Assert.AreEqual((int)graph.GetAnalysisResult<object>(), 7);
-            Assert.Throws(
-                typeof(NotSupportedException),
-                () => graph.GetAnalysisResult<string>());
+            bool threw = false;
+            try
+            {
+                graph.GetAnalysisResult<string>();
+            }
+            catch (NotSupportedException)
+            {
+                threw = true;
+            }
+            Assert.IsTrue(threw);
         }
 
         [Test]

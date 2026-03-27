@@ -1,4 +1,5 @@
 using System;
+using Loyc;
 using Loyc.MiniTest;
 using Flame.Clr;
 using System.Linq;
@@ -556,11 +557,14 @@ namespace UnitTests.Flame.Clr
                     IndentString = new string(' ', 4)
                 });
 
-            if (actual.Trim() != oracle.Trim())
+            var expectedNode = NormalizeNode(Les2LanguageService.Value.ParseSingle(oracle));
+            var actualNode = NormalizeNode(Les2LanguageService.Value.ParseSingle(actual));
+
+            if (!actualNode.Equals(expectedNode))
             {
                 log.Log(
                     new LogEntry(
-                        Severity.Message,
+                        Pixie.Severity.Message,
                         "CIL analysis-oracle mismatch",
                         "analyzed CIL does not match the oracle. CIL analysis output:"));
                 // TODO: ugly hack to work around wrapping.
@@ -568,8 +572,25 @@ namespace UnitTests.Flame.Clr
             }
 
             Assert.AreEqual(
-                actual.Trim(),
-                oracle.Trim());
+                actualNode,
+                expectedNode);
+        }
+
+        private static LNode NormalizeNode(LNode node)
+        {
+            var strippedNode = node.WithAttrs(
+                attr => attr.IsTrivia ? Maybe<LNode>.NoValue : new Maybe<LNode>(attr));
+
+            if (strippedNode.IsCall)
+            {
+                return strippedNode
+                    .WithTarget(NormalizeNode(strippedNode.Target))
+                    .WithArgs(arg => new Maybe<LNode>(NormalizeNode(arg)));
+            }
+            else
+            {
+                return strippedNode;
+            }
         }
     }
 }
