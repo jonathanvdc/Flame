@@ -42,9 +42,14 @@ namespace Flame.Llvm
             string name)
         {
             var metaType = GetMetadataExtendedType(importedType, module);
+            var objectSize = metaType.CreateSizeOf();
+            if (tailRoom.TypeOf != objectSize.TypeOf)
+            {
+                tailRoom = builder.CreateIntCast(tailRoom, objectSize.TypeOf, "");
+            }
             var bytes = builder.CreateArrayMalloc(
                 LLVM.Int8TypeInContext(module.Context),
-                builder.CreateAdd(metaType.CreateSizeOf(), tailRoom, ""),
+                builder.CreateAdd(objectSize, tailRoom, ""),
                 name + ".alloc");
             var metaVal = builder.CreateBitCast(bytes, LLVM.PointerType(metaType, 0), "");
             builder.CreateStore(
