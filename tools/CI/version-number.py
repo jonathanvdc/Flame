@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # This is a super simple Python script that accepts a single version string,
-# the (AppVeyor) build number, and prints a NuGet package version number for
+# the CI build number, and prints a NuGet package version number for
 # the corresponding Flame package.
 
 import sys
