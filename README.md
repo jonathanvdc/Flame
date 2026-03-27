@@ -30,7 +30,6 @@ The repository no longer depends on generated `.out.cs` files for the two old tr
 ### Prerequisites
 
 - .NET SDK 10.x
-- Mono if you want to run the full portable tool tests locally on Linux or macOS
 
 ### Build
 
@@ -55,12 +54,6 @@ The portable suite is the main CI target and excludes the LLVM-dependent test se
 $ dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable
 ```
 
-On machines where Roslyn `csc` is not on `PATH`, pass a compiler explicitly. For example, on CI we use Mono's compiler:
-
-```console
-$ dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable --csc-path mcs
-```
-
 The make wrapper runs the same portable suite:
 
 ```console
@@ -72,6 +65,5 @@ $ make -C src test
 GitHub Actions is configured in [`/.github/workflows/ci.yml`](./.github/workflows/ci.yml). The workflow:
 
 - installs .NET 10
-- installs Mono for the portable tool tests
 - builds `src/Flame.sln`
 - runs the portable unit and tool test suite

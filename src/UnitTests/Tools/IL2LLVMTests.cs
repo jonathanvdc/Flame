@@ -42,7 +42,7 @@ namespace UnitTests
             Func<ToolCommand, string, bool, string> runCommand)
         {
             var prefix = ILOptTests.CreateTemporaryPath();
-            var exePath = prefix + ".exe";
+            var exePath = prefix + ".dll";
             var irPath = prefix + ".ll";
             var outPath = prefix + ".out";
             try
@@ -61,6 +61,9 @@ namespace UnitTests
             finally
             {
                 File.Delete(exePath);
+                File.Delete(Path.ChangeExtension(exePath, ".deps.json"));
+                File.Delete(Path.ChangeExtension(exePath, ".runtimeconfig.json"));
+                File.Delete(Path.ChangeExtension(exePath, ".pdb"));
                 File.Delete(irPath);
                 File.Delete(outPath);
             }

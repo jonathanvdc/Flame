@@ -1,8 +1,4 @@
 using System.Collections.Generic;
-using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Pixie.Markup;
 using Pixie.Options;
 
@@ -34,83 +30,6 @@ namespace UnitTests
             .WithDescription("A path to the assembly to optimize.")
             .WithParameters(new SymbolicOptionParameter("path", true));
 
-        private static string DefaultCscPath = GetDefaultCscPath();
-
-        private static string GetDefaultCscPath()
-        {
-            var runtimeCscPath = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "csc.exe");
-            if (File.Exists(runtimeCscPath))
-            {
-                return runtimeCscPath;
-            }
-
-            var sdkCscPath = GetDotNetSdkCscPath();
-            if (sdkCscPath != null)
-            {
-                return sdkCscPath;
-            }
-
-            if (File.Exists("/opt/homebrew/bin/csc"))
-            {
-                return "/opt/homebrew/bin/csc";
-            }
-
-            if (File.Exists("/opt/homebrew/bin/mcs"))
-            {
-                return "/opt/homebrew/bin/mcs";
-            }
-
-            return "csc";
-        }
-
-        private static string GetDotNetSdkCscPath()
-        {
-            var candidateRoots = new[]
-            {
-                Environment.GetEnvironmentVariable("DOTNET_ROOT"),
-                Environment.GetEnvironmentVariable("DOTNET_ROOT_X64"),
-                "/usr/local/share/dotnet",
-                "/usr/share/dotnet",
-                "/opt/homebrew/share/dotnet"
-            };
-
-            foreach (var root in candidateRoots.Where(path => !string.IsNullOrEmpty(path)).Distinct())
-            {
-                var sdkRoot = Path.Combine(root, "sdk");
-                if (!Directory.Exists(sdkRoot))
-                {
-                    continue;
-                }
-
-                var cscPath = Directory
-                    .GetDirectories(sdkRoot)
-                    .OrderByDescending(path => path, StringComparer.OrdinalIgnoreCase)
-                    .Select(path => Path.Combine(path, "Roslyn", "bincore", "csc.dll"))
-                    .FirstOrDefault(File.Exists);
-
-                if (cscPath != null)
-                {
-                    return cscPath;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// The 'csc-path' option, which specifies the path to the C# compiler.
-        /// </summary>
-        public static readonly ValueOption<string> CscPath =
-            ValueOption.CreateStringOption(
-                    OptionForm.Long("csc-path"),
-                    DefaultCscPath)
-                .WithDescription(
-                    Quotation.QuoteEvenInBold(
-                        "The path to the C# compiler. This is ",
-                        DefaultCscPath,
-                        " by default."))
-                .WithParameter(new SymbolicOptionParameter("path"));
-
         private static string DefaultClangPath = "clang";
 
         /// <summary>
@@ -134,7 +53,6 @@ namespace UnitTests
             new Option[]
         {
             Help,
-            CscPath,
             ClangPath
         };
     }
