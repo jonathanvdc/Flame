@@ -733,7 +733,14 @@ namespace Flame.Llvm.Emit
             else if (prototype.Value == NullConstant.Instance
                 || prototype.Value == DefaultConstant.Instance)
             {
-                return LLVM.ConstNull(Module.ImportType(prototype.ResultType));
+                var importedType = Module.ImportType(prototype.ResultType);
+                if (importedType.Kind == LLVMTypeKind.LLVMVoidTypeKind)
+                {
+                    // Void has no LLVM constant value; return a null LLVMValueRef.
+                    // Callers that return void check the result type before using the returned value.
+                    return default(LLVMValueRef);
+                }
+                return LLVM.ConstNull(importedType);
             }
             else if (prototype.Value is Float32Constant)
             {
