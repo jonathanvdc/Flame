@@ -25,6 +25,17 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Install LLVM 20 toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget gpg software-properties-common
+          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 20 all
+          echo "/usr/lib/llvm-20/bin" >> "$GITHUB_PATH"
+          echo "LLVM_PATH=/usr/lib/llvm-20/lib" >> "$GITHUB_ENV"
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
+          echo "LLVM_CONFIG=llvm-config-20" >> "$GITHUB_ENV"
+
       - name: Restore dependencies
         run: dotnet restore src/Flame.sln
 
@@ -38,4 +49,4 @@ jobs:
         run: |
           dotnet publish src/UnitTests/UnitTests.csproj -c Debug -r linux-x64 --self-contained false
           dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 5
-          dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 8 --clang-path clang
+          dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 8 --clang-path clang-20
