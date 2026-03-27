@@ -92,7 +92,11 @@ namespace UnitTests
                     }
                     else if (arg.Equals("portable", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        errorCount += RunAllTests(Menu.Where(pair => !pair.Key.Contains("IL2LLVM")).ToList());
+                        errorCount += RunAllTests(
+                            Menu.Where(
+                                pair => !pair.Key.Contains("IL2LLVM")
+                                    && !pair.Key.Contains("Flame.Llvm"))
+                                .ToList());
                     }
                     else
                     {

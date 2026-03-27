@@ -34,7 +34,8 @@ jobs:
       - name: Run portable test suite
         run: dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable
 
-      - name: Run LLVM backend test suite
+      - name: Run LLVM backend test suites
         run: |
           dotnet publish src/UnitTests/UnitTests.csproj -c Debug -r linux-x64 --self-contained false
-          dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 7 --clang-path clang
+          dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 5
+          dotnet src/UnitTests/bin/Debug/net10.0/linux-x64/publish/UnitTests.dll 8 --clang-path clang
