@@ -3,17 +3,17 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FlameMacros</RootNamespace>
     <AssemblyName>FlameMacros</AssemblyName>
-    <TargetFrameworks>net47;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;netstandard2.0;net472</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
-    <PackageReference Include="Loyc.Collections" Version="26.8.1" />
-    <PackageReference Include="Loyc.Ecs" Version="26.8.1" />
-    <PackageReference Include="Loyc.Essentials" Version="26.8.1" />
-    <PackageReference Include="Loyc.Math" Version="26.8.1" />
-    <PackageReference Include="Loyc.Syntax" Version="26.8.1" />
-    <PackageReference Include="Loyc.Utilities" Version="26.8.1" />
-    <PackageReference Include="LeMP" Version="26.8.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="Loyc.Collections" />
+    <PackageReference Include="Loyc.Ecs" />
+    <PackageReference Include="Loyc.Essentials" />
+    <PackageReference Include="Loyc.Math" />
+    <PackageReference Include="Loyc.Syntax" />
+    <PackageReference Include="Loyc.Utilities" />
+    <PackageReference Include="LeMP" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>

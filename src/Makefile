@@ -3,23 +3,23 @@ LLVM_PATH ?= $(shell llvm-config --libdir)
 
 .PHONY: release debug all dsl nuget clean test
 release: dsl
-	msbuild /p:Configuration=Release /verbosity:quiet /nologo Flame.sln
+	dotnet build -c Release /verbosity:quiet Flame.sln
 
 debug: dsl
-	msbuild /p:Configuration=Debug /verbosity:quiet /nologo Flame.sln
+	dotnet build -c Debug /verbosity:quiet Flame.sln
 
 all: debug release
 
-LEMP_EXE = FlameMacros/bin/Release/net47/LeMP.exe
-MACROS_DLL = FlameMacros/bin/Release/net47/FlameMacros.dll
+LEMP_EXE = FlameMacros/bin/Release/net10.0/LeMP.dll
+MACROS_DLL = FlameMacros/bin/Release/net10.0/FlameMacros.dll
 MACROS_CS_FILES = $(shell find FlameMacros -name '*.cs')
-RUN_EXE ?= mono
+RUN_EXE ?= dotnet
 
 %.out.cs: %.ecs $(MACROS_DLL)
 	$(RUN_EXE) $(LEMP_EXE) --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
 
 $(MACROS_DLL): $(MACROS_CS_FILES)
-	msbuild /p:Configuration=Release /verbosity:quiet /nologo FlameMacros/FlameMacros.csproj
+	dotnet build -c Release /verbosity:quiet FlameMacros/FlameMacros.csproj
 
 dsl: Flame.Compiler/Transforms/InstructionSimplification.out.cs \
 	Flame.Compiler/Transforms/FuseMemoryAccesses.out.cs
@@ -33,7 +33,7 @@ clean:
 	make -C UnitTests clean
 
 test: debug
-	$(RUN_EXE) ./UnitTests/bin/Debug/net47/UnitTests.exe portable
+	$(RUN_EXE) ./UnitTests/bin/Debug/net10.0/UnitTests.dll portable
 
 test-llvm: debug
-	LD_LIBRARY_PATH="$(LLVM_PATH):${LD_LIBRARY_PATH}" $(RUN_EXE) ./UnitTests/bin/Debug/net47/UnitTests.exe 7
+	LD_LIBRARY_PATH="$(LLVM_PATH):${LD_LIBRARY_PATH}" $(RUN_EXE) ./UnitTests/bin/Debug/net10.0/UnitTests.dll 7
