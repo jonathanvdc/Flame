@@ -197,7 +197,7 @@ namespace Flame.Llvm
             }
 
             var metadataTableContents = module.Context.CreateConstStruct(entries.ToArray(), false);
-            var metadataTable = module.Module.AddGlobal(GetTypeMetadataTableType(type, module), name);
+            var metadataTable = module.Module.AddGlobal(metadataTableContents.TypeOf, name);
             metadataTable.SetInitializer(metadataTableContents);
             metadataTable.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
             metadataTable.SetGlobalConstant(true);
