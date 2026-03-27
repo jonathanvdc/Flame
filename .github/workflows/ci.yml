@@ -35,4 +35,4 @@ jobs:
         run: dotnet build src/Flame.sln -c Debug --no-restore
 
       - name: Run portable test suite
-        run: dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable --csc-path mcs
+        run: dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable

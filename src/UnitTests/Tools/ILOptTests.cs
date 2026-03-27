@@ -141,11 +141,24 @@ namespace UnitTests
             }
 
             string stdout, stderr;
-            int exitCode = RunProcess(
-                compilerName,
-                $"\"/out:{outputPath}\" /nologo {flags} \"{inputPath}\"",
-                out stdout,
-                out stderr);
+            var compilerArguments = $"\"/out:{outputPath}\" /nologo {flags} \"{inputPath}\"";
+            int exitCode;
+            if (compilerName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            {
+                exitCode = RunProcess(
+                    "dotnet",
+                    $"\"{compilerName}\" {compilerArguments}",
+                    out stdout,
+                    out stderr);
+            }
+            else
+            {
+                exitCode = RunProcess(
+                    compilerName,
+                    compilerArguments,
+                    out stdout,
+                    out stderr);
+            }
 
             if (exitCode != 0)
             {

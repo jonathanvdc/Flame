@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Pixie.Markup;
 using Pixie.Options;
@@ -42,6 +44,12 @@ namespace UnitTests
                 return runtimeCscPath;
             }
 
+            var sdkCscPath = GetDotNetSdkCscPath();
+            if (sdkCscPath != null)
+            {
+                return sdkCscPath;
+            }
+
             if (File.Exists("/opt/homebrew/bin/csc"))
             {
                 return "/opt/homebrew/bin/csc";
@@ -53,6 +61,40 @@ namespace UnitTests
             }
 
             return "csc";
+        }
+
+        private static string GetDotNetSdkCscPath()
+        {
+            var candidateRoots = new[]
+            {
+                Environment.GetEnvironmentVariable("DOTNET_ROOT"),
+                Environment.GetEnvironmentVariable("DOTNET_ROOT_X64"),
+                "/usr/local/share/dotnet",
+                "/usr/share/dotnet",
+                "/opt/homebrew/share/dotnet"
+            };
+
+            foreach (var root in candidateRoots.Where(path => !string.IsNullOrEmpty(path)).Distinct())
+            {
+                var sdkRoot = Path.Combine(root, "sdk");
+                if (!Directory.Exists(sdkRoot))
+                {
+                    continue;
+                }
+
+                var cscPath = Directory
+                    .GetDirectories(sdkRoot)
+                    .OrderByDescending(path => path, StringComparer.OrdinalIgnoreCase)
+                    .Select(path => Path.Combine(path, "Roslyn", "bincore", "csc.dll"))
+                    .FirstOrDefault(File.Exists);
+
+                if (cscPath != null)
+                {
+                    return cscPath;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
