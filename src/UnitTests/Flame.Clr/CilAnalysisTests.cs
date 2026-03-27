@@ -494,6 +494,37 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeConv_R_Un()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(IL_0000_val_0);
+        IL_0000_val_2 = intrinsic(@arith.convert, System::Double, #(System::UInt32))(IL_0000_val_1);
+    }, #return(copy(System::Double)(IL_0000_val_2)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Double,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Conv_R_Un);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
