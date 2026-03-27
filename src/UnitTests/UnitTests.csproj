@@ -4,6 +4,7 @@
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>$(FlameLlvmRuntimeIdentifiers)</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />

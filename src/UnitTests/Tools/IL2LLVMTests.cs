@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Loyc.MiniTest;
 
 namespace UnitTests
@@ -17,9 +18,44 @@ namespace UnitTests
                 "*.cs",
                 SearchOption.TopDirectoryOnly))
             {
+                if (!CanRunOnCurrentPlatform(file, out var skipReason))
+                {
+                    Console.WriteLine($" - {Path.GetFileName(file)} (skipped: {skipReason})");
+                    continue;
+                }
+
                 Console.WriteLine($" - {Path.GetFileName(file)}");
                 CompileAndRun(file, "/optimize+ /unsafe", ILOptTests.RunCommand);
             }
+        }
+
+        private static bool CanRunOnCurrentPlatform(string file, out string reason)
+        {
+            var fileText = File.ReadAllText(file);
+
+            if (fileText.Contains("DllImport(\"libc.so.6\")", StringComparison.Ordinal)
+                && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                reason = "requires Linux libc";
+                return false;
+            }
+
+            if (fileText.Contains("DllImport(\"kernel32", StringComparison.OrdinalIgnoreCase)
+                && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                reason = "requires Windows kernel32";
+                return false;
+            }
+
+            if (fileText.Contains("DllImport(\"libSystem", StringComparison.OrdinalIgnoreCase)
+                && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                reason = "requires macOS libSystem";
+                return false;
+            }
+
+            reason = null;
+            return true;
         }
 
         /// <summary>

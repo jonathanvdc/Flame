@@ -4,6 +4,7 @@
     <RootNamespace>IL2LLVM</RootNamespace>
     <AssemblyName>il2llvm</AssemblyName>
     <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>$(FlameLlvmRuntimeIdentifiers)</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
