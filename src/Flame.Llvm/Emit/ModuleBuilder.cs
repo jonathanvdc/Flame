@@ -152,7 +152,7 @@ namespace Flame.Llvm.Emit
             using (var builder = new IRBuilder(Context))
             {
                 builder.PositionBuilderAtEnd(mainFunc.AppendBasicBlock("entry"));
-                var call = builder.CreateCall(DeclareMethod(entryPoint), new LLVMValueRef[] { }, "");
+                var call = builder.CreateCall(GetFunctionPrototype(entryPoint), DeclareMethod(entryPoint), new LLVMValueRef[] { }, "");
                 if (syntheticRet)
                 {
                     builder.CreateRet(ImportType(retType).CreateConstInt(0, false));

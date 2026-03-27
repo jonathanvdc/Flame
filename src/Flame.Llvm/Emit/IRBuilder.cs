@@ -31,9 +31,9 @@ namespace Flame.Llvm.Emit
             return Builder.BuildPhi(type, name);
         }
 
-        public LLVMValueRef CreateLoad(LLVMValueRef pointer, string name)
+        public LLVMValueRef CreateLoad(LLVMTypeRef type, LLVMValueRef pointer, string name)
         {
-            return Builder.BuildLoad2(pointer.TypeOf.ElementType, pointer, name);
+            return Builder.BuildLoad2(type, pointer, name);
         }
 
         public LLVMValueRef CreateStore(LLVMValueRef value, LLVMValueRef pointer)
@@ -61,21 +61,18 @@ namespace Flame.Llvm.Emit
             return Builder.BuildBitCast(value, type, name);
         }
 
-        public LLVMValueRef CreateStructGEP(LLVMValueRef pointer, uint index, string name)
+        public LLVMValueRef CreateStructGEP(LLVMTypeRef pointeeType, LLVMValueRef pointer, uint index, string name)
         {
-            return Builder.BuildStructGEP2(pointer.TypeOf.ElementType, pointer, index, name);
+            return Builder.BuildStructGEP2(pointeeType, pointer, index, name);
         }
 
-        public LLVMValueRef CreateGEP(LLVMValueRef pointer, LLVMValueRef[] indices, string name)
+        public LLVMValueRef CreateGEP(LLVMTypeRef pointeeType, LLVMValueRef pointer, LLVMValueRef[] indices, string name)
         {
-            return Builder.BuildGEP2(pointer.TypeOf.ElementType, pointer, indices, name);
+            return Builder.BuildGEP2(pointeeType, pointer, indices, name);
         }
 
-        public LLVMValueRef CreateCall(LLVMValueRef function, LLVMValueRef[] args, string name)
+        public LLVMValueRef CreateCall(LLVMTypeRef signature, LLVMValueRef function, LLVMValueRef[] args, string name)
         {
-            var signature = function.TypeOf.Kind == LLVMTypeKind.LLVMPointerTypeKind
-                ? function.TypeOf.ElementType
-                : function.TypeOf;
             return Builder.BuildCall2(signature, function, args, name);
         }
 

@@ -188,7 +188,7 @@ namespace Flame.Llvm
             {
                 if (method.IsAbstract())
                 {
-                    entries.Add(LLVM.ConstNull(LLVM.PointerType(module.GetFunctionPrototype(method), 0)));
+                    entries.Add(LLVM.ConstNull(new LLVMTypeRef((IntPtr)LLVM.PointerType(module.GetFunctionPrototype(method), 0))));
                 }
                 else
                 {
@@ -197,17 +197,25 @@ namespace Flame.Llvm
             }
 
             var metadataTableContents = module.Context.CreateConstStruct(entries.ToArray(), false);
-            var metadataTable = module.Module.AddGlobal(metadataTableContents.TypeOf, name);
+            var metadataTable = module.Module.AddGlobal(GetTypeMetadataTableType(type, module), name);
             metadataTable.SetInitializer(metadataTableContents);
             metadataTable.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
             metadataTable.SetGlobalConstant(true);
             return metadataTable;
         }
 
+        private LLVMTypeRef GetTypeMetadataTableType(IType type, ModuleBuilder module)
+        {
+            var fields = new List<LLVMTypeRef>();
+            fields.Add(GetTypeTagType(module));
+            fields.AddRange(GetVTableLayout(type).Select(method => new LLVMTypeRef((IntPtr)LLVM.PointerType(module.GetFunctionPrototype(method), 0))));
+            return module.Context.CreateStructType(fields.ToArray(), false);
+        }
+
         /// <inheritdoc/>
         public override LLVMTypeRef GetMetadataType(ModuleBuilder module)
         {
-            return LLVM.PointerType(LLVM.Int8TypeInContext(module.Context), 0);
+            return new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.Int8TypeInContext(module.Context), 0));
         }
 
         /// <inheritdoc/>
@@ -231,7 +239,11 @@ namespace Flame.Llvm
             if (callee.ParentType.IsInterfaceType())
             {
                 var thunk = GetInterfaceAddressThunk(callee, module);
+                var thunkSignature = new LLVMTypeRef((IntPtr)LLVM.PointerType(module.GetFunctionPrototype(callee), 0)).CreateFunctionType(
+                    new[] { GetTypeTagType(module) },
+                    false);
                 return builder.CreateCall(
+                    thunkSignature,
                     thunk,
                     new[] { EmitLoadTagFromMetadata(metadataPointer, module, builder) },
                     name);
@@ -239,13 +251,16 @@ namespace Flame.Llvm
             else if (callee.IsVirtual())
             {
                 var functionProto = module.GetFunctionPrototype(callee);
+                var metadataTableType = GetTypeMetadataTableType(callee.ParentType, module);
                 var typedMetadataPointer = builder.CreateBitCast(
                     metadataPointer,
-                    GetTypeMetadataTable(callee.ParentType, module).TypeOf,
+                    new LLVMTypeRef((IntPtr)LLVM.PointerType(metadataTableType, 0)),
                     "vtable.ptr");
                 var index = slotIndices[callee];
                 return builder.CreateLoad(
+                    new LLVMTypeRef((IntPtr)LLVM.PointerType(functionProto, 0)),
                     builder.CreateStructGEP(
+                        metadataTableType,
                         typedMetadataPointer,
                         virtualFunctionOffset + (uint)index,
                         "vfptr.address"),
@@ -348,9 +363,10 @@ namespace Flame.Llvm
         private LLVMValueRef EmitLoadTagFromMetadata(LLVMValueRef metadata, ModuleBuilder module, IRBuilder builder)
         {
             return builder.CreateLoad(
+                GetTypeTagType(module),
                 builder.CreateBitCast(
                     metadata,
-                    LLVM.PointerType(GetTypeTagType(module), 0),
+                    new LLVMTypeRef((IntPtr)LLVM.PointerType(GetTypeTagType(module), 0)),
                     "tag.ptr"),
                 "tag");
         }

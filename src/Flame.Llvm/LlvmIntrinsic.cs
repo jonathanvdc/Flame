@@ -28,7 +28,9 @@ namespace Flame.Llvm
         /// </param>
         public LlvmIntrinsic(string name, Func<LLVMContextRef, LLVMTypeRef> getPrototype)
             : this(name, module => module.AddFunction(name, getPrototype(module.Context)))
-        { }
+        {
+            this.GetPrototypeInContext = getPrototype;
+        }
 
         /// <summary>
         /// Gets the name of the intrinsic.
@@ -42,6 +44,17 @@ namespace Flame.Llvm
         /// </summary>
         /// <value>An intrinsic-defining function.</value>
         public Func<LLVMModuleRef, LLVMValueRef> Define { get; private set; }
+
+        private Func<LLVMContextRef, LLVMTypeRef> GetPrototypeInContext { get; set; }
+
+        public LLVMTypeRef GetPrototype(LLVMContextRef context)
+        {
+            if (GetPrototypeInContext == null)
+            {
+                throw new InvalidOperationException($"Intrinsic '{Name}' does not expose a reusable prototype.");
+            }
+            return GetPrototypeInContext(context);
+        }
 
         /// <summary>
         /// Gets the intrinsic as defined in a particular module. The

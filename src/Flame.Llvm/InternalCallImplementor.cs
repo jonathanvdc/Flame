@@ -96,12 +96,13 @@ namespace Flame.Llvm
                         "str");
 
                     var lengthPtr = fields.GetLengthPtr(value, builder);
+                    var lengthType = llvmType.GetStructElementTypes()[fields.LengthFieldIndex];
                     builder.CreateStore(
                         builder.CreateTrunc(
                             function.GetParam(0),
-                            lengthPtr.TypeOf.ElementType,
+                            lengthType,
                             ""),
-                        fields.GetLengthPtr(value, builder));
+                        lengthPtr);
                     builder.CreateRet(value);
                 }
                 return true;
@@ -135,6 +136,7 @@ namespace Flame.Llvm
                     module,
                     builder =>
                         builder.CreateCall(
+                            LlvmIntrinsic.MemmoveInt32.GetPrototype(module.Context),
                             LlvmIntrinsic.MemmoveInt32.GetOrDefine(module),
                             new LLVMValueRef[]
                             {
@@ -175,6 +177,7 @@ namespace Flame.Llvm
                     module,
                     builder =>
                         builder.CreateCall(
+                            LlvmIntrinsic.MemcpyInt32.GetPrototype(module.Context),
                             LlvmIntrinsic.MemcpyInt32.GetOrDefine(module),
                             new LLVMValueRef[]
                             {
@@ -215,7 +218,10 @@ namespace Flame.Llvm
                     module,
                     builder =>
                     {
-                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        var load = builder.CreateLoad(
+                            module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                            function.GetParam(0),
+                            "");
                         load.SetVolatile(true);
                         return load;
                     });
@@ -317,7 +323,10 @@ namespace Flame.Llvm
                     module,
                     builder =>
                     {
-                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        var load = builder.CreateLoad(
+                            module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                            function.GetParam(0),
+                            "");
                         load.SetVolatile(true);
                         return load;
                     });
