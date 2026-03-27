@@ -183,7 +183,7 @@ namespace Turbo
                     builder.PositionBuilderAtEnd(thunkKernel.AppendBasicBlock("entry"));
                     var args = new List<LLVMValueRef>(thunkKernel.GetParams());
                     args.Insert(threadIdParamIndex, ComputeUniqueThreadId(builder, module));
-                    var call = builder.CreateCall(kernelFunc, args.ToArray(), "");
+                    var call = builder.CreateCall(thunkTargetType, kernelFunc, args.ToArray(), "");
                     if (call.TypeOf.Kind == LLVMTypeKind.LLVMVoidTypeKind)
                     {
                         builder.CreateRetVoid();
@@ -254,15 +254,16 @@ namespace Turbo
         {
             var fName = "llvm.nvvm.read.ptx.sreg." + name;
             var fun = module.GetNamedFunction(fName);
+            var signature = module.Context.GetInt32TypeCompat().CreateFunctionType(
+                EmptyArray<LLVMTypeRef>.Value,
+                false);
             if (fun.Pointer() == IntPtr.Zero)
             {
                 fun = module.AddFunction(
                     fName,
-                    module.Context.GetInt32TypeCompat().CreateFunctionType(
-                        EmptyArray<LLVMTypeRef>.Value,
-                        false));
+                    signature);
             }
-            return builder.CreateCall(fun, EmptyArray<LLVMValueRef>.Value, "");
+            return builder.CreateCall(signature, fun, EmptyArray<LLVMValueRef>.Value, "");
         }
 
         private static unsafe byte[] CompileToPtx(
