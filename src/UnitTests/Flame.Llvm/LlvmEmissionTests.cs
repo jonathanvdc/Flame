@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Flame;
 using Flame.Collections;
 using Flame.Compiler;
@@ -103,10 +104,11 @@ namespace UnitTests.Flame.Llvm
                 new Dictionary<IMethod, MethodBody>(),
                 null);
             var printfFunction = moduleBuilder.Module.GetNamedFunction("printf");
+            var printfDeclaration = GetDeclarationLine(moduleBuilder.Module, "@printf(");
 
             Assert.AreNotEqual(IntPtr.Zero, printfFunction.Pointer());
-            Assert.IsTrue(printfFunction.TypeOf.ElementType.IsFunctionVarArg);
-            Assert.AreEqual(1, printfFunction.TypeOf.ElementType.GetParamTypes().Length);
+            Assert.IsTrue(printfDeclaration.Contains("..."));
+            Assert.IsFalse(printfDeclaration.Contains("double"));
         }
 
         [Test]
@@ -129,9 +131,27 @@ namespace UnitTests.Flame.Llvm
                 new Dictionary<IMethod, MethodBody>(),
                 null);
             var putsFunction = moduleBuilder.Module.GetNamedFunction("puts");
+            var putsDeclaration = GetDeclarationLine(moduleBuilder.Module, "@puts(");
 
             Assert.AreNotEqual(IntPtr.Zero, putsFunction.Pointer());
-            Assert.IsFalse(putsFunction.TypeOf.ElementType.IsFunctionVarArg);
+            Assert.IsFalse(putsDeclaration.Contains("..."));
+        }
+
+        private static unsafe string GetDeclarationLine(LLVMModuleRef module, string functionName)
+        {
+            var moduleTextPtr = LLVM.PrintModuleToString(module);
+            try
+            {
+                var moduleText = Marshal.PtrToStringAnsi((IntPtr)moduleTextPtr) ?? string.Empty;
+                return moduleText
+                    .Split('\n')
+                    .Select(line => line.Trim())
+                    .Single(line => line.Contains(functionName));
+            }
+            finally
+            {
+                LLVM.DisposeMessage(moduleTextPtr);
+            }
         }
 
         [Test]
