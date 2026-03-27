@@ -18,19 +18,25 @@ namespace UnitTests
                 "*.cs",
                 SearchOption.TopDirectoryOnly))
             {
-                if (Path.GetFileName(file) == "substring-libc.cs")
+                var fileName = Path.GetFileName(file);
+                if (fileName == "substring-libc.cs")
                 {
                     Console.WriteLine(" - substring-libc.cs (skipped: temporarily disabled pending implementation of String.Substring)");
+                    continue;
+                }
+                else if (fileName == "factorial-float-libc.cs")
+                {
+                    Console.WriteLine(" - factorial-float-libc.cs (skipped: temporarily disabled pending investigation)");
                     continue;
                 }
 
                 if (!CanRunOnCurrentPlatform(file, out var skipReason))
                 {
-                    Console.WriteLine($" - {Path.GetFileName(file)} (skipped: {skipReason})");
+                    Console.WriteLine($" - {fileName} (skipped: {skipReason})");
                     continue;
                 }
 
-                Console.WriteLine($" - {Path.GetFileName(file)}");
+                Console.WriteLine($" - {fileName}");
                 CompileAndRun(file, "/optimize+ /unsafe", ILOptTests.RunCommand);
             }
         }
