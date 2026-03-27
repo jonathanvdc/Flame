@@ -293,8 +293,9 @@ namespace UnitTests
 
         private static string NormalizeMonoAssemblyPath(string assemblyPath)
         {
-            if (assemblyPath.StartsWith("/tmp/", StringComparison.Ordinal)
-                || assemblyPath.StartsWith("/var/", StringComparison.Ordinal))
+            if (Environment.OSVersion.Platform == PlatformID.MacOSX
+                && (assemblyPath.StartsWith("/tmp/", StringComparison.Ordinal)
+                    || assemblyPath.StartsWith("/var/", StringComparison.Ordinal)))
             {
                 return "/private" + assemblyPath;
             }
