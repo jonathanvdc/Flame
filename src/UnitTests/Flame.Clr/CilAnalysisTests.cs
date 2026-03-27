@@ -495,6 +495,42 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void AnalyzeIsinstOnValueType()
+        {
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                corlib.Definition.MainModule.TypeSystem.Int32);
+            methodDef.Parameters.Add(new ParameterDefinition(corlib.Definition.MainModule.TypeSystem.Object));
+            methodDef.Parameters[0].Name = "param_0";
+
+            var cilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
+            var ilProc = cilBody.GetILProcessor();
+            var returnFalse = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Isinst, corlib.Definition.MainModule.TypeSystem.UInt64);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, returnFalse);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+            ilProc.Append(returnFalse);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            var irBody = ClrMethodBodyAnalyzer.Analyze(
+                cilBody,
+                new Parameter(corlib.Resolve(corlib.Definition.MainModule.TypeSystem.Int32)),
+                default(Parameter),
+                new[]
+                {
+                    new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(corlib.Definition.MainModule.TypeSystem.Object)), "param_0")
+                },
+                corlib);
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+        }
+
+        [Test]
         public void AnalyzeConv_R_Un()
         {
             const string oracle = @"
