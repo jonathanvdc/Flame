@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Flame.Llvm.Emit;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
@@ -9,7 +8,7 @@ namespace Flame.Llvm
     /// interacts with the GC. The application-GC interface's responsibilities
     /// include root set management, object allocation and the object header format.
     /// </summary>
-    public abstract class GCInterface
+    public abstract unsafe class GCInterface
     {
         /// <summary>
         /// Emits instructions that allocate a GC-managed instance of a type.
@@ -27,7 +26,7 @@ namespace Flame.Llvm
         {
             return EmitAllocObject(
                 type,
-                LLVM.ConstInt(module.ImportType(module.TypeSystem.Int32), 0, false),
+                module.ImportType(module.TypeSystem.Int32).CreateConstInt(0, false),
                 module,
                 builder,
                 name);
@@ -159,8 +158,7 @@ namespace Flame.Llvm
             LLVMTypeRef type,
             ModuleBuilder module)
         {
-            return LLVM.StructTypeInContext(
-                module.Context,
+            return module.Context.CreateStructType(
                 new[]
                 {
                     module.Metadata.GetMetadataType(module),

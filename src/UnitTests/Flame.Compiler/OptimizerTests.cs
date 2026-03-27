@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Flame;
 using Flame.Collections;
 using Flame.Compiler;
+using Flame.Compiler.Flow;
 using Flame.Compiler.Pipeline;
 using Flame.Compiler.Transforms;
 using Flame.Ir;
@@ -186,9 +188,73 @@ namespace UnitTests.Flame.Compiler
                 optimizer2.GetBodyAsync(id2).Result);
         }
 
+        [Test]
+        public void IntraPassValidationIsDisabledByDefault()
+        {
+            var method = DecodeSimpleMethod();
+            var optimizer = new OnDemandOptimizer(
+                new Optimization[]
+                {
+                    IntroduceInvalidIntermediateBody.Instance,
+                    RepairInvalidIntermediateBody.Instance
+                });
+
+            var optimizedBody = optimizer.GetBodyAsync(method).Result;
+            Assert.AreEqual(0, optimizedBody.Validate().Count);
+        }
+
+        [Test]
+        public void IntraPassValidationCanBeEnabledExplicitly()
+        {
+            var method = DecodeSimpleMethod();
+            var optimizer = new OnDemandOptimizer(
+                new Optimization[]
+                {
+                    IntroduceInvalidIntermediateBody.Instance,
+                    RepairInvalidIntermediateBody.Instance
+                },
+                OnDemandOptimizer.GetInitialMethodBodyDefault,
+                true);
+
+            Exception exception = null;
+            try
+            {
+                optimizer.GetBodyAsync(method).Wait();
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            Assert.IsNotNull(exception);
+            Assert.IsTrue(
+                exception.ToString().Contains(nameof(IntroduceInvalidIntermediateBody)),
+                "expected the failing pass name to be mentioned in the validation error");
+        }
+
         private IAssembly DecodeAssembly(string lesCode)
         {
             return decoder.DecodeAssembly(Les3LanguageService.Value.ParseSingle(lesCode));
+        }
+
+        private IMethod DecodeSimpleMethod()
+        {
+            var asm = DecodeAssembly(@"
+                #assembly(Test, {
+                    #type(Float64, #(), #(), {
+                        #fn(Id, true, #(), Float64, #(#param(Float64, value)), #(), {
+                            #entry_point(ep, #(#param(Float64, value)), {
+
+                            }, #goto(ret_block(value)));
+
+                            #block(ret_block, #(#param(Float64, ret_val)), {
+
+                            }, #return(copy(Float64)(ret_val)));
+                        });
+                    });
+                });");
+
+            return asm.Types.Single().Methods.Single();
         }
 
         private sealed class BlockingOptimization : Optimization
@@ -211,6 +277,42 @@ namespace UnitTests.Flame.Compiler
             {
                 await state.GetBodiesAsync(Dependencies);
                 return body;
+            }
+        }
+
+        private sealed class IntroduceInvalidIntermediateBody : Optimization
+        {
+            public static readonly IntroduceInvalidIntermediateBody Instance =
+                new IntroduceInvalidIntermediateBody();
+
+            public override bool IsCheckpoint => false;
+
+            public override Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
+            {
+                var builder = new FlowGraphBuilder(body.Implementation);
+                var targetBlock = builder.BasicBlocks.Single(block => !block.IsEntryPoint);
+                targetBlock.AppendParameter(targetBlock.Parameters[0].Type, "extra");
+                return Task.FromResult(body.WithImplementation(builder.ToImmutable()));
+            }
+        }
+
+        private sealed class RepairInvalidIntermediateBody : Optimization
+        {
+            public static readonly RepairInvalidIntermediateBody Instance =
+                new RepairInvalidIntermediateBody();
+
+            public override bool IsCheckpoint => false;
+
+            public override Task<MethodBody> ApplyAsync(MethodBody body, OptimizationState state)
+            {
+                var builder = new FlowGraphBuilder(body.Implementation);
+                var targetBlock = builder.BasicBlocks.Single(block => !block.IsEntryPoint);
+                targetBlock.Parameters = targetBlock.Parameters.RemoveAt(targetBlock.Parameters.Count - 1);
+                targetBlock.Flow = new ReturnFlow(
+                    Instruction.CreateCopy(
+                        targetBlock.Parameters[0].Type,
+                        targetBlock.ParameterTags.First()));
+                return Task.FromResult(body.WithImplementation(builder.ToImmutable()));
             }
         }
     }

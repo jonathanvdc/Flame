@@ -131,8 +131,11 @@ namespace Flame.Clr.Analysis
         private List<NamedInstructionBuilder> localStackSlots;
         private HashSet<ValueTag> freeTemporaries;
         private EndFinallyFlow endfinallyFlow;
+        private EndFilterFlow endfilterFlow;
         private Dictionary<BasicBlockTag, int> leaveTokens;
         private ValueTag flowTokenVariable;
+        private IReadOnlyDictionary<Mono.Cecil.Cil.ExceptionHandler, CilExceptionHandler> exceptionHandlerMap;
+        private CilCatchHandler toplevelExceptionHandler;
 
         // A mapping of conv.* opcodes to target types.
         private readonly IReadOnlyDictionary<OpCode, IType> convTypes;
@@ -264,7 +267,11 @@ namespace Flame.Clr.Analysis
             switch (handler.HandlerType)
             {
                 case Mono.Cecil.Cil.ExceptionHandlerType.Catch:
-                    AnalyzeCatchHandler(handler, analyzedHandler.LandingPad, cilMethodBody);
+                    AnalyzeCatchHandler(handler, (CilCatchHandler)analyzedHandler, cilMethodBody);
+                    return;
+
+                case Mono.Cecil.Cil.ExceptionHandlerType.Filter:
+                    AnalyzeFilterHandler(handler, (CilFilterHandler)analyzedHandler, cilMethodBody);
                     return;
 
                 case Mono.Cecil.Cil.ExceptionHandlerType.Finally:
@@ -288,7 +295,7 @@ namespace Flame.Clr.Analysis
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeCatchHandler(
             Mono.Cecil.Cil.ExceptionHandler handler,
-            BasicBlockTag landingPadTag,
+            CilCatchHandler analyzedHandler,
             Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
             // Determine the type of exception the handler is prepared
@@ -305,7 +312,8 @@ namespace Flame.Clr.Analysis
             // a way that it redirects control flow to the handler block
             // if and only if the thrown exception's type matches the catch
             // type. Otherwise, it'll transfer control to the next handler.
-            var landingPad = graph.GetBasicBlock(landingPadTag);
+            var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
+            var nextHandler = GetNextHandler(handler, cilMethodBody);
 
             // Emit an intrinsic to extract the exception
             // from the landing pad's parameter.
@@ -326,10 +334,73 @@ namespace Flame.Clr.Analysis
                 // landing pad if the exception's type does not match
                 // the caught type.
                 new Branch(
-                    exceptionHandlers[handler.HandlerStart][0].LandingPad,
+                    nextHandler.LandingPad,
                     new[] { landingPad.Parameters[0].Tag }),
                 // Otherwise, direct control flow to the catch handler.
                 new Branch(handlerImpl, new[] { typedException.Tag }));
+        }
+
+        /// <summary>
+        /// Analyzes a 'filter' exception handler's implementation.
+        /// </summary>
+        /// <param name="handler">The exception handler to analyze.</param>
+        /// <param name="landingPadTag">
+        /// The basic block tag of the landing pad to populate for the handler.
+        /// </param>
+        /// <param name="cilMethodBody">A CIL method body.</param>
+        private void AnalyzeFilterHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            CilFilterHandler analyzedHandler,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            var catchType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
+            var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
+            var nextHandler = GetNextHandler(handler, cilMethodBody);
+
+            var handlerImpl = AnalyzeBlock(
+                handler.HandlerStart,
+                new[] { catchType },
+                cilMethodBody);
+
+            var capturedExceptionVar = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(landingPad.Parameters[0].Type),
+                $"filter_{handler.FilterStart.Offset.ToString("X4")}_captured_exception");
+
+            var exceptionValue = landingPad.AppendInstruction(
+                Instruction.CreateGetCapturedExceptionIntrinsic(
+                    catchType,
+                    landingPad.Parameters[0].Type,
+                    landingPad.Parameters[0].Tag));
+
+            var exceptionVar = graph.EntryPoint.AppendInstruction(
+                Instruction.CreateAlloca(catchType),
+                $"filter_{handler.FilterStart.Offset.ToString("X4")}_exception");
+
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    landingPad.Parameters[0].Type,
+                    capturedExceptionVar,
+                    landingPad.Parameters[0].Tag));
+            landingPad.AppendInstruction(
+                Instruction.CreateStore(
+                    catchType,
+                    exceptionVar,
+                    exceptionValue));
+
+            var oldEndfilter = endfilterFlow;
+            endfilterFlow = new EndFilterFlow(
+                capturedExceptionVar,
+                exceptionVar,
+                nextHandler.LandingPad,
+                handlerImpl);
+            var filterImpl = AnalyzeBlock(
+                handler.FilterStart,
+                new[] { catchType },
+                cilMethodBody);
+            endfilterFlow = oldEndfilter;
+
+            landingPad.Flow = new JumpFlow(
+                new Branch(filterImpl, new[] { exceptionValue.Tag }));
         }
 
         /// <summary>
@@ -511,9 +582,15 @@ namespace Flame.Clr.Analysis
             if (!analyzedBlocks.Add(block))
             {
                 var parameterTypes = block.Parameters
-                    .Select(param => param.Type);
-                bool sameParameters = parameterTypes
-                    .SequenceEqual(argumentTypes);
+                    .Select(param => param.Type)
+                    .ToArray();
+                bool sameParameters = parameterTypes.Length == argumentTypes.Count
+                    && parameterTypes
+                        .Zip(
+                            argumentTypes,
+                            (first, second) => first.Equals(second)
+                                || object.Equals(first.GetIntegerSpecOrNull(), second.GetIntegerSpecOrNull()))
+                        .All(x => x);
                 if (sameParameters)
                 {
                     return block.Tag;
@@ -1255,17 +1332,11 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Ldind_Ref)
             {
-                var pointer = context.Pop();
-                var pointerType = graph.GetValueType(pointer) as PointerType;
-                if (pointerType == null)
-                {
-                    throw new InvalidProgramException(
-                        "`ldind.ref` instructions can only load pointer values; " +
-                        $"argument of type '{graph.GetValueType(pointer)}' isn't one.");
-                }
+                var elementType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
+                var pointer = PopPointerToType(elementType, context);
                 context.Push(
                     Instruction.CreateLoad(
-                        pointerType.ElementType,
+                        elementType,
                         pointer));
             }
             else if (instruction.OpCode == OpCodes.Stobj)
@@ -1278,6 +1349,19 @@ namespace Flame.Clr.Analysis
                         elementType,
                         pointer,
                         value));
+            }
+            else if (instruction.OpCode == OpCodes.Readonly)
+            {
+                // The 'readonly.' prefix is only valid in combination with 'ldelema'.
+                var ldelemaInsn = nextInstruction;
+                nextInstruction = ldelemaInsn.Next;
+                if (ldelemaInsn.OpCode != OpCodes.Ldelema)
+                {
+                    throw new InvalidProgramException(
+                        $"Instruction '{instruction}' must be trailed by an 'ldelema' instruction but was actually trailed by '{ldelemaInsn}'.");
+                }
+
+                AnalyzeInstruction(ldelemaInsn, ref nextInstruction, cilMethodBody, context);
             }
             else if (instruction.OpCode == OpCodes.Volatile)
             {
@@ -1402,6 +1486,11 @@ namespace Flame.Clr.Analysis
                 // Conversion opcodes are usually fairly straightforward.
                 EmitConvertAndExtend(convTypes[instruction.OpCode], false, context);
             }
+            else if (instruction.OpCode == OpCodes.Conv_R_Un)
+            {
+                EmitConvertToUnsigned(context);
+                EmitConvertTo(TypeEnvironment.Float64, false, context);
+            }
             else if (checkedConversions.ContainsKey(instruction.OpCode))
             {
                 // Analyze checked conversions by analogy with their unchecked
@@ -1421,10 +1510,9 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Isinst)
             {
-                var operandType = TypeHelpers.BoxIfReferenceType(
-                    Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand));
-
-                var pointerOperandType = operandType as PointerType;
+                var operandType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                var pointerOperandType = operandType as PointerType
+                    ?? operandType.MakePointerType(PointerKind.Box);
                 if (pointerOperandType == null)
                 {
                     throw new InvalidProgramException(
@@ -1617,6 +1705,38 @@ namespace Flame.Clr.Analysis
                 }
                 context.Terminate(endfinallyFlow);
             }
+            else if (instruction.OpCode == OpCodes.Endfilter)
+            {
+                if (endfilterFlow == null)
+                {
+                    throw new InvalidProgramException(
+                        $"illegal instruction '{instruction}' appears outside of a 'filter' clause.");
+                }
+
+                var decision = context.Pop(TypeEnvironment.Int32);
+                var falseValue = new IntegerConstant(0);
+                var capturedExceptionType =
+                    ((PointerType)graph.GetValueType(endfilterFlow.CapturedExceptionSlot)).ElementType;
+                var exceptionType =
+                    ((PointerType)graph.GetValueType(endfilterFlow.ExceptionSlot)).ElementType;
+                var capturedException = context.Emit(
+                    Instruction.CreateLoad(
+                        capturedExceptionType,
+                        endfilterFlow.CapturedExceptionSlot));
+                var exception = context.Emit(
+                    Instruction.CreateLoad(
+                        exceptionType,
+                        endfilterFlow.ExceptionSlot));
+
+                context.Terminate(
+                    new SwitchFlow(
+                        Instruction.CreateCopy(TypeEnvironment.Int32, decision),
+                        ImmutableList.Create(
+                            new SwitchCase(
+                                ImmutableHashSet.Create<Constant>(falseValue),
+                                new Branch(endfilterFlow.NextHandler, new[] { capturedException }))),
+                        new Branch(endfilterFlow.Handler, new[] { exception })));
+            }
             else if (instruction.OpCode == OpCodes.Brtrue)
             {
                 EmitConditionalBranch(
@@ -1677,15 +1797,16 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Constrained)
             {
-                // The 'constrained.' prefix opcode is always followed by a 'callvirt'
-                // instruction. Grab that 'callvirt' instruction.
+                // The 'constrained.' prefix opcode is followed by a call instruction.
+                // Grab that trailing call instruction.
                 var callInsn = nextInstruction;
                 nextInstruction = callInsn.Next;
 
-                if (callInsn.OpCode != OpCodes.Callvirt)
+                if (callInsn.OpCode != OpCodes.Callvirt
+                    && callInsn.OpCode != OpCodes.Call)
                 {
                     throw new InvalidProgramException(
-                        $"Instruction '{instruction}' must be trailed by a 'callvirt' " +
+                        $"Instruction '{instruction}' must be trailed by a 'call' or 'callvirt' " +
                         $"instruction but was actually trailed by '{callInsn}'.");
                 }
 
@@ -1693,16 +1814,27 @@ namespace Flame.Clr.Analysis
                 var method = Assembly.Resolve(methodRef);
                 var args = PopArguments(method, context);
 
-                var thisType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
-                var thisPtrArg = context.Pop(
-                    TypeHelpers.BoxIfReferenceType(thisType)
-                    .MakePointerType(PointerKind.Reference));
+                if (method.IsStatic)
+                {
+                    context.Push(
+                        Instruction.CreateCall(
+                            method,
+                            MethodLookup.Static,
+                            args));
+                }
+                else
+                {
+                    var thisType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                    var thisPtrArg = context.Pop(
+                        TypeHelpers.BoxIfReferenceType(thisType)
+                        .MakePointerType(PointerKind.Reference));
 
-                context.Push(
-                    Instruction.CreateConstrainedCall(
-                        method,
-                        thisPtrArg,
-                        args));
+                    context.Push(
+                        Instruction.CreateConstrainedCall(
+                            method,
+                            thisPtrArg,
+                            args));
+                }
             }
             else if (instruction.OpCode == OpCodes.Newobj)
             {
@@ -2093,6 +2225,10 @@ namespace Flame.Clr.Analysis
                                 Assembly.Resolve(handler.CatchType))
                         });
                 }
+                else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    ehMapping[handler] = new CilFilterHandler(pad);
+                }
                 else if (handler.HandlerType == Mono.Cecil.Cil.ExceptionHandlerType.Finally)
                 {
                     var leavePad = graph.AddBasicBlock($"IL_{handler.HandlerStart.Offset.ToString("X4")}_leave");
@@ -2101,7 +2237,7 @@ namespace Flame.Clr.Analysis
                 else
                 {
                     throw new NotSupportedException(
-                        "Only catch and finally exception handlers are supported; " + 
+                        "Only catch, filter and finally exception handlers are supported; " + 
                         $"{handler.HandlerType} handlers are not.");
                 }
             }
@@ -2127,6 +2263,7 @@ namespace Flame.Clr.Analysis
             // wrong for them to do so anyway, but it would obscure control flow.
             // Only exception handlers should transfer control to the top-level handler.
             var toplevelHandler = new CilCatchHandler(toplevelLandingPad, EmptyArray<IType>.Value);
+            this.toplevelExceptionHandler = toplevelHandler;
 
             // Finally iterate over all branch targets and construct exception handler lists.
             var activeHandlers = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
@@ -2157,7 +2294,9 @@ namespace Flame.Clr.Analysis
                     {
                         activeHandlers.Push(handler);
                     }
-                    if (handler.HandlerStart == instruction)
+                    if (handler.FilterStart == instruction
+                        || (handler.HandlerType != Mono.Cecil.Cil.ExceptionHandlerType.Filter
+                            && handler.HandlerStart == instruction))
                     {
                         activeClauses.Push(handler);
                     }
@@ -2173,7 +2312,44 @@ namespace Flame.Clr.Analysis
                     .ToArray();
             }
 
+            this.exceptionHandlerMap = ehMapping;
             return ehMapping;
+        }
+
+        private CilExceptionHandler GetNextHandler(
+            Mono.Cecil.Cil.ExceptionHandler handler,
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
+        {
+            bool foundCurrentHandler = false;
+            foreach (var candidate in cilMethodBody.ExceptionHandlers)
+            {
+                if (!IsInstructionInRange(handler.TryStart, candidate.TryStart, candidate.TryEnd))
+                {
+                    continue;
+                }
+
+                if (object.ReferenceEquals(candidate, handler))
+                {
+                    foundCurrentHandler = true;
+                }
+                else if (foundCurrentHandler)
+                {
+                    return exceptionHandlerMap[candidate];
+                }
+            }
+
+            return toplevelExceptionHandler;
+        }
+
+        private static bool IsInstructionInRange(
+            Mono.Cecil.Cil.Instruction instruction,
+            Mono.Cecil.Cil.Instruction start,
+            Mono.Cecil.Cil.Instruction end)
+        {
+            return start != null
+                && instruction != null
+                && start.Offset <= instruction.Offset
+                && (end == null || instruction.Offset < end.Offset);
         }
 
         /// <summary>

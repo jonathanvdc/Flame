@@ -1,7 +1,6 @@
 using System;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
@@ -24,7 +23,7 @@ namespace Flame.Llvm
     /// <summary>
     /// An internal call implementor for the CLR.
     /// </summary>
-    public class ClrInternalCallImplementor : InternalCallImplementor
+    public unsafe class ClrInternalCallImplementor : InternalCallImplementor
     {
         /// <summary>
         /// Creates an instance of a CLR internal call implementor.
@@ -63,14 +62,14 @@ namespace Flame.Llvm
         /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
         private bool TryImplementString(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
-            if (!IsStaticMethodOf(method, "System.String"))
+            if (!IsMethodOf(method, "System.String"))
             {
                 return false;
             }
 
             var name = method.Name.ToString();
             var paramCount = method.Parameters.Count;
-            if (name == "FastAllocateString" && paramCount == 1)
+            if (method.IsStatic && name == "FastAllocateString" && paramCount == 1)
             {
                 var dataType = method.ParentType;
                 var llvmType = module.ImportType(dataType);
@@ -81,14 +80,14 @@ namespace Flame.Llvm
                 {
                     builder.PositionBuilderAtEnd(ep);
 
-                    var size = LLVM.SizeOf(llvmType.GetStructElementTypes()[fields.DataFieldIndex]);
+                    var size = llvmType.GetStructElementTypes()[fields.DataFieldIndex].CreateSizeOf();
 
                     var value = module.GC.EmitAllocObject(
                         dataType,
                         builder.CreateMul(
                             builder.CreateZExt(
                                 function.GetParam(0),
-                                size.TypeOf(),
+                                size.TypeOf,
                                 ""),
                             size,
                             "bytecount"),
@@ -97,14 +96,53 @@ namespace Flame.Llvm
                         "str");
 
                     var lengthPtr = fields.GetLengthPtr(value, builder);
+                    var lengthType = llvmType.GetStructElementTypes()[fields.LengthFieldIndex];
                     builder.CreateStore(
                         builder.CreateTrunc(
                             function.GetParam(0),
-                            lengthPtr.TypeOf().GetElementType(),
+                            lengthType,
                             ""),
-                        fields.GetLengthPtr(value, builder));
+                        lengthPtr);
                     builder.CreateRet(value);
                 }
+                return true;
+            }
+            else if (!method.IsStatic && name == "get_Length" && paramCount == 0)
+            {
+                var fields = MethodBodyEmitter.DecomposeStringFields(method.ParentType, module);
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var lengthPtr = fields.GetLengthPtr(function.GetParam(0), builder);
+                        var lengthType = module.ImportType(method.ReturnParameter.Type);
+                        var rawLength = builder.CreateLoad(lengthType, lengthPtr, "length.raw");
+                        return rawLength.TypeOf == lengthType
+                            ? rawLength
+                            : builder.CreateIntCast(rawLength, lengthType, "length");
+                    });
+                return true;
+            }
+            else if (!method.IsStatic && name == "get_Chars" && paramCount == 1)
+            {
+                var fields = MethodBodyEmitter.DecomposeStringFields(method.ParentType, module);
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var charPtr = builder.CreateGEP(
+                            LLVM.Int16TypeInContext(module.Context),
+                            fields.GetDataPtr(function.GetParam(0), builder),
+                            new[] { function.GetParam(1) },
+                            "char.ptr");
+                        var charType = module.ImportType(method.ReturnParameter.Type);
+                        var rawChar = builder.CreateLoad(charType, charPtr, "char.raw");
+                        return rawChar.TypeOf == charType
+                            ? rawChar
+                            : builder.CreateIntCast(rawChar, charType, "char");
+                    });
                 return true;
             }
             else
@@ -136,13 +174,14 @@ namespace Flame.Llvm
                     module,
                     builder =>
                         builder.CreateCall(
+                            LlvmIntrinsic.MemmoveInt32.GetPrototype(module.Context),
                             LlvmIntrinsic.MemmoveInt32.GetOrDefine(module),
-                            new[]
+                            new LLVMValueRef[]
                             {
                                 function.GetParam(0),
                                 function.GetParam(1),
                                 function.GetParam(2),
-                                LLVM.ConstInt(LLVM.Int1TypeInContext(module.Context), 0, false)
+                                new LLVMTypeRef((IntPtr)LLVM.Int1TypeInContext(module.Context)).CreateConstInt(0, false)
                             },
                             ""));
                 return true;
@@ -176,13 +215,14 @@ namespace Flame.Llvm
                     module,
                     builder =>
                         builder.CreateCall(
+                            LlvmIntrinsic.MemcpyInt32.GetPrototype(module.Context),
                             LlvmIntrinsic.MemcpyInt32.GetOrDefine(module),
-                            new[]
+                            new LLVMValueRef[]
                             {
                                 function.GetParam(0),
                                 function.GetParam(1),
                                 function.GetParam(2),
-                                LLVM.ConstInt(LLVM.Int1TypeInContext(module.Context), 0, false)
+                                new LLVMTypeRef((IntPtr)LLVM.Int1TypeInContext(module.Context)).CreateConstInt(0, false)
                             },
                             ""));
                 return true;
@@ -216,7 +256,10 @@ namespace Flame.Llvm
                     module,
                     builder =>
                     {
-                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        var load = builder.CreateLoad(
+                            module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                            function.GetParam(0),
+                            "");
                         load.SetVolatile(true);
                         return load;
                     });
@@ -253,10 +296,15 @@ namespace Flame.Llvm
             }
         }
 
-        private static bool IsStaticMethodOf(IMethod method, string fullName)
+        private static bool IsMethodOf(IMethod method, string fullName)
         {
             var type = method.ParentType;
-            return type.FullName.ToString() == fullName && method.IsStatic;
+            return type.FullName.ToString() == fullName;
+        }
+
+        private static bool IsStaticMethodOf(IMethod method, string fullName)
+        {
+            return IsMethodOf(method, fullName) && method.IsStatic;
         }
 
         /// <summary>
@@ -287,18 +335,18 @@ namespace Flame.Llvm
             else if (name == nameof(System.Threading.Interlocked.CompareExchange) && paramCount == 3)
             {
                 var ep = function.AppendBasicBlock("entry");
-                var builder = LLVM.CreateBuilderInContext(module.Context);
-                LLVM.PositionBuilderAtEnd(builder, ep);
-                var cmp = LLVM.BuildAtomicCmpXchg(
-                    builder,
-                    function.GetParam(0),
-                    function.GetParam(2),
-                    function.GetParam(1),
-                    LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
-                    LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
-                    false);
-                LLVM.BuildRet(builder, LLVM.BuildExtractValue(builder, cmp, 0, ""));
-                LLVM.DisposeBuilder(builder);
+                using (var builder = new IRBuilder(module.Context))
+                {
+                    builder.PositionBuilderAtEnd(ep);
+                    var cmp = builder.CreateAtomicCmpXchg(
+                        function.GetParam(0),
+                        function.GetParam(2),
+                        function.GetParam(1),
+                        LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                        LLVMAtomicOrdering.LLVMAtomicOrderingAcquireRelease,
+                        false);
+                    builder.CreateRet(builder.CreateExtractValue(cmp, 0, ""));
+                }
                 return true;
             }
             else if (name == "Increment" && paramCount == 1)
@@ -318,7 +366,10 @@ namespace Flame.Llvm
                     module,
                     builder =>
                     {
-                        var load = builder.CreateLoad(function.GetParam(0), "");
+                        var load = builder.CreateLoad(
+                            module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                            function.GetParam(0),
+                            "");
                         load.SetVolatile(true);
                         return load;
                     });
@@ -334,8 +385,7 @@ namespace Flame.Llvm
         {
             ImplementWithAtomicAdd(
                 function,
-                LLVM.ConstInt(
-                    module.ImportType(((PointerType)method.Parameters[0].Type).ElementType),
+                module.ImportType(((PointerType)method.Parameters[0].Type).ElementType).CreateConstInt(
                     (ulong)rhs,
                     true),
                 module);
@@ -369,7 +419,7 @@ namespace Flame.Llvm
             {
                 builder.PositionBuilderAtEnd(ep);
                 var insn = createInstruction(builder);
-                if (insn.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                if (insn.TypeOf.Kind == LLVMTypeKind.LLVMVoidTypeKind)
                 {
                     builder.CreateRetVoid();
                 }

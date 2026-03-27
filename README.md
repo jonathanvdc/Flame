@@ -71,6 +71,22 @@ The LLVM-specific tests are separate:
 $ make -C src test-llvm
 ```
 
+That target now publishes the LLVM test runner for the current runtime identifier so the NuGet-provided `libLLVM` native library is restored and copied automatically. You do not need a system `libLLVM` install for the test runner itself.
+
+The current `tool-tests/IL2LLVM` samples use Linux `libc.so.6` imports. On non-Linux hosts, the LLVM tool test runner skips those samples instead of failing; CI still exercises them on Linux.
+
+If you want to run the LLVM tests manually, publish the test project for your platform and run the published app:
+
+```console
+$ dotnet publish src/UnitTests/UnitTests.csproj -c Debug -r osx-arm64 --self-contained false
+$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 5
+$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 8 --clang-path clang
+```
+
+Test set `5` runs the direct `Flame.Llvm` unit tests. Test set `8` runs the `IL2LLVM` tool tests.
+
+Common runtime identifiers are `linux-x64`, `linux-arm64`, `osx-arm64`, `win-x64`, and `win-arm64`.
+
 ## Tools
 
 ### `ilopt`
@@ -96,8 +112,8 @@ The supported single-file samples used by the test suite live in [`tool-tests/IL
 `il2llvm` compiles managed assemblies to LLVM IR.
 
 ```console
-$ dotnet build src/IL2LLVM/IL2LLVM.csproj -c Debug
-$ dotnet src/IL2LLVM/bin/Debug/net10.0/il2llvm.dll input.dll -o output.ll
+$ dotnet publish src/IL2LLVM/IL2LLVM.csproj -c Debug -r osx-arm64 --self-contained false
+$ dotnet src/IL2LLVM/bin/Debug/net10.0/osx-arm64/publish/il2llvm.dll input.dll -o output.ll
 ```
 
 ## Continuous integration
@@ -109,3 +125,5 @@ The CI workflow:
 - restores `src/Flame.sln`
 - builds the solution in `Debug`
 - runs the portable test suite
+- publishes the LLVM test runner for `linux-x64`
+- runs the LLVM backend test suite from the published output so the NuGet-provided native LLVM runtime is used

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Flame.Compiler;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm.Emit
 {
@@ -11,8 +10,20 @@ namespace Flame.Llvm.Emit
     /// A wrapper around an LLVM module that extends the wrapped module
     /// with information relevant to managed languages.
     /// </summary>
-    public sealed class ModuleBuilder
+    public unsafe sealed class ModuleBuilder
     {
+        private static readonly Dictionary<string, int> VariadicExternWhitelist =
+            new Dictionary<string, int>(StringComparer.Ordinal)
+            {
+                { "printf", 1 },
+                { "fprintf", 2 },
+                { "sprintf", 2 },
+                { "snprintf", 3 },
+                { "scanf", 1 },
+                { "fscanf", 2 },
+                { "sscanf", 2 }
+            };
+
         public ModuleBuilder(
             LLVMModuleRef module,
             TypeEnvironment typeSystem,
@@ -62,7 +73,7 @@ namespace Flame.Llvm.Emit
         /// <value>A metadata format.</value>
         public MetadataFormat Metadata { get; private set; }
 
-        public LLVMContextRef Context => LLVM.GetModuleContext(Module);
+        public LLVMContextRef Context => Module.Context;
 
         private Dictionary<IMethod, LLVMValueRef> methodDecls;
         private Dictionary<IField, LLVMValueRef> fieldDecls;
@@ -95,7 +106,7 @@ namespace Flame.Llvm.Emit
         private LLVMValueRef DeclareLocal(IMethod method)
         {
             var funType = GetFunctionPrototype(method);
-            var result = LLVM.AddFunction(Module, Mangler.Mangle(method, true), funType);
+            var result = Module.AddFunction(Mangler.Mangle(method, true), funType);
             result.SetLinkage(GetLinkageForLocal(method));
             if (!method.IsStatic)
             {
@@ -106,25 +117,39 @@ namespace Flame.Llvm.Emit
 
         public LLVMTypeRef GetFunctionPrototype(IMethod method)
         {
+            return GetFunctionPrototype(method, false);
+        }
+
+        private LLVMTypeRef GetFunctionPrototype(IMethod method, bool isVarArg, int fixedParameterCount = -1)
+        {
             var paramTypes = new List<LLVMTypeRef>();
             if (!method.IsStatic)
             {
                 paramTypes.Add(ImportType(method.ParentType.MakePointerType(PointerKind.Reference)));
             }
-            paramTypes.AddRange(method.Parameters.Select(p => ImportType(p.Type)));
-            return LLVM.FunctionType(
-                ImportType(method.ReturnParameter.Type),
+            var parameters = fixedParameterCount >= 0
+                ? method.Parameters.Take(fixedParameterCount)
+                : method.Parameters;
+            paramTypes.AddRange(parameters.Select(p => ImportType(p.Type)));
+            return ImportType(method.ReturnParameter.Type).CreateFunctionType(
                 paramTypes.ToArray(),
-                false);
+                isVarArg);
         }
 
         private LLVMValueRef DeclareExtern(IMethod method, ExternAttribute externAttribute)
         {
-            var funType = GetFunctionPrototype(method);
-            return LLVM.AddFunction(
-                Module,
-                externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false),
+            var importName = externAttribute.ImportNameOrNull ?? CMangler.Instance.Mangle(method, false);
+            int fixedParameterCount;
+            var isVarArg = TryGetVariadicExternPrefixLength(importName, out fixedParameterCount);
+            var funType = GetFunctionPrototype(method, isVarArg, isVarArg ? fixedParameterCount : -1);
+            return Module.AddFunction(
+                importName,
                 funType);
+        }
+
+        private static bool TryGetVariadicExternPrefixLength(string importName, out int fixedParameterCount)
+        {
+            return VariadicExternWhitelist.TryGetValue(importName, out fixedParameterCount);
         }
 
         public void DefineMethod(IMethod method, MethodBody body)
@@ -143,23 +168,22 @@ namespace Flame.Llvm.Emit
                 retType = TypeSystem.Int32;
             }
 
-            var mainSignature = LLVM.FunctionType(
-                ImportType(retType),
-                new[]
+            var mainSignature = ImportType(retType).CreateFunctionType(
+                new LLVMTypeRef[]
                 {
-                    LLVM.Int32TypeInContext(Context),
-                    LLVM.PointerType(LLVM.PointerType(LLVM.Int8TypeInContext(Context), 0), 0)
+                    new LLVMTypeRef((IntPtr)LLVM.Int32TypeInContext(Context)),
+                    new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.PointerType(LLVM.Int8TypeInContext(Context), 0), 0))
                 },
                 false);
 
-            var mainFunc = LLVM.AddFunction(Module, "main", mainSignature);
+            var mainFunc = Module.AddFunction("main", mainSignature);
             using (var builder = new IRBuilder(Context))
             {
                 builder.PositionBuilderAtEnd(mainFunc.AppendBasicBlock("entry"));
-                var call = builder.CreateCall(DeclareMethod(entryPoint), new LLVMValueRef[] { }, "");
+                var call = builder.CreateCall(GetFunctionPrototype(entryPoint), DeclareMethod(entryPoint), new LLVMValueRef[] { }, "");
                 if (syntheticRet)
                 {
-                    builder.CreateRet(LLVM.ConstInt(ImportType(retType), 0, false));
+                    builder.CreateRet(ImportType(retType).CreateConstInt(0, false));
                 }
                 else
                 {
@@ -239,7 +263,7 @@ namespace Flame.Llvm.Emit
             }
             else
             {
-                var result = LLVM.StructCreateNamed(Context, Mangler.Mangle(type, true));
+                var result = Context.CreateNamedStruct(Mangler.Mangle(type, true));
                 importCache[type] = result;
                 var fieldTypes = new List<LLVMTypeRef>();
                 var fieldNumbering = new Dictionary<IField, int>();
@@ -247,8 +271,8 @@ namespace Flame.Llvm.Emit
                 foreach (var baseType in type.BaseTypes)
                 {
                     var importedBase = ImportType(baseType);
-                    if (importedBase.TypeKind != LLVMTypeKind.LLVMStructTypeKind
-                        || importedBase.CountStructElementTypes() > 0)
+                    if (importedBase.Kind != LLVMTypeKind.LLVMStructTypeKind
+                        || importedBase.CountStructElementTypesCompat() > 0)
                     {
                         // Do not include empty base types.
                         baseNumbering[baseType] = fieldTypes.Count;
@@ -262,7 +286,7 @@ namespace Flame.Llvm.Emit
                 }
                 fieldIndices[type] = fieldNumbering;
                 baseIndices[type] = baseNumbering;
-                LLVM.StructSetBody(result, fieldTypes.ToArray(), false);
+                result.SetStructBody(fieldTypes.ToArray(), false);
                 return result;
             }
         }
@@ -282,7 +306,7 @@ namespace Flame.Llvm.Emit
 
             var type = ImportType(field.FieldType);
             var name = Mangler.Mangle(field, true);
-            result = LLVM.AddGlobal(Module, type, name);
+            result = Module.AddGlobal(type, name);
             result.SetInitializer(LLVM.ConstNull(type));
             result.SetLinkage(GetLinkageForLocal(field));
             fieldDecls[field] = result;
@@ -344,7 +368,7 @@ namespace Flame.Llvm.Emit
 
         private LLVMAttributeRef CreateEnumAttribute(string name)
         {
-            uint kind = LLVM.GetEnumAttributeKindForName(name, new size_t((IntPtr)name.Length));
+            uint kind = InteropCompatExtensions.GetEnumAttributeKindForNameCompat(name);
             return LLVM.CreateEnumAttribute(Context, kind, 0);
         }
     }

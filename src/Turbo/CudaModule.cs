@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -12,7 +13,6 @@ using Flame.Compiler.Transforms;
 using Flame.Ir;
 using Flame.Llvm;
 using Flame.TypeSystem;
-using LLVMSharp;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Mono.Cecil;
@@ -39,7 +39,7 @@ namespace Turbo
             LLVM.InitializeNVPTXAsmPrinter();
         }
 
-        private CudaModule(
+        private unsafe CudaModule(
             ClrAssembly sourceAssembly,
             ModuleBuilder intermediateModule,
             LLVMTargetMachineRef targetMachine,
@@ -158,7 +158,7 @@ namespace Turbo
 
             // Get the compiled kernel function.
             var kernelFuncName = mangler.Mangle(method, true);
-            var kernelFunc = LLVM.GetNamedFunction(module, kernelFuncName);
+            var kernelFunc = module.GetNamedFunction(kernelFuncName);
 
             if (threadIdParamIndex >= 0)
             {
@@ -166,17 +166,15 @@ namespace Turbo
                 // kernel function that calls our actual kernel function. This thunk's
                 // responsibility is to determine the thread ID of the kernel.
                 var thunkKernelName = "kernel";
-                var thunkTargetType = kernelFunc.TypeOf().GetElementType();
+                var thunkTargetType = kernelFunc.TypeOf.ElementType;
                 var thunkParamTypes = new List<LLVMTypeRef>(thunkTargetType.GetParamTypes());
                 if (threadIdParamIndex < thunkParamTypes.Count)
                 {
                     thunkParamTypes.RemoveAt(threadIdParamIndex);
                 }
-                var thunkKernel = LLVM.AddFunction(
-                    module,
+                var thunkKernel = module.AddFunction(
                     thunkKernelName,
-                    LLVM.FunctionType(
-                        thunkTargetType.GetReturnType(),
+                    thunkTargetType.GetReturnType().CreateFunctionType(
                         thunkParamTypes.ToArray(),
                         thunkTargetType.IsFunctionVarArg));
 
@@ -185,8 +183,8 @@ namespace Turbo
                     builder.PositionBuilderAtEnd(thunkKernel.AppendBasicBlock("entry"));
                     var args = new List<LLVMValueRef>(thunkKernel.GetParams());
                     args.Insert(threadIdParamIndex, ComputeUniqueThreadId(builder, module));
-                    var call = builder.CreateCall(kernelFunc, args.ToArray(), "");
-                    if (call.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                    var call = builder.CreateCall(thunkTargetType, kernelFunc, args.ToArray(), "");
+                    if (call.TypeOf.Kind == LLVMTypeKind.LLVMVoidTypeKind)
                     {
                         builder.CreateRetVoid();
                     }
@@ -201,14 +199,13 @@ namespace Turbo
             }
 
             // Mark the compiled kernel as a kernel symbol.
-            LLVM.AddNamedMetadataOperand(
-                module,
+            module.AddNamedMetadataOperand(
                 "nvvm.annotations",
-                LLVM.MDNode(new LLVMValueRef[]
+                module.Context.GetMDNode(new LLVMValueRef[]
                 {
                     kernelFunc,
-                    MDString("kernel"),
-                    LLVM.ConstInt(LLVM.Int32TypeInContext(LLVM.GetModuleContext(module)), 1, false)
+                    MDString("kernel", module.Context),
+                    module.Context.GetInt32TypeCompat().CreateConstInt(1, false)
                 }));
 
             // LLVM.DumpModule(module);
@@ -256,37 +253,32 @@ namespace Turbo
         private static LLVMValueRef ReadSReg(string name, IRBuilder builder, LLVMModuleRef module)
         {
             var fName = "llvm.nvvm.read.ptx.sreg." + name;
-            var fun = LLVM.GetNamedFunction(module, name);
-            if (fun.Pointer == IntPtr.Zero)
+            var fun = module.GetNamedFunction(fName);
+            var signature = module.Context.GetInt32TypeCompat().CreateFunctionType(
+                EmptyArray<LLVMTypeRef>.Value,
+                false);
+            if (fun.Pointer() == IntPtr.Zero)
             {
-                fun = LLVM.AddFunction(
-                    module,
+                fun = module.AddFunction(
                     fName,
-                    LLVM.FunctionType(
-                        LLVM.Int32TypeInContext(LLVM.GetModuleContext(module)),
-                        EmptyArray<LLVMTypeRef>.Value,
-                        false));
+                    signature);
             }
-            return builder.CreateCall(fun, EmptyArray<LLVMValueRef>.Value, "");
+            return builder.CreateCall(signature, fun, EmptyArray<LLVMValueRef>.Value, "");
         }
 
-        private static byte[] CompileToPtx(
+        private static unsafe byte[] CompileToPtx(
             LLVMModuleRef module,
             Version computeCapability,
             out LLVMTargetMachineRef machine)
         {
             string triple = "nvptx64-nvidia-cuda";
-            LLVMTargetRef target;
             string error;
-            if (LLVM.GetTargetFromTriple(
-                triple,
-                out target,
-                out error))
+            LLVMTargetRef target;
+            if (!LLVMTargetRef.TryGetTargetFromTriple(triple, out target, out error))
             {
                 throw new Exception(error);
             }
-            machine = LLVM.CreateTargetMachine(
-                target,
+            machine = target.CreateTargetMachine(
                 triple,
                 $"sm_{computeCapability.Major}{computeCapability.Minor}",
                 "",
@@ -294,24 +286,24 @@ namespace Turbo
                 LLVMRelocMode.LLVMRelocDefault,
                 LLVMCodeModel.LLVMCodeModelDefault);
 
-            LLVMMemoryBufferRef asmBuf;
-            if (LLVM.TargetMachineEmitToMemoryBuffer(machine, module, LLVMCodeGenFileType.LLVMAssemblyFile, out error, out asmBuf))
+            var ptxPath = Path.GetTempFileName();
+            try
             {
-                throw new Exception(error);
+                if (!machine.TryEmitToFile(module, ptxPath, LLVMCodeGenFileType.LLVMAssemblyFile, out error))
+                {
+                    throw new Exception(error);
+                }
+                return File.ReadAllBytes(ptxPath);
             }
-
-            var asmLength = (int)LLVM.GetBufferSize(asmBuf);
-            var asmBytes = new byte[asmLength];
-            Marshal.Copy(LLVM.GetBufferStart(asmBuf), asmBytes, 0, asmLength);
-
-            LLVM.DisposeMemoryBuffer(asmBuf);
-
-            return asmBytes;
+            finally
+            {
+                File.Delete(ptxPath);
+            }
         }
 
-        private static LLVMValueRef MDString(string Name)
+        private static LLVMValueRef MDString(string name, LLVMContextRef context)
         {
-            return LLVM.MDString(Name, (uint)Name.Length);
+            return context.GetMDString(name);
         }
 
         private static Task<AssemblyContentDescription> CreateContentDescriptionAsync(
@@ -427,7 +419,7 @@ namespace Turbo
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        private void Dispose(bool disposing)
+        private unsafe void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -438,7 +430,7 @@ namespace Turbo
 
                 LLVM.DisposeTargetData(TargetData);
                 LLVM.DisposeTargetMachine(TargetMachine);
-                LLVM.DisposeModule(IntermediateModule.Module);
+                IntermediateModule.Module.Dispose();
                 Context.UnloadModule(CompiledModule);
 
                 disposedValue = true;

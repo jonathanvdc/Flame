@@ -1,0 +1,45 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV PATH="/root/.dotnet:/root/.npm-global/bin:${PATH}"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        gnupg \
+        lsb-release \
+        lldb \
+        nodejs \
+        npm \
+        software-properties-common \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install the Microsoft package feed and .NET 10 SDK.
+RUN wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb \
+    && dpkg -i /tmp/packages-microsoft-prod.deb \
+    && rm /tmp/packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends dotnet-sdk-10.0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install LLVM/Clang 20 from apt.llvm.org so the Linux environment is close to CI.
+RUN wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh \
+    && chmod +x /tmp/llvm.sh \
+    && /tmp/llvm.sh 20 all \
+    && rm /tmp/llvm.sh \
+    && ln -sf /usr/bin/clang-20 /usr/local/bin/clang \
+    && ln -sf /usr/bin/clang++-20 /usr/local/bin/clang++ \
+    && ln -sf /usr/bin/llvm-config-20 /usr/local/bin/llvm-config \
+    && ln -sf /usr/bin/lldb-20 /usr/local/bin/lldb
+
+# Install Codex CLI globally through npm.
+RUN npm config set prefix /root/.npm-global \
+    && npm install -g @openai/codex
+
+WORKDIR /workspace
+
+CMD ["/bin/bash"]

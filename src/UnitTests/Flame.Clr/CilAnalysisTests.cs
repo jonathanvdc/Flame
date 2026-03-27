@@ -6,6 +6,8 @@ using System.Linq;
 using Flame;
 using Mono.Cecil;
 using Flame.Collections;
+using Flame.Compiler.Flow;
+using Flame.Constants;
 using Flame.Ir;
 using System.Collections.Generic;
 using Loyc.Syntax;
@@ -494,6 +496,292 @@ namespace UnitTests.Flame.Clr
                 oracle);
         }
 
+        [Test]
+        public void AnalyzeIsinstOnValueType()
+        {
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                corlib.Definition.MainModule.TypeSystem.Int32);
+            methodDef.Parameters.Add(new ParameterDefinition(corlib.Definition.MainModule.TypeSystem.Object));
+            methodDef.Parameters[0].Name = "param_0";
+
+            var cilBody = new Mono.Cecil.Cil.MethodBody(methodDef);
+            var ilProc = cilBody.GetILProcessor();
+            var returnFalse = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Isinst, corlib.Definition.MainModule.TypeSystem.UInt64);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Brfalse, returnFalse);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+            ilProc.Append(returnFalse);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            var irBody = ClrMethodBodyAnalyzer.Analyze(
+                cilBody,
+                new Parameter(corlib.Resolve(corlib.Definition.MainModule.TypeSystem.Int32)),
+                default(Parameter),
+                new[]
+                {
+                    new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(corlib.Definition.MainModule.TypeSystem.Object)), "param_0")
+                },
+                corlib);
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+        }
+
+        [Test]
+        public void AnalyzeFilterHandler()
+        {
+            var module = corlib.Definition.MainModule;
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                module.TypeSystem.Int32);
+            methodDef.Body.InitLocals = true;
+            methodDef.Body.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(module.TypeSystem.Int32));
+
+            var cilBody = methodDef.Body;
+            var ilProc = cilBody.GetILProcessor();
+            var exceptionType = module.Types
+                .Single(type => type.FullName == "System.Exception");
+            var exceptionCtor = exceptionType.Methods
+                .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+
+            var tryStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Newobj, exceptionCtor);
+            var tryEnd = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var filterStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var handlerStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var end = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldloc_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Append(tryStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Throw);
+            ilProc.Append(tryEnd);
+            ilProc.Append(filterStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Endfilter);
+            ilProc.Append(handlerStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Leave, end);
+            ilProc.Append(end);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            cilBody.ExceptionHandlers.Add(
+                new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    TryStart = tryStart,
+                    TryEnd = tryEnd,
+                    FilterStart = filterStart,
+                    HandlerStart = handlerStart,
+                    HandlerEnd = end
+                });
+
+            var irBody = AnalyzeMethodBody(cilBody);
+            var implementation = irBody.Implementation;
+            var landingPad = GetBlockByName(
+                implementation,
+                $"IL_{handlerStart.Offset.ToString("X4")}_landingpad");
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+            Assert.IsInstanceOf<JumpFlow>(landingPad.Flow);
+            var filterBlock = implementation.GetBasicBlock(landingPad.Flow.Branches.Single().Target);
+            Assert.IsInstanceOf<SwitchFlow>(filterBlock.Flow);
+
+            var switchFlow = (SwitchFlow)filterBlock.Flow;
+            Assert.AreEqual(1, switchFlow.Cases.Count);
+            Assert.AreEqual(new IntegerConstant(0), switchFlow.Cases.Single().Values.Single());
+            Assert.AreEqual("toplevel_landingpad", switchFlow.Cases.Single().Branch.Target.Name);
+            Assert.AreEqual($"IL_{handlerStart.Offset.ToString("X4")}", switchFlow.DefaultBranch.Target.Name);
+        }
+
+        [Test]
+        public void AnalyzeFilterHandlerFallsThroughToNextHandler()
+        {
+            var module = corlib.Definition.MainModule;
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                module.TypeSystem.Int32);
+            methodDef.Body.InitLocals = true;
+            methodDef.Body.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(module.TypeSystem.Int32));
+
+            var cilBody = methodDef.Body;
+            var ilProc = cilBody.GetILProcessor();
+            var exceptionType = module.Types
+                .Single(type => type.FullName == "System.Exception");
+            var exceptionCtor = exceptionType.Methods
+                .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+
+            var tryStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Newobj, exceptionCtor);
+            var tryEnd = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var filterStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var filterHandlerStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var catchHandlerStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var end = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldloc_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Append(tryStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Throw);
+            ilProc.Append(tryEnd);
+            ilProc.Append(filterStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Endfilter);
+            ilProc.Append(filterHandlerStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Leave, end);
+            ilProc.Append(catchHandlerStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_2);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Leave, end);
+            ilProc.Append(end);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            cilBody.ExceptionHandlers.Add(
+                new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    TryStart = tryStart,
+                    TryEnd = tryEnd,
+                    FilterStart = filterStart,
+                    HandlerStart = filterHandlerStart,
+                    HandlerEnd = catchHandlerStart
+                });
+            cilBody.ExceptionHandlers.Add(
+                new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Catch)
+                {
+                    TryStart = tryStart,
+                    TryEnd = tryEnd,
+                    CatchType = exceptionType,
+                    HandlerStart = catchHandlerStart,
+                    HandlerEnd = end
+                });
+
+            var irBody = AnalyzeMethodBody(cilBody);
+            var implementation = irBody.Implementation;
+            var filterLandingPad = implementation.BasicBlocks.Single(
+                block =>
+                    block.Tag.Name != "toplevel_landingpad"
+                    && block.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal)
+                    && block.Flow is JumpFlow);
+            var catchLandingPad = implementation.BasicBlocks.Single(
+                block =>
+                    block.Tag != filterLandingPad.Tag
+                    && block.Tag.Name != "toplevel_landingpad"
+                    && block.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal)
+                    && block.Flow is SwitchFlow);
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+            var filterBlock = implementation.GetBasicBlock(filterLandingPad.Flow.Branches.Single().Target);
+            Assert.IsInstanceOf<SwitchFlow>(filterBlock.Flow);
+            Assert.AreEqual(catchLandingPad.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal), true);
+        }
+
+        [Test]
+        public void AnalyzeRejectingFilterHandlerBubblesToTopLevel()
+        {
+            var module = corlib.Definition.MainModule;
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                module.TypeSystem.Int32);
+            methodDef.Body.InitLocals = true;
+            methodDef.Body.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(module.TypeSystem.Int32));
+
+            var cilBody = methodDef.Body;
+            var ilProc = cilBody.GetILProcessor();
+            var exceptionType = module.Types
+                .Single(type => type.FullName == "System.Exception");
+            var exceptionCtor = exceptionType.Methods
+                .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+
+            var tryStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Newobj, exceptionCtor);
+            var tryEnd = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var filterStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var handlerStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var end = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldloc_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Append(tryStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Throw);
+            ilProc.Append(tryEnd);
+            ilProc.Append(filterStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Endfilter);
+            ilProc.Append(handlerStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Leave, end);
+            ilProc.Append(end);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            cilBody.ExceptionHandlers.Add(
+                new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    TryStart = tryStart,
+                    TryEnd = tryEnd,
+                    FilterStart = filterStart,
+                    HandlerStart = handlerStart,
+                    HandlerEnd = end
+                });
+
+            var irBody = AnalyzeMethodBody(cilBody);
+            var implementation = irBody.Implementation;
+            var landingPad = GetBlockByName(
+                implementation,
+                $"IL_{handlerStart.Offset.ToString("X4")}_landingpad");
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+
+            var filterBlock = implementation.GetBasicBlock(landingPad.Flow.Branches.Single().Target);
+            Assert.IsInstanceOf<SwitchFlow>(filterBlock.Flow);
+
+            var switchFlow = (SwitchFlow)filterBlock.Flow;
+            Assert.AreEqual(1, switchFlow.Cases.Count);
+            Assert.AreEqual(new IntegerConstant(0), switchFlow.Cases.Single().Values.Single());
+            Assert.AreEqual("toplevel_landingpad", switchFlow.Cases.Single().Branch.Target.Name);
+        }
+
+        [Test]
+        public void AnalyzeConv_R_Un()
+        {
+            const string oracle = @"
+{
+    #entry_point(@entry-point, #(#param(System::Int32, param_0)), {
+        param_0_slot = alloca(System::Int32)();
+        val_0 = store(System::Int32)(param_0_slot, param_0);
+    }, #goto(IL_0000()));
+    #block(IL_0000, #(), {
+        IL_0000_val_0 = load(System::Int32)(param_0_slot);
+        IL_0000_val_1 = intrinsic(@arith.convert, System::UInt32, #(System::Int32))(IL_0000_val_0);
+        IL_0000_val_2 = intrinsic(@arith.convert, System::Double, #(System::UInt32))(IL_0000_val_1);
+    }, #return(copy(System::Double)(IL_0000_val_2)));
+};";
+
+            AnalyzeStaticMethodBody(
+                corlib.Definition.MainModule.TypeSystem.Double,
+                new[] {
+                    corlib.Definition.MainModule.TypeSystem.Int32
+                },
+                new TypeReference[] { },
+                ilProc =>
+                {
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Conv_R_Un);
+                    ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                },
+                oracle);
+        }
+
         /// <summary>
         /// Writes a CIL method body, analyzes it as Flame IR
         /// and checks that the result is what we'd expect.
@@ -574,6 +862,25 @@ namespace UnitTests.Flame.Clr
             Assert.AreEqual(
                 actualNode,
                 expectedNode);
+        }
+
+        private global::Flame.Compiler.MethodBody AnalyzeMethodBody(Mono.Cecil.Cil.MethodBody cilBody)
+        {
+            return ClrMethodBodyAnalyzer.Analyze(
+                cilBody,
+                new Parameter(corlib.Resolve(cilBody.Method.ReturnType)),
+                default(Parameter),
+                cilBody.Method.Parameters
+                    .Select((param, i) => new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(param.ParameterType)), "param_" + i))
+                    .ToArray(),
+                corlib);
+        }
+
+        private static global::Flame.Compiler.BasicBlock GetBlockByName(
+            global::Flame.Compiler.FlowGraph graph,
+            string name)
+        {
+            return graph.BasicBlocks.First(block => block.Tag.Name == name);
         }
 
         private static LNode NormalizeNode(LNode node)

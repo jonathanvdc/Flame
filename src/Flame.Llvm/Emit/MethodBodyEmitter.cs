@@ -7,13 +7,12 @@ using Flame.Compiler.Flow;
 using Flame.Compiler.Instructions;
 using Flame.Constants;
 using Flame.TypeSystem;
-using LLVMSharp;
 using BasicBlock = Flame.Compiler.BasicBlock;
 using Instruction = Flame.Compiler.Instruction;
 
 namespace Flame.Llvm.Emit
 {
-    internal sealed class MethodBodyEmitter
+    internal sealed unsafe class MethodBodyEmitter
     {
         public MethodBodyEmitter(ModuleBuilder module, LLVMValueRef function)
         {
@@ -132,7 +131,7 @@ namespace Flame.Llvm.Emit
             else if (proto is SizeOfPrototype)
             {
                 return builder.CreateZExt(
-                    LLVM.SizeOf(Module.ImportType(((SizeOfPrototype)proto).MeasuredType)),
+                    Module.ImportType(((SizeOfPrototype)proto).MeasuredType).CreateSizeOf(),
                     Module.ImportType(proto.ResultType),
                     name);
             }
@@ -191,7 +190,7 @@ namespace Flame.Llvm.Emit
                 builder.PositionBuilderAtEnd(mergeBlock);
                 var result = builder.CreatePhi(resultType, name);
                 result.AddIncoming(
-                    new[] { nonnullResult, nullConst },
+                    new LLVMValueRef[] { nonnullResult, nullConst },
                     new[] { nonnullBlock, forkBlock },
                     2);
                 return result;
@@ -199,7 +198,7 @@ namespace Flame.Llvm.Emit
             else if (proto is LoadPrototype)
             {
                 var loadProto = (LoadPrototype)proto;
-                var load = builder.CreateLoad(Get(instruction.Arguments[0]), name);
+                var load = builder.CreateLoad(Module.ImportType(loadProto.ResultType), Get(instruction.Arguments[0]), name);
                 load.SetVolatile(loadProto.IsVolatile);
                 if (!loadProto.Alignment.IsNaturallyAligned)
                 {
@@ -241,6 +240,7 @@ namespace Flame.Llvm.Emit
                 if (Module.TryGetFieldIndex(gfp.Field, out fieldIndex))
                 {
                     return builder.CreateStructGEP(
+                        Module.ImportType(gfp.Field.ParentType),
                         basePtr,
                         (uint)fieldIndex,
                         name);
@@ -275,7 +275,7 @@ namespace Flame.Llvm.Emit
                     callProto.Lookup,
                     thisPtr,
                     builder);
-                return builder.CreateCall(functionPtr, args, name);
+                return builder.CreateCall(Module.GetFunctionPrototype(callProto.Callee), functionPtr, args, name);
             }
             else if (proto is IndirectCallPrototype)
             {
@@ -288,25 +288,28 @@ namespace Flame.Llvm.Emit
                 {
                     var fieldPtrs = DecomposeDelegateObject(callee, ((PointerType)calleeType).ElementType, builder);
                     var impl = builder.CreateBitCast(
-                        builder.CreateLoad(fieldPtrs.InvokeImplPtr, ""),
+                        builder.CreateLoad(fieldPtrs.InvokeImplType, fieldPtrs.InvokeImplPtr, ""),
                         LLVM.PointerType(
                             fieldPtrs.GetFunctionType(
                                 Module.ImportType(callProto.ResultType),
-                                args.Select(x => x.TypeOf())),
+                                args.Select(x => x.TypeOf)),
                             0),
                         "");
-                    var thisArg = builder.CreateLoad(fieldPtrs.TargetPtr, "");
-                    return builder.CreateCall(impl, new[] { thisArg }.Concat(args).ToArray(), name);
+                    var thisArg = builder.CreateLoad(fieldPtrs.TargetType, fieldPtrs.TargetPtr, "");
+                    var signature = fieldPtrs.GetFunctionType(
+                        Module.ImportType(callProto.ResultType),
+                        args.Select(x => x.TypeOf));
+                    return builder.CreateCall(signature, impl, new[] { thisArg }.Concat(args).ToArray(), name);
                 }
                 else
                 {
+                    var signature = Module.ImportType(callProto.ResultType).CreateFunctionType(
+                        args.Select(x => x.TypeOf).ToArray(), false);
                     return builder.CreateCall(
+                        signature,
                         builder.CreateBitCast(
                             callee,
-                            LLVM.PointerType(
-                                LLVM.FunctionType(Module.ImportType(callProto.ResultType),
-                                args.Select(x => x.TypeOf()).ToArray(), false),
-                                0),
+                                LLVM.PointerType(signature, 0),
                             ""),
                         args,
                         name);
@@ -329,6 +332,7 @@ namespace Flame.Llvm.Emit
                     return EmitAllocDelegate(
                         ((PointerType)newDelegProto.ResultType).ElementType,
                         functionPtr,
+                        Module.GetFunctionPrototype(newDelegProto.Callee),
                         thisPtr,
                         builder,
                         name);
@@ -344,6 +348,7 @@ namespace Flame.Llvm.Emit
                 var ctor = newobjProto.Constructor;
                 var instance = Module.GC.EmitAllocObject(ctor.ParentType, Module, builder, name);
                 builder.CreateCall(
+                    Module.GetFunctionPrototype(ctor),
                     Module.DeclareMethod(ctor),
                     new[] { instance }.Concat(instruction.Arguments.Select(Get)).ToArray(),
                     "");
@@ -414,7 +419,7 @@ namespace Flame.Llvm.Emit
                                 Get(arguments[0]),
                                 LLVM.PointerType(LLVM.Int8TypeInContext(Module.Context), 0),
                                 name + ".base");
-                            var i8Result = builder.CreateGEP(i8Base, new[] { Get(arguments[1]) }, name + ".raw");
+                            var i8Result = builder.CreateGEP(LLVM.Int8TypeInContext(Module.Context), i8Base, new[] { Get(arguments[1]) }, name + ".raw");
                             return builder.CreateBitCast(i8Result, Module.ImportType(prototype.ResultType), name);
                         }
                     }
@@ -553,7 +558,7 @@ namespace Flame.Llvm.Emit
                         Module,
                         builder,
                         name + ".ref");
-                    return builder.CreateLoad(ptr, name);
+                    return builder.CreateLoad(Module.ImportType(prototype.ResultType), ptr, name);
                 }
                 else if (opName == ArrayIntrinsics.Operators.StoreElement)
                 {
@@ -584,7 +589,7 @@ namespace Flame.Llvm.Emit
                         builder,
                         name);
                     var resultType = Module.ImportType(prototype.ResultType);
-                    if (resultType.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                    if (resultType.Kind == LLVMTypeKind.LLVMPointerTypeKind)
                     {
                         return builder.CreateIntToPtr(result, resultType, "");
                     }
@@ -654,7 +659,7 @@ namespace Flame.Llvm.Emit
                 {
                     return builder.CreateSExt(value, llvmTo, name);
                 }
-                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                else if (llvmTo.Kind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
                     return builder.CreateIntToPtr(value, llvmTo, name);
                 }
@@ -678,24 +683,24 @@ namespace Flame.Llvm.Emit
                         return builder.CreateZExt(value, llvmTo, name);
                     }
                 }
-                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                else if (llvmTo.Kind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
                     return builder.CreateIntToPtr(value, llvmTo, name);
                 }
             }
-            else if (value.TypeOf().TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+            else if (value.TypeOf.Kind == LLVMTypeKind.LLVMPointerTypeKind)
             {
                 if (to.IsIntegerType())
                 {
                     return builder.CreatePtrToInt(value, llvmTo, name);
                 }
-                else if (llvmTo.TypeKind == LLVMTypeKind.LLVMPointerTypeKind)
+                else if (llvmTo.Kind == LLVMTypeKind.LLVMPointerTypeKind)
                 {
                     return builder.CreateBitCast(value, llvmTo, name);
                 }
             }
             throw new NotSupportedException(
-                $"Unsupported conversion of a '{from.FullName}' ('{value.TypeOf()}') to a '{to.FullName}' ('{llvmTo}').");
+                $"Unsupported conversion of a '{from.FullName}' ('{value.TypeOf}') to a '{to.FullName}' ('{llvmTo}').");
         }
 
         private bool IsFloatingPointType(IType type)
@@ -713,8 +718,7 @@ namespace Flame.Llvm.Emit
 
         private LLVMValueRef EmitIntegerConstant(IntegerConstant constant, IType resultType)
         {
-            return LLVM.ConstInt(
-                Module.ImportType(resultType),
+            return Module.ImportType(resultType).CreateConstInt(
                 constant.ToUInt64(),
                 constant.Spec.IsSigned);
         }
@@ -729,7 +733,14 @@ namespace Flame.Llvm.Emit
             else if (prototype.Value == NullConstant.Instance
                 || prototype.Value == DefaultConstant.Instance)
             {
-                return LLVM.ConstNull(Module.ImportType(prototype.ResultType));
+                var importedType = Module.ImportType(prototype.ResultType);
+                if (importedType.Kind == LLVMTypeKind.LLVMVoidTypeKind)
+                {
+                    // Void has no LLVM constant value; return a null LLVMValueRef.
+                    // Callers that return void check the result type before using the returned value.
+                    return default(LLVMValueRef);
+                }
+                return LLVM.ConstNull(importedType);
             }
             else if (prototype.Value is Float32Constant)
             {
@@ -756,22 +767,21 @@ namespace Flame.Llvm.Emit
                 {
                     if (i == fields.LengthFieldIndex)
                     {
-                        data.Add(LLVM.ConstInt(fieldTypes[i], (ulong)stringConst.Value.Length, false));
+                        data.Add(fieldTypes[i].CreateConstInt((ulong)stringConst.Value.Length, false));
                     }
                     else if (i == fields.DataFieldIndex)
                     {
                         data.Add(
-                            LLVM.ConstArray(
-                                fieldTypes[i],
-                                stringConst.Value.Select(c => LLVM.ConstInt(fieldTypes[i], (ulong)c, false)).ToArray()));
+                            fieldTypes[i].CreateConstArray(
+                                stringConst.Value.Select(c => fieldTypes[i].CreateConstInt((ulong)c, false)).ToArray()));
                     }
                     else
                     {
                         data.Add(LLVM.ConstNull(fieldTypes[i]));
                     }
                 }
-                var globalData = LLVM.ConstStructInContext(Module.Context, data.ToArray(), false);
-                var global = LLVM.AddGlobal(Module.Module, globalData.TypeOf(), "string_literal");
+                var globalData = Module.Context.CreateConstStruct(data.ToArray(), false);
+                var global = Module.Module.AddGlobal(globalData.TypeOf, "string_literal");
                 global.SetInitializer(globalData);
                 global.SetGlobalConstant(true);
                 global.SetLinkage(LLVMLinkage.LLVMInternalLinkage);
@@ -862,13 +872,13 @@ namespace Flame.Llvm.Emit
             IRBuilder builder,
             string name)
         {
-            var lhsType = lhs.TypeOf();
-            var rhsType = rhs.TypeOf();
-            if (lhsType.TypeKind != rhsType.TypeKind)
+            var lhsType = lhs.TypeOf;
+            var rhsType = rhs.TypeOf;
+            if (lhsType.Kind != rhsType.Kind)
             {
                 throw new NotSupportedException($"Cannot compare '{lhsType}' and '{rhsType}' instances.");
             }
-            switch (lhsType.TypeKind)
+            switch (lhsType.Kind)
             {
                 case LLVMTypeKind.LLVMIntegerTypeKind:
                 case LLVMTypeKind.LLVMPointerTypeKind:
@@ -937,6 +947,7 @@ namespace Flame.Llvm.Emit
         private LLVMValueRef EmitAllocDelegate(
             IType type,
             LLVMValueRef callee,
+            LLVMTypeRef calleeSignature,
             LLVMValueRef thisArgument,
             IRBuilder builder,
             string name)
@@ -948,21 +959,22 @@ namespace Flame.Llvm.Emit
             var fieldPtrs = DecomposeDelegateObject(ptr, type, builder);
 
             // Set the 'method_ptr' field to the callee pointer.
-            CreateStoreAnyPtr(callee, fieldPtrs.MethodPtrPtr, builder);
-            if (thisArgument.Pointer == IntPtr.Zero)
+            CreateStoreAnyPtr(callee, fieldPtrs.MethodPtrType, fieldPtrs.MethodPtrPtr, builder);
+            if (thisArgument.Pointer() == IntPtr.Zero)
             {
                 // If there is no 'this' argument, then we need to create a small thunk that discards
                 // the 'this' argument. We store this thunk in the 'invoke_impl' field.
                 var thunk = GetDelegateThunk(
                     callee,
-                    fieldPtrs.TargetPtr.TypeOf().GetElementType());
-                CreateStoreAnyPtr(thunk, fieldPtrs.InvokeImplPtr, builder);
+                    calleeSignature,
+                    fieldPtrs.TargetType);
+                CreateStoreAnyPtr(thunk, fieldPtrs.InvokeImplType, fieldPtrs.InvokeImplPtr, builder);
             }
             else
             {
                 // If there is a 'this' argument, then we simply set the 'target' and 'invoke_impl' fields.
-                CreateStoreAnyPtr(thisArgument, fieldPtrs.TargetPtr, builder);
-                CreateStoreAnyPtr(callee, fieldPtrs.InvokeImplPtr, builder);
+                CreateStoreAnyPtr(thisArgument, fieldPtrs.TargetType, fieldPtrs.TargetPtr, builder);
+                CreateStoreAnyPtr(callee, fieldPtrs.InvokeImplType, fieldPtrs.InvokeImplPtr, builder);
             }
 
             return ptr;
@@ -970,6 +982,7 @@ namespace Flame.Llvm.Emit
 
         private LLVMValueRef GetDelegateThunk(
             LLVMValueRef callee,
+            LLVMTypeRef signature,
             LLVMTypeRef targetParamType)
         {
             var thunkName = callee.GetValueName();
@@ -980,26 +993,23 @@ namespace Flame.Llvm.Emit
                 thunkName = thunkName.Substring(startIndex + 1, endIndex - startIndex - 1);
             }
             thunkName += ".thunk";
-            var thunk = LLVM.GetNamedFunction(Module.Module, thunkName);
-            if (thunk.Pointer == IntPtr.Zero)
+            var thunk = Module.Module.GetNamedFunction(thunkName);
+            if (thunk.Pointer() == IntPtr.Zero)
             {
-                var signature = callee.TypeOf().GetElementType();
                 var thunkParams = new List<LLVMTypeRef>();
                 thunkParams.Add(targetParamType);
                 thunkParams.AddRange(signature.GetParamTypes());
-                thunk = LLVM.AddFunction(
-                    Module.Module,
+                thunk = Module.Module.AddFunction(
                     thunkName,
-                    LLVM.FunctionType(
-                        signature.GetReturnType(),
+                    signature.GetReturnType().CreateFunctionType(
                         thunkParams.ToArray(),
                         signature.IsFunctionVarArg));
 
                 using (var builder = new IRBuilder(Module.Context))
                 {
                     builder.PositionBuilderAtEnd(thunk.AppendBasicBlock("entry"));
-                    var result = builder.CreateCall(callee, thunk.GetParams().Skip(1).ToArray(), "");
-                    if (result.TypeOf().TypeKind == LLVMTypeKind.LLVMVoidTypeKind)
+                    var result = builder.CreateCall(signature, callee, thunk.GetParams().Skip(1).ToArray(), "");
+                    if (result.TypeOf.Kind == LLVMTypeKind.LLVMVoidTypeKind)
                     {
                         builder.CreateRetVoid();
                     }
@@ -1012,9 +1022,9 @@ namespace Flame.Llvm.Emit
             return thunk;
         }
 
-        private static void CreateStoreAnyPtr(LLVMValueRef value, LLVMValueRef ptr, IRBuilder builder)
+        private static void CreateStoreAnyPtr(LLVMValueRef value, LLVMTypeRef targetType, LLVMValueRef ptr, IRBuilder builder)
         {
-            builder.CreateStore(builder.CreateBitCast(value, ptr.TypeOf().GetElementType(), ""), ptr);
+            builder.CreateStore(builder.CreateBitCast(value, targetType, ""), ptr);
         }
 
         private DelegateTriple DecomposeDelegateObject(
@@ -1030,23 +1040,31 @@ namespace Flame.Llvm.Emit
             var baseType = type;
             while (baseType != null)
             {
-                invokeImplField = baseType.Fields.FirstOrDefault(f => f.Name.ToString() == "invoke_impl");
+                invokeImplField = baseType.Fields.FirstOrDefault(
+                    f => f.Name.ToString() == "invoke_impl"
+                        || f.Name.ToString() == "_methodPtr");
                 if (invokeImplField != null)
                 {
-                    targetField = baseType.Fields.First(f => f.Name.ToString() == "m_target");
-                    methodPtrField = baseType.Fields.First(f => f.Name.ToString() == "method_ptr");
-                    break;
+                    targetField = baseType.Fields.FirstOrDefault(
+                        f => f.Name.ToString() == "m_target"
+                            || f.Name.ToString() == "_target");
+                    methodPtrField = baseType.Fields.FirstOrDefault(
+                        f => f.Name.ToString() == "method_ptr"
+                            || f.Name.ToString() == "_methodPtrAux"
+                            || f.Name.ToString() == "_methodPtr");
+                    if (targetField != null && methodPtrField != null)
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    baseType = baseType.BaseTypes.FirstOrDefault(t => !t.IsInterfaceType());
-                }
+
+                baseType = baseType.BaseTypes.FirstOrDefault(t => !t.IsInterfaceType());
             }
             if (baseType == null)
             {
                 throw new InvalidOperationException(
                     $"Type {type.FullName.ToString()} was not recognized as a delegate " +
-                    "because it does not define a field named 'invoke_impl'.");
+                    "because it does not define a recognized delegate field layout.");
             }
 
             // Cast the delegate instance pointer to that base type.
@@ -1054,9 +1072,13 @@ namespace Flame.Llvm.Emit
 
             // Create field pointers.
             var result = new DelegateTriple();
-            result.MethodPtrPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(methodPtrField), "");
-            result.InvokeImplPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(invokeImplField), "");
-            result.TargetPtr = builder.CreateStructGEP(basePtr, (uint)Module.GetFieldIndex(targetField), "");
+            var importedBaseType = Module.ImportType(baseType);
+            result.MethodPtrPtr = builder.CreateStructGEP(importedBaseType, basePtr, (uint)Module.GetFieldIndex(methodPtrField), "");
+            result.InvokeImplPtr = builder.CreateStructGEP(importedBaseType, basePtr, (uint)Module.GetFieldIndex(invokeImplField), "");
+            result.TargetPtr = builder.CreateStructGEP(importedBaseType, basePtr, (uint)Module.GetFieldIndex(targetField), "");
+            result.MethodPtrType = Module.ImportType(methodPtrField.FieldType);
+            result.InvokeImplType = Module.ImportType(invokeImplField.FieldType);
+            result.TargetType = Module.ImportType(targetField.FieldType);
             return result;
         }
 
@@ -1081,7 +1103,10 @@ namespace Flame.Llvm.Emit
                     "because it does not fields named '_stringLength' and '_firstChar'.");
             }
 
-            return new StringFields(module.GetFieldIndex(lengthField), module.GetFieldIndex(dataField));
+            return new StringFields(
+                module.ImportType(type),
+                module.GetFieldIndex(lengthField),
+                module.GetFieldIndex(dataField));
         }
 
         private struct DelegateTriple
@@ -1089,23 +1114,28 @@ namespace Flame.Llvm.Emit
             public LLVMValueRef MethodPtrPtr;
             public LLVMValueRef InvokeImplPtr;
             public LLVMValueRef TargetPtr;
+            public LLVMTypeRef MethodPtrType;
+            public LLVMTypeRef InvokeImplType;
+            public LLVMTypeRef TargetType;
 
             public LLVMTypeRef GetFunctionType(LLVMTypeRef returnType, IEnumerable<LLVMTypeRef> argumentTypes)
             {
-                return LLVM.FunctionType(
-                    returnType,
-                    new[] { TargetPtr.TypeOf().GetElementType() }.Concat(argumentTypes).ToArray(),
+                return returnType.CreateFunctionType(
+                    new[] { TargetType }.Concat(argumentTypes).ToArray(),
                     false);
             }
         }
 
         internal struct StringFields
         {
-            public StringFields(int lengthFieldIndex, int dataFieldIndex)
+            public StringFields(LLVMTypeRef containerType, int lengthFieldIndex, int dataFieldIndex)
             {
+                this.ContainerType = containerType;
                 this.LengthFieldIndex = lengthFieldIndex;
                 this.DataFieldIndex = dataFieldIndex;
             }
+
+            public LLVMTypeRef ContainerType { get; private set; }
 
             public int LengthFieldIndex { get; private set; }
 
@@ -1113,12 +1143,12 @@ namespace Flame.Llvm.Emit
 
             public LLVMValueRef GetLengthPtr(LLVMValueRef stringPtr, IRBuilder builder)
             {
-                return builder.CreateStructGEP(stringPtr, (uint)LengthFieldIndex, "");
+                return builder.CreateStructGEP(ContainerType, stringPtr, (uint)LengthFieldIndex, "");
             }
 
             public LLVMValueRef GetDataPtr(LLVMValueRef stringPtr, IRBuilder builder)
             {
-                return builder.CreateStructGEP(stringPtr, (uint)DataFieldIndex, "");
+                return builder.CreateStructGEP(ContainerType, stringPtr, (uint)DataFieldIndex, "");
             }
         }
 

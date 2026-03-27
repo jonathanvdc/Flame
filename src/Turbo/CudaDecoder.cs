@@ -9,7 +9,6 @@ using Flame.Clr;
 using Flame.Llvm;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 

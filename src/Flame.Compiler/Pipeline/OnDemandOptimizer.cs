@@ -23,7 +23,7 @@ namespace Flame.Compiler.Pipeline
         /// method body.
         /// </param>
         public OnDemandOptimizer(IReadOnlyList<Optimization> pipeline)
-            : this(pipeline, GetInitialMethodBodyDefault)
+            : this(pipeline, GetInitialMethodBodyDefault, false)
         { }
 
         /// <summary>
@@ -41,9 +41,33 @@ namespace Flame.Compiler.Pipeline
         public OnDemandOptimizer(
             IReadOnlyList<Optimization> pipeline,
             Func<IMethod, MethodBody> getInitialMethodBody)
+            : this(pipeline, getInitialMethodBody, false)
+        { }
+
+        /// <summary>
+        /// Creates a method body optimizer.
+        /// </summary>
+        /// <param name="pipeline">
+        /// A pass pipeline: a sequence of optimizations to apply to every
+        /// method body.
+        /// </param>
+        /// <param name="getInitialMethodBody">
+        /// A delegate that tries to find an initial method body for a
+        /// method. This initial method body is is the starting point for
+        /// further optimizations, both interprocedural and intraprocedural.
+        /// </param>
+        /// <param name="validateAfterEachPass">
+        /// Tells if method bodies should be validated after each pass in
+        /// the optimization pipeline.
+        /// </param>
+        public OnDemandOptimizer(
+            IReadOnlyList<Optimization> pipeline,
+            Func<IMethod, MethodBody> getInitialMethodBody,
+            bool validateAfterEachPass)
         {
             this.pipeline = pipeline;
             this.getInitMethodBody = getInitialMethodBody;
+            this.validateAfterEachPass = validateAfterEachPass;
             this.holders = new ConcurrentDictionary<IMethod, MethodBodyHolder>();
             this.graphLock = new object();
             this.results = new Dictionary<IMethod, TaskCompletionSource<MethodBody>>();
@@ -59,6 +83,11 @@ namespace Flame.Compiler.Pipeline
         /// A function that finds the initial method body for a method.
         /// </summary>
         private Func<IMethod, MethodBody> getInitMethodBody;
+
+        /// <summary>
+        /// Tells if method bodies should be validated after each pass.
+        /// </summary>
+        private bool validateAfterEachPass;
 
         /// <summary>
         /// A mapping of method definitions to the method body holders that
@@ -247,6 +276,10 @@ namespace Flame.Compiler.Pipeline
             foreach (var pass in pipeline)
             {
                 body = await pass.ApplyAsync(body, state);
+                if (validateAfterEachPass)
+                {
+                    ValidateBody(body, requestedDef, pass.GetType().FullName);
+                }
                 if (pass.IsCheckpoint)
                 {
                     // Update the method body for the method if we've
@@ -257,6 +290,25 @@ namespace Flame.Compiler.Pipeline
             requestedHolder.Body = body;
             Complete(requestedDef, body);
             return body;
+        }
+
+        private static void ValidateBody(MethodBody body, IMethod method, string passName)
+        {
+            try
+            {
+                var errors = body.Validate();
+                if (errors.Count > 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Invalid method body for '{method.FullName}' after '{passName}': {string.Join(" | ", errors)}");
+                }
+            }
+            catch (Exception ex) when (!(ex is InvalidOperationException))
+            {
+                throw new InvalidOperationException(
+                    $"Failed to validate method body for '{method.FullName}' after '{passName}'.",
+                    ex);
+            }
         }
 
         private bool IsDependentOn(IMethod dependent, IMethod dependency)
@@ -384,7 +436,31 @@ namespace Flame.Compiler.Pipeline
         public ParallelOnDemandOptimizer(
             IReadOnlyList<Optimization> pipeline,
             Func<IMethod, MethodBody> getInitialMethodBody)
-            : base(pipeline, getInitialMethodBody)
+            : this(pipeline, getInitialMethodBody, false)
+        {
+        }
+
+        /// <summary>
+        /// Creates a method body optimizer.
+        /// </summary>
+        /// <param name="pipeline">
+        /// A pass pipeline: a sequence of optimizations to apply to every
+        /// method body.
+        /// </param>
+        /// <param name="getInitialMethodBody">
+        /// A delegate that tries to find an initial method body for a
+        /// method. This initial method body is is the starting point for
+        /// further optimizations, both interprocedural and intraprocedural.
+        /// </param>
+        /// <param name="validateAfterEachPass">
+        /// Tells if method bodies should be validated after each pass in
+        /// the optimization pipeline.
+        /// </param>
+        public ParallelOnDemandOptimizer(
+            IReadOnlyList<Optimization> pipeline,
+            Func<IMethod, MethodBody> getInitialMethodBody,
+            bool validateAfterEachPass)
+            : base(pipeline, getInitialMethodBody, validateAfterEachPass)
         {
         }
 

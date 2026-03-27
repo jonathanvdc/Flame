@@ -37,7 +37,7 @@ namespace Flame.Clr.Analysis
     /// it is triggered when an exception is thrown and does not
     /// have special interactions with 'leave' instructions.
     /// </summary>
-    public sealed class CilCatchHandler : CilExceptionHandler
+    public class CilCatchHandler : CilExceptionHandler
     {
         /// <summary>
         /// Creates an exception handler that will catch
@@ -88,6 +88,22 @@ namespace Flame.Clr.Analysis
         {
             return graph.GetBasicBlock(landingPadTag).Parameters[0];
         }
+    }
+
+    /// <summary>
+    /// A CIL exception handler backed by a filter clause.
+    /// </summary>
+    public sealed class CilFilterHandler : CilCatchHandler
+    {
+        /// <summary>
+        /// Creates a filter exception handler.
+        /// </summary>
+        /// <param name="landingPad">
+        /// The landing pad to redirect flow to when an exception gets thrown.
+        /// </param>
+        public CilFilterHandler(BasicBlockTag landingPad)
+            : base(landingPad)
+        { }
     }
 
     /// <summary>
@@ -215,5 +231,33 @@ namespace Flame.Clr.Analysis
         {
             throw new IndexOutOfRangeException();
         }
+    }
+
+    /// <summary>
+    /// Represents the flow produced by an endfilter instruction.
+    /// Endfilter flow transfers control either to the handler body
+    /// or to the next exception handler, based on the filter's result.
+    /// </summary>
+    internal sealed class EndFilterFlow
+    {
+        public EndFilterFlow(
+            ValueTag capturedExceptionSlot,
+            ValueTag exceptionSlot,
+            BasicBlockTag nextHandler,
+            BasicBlockTag handler)
+        {
+            this.CapturedExceptionSlot = capturedExceptionSlot;
+            this.ExceptionSlot = exceptionSlot;
+            this.NextHandler = nextHandler;
+            this.Handler = handler;
+        }
+
+        public ValueTag CapturedExceptionSlot { get; private set; }
+
+        public ValueTag ExceptionSlot { get; private set; }
+
+        public BasicBlockTag NextHandler { get; private set; }
+
+        public BasicBlockTag Handler { get; private set; }
     }
 }

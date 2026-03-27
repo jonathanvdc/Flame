@@ -1,8 +1,10 @@
 using System;
 using Loyc.MiniTest;
 using Flame.Clr;
+using Flame.Compiler;
 using Flame.TypeSystem;
 using System.Linq;
+using Mono.Cecil;
 using Mono.Cecil.Rocks;
 using Flame;
 
@@ -137,6 +139,147 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void ResolveRuntimeTypeListBuilderToArray()
+        {
+            var runtimeTypeRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.RuntimeType");
+
+            var listBuilderRef = runtimeTypeRef.NestedTypes
+                .Single(type => type.Name == "ListBuilder`1");
+
+            var fieldInfoRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.Reflection.FieldInfo");
+
+            var toArrayDef = listBuilderRef.Methods
+                .Single(method => method.Name == "ToArray" && method.Parameters.Count == 0);
+
+            var listBuilderInstanceRef = new GenericInstanceType(listBuilderRef);
+            listBuilderInstanceRef.GenericArguments.Add(fieldInfoRef);
+
+            var toArrayRef = new MethodReference(toArrayDef.Name, toArrayDef.ReturnType, listBuilderInstanceRef)
+            {
+                HasThis = toArrayDef.HasThis,
+                ExplicitThis = toArrayDef.ExplicitThis,
+                CallingConvention = toArrayDef.CallingConvention
+            };
+            foreach (var parameter in toArrayDef.Parameters)
+            {
+                toArrayRef.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+            }
+            foreach (var genericParameter in toArrayDef.GenericParameters)
+            {
+                toArrayRef.GenericParameters.Add(new GenericParameter(genericParameter.Name, toArrayRef));
+            }
+
+            var toArray = corlib.Resolve(toArrayRef);
+            Assert.IsNotNull(toArray);
+            Assert.AreEqual(toArray.Name.ToString(), "ToArray");
+            Assert.AreEqual(toArray.Parameters.Count, 0);
+            Assert.AreEqual(TypeHelpers.BoxIfReferenceType(corlib.Resolve(fieldInfoRef.MakeArrayType())), toArray.ReturnParameter.Type);
+        }
+
+        [Test]
+        public void ResolveRuntimeTypeListBuilderOfRuntimeTypeToArray()
+        {
+            var runtimeTypeRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.RuntimeType");
+
+            var listBuilderRef = runtimeTypeRef.NestedTypes
+                .Single(type => type.Name == "ListBuilder`1");
+
+            var toArrayDef = listBuilderRef.Methods
+                .Single(method => method.Name == "ToArray" && method.Parameters.Count == 0);
+
+            var listBuilderInstanceRef = new GenericInstanceType(listBuilderRef);
+            listBuilderInstanceRef.GenericArguments.Add(runtimeTypeRef);
+
+            var toArrayRef = CreateHostedMethodReference(toArrayDef, listBuilderInstanceRef);
+            var toArray = corlib.Resolve(toArrayRef);
+
+            Assert.IsNotNull(toArray);
+            Assert.AreEqual(toArray.Name.ToString(), "ToArray");
+            Assert.AreEqual(toArray.Parameters.Count, 0);
+            Assert.AreEqual(TypeHelpers.BoxIfReferenceType(corlib.Resolve(runtimeTypeRef.MakeArrayType())), toArray.ReturnParameter.Type);
+        }
+
+        [Test]
+        public void ResolveExplicitGenericInterfaceOverride()
+        {
+            var overridingMethodRef = corlib.Definition.MainModule.GetTypes()
+                .SelectMany(type => type.Methods)
+                .First(method =>
+                    method.Overrides.Any(ov =>
+                        ov.Name == "Create"
+                        && ov.FullName.Contains("System.RuntimeType/IGenericCacheEntry`1")
+                        && ov.FullName.Contains("System.Enum/EnumInfo`1")));
+
+            var overridingMethod = corlib.Resolve(overridingMethodRef);
+
+            Assert.IsNotNull(overridingMethod);
+            Assert.AreEqual(1, overridingMethod.BaseMethods.Count);
+            Assert.AreEqual("Create", overridingMethod.BaseMethods[0].Name.ToString());
+            Assert.AreEqual(1, overridingMethod.BaseMethods[0].Parameters.Count);
+            Assert.AreEqual("System.RuntimeType box*", overridingMethod.BaseMethods[0].Parameters[0].Type.FullName.ToString());
+        }
+
+        [Test]
+        public void ResolveMethodWithFunctionPointerSignature()
+        {
+            var typeSystem = corlib.Resolver.TypeEnvironment;
+            var functionPointerMethodRef = corlib.Definition.MainModule.GetTypes()
+                .SelectMany(type => type.Methods)
+                .First(method =>
+                    method.ReturnType is FunctionPointerType
+                    || method.Parameters.Any(param => param.ParameterType is FunctionPointerType));
+
+            var resolvedMethod = corlib.Resolve(functionPointerMethodRef);
+            Assert.IsNotNull(resolvedMethod);
+
+            if (functionPointerMethodRef.ReturnType is FunctionPointerType)
+            {
+                Assert.AreEqual(typeSystem.NaturalInt, resolvedMethod.ReturnParameter.Type);
+            }
+            else
+            {
+                var functionPointerParamIndex = functionPointerMethodRef.Parameters
+                    .Select((param, index) => new { param, index })
+                    .First(pair => pair.param.ParameterType is FunctionPointerType)
+                    .index;
+                Assert.AreEqual(typeSystem.NaturalInt, resolvedMethod.Parameters[functionPointerParamIndex].Type);
+            }
+        }
+
+        [Test]
+        public void ResolveStringLengthAsCompilerImplementedInternalCall()
+        {
+            var lengthRef = corlib.Definition.MainModule.TypeSystem.String
+                .Resolve()
+                .Methods
+                .Single(method => method.Name == "get_Length" && method.Parameters.Count == 0);
+
+            var length = corlib.Resolve(lengthRef);
+            Assert.IsNotNull(length);
+            Assert.IsTrue(length.IsInternalCall());
+            Assert.IsTrue(length is IBodyMethod);
+            Assert.IsNull(((IBodyMethod)length).Body);
+        }
+
+        [Test]
+        public void ResolveStringCharsAsCompilerImplementedInternalCall()
+        {
+            var charsRef = corlib.Definition.MainModule.TypeSystem.String
+                .Resolve()
+                .Methods
+                .Single(method => method.Name == "get_Chars" && method.Parameters.Count == 1);
+
+            var chars = corlib.Resolve(charsRef);
+            Assert.IsNotNull(chars);
+            Assert.IsTrue(chars.IsInternalCall());
+            Assert.IsTrue(chars is IBodyMethod);
+            Assert.IsNull(((IBodyMethod)chars).Body);
+        }
+
+        [Test]
         public void ResolveArrayLength()
         {
             var arrayRef = corlib.Definition.MainModule.Types
@@ -199,5 +342,26 @@ namespace UnitTests.Flame.Clr
                 lengthProp.Accessors
                 .SingleOrDefault(accessor => accessor.Kind == AccessorKind.Get));
         }
+        private static MethodReference CreateHostedMethodReference(
+            MethodDefinition methodDef,
+            TypeReference declaringType)
+        {
+            var methodRef = new MethodReference(methodDef.Name, methodDef.ReturnType, declaringType)
+            {
+                HasThis = methodDef.HasThis,
+                ExplicitThis = methodDef.ExplicitThis,
+                CallingConvention = methodDef.CallingConvention
+            };
+            foreach (var parameter in methodDef.Parameters)
+            {
+                methodRef.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+            }
+            foreach (var genericParameter in methodDef.GenericParameters)
+            {
+                methodRef.GenericParameters.Add(new GenericParameter(genericParameter.Name, methodRef));
+            }
+            return methodRef;
+        }
+
     }
 }

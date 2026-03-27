@@ -13,7 +13,6 @@ using Flame.Compiler.Transforms;
 using Flame.Ir;
 using Flame.Llvm;
 using Flame.TypeSystem;
-using LLVMSharp;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -129,12 +128,12 @@ namespace IL2LLVM
 
                 // Write the LLVM module to disk.
                 string error;
-                if (LLVM.PrintModuleToFile(module, outputPath, out error))
+                if (module.TryPrintToFile(outputPath, out error))
                 {
                     log.Log(new LogEntry(Severity.Error, "cannot write module", error));
                 }
 
-                LLVM.DisposeModule(module);
+                module.Dispose();
             }
             finally
             {

@@ -6,7 +6,6 @@ using Flame;
 using Flame.Clr;
 using Flame.Llvm;
 using Flame.TypeSystem;
-using LLVMSharp;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
@@ -111,7 +110,7 @@ namespace Turbo
 
         public static CUdeviceptr GetGlobalAddress(LLVMValueRef value, CUmodule module, out SizeT size)
         {
-            if (value.IsAConstantExpr().Pointer != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
+            if (value.IsAConstantExpr.Pointer() != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
             {
                 return GetGlobalAddress(value.GetOperand(0), module, out size);
             }

@@ -176,14 +176,15 @@ namespace UnitTests
             }
         }
 
-        internal static readonly string ProjectPath = Directory.GetParent(
-            System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.Parent.FullName;
+        internal static readonly string SourceRootPath = FindSourceRoot();
+
+        internal static readonly string ProjectPath = Path.Combine(SourceRootPath, "UnitTests");
 
         internal static readonly string ToolTestPath = Path.Combine(
-            Directory.GetParent(ProjectPath).FullName, "tool-tests");
+            Directory.GetParent(SourceRootPath).FullName, "tool-tests");
 
         private static readonly string ILOptDir = Path.Combine(
-            ProjectPath,
+            SourceRootPath,
             "ILOpt",
             "bin",
             "Debug",
@@ -226,6 +227,18 @@ namespace UnitTests
             var appHostName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? "ilopt.exe"
                 : "ilopt";
+            var publishAppHostPath = Path.Combine(AppContext.BaseDirectory, appHostName);
+            if (File.Exists(publishAppHostPath))
+            {
+                return publishAppHostPath;
+            }
+
+            var publishDllPath = Path.Combine(AppContext.BaseDirectory, "ilopt.dll");
+            if (File.Exists(publishDllPath))
+            {
+                return "dotnet";
+            }
+
             var appHostPath = Path.Combine(ILOptDir, appHostName);
             if (File.Exists(appHostPath))
             {
@@ -239,6 +252,23 @@ namespace UnitTests
             }
 
             throw new FileNotFoundException("Cannot find the ilopt test executable.", appHostPath);
+        }
+
+        private static string FindSourceRoot()
+        {
+            var current = new DirectoryInfo(AppContext.BaseDirectory);
+            while (current != null)
+            {
+                if (File.Exists(Path.Combine(current.FullName, "UnitTests", "UnitTests.csproj")))
+                {
+                    return current.FullName;
+                }
+
+                current = current.Parent;
+            }
+
+            throw new DirectoryNotFoundException(
+                "Cannot locate the source root that contains UnitTests/UnitTests.csproj.");
         }
 
         /// <summary>
