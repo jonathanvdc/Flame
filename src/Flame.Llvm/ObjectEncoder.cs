@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
@@ -11,7 +10,7 @@ namespace Flame.Llvm
     /// Encodes and/or decodes in-memory objects.
     /// </summary>
     /// <typeparam name="T">The type of a decoded object.</typeparam>
-    public abstract class ObjectMarshal<T>
+    public abstract unsafe class ObjectMarshal<T>
     {
         /// <summary>
         /// Creates an object marshal.
@@ -28,7 +27,7 @@ namespace Flame.Llvm
             this.Target = target;
 
             var ext = GCInterface.GetMetadataExtendedType(
-                LLVM.StructTypeInContext(CompiledModule.Context, new LLVMTypeRef[] { }, false),
+                CompiledModule.Context.CreateStructType(new LLVMTypeRef[] { }, false),
                 CompiledModule);
             MetadataSize = (int)LLVM.OffsetOfElement(Target, ext, 1);
         }
@@ -93,7 +92,7 @@ namespace Flame.Llvm
     /// </summary>
     /// <typeparam name="TObj">The type of a decoded object.</typeparam>
     /// <typeparam name="TPtr">The type of a pointer to an encoded object.</typeparam>
-    public abstract class ObjectEncoder<TObj, TPtr> : ObjectMarshal<TObj>
+    public abstract unsafe class ObjectEncoder<TObj, TPtr> : ObjectMarshal<TObj>
     {
         /// <summary>
         /// Creates an object encoder.
@@ -193,11 +192,11 @@ namespace Flame.Llvm
 
         private TPtr ConstToPtr(LLVMValueRef value)
         {
-            if (value.IsAConstantExpr().Pointer != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
+            if (value.IsAConstantExpr.Pointer() != IntPtr.Zero && value.GetConstOpcode() == LLVMOpcode.LLVMBitCast)
             {
                 return ConstToPtr(value.GetOperand(0));
             }
-            else if (value.IsAGlobalVariable().Pointer != IntPtr.Zero)
+            else if (value.IsAGlobalVariable.Pointer() != IntPtr.Zero)
             {
                 return GetGlobalAddress(value);
             }

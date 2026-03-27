@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Flame.Llvm.Emit;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {

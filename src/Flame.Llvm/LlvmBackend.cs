@@ -3,14 +3,13 @@ using System.Linq;
 using Flame.Compiler.Pipeline;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
     /// <summary>
     /// Provides a high-level interface to Flame's LLVM back-end.
     /// </summary>
-    public static class LlvmBackend
+    public static unsafe class LlvmBackend
     {
         /// <summary>
         /// Compiles an assembly content description to an LLVM module.
@@ -54,7 +53,7 @@ namespace Flame.Llvm
             NameMangler mangler,
             InternalCallImplementor internalCallImplementor)
         {
-            var module = LLVM.ModuleCreateWithName(contents.FullName.FullyUnqualifiedName.ToString());
+            var module = LLVMModuleRef.CreateWithName(contents.FullName.FullyUnqualifiedName.ToString());
             var builder = new ModuleBuilder(
                 module,
                 typeSystem,

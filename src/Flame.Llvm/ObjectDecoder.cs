@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {

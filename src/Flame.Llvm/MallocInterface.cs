@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
@@ -12,7 +11,7 @@ namespace Flame.Llvm
     /// A "GC" interface that uses the malloc function to allocate memory.
     /// No memory is ever freed.
     /// </summary>
-    public sealed class MallocInterface : GCInterface
+    public sealed unsafe class MallocInterface : GCInterface
     {
         private MallocInterface()
         { }
@@ -45,7 +44,7 @@ namespace Flame.Llvm
             var metaType = GetMetadataExtendedType(importedType, module);
             var bytes = builder.CreateArrayMalloc(
                 LLVM.Int8TypeInContext(module.Context),
-                builder.CreateAdd(LLVM.SizeOf(metaType), tailRoom, ""),
+                builder.CreateAdd(metaType.CreateSizeOf(), tailRoom, ""),
                 name + ".alloc");
             var metaVal = builder.CreateBitCast(bytes, LLVM.PointerType(metaType, 0), "");
             builder.CreateStore(
@@ -68,7 +67,7 @@ namespace Flame.Llvm
             var headerType = GetArrayHeaderType(elementType, dimensions.Count, module);
 
             var headerFields = dimensions.Select(x => builder.CreateIntCast(x, lengthType, "")).ToArray();
-            var totalSize = headerFields.Aggregate(LLVM.SizeOf(llvmElementType), (x, y) => builder.CreateMul(x, y, ""));
+            var totalSize = headerFields.Aggregate(llvmElementType.CreateSizeOf(), (x, y) => builder.CreateMul(x, y, ""));
 
             var headerPtr = EmitAllocObject(arrayType, headerType, totalSize, module, builder, "");
             var result = builder.CreateBitCast(
@@ -92,10 +91,9 @@ namespace Flame.Llvm
             int dimensions,
             ModuleBuilder module)
         {
-            return LLVM.StructTypeInContext(
-                module.Context,
+            return module.Context.CreateStructType(
                 Enumerable.Repeat(GetArrayLengthType(module), dimensions)
-                    .Concat(new[] { LLVM.ArrayType(module.ImportType(elementType), 0) })
+                    .Concat(new[] { module.ImportType(elementType).CreateArrayType(0) })
                     .ToArray(),
                 false);
         }
@@ -152,7 +150,7 @@ namespace Flame.Llvm
             var headerPtr = builder.CreateBitCast(array, LLVM.PointerType(headerType, 0), "header.ptr");
 
             return Enumerable.Range(0, dimensions).Aggregate(
-                LLVM.ConstInt(lengthType, 1, false),
+                lengthType.CreateConstInt(1, false),
                 (acc, i) => builder.CreateMul(acc, builder.CreateLoad(builder.CreateStructGEP(headerPtr, (uint)i, ""), ""), ""));
         }
 
@@ -171,7 +169,7 @@ namespace Flame.Llvm
                 castPointer,
                 new[]
                 {
-                    LLVM.ConstInt(LLVM.Int32TypeInContext(module.Context), unchecked((ulong)-1), true)
+                    new LLVMTypeRef((IntPtr)LLVM.Int32TypeInContext(module.Context)).CreateConstInt(unchecked((ulong)-1), true)
                 },
                 "metadata.ref");
             return builder.CreateLoad(vtablePtrRef, name);

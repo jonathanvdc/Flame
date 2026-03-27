@@ -1,13 +1,12 @@
 using System;
 using Flame.Llvm.Emit;
-using LLVMSharp;
 
 namespace Flame.Llvm
 {
     /// <summary>
     /// A description of an LLVM intrinsic function.
     /// </summary>
-    internal sealed class LlvmIntrinsic
+    internal sealed unsafe class LlvmIntrinsic
     {
         /// <summary>
         /// Creates an LLVM intrinsic function description.
@@ -28,7 +27,7 @@ namespace Flame.Llvm
         /// A function that creates the intrinsic's function prototype in a particular context.
         /// </param>
         public LlvmIntrinsic(string name, Func<LLVMContextRef, LLVMTypeRef> getPrototype)
-            : this(name, module => LLVM.AddFunction(module, name, getPrototype(LLVM.GetModuleContext(module))))
+            : this(name, module => module.AddFunction(name, getPrototype(module.Context)))
         { }
 
         /// <summary>
@@ -52,8 +51,8 @@ namespace Flame.Llvm
         /// <returns>The intrinsic.</returns>
         public LLVMValueRef GetOrDefine(LLVMModuleRef module)
         {
-            var fun = LLVM.GetNamedFunction(module, Name);
-            if (fun.Pointer == IntPtr.Zero)
+            var fun = module.GetNamedFunction(Name);
+            if (fun.Pointer() == IntPtr.Zero)
             {
                 fun = Define(module);
             }
@@ -79,16 +78,15 @@ namespace Flame.Llvm
         public static readonly LlvmIntrinsic MemmoveInt32 =
             new LlvmIntrinsic(
                 "llvm.memmove.p0i8.p0i8.i32",
-                context => LLVM.FunctionType(
-                    LLVM.VoidTypeInContext(context),
-                    new[]
+                new Func<LLVMContextRef, LLVMTypeRef>(context => new LLVMTypeRef((IntPtr)LLVM.VoidTypeInContext(context)).CreateFunctionType(
+                    new LLVMTypeRef[]
                     {
-                        LLVM.PointerType(LLVM.Int8TypeInContext(context), 0),
-                        LLVM.PointerType(LLVM.Int8TypeInContext(context), 0),
-                        LLVM.Int32TypeInContext(context),
-                        LLVM.Int1TypeInContext(context)
+                        new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.Int8TypeInContext(context), 0)),
+                        new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.Int8TypeInContext(context), 0)),
+                        new LLVMTypeRef((IntPtr)LLVM.Int32TypeInContext(context)),
+                        new LLVMTypeRef((IntPtr)LLVM.Int1TypeInContext(context))
                     },
-                    false));
+                    false)));
 
         /// <summary>
         /// A version of the 'memcpy' intrinsic that takes a 32-bit
@@ -98,15 +96,14 @@ namespace Flame.Llvm
         public static readonly LlvmIntrinsic MemcpyInt32 =
             new LlvmIntrinsic(
                 "llvm.memcpy.p0i8.p0i8.i32",
-                context => LLVM.FunctionType(
-                    LLVM.VoidTypeInContext(context),
-                    new[]
+                new Func<LLVMContextRef, LLVMTypeRef>(context => new LLVMTypeRef((IntPtr)LLVM.VoidTypeInContext(context)).CreateFunctionType(
+                    new LLVMTypeRef[]
                     {
-                        LLVM.PointerType(LLVM.Int8TypeInContext(context), 0),
-                        LLVM.PointerType(LLVM.Int8TypeInContext(context), 0),
-                        LLVM.Int32TypeInContext(context),
-                        LLVM.Int1TypeInContext(context)
+                        new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.Int8TypeInContext(context), 0)),
+                        new LLVMTypeRef((IntPtr)LLVM.PointerType(LLVM.Int8TypeInContext(context), 0)),
+                        new LLVMTypeRef((IntPtr)LLVM.Int32TypeInContext(context)),
+                        new LLVMTypeRef((IntPtr)LLVM.Int1TypeInContext(context))
                     },
-                    false));
+                    false)));
     }
 }

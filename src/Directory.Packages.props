@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="LeMP" Version="30.1.3" />
-    <PackageVersion Include="LLVMSharp" Version="5.0.0" />
+    <PackageVersion Include="LLVMSharp" Version="20.1.2" />
     <PackageVersion Include="Loyc.Collections" Version="30.1.3" />
     <PackageVersion Include="Loyc.Ecs" Version="30.1.3" />
     <PackageVersion Include="Loyc.Essentials" Version="30.1.3" />
