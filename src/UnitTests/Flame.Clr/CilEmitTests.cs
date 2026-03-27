@@ -170,6 +170,54 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void ExecuteRoundtripRejectingFilterHandlerBubblesToTopLevel()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            ExecuteRoundtripStaticMethodBodyExpectingUnhandledException(
+                int32Type,
+                EmptyArray<TypeReference>.Value,
+                new[] { int32Type },
+                ilProc =>
+                {
+                    var module = corlib.Definition.MainModule;
+                    var exceptionType = module.Types
+                        .Single(type => type.FullName == "System.Exception");
+                    var exceptionCtor = exceptionType.Methods
+                        .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+                    var tryStart = ilProc.Create(OpCodes.Newobj, exceptionCtor);
+                    var tryEnd = ilProc.Create(OpCodes.Pop);
+                    var filterStart = ilProc.Create(OpCodes.Pop);
+                    var handlerStart = ilProc.Create(OpCodes.Pop);
+                    var end = ilProc.Create(OpCodes.Ldloc_0);
+
+                    ilProc.Emit(OpCodes.Ldc_I4_0);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Append(tryStart);
+                    ilProc.Emit(OpCodes.Throw);
+                    ilProc.Append(tryEnd);
+                    ilProc.Append(filterStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_0);
+                    ilProc.Emit(OpCodes.Endfilter);
+                    ilProc.Append(handlerStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Leave, end);
+                    ilProc.Append(end);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Body.ExceptionHandlers.Add(
+                        new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                        {
+                            TryStart = tryStart,
+                            TryEnd = tryEnd,
+                            FilterStart = filterStart,
+                            HandlerStart = handlerStart,
+                            HandlerEnd = end
+                        });
+                });
+        }
+
+        [Test]
         public void RoundtripReturnArgument()
         {
             var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
@@ -1099,6 +1147,82 @@ IL_0002: ret");
                     Assert.Fail(
                         $"Expected exit code {expectedExitCode}, got {exitCode}. Stdout: {stdout} Stderr: {stderr}");
                 }
+            }
+            finally
+            {
+                if (Directory.Exists(outputDir))
+                {
+                    Directory.Delete(outputDir, true);
+                }
+            }
+        }
+
+        private void ExecuteRoundtripStaticMethodBodyExpectingUnhandledException(
+            TypeReference returnType,
+            IReadOnlyList<TypeReference> parameterTypes,
+            IReadOnlyList<TypeReference> localTypes,
+            Action<Mono.Cecil.Cil.ILProcessor> emitBody)
+        {
+            var assemblyName = "FilterIntegration_" + Guid.NewGuid().ToString("N");
+            var assembly = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition(assemblyName, new Version(1, 0, 0, 0)),
+                assemblyName,
+                ModuleKind.Console);
+            assembly.MainModule.ImportReference(typeof(object));
+            assembly.MainModule.ImportReference(typeof(Exception));
+
+            var programType = new TypeDefinition(
+                "",
+                "Program",
+                TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.Sealed,
+                assembly.MainModule.TypeSystem.Object);
+            assembly.MainModule.Types.Add(programType);
+
+            var methodDef = new MethodDefinition(
+                "Main",
+                MethodAttributes.Public | MethodAttributes.Static,
+                returnType);
+            programType.Methods.Add(methodDef);
+            assembly.MainModule.EntryPoint = methodDef;
+
+            var sourceMethodDef = CreateStaticMethodDef(returnType, parameterTypes);
+            var cilBody = new Mono.Cecil.Cil.MethodBody(sourceMethodDef);
+            foreach (var localType in localTypes)
+            {
+                cilBody.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(localType));
+            }
+
+            emitBody(cilBody.GetILProcessor());
+            cilBody.Optimize();
+
+            methodDef.Body = CompileRoundtrippedMethodBody(
+                methodDef,
+                parameterTypes,
+                returnType,
+                cilBody,
+                corlib);
+
+            var outputDir = Path.Combine(Path.GetTempPath(), assemblyName);
+            Directory.CreateDirectory(outputDir);
+            var assemblyPath = Path.Combine(outputDir, assemblyName + ".dll");
+
+            try
+            {
+                assembly.Write(assemblyPath);
+
+                string stdout;
+                string stderr;
+                var exitCode = global::UnitTests.ILOptTests.RunExe(
+                    assemblyPath,
+                    "",
+                    out stdout,
+                    out stderr);
+
+                Assert.IsTrue(exitCode != 0, "Expected an unhandled exception to produce a nonzero exit code.");
+                Assert.IsTrue(
+                    stderr.Contains("Unhandled exception", StringComparison.Ordinal)
+                        || stderr.Contains("Unhandled Exception", StringComparison.Ordinal),
+                    "Expected stderr to mention an unhandled exception.");
             }
             finally
             {
