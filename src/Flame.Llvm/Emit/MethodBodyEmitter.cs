@@ -1040,23 +1040,31 @@ namespace Flame.Llvm.Emit
             var baseType = type;
             while (baseType != null)
             {
-                invokeImplField = baseType.Fields.FirstOrDefault(f => f.Name.ToString() == "invoke_impl");
+                invokeImplField = baseType.Fields.FirstOrDefault(
+                    f => f.Name.ToString() == "invoke_impl"
+                        || f.Name.ToString() == "_methodPtr");
                 if (invokeImplField != null)
                 {
-                    targetField = baseType.Fields.First(f => f.Name.ToString() == "m_target");
-                    methodPtrField = baseType.Fields.First(f => f.Name.ToString() == "method_ptr");
-                    break;
+                    targetField = baseType.Fields.FirstOrDefault(
+                        f => f.Name.ToString() == "m_target"
+                            || f.Name.ToString() == "_target");
+                    methodPtrField = baseType.Fields.FirstOrDefault(
+                        f => f.Name.ToString() == "method_ptr"
+                            || f.Name.ToString() == "_methodPtrAux"
+                            || f.Name.ToString() == "_methodPtr");
+                    if (targetField != null && methodPtrField != null)
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    baseType = baseType.BaseTypes.FirstOrDefault(t => !t.IsInterfaceType());
-                }
+
+                baseType = baseType.BaseTypes.FirstOrDefault(t => !t.IsInterfaceType());
             }
             if (baseType == null)
             {
                 throw new InvalidOperationException(
                     $"Type {type.FullName.ToString()} was not recognized as a delegate " +
-                    "because it does not define a field named 'invoke_impl'.");
+                    "because it does not define a recognized delegate field layout.");
             }
 
             // Cast the delegate instance pointer to that base type.

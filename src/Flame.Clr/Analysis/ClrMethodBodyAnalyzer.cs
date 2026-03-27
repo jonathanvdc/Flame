@@ -511,9 +511,15 @@ namespace Flame.Clr.Analysis
             if (!analyzedBlocks.Add(block))
             {
                 var parameterTypes = block.Parameters
-                    .Select(param => param.Type);
-                bool sameParameters = parameterTypes
-                    .SequenceEqual(argumentTypes);
+                    .Select(param => param.Type)
+                    .ToArray();
+                bool sameParameters = parameterTypes.Length == argumentTypes.Count
+                    && parameterTypes
+                        .Zip(
+                            argumentTypes,
+                            (first, second) => first.Equals(second)
+                                || object.Equals(first.GetIntegerSpecOrNull(), second.GetIntegerSpecOrNull()))
+                        .All(x => x);
                 if (sameParameters)
                 {
                     return block.Tag;
@@ -1255,17 +1261,11 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Ldind_Ref)
             {
-                var pointer = context.Pop();
-                var pointerType = graph.GetValueType(pointer) as PointerType;
-                if (pointerType == null)
-                {
-                    throw new InvalidProgramException(
-                        "`ldind.ref` instructions can only load pointer values; " +
-                        $"argument of type '{graph.GetValueType(pointer)}' isn't one.");
-                }
+                var elementType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
+                var pointer = PopPointerToType(elementType, context);
                 context.Push(
                     Instruction.CreateLoad(
-                        pointerType.ElementType,
+                        elementType,
                         pointer));
             }
             else if (instruction.OpCode == OpCodes.Stobj)
@@ -1677,15 +1677,16 @@ namespace Flame.Clr.Analysis
             }
             else if (instruction.OpCode == OpCodes.Constrained)
             {
-                // The 'constrained.' prefix opcode is always followed by a 'callvirt'
-                // instruction. Grab that 'callvirt' instruction.
+                // The 'constrained.' prefix opcode is followed by a call instruction.
+                // Grab that trailing call instruction.
                 var callInsn = nextInstruction;
                 nextInstruction = callInsn.Next;
 
-                if (callInsn.OpCode != OpCodes.Callvirt)
+                if (callInsn.OpCode != OpCodes.Callvirt
+                    && callInsn.OpCode != OpCodes.Call)
                 {
                     throw new InvalidProgramException(
-                        $"Instruction '{instruction}' must be trailed by a 'callvirt' " +
+                        $"Instruction '{instruction}' must be trailed by a 'call' or 'callvirt' " +
                         $"instruction but was actually trailed by '{callInsn}'.");
                 }
 
@@ -1693,16 +1694,27 @@ namespace Flame.Clr.Analysis
                 var method = Assembly.Resolve(methodRef);
                 var args = PopArguments(method, context);
 
-                var thisType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
-                var thisPtrArg = context.Pop(
-                    TypeHelpers.BoxIfReferenceType(thisType)
-                    .MakePointerType(PointerKind.Reference));
+                if (method.IsStatic)
+                {
+                    context.Push(
+                        Instruction.CreateCall(
+                            method,
+                            MethodLookup.Static,
+                            args));
+                }
+                else
+                {
+                    var thisType = Assembly.Resolve((Mono.Cecil.TypeReference)instruction.Operand);
+                    var thisPtrArg = context.Pop(
+                        TypeHelpers.BoxIfReferenceType(thisType)
+                        .MakePointerType(PointerKind.Reference));
 
-                context.Push(
-                    Instruction.CreateConstrainedCall(
-                        method,
-                        thisPtrArg,
-                        args));
+                    context.Push(
+                        Instruction.CreateConstrainedCall(
+                            method,
+                            thisPtrArg,
+                            args));
+                }
             }
             else if (instruction.OpCode == OpCodes.Newobj)
             {
