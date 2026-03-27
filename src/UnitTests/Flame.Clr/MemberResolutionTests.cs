@@ -1,6 +1,7 @@
 using System;
 using Loyc.MiniTest;
 using Flame.Clr;
+using Flame.Compiler;
 using Flame.TypeSystem;
 using System.Linq;
 using Mono.Cecil;
@@ -246,6 +247,36 @@ namespace UnitTests.Flame.Clr
                     .index;
                 Assert.AreEqual(typeSystem.NaturalInt, resolvedMethod.Parameters[functionPointerParamIndex].Type);
             }
+        }
+
+        [Test]
+        public void ResolveStringLengthAsCompilerImplementedInternalCall()
+        {
+            var lengthRef = corlib.Definition.MainModule.TypeSystem.String
+                .Resolve()
+                .Methods
+                .Single(method => method.Name == "get_Length" && method.Parameters.Count == 0);
+
+            var length = corlib.Resolve(lengthRef);
+            Assert.IsNotNull(length);
+            Assert.IsTrue(length.IsInternalCall());
+            Assert.IsTrue(length is IBodyMethod);
+            Assert.IsNull(((IBodyMethod)length).Body);
+        }
+
+        [Test]
+        public void ResolveStringCharsAsCompilerImplementedInternalCall()
+        {
+            var charsRef = corlib.Definition.MainModule.TypeSystem.String
+                .Resolve()
+                .Methods
+                .Single(method => method.Name == "get_Chars" && method.Parameters.Count == 1);
+
+            var chars = corlib.Resolve(charsRef);
+            Assert.IsNotNull(chars);
+            Assert.IsTrue(chars.IsInternalCall());
+            Assert.IsTrue(chars is IBodyMethod);
+            Assert.IsNull(((IBodyMethod)chars).Body);
         }
 
         [Test]

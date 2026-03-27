@@ -62,14 +62,14 @@ namespace Flame.Llvm
         /// <returns><c>true</c> if <paramref name="method"/> was implemented; otherwise, <c>false</c>.</returns>
         private bool TryImplementString(IMethod method, LLVMValueRef function, ModuleBuilder module)
         {
-            if (!IsStaticMethodOf(method, "System.String"))
+            if (!IsMethodOf(method, "System.String"))
             {
                 return false;
             }
 
             var name = method.Name.ToString();
             var paramCount = method.Parameters.Count;
-            if (name == "FastAllocateString" && paramCount == 1)
+            if (method.IsStatic && name == "FastAllocateString" && paramCount == 1)
             {
                 var dataType = method.ParentType;
                 var llvmType = module.ImportType(dataType);
@@ -105,6 +105,44 @@ namespace Flame.Llvm
                         lengthPtr);
                     builder.CreateRet(value);
                 }
+                return true;
+            }
+            else if (!method.IsStatic && name == "get_Length" && paramCount == 0)
+            {
+                var fields = MethodBodyEmitter.DecomposeStringFields(method.ParentType, module);
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var lengthPtr = fields.GetLengthPtr(function.GetParam(0), builder);
+                        var lengthType = module.ImportType(method.ReturnParameter.Type);
+                        var rawLength = builder.CreateLoad(lengthType, lengthPtr, "length.raw");
+                        return rawLength.TypeOf == lengthType
+                            ? rawLength
+                            : builder.CreateIntCast(rawLength, lengthType, "length");
+                    });
+                return true;
+            }
+            else if (!method.IsStatic && name == "get_Chars" && paramCount == 1)
+            {
+                var fields = MethodBodyEmitter.DecomposeStringFields(method.ParentType, module);
+                ImplementWithInstruction(
+                    function,
+                    module,
+                    builder =>
+                    {
+                        var charPtr = builder.CreateGEP(
+                            LLVM.Int16TypeInContext(module.Context),
+                            fields.GetDataPtr(function.GetParam(0), builder),
+                            new[] { function.GetParam(1) },
+                            "char.ptr");
+                        var charType = module.ImportType(method.ReturnParameter.Type);
+                        var rawChar = builder.CreateLoad(charType, charPtr, "char.raw");
+                        return rawChar.TypeOf == charType
+                            ? rawChar
+                            : builder.CreateIntCast(rawChar, charType, "char");
+                    });
                 return true;
             }
             else
@@ -258,10 +296,15 @@ namespace Flame.Llvm
             }
         }
 
-        private static bool IsStaticMethodOf(IMethod method, string fullName)
+        private static bool IsMethodOf(IMethod method, string fullName)
         {
             var type = method.ParentType;
-            return type.FullName.ToString() == fullName && method.IsStatic;
+            return type.FullName.ToString() == fullName;
+        }
+
+        private static bool IsStaticMethodOf(IMethod method, string fullName)
+        {
+            return IsMethodOf(method, fullName) && method.IsStatic;
         }
 
         /// <summary>

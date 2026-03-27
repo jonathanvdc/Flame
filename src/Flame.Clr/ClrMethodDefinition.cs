@@ -187,6 +187,10 @@ namespace Flame.Clr
             {
                 attrBuilder.Add(FlagAttribute.InternalCall);
             }
+            else if (IsCompilerImplementedMethod())
+            {
+                attrBuilder.Add(FlagAttribute.InternalCall);
+            }
 
             // The default 'object' constructor is a nop. Taking that
             // into account can significantly improve constructor inlining
@@ -237,7 +241,11 @@ namespace Flame.Clr
 
         private MethodBody AnalyzeBody()
         {
-            if (Definition.HasBody)
+            if (IsCompilerImplementedMethod())
+            {
+                return null;
+            }
+            else if (Definition.HasBody)
             {
                 return ClrMethodBodyAnalyzer.Analyze(
                     Definition.Body,
@@ -247,6 +255,34 @@ namespace Flame.Clr
             {
                 return null;
             }
+        }
+
+        private bool IsCompilerImplementedMethod()
+        {
+            return IsCompilerImplementedStringMethod();
+        }
+
+        private bool IsCompilerImplementedStringMethod()
+        {
+            var declaringType = Definition.DeclaringType;
+            if (declaringType == null
+                || declaringType.Namespace != "System"
+                || declaringType.Name != "String")
+            {
+                return false;
+            }
+
+            if (Definition.Name == "get_Length"
+                && !Definition.IsStatic
+                && Definition.Parameters.Count == 0)
+            {
+                return true;
+            }
+
+            return Definition.Name == "get_Chars"
+                && !Definition.IsStatic
+                && Definition.Parameters.Count == 1
+                && Definition.Parameters[0].ParameterType.MetadataType == MetadataType.Int32;
         }
 
         internal static Parameter WrapParameter(

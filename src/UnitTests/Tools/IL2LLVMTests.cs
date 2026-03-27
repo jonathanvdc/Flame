@@ -47,6 +47,12 @@ namespace UnitTests
             CompileAndRunNamedTest("switch-libc.cs");
         }
 
+        [Test]
+        public void RunStringLibcTest()
+        {
+            CompileAndRunNamedTest("string-libc.cs");
+        }
+
         private static void CompileAndRunNamedTest(string fileName)
         {
             var file = Path.Combine(ILOptTests.ToolTestPath, "IL2LLVM", fileName);
