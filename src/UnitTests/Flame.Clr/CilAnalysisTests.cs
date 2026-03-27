@@ -531,6 +531,65 @@ namespace UnitTests.Flame.Clr
         }
 
         [Test]
+        public void AnalyzeFilterHandler()
+        {
+            var module = corlib.Definition.MainModule;
+            var methodDef = new MethodDefinition(
+                "f",
+                MethodAttributes.Public | MethodAttributes.Static,
+                module.TypeSystem.Int32);
+            methodDef.Body.InitLocals = true;
+            methodDef.Body.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(module.TypeSystem.Int32));
+
+            var cilBody = methodDef.Body;
+            var ilProc = cilBody.GetILProcessor();
+            var exceptionType = module.Types
+                .Single(type => type.FullName == "System.Exception");
+            var exceptionCtor = exceptionType.Methods
+                .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+
+            var tryStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Newobj, exceptionCtor);
+            var tryEnd = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var filterStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var handlerStart = ilProc.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            var end = ilProc.Create(Mono.Cecil.Cil.OpCodes.Ldloc_0);
+
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Append(tryStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Throw);
+            ilProc.Append(tryEnd);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Endfilter);
+            ilProc.Append(handlerStart);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Stloc_0);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Leave, end);
+            ilProc.Append(end);
+            ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+
+            cilBody.ExceptionHandlers.Add(
+                new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                {
+                    TryStart = tryStart,
+                    TryEnd = tryEnd,
+                    FilterStart = filterStart,
+                    HandlerStart = handlerStart,
+                    HandlerEnd = end
+                });
+
+            var irBody = ClrMethodBodyAnalyzer.Analyze(
+                cilBody,
+                new Parameter(corlib.Resolve(module.TypeSystem.Int32)),
+                default(Parameter),
+                new Parameter[0],
+                corlib);
+
+            Assert.IsNotNull(irBody);
+            Assert.AreEqual(0, irBody.Validate().Count);
+        }
+
+        [Test]
         public void AnalyzeConv_R_Un()
         {
             const string oracle = @"

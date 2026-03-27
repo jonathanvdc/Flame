@@ -174,7 +174,51 @@ namespace UnitTests.Flame.Clr
             Assert.IsNotNull(toArray);
             Assert.AreEqual(toArray.Name.ToString(), "ToArray");
             Assert.AreEqual(toArray.Parameters.Count, 0);
-            Assert.AreEqual(corlib.Resolve(fieldInfoRef.MakeArrayType()), toArray.ReturnParameter.Type);
+            Assert.AreEqual(TypeHelpers.BoxIfReferenceType(corlib.Resolve(fieldInfoRef.MakeArrayType())), toArray.ReturnParameter.Type);
+        }
+
+        [Test]
+        public void ResolveRuntimeTypeListBuilderOfRuntimeTypeToArray()
+        {
+            var runtimeTypeRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.RuntimeType");
+
+            var listBuilderRef = runtimeTypeRef.NestedTypes
+                .Single(type => type.Name == "ListBuilder`1");
+
+            var toArrayDef = listBuilderRef.Methods
+                .Single(method => method.Name == "ToArray" && method.Parameters.Count == 0);
+
+            var listBuilderInstanceRef = new GenericInstanceType(listBuilderRef);
+            listBuilderInstanceRef.GenericArguments.Add(runtimeTypeRef);
+
+            var toArrayRef = CreateHostedMethodReference(toArrayDef, listBuilderInstanceRef);
+            var toArray = corlib.Resolve(toArrayRef);
+
+            Assert.IsNotNull(toArray);
+            Assert.AreEqual(toArray.Name.ToString(), "ToArray");
+            Assert.AreEqual(toArray.Parameters.Count, 0);
+            Assert.AreEqual(TypeHelpers.BoxIfReferenceType(corlib.Resolve(runtimeTypeRef.MakeArrayType())), toArray.ReturnParameter.Type);
+        }
+
+        [Test]
+        public void ResolveExplicitGenericInterfaceOverride()
+        {
+            var overridingMethodRef = corlib.Definition.MainModule.GetTypes()
+                .SelectMany(type => type.Methods)
+                .First(method =>
+                    method.Overrides.Any(ov =>
+                        ov.Name == "Create"
+                        && ov.FullName.Contains("System.RuntimeType/IGenericCacheEntry`1")
+                        && ov.FullName.Contains("System.Enum/EnumInfo`1")));
+
+            var overridingMethod = corlib.Resolve(overridingMethodRef);
+
+            Assert.IsNotNull(overridingMethod);
+            Assert.AreEqual(1, overridingMethod.BaseMethods.Count);
+            Assert.AreEqual("Create", overridingMethod.BaseMethods[0].Name.ToString());
+            Assert.AreEqual(1, overridingMethod.BaseMethods[0].Parameters.Count);
+            Assert.AreEqual("System.RuntimeType box*", overridingMethod.BaseMethods[0].Parameters[0].Type.FullName.ToString());
         }
 
         [Test]
@@ -267,5 +311,26 @@ namespace UnitTests.Flame.Clr
                 lengthProp.Accessors
                 .SingleOrDefault(accessor => accessor.Kind == AccessorKind.Get));
         }
+        private static MethodReference CreateHostedMethodReference(
+            MethodDefinition methodDef,
+            TypeReference declaringType)
+        {
+            var methodRef = new MethodReference(methodDef.Name, methodDef.ReturnType, declaringType)
+            {
+                HasThis = methodDef.HasThis,
+                ExplicitThis = methodDef.ExplicitThis,
+                CallingConvention = methodDef.CallingConvention
+            };
+            foreach (var parameter in methodDef.Parameters)
+            {
+                methodRef.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+            }
+            foreach (var genericParameter in methodDef.GenericParameters)
+            {
+                methodRef.GenericParameters.Add(new GenericParameter(genericParameter.Name, methodRef));
+            }
+            return methodRef;
+        }
+
     }
 }
