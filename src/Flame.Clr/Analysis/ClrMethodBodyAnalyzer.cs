@@ -1402,6 +1402,11 @@ namespace Flame.Clr.Analysis
                 // Conversion opcodes are usually fairly straightforward.
                 EmitConvertAndExtend(convTypes[instruction.OpCode], false, context);
             }
+            else if (instruction.OpCode == OpCodes.Conv_R_Un)
+            {
+                EmitConvertToUnsigned(context);
+                EmitConvertTo(TypeEnvironment.Float64, false, context);
+            }
             else if (checkedConversions.ContainsKey(instruction.OpCode))
             {
                 // Analyze checked conversions by analogy with their unchecked
