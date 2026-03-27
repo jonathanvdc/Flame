@@ -79,8 +79,11 @@ If you want to run the LLVM tests manually, publish the test project for your pl
 
 ```console
 $ dotnet publish src/UnitTests/UnitTests.csproj -c Debug -r osx-arm64 --self-contained false
-$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 7 --clang-path clang
+$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 5
+$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 8 --clang-path clang
 ```
+
+Test set `5` runs the direct `Flame.Llvm` unit tests. Test set `8` runs the `IL2LLVM` tool tests.
 
 Common runtime identifiers are `linux-x64`, `linux-arm64`, `osx-arm64`, `win-x64`, and `win-arm64`.
 

@@ -12,6 +12,7 @@ using Pixie.Transforms;
 using Pixie.Markup;
 using UnitTests.Flame.Clr;
 using UnitTests.Flame.Compiler;
+using UnitTests.Flame.Llvm;
 using UnitTests.Macros;
 using Pixie.Options;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace UnitTests
             new Pair<string,Func<int>>("Run unit tests of Flame.Clr.dll", FlameClr),
             new Pair<string,Func<int>>("Run unit tests of Flame.Compiler.dll", FlameCompiler),
             new Pair<string,Func<int>>("Run unit tests of Flame.Ir.dll", FlameIr),
+            new Pair<string,Func<int>>("Run unit tests of Flame.Llvm.dll", FlameLlvm),
             new Pair<string,Func<int>>("Run unit tests of FlameMacros.dll", FlameMacros),
             new Pair<string,Func<int>>("Run Flame tool tests", FlameTools),
             new Pair<string,Func<int>>("Run IL2LLVM tests", IL2LLVM)
@@ -239,6 +241,14 @@ namespace UnitTests
         {
             return RunTests.RunMany(
                 new InstructionPatternTests());
+        }
+
+        public static int FlameLlvm()
+        {
+            return RunTests.RunMany(
+                new LlvmManglerAndLayoutTests(),
+                new LlvmEmissionTests(),
+                new LlvmControlFlowTests());
         }
 
         public static int FlameTools()
