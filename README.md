@@ -23,39 +23,55 @@ At its core, Flame is a set of libraries designed to support tools that read, an
 
 ## Build instructions
 
-Flame is a C# project that targets .NET 4.5 implementations, like Mono and the .NET framework. .NET Core is not supported yet because Flame relies on NuGet packages that don't yet support .NET Core.
+Flame now builds on the modern .NET SDK and the main solution targets .NET 10.
 
-Additionally, Flame uses [EC#](http://ecsharp.net/) macros to convert Flame IR rewrite rule DSL to C# code.
+The repository no longer depends on generated `.out.cs` files for the two old transform DSL sources; those rewrites now live directly in C#.
 
-### Linux, Mac OS X
+### Prerequisites
 
-Building Flame is easy if you're on Linux or Mac OS X. Just spell
+- .NET SDK 10.x
+- Mono if you want to run the full portable tool tests locally on Linux or macOS
+
+### Build
+
+From the repository root, run:
+
 ```console
-$ make nuget
-$ make
+$ dotnet restore src/Flame.sln
+$ dotnet build src/Flame.sln -c Debug
 ```
 
-That's it. The above will grab NuGet dependencies, compile EC# macros down to regular C# and build the project.
+If you prefer the existing make-based wrapper, this still works:
 
-To run the unit tests, type
 ```console
-$ make test
+$ make -C src debug
 ```
 
-### Windows
+### Test
 
-Building Flame is somewhat more challenging on Windows. If at all possible, use a GNU Make implementation to run the Makefile, same as for Linux and Mac OS X.
+The portable suite is the main CI target and excludes the LLVM-dependent test set:
 
-Otherwise, you will need to do the following:
-
-  1. Restore NuGet packages (`nuget restore`).
-  2. Build the macros. (`msbuild /p:Configuration=Release FlameMacros/FlameMacros.csproj`).
-  3. Compile EC# macros down to regular C# (`make dsl` in the Makefile, otherwise `FlameMacros/bin/Release/LeMP.exe --macros FlameMacros/bin/Release/FlameMacros.dll --outext=.out.cs file.ecs` for all `.ecs` files).
-  4. Build Flame itself (`msbuild /p:Configuration=Release Flame.sln`).
-
-Run the unit tests by spelling
 ```console
-UnitTests\bin\Release\UnitTests.exe all
+$ dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable
 ```
 
-Windows workflow enhancements welcome!
+On machines where Roslyn `csc` is not on `PATH`, pass a compiler explicitly. For example, on CI we use Mono's compiler:
+
+```console
+$ dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable --csc-path mcs
+```
+
+The make wrapper runs the same portable suite:
+
+```console
+$ make -C src test
+```
+
+### Continuous integration
+
+GitHub Actions is configured in [`/.github/workflows/ci.yml`](./.github/workflows/ci.yml). The workflow:
+
+- installs .NET 10
+- installs Mono for the portable tool tests
+- builds `src/Flame.sln`
+- runs the portable unit and tool test suite
