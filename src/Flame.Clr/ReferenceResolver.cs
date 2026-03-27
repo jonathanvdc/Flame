@@ -312,6 +312,10 @@ namespace Flame.Clr
                             "does not support arrays with that element type and rank.");
                     }
                 }
+                else if (typeSpec is FunctionPointerType)
+                {
+                    return TypeEnvironment.NaturalInt;
+                }
                 else if (typeSpec is Mono.Cecil.IModifierType)
                 {
                     var modType = Resolve(
@@ -655,15 +659,32 @@ namespace Flame.Clr
                             Resolve(param.ParameterType, assembly, declaringType, true))))
                 .ToArray();
 
-            return PickSingleResolvedMember(
-                methodRef,
-                methodIndex.GetAll(
-                    declaringType,
-                    ClrMethodSignature.Create(
-                        name,
-                        methodRef.GenericParameters.Count,
-                        returnType,
-                        parameterTypes)));
+            var resolvedMembers = methodIndex.GetAll(
+                declaringType,
+                ClrMethodSignature.Create(
+                    name,
+                    methodRef.GenericParameters.Count,
+                    returnType,
+                    parameterTypes));
+
+            if (resolvedMembers.Count == 1)
+            {
+                return resolvedMembers[0];
+            }
+
+            var fallbackMembers = declaringType.Methods
+                .Concat(declaringType.Properties.SelectMany(prop => prop.Accessors))
+                .Where(method =>
+                    method.Name == name
+                    && method.GenericParameters.Count == methodRef.GenericParameters.Count
+                    && method.Parameters.Select(param => param.Type).SequenceEqual(parameterTypes))
+                .ToArray();
+            if (fallbackMembers.Length == 1)
+            {
+                return fallbackMembers[0];
+            }
+
+            return PickSingleResolvedMember(methodRef, resolvedMembers);
         }
 
         /// <summary>

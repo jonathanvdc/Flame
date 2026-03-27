@@ -3,6 +3,7 @@ using Loyc.MiniTest;
 using Flame.Clr;
 using Flame.TypeSystem;
 using System.Linq;
+using Mono.Cecil;
 using Mono.Cecil.Rocks;
 using Flame;
 
@@ -134,6 +135,73 @@ namespace UnitTests.Flame.Clr
             // Check that the `Int32.ToString` overrides some other `ToString` method.
             Assert.AreEqual(intToString.BaseMethods.Count, 1);
             Assert.AreEqual(intToString.BaseMethods[0].Name, intToString.Name);
+        }
+
+        [Test]
+        public void ResolveRuntimeTypeListBuilderToArray()
+        {
+            var runtimeTypeRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.RuntimeType");
+
+            var listBuilderRef = runtimeTypeRef.NestedTypes
+                .Single(type => type.Name == "ListBuilder`1");
+
+            var fieldInfoRef = corlib.Definition.MainModule.Types
+                .Single(type => type.FullName == "System.Reflection.FieldInfo");
+
+            var toArrayDef = listBuilderRef.Methods
+                .Single(method => method.Name == "ToArray" && method.Parameters.Count == 0);
+
+            var listBuilderInstanceRef = new GenericInstanceType(listBuilderRef);
+            listBuilderInstanceRef.GenericArguments.Add(fieldInfoRef);
+
+            var toArrayRef = new MethodReference(toArrayDef.Name, toArrayDef.ReturnType, listBuilderInstanceRef)
+            {
+                HasThis = toArrayDef.HasThis,
+                ExplicitThis = toArrayDef.ExplicitThis,
+                CallingConvention = toArrayDef.CallingConvention
+            };
+            foreach (var parameter in toArrayDef.Parameters)
+            {
+                toArrayRef.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+            }
+            foreach (var genericParameter in toArrayDef.GenericParameters)
+            {
+                toArrayRef.GenericParameters.Add(new GenericParameter(genericParameter.Name, toArrayRef));
+            }
+
+            var toArray = corlib.Resolve(toArrayRef);
+            Assert.IsNotNull(toArray);
+            Assert.AreEqual(toArray.Name.ToString(), "ToArray");
+            Assert.AreEqual(toArray.Parameters.Count, 0);
+            Assert.AreEqual(corlib.Resolve(fieldInfoRef.MakeArrayType()), toArray.ReturnParameter.Type);
+        }
+
+        [Test]
+        public void ResolveMethodWithFunctionPointerSignature()
+        {
+            var typeSystem = corlib.Resolver.TypeEnvironment;
+            var functionPointerMethodRef = corlib.Definition.MainModule.GetTypes()
+                .SelectMany(type => type.Methods)
+                .First(method =>
+                    method.ReturnType is FunctionPointerType
+                    || method.Parameters.Any(param => param.ParameterType is FunctionPointerType));
+
+            var resolvedMethod = corlib.Resolve(functionPointerMethodRef);
+            Assert.IsNotNull(resolvedMethod);
+
+            if (functionPointerMethodRef.ReturnType is FunctionPointerType)
+            {
+                Assert.AreEqual(typeSystem.NaturalInt, resolvedMethod.ReturnParameter.Type);
+            }
+            else
+            {
+                var functionPointerParamIndex = functionPointerMethodRef.Parameters
+                    .Select((param, index) => new { param, index })
+                    .First(pair => pair.param.ParameterType is FunctionPointerType)
+                    .index;
+                Assert.AreEqual(typeSystem.NaturalInt, resolvedMethod.Parameters[functionPointerParamIndex].Type);
+            }
         }
 
         [Test]
