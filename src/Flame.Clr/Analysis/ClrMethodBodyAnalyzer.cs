@@ -134,6 +134,8 @@ namespace Flame.Clr.Analysis
         private EndFilterFlow endfilterFlow;
         private Dictionary<BasicBlockTag, int> leaveTokens;
         private ValueTag flowTokenVariable;
+        private IReadOnlyDictionary<Mono.Cecil.Cil.ExceptionHandler, CilExceptionHandler> exceptionHandlerMap;
+        private CilCatchHandler toplevelExceptionHandler;
 
         // A mapping of conv.* opcodes to target types.
         private readonly IReadOnlyDictionary<OpCode, IType> convTypes;
@@ -311,7 +313,7 @@ namespace Flame.Clr.Analysis
             // if and only if the thrown exception's type matches the catch
             // type. Otherwise, it'll transfer control to the next handler.
             var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
-            var nextHandler = GetNextHandler(handler, analyzedHandler);
+            var nextHandler = GetNextHandler(handler, cilMethodBody);
 
             // Emit an intrinsic to extract the exception
             // from the landing pad's parameter.
@@ -353,7 +355,7 @@ namespace Flame.Clr.Analysis
         {
             var catchType = TypeEnvironment.Object.MakePointerType(PointerKind.Box);
             var landingPad = graph.GetBasicBlock(analyzedHandler.LandingPad);
-            var nextHandler = GetNextHandler(handler, analyzedHandler);
+            var nextHandler = GetNextHandler(handler, cilMethodBody);
 
             var handlerImpl = AnalyzeBlock(
                 handler.HandlerStart,
@@ -2261,6 +2263,7 @@ namespace Flame.Clr.Analysis
             // wrong for them to do so anyway, but it would obscure control flow.
             // Only exception handlers should transfer control to the top-level handler.
             var toplevelHandler = new CilCatchHandler(toplevelLandingPad, EmptyArray<IType>.Value);
+            this.toplevelExceptionHandler = toplevelHandler;
 
             // Finally iterate over all branch targets and construct exception handler lists.
             var activeHandlers = new Stack<Mono.Cecil.Cil.ExceptionHandler>();
@@ -2309,24 +2312,44 @@ namespace Flame.Clr.Analysis
                     .ToArray();
             }
 
+            this.exceptionHandlerMap = ehMapping;
             return ehMapping;
         }
 
         private CilExceptionHandler GetNextHandler(
             Mono.Cecil.Cil.ExceptionHandler handler,
-            CilExceptionHandler analyzedHandler)
+            Mono.Cecil.Cil.MethodBody cilMethodBody)
         {
-            var handlers = exceptionHandlers[handler.TryStart];
-            for (int i = 0; i < handlers.Count - 1; i++)
+            bool foundCurrentHandler = false;
+            foreach (var candidate in cilMethodBody.ExceptionHandlers)
             {
-                if (object.ReferenceEquals(handlers[i], analyzedHandler))
+                if (!IsInstructionInRange(handler.TryStart, candidate.TryStart, candidate.TryEnd))
                 {
-                    return handlers[i + 1];
+                    continue;
+                }
+
+                if (object.ReferenceEquals(candidate, handler))
+                {
+                    foundCurrentHandler = true;
+                }
+                else if (foundCurrentHandler)
+                {
+                    return exceptionHandlerMap[candidate];
                 }
             }
 
-            throw new InvalidProgramException(
-                $"Exception handler '{handler}' does not have a successor handler.");
+            return toplevelExceptionHandler;
+        }
+
+        private static bool IsInstructionInRange(
+            Mono.Cecil.Cil.Instruction instruction,
+            Mono.Cecil.Cil.Instruction start,
+            Mono.Cecil.Cil.Instruction end)
+        {
+            return start != null
+                && instruction != null
+                && start.Offset <= instruction.Offset
+                && (end == null || instruction.Offset < end.Offset);
         }
 
         /// <summary>

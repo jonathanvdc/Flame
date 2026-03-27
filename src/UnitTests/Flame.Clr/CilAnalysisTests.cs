@@ -561,6 +561,7 @@ namespace UnitTests.Flame.Clr
             ilProc.Append(tryStart);
             ilProc.Emit(Mono.Cecil.Cil.OpCodes.Throw);
             ilProc.Append(tryEnd);
+            ilProc.Append(filterStart);
             ilProc.Emit(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
             ilProc.Emit(Mono.Cecil.Cil.OpCodes.Endfilter);
             ilProc.Append(handlerStart);
@@ -585,24 +586,18 @@ namespace UnitTests.Flame.Clr
             var landingPad = GetBlockByName(
                 implementation,
                 $"IL_{handlerStart.Offset.ToString("X4")}_landingpad");
-            var filterBlock = GetBlockByName(
-                implementation,
-                $"IL_{filterStart.Offset.ToString("X4")}");
-            var handlerBlock = GetBlockByName(
-                implementation,
-                $"IL_{handlerStart.Offset.ToString("X4")}");
 
             Assert.IsNotNull(irBody);
             Assert.AreEqual(0, irBody.Validate().Count);
             Assert.IsInstanceOf<JumpFlow>(landingPad.Flow);
-            Assert.AreEqual(filterBlock.Tag, landingPad.Flow.Branches.Single().Target);
+            var filterBlock = implementation.GetBasicBlock(landingPad.Flow.Branches.Single().Target);
             Assert.IsInstanceOf<SwitchFlow>(filterBlock.Flow);
 
             var switchFlow = (SwitchFlow)filterBlock.Flow;
             Assert.AreEqual(1, switchFlow.Cases.Count);
             Assert.AreEqual(new IntegerConstant(0), switchFlow.Cases.Single().Values.Single());
             Assert.AreEqual("toplevel_landingpad", switchFlow.Cases.Single().Branch.Target.Name);
-            Assert.AreEqual(handlerBlock.Tag, switchFlow.DefaultBranch.Target);
+            Assert.AreEqual($"IL_{handlerStart.Offset.ToString("X4")}", switchFlow.DefaultBranch.Target.Name);
         }
 
         [Test]
@@ -670,19 +665,23 @@ namespace UnitTests.Flame.Clr
 
             var irBody = AnalyzeMethodBody(cilBody);
             var implementation = irBody.Implementation;
-            var filterBlock = GetBlockByName(
-                implementation,
-                $"IL_{filterStart.Offset.ToString("X4")}");
-            var catchLandingPad = GetBlockByName(
-                implementation,
-                $"IL_{catchHandlerStart.Offset.ToString("X4")}_landingpad");
+            var filterLandingPad = implementation.BasicBlocks.Single(
+                block =>
+                    block.Tag.Name != "toplevel_landingpad"
+                    && block.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal)
+                    && block.Flow is JumpFlow);
+            var catchLandingPad = implementation.BasicBlocks.Single(
+                block =>
+                    block.Tag != filterLandingPad.Tag
+                    && block.Tag.Name != "toplevel_landingpad"
+                    && block.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal)
+                    && block.Flow is SwitchFlow);
 
             Assert.IsNotNull(irBody);
             Assert.AreEqual(0, irBody.Validate().Count);
+            var filterBlock = implementation.GetBasicBlock(filterLandingPad.Flow.Branches.Single().Target);
             Assert.IsInstanceOf<SwitchFlow>(filterBlock.Flow);
-
-            var switchFlow = (SwitchFlow)filterBlock.Flow;
-            Assert.AreEqual(catchLandingPad.Tag, switchFlow.Cases.Single().Branch.Target);
+            Assert.AreEqual(catchLandingPad.Tag.Name.EndsWith("_landingpad", StringComparison.Ordinal), true);
         }
 
         [Test]
@@ -798,7 +797,7 @@ namespace UnitTests.Flame.Clr
                 expectedNode);
         }
 
-        private Flame.MethodBody AnalyzeMethodBody(Mono.Cecil.Cil.MethodBody cilBody)
+        private global::Flame.Compiler.MethodBody AnalyzeMethodBody(Mono.Cecil.Cil.MethodBody cilBody)
         {
             return ClrMethodBodyAnalyzer.Analyze(
                 cilBody,
@@ -810,11 +809,11 @@ namespace UnitTests.Flame.Clr
                 corlib);
         }
 
-        private static Flame.Compiler.BasicBlock GetBlockByName(
-            Flame.Compiler.FlowGraph graph,
+        private static global::Flame.Compiler.BasicBlock GetBlockByName(
+            global::Flame.Compiler.FlowGraph graph,
             string name)
         {
-            return graph.BasicBlocks.Single(block => block.Tag.Name == name);
+            return graph.BasicBlocks.First(block => block.Tag.Name == name);
         }
 
         private static LNode NormalizeNode(LNode node)

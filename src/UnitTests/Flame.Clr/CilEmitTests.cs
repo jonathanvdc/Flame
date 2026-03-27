@@ -14,6 +14,7 @@ using Pixie.Markup;
 using Flame.Clr.Analysis;
 using Flame.Clr.Emit;
 using Flame.Compiler.Analysis;
+using System.IO;
 using System.Text;
 using Mono.Cecil.Rocks;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
@@ -54,6 +55,118 @@ namespace UnitTests.Flame.Clr
                     ilProc.Emit(OpCodes.Ldc_I4_S, (sbyte)42);
                     ilProc.Emit(OpCodes.Ret);
                 });
+        }
+
+        [Test]
+        public void ExecuteRoundtripFilterHandlerAccepts()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            ExecuteRoundtripStaticMethodBody(
+                int32Type,
+                EmptyArray<TypeReference>.Value,
+                new[] { int32Type },
+                ilProc =>
+                {
+                    var module = corlib.Definition.MainModule;
+                    var exceptionType = module.Types
+                        .Single(type => type.FullName == "System.Exception");
+                    var exceptionCtor = exceptionType.Methods
+                        .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+                    var tryStart = ilProc.Create(OpCodes.Newobj, exceptionCtor);
+                    var tryEnd = ilProc.Create(OpCodes.Pop);
+                    var filterStart = ilProc.Create(OpCodes.Pop);
+                    var handlerStart = ilProc.Create(OpCodes.Pop);
+                    var end = ilProc.Create(OpCodes.Ldloc_0);
+
+                    ilProc.Emit(OpCodes.Ldc_I4_0);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Append(tryStart);
+                    ilProc.Emit(OpCodes.Throw);
+                    ilProc.Append(tryEnd);
+                    ilProc.Append(filterStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Endfilter);
+                    ilProc.Append(handlerStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Leave, end);
+                    ilProc.Append(end);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Body.ExceptionHandlers.Add(
+                        new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                        {
+                            TryStart = tryStart,
+                            TryEnd = tryEnd,
+                            FilterStart = filterStart,
+                            HandlerStart = handlerStart,
+                            HandlerEnd = end
+                        });
+                },
+                1);
+        }
+
+        [Test]
+        public void ExecuteRoundtripFilterHandlerRejectsToNextHandler()
+        {
+            var int32Type = corlib.Definition.MainModule.TypeSystem.Int32;
+            ExecuteRoundtripStaticMethodBody(
+                int32Type,
+                EmptyArray<TypeReference>.Value,
+                new[] { int32Type },
+                ilProc =>
+                {
+                    var module = corlib.Definition.MainModule;
+                    var exceptionType = module.Types
+                        .Single(type => type.FullName == "System.Exception");
+                    var exceptionCtor = exceptionType.Methods
+                        .Single(method => method.IsConstructor && method.Parameters.Count == 0);
+                    var tryStart = ilProc.Create(OpCodes.Newobj, exceptionCtor);
+                    var tryEnd = ilProc.Create(OpCodes.Pop);
+                    var filterStart = ilProc.Create(OpCodes.Pop);
+                    var filterHandlerStart = ilProc.Create(OpCodes.Pop);
+                    var catchHandlerStart = ilProc.Create(OpCodes.Pop);
+                    var end = ilProc.Create(OpCodes.Ldloc_0);
+
+                    ilProc.Emit(OpCodes.Ldc_I4_0);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Append(tryStart);
+                    ilProc.Emit(OpCodes.Throw);
+                    ilProc.Append(tryEnd);
+                    ilProc.Append(filterStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_0);
+                    ilProc.Emit(OpCodes.Endfilter);
+                    ilProc.Append(filterHandlerStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_1);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Leave, end);
+                    ilProc.Append(catchHandlerStart);
+                    ilProc.Emit(OpCodes.Ldc_I4_2);
+                    ilProc.Emit(OpCodes.Stloc_0);
+                    ilProc.Emit(OpCodes.Leave, end);
+                    ilProc.Append(end);
+                    ilProc.Emit(OpCodes.Ret);
+
+                    ilProc.Body.ExceptionHandlers.Add(
+                        new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Filter)
+                        {
+                            TryStart = tryStart,
+                            TryEnd = tryEnd,
+                            FilterStart = filterStart,
+                            HandlerStart = filterHandlerStart,
+                            HandlerEnd = catchHandlerStart
+                        });
+                    ilProc.Body.ExceptionHandlers.Add(
+                        new Mono.Cecil.Cil.ExceptionHandler(Mono.Cecil.Cil.ExceptionHandlerType.Catch)
+                        {
+                            TryStart = tryStart,
+                            TryEnd = tryEnd,
+                            CatchType = exceptionType,
+                            HandlerStart = catchHandlerStart,
+                            HandlerEnd = end
+                        });
+                },
+                2);
         }
 
         [Test]
@@ -889,15 +1002,129 @@ IL_0002: ret");
             emitBody(cilBody.GetILProcessor());
             cilBody.Optimize();
 
+            var newCilBody = CompileRoundtrippedMethodBody(
+                methodDef,
+                parameterTypes,
+                returnType,
+                cilBody,
+                corlib);
+
+            // Check that the resulting CIL matches the expected CIL.
+            var actual = FormatMethodBody(newCilBody);
+            actual = actual.Trim().Replace("\r", "");
+            oracle = oracle.Trim().Replace("\r", "");
+            if (actual != oracle)
+            {
+                log.Log(
+                    new LogEntry(
+                        Severity.Message,
+                        "emitted CIL-oracle mismatch",
+                        "round-tripped CIL does not match the oracle. CIL emit output:",
+                        new Paragraph(new WrapBox(actual, 0, -actual.Length))));
+            }
+            Assert.AreEqual(oracle, actual);
+        }
+
+        private void ExecuteRoundtripStaticMethodBody(
+            TypeReference returnType,
+            IReadOnlyList<TypeReference> parameterTypes,
+            IReadOnlyList<TypeReference> localTypes,
+            Action<Mono.Cecil.Cil.ILProcessor> emitBody,
+            int expectedExitCode)
+        {
+            var assemblyName = "FilterIntegration_" + Guid.NewGuid().ToString("N");
+            var assembly = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition(assemblyName, new Version(1, 0, 0, 0)),
+                assemblyName,
+                ModuleKind.Console);
+            assembly.MainModule.ImportReference(typeof(object));
+            assembly.MainModule.ImportReference(typeof(Exception));
+
+            var programType = new TypeDefinition(
+                "",
+                "Program",
+                TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Abstract | TypeAttributes.Sealed,
+                assembly.MainModule.TypeSystem.Object);
+            assembly.MainModule.Types.Add(programType);
+
+            var methodDef = new MethodDefinition(
+                "Main",
+                MethodAttributes.Public | MethodAttributes.Static,
+                returnType);
+            programType.Methods.Add(methodDef);
+            assembly.MainModule.EntryPoint = methodDef;
+
+            foreach (var type in parameterTypes)
+            {
+                methodDef.Parameters.Add(new ParameterDefinition(type));
+                int index = methodDef.Parameters.Count - 1;
+                methodDef.Parameters[index].Name = "param_" + index;
+            }
+
+            var sourceMethodDef = CreateStaticMethodDef(returnType, parameterTypes);
+            var cilBody = new Mono.Cecil.Cil.MethodBody(sourceMethodDef);
+            foreach (var localType in localTypes)
+            {
+                cilBody.Variables.Add(new Mono.Cecil.Cil.VariableDefinition(localType));
+            }
+
+            emitBody(cilBody.GetILProcessor());
+            cilBody.Optimize();
+
+            methodDef.Body = CompileRoundtrippedMethodBody(
+                methodDef,
+                parameterTypes,
+                returnType,
+                cilBody,
+                corlib);
+
+            var outputDir = Path.Combine(Path.GetTempPath(), assemblyName);
+            Directory.CreateDirectory(outputDir);
+            var assemblyPath = Path.Combine(outputDir, assemblyName + ".dll");
+
+            try
+            {
+                assembly.Write(assemblyPath);
+
+                string stdout;
+                string stderr;
+                var exitCode = global::UnitTests.ILOptTests.RunExe(
+                    assemblyPath,
+                    "",
+                    out stdout,
+                    out stderr);
+
+                if (exitCode != expectedExitCode)
+                {
+                    Assert.Fail(
+                        $"Expected exit code {expectedExitCode}, got {exitCode}. Stdout: {stdout} Stderr: {stderr}");
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(outputDir))
+                {
+                    Directory.Delete(outputDir, true);
+                }
+            }
+        }
+
+        private Mono.Cecil.Cil.MethodBody CompileRoundtrippedMethodBody(
+            MethodDefinition methodDef,
+            IReadOnlyList<TypeReference> parameterTypes,
+            TypeReference returnType,
+            Mono.Cecil.Cil.MethodBody cilBody,
+            ClrAssembly assembly)
+        {
             // Analyze it as Flame IR.
             var irBody = ClrMethodBodyAnalyzer.Analyze(
                 cilBody,
-                new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(returnType))),
+                new Parameter(TypeHelpers.BoxIfReferenceType(assembly.Resolve(returnType))),
                 default(Parameter),
                 parameterTypes
-                    .Select((type, i) => new Parameter(TypeHelpers.BoxIfReferenceType(corlib.Resolve(type)), "param_" + i))
+                    .Select((type, i) => new Parameter(TypeHelpers.BoxIfReferenceType(assembly.Resolve(type)), "param_" + i))
                     .ToArray(),
-                corlib);
+                assembly);
 
             // Register analyses.
             irBody = new global::Flame.Compiler.MethodBody(
@@ -905,6 +1132,9 @@ IL_0002: ret");
                 irBody.ThisParameter,
                 irBody.Parameters,
                 irBody.Implementation
+                    .WithAnalysis(
+                        new ConstantAnalysis<SubtypingRules>(
+                            assembly.Resolver.TypeEnvironment.Subtyping))
                     .WithAnalysis(LazyBlockReachabilityAnalysis.Instance)
                     .WithAnalysis(NullabilityAnalysis.Instance)
                     .WithAnalysis(new EffectfulInstructionAnalysis())
@@ -934,34 +1164,7 @@ IL_0002: ret");
                     new JumpThreading(false)));
 
             // Turn Flame IR back into CIL.
-            var newCilBody = ClrMethodBodyEmitter.Compile(irBody, methodDef, corlib.Resolver.TypeEnvironment);
-
-            // Check that the resulting CIL matches the expected CIL.
-            var actual = FormatMethodBody(newCilBody);
-            actual = actual.Trim().Replace("\r", "");
-            oracle = oracle.Trim().Replace("\r", "");
-            if (actual != oracle)
-            {
-                var encoder = new EncoderState();
-                var encodedImpl = encoder.Encode(irBody.Implementation);
-
-                var actualIr = Les2LanguageService.Value.Print(
-                    encodedImpl,
-                    options: new LNodePrinterOptions
-                    {
-                        IndentString = new string(' ', 4)
-                    });
-
-                log.Log(
-                    new LogEntry(
-                        Severity.Message,
-                        "emitted CIL-oracle mismatch",
-                        "round-tripped CIL does not match the oracle. CIL emit output:",
-                        new Paragraph(new WrapBox(actual, 0, -actual.Length)),
-                        DecorationSpan.MakeBold("remark: Flame IR:"),
-                        new Paragraph(new WrapBox(actualIr, 0, -actualIr.Length))));
-            }
-            Assert.AreEqual(oracle, actual);
+            return ClrMethodBodyEmitter.Compile(irBody, methodDef, corlib.Resolver.TypeEnvironment);
         }
 
         private string FormatMethodBody(Mono.Cecil.Cil.MethodBody body)
