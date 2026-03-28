@@ -27,7 +27,6 @@ The main projects live under [`src/`](./src):
 - `ILOpt`: CIL optimizer built on Flame
 - `IL2LLVM`: IL-to-LLVM compilation tool
 - `Examples/Brainfuck`: Brainfuck-to-CIL compiler example
-- `Examples/TurboKernels`: GPU/kernel-oriented example
 - `UnitTests`: unit tests and tool tests
 
 Tool-oriented test inputs live under [`tool-tests/`](./tool-tests).
