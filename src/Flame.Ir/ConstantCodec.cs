@@ -261,7 +261,7 @@ namespace Flame.Ir
                 return true;
             }
 #pragma warning restore CS0618
-            else if (node.TypeMarker != null)
+            else if (node.TypeMarker != null && node.TypeMarker.Name != "_")
             {
                 value = val;
                 typeMarker = node.TypeMarker;
