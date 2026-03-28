@@ -17,6 +17,5 @@
     <PackageReference Include="Mono.Cecil" />
     <PackageReference Include="Pixie" />
     <PackageReference Include="Pixie.Loyc" />
-    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>

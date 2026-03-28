@@ -31,6 +31,5 @@
     <ProjectReference Include="..\Flame\Flame.csproj" />
     <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj" />
     <PackageReference Include="Mono.Cecil" />
-    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>

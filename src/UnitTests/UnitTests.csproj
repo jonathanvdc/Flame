@@ -27,6 +27,5 @@
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Pixie" />
     <PackageReference Include="Pixie.Loyc" />
-    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>
