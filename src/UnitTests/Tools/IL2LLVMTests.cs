@@ -12,40 +12,21 @@ namespace UnitTests
     public sealed class IL2LLVMTests
     {
         [Test]
-        public void RunTests()
+        public void RunArrayInitLibcTest()
         {
-            foreach (var file in Directory.GetFiles(
-                Path.Combine(ILOptTests.ToolTestPath, "IL2LLVM"),
-                "*.cs",
-                SearchOption.TopDirectoryOnly))
-            {
-                var fileName = Path.GetFileName(file);
-                if (fileName == "substring-libc.cs")
-                {
-                    Console.WriteLine(" - substring-libc.cs (skipped: temporarily disabled pending implementation of String.Substring)");
-                    continue;
-                }
-                else if (fileName == "factorial-float-libc.cs")
-                {
-                    Console.WriteLine(" - factorial-float-libc.cs (skipped: temporarily disabled pending investigation)");
-                    continue;
-                }
-
-                if (!CanRunOnCurrentPlatform(file, out var skipReason))
-                {
-                    Console.WriteLine($" - {fileName} (skipped: {skipReason})");
-                    continue;
-                }
-
-                Console.WriteLine($" - {fileName}");
-                CompileAndRun(file, "/optimize+ /unsafe", ILOptTests.RunCommand);
-            }
+            CompileAndRunNamedTest("array-init-libc.cs");
         }
 
         [Test]
-        public void RunDynamicCastLibcTest()
+        public void RunArrayLibcTest()
         {
-            CompileAndRunNamedTest("dynamic-cast-libc.cs");
+            CompileAndRunNamedTest("array-libc.cs");
+        }
+
+        [Test]
+        public void RunComparisonLibcTest()
+        {
+            CompileAndRunNamedTest("comparison-libc.cs");
         }
 
         [Test]
@@ -55,9 +36,52 @@ namespace UnitTests
         }
 
         [Test]
-        public void RunSwitchLibcTest()
+        public void RunDynamicCastLibcTest()
         {
-            CompileAndRunNamedTest("switch-libc.cs");
+            CompileAndRunNamedTest("dynamic-cast-libc.cs");
+        }
+
+        [Test]
+        [Ignore("temporarily disabled pending investigation")]
+        public void RunFactorialFloatLibcTest()
+        {
+            CompileAndRunNamedTest("factorial-float-libc.cs");
+        }
+
+        [Test]
+        public void RunFactorialLibcTest()
+        {
+            CompileAndRunNamedTest("factorial-libc.cs");
+        }
+
+        [Test]
+        public void RunGenericStructLibcTest()
+        {
+            CompileAndRunNamedTest("generic-struct-libc.cs");
+        }
+
+        [Test]
+        public void RunHelloLibcTest()
+        {
+            CompileAndRunNamedTest("hello-libc.cs");
+        }
+
+        [Test]
+        public void RunInterfaceLibcTest()
+        {
+            CompileAndRunNamedTest("interface-libc.cs");
+        }
+
+        [Test]
+        public void RunNewobjLibcTest()
+        {
+            CompileAndRunNamedTest("newobj-libc.cs");
+        }
+
+        [Test]
+        public void RunStaticFieldLibcTest()
+        {
+            CompileAndRunNamedTest("static-field-libc.cs");
         }
 
         [Test]
@@ -66,12 +90,37 @@ namespace UnitTests
             CompileAndRunNamedTest("string-libc.cs");
         }
 
+        [Test]
+        public void RunStructLibcTest()
+        {
+            CompileAndRunNamedTest("struct-libc.cs");
+        }
+
+        [Test]
+        [Ignore("temporarily disabled pending implementation of String.Substring")]
+        public void RunSubstringLibcTest()
+        {
+            CompileAndRunNamedTest("substring-libc.cs");
+        }
+
+        [Test]
+        public void RunSwitchLibcTest()
+        {
+            CompileAndRunNamedTest("switch-libc.cs");
+        }
+
+        [Test]
+        public void RunVirtualCallLibcTest()
+        {
+            CompileAndRunNamedTest("virtual-call-libc.cs");
+        }
+
         private static void CompileAndRunNamedTest(string fileName)
         {
             var file = Path.Combine(ILOptTests.ToolTestPath, "IL2LLVM", fileName);
             if (!CanRunOnCurrentPlatform(file, out var skipReason))
             {
-                Assert.Fail("Cannot run " + fileName + " on this platform: " + skipReason);
+                Assert.Ignore("Cannot run " + fileName + " on this platform: " + skipReason);
             }
 
             CompileAndRun(file, "/optimize+ /unsafe", ILOptTests.RunCommand);
