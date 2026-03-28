@@ -10,7 +10,6 @@
             "**/bin/**",
             "**/obj/**",
             "UnitTests/**",
-            "FlameMacros/**",
             "Examples/**",
             "ILOpt/**"
           ],

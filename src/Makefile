@@ -21,28 +21,16 @@ endif
 endif
 LLVM_TEST_PUBLISH_DIR = UnitTests/bin/Debug/net10.0/$(DOTNET_RID)/publish
 
-.PHONY: release debug all dsl nuget clean test
-release: dsl
+.PHONY: release debug all nuget clean test
+release:
 	dotnet build -c Release /verbosity:quiet Flame.sln
 
-debug: dsl
+debug:
 	dotnet build -c Debug /verbosity:quiet Flame.sln
 
 all: debug release
 
-LEMP_EXE = FlameMacros/bin/Release/net10.0/LeMP.dll
-MACROS_DLL = FlameMacros/bin/Release/net10.0/FlameMacros.dll
-MACROS_CS_FILES = $(shell find FlameMacros -name '*.cs')
 RUN_EXE ?= dotnet
-
-%.out.cs: %.ecs $(MACROS_DLL)
-	$(RUN_EXE) $(LEMP_EXE) --macros $(MACROS_DLL) --nologo --outext=.out.cs $<
-
-$(MACROS_DLL): $(MACROS_CS_FILES)
-	dotnet build -c Release /verbosity:quiet FlameMacros/FlameMacros.csproj
-
-dsl: Flame.Compiler/Transforms/InstructionSimplification.out.cs \
-	Flame.Compiler/Transforms/FuseMemoryAccesses.out.cs
 
 nuget:
 	nuget restore Flame.sln

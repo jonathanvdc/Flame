@@ -13,7 +13,6 @@
     <ProjectReference Include="..\Flame.Clr\Flame.Clr.csproj" />
     <ProjectReference Include="..\Flame.Ir\Flame.Ir.csproj" />
     <ProjectReference Include="..\Flame.Llvm\Flame.Llvm.csproj" />
-    <ProjectReference Include="..\FlameMacros\FlameMacros.csproj" />
     <ProjectReference Include="..\ILOpt\ILOpt.csproj" />
     <ProjectReference Include="..\IL2LLVM\IL2LLVM.csproj" />
     <ProjectReference Include="..\Examples\Brainfuck\Brainfuck.csproj" />
