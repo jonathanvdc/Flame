@@ -1,6 +1,6 @@
 using System;
 using Loyc;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame.Clr;
 using System.Linq;
 using Flame;
@@ -24,9 +24,9 @@ namespace UnitTests.Flame.Clr
     [TestFixture]
     public class CilAnalysisTests
     {
-        public CilAnalysisTests(ILog log)
+        public CilAnalysisTests()
         {
-            this.log = log;
+            this.log = TestUtils.CreateTestLog();
         }
 
         private ILog log;

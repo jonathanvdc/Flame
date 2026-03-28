@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Loyc.MiniTest;
+using NUnit.Framework;
 
 namespace UnitTests
 {

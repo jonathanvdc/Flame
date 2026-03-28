@@ -1,5 +1,5 @@
 using System;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame.Collections;
 using System.Collections.Generic;
 

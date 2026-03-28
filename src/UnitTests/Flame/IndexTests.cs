@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame.Collections;
 
 namespace UnitTests
@@ -9,12 +9,7 @@ namespace UnitTests
     [TestFixture]
     public class IndexTests
     {
-        public IndexTests(Random rng)
-        {
-            this.rng = rng;
-        }
-
-        private Random rng;
+        private Random rng = new Random();
 
         [Test]
         public void IntDictionaryComparison()

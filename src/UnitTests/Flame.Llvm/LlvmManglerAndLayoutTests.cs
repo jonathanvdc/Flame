@@ -8,12 +8,13 @@ using Flame.Llvm;
 using Flame.Llvm.Emit;
 using Flame.TypeSystem;
 using LLVMSharp.Interop;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using UnitTests.Flame.Clr;
 
 namespace UnitTests.Flame.Llvm
 {
     [TestFixture]
+    [Category("LLVM")]
     public sealed class LlvmManglerAndLayoutTests
     {
         [Test]

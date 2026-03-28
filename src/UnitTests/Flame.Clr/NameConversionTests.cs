@@ -1,4 +1,4 @@
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame.Clr;
 using Flame;
 

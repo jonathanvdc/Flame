@@ -6,7 +6,7 @@ using Flame.Compiler.Analysis;
 using Flame.Compiler.Flow;
 using Flame.Constants;
 using Flame.TypeSystem;
-using Loyc.MiniTest;
+using NUnit.Framework;
 
 namespace UnitTests.Flame.Compiler
 {

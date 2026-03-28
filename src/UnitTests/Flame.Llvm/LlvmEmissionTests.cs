@@ -9,12 +9,13 @@ using Flame.Constants;
 using Flame.Llvm;
 using Flame.TypeSystem;
 using LLVMSharp.Interop;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using UnitTests.Flame.Clr;
 
 namespace UnitTests.Flame.Llvm
 {
     [TestFixture]
+    [Category("LLVM")]
     public sealed class LlvmEmissionTests
     {
         [Test]

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
     <TargetFramework>net10.0</TargetFramework>
     <RuntimeIdentifiers>$(FlameLlvmRuntimeIdentifiers)</RuntimeIdentifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
@@ -21,7 +21,10 @@
     <PackageReference Include="Loyc.Math" />
     <PackageReference Include="Loyc.Syntax" />
     <PackageReference Include="Loyc.Utilities" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Mono.Cecil" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Pixie" />
     <PackageReference Include="Pixie.Loyc" />
     <PackageReference Include="System.Collections.Immutable" />

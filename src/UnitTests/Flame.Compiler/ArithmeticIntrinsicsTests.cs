@@ -1,4 +1,4 @@
-using Loyc.MiniTest;
+using NUnit.Framework;
 using static Flame.Compiler.Instructions.ArithmeticIntrinsics;
 
 namespace UnitTests.Flame.Compiler

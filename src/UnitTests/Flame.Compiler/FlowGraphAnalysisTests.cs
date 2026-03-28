@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Flame.Compiler;
 using Flame.Compiler.Analysis;
-using Loyc.MiniTest;
+using NUnit.Framework;
 
 namespace UnitTests.Flame.Compiler
 {
