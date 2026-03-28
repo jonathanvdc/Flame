@@ -29,6 +29,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Flame\Flame.csproj" />
-    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="System.Collections.Immutable" Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472'" />
   </ItemGroup>
 </Project>

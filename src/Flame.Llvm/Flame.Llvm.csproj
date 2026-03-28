@@ -9,7 +9,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LLVMSharp" />
-    <PackageReference Include="System.Collections.Immutable" />
     <ProjectReference Include="..\Flame\Flame.csproj" />
     <ProjectReference Include="..\Flame.Compiler\Flame.Compiler.csproj" />
   </ItemGroup>

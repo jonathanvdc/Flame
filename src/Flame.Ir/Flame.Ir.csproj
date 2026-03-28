@@ -35,6 +35,5 @@
     <PackageReference Include="Loyc.Syntax" />
     <PackageReference Include="Pixie" />
     <PackageReference Include="Pixie.Loyc" />
-    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 </Project>
