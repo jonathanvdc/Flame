@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Serialization;
 
 namespace Flame
 {
@@ -8,15 +7,11 @@ namespace Flame
     /// </summary>
     public static class ContractHelpers
     {
-        [Serializable]
         private class AssertionException : Exception
         {
             public AssertionException() { }
             public AssertionException(string message) : base(message) { }
             public AssertionException(string message, Exception inner) : base(message, inner) { }
-            protected AssertionException(
-                SerializationInfo info,
-                StreamingContext context) : base(info, context) { }
         }
 
         /// <summary>

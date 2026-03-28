@@ -71,7 +71,7 @@ namespace UnitTests
         public void RecursiveInit()
         {
             var integer = new Box<int>(0);
-            DeferredInitializer init;
+            DeferredInitializer init = default;
             // This test makes sure that Initialize() does not recurse:
             // calling Initialize() from Initialize() does nothing at all.
             // This is by design, because it allows initialization to touch

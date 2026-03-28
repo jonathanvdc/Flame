@@ -828,7 +828,7 @@ namespace Flame.Ir
                     return UnreachableFlow.Instance;
                 }
             }
-            else if (node.Calls(CodeSymbols.Switch))
+            else if (node.Calls(CodeSymbols.SwitchStmt))
             {
                 // Decode the value being switched on as well as the default branch.
                 Instruction switchVal;
@@ -907,7 +907,7 @@ namespace Flame.Ir
                     Quotation.QuoteEvenInBold(
                         "unknown type of flow; expected one of ",
                         CodeSymbols.Goto.Name, ", ",
-                        CodeSymbols.Switch.Name, ", ",
+                        CodeSymbols.SwitchStmt.Name, ", ",
                         CodeSymbols.Try.Name, ", ",
                         CodeSymbols.Return.Name, " or ",
                         EncoderState.unreachableFlowSymbol.Name, "."));

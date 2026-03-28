@@ -36,7 +36,7 @@ namespace Flame.Ir
         public EncoderState(IrCodec codec)
             : this(
                 codec,
-                new LNodeFactory(EmptySourceFile.Default))
+                new LNodeFactory(EmptySourceFile.Synthetic))
         { }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace Flame.Ir
                 }
 
                 return Factory.Call(
-                    CodeSymbols.Switch,
+                    CodeSymbols.SwitchStmt,
                     Encode(switchFlow.SwitchValue, valueNameMap),
                     Encode(switchFlow.DefaultBranch, blockNameMap, valueNameMap),
                     Factory.Call(CodeSymbols.Braces, caseNodes));

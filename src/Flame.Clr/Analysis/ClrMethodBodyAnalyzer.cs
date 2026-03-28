@@ -289,8 +289,8 @@ namespace Flame.Clr.Analysis
         /// Analyzes a 'catch' exception handler's implementation.
         /// </summary>
         /// <param name="handler">The exception handler to analyze.</param>
-        /// <param name="landingPadTag">
-        /// The basic block tag of the landing pad to populate for the handler.
+        /// <param name="analyzedHandler">
+        /// The analyzed catch handler to populate.
         /// </param>
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeCatchHandler(
@@ -344,8 +344,8 @@ namespace Flame.Clr.Analysis
         /// Analyzes a 'filter' exception handler's implementation.
         /// </summary>
         /// <param name="handler">The exception handler to analyze.</param>
-        /// <param name="landingPadTag">
-        /// The basic block tag of the landing pad to populate for the handler.
+        /// <param name="analyzedHandler">
+        /// The analyzed filter handler to populate.
         /// </param>
         /// <param name="cilMethodBody">A CIL method body.</param>
         private void AnalyzeFilterHandler(
