@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: release debug all dsl nuget clean test
+.PHONY: release debug all dsl nuget pack clean test
 release:
 	$(MAKE) -C src release
 
@@ -15,6 +15,9 @@ dsl:
 
 nuget:
 	$(MAKE) -C src nuget
+
+pack:
+	$(MAKE) -C src pack
 
 clean:
 	$(MAKE) -C src clean

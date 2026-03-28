@@ -7,6 +7,16 @@
     <AssemblyName>Flame.Ir</AssemblyName>
     <Version>1.0</Version>
     <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Flame.Ir</PackageId>
+    <Authors>Jonathan Van der Cruysse</Authors>
+    <PackageProjectUrl>https://github.com/jonathanvdc/Flame</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Flame is a collection of C# libraries for building tools that read, analyze, optimize and write managed languages.
+
+    This package defines a textual representation for Flame IR, allowing you to read and write Flame IR.</Description>
+    <Copyright>Copyright 2019</Copyright>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageTags>Flame Compiler Loyc IR</PackageTags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

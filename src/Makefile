@@ -29,7 +29,10 @@ debug:
 all: debug release
 
 nuget:
-	nuget restore Flame.sln
+	dotnet restore Flame.sln
+
+pack:
+	dotnet pack Flame.sln -c Release
 
 clean:
 	make -C Flame clean
