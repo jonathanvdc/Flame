@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Class IRBuilder | Flame </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Class IRBuilder | Flame ">
+    
+    
+      <link rel="shortcut icon" href="../favicon.ico">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <meta property="docfx:navrel" content="../toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Flame.Llvm.Emit.IRBuilder">
+
+
+
+  <h1 id="Flame_Llvm_Emit_IRBuilder" data-uid="Flame.Llvm.Emit.IRBuilder" class="text-break">Class IRBuilder</h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">object</a></div>
+    <div class="level1"><span class="xref">IRBuilder</span></div>
+  </div>
+  <div class="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">object.Equals(object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">object.Equals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode">object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype">object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals">object.ReferenceEquals(object, object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring">object.ToString()</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Flame.html">Flame</a>.<a class="xref" href="Flame.Llvm.html">Llvm</a>.<a class="xref" href="Flame.Llvm.Emit.html">Emit</a></h6>
+  <h6><strong>Assembly</strong>: Flame.Llvm.dll</h6>
+  <h5 id="Flame_Llvm_Emit_IRBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class IRBuilder : IDisposable</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+</h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder__ctor_LLVMSharp_Interop_LLVMContextRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.%23ctor(LLVMSharp.Interop.LLVMContextRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L7">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder__ctor_" data-uid="Flame.Llvm.Emit.IRBuilder.#ctor*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder__ctor_LLVMSharp_Interop_LLVMContextRef_" data-uid="Flame.Llvm.Emit.IRBuilder.#ctor(LLVMSharp.Interop.LLVMContextRef)">IRBuilder(LLVMContextRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IRBuilder(LLVMContextRef context)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMContextRef</span></td>
+        <td><span class="parametername">context</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+</h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateAdd_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateAdd(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L104">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateAdd_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAdd*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateAdd_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAdd(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateAdd(LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateAdd(LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateAlloca_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateAlloca(LLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L44">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateAlloca_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAlloca*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateAlloca_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAlloca(LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateAlloca(LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateAlloca(LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateArrayAlloca_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateArrayAlloca(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L49">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateArrayAlloca_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateArrayAlloca*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateArrayAlloca_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateArrayAlloca(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateArrayAlloca(LLVMTypeRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateArrayAlloca(LLVMTypeRef type, LLVMValueRef value, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateArrayMalloc_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateArrayMalloc(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L54">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateArrayMalloc_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateArrayMalloc*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateArrayMalloc_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateArrayMalloc(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateArrayMalloc(LLVMTypeRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateArrayMalloc(LLVMTypeRef type, LLVMValueRef value, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateAtomicCmpXchg_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMAtomicOrdering_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateAtomicCmpXchg(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMAtomicOrdering%2CLLVMSharp.Interop.LLVMAtomicOrdering%2CSystem.Boolean)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L184">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateAtomicCmpXchg_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAtomicCmpXchg*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateAtomicCmpXchg_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMAtomicOrdering_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAtomicCmpXchg(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMAtomicOrdering,LLVMSharp.Interop.LLVMAtomicOrdering,System.Boolean)">CreateAtomicCmpXchg(LLVMValueRef, LLVMValueRef, LLVMValueRef, LLVMAtomicOrdering, LLVMAtomicOrdering, bool)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateAtomicCmpXchg(LLVMValueRef pointer, LLVMValueRef comparand, LLVMValueRef value, LLVMAtomicOrdering successOrdering, LLVMAtomicOrdering failureOrdering, bool singleThread)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">comparand</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMAtomicOrdering</span></td>
+        <td><span class="parametername">successOrdering</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMAtomicOrdering</span></td>
+        <td><span class="parametername">failureOrdering</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></td>
+        <td><span class="parametername">singleThread</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateAtomicRMW_LLVMSharp_Interop_LLVMAtomicRMWBinOp_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateAtomicRMW(LLVMSharp.Interop.LLVMAtomicRMWBinOp%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMAtomicOrdering%2CSystem.Boolean)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L179">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateAtomicRMW_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAtomicRMW*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateAtomicRMW_LLVMSharp_Interop_LLVMAtomicRMWBinOp_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateAtomicRMW(LLVMSharp.Interop.LLVMAtomicRMWBinOp,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMAtomicOrdering,System.Boolean)">CreateAtomicRMW(LLVMAtomicRMWBinOp, LLVMValueRef, LLVMValueRef, LLVMAtomicOrdering, bool)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateAtomicRMW(LLVMAtomicRMWBinOp op, LLVMValueRef pointer, LLVMValueRef value, LLVMAtomicOrdering ordering, bool singleThread)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMAtomicRMWBinOp</span></td>
+        <td><span class="parametername">op</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMAtomicOrdering</span></td>
+        <td><span class="parametername">ordering</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></td>
+        <td><span class="parametername">singleThread</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateBinOp_LLVMSharp_Interop_LLVMOpcode_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateBinOp(LLVMSharp.Interop.LLVMOpcode%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L144">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateBinOp_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBinOp*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateBinOp_LLVMSharp_Interop_LLVMOpcode_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBinOp(LLVMSharp.Interop.LLVMOpcode,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateBinOp(LLVMOpcode, LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateBinOp(LLVMOpcode opcode, LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMOpcode</span></td>
+        <td><span class="parametername">opcode</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateBitCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateBitCast(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L59">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateBitCast_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBitCast*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateBitCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBitCast(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateBitCast(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateBitCast(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateBr_LLVMSharp_Interop_LLVMBasicBlockRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateBr(LLVMSharp.Interop.LLVMBasicBlockRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L89">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateBr_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBr*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateBr_LLVMSharp_Interop_LLVMBasicBlockRef_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateBr(LLVMSharp.Interop.LLVMBasicBlockRef)">CreateBr(LLVMBasicBlockRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateBr(LLVMBasicBlockRef dest)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td><span class="parametername">dest</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateCall_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef___System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateCall(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%5B%5D%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L74">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateCall_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateCall*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateCall_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef___System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateCall(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef[],System.String)">CreateCall(LLVMTypeRef, LLVMValueRef, LLVMValueRef[], string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateCall(LLVMTypeRef signature, LLVMValueRef function, LLVMValueRef[] args, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">signature</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">function</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span>[]</td>
+        <td><span class="parametername">args</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateCondBr_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMBasicBlockRef_LLVMSharp_Interop_LLVMBasicBlockRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateCondBr(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMBasicBlockRef%2CLLVMSharp.Interop.LLVMBasicBlockRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L94">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateCondBr_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateCondBr*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateCondBr_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMBasicBlockRef_LLVMSharp_Interop_LLVMBasicBlockRef_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateCondBr(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMBasicBlockRef,LLVMSharp.Interop.LLVMBasicBlockRef)">CreateCondBr(LLVMValueRef, LLVMBasicBlockRef, LLVMBasicBlockRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateCondBr(LLVMValueRef condition, LLVMBasicBlockRef thenBlock, LLVMBasicBlockRef elseBlock)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">condition</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td><span class="parametername">thenBlock</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td><span class="parametername">elseBlock</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateExtractValue_LLVMSharp_Interop_LLVMValueRef_System_UInt32_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateExtractValue(LLVMSharp.Interop.LLVMValueRef%2CSystem.UInt32%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L203">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateExtractValue_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateExtractValue*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateExtractValue_LLVMSharp_Interop_LLVMValueRef_System_UInt32_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateExtractValue(LLVMSharp.Interop.LLVMValueRef,System.UInt32,System.String)">CreateExtractValue(LLVMValueRef, uint, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateExtractValue(LLVMValueRef aggregateValue, uint index, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">aggregateValue</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateFCmp_LLVMSharp_Interop_LLVMRealPredicate_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateFCmp(LLVMSharp.Interop.LLVMRealPredicate%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L159">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateFCmp_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFCmp*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateFCmp_LLVMSharp_Interop_LLVMRealPredicate_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFCmp(LLVMSharp.Interop.LLVMRealPredicate,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateFCmp(LLVMRealPredicate, LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateFCmp(LLVMRealPredicate predicate, LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMRealPredicate</span></td>
+        <td><span class="parametername">predicate</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateFPCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateFPCast(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L228">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateFPCast_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPCast*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateFPCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPCast(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateFPCast(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateFPCast(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateFPToSI_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateFPToSI(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L208">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateFPToSI_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPToSI*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateFPToSI_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPToSI(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateFPToSI(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateFPToSI(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateFPToUI_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateFPToUI(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L213">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateFPToUI_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPToUI*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateFPToUI_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFPToUI(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateFPToUI(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateFPToUI(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateFence_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateFence(LLVMSharp.Interop.LLVMAtomicOrdering%2CSystem.Boolean%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L174">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateFence_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFence*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateFence_LLVMSharp_Interop_LLVMAtomicOrdering_System_Boolean_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateFence(LLVMSharp.Interop.LLVMAtomicOrdering,System.Boolean,System.String)">CreateFence(LLVMAtomicOrdering, bool, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateFence(LLVMAtomicOrdering ordering, bool singleThread, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMAtomicOrdering</span></td>
+        <td><span class="parametername">ordering</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">bool</a></td>
+        <td><span class="parametername">singleThread</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateGEP_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef___System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateGEP(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%5B%5D%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L69">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateGEP_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateGEP*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateGEP_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef___System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateGEP(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef[],System.String)">CreateGEP(LLVMTypeRef, LLVMValueRef, LLVMValueRef[], string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateGEP(LLVMTypeRef pointeeType, LLVMValueRef pointer, LLVMValueRef[] indices, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">pointeeType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span>[]</td>
+        <td><span class="parametername">indices</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateICmp_LLVMSharp_Interop_LLVMIntPredicate_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateICmp(LLVMSharp.Interop.LLVMIntPredicate%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L154">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateICmp_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateICmp*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateICmp_LLVMSharp_Interop_LLVMIntPredicate_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateICmp(LLVMSharp.Interop.LLVMIntPredicate,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateICmp(LLVMIntPredicate, LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateICmp(LLVMIntPredicate predicate, LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMIntPredicate</span></td>
+        <td><span class="parametername">predicate</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateIntCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateIntCast(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L129">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateIntCast_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIntCast*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateIntCast_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIntCast(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateIntCast(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateIntCast(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateIntToPtr_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateIntToPtr(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L139">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateIntToPtr_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIntToPtr*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateIntToPtr_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIntToPtr(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateIntToPtr(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateIntToPtr(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateIsNull_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateIsNull(LLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L169">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateIsNull_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIsNull*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateIsNull_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateIsNull(LLVMSharp.Interop.LLVMValueRef,System.String)">CreateIsNull(LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateIsNull(LLVMValueRef value, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateLoad_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateLoad(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L34">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateLoad_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateLoad*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateLoad_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateLoad(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateLoad(LLVMTypeRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateLoad(LLVMTypeRef type, LLVMValueRef pointer, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateMul_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateMul(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L109">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateMul_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateMul*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateMul_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateMul(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateMul(LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateMul(LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreatePhi_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreatePhi(LLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L29">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreatePhi_" data-uid="Flame.Llvm.Emit.IRBuilder.CreatePhi*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreatePhi_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreatePhi(LLVMSharp.Interop.LLVMTypeRef,System.String)">CreatePhi(LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreatePhi(LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreatePtrToInt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreatePtrToInt(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L134">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreatePtrToInt_" data-uid="Flame.Llvm.Emit.IRBuilder.CreatePtrToInt*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreatePtrToInt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreatePtrToInt(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreatePtrToInt(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreatePtrToInt(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateRet_LLVMSharp_Interop_LLVMValueRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateRet(LLVMSharp.Interop.LLVMValueRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L79">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateRet_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateRet*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateRet_LLVMSharp_Interop_LLVMValueRef_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateRet(LLVMSharp.Interop.LLVMValueRef)">CreateRet(LLVMValueRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateRet(LLVMValueRef value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateRetVoid.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateRetVoid%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L84">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateRetVoid_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateRetVoid*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateRetVoid" data-uid="Flame.Llvm.Emit.IRBuilder.CreateRetVoid">CreateRetVoid()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateRetVoid()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateSExt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateSExt(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L124">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateSExt_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSExt*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateSExt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSExt(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateSExt(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateSExt(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateSIToFP_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateSIToFP(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L218">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateSIToFP_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSIToFP*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateSIToFP_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSIToFP(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateSIToFP(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateSIToFP(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateSelect_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateSelect(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L164">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateSelect_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSelect*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateSelect_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSelect(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateSelect(LLVMValueRef, LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateSelect(LLVMValueRef condition, LLVMValueRef thenValue, LLVMValueRef elseValue, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">condition</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">thenValue</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">elseValue</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateStore_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateStore(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L39">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateStore_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateStore*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateStore_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateStore(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef)">CreateStore(LLVMValueRef, LLVMValueRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateStore(LLVMValueRef value, LLVMValueRef pointer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateStructGEP_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_UInt32_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateStructGEP(LLVMSharp.Interop.LLVMTypeRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.UInt32%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L64">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateStructGEP_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateStructGEP*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateStructGEP_LLVMSharp_Interop_LLVMTypeRef_LLVMSharp_Interop_LLVMValueRef_System_UInt32_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateStructGEP(LLVMSharp.Interop.LLVMTypeRef,LLVMSharp.Interop.LLVMValueRef,System.UInt32,System.String)">CreateStructGEP(LLVMTypeRef, LLVMValueRef, uint, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateStructGEP(LLVMTypeRef pointeeType, LLVMValueRef pointer, uint index, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">pointeeType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">pointer</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateSwitch_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMBasicBlockRef_System_UInt32_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateSwitch(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMBasicBlockRef%2CSystem.UInt32)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L99">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateSwitch_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSwitch*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateSwitch_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMBasicBlockRef_System_UInt32_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateSwitch(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMBasicBlockRef,System.UInt32)">CreateSwitch(LLVMValueRef, LLVMBasicBlockRef, uint)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateSwitch(LLVMValueRef value, LLVMBasicBlockRef elseBlock, uint numCases)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td><span class="parametername">elseBlock</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.uint32">uint</a></td>
+        <td><span class="parametername">numCases</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateTrunc_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateTrunc(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L119">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateTrunc_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateTrunc*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateTrunc_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateTrunc(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateTrunc(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateTrunc(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateUIToFP_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateUIToFP(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L223">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateUIToFP_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateUIToFP*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateUIToFP_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateUIToFP(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateUIToFP(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateUIToFP(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateURem_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateURem(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMValueRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L149">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateURem_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateURem*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateURem_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMValueRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateURem(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMValueRef,System.String)">CreateURem(LLVMValueRef, LLVMValueRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateURem(LLVMValueRef lhs, LLVMValueRef rhs, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">lhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">rhs</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateUnreachable.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateUnreachable%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L233">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateUnreachable_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateUnreachable*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateUnreachable" data-uid="Flame.Llvm.Emit.IRBuilder.CreateUnreachable">CreateUnreachable()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateUnreachable()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_CreateZExt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.CreateZExt(LLVMSharp.Interop.LLVMValueRef%2CLLVMSharp.Interop.LLVMTypeRef%2CSystem.String)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L114">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_CreateZExt_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateZExt*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_CreateZExt_LLVMSharp_Interop_LLVMValueRef_LLVMSharp_Interop_LLVMTypeRef_System_String_" data-uid="Flame.Llvm.Emit.IRBuilder.CreateZExt(LLVMSharp.Interop.LLVMValueRef,LLVMSharp.Interop.LLVMTypeRef,System.String)">CreateZExt(LLVMValueRef, LLVMTypeRef, string)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMValueRef CreateZExt(LLVMValueRef value, LLVMTypeRef type, string name)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">LLVMTypeRef</span></td>
+        <td><span class="parametername">type</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">string</a></td>
+        <td><span class="parametername">name</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMValueRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_Dispose.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.Dispose%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L14">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_Dispose_" data-uid="Flame.Llvm.Emit.IRBuilder.Dispose*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_Dispose" data-uid="Flame.Llvm.Emit.IRBuilder.Dispose">Dispose()</h4>
+  <div class="markdown level1 summary"><p>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_GetInsertBlock.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.GetInsertBlock%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L24">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_GetInsertBlock_" data-uid="Flame.Llvm.Emit.IRBuilder.GetInsertBlock*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_GetInsertBlock" data-uid="Flame.Llvm.Emit.IRBuilder.GetInsertBlock">GetInsertBlock()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LLVMBasicBlockRef GetInsertBlock()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder_PositionBuilderAtEnd_LLVMSharp_Interop_LLVMBasicBlockRef_.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder.PositionBuilderAtEnd(LLVMSharp.Interop.LLVMBasicBlockRef)%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Edit this page</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L19">View Source</a>
+  </span>
+  <a id="Flame_Llvm_Emit_IRBuilder_PositionBuilderAtEnd_" data-uid="Flame.Llvm.Emit.IRBuilder.PositionBuilderAtEnd*"></a>
+  <h4 id="Flame_Llvm_Emit_IRBuilder_PositionBuilderAtEnd_LLVMSharp_Interop_LLVMBasicBlockRef_" data-uid="Flame.Llvm.Emit.IRBuilder.PositionBuilderAtEnd(LLVMSharp.Interop.LLVMBasicBlockRef)">PositionBuilderAtEnd(LLVMBasicBlockRef)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="declaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void PositionBuilderAtEnd(LLVMBasicBlockRef block)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">LLVMBasicBlockRef</span></td>
+        <td><span class="parametername">block</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.idisposable">IDisposable</a>
+  </div>
+
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/new/master/apiSpec/new?filename=Flame_Llvm_Emit_IRBuilder.md&amp;value=---%0Auid%3A%20Flame.Llvm.Emit.IRBuilder%0Asummary%3A%20&#39;*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax&#39;%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Edit this page</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/src/Flame.Llvm/Emit/IRBuilder.cs/#L5" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In this article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../styles/docfx.vendor.min.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -1,20 +1,21 @@
-﻿
+
 <div id="sidetoggle">
   <div>
     <div class="sidefilter">
       <form class="toc-filter">
         <span class="glyphicon glyphicon-filter filter-icon"></span>
-        <input type="text" id="toc_filter_input" placeholder="Enter here to filter..." onkeypress="if(event.keyCode==13) {return false;}">
+        <span class="glyphicon glyphicon-remove clear-icon" id="toc_filter_clear"></span>
+        <input type="text" id="toc_filter_input" placeholder="Filter by title" onkeypress="if(event.keyCode==13) {return false;}">
       </form>
     </div>
     <div class="sidetoc">
       <div class="toc" id="toc">
-          
+
           <ul class="nav level1">
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.html" name="" title="Flame">Flame</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.AccessorKind.html" name="" title="AccessorKind">AccessorKind</a>
@@ -108,7 +109,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Clr.html" name="" title="Flame.Clr">Flame.Clr</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Clr.CanonicalizeArrayInit.html" name="" title="CanonicalizeArrayInit">CanonicalizeArrayInit</a>
@@ -166,13 +167,16 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Clr.Analysis.html" name="" title="Flame.Clr.Analysis">Flame.Clr.Analysis</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Clr.Analysis.CilCatchHandler.html" name="" title="CilCatchHandler">CilCatchHandler</a>
                           </li>
                           <li>
                               <a href="Flame.Clr.Analysis.CilExceptionHandler.html" name="" title="CilExceptionHandler">CilExceptionHandler</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Clr.Analysis.CilFilterHandler.html" name="" title="CilFilterHandler">CilFilterHandler</a>
                           </li>
                           <li>
                               <a href="Flame.Clr.Analysis.CilFinallyHandler.html" name="" title="CilFinallyHandler">CilFinallyHandler</a>
@@ -191,7 +195,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Clr.Emit.html" name="" title="Flame.Clr.Emit">Flame.Clr.Emit</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Clr.Emit.CilPeepholeOptimizer.html" name="" title="CilPeepholeOptimizer">CilPeepholeOptimizer</a>
@@ -204,7 +208,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Clr.Transforms.html" name="" title="Flame.Clr.Transforms">Flame.Clr.Transforms</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Clr.Transforms.CanonicalizeDelegates.html" name="" title="CanonicalizeDelegates">CanonicalizeDelegates</a>
@@ -223,7 +227,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Collections.html" name="" title="Flame.Collections">Flame.Collections</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Collections.Betterness.html" name="" title="Betterness">Betterness</a>
@@ -302,7 +306,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.html" name="" title="Flame.Compiler">Flame.Compiler</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.BasicBlock.html" name="" title="BasicBlock">BasicBlock</a>
@@ -366,7 +370,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Analysis.html" name="" title="Flame.Compiler.Analysis">Flame.Compiler.Analysis</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Analysis.AddBasicBlockUpdate.html" name="" title="AddBasicBlockUpdate">AddBasicBlockUpdate</a>
@@ -459,10 +463,10 @@
                               <a href="Flame.Compiler.Analysis.InterferenceGraphAnalysis.html" name="" title="InterferenceGraphAnalysis">InterferenceGraphAnalysis</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Analysis.LatticeAnalysis-1.html" name="" title="LatticeAnalysis&lt;TCell&gt;">LatticeAnalysis&lt;TCell&gt;</a>
+                              <a href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html" name="" title="LatticeAnalysisResult&lt;TCell&gt;">LatticeAnalysisResult&lt;TCell&gt;</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Analysis.LatticeAnalysisResult-1.html" name="" title="LatticeAnalysisResult&lt;TCell&gt;">LatticeAnalysisResult&lt;TCell&gt;</a>
+                              <a href="Flame.Compiler.Analysis.LatticeAnalysis-1.html" name="" title="LatticeAnalysis&lt;TCell&gt;">LatticeAnalysis&lt;TCell&gt;</a>
                           </li>
                           <li>
                               <a href="Flame.Compiler.Analysis.LazyBlockReachability.html" name="" title="LazyBlockReachability">LazyBlockReachability</a>
@@ -480,21 +484,6 @@
                               <a href="Flame.Compiler.Analysis.MapMembersUpdate.html" name="" title="MapMembersUpdate">MapMembersUpdate</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Analysis.MemorySpecification.html" name="" title="MemorySpecification">MemorySpecification</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html" name="" title="MemorySpecification.ArgumentRead">MemorySpecification.ArgumentRead</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html" name="" title="MemorySpecification.ArgumentWrite">MemorySpecification.ArgumentWrite</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Compiler.Analysis.MemorySpecification.Union.html" name="" title="MemorySpecification.Union">MemorySpecification.Union</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Compiler.Analysis.MemorySpecificationExtensions.html" name="" title="MemorySpecificationExtensions">MemorySpecificationExtensions</a>
-                          </li>
-                          <li>
                               <a href="Flame.Compiler.Analysis.MemorySSA.html" name="" title="MemorySSA">MemorySSA</a>
                           </li>
                           <li>
@@ -510,10 +499,25 @@
                               <a href="Flame.Compiler.Analysis.MemorySSA.Value.html" name="" title="MemorySSA.Value">MemorySSA.Value</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Analysis.NullabilityAnalysis.html" name="" title="NullabilityAnalysis">NullabilityAnalysis</a>
+                              <a href="Flame.Compiler.Analysis.MemorySpecification.html" name="" title="MemorySpecification">MemorySpecification</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Compiler.Analysis.MemorySpecification.ArgumentRead.html" name="" title="MemorySpecification.ArgumentRead">MemorySpecification.ArgumentRead</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Compiler.Analysis.MemorySpecification.ArgumentWrite.html" name="" title="MemorySpecification.ArgumentWrite">MemorySpecification.ArgumentWrite</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Compiler.Analysis.MemorySpecification.Union.html" name="" title="MemorySpecification.Union">MemorySpecification.Union</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Compiler.Analysis.MemorySpecificationExtensions.html" name="" title="MemorySpecificationExtensions">MemorySpecificationExtensions</a>
                           </li>
                           <li>
                               <a href="Flame.Compiler.Analysis.NullCheckExceptionSpecification.html" name="" title="NullCheckExceptionSpecification">NullCheckExceptionSpecification</a>
+                          </li>
+                          <li>
+                              <a href="Flame.Compiler.Analysis.NullabilityAnalysis.html" name="" title="NullabilityAnalysis">NullabilityAnalysis</a>
                           </li>
                           <li>
                               <a href="Flame.Compiler.Analysis.PermissiveExceptionDelayability.html" name="" title="PermissiveExceptionDelayability">PermissiveExceptionDelayability</a>
@@ -592,7 +596,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Flow.html" name="" title="Flame.Compiler.Flow">Flame.Compiler.Flow</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Flow.FlowInstructionBuilder.html" name="" title="FlowInstructionBuilder">FlowInstructionBuilder</a>
@@ -623,7 +627,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Instructions.html" name="" title="Flame.Compiler.Instructions">Flame.Compiler.Instructions</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Instructions.Alignment.html" name="" title="Alignment">Alignment</a>
@@ -726,7 +730,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Instructions.Fused.html" name="" title="Flame.Compiler.Instructions.Fused">Flame.Compiler.Instructions.Fused</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Instructions.Fused.FusedInstructionPrototype.html" name="" title="FusedInstructionPrototype">FusedInstructionPrototype</a>
@@ -742,7 +746,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Pipeline.html" name="" title="Flame.Compiler.Pipeline">Flame.Compiler.Pipeline</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Pipeline.AssemblyContentDescription.html" name="" title="AssemblyContentDescription">AssemblyContentDescription</a>
@@ -773,7 +777,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Target.html" name="" title="Flame.Compiler.Target">Flame.Compiler.Target</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Target.IInstructionSelector-1.html" name="" title="IInstructionSelector&lt;TInstruction&gt;">IInstructionSelector&lt;TInstruction&gt;</a>
@@ -782,10 +786,10 @@
                               <a href="Flame.Compiler.Target.ILinearInstructionSelector-1.html" name="" title="ILinearInstructionSelector&lt;TInstruction&gt;">ILinearInstructionSelector&lt;TInstruction&gt;</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Target.InstructionStreamBuilder-1.html" name="" title="InstructionStreamBuilder&lt;TInstruction&gt;">InstructionStreamBuilder&lt;TInstruction&gt;</a>
+                              <a href="Flame.Compiler.Target.IStackInstructionSelector-1.html" name="" title="IStackInstructionSelector&lt;TInstruction&gt;">IStackInstructionSelector&lt;TInstruction&gt;</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Target.IStackInstructionSelector-1.html" name="" title="IStackInstructionSelector&lt;TInstruction&gt;">IStackInstructionSelector&lt;TInstruction&gt;</a>
+                              <a href="Flame.Compiler.Target.InstructionStreamBuilder-1.html" name="" title="InstructionStreamBuilder&lt;TInstruction&gt;">InstructionStreamBuilder&lt;TInstruction&gt;</a>
                           </li>
                           <li>
                               <a href="Flame.Compiler.Target.PeepholeOptimizer-2.html" name="" title="PeepholeOptimizer&lt;TInstruction, TExternalRef&gt;">PeepholeOptimizer&lt;TInstruction, TExternalRef&gt;</a>
@@ -813,7 +817,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Compiler.Transforms.html" name="" title="Flame.Compiler.Transforms">Flame.Compiler.Transforms</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Compiler.Transforms.AllocaToRegister.html" name="" title="AllocaToRegister">AllocaToRegister</a>
@@ -861,12 +865,6 @@
                               <a href="Flame.Compiler.Transforms.InstructionSimplification.html" name="" title="InstructionSimplification">InstructionSimplification</a>
                           </li>
                           <li>
-                              <a href="Flame.Compiler.Transforms.InstructionSimplificationAnalysis.html" name="" title="InstructionSimplificationAnalysis">InstructionSimplificationAnalysis</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Compiler.Transforms.InstructionSimplificationAnalysis.Results.html" name="" title="InstructionSimplificationAnalysis.Results">InstructionSimplificationAnalysis.Results</a>
-                          </li>
-                          <li>
                               <a href="Flame.Compiler.Transforms.IntraproceduralOptimization.html" name="" title="IntraproceduralOptimization">IntraproceduralOptimization</a>
                           </li>
                           <li>
@@ -904,7 +902,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Constants.html" name="" title="Flame.Constants">Flame.Constants</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.Constants.BooleanConstant.html" name="" title="BooleanConstant">BooleanConstant</a>
@@ -950,13 +948,13 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Ir.html" name="" title="Flame.Ir">Flame.Ir</a>
-                    
+
                     <ul class="nav level2">
                           <li>
-                              <a href="Flame.Ir.Codec-2.html" name="" title="Codec&lt;TObj, TEnc&gt;">Codec&lt;TObj, TEnc&gt;</a>
+                              <a href="Flame.Ir.CodecElement-2.html" name="" title="CodecElement&lt;TObj, TEnc&gt;">CodecElement&lt;TObj, TEnc&gt;</a>
                           </li>
                           <li>
-                              <a href="Flame.Ir.CodecElement-2.html" name="" title="CodecElement&lt;TObj, TEnc&gt;">CodecElement&lt;TObj, TEnc&gt;</a>
+                              <a href="Flame.Ir.Codec-2.html" name="" title="Codec&lt;TObj, TEnc&gt;">Codec&lt;TObj, TEnc&gt;</a>
                           </li>
                           <li>
                               <a href="Flame.Ir.ConstantCodec.html" name="" title="ConstantCodec">ConstantCodec</a>
@@ -1011,16 +1009,16 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Llvm.html" name="" title="Flame.Llvm">Flame.Llvm</a>
-                    
+
                     <ul class="nav level2">
+                          <li>
+                              <a href="Flame.Llvm.CMangler.html" name="" title="CMangler">CMangler</a>
+                          </li>
                           <li>
                               <a href="Flame.Llvm.ClosedMetadataFormat.html" name="" title="ClosedMetadataFormat">ClosedMetadataFormat</a>
                           </li>
                           <li>
                               <a href="Flame.Llvm.ClrInternalCallImplementor.html" name="" title="ClrInternalCallImplementor">ClrInternalCallImplementor</a>
-                          </li>
-                          <li>
-                              <a href="Flame.Llvm.CMangler.html" name="" title="CMangler">CMangler</a>
                           </li>
                           <li>
                               <a href="Flame.Llvm.GCInterface.html" name="" title="GCInterface">GCInterface</a>
@@ -1057,8 +1055,11 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.Llvm.Emit.html" name="" title="Flame.Llvm.Emit">Flame.Llvm.Emit</a>
-                    
+
                     <ul class="nav level2">
+                          <li>
+                              <a href="Flame.Llvm.Emit.IRBuilder.html" name="" title="IRBuilder">IRBuilder</a>
+                          </li>
                           <li>
                               <a href="Flame.Llvm.Emit.ModuleBuilder.html" name="" title="ModuleBuilder">ModuleBuilder</a>
                           </li>
@@ -1067,7 +1068,7 @@
                 <li>
                     <span class="expand-stub"></span>
                     <a href="Flame.TypeSystem.html" name="" title="Flame.TypeSystem">Flame.TypeSystem</a>
-                    
+
                     <ul class="nav level2">
                           <li>
                               <a href="Flame.TypeSystem.AccessModifier.html" name="" title="AccessModifier">AccessModifier</a>
@@ -1217,24 +1218,11 @@
                 </li>
                 <li>
                     <span class="expand-stub"></span>
-                    <a href="IL2LLVM.html" name="" title="IL2LLVM">IL2LLVM</a>
-                    
+                    <a href="LLVMSharp.Interop.html" name="" title="LLVMSharp.Interop">LLVMSharp.Interop</a>
+
                     <ul class="nav level2">
                           <li>
-                              <a href="IL2LLVM.Options.html" name="" title="Options">Options</a>
-                          </li>
-                          <li>
-                              <a href="IL2LLVM.Program.html" name="" title="Program">Program</a>
-                          </li>
-                    </ul>
-                </li>
-                <li>
-                    <span class="expand-stub"></span>
-                    <a href="Turbo.html" name="" title="Turbo">Turbo</a>
-                    
-                    <ul class="nav level2">
-                          <li>
-                              <a href="Turbo.Parallel.html" name="" title="Parallel">Parallel</a>
+                              <a href="LLVMSharp.Interop.InteropCompatExtensions.html" name="" title="InteropCompatExtensions">InteropCompatExtensions</a>
                           </li>
                     </ul>
                 </li>

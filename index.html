@@ -1,21 +1,21 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--[if IE]><![endif]-->
 <html>
-  
+
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Flame | Flame </title>
-    <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Flame | Flame ">
-    <meta name="generator" content="docfx 2.45.1.0">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Flame | Flame </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Flame | Flame ">
     
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="stylesheet" href="styles/docfx.vendor.css">
-    <link rel="stylesheet" href="styles/docfx.css">
-    <link rel="stylesheet" href="styles/main.css">
-    <meta property="docfx:navrel" content="toc.html">
-    <meta property="docfx:tocrel" content="toc.html">
+    
+      <link rel="shortcut icon" href="favicon.ico">
+      <link rel="stylesheet" href="styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="styles/docfx.css">
+      <link rel="stylesheet" href="styles/main.css">
+      <meta property="docfx:navrel" content="toc.html">
+      <meta property="docfx:tocrel" content="toc.html">
     
     <meta property="docfx:rel" content="">
     
@@ -23,7 +23,7 @@
   <body data-spy="scroll" data-target="#affix" data-offset="120">
     <div id="wrapper">
       <header>
-        
+
         <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
           <div class="container">
             <div class="navbar-header">
@@ -33,7 +33,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              
+
               <a class="navbar-brand" href="index.html">
                 <img id="logo" class="svg" src="logo.svg" alt="">
               </a>
@@ -47,7 +47,7 @@
             </div>
           </div>
         </nav>
-        
+
         <div class="subnav navbar navbar-default">
           <div class="container hide-when-search" id="breadcrumb">
             <ul class="breadcrumb">
@@ -57,13 +57,13 @@
         </div>
       </header>
       <div class="container body-content">
-        
+
         <div id="search-results">
-          <div class="search-list"></div>
+          <div class="search-list">Search Results for <span></span></div>
           <div class="sr-items">
             <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
           </div>
-          <ul id="pagination"></ul>
+          <ul id="pagination" data-first=First data-prev=Previous data-next=Next data-last=Last></ul>
         </div>
       </div>
       <div role="main" class="container body-content hide-when-search">
@@ -72,66 +72,107 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="flame">Flame</h1>
 
-<p>Flame is a collection of C# libraries for building tools that read, analyze, optimize and write managed languages. Things you can build with Flame include optimizing compilers, IL optimizers, static analyzers and more.</p>
-<p>Key features include:</p>
+<p>Flame is a set of C# libraries and tools for reading, analyzing, optimizing, and writing managed code.</p>
+<p>It is built around an SSA-based intermediate representation and includes:</p>
 <ul>
-<li><strong>An intermediate representation (IR) in static single assignment (SSA) form.</strong> This type of IR is favored by state-of-the-art optimizing compilers such as LLVM and GCC. Flame IR is designed from the ground up with the express intent of making it as suitable as possible for a wide range of optimizations and analyses.</li>
-<li><strong>A wealth of optimization passes that operate on Flame IR.</strong> These passes include aggressive optimizations such as inlining, partial scalar replacement of aggregates, global value numbering, LINQ optimization, tail call optimization and <a href="http://jonathanvdc.github.io/Flame/api/Flame.Compiler.Transforms.html">many others</a>.</li>
-<li><strong>A variety of IR analyses.</strong> These analyses extract information not explicitly encoded in Flame IR. For example, there are analyses that compute dominator trees, value numbering, block predecessor information, value nullability and <a href="http://jonathanvdc.github.io/Flame/api/Flame.Compiler.Analysis.html">more</a>.</li>
-<li><strong>A pluggable architecture.</strong> Flame conveniently includes many built-in transforms and analyses, but sometimes these generic algorithms don't quite cover your use case exactly. In that case, you can easily implement your own transform or analysis.</li>
-<li><strong>A CIL front-end and back-end.</strong> Flame can translate CIL to Flame IR and vice-versa, allowing you to easily read and/or write CIL while operating at the optimization and analysis–focused abstraction layer afforded by Flame IR.</li>
+<li>an IR designed for compiler analysis and transformation</li>
+<li>optimization passes such as inlining, scalar replacement, value numbering, control-flow simplification, and tail-recursion elimination</li>
+<li>analysis passes for dominators, liveness, value uses, predecessors, nullability, and more</li>
+<li>a CIL frontend and backend for translating between .NET IL and Flame IR</li>
+<li>command-line tools and examples built on top of the core libraries</li>
 </ul>
-<p>For an introduction to Flame's main concepts see <a href="https://jonathanvdc.github.io/Flame/articles/intro.html">A brief introduction to Flame</a>.</p>
-<h2 id="subprojects">Subprojects</h2>
-<p>At its core, Flame is a set of libraries designed to support tools that read, analyze, optimize and write managed languages. Additionally, Flame includes a number of projects that use Flame in a fairly straightforward way.</p>
+<p>Documentation:</p>
+<ul>
+<li><a href="https://jonathanvdc.github.io/Flame/articles/intro.html">Introduction</a></li>
+<li><a href="http://jonathanvdc.github.io/Flame/api/">API docs</a></li>
+</ul>
+<h2 id="repository-layout">Repository layout</h2>
+<p>The main projects live under <a href="../src"><code>src/</code></a>:</p>
+<ul>
+<li><code>Flame</code>: core abstractions and type system</li>
+<li><code>Flame.Compiler</code>: IR, analyses, and optimization passes</li>
+<li><code>Flame.Clr</code>: CIL import/export and CLR-specific support</li>
+<li><code>Flame.Ir</code>: IR serialization support</li>
+<li><code>Flame.Llvm</code>: LLVM backend pieces</li>
+<li><code>ILOpt</code>: CIL optimizer built on Flame</li>
+<li><code>IL2LLVM</code>: IL-to-LLVM compilation tool</li>
+<li><code>Examples/Brainfuck</code>: Brainfuck-to-CIL compiler example</li>
+<li><code>UnitTests</code>: unit tests and tool tests</li>
+</ul>
+<p>Tool-oriented test inputs live under <a href="../tool-tests"><code>tool-tests/</code></a>.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>.NET SDK 10.x</li>
+</ul>
+<h2 id="build">Build</h2>
+<p>From the repository root:</p>
+<pre><code class="lang-console">$ dotnet restore src/Flame.sln
+$ dotnet build src/Flame.sln -c Debug
+</code></pre>
+<p>There is also a small <code>make</code> wrapper in <a href="../src/Makefile"><code>src/Makefile</code></a>:</p>
+<pre><code class="lang-console">$ make -C src debug
+</code></pre>
+<h2 id="test">Test</h2>
+<p>The main test entrypoint is the portable suite, which excludes LLVM-dependent tests:</p>
+<pre><code class="lang-console">$ dotnet test src/UnitTests/UnitTests.csproj -c Debug --filter &quot;TestCategory!=LLVM&quot;
+</code></pre>
+<p>The <code>make</code> wrapper runs the same suite:</p>
+<pre><code class="lang-console">$ make -C src test
+</code></pre>
+<p>The LLVM-specific tests are separate and require LLVM/Clang to be installed:</p>
+<pre><code class="lang-console">$ make -C src test-llvm
+</code></pre>
+<p>To run the LLVM tests manually, specify the runtime identifier for your platform and set <code>CLANG_PATH</code> to the Clang executable:</p>
+<pre><code class="lang-console">$ CLANG_PATH=clang dotnet test src/UnitTests/UnitTests.csproj -c Debug -r osx-arm64 --filter &quot;TestCategory=LLVM&quot;
+</code></pre>
+<p>Common runtime identifiers are <code>linux-x64</code>, <code>linux-arm64</code>, <code>osx-arm64</code>, <code>win-x64</code>, and <code>win-arm64</code>.</p>
+<p>The current <code>tool-tests/IL2LLVM</code> samples use Linux <code>libc.so.6</code> imports. On non-Linux hosts, the LLVM tool tests skip those samples instead of failing; CI still exercises them on Linux.</p>
+<h2 id="tools">Tools</h2>
 <h3 id="ilopt"><code>ilopt</code></h3>
-<p><code>ilopt</code> is an ahead-of-time optimizer for CIL assemblies, that is, <code>ilopt</code> is a fairly simple command-line tool that reads CIL assemblies, optimizes them and writes the optimized version back to disk.</p>
-<p><code>ilopt</code> currently understands most if not all of the CIL opcodes generated by the C# compiler. Other opcodes may not be supported yet. For an overview of single-file C# programs that <code>ilopt</code> can definitely optimize, take a look at the <a href="https://github.com/jonathanvdc/Flame/tree/master/tool-tests/ILOpt"><code>ilopt</code> test programs</a>.</p>
-<h2 id="build-instructions">Build instructions</h2>
-<p>Flame is a C# project that targets .NET 4.5 implementations, like Mono and the .NET framework. .NET Core is not supported yet because Flame relies on NuGet packages that don't yet support .NET Core.</p>
-<p>Additionally, Flame uses <a href="http://ecsharp.net/">EC#</a> macros to convert Flame IR rewrite rule DSL to C# code.</p>
-<h3 id="linux-mac-os-x">Linux, Mac OS X</h3>
-<p>Building Flame is easy if you're on Linux or Mac OS X. Just spell</p>
-<pre><code class="lang-console">$ make nuget
-$ make
+<p><code>ilopt</code> reads a managed assembly, optimizes it, and writes the optimized result back to disk.</p>
+<p>Build it with the solution or directly:</p>
+<pre><code class="lang-console">$ dotnet build src/ILOpt/ILOpt.csproj -c Debug
 </code></pre>
-<p>That's it. The above will grab NuGet dependencies, compile EC# macros down to regular C# and build the project.</p>
-<p>To run the unit tests, type</p>
-<pre><code class="lang-console">$ make test
+<p>Run it with:</p>
+<pre><code class="lang-console">$ dotnet src/ILOpt/bin/Debug/net10.0/ilopt.dll input.dll -o output.dll
 </code></pre>
-<h3 id="windows">Windows</h3>
-<p>Building Flame is somewhat more challenging on Windows. If at all possible, use a GNU Make implementation to run the Makefile, same as for Linux and Mac OS X.</p>
-<p>Otherwise, you will need to do the following:</p>
-<ol>
-<li>Restore NuGet packages (<code>nuget restore</code>).</li>
-<li>Build the macros. (<code>msbuild /p:Configuration=Release FlameMacros/FlameMacros.csproj</code>).</li>
-<li>Compile EC# macros down to regular C# (<code>make dsl</code> in the Makefile, otherwise <code>FlameMacros/bin/Release/LeMP.exe --macros FlameMacros/bin/Release/FlameMacros.dll --outext=.out.cs file.ecs</code> for all <code>.ecs</code> files).</li>
-<li>Build Flame itself (<code>msbuild /p:Configuration=Release Flame.sln</code>).</li>
-</ol>
-<p>Run the unit tests by spelling</p>
-<pre><code class="lang-console">UnitTests\bin\Release\UnitTests.exe all
+<p>The supported single-file samples used by the test suite live in <a href="../tool-tests/ILOpt"><code>tool-tests/ILOpt</code></a>.</p>
+<h3 id="il2llvm"><code>il2llvm</code></h3>
+<p><code>il2llvm</code> compiles managed assemblies to LLVM IR.</p>
+<pre><code class="lang-console">$ dotnet publish src/IL2LLVM/IL2LLVM.csproj -c Debug -r osx-arm64 --self-contained false
+$ dotnet src/IL2LLVM/bin/Debug/net10.0/osx-arm64/publish/il2llvm.dll input.dll -o output.ll
 </code></pre>
-<p>Windows workflow enhancements welcome!</p>
+<h2 id="continuous-integration">Continuous integration</h2>
+<p>GitHub Actions is configured in <a href="../.github/workflows/ci.yml"><code>.github/workflows/ci.yml</code></a>.</p>
+<p>The CI workflow:</p>
+<ul>
+<li>restores <code>src/Flame.sln</code></li>
+<li>builds the solution in <code>Debug</code></li>
+<li>runs the portable test suite via <code>dotnet test --filter &quot;TestCategory!=LLVM&quot;</code></li>
+<li>runs the LLVM backend test suite via <code>dotnet test -r linux-x64 --filter &quot;TestCategory=LLVM&quot;</code> with <code>CLANG_PATH</code> set to <code>clang-20</code></li>
+</ul>
+
 </article>
           </div>
-          
+
           <div class="hidden-sm col-md-2" role="complementary">
             <div class="sideaffix">
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/jonathanvdc/Flame/blob/master/docs/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/jonathanvdc/Flame/blob/master/docs/index.md/#L1" class="contribution-link">Edit this page</a>
                   </li>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+                <h5>In this article</h5>
+                <div></div>
               </nav>
             </div>
           </div>
         </div>
       </div>
-      
+
       <footer>
         <div class="grad-bottom"></div>
         <div class="footer">
@@ -139,14 +180,14 @@ $ make
             <span class="pull-right">
               <a href="#top">Back to top</a>
             </span>
-            
-            <span>Generated by <strong>DocFX</strong></span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
           </div>
         </div>
       </footer>
     </div>
-    
-    <script type="text/javascript" src="styles/docfx.vendor.js"></script>
+
+    <script type="text/javascript" src="styles/docfx.vendor.min.js"></script>
     <script type="text/javascript" src="styles/docfx.js"></script>
     <script type="text/javascript" src="styles/main.js"></script>
   </body>
