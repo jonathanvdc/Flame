@@ -185,7 +185,7 @@ namespace Flame.Compiler.Flow
         {
             ContractHelpers.Assert(instructions.Count == 1, "Switch flow takes exactly one instruction.");
             var newSwitchValue = instructions[0];
-            if (object.ReferenceEquals(newSwitchValue, SwitchValue))
+            if (newSwitchValue.Equals(SwitchValue))
             {
                 return this;
             }

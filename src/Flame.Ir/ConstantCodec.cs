@@ -75,9 +75,8 @@ namespace Flame.Ir
                 {
                     // Encode other integer constants as custom literals.
                     return state.Factory.Literal(
-                        new CustomLiteral(
-                            integerConst.Value.ToString(),
-                            GSymbol.Get(integerConst.Spec.ToString())));
+                        integerConst.Value.ToString(),
+                        GSymbol.Get(integerConst.Spec.ToString()));
                 }
             }
             else if (value is Float32Constant)
@@ -253,11 +252,19 @@ namespace Flame.Ir
             out Symbol typeMarker)
         {
             var val = node.Value;
+#pragma warning disable CS0618 // Keep CustomLiteral support for backward compatibility with older encoded IR
             if (val is CustomLiteral)
             {
                 var literal = (CustomLiteral)val;
                 value = literal.Value;
                 typeMarker = literal.TypeMarker;
+                return true;
+            }
+#pragma warning restore CS0618
+            else if (node.TypeMarker != null)
+            {
+                value = val;
+                typeMarker = node.TypeMarker;
                 return true;
             }
             else

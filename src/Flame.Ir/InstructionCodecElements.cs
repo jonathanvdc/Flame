@@ -242,7 +242,7 @@ namespace Flame.Ir
             return new LNode[]
             {
                 state.Encode(value.ResultType),
-                state.Factory.List(paramTypeNodes)
+                state.Factory.AltList(paramTypeNodes)
             };
         }
 
@@ -279,7 +279,7 @@ namespace Flame.Ir
             {
                 state.Factory.Id(value.Name),
                 state.Encode(value.ResultType),
-                state.Factory.List(paramTypeNodes)
+                state.Factory.AltList(paramTypeNodes)
             };
         }
 

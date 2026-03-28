@@ -35,7 +35,7 @@ namespace Flame.Compiler.Flow
         {
             ContractHelpers.Assert(instructions.Count == 1, "Return flow takes exactly one instruction.");
             var newReturnValue = instructions[0];
-            if (object.ReferenceEquals(newReturnValue, ReturnValue))
+            if (newReturnValue.Equals(ReturnValue))
             {
                 return this;
             }
