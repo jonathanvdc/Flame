@@ -11,13 +11,14 @@
             "**/obj/**",
             "UnitTests/**",
             "Examples/**",
-            "ILOpt/**"
+            "ILOpt/**",
+            "IL2LLVM/**"
           ],
           "src": "../src"
         }
       ],
       "dest": "api",
-      "properties": { "TargetFramework": "net47" },
+      "properties": { "TargetFramework": "net10.0" },
       "disableGitFeatures": false,
       "disableDefaultFilter": false
     }
