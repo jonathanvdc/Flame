@@ -14,430 +14,217 @@ namespace UnitTests
     public sealed class ILOptTests
     {
         [Test]
-        public void RunBitshiftTest()
-        {
-            CompileOptimizeAndRunNamedTest("bitshift.cs");
-        }
+        public void RunBitshiftTest() => CompileOptimizeAndRunNamedTest("bitshift.cs");
 
         [Test]
-        public void RunBoxTest()
-        {
-            CompileOptimizeAndRunNamedTest("box.cs");
-        }
+        public void RunBoxTest() => CompileOptimizeAndRunNamedTest("box.cs");
 
         [Test]
-        public void RunCastclassTest()
-        {
-            CompileOptimizeAndRunNamedTest("castclass.cs");
-        }
+        public void RunCastclassTest() => CompileOptimizeAndRunNamedTest("castclass.cs");
 
         [Test]
-        public void RunCompareExchangeTest()
-        {
-            CompileOptimizeAndRunNamedTest("compare-exchange.cs");
-        }
+        public void RunCompareExchangeTest() => CompileOptimizeAndRunNamedTest("compare-exchange.cs");
 
         [Test]
-        public void RunConstrainedCallTest()
-        {
-            CompileOptimizeAndRunNamedTest("constrained-call.cs");
-        }
+        public void RunConstrainedCallTest() => CompileOptimizeAndRunNamedTest("constrained-call.cs");
 
         [Test]
-        public void RunConstrainedCall2Test()
-        {
-            CompileOptimizeAndRunNamedTest("constrained-call2.cs");
-        }
+        public void RunConstrainedCall2Test() => CompileOptimizeAndRunNamedTest("constrained-call2.cs");
 
         [Test]
-        public void RunConvR4Test()
-        {
-            CompileOptimizeAndRunNamedTest("conv-r4.cs");
-        }
+        public void RunConvR4Test() => CompileOptimizeAndRunNamedTest("conv-r4.cs");
 
         [Test]
-        public void RunConvR8Test()
-        {
-            CompileOptimizeAndRunNamedTest("conv-r8.cs");
-        }
+        public void RunConvR8Test() => CompileOptimizeAndRunNamedTest("conv-r8.cs");
 
         [Test]
-        public void RunConvU8Test()
-        {
-            CompileOptimizeAndRunNamedTest("conv-u8.cs");
-        }
+        public void RunConvU8Test() => CompileOptimizeAndRunNamedTest("conv-u8.cs");
 
         [Test]
-        public void RunDynamicTest()
-        {
-            CompileOptimizeAndRunNamedTest("dynamic.cs");
-        }
+        public void RunDynamicTest() => CompileOptimizeAndRunNamedTest("dynamic.cs");
 
         [Test]
-        public void RunEnumTest()
-        {
-            CompileOptimizeAndRunNamedTest("enum.cs");
-        }
+        public void RunEnumTest() => CompileOptimizeAndRunNamedTest("enum.cs");
 
         [Test]
-        public void RunFactorialRecursiveTest()
-        {
-            CompileOptimizeAndRunNamedTest("factorial-recursive.cs");
-        }
+        public void RunFactorialRecursiveTest() => CompileOptimizeAndRunNamedTest("factorial-recursive.cs");
 
         [Test]
-        public void RunFactorialTest()
-        {
-            CompileOptimizeAndRunNamedTest("factorial.cs");
-        }
+        public void RunFactorialTest() => CompileOptimizeAndRunNamedTest("factorial.cs");
 
         [Test]
-        public void RunFixedArrayCopyTest()
-        {
-            CompileOptimizeAndRunNamedTest("fixed-array-copy.cs");
-        }
+        public void RunFixedArrayCopyTest() => CompileOptimizeAndRunNamedTest("fixed-array-copy.cs");
 
         [Test]
-        public void RunFixedArrayTest()
-        {
-            CompileOptimizeAndRunNamedTest("fixed-array.cs");
-        }
+        public void RunFixedArrayTest() => CompileOptimizeAndRunNamedTest("fixed-array.cs");
 
         [Test]
-        public void RunFixedStringTest()
-        {
-            CompileOptimizeAndRunNamedTest("fixed-string.cs");
-        }
+        public void RunFixedStringTest() => CompileOptimizeAndRunNamedTest("fixed-string.cs");
 
         [Test]
-        public void RunFixedTest()
-        {
-            CompileOptimizeAndRunNamedTest("fixed.cs");
-        }
+        public void RunFixedTest() => CompileOptimizeAndRunNamedTest("fixed.cs");
 
         [Test]
-        public void RunForeachTest()
-        {
-            CompileOptimizeAndRunNamedTest("foreach.cs");
-        }
+        public void RunForeachTest() => CompileOptimizeAndRunNamedTest("foreach.cs");
 
         [Test]
-        public void RunFormatTest()
-        {
-            CompileOptimizeAndRunNamedTest("format.cs");
-        }
+        public void RunFormatTest() => CompileOptimizeAndRunNamedTest("format.cs");
 
         [Test]
-        public void RunGenericConstraintsTest()
-        {
-            CompileOptimizeAndRunNamedTest("generic-constraints.cs");
-        }
+        public void RunGenericConstraintsTest() => CompileOptimizeAndRunNamedTest("generic-constraints.cs");
 
         [Test]
-        public void RunGenericConstraints2Test()
-        {
-            CompileOptimizeAndRunNamedTest("generic-constraints2.cs");
-        }
+        public void RunGenericConstraints2Test() => CompileOptimizeAndRunNamedTest("generic-constraints2.cs");
 
         [Test]
-        public void RunGenericFieldTest()
-        {
-            CompileOptimizeAndRunNamedTest("generic-field.cs");
-        }
+        public void RunGenericFieldTest() => CompileOptimizeAndRunNamedTest("generic-field.cs");
 
         [Test]
-        public void RunGenericListTest()
-        {
-            CompileOptimizeAndRunNamedTest("generic-list.cs");
-        }
+        public void RunGenericListTest() => CompileOptimizeAndRunNamedTest("generic-list.cs");
 
         [Test]
-        public void RunGenericMethodTest()
-        {
-            CompileOptimizeAndRunNamedTest("generic-method.cs");
-        }
+        public void RunGenericMethodTest() => CompileOptimizeAndRunNamedTest("generic-method.cs");
 
         [Test]
-        public void RunHeapSortingReorderTest()
-        {
-            CompileOptimizeAndRunNamedTest("heap-sorting-reorder.cs");
-        }
+        public void RunHeapSortingReorderTest() => CompileOptimizeAndRunNamedTest("heap-sorting-reorder.cs");
 
         [Test]
-        public void RunHeapSortingTest()
-        {
-            CompileOptimizeAndRunNamedTest("heap-sorting.cs");
-        }
+        public void RunHeapSortingTest() => CompileOptimizeAndRunNamedTest("heap-sorting.cs");
 
         [Test]
-        public void RunInitobjArrayTest()
-        {
-            CompileOptimizeAndRunNamedTest("initobj-array.cs");
-        }
+        public void RunInitobjArrayTest() => CompileOptimizeAndRunNamedTest("initobj-array.cs");
 
         [Test]
-        public void RunInitobjTest()
-        {
-            CompileOptimizeAndRunNamedTest("initobj.cs");
-        }
+        public void RunInitobjTest() => CompileOptimizeAndRunNamedTest("initobj.cs");
 
         [Test]
-        public void RunIsinstTest()
-        {
-            CompileOptimizeAndRunNamedTest("isinst.cs");
-        }
+        public void RunIsinstTest() => CompileOptimizeAndRunNamedTest("isinst.cs");
 
         [Test]
-        public void RunLambdaTest()
-        {
-            CompileOptimizeAndRunNamedTest("lambda.cs");
-        }
+        public void RunLambdaTest() => CompileOptimizeAndRunNamedTest("lambda.cs");
 
         [Test]
-        public void RunLdcR4Test()
-        {
-            CompileOptimizeAndRunNamedTest("ldc-r4.cs");
-        }
+        public void RunLdcR4Test() => CompileOptimizeAndRunNamedTest("ldc-r4.cs");
 
         [Test]
-        public void RunLdcR8Test()
-        {
-            CompileOptimizeAndRunNamedTest("ldc-r8.cs");
-        }
+        public void RunLdcR8Test() => CompileOptimizeAndRunNamedTest("ldc-r8.cs");
 
         [Test]
-        public void RunLdelemTest()
-        {
-            CompileOptimizeAndRunNamedTest("ldelem.cs");
-        }
+        public void RunLdelemTest() => CompileOptimizeAndRunNamedTest("ldelem.cs");
 
         [Test]
-        public void RunLdfldaTest()
-        {
-            CompileOptimizeAndRunNamedTest("ldflda.cs");
-        }
+        public void RunLdfldaTest() => CompileOptimizeAndRunNamedTest("ldflda.cs");
 
         [Test]
-        public void RunLdindI4Test()
-        {
-            CompileOptimizeAndRunNamedTest("ldind-i4.cs");
-        }
+        public void RunLdindI4Test() => CompileOptimizeAndRunNamedTest("ldind-i4.cs");
 
         [Test]
-        public void RunLdlenTest()
-        {
-            CompileOptimizeAndRunNamedTest("ldlen.cs");
-        }
+        public void RunLdlenTest() => CompileOptimizeAndRunNamedTest("ldlen.cs");
 
         [Test]
-        public void RunLdsfldStsfldTest()
-        {
-            CompileOptimizeAndRunNamedTest("ldsfld-stsfld.cs");
-        }
+        public void RunLdsfldStsfldTest() => CompileOptimizeAndRunNamedTest("ldsfld-stsfld.cs");
 
         [Test]
-        public void RunLinqSelectTest()
-        {
-            CompileOptimizeAndRunNamedTest("linq-select.cs");
-        }
+        public void RunLinqSelectTest() => CompileOptimizeAndRunNamedTest("linq-select.cs");
 
         [Test]
-        public void RunLinqToarrayTest()
-        {
-            CompileOptimizeAndRunNamedTest("linq-toarray.cs");
-        }
+        public void RunLinqToarrayTest() => CompileOptimizeAndRunNamedTest("linq-toarray.cs");
 
         [Test]
-        public void RunLinqWhereTest()
-        {
-            CompileOptimizeAndRunNamedTest("linq-where.cs");
-        }
+        public void RunLinqWhereTest() => CompileOptimizeAndRunNamedTest("linq-where.cs");
 
         [Test]
-        public void RunMergeSortTest()
-        {
-            CompileOptimizeAndRunNamedTest("merge-sort.cs");
-        }
+        public void RunMergeSortTest() => CompileOptimizeAndRunNamedTest("merge-sort.cs");
 
         [Test]
-        public void RunNewDelegateTest()
-        {
-            CompileOptimizeAndRunNamedTest("new-delegate.cs");
-        }
+        public void RunNewDelegateTest() => CompileOptimizeAndRunNamedTest("new-delegate.cs");
 
         [Test]
-        public void RunNewarrTest()
-        {
-            CompileOptimizeAndRunNamedTest("newarr.cs");
-        }
+        public void RunNewarrTest() => CompileOptimizeAndRunNamedTest("newarr.cs");
 
         [Test]
-        public void RunNewobjTest()
-        {
-            CompileOptimizeAndRunNamedTest("newobj.cs");
-        }
+        public void RunNewobjTest() => CompileOptimizeAndRunNamedTest("newobj.cs");
 
         [Test]
-        public void RunPartialScalarReplTest()
-        {
-            CompileOptimizeAndRunNamedTest("partial-scalarrepl.cs");
-        }
+        public void RunPartialScalarReplTest() => CompileOptimizeAndRunNamedTest("partial-scalarrepl.cs");
 
         [Test]
-        public void RunPointAddTest()
-        {
-            CompileOptimizeAndRunNamedTest("point-add.cs");
-        }
+        public void RunPointAddTest() => CompileOptimizeAndRunNamedTest("point-add.cs");
 
         [Test]
-        public void RunPointTest()
-        {
-            CompileOptimizeAndRunNamedTest("point.cs");
-        }
+        public void RunPointTest() => CompileOptimizeAndRunNamedTest("point.cs");
 
         [Test]
-        public void RunRaytraceDotTest()
-        {
-            CompileOptimizeAndRunNamedTest("raytrace-dot.cs");
-        }
+        public void RunRaytraceDotTest() => CompileOptimizeAndRunNamedTest("raytrace-dot.cs");
 
         [Test]
-        public void RunRaytraceIntersectTest()
-        {
-            CompileOptimizeAndRunNamedTest("raytrace-intersect.cs");
-        }
+        public void RunRaytraceIntersectTest() => CompileOptimizeAndRunNamedTest("raytrace-intersect.cs");
 
         [Test]
-        public void RunRaytraceReorderCodegenTest()
-        {
-            CompileOptimizeAndRunNamedTest("raytrace-reorder-codegen.cs");
-        }
+        public void RunRaytraceReorderCodegenTest() => CompileOptimizeAndRunNamedTest("raytrace-reorder-codegen.cs");
 
         [Test]
-        public void RunRaytraceTest()
-        {
-            CompileOptimizeAndRunNamedTest("raytrace.cs");
-        }
+        public void RunRaytraceTest() => CompileOptimizeAndRunNamedTest("raytrace.cs");
 
         [Test]
-        public void RunReordering2Test()
-        {
-            CompileOptimizeAndRunNamedTest("reordering-2.cs");
-        }
+        public void RunReordering2Test() => CompileOptimizeAndRunNamedTest("reordering-2.cs");
 
         [Test]
-        public void RunReorderingTest()
-        {
-            CompileOptimizeAndRunNamedTest("reordering.cs");
-        }
+        public void RunReorderingTest() => CompileOptimizeAndRunNamedTest("reordering.cs");
 
         [Test]
-        public void RunScalarReplTest()
-        {
-            CompileOptimizeAndRunNamedTest("scalarrepl.cs");
-        }
+        public void RunScalarReplTest() => CompileOptimizeAndRunNamedTest("scalarrepl.cs");
 
         [Test]
-        public void RunSizeofTest()
-        {
-            CompileOptimizeAndRunNamedTest("sizeof.cs");
-        }
+        public void RunSizeofTest() => CompileOptimizeAndRunNamedTest("sizeof.cs");
 
         [Test]
-        public void RunStackallocTest()
-        {
-            CompileOptimizeAndRunNamedTest("stackalloc.cs");
-        }
+        public void RunStackallocTest() => CompileOptimizeAndRunNamedTest("stackalloc.cs");
 
         [Test]
-        public void RunStelemTest()
-        {
-            CompileOptimizeAndRunNamedTest("stelem.cs");
-        }
+        public void RunStelemTest() => CompileOptimizeAndRunNamedTest("stelem.cs");
 
         [Test]
-        public void RunStringConcatTest()
-        {
-            CompileOptimizeAndRunNamedTest("string-concat.cs");
-        }
+        public void RunStringConcatTest() => CompileOptimizeAndRunNamedTest("string-concat.cs");
 
         [Test]
-        public void RunStructFieldsTest()
-        {
-            CompileOptimizeAndRunNamedTest("struct-fields.cs");
-        }
+        public void RunStructFieldsTest() => CompileOptimizeAndRunNamedTest("struct-fields.cs");
 
         [Test]
-        public void RunStructNewobjTest()
-        {
-            CompileOptimizeAndRunNamedTest("struct-newobj.cs");
-        }
+        public void RunStructNewobjTest() => CompileOptimizeAndRunNamedTest("struct-newobj.cs");
 
         [Test]
-        public void RunStructNewobj2Test()
-        {
-            CompileOptimizeAndRunNamedTest("struct-newobj2.cs");
-        }
+        public void RunStructNewobj2Test() => CompileOptimizeAndRunNamedTest("struct-newobj2.cs");
 
         [Test]
-        public void RunTernaryImplicitCastTest()
-        {
-            CompileOptimizeAndRunNamedTest("ternary-implicit-cast.cs");
-        }
+        public void RunTernaryImplicitCastTest() => CompileOptimizeAndRunNamedTest("ternary-implicit-cast.cs");
 
         [Test]
-        public void RunTernaryTest()
-        {
-            CompileOptimizeAndRunNamedTest("ternary.cs");
-        }
+        public void RunTernaryTest() => CompileOptimizeAndRunNamedTest("ternary.cs");
 
         [Test]
-        public void RunTryCatchRethrowTest()
-        {
-            CompileOptimizeAndRunNamedTest("try-catch-rethrow.cs");
-        }
+        public void RunTryCatchRethrowTest() => CompileOptimizeAndRunNamedTest("try-catch-rethrow.cs");
 
         [Test]
-        public void RunTryCatchTest()
-        {
-            CompileOptimizeAndRunNamedTest("try-catch.cs");
-        }
+        public void RunTryCatchTest() => CompileOptimizeAndRunNamedTest("try-catch.cs");
 
         [Test]
-        public void RunTryFinallyTest()
-        {
-            CompileOptimizeAndRunNamedTest("try-finally.cs");
-        }
+        public void RunTryFinallyTest() => CompileOptimizeAndRunNamedTest("try-finally.cs");
 
         [Test]
-        public void RunTypeofTest()
-        {
-            CompileOptimizeAndRunNamedTest("typeof.cs");
-        }
+        public void RunTypeofTest() => CompileOptimizeAndRunNamedTest("typeof.cs");
 
         [Test]
-        public void RunUnaryTest()
-        {
-            CompileOptimizeAndRunNamedTest("unary.cs");
-        }
+        public void RunUnaryTest() => CompileOptimizeAndRunNamedTest("unary.cs");
 
         [Test]
-        public void RunUnboxAnyTest()
-        {
-            CompileOptimizeAndRunNamedTest("unbox-any.cs");
-        }
+        public void RunUnboxAnyTest() => CompileOptimizeAndRunNamedTest("unbox-any.cs");
 
         [Test]
-        public void RunVolatileTest()
-        {
-            CompileOptimizeAndRunNamedTest("volatile.cs");
-        }
+        public void RunVolatileTest() => CompileOptimizeAndRunNamedTest("volatile.cs");
 
         [Test]
-        public void RunYieldReturnTest()
-        {
-            CompileOptimizeAndRunNamedTest("yield-return.cs");
-        }
+        public void RunYieldReturnTest() => CompileOptimizeAndRunNamedTest("yield-return.cs");
 
         /// <summary>
         /// Compiles, optimizes, and runs the named ILOpt test file, both with and
