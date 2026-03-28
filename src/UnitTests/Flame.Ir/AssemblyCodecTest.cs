@@ -8,7 +8,7 @@ using Flame.Compiler.Instructions;
 using Flame.Ir;
 using Flame.TypeSystem;
 using Loyc;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -18,9 +18,9 @@ namespace UnitTests.Flame.Ir
     [TestFixture]
     public class AssemblyCodecTest
     {
-        public AssemblyCodecTest(ILog log)
+        public AssemblyCodecTest()
         {
-            this.log = log;
+            this.log = TestUtils.CreateTestLog();
             this.decoder = new DecoderState(log, new TypeResolver().ReadOnlyView);
             this.encoder = new EncoderState();
         }

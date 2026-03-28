@@ -4,12 +4,13 @@ using Flame.Compiler;
 using Flame.Constants;
 using Flame.TypeSystem;
 using LLVMSharp.Interop;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using UnitTests.Flame.Clr;
 
 namespace UnitTests.Flame.Llvm
 {
     [TestFixture]
+    [Category("LLVM")]
     public sealed class LlvmControlFlowTests
     {
         [Test]

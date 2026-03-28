@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Loyc;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame;
 using Flame.Collections;
 

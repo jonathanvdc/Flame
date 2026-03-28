@@ -4,7 +4,7 @@ using Flame.Constants;
 using Flame.Ir;
 using Flame.TypeSystem;
 using Loyc;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -14,9 +14,9 @@ namespace UnitTests.Flame.Ir
     [TestFixture]
     public class PiecewiseCodecTest
     {
-        public PiecewiseCodecTest(ILog log)
+        public PiecewiseCodecTest()
         {
-            this.log = log;
+            this.log = TestUtils.CreateTestLog();
         }
 
         private ILog log;

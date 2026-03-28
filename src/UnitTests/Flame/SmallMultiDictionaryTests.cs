@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame.Collections;
 using System.Collections.Generic;
 

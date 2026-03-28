@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using Loyc.MiniTest;
+using NUnit.Framework;
 
 namespace UnitTests
 {
     [TestFixture]
+    [Category("LLVM")]
     public sealed class IL2LLVMTests
     {
         [Test]
@@ -190,7 +191,7 @@ namespace UnitTests
         {
             if (compilerName == null)
             {
-                compilerName = Program.parsedOptions.GetValue<string>(Options.ClangPath);
+                compilerName = Environment.GetEnvironmentVariable("CLANG_PATH") ?? "clang";
             }
 
             string stdout, stderr;

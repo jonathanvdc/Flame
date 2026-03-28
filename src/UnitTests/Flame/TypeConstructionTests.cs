@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using Flame;
 using Flame.TypeSystem;
-using Loyc.MiniTest;
+using NUnit.Framework;
 
 namespace UnitTests
 {
     [TestFixture]
     public class TypeConstructionTests
     {
-        public TypeConstructionTests(Random rng)
+        public TypeConstructionTests()
         {
-            this.rng = rng;
             this.simpleType = new DescribedType(new SimpleName("A").Qualify(), null);
             this.genericType = new DescribedType(new SimpleName("B", 3).Qualify(), null);
             this.genericType.AddGenericParameter(
@@ -24,7 +23,7 @@ namespace UnitTests
             this.genericType.AddNestedType(this.nestedGenericType);
         }
 
-        private Random rng;
+        private Random rng = new Random();
 
         private DescribedType simpleType;
         private DescribedType genericType;

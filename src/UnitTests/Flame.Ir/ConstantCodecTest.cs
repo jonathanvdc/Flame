@@ -3,7 +3,7 @@ using Flame;
 using Flame.Constants;
 using Flame.Ir;
 using Flame.TypeSystem;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -13,11 +13,11 @@ namespace UnitTests.Flame.Ir
     [TestFixture]
     public class ConstantCodecTest
     {
-        public ConstantCodecTest(ILog log, Random rng)
+        public ConstantCodecTest()
         {
             this.testAssembly = new TestAssemblyContainer();
-            this.log = log;
-            this.rng = rng;
+            this.log = TestUtils.CreateTestLog();
+            this.rng = new Random();
             this.decoder = new DecoderState(log, testAssembly.CreateResolver().ReadOnlyView);
             this.encoder = new EncoderState();
         }

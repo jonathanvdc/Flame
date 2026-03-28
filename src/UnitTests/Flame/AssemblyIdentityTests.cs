@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Flame;
 using Flame.Collections;
 using Loyc;
@@ -13,12 +13,7 @@ namespace UnitTests
     [TestFixture]
     public class AssemblyIdentityTests
     {
-        public AssemblyIdentityTests(Random rng)
-        {
-            this.rng = rng;
-        }
-
-        private Random rng;
+        private Random rng = new Random();
 
         [Test]
         public void Equality()

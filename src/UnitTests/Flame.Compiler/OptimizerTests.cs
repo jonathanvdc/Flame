@@ -10,7 +10,7 @@ using Flame.Compiler.Pipeline;
 using Flame.Compiler.Transforms;
 using Flame.Ir;
 using Flame.TypeSystem;
-using Loyc.MiniTest;
+using NUnit.Framework;
 using Loyc.Syntax;
 using Loyc.Syntax.Les;
 using Pixie;
@@ -20,9 +20,9 @@ namespace UnitTests.Flame.Compiler
     [TestFixture]
     public class OptimizerTests
     {
-        public OptimizerTests(ILog log)
+        public OptimizerTests()
         {
-            this.log = log;
+            this.log = TestUtils.CreateTestLog();
             this.decoder = new DecoderState(log, new TypeResolver().ReadOnlyView);
         }
 

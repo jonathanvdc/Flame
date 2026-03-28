@@ -53,10 +53,10 @@ $ make -C src debug
 
 ## Test
 
-The main test entrypoint is the portable suite:
+The main test entrypoint is the portable suite, which excludes LLVM-dependent tests:
 
 ```console
-$ dotnet src/UnitTests/bin/Debug/net10.0/UnitTests.dll portable
+$ dotnet test src/UnitTests/UnitTests.csproj -c Debug --filter "TestCategory!=LLVM"
 ```
 
 The `make` wrapper runs the same suite:
@@ -65,27 +65,21 @@ The `make` wrapper runs the same suite:
 $ make -C src test
 ```
 
-The LLVM-specific tests are separate:
+The LLVM-specific tests are separate and require LLVM/Clang to be installed:
 
 ```console
 $ make -C src test-llvm
 ```
 
-That target now publishes the LLVM test runner for the current runtime identifier so the NuGet-provided `libLLVM` native library is restored and copied automatically. You do not need a system `libLLVM` install for the test runner itself.
-
-The current `tool-tests/IL2LLVM` samples use Linux `libc.so.6` imports. On non-Linux hosts, the LLVM tool test runner skips those samples instead of failing; CI still exercises them on Linux.
-
-If you want to run the LLVM tests manually, publish the test project for your platform and run the published app:
+To run the LLVM tests manually, specify the runtime identifier for your platform and set `CLANG_PATH` to the Clang executable:
 
 ```console
-$ dotnet publish src/UnitTests/UnitTests.csproj -c Debug -r osx-arm64 --self-contained false
-$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 5
-$ dotnet src/UnitTests/bin/Debug/net10.0/osx-arm64/publish/UnitTests.dll 7 --clang-path clang
+$ CLANG_PATH=clang dotnet test src/UnitTests/UnitTests.csproj -c Debug -r osx-arm64 --filter "TestCategory=LLVM"
 ```
 
-Test set `5` runs the direct `Flame.Llvm` unit tests. Test set `7` runs the `IL2LLVM` tool tests.
-
 Common runtime identifiers are `linux-x64`, `linux-arm64`, `osx-arm64`, `win-x64`, and `win-arm64`.
+
+The current `tool-tests/IL2LLVM` samples use Linux `libc.so.6` imports. On non-Linux hosts, the LLVM tool tests skip those samples instead of failing; CI still exercises them on Linux.
 
 ## Tools
 
@@ -124,6 +118,5 @@ The CI workflow:
 
 - restores `src/Flame.sln`
 - builds the solution in `Debug`
-- runs the portable test suite
-- publishes the LLVM test runner for `linux-x64`
-- runs the LLVM backend test suite from the published output so the NuGet-provided native LLVM runtime is used
+- runs the portable test suite via `dotnet test --filter "TestCategory!=LLVM"`
+- runs the LLVM backend test suite via `dotnet test -r linux-x64 --filter "TestCategory=LLVM"` with `CLANG_PATH` set to `clang-20`
